@@ -1,4 +1,7 @@
 # Telemetry for backend
+The OAP backend cluster itself is a distributed streaming process system. To assist the Ops team,
+we provide the telemetry for the OAP backend itself. 
+
 By default, the telemetry is disabled by setting `selector` to `none`, like this
 
 ```yaml

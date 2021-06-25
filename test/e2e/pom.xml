@@ -65,7 +65,7 @@
         <guava.version>28.2-jre</guava.version>
         <h2.version>1.4.199</h2.version>
         <mysql.version>8.0.13</mysql.version>
-        <lombok.version>1.18.16</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
         <kafka-clients.version>2.4.1</kafka-clients.version>
         <jacoco.version>0.8.6</jacoco.version>
 

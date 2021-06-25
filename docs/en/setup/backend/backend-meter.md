@@ -1,7 +1,7 @@
-# Meter Receiver
-Meter receiver is accepting the metrics of [meter protocol](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Meter.proto) format into the [Meter System](./../../concepts-and-designs/meter.md).
+# Meter receiver
+The meter receiver accepts the metrics of [meter protocol](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Meter.proto) into the [meter system](./../../concepts-and-designs/meter.md).
 
-## Module define
+## Module definition
 ```yaml
 receiver-meter:
   selector: ${SW_RECEIVER_METER:default}
@@ -9,7 +9,7 @@ receiver-meter:
 
 ```
 
-In Kafka Fetcher, we need to follow the configuration to enable it.  
+In Kafka Fetcher, follow these configurations to enable it.  
 ```yaml
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
@@ -19,18 +19,22 @@ kafka-fetcher:
 ```
 
 ## Configuration file
-Meter receiver is configured via a configuration file. The configuration file defines everything related to receiving 
+The meter receiver is configured via a configuration file. The configuration file defines everything related to receiving 
  from agents, as well as which rule files to load.
  
-OAP can load the configuration at bootstrap. If the new configuration is not well-formed, OAP fails to start up. The files
+The OAP can load the configuration at bootstrap. If the new configuration is not well-formed, the OAP may fail to start up. The files
 are located at `$CLASSPATH/meter-analyzer-config`.
 
 The file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
 
 An example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
-If you're using Spring sleuth, you could use [Spring Sleuth Setup](spring-sleuth-setup.md).
+If you're using Spring Sleuth, see [Spring Sleuth Setup](spring-sleuth-setup.md).
 
-### Meters configure
+| Rule Name | Description | Configuration File | Data Source |
+|-----|-----|-----|-----|
+|spring-sleuth| Metrics of Spring Sleuth Application | meter-analyzer-config/spring-sleuth.yaml | Sprign Sleuth Application --meter format--> SkyWalking OAP Server |
+
+### Meters configuration
 
 ```yaml
 # expSuffix is appended to all expression in this file.
@@ -45,10 +49,10 @@ metricsRules:
   exp: <string>
 ```
 
-More about MAL, please refer to [mal.md](../../concepts-and-designs/mal.md)
+For more information on MAL, please refer to [mal.md](../../concepts-and-designs/mal.md)
 
-#### About rate, irate, increase
+#### `rate`, `irate`, and `increase`
 
-Even we supported `rate`, `irate`, `increase` function in the backend, but we still recommend user to consider using client-side APIs to do these. Because
-1. The OAP has to set up caches to calculate the value.
-1. Once the agent reconnected to another OAP instance, the time windows of rate calculation will break. Then, the result would not be accurate.
+Although we support the `rate`, `irate`, `increase` functions in the backend, we still recommend users to consider using client-side APIs to run these functions. The reasons are as follows:
+1. The OAP has to set up caches to calculate the values.
+1. Once the agent reconnects to another OAP instance, the time windows of rate calculation break. This leads to inaccurate results.

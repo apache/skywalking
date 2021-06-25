@@ -21,14 +21,19 @@ on:
   schedule:
     - cron: '0 18 * * *'
 
+concurrency:
+  group: e2e-jdk-versions-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   JavaVersions:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Agent Java Versions
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       matrix:
-        jdk: [8, 9, 10, 11, 12, 13, 14, 15]
+        jdk: [8, 9, 10, 11, 12, 13, 14, 15, 16]
     env:
       SW_SIMPLE_CASE: jdk
       SW_AGENT_JDK_VERSION: ${{ matrix.jdk }}
@@ -60,6 +65,7 @@ jobs:
           test_class: org.apache.skywalking.e2e.simple.SimpleE2E
 
   Single:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     needs: [JavaVersions]

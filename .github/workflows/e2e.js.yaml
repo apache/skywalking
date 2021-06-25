@@ -27,8 +27,13 @@ on:
 env:
   SW_AGENT_JDK_VERSION: 8
 
+concurrency:
+  group: e2e-js-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   JavaScriptClient:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Java Script Client
     runs-on: ubuntu-latest
     strategy:
@@ -56,6 +61,7 @@ jobs:
         with:
           test_class: org.apache.skywalking.e2e.browser.BrowserE2E
   JavaScriptClientWithRealAgent:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Java Script Client With Real Agent
     runs-on: ubuntu-latest
     steps:

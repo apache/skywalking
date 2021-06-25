@@ -24,8 +24,13 @@ on:
 env:
   SW_AGENT_JDK_VERSION: 8
 
+concurrency:
+  group: e2e-cluster-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   CoordinatorsStorage:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Coordinators & Storage
     timeout-minutes: 90
     runs-on: ubuntu-latest
@@ -57,6 +62,7 @@ jobs:
           test_class: org.apache.skywalking.e2e.ClusterE2E
 
   Cluster:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     needs: [CoordinatorsStorage]

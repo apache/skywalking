@@ -73,6 +73,12 @@ public class JettyServer implements Server {
         LOGGER.info("http server root context path: {}", jettyServerConfig.getContextPath());
 
         server.setHandler(servletContextHandler);
+
+        JettyDefaultHandler defaultHandler = new JettyDefaultHandler();
+        ServletHolder defaultHolder = new ServletHolder();
+        defaultHolder.setServlet(defaultHandler);
+
+        servletContextHandler.addServlet(defaultHolder, defaultHandler.pathSpec());
     }
 
     public void addHandler(JettyHandler handler) {
@@ -133,4 +139,5 @@ public class JettyServer implements Server {
     public int hashCode() {
         return Objects.hash(jettyServerConfig.getHost(), jettyServerConfig.getPort());
     }
+
 }

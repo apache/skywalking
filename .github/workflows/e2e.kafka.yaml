@@ -28,8 +28,13 @@ env:
   SW_AGENT_JDK_VERSION: 8
   SW_STORAGE: influxdb
 
+concurrency:
+  group: e2e-kafka-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   Kafka:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Kafka (${{ matrix.case.name }})
     runs-on: ubuntu-latest
     timeout-minutes: 90

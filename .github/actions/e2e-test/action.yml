@@ -79,5 +79,5 @@ runs:
         CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
       run: |
         echo "::group::Uploading Code Coverage"
-        bash -x tools/coverage/report.sh
+        bash -x tools/coverage/report.sh || true
         echo "::endgroup::"

@@ -2,83 +2,58 @@ Changes by Version
 ==================
 Release Notes.
 
-8.6.0
+8.7.0
 ------------------
 #### Project
-* Add OpenSearch as storage option.
-* Upgrade Kubernetes Java client dependency to 11.0.
-* Fix plugin test script error in macOS.
+* Extract dependency management to a bom.
+* Add JDK 16 to test matrix.
 
 #### Java Agent
-* Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
-* Improve `GlobalIdGenerator` performance.
-* Add an agent plugin to support elasticsearch7.
-* Add `jsonrpc4j` agent plugin.
-* new options to support multi skywalking cluster use same kafka cluster(plugin.kafka.namespace)
-* resolve agent has no retries if connect kafka cluster failed when bootstrap
-* Add Seata in the component definition. Seata plugin hosts on Seata project.
-* Extended Kafka plugin to properly trace consumers that have topic partitions directly assigned.
-* Support Kafka consumer 2.8.0.
-* Support print SkyWalking context to logs.
-* Add `MessageListener` enhancement in pulsar plugin.
-* fix a bug that spring-mvc set an error endpoint name if the controller class annotation implements an interface.
-* Add an optional agent plugin to support mybatis.
-* Add `spring-cloud-gateway-3.x` optional plugin.
-* Add `okhttp-4.x` plugin.
-* Fix NPE when thrift field is nested in plugin `thrift`
-* Fix possible NullPointerException in agent's ES plugin.
-* Fix the conversion problem of float type in ConfigInitializer.
-* Fixed part of the dynamic configuration of ConfigurationDiscoveryService that does not take effect under certain circumstances.
-* Introduce method interceptor API v2
-* Fix ClassCast issue for RequestHolder/ResponseHolder.
-* fixed `jdk-threading-plugin` memory leak.
-* Optimize multiple field reflection opeartion in Fiegn plugin.
+* Supports modifying span attributes in async mode.
+* Agent supports the collection of JVM arguments and jar dependency information.
+* [Temporary] Support authentication for log report channel. This feature and grpc channel is going to be removed after Satellite 0.2.0 release.
+* Remove deprecated gRPC method, `io.grpc.ManagedChannelBuilder#nameResolverFactory`. See [gRPC-java 7133](https://github.com/grpc/grpc-java/issues/7133) for more details.
+* Add `Neo4j-4.x` plugin.
+* Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
 
 #### OAP-Backend
-* BugFix: filter invalid Envoy access logs whose socket address is empty.
-* Fix K8s monitoring the incorrect metrics calculate. 
-* Loop alarm into event system.
-* Support alarm tags.
-* Support WeLink as a channel of alarm notification.
-* Fix: Some defensive codes didn't work in `PercentileFunction combine`.
-* CVE: fix Jetty vulnerability. https://nvd.nist.gov/vuln/detail/CVE-2019-17638
-* Fix: MAL function would miss samples name after creating new samples.
-* perf: use iterator.remove() to remove modulesWithoutProvider
-* Support analyzing Envoy TCP access logs and persist error TCP logs.
-* Fix: Envoy error logs are not persisted when no metrics are generated
-* Fix: Memory leakage of low version etcd client. [fix-issue](https://github.com/jurmous/etcd4j/pull/185)
-* Allow multiple definitions as fallback in metadata-service-mapping.yaml file and `k8sServiceNameRule`.
-* Fix: NPE when configmap has no data.
-* Fix: Dynamic Configuration key `slowTraceSegmentThreshold` not work
-* Fix: `!=` is not supported in oal when parameters are numbers.
-* Include events of the entity(s) in the alarm.
-* Support `native-json` format log in kafka-fetcher-plugin.
-* Fix counter misuse in the alarm core. Alarm can't be triggered in time.
-* Events can be configured as alarm source.
-* Make the number of core worker in meter converter thread pool configurable.
-* Add HTTP implementation of logs reporting protocol.
+* Disable Spring sleuth meter analyzer by default.
+* Use MAL to calculate JVM metrics, remove OAL dependency.
+* Only count 5xx as error in Envoy ALS receiver.
+* Upgrade apollo core caused by CVE-2020-15170.
+* Upgrade kubernetes client caused by CVE-2020-28052.
+* Upgrade Elasticsearch 7 client caused by CVE-2020-7014.
+* Upgrade jackson related libs caused by CVE-2018-11307, CVE-2018-14718 ~ CVE-2018-14721, CVE-2018-19360 ~ CVE-2018-19362,
+   CVE-2019-14379, CVE-2019-14540, CVE-2019-14892, CVE-2019-14893, CVE-2019-16335, CVE-2019-16942, CVE-2019-16943,
+   CVE-2019-17267, CVE-2019-17531, CVE-2019-20330, CVE-2020-8840, CVE-2020-9546, CVE-2020-9547, CVE-2020-9548,
+   CVE-2018-12022, CVE-2018-12023, CVE-2019-12086, CVE-2019-14439, CVE-2020-10672, CVE-2020-10673, CVE-2020-10968,
+   CVE-2020-10969, CVE-2020-11111, CVE-2020-11112, CVE-2020-11113, CVE-2020-11619, CVE-2020-11620, CVE-2020-14060,
+   CVE-2020-14061, CVE-2020-14062, CVE-2020-14195, CVE-2020-24616, CVE-2020-24750, CVE-2020-25649, CVE-2020-35490,
+   CVE-2020-35491, CVE-2020-35728 and CVE-2020-36179 ~ CVE-2020-36190.
+* Exclude log4j 1.x caused by CVE-2019-17571.
+* Upgrade log4j 2.x caused by CVE-2020-9488.
+* Upgrade nacos libs caused by CVE-2021-29441 and CVE-2021-29442.
+* Upgrade netty caused by CVE-2019-20444, CVE-2019-20445, CVE-2019-16869, CVE-2020-11612, CVE-2021-21290, CVE-2021-21295 
+   and CVE-2021-21409.
+* Upgrade consul client caused by CVE-2018-1000844, CVE-2018-1000850.
+* Upgrade zookeeper caused by CVE-2019-0201. 
+* Upgrade snake yaml caused by CVE-2017-18640.
+* Upgrade embed tomcat caused by CVE-2020-13935.
+* Upgrade commons-lang3 to avoid potential NPE in some JDK versions.
+* OAL supports generating metrics from events.
+* Support endpoint name grouping by OpenAPI definitions.
+* Fix CounterWindow increase computing issue.
 
 #### UI
-* Add logo for kong plugin.
-* Add apisix logo.
-* Refactor js to ts for browser logs and style change.
-* When creating service groups in the topology, it is better if the service names are sorted.
-* Add tooltip for dashboard component.
-* Fix style of endpoint dependency.
-* Support search and visualize alarms with tags.
-* Fix configurations on dashboard.
-* Support to configure the maximum number of displayed items.
-* After changing the durationTime, the topology shows the originally selected group or service.
-* remove the no use maxItemNum for labeled-value metric, etc.
-* Add Azure Functions logo.
-* Support search Endpoint use keyword params in trace view.
+* Fix the date component for log conditions.
+* Fix selector keys for duplicate options.
+* Add Python celery plugin.
+* Fix default config for metrics.
 
 #### Documentation
-* Polish k8s monitoring otel-collector configuration example.
-* Print SkyWalking context to logs configuration example.
-* Update doc about metrics v2 APIs.
 
-All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/84?closed=1)
+
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/90?closed=1)
 
 ------------------
 Find change logs of all versions [here](changes).

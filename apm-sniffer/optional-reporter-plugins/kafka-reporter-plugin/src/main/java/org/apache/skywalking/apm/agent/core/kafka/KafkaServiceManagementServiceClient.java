@@ -33,6 +33,7 @@ import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.jvm.LoadedLibraryCollector;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
@@ -101,6 +102,7 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
                                                             .addAllProperties(OSUtil.buildOSInfo(
                                                                 Config.OsInfo.IPV4_LIST_SIZE))
                                                             .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
+                                                            .addAllProperties(LoadedLibraryCollector.buildJVMInfo())
                                                             .build();
             producer.send(new ProducerRecord<>(topic, TOPIC_KEY_REGISTER + instance.getServiceInstance(),
                                                Bytes.wrap(instance.toByteArray())

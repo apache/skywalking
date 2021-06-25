@@ -20,11 +20,15 @@
     <parent>
         <artifactId>server-cluster-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.6.0-SNAPSHOT</version>
+        <version>8.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>cluster-nacos-plugin</artifactId>
+
+    <properties>
+        <test.nacos.version>1.4.2</test.nacos.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -84,7 +88,7 @@
                             <imagePullPolicy>IfNotPresent</imagePullPolicy>
                             <images>
                                 <image>
-                                    <name>nacos/nacos-server:${nacos.version}</name>
+                                    <name>nacos/nacos-server:${test.nacos.version}</name>
                                     <alias>cluster-nacos-plugin-integration-test-nacos</alias>
                                     <run>
                                         <env>

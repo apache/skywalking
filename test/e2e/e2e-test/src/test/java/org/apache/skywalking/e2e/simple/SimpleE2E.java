@@ -246,11 +246,11 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
 
                 LOGGER.info("instance jvm metrics: {}", instanceJVMMetrics);
 
-                final AtLeastOneOfMetricsMatcher instanceThreadMatcher = new AtLeastOneOfMetricsMatcher();
+                final AtLeastOneOfMetricsMatcher instanceMatcher = new AtLeastOneOfMetricsMatcher();
                 final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                 greaterThanZero.setValue("gt 0");
-                instanceThreadMatcher.setValue(greaterThanZero);
-                instanceThreadMatcher.verify(instanceJVMMetrics);
+                instanceMatcher.setValue(greaterThanZero);
+                instanceMatcher.verify(instanceJVMMetrics);
                 LOGGER.info("{}: {}", metricsName, instanceJVMMetrics);
             }
         }

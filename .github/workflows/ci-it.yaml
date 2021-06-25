@@ -25,8 +25,13 @@ env:
   MAVEN_OPTS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit
   CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
 
+concurrency:
+  group: ci-it-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   CI:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -65,6 +70,7 @@ jobs:
         run: tools/dependencies/check-LICENSE.sh
 
   CI-on-JDK11:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -93,6 +99,7 @@ jobs:
         run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
 
   CI-on-Windows:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: windows-latest
     timeout-minutes: 90
     steps:
@@ -107,10 +114,12 @@ jobs:
           java-version: 8
       - name: 'Install & Test'
         if: env.SKIP_CI != 'true'
-        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+        run: |
+          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
 
 
   CI-on-MacOS:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: macos-latest
     timeout-minutes: 90
     steps:

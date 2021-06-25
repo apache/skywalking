@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -209,16 +208,23 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     /**
      * Load data from the storage, if {@link #enableDatabaseSession} == true, only load data when the id doesn't exist.
      */
-    private void loadFromStorage(List<Metrics> metrics) throws IOException {
-        if (!enableDatabaseSession) {
-            context.clear();
-        }
+    private void loadFromStorage(List<Metrics> metrics) {
+        try {
+            List<Metrics> noInCacheMetrics = metrics.stream()
+                                                    .filter(m -> !context.containsKey(m) || !enableDatabaseSession)
+                                                    .collect(Collectors.toList());
+            if (noInCacheMetrics.isEmpty()) {
+                return;
+            }
 
-        List<Metrics> noInCacheMetrics = metrics.stream()
-                                                .filter(m -> !context.containsKey(m))
-                                                .collect(Collectors.toList());
-        if (!noInCacheMetrics.isEmpty()) {
-            metricsDAO.multiGet(model, noInCacheMetrics).forEach(m -> context.put(m, m));
+            final List<Metrics> dbMetrics = metricsDAO.multiGet(model, noInCacheMetrics);
+            if (!enableDatabaseSession) {
+                // Clear the cache only after results from DB are returned successfully.
+                context.clear();
+            }
+            dbMetrics.forEach(m -> context.put(m, m));
+        } catch (final Exception e) {
+            log.error("Failed to load metrics for merging", e);
         }
     }
 

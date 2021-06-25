@@ -24,8 +24,13 @@ on:
   schedule:
     - cron: '0 18 * * *'
 
+concurrency:
+  group: e2e-php-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   PHPAgent:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: PHP
     runs-on: ubuntu-latest
     timeout-minutes: 90

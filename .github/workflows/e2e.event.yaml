@@ -24,11 +24,16 @@ on:
   schedule:
     - cron: '0 18 * * *'
 
+concurrency:
+  group: e2e-event-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   SKIP_TEST: true
 
 jobs:
   Event:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Event
     runs-on: ubuntu-latest
     strategy:

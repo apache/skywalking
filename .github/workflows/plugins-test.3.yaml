@@ -34,6 +34,10 @@ on:
       - '!oap-server/**'
       - '!**.md'
 
+concurrency:
+  group: plugins-3-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   PluginsTest:
     name: Plugin
@@ -73,6 +77,7 @@ jobs:
           - dbcp-2.x-scenario
           - jsonrpc4j-1.x-scenario
           - gateway-3.x-scenario
+          - neo4j-4.x-scenario
     steps:
       - uses: actions/checkout@v2
         with:

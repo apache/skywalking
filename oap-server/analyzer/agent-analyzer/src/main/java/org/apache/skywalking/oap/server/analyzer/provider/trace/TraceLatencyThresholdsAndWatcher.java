@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
@@ -31,11 +31,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
  */
 @Slf4j
 public class TraceLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
-    private AtomicReference<Integer> slowTraceSegmentThreshold;
+    private AtomicInteger slowTraceSegmentThreshold;
 
     public TraceLatencyThresholdsAndWatcher(ModuleProvider provider) {
         super(AnalyzerModule.NAME, provider, "slowTraceSegmentThreshold");
-        slowTraceSegmentThreshold = new AtomicReference<>();
+        slowTraceSegmentThreshold = new AtomicInteger();
         slowTraceSegmentThreshold.set(getDefaultValue());
     }
 

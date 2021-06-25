@@ -27,8 +27,13 @@ on:
 env:
   SW_AGENT_JDK_VERSION: 8
 
+concurrency:
+  group: e2e-go-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   GOAgent:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: GO2SKY
     runs-on: ubuntu-latest
     timeout-minutes: 90

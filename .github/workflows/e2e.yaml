@@ -28,8 +28,13 @@ on:
 env:
   SW_AGENT_JDK_VERSION: 8
 
+concurrency:
+  group: e2e-features-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   FeatureGroup01:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Feature
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -59,6 +64,7 @@ jobs:
           test_class: org.apache.skywalking.e2e.simple.SimpleE2E
 
   FeatureGroup02:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: ${{ matrix.case.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 90

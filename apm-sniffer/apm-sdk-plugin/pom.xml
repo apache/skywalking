@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>8.6.0-SNAPSHOT</version>
+        <version>8.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -112,6 +112,7 @@
         <module>mssql-jdbc-plugin</module>
         <module>cxf-3.x-plugin</module>
         <module>jsonrpc4j-1.x-plugin</module>
+        <module>neo4j-4.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

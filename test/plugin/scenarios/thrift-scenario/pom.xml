@@ -32,7 +32,7 @@
         <compiler.version>1.8</compiler.version>
         <test.framework.version>0.12.0</test.framework.version>
         <spring-boot-version>2.1.6.RELEASE</spring-boot-version>
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
         <thrift.version>${test.framework.version}</thrift.version>
     </properties>
 

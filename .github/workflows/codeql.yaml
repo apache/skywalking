@@ -24,8 +24,13 @@ on:
   schedule:
     - cron: '28 3 * * *'
 
+concurrency:
+  group: codeql-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   analyze:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Analyze
     runs-on: ubuntu-latest
 
