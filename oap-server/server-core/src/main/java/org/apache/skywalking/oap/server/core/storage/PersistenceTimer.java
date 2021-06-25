@@ -49,7 +49,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 public enum PersistenceTimer {
     INSTANCE;
     @VisibleForTesting
-    private boolean isStarted = false;
+    boolean isStarted = false;
     private final Boolean debug;
     private CounterMetrics errorCounter;
     private HistogramMetrics prepareLatency;
