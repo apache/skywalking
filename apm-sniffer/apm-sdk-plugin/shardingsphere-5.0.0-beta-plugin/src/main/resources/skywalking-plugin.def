@@ -16,4 +16,6 @@
 shardingsphere-5.0.0-beta=org.apache.skywalking.apm.plugin.shardingsphere.v500beta.define.ProxyRootInvokeInstrumentation
 shardingsphere-5.0.0-beta=org.apache.skywalking.apm.plugin.shardingsphere.v500beta.define.JDBCRootInvokeInstrumentation
 shardingsphere-5.0.0-beta=org.apache.skywalking.apm.plugin.shardingsphere.v500beta.define.ParseInstrumentation
+shardingsphere-5.0.0-beta=org.apache.skywalking.apm.plugin.shardingsphere.v500beta.define.RouteInstrumentation
+shardingsphere-5.0.0-beta=org.apache.skywalking.apm.plugin.shardingsphere.v500beta.define.RewriteInstrumentation
 shardingsphere-5.0.0-beta=org.apache.skywalking.apm.plugin.shardingsphere.v500beta.define.ExecuteInstrumentation
