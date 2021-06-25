@@ -55,6 +55,12 @@
             <version>${shardingsphere.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-sql-parser-engine</artifactId>
+            <version>${shardingsphere.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
