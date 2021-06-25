@@ -28,11 +28,11 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link ParseInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.sql.parser.api.SQLParserEngine}.
+ * {@link ParseInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.infra.parser.ShardingSphereSQLParserEngine}.
  */
 public class ParseInstrumentation extends AbstractShardingSphereV500BetaInstrumentation {
 
-    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.sql.parser.api.SQLParserEngine";
+    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.infra.parser.ShardingSphereSQLParserEngine";
 
     private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v500beta.ParseInterceptor";
 
@@ -42,7 +42,7 @@ public class ParseInstrumentation extends AbstractShardingSphereV500BetaInstrume
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("parse");
+                    return named("parse0");
                 }
 
                 @Override
