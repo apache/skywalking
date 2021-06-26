@@ -23,39 +23,51 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
- * {@link JDBCRootInvokeInstrumentation} presents that skywalking intercepts {@link
- * org.apache.shardingsphere.driver.executor.JDBCLockEngine}.
+ * {@link JDBCRootInvokeInstrumentation} presents that skywalking intercepts
+ * <ul>
+ *     <li>{@link org.apache.shardingsphere.driver.jdbc.core.statement.ShardingSphereStatement#executeQuery}</li>
+ *     <li>{@link org.apache.shardingsphere.driver.jdbc.core.statement.ShardingSphereStatement#executeUpdate}</li>
+ *     <li>{@link org.apache.shardingsphere.driver.jdbc.core.statement.ShardingSphereStatement#execute0}</li>
+ *     <li>{@link org.apache.shardingsphere.driver.jdbc.core.statement.ShardingSpherePreparedStatement#executeQuery}</li>
+ *     <li>{@link org.apache.shardingsphere.driver.jdbc.core.statement.ShardingSpherePreparedStatement#executeUpdate}</li>
+ *     <li>{@link org.apache.shardingsphere.driver.jdbc.core.statement.ShardingSpherePreparedStatement#execute}</li>
+ *     <li>{@link org.apache.shardingsphere.driver.jdbc.core.statement.ShardingSpherePreparedStatement#executeBatch}</li>
+ * </ul>
  */
 public class JDBCRootInvokeInstrumentation extends AbstractShardingSphereV500BetaInstrumentation {
-
-    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.driver.executor.JDBCLockEngine";
-
+    
+    private static final String[] ENHANCE_CLASSES = {
+            "org.apache.shardingsphere.driver.jdbc.core.statement.ShardingSphereStatement",
+            "org.apache.shardingsphere.driver.jdbc.core.statement.ShardingSpherePreparedStatement"
+    };
+    
     private static final String JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v500beta.JDBCRootInvokeInterceptor";
-
+    
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute");
+        return new InstanceMethodsInterceptPoint[]{
+                new InstanceMethodsInterceptPoint() {
+                    
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named("execute");
+                    }
+                    
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS;
+                    }
+                    
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
                 }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
         };
     }
 
@@ -66,6 +78,6 @@ public class JDBCRootInvokeInstrumentation extends AbstractShardingSphereV500Bet
 
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return byMultiClassMatch(ENHANCE_CLASSES);
     }
 }
