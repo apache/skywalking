@@ -105,8 +105,7 @@ public enum PersistenceTimer {
         }
     }
 
-    @VisibleForTesting
-    void extractDataAndSave(IBatchDAO batchDAO) {
+    private void extractDataAndSave(IBatchDAO batchDAO) {
 
         if (log.isDebugEnabled()) {
             log.debug("Extract data and save");

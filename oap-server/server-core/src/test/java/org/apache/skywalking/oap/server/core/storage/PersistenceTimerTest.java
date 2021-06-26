@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsPersistentWorker;
@@ -33,11 +37,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import org.powermock.reflect.Whitebox;
 
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.mock;
 public class PersistenceTimerTest {
 
     @Test
-    public void testExtractDataAndSave() {
+    public void testExtractDataAndSave() throws Exception {
         Set<PrepareRequest> result = new HashSet();
         int count = 101;
         int workCount = 10;
@@ -80,7 +80,7 @@ public class PersistenceTimerTest {
         PersistenceTimer.INSTANCE.isStarted = true;
 
         PersistenceTimer.INSTANCE.start(moduleManager, moduleConfig);
-        PersistenceTimer.INSTANCE.extractDataAndSave(iBatchDAO);
+        Whitebox.invokeMethod(PersistenceTimer.INSTANCE, "extractDataAndSave", iBatchDAO);
 
         Assert.assertEquals(count * workCount * 2, result.size());
     }

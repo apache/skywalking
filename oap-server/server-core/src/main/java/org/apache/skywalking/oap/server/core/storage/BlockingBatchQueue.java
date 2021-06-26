@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 
 /**
@@ -32,9 +31,7 @@ interface BlockingBatchQueue<E> {
 
     void noFurtherAppending();
 
-    @VisibleForTesting
     void furtherAppending();
 
-    @VisibleForTesting
     int size();
 }
