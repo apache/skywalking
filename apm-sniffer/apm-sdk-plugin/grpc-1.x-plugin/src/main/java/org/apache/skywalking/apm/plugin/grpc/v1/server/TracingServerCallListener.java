@@ -26,7 +26,10 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.*;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_CANCEL_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_COMPLETE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_MESSAGE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.SERVER;
 import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
 
 public class TracingServerCallListener<REQUEST> extends ForwardingServerCallListener.SimpleForwardingServerCallListener<REQUEST> {
@@ -75,12 +78,6 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
             throw t;
         } finally {
             ContextManager.stopSpan();
-            try {
-                AbstractSpan abstractSpan = ContextManager.activeSpan();
-                ContextManager.stopSpan(abstractSpan);
-            } catch (Exception e) {
-                throw e;
-            }
         }
     }
 
@@ -97,12 +94,6 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
             throw t;
         } finally {
             ContextManager.stopSpan();
-            try {
-                AbstractSpan abstractSpan = ContextManager.activeSpan();
-                ContextManager.stopSpan(abstractSpan);
-            } catch (Exception e) {
-                throw e;
-            }
         }
     }
 
