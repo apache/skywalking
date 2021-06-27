@@ -23,6 +23,7 @@ import io.grpc.MethodDescriptor;
 import io.grpc.ServerCall;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -37,6 +38,9 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
     private final String operationPrefix;
     private final String operation;
     private final ContextCarrier contextCarrier;
+
+    private AbstractSpan asyncSpan;
+    private ContextSnapshot contextSnapshot;
 
     protected TracingServerCallListener(ServerCall.Listener<REQUEST> delegate, MethodDescriptor<REQUEST, ?> descriptor, ContextCarrier contextCarrier) {
         super(delegate);
@@ -53,6 +57,7 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
             final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + REQUEST_ON_MESSAGE_OPERATION_NAME);
             span.setComponent(ComponentsDefine.GRPC);
             span.setLayer(SpanLayer.RPC_FRAMEWORK);
+            ContextManager.continued(contextSnapshot);
             try {
                 super.onMessage(message);
             } catch (Throwable t) {
@@ -71,6 +76,7 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
         final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + REQUEST_ON_CANCEL_OPERATION_NAME);
         span.setComponent(ComponentsDefine.GRPC);
         span.setLayer(SpanLayer.RPC_FRAMEWORK);
+        ContextManager.continued(contextSnapshot);
         try {
             super.onCancel();
         } catch (Throwable t) {
@@ -86,7 +92,7 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
         final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + REQUEST_ON_COMPLETE_OPERATION_NAME);
         span.setComponent(ComponentsDefine.GRPC);
         span.setLayer(SpanLayer.RPC_FRAMEWORK);
-
+        ContextManager.continued(contextSnapshot);
         try {
             super.onHalfClose();
         } catch (Throwable t) {
@@ -100,7 +106,7 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
     @Override
     public void onComplete() {
         super.onComplete();
-        ContextManager.stopSpan();
+        asyncSpan.asyncFinish();
     }
 
     @Override
@@ -108,6 +114,10 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
         final AbstractSpan span = ContextManager.createEntrySpan(operation, contextCarrier);
         span.setComponent(ComponentsDefine.GRPC);
         span.setLayer(SpanLayer.RPC_FRAMEWORK);
+        contextSnapshot = ContextManager.capture();
+        asyncSpan = span.prepareForAsync();
+        ContextManager.stopSpan(asyncSpan);
+
         super.onReady();
     }
 }
