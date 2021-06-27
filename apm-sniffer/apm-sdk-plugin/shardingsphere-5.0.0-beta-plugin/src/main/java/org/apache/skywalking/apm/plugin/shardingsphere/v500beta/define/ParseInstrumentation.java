@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.plugin.shardingsphere.v500beta.ParseInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
@@ -33,9 +34,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class ParseInstrumentation extends AbstractShardingSphereV500BetaInstrumentation {
 
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.infra.parser.ShardingSphereSQLParserEngine";
-
-    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v500beta.ParseInterceptor";
-
+    
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
@@ -47,7 +46,7 @@ public class ParseInstrumentation extends AbstractShardingSphereV500BetaInstrume
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return EXECUTE_INTERCEPTOR_CLASS;
+                    return ParseInterceptor.class.getName();
                 }
 
                 @Override

@@ -23,6 +23,7 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.shardingsphere.v500beta.JDBCRootInvokeInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
@@ -46,8 +47,6 @@ public class JDBCRootInvokeInstrumentation extends AbstractShardingSphereV500Bet
             "org.apache.shardingsphere.driver.jdbc.core.statement.ShardingSpherePreparedStatement"
     };
     
-    private static final String JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v500beta.JDBCRootInvokeInterceptor";
-    
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
@@ -60,7 +59,7 @@ public class JDBCRootInvokeInstrumentation extends AbstractShardingSphereV500Bet
                     
                     @Override
                     public String getMethodsInterceptor() {
-                        return JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS;
+                        return JDBCRootInvokeInterceptor.class.getName();
                     }
                     
                     @Override

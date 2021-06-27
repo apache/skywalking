@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.plugin.shardingsphere.v500beta.ExecuteInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.isPrivate;
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -35,9 +36,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class ExecuteInstrumentation extends AbstractShardingSphereV500BetaInstrumentation {
 
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutorCallback";
-
-    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v500beta.ExecuteInterceptor";
-
+    
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
@@ -49,7 +48,7 @@ public class ExecuteInstrumentation extends AbstractShardingSphereV500BetaInstru
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return EXECUTE_INTERCEPTOR_CLASS;
+                    return ExecuteInterceptor.class.getName();
                 }
 
                 @Override

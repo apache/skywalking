@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.plugin.shardingsphere.v500beta.ProxyRootInvokeInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
@@ -33,9 +34,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class ProxyRootInvokeInstrumentation extends AbstractShardingSphereV500BetaInstrumentation {
 
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.proxy.frontend.command.CommandExecutorTask";
-
-    private static final String PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v500beta.ProxyRootInvokeInterceptor";
-
+    
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
@@ -47,7 +46,7 @@ public class ProxyRootInvokeInstrumentation extends AbstractShardingSphereV500Be
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS;
+                    return ProxyRootInvokeInterceptor.class.getName();
                 }
 
                 @Override

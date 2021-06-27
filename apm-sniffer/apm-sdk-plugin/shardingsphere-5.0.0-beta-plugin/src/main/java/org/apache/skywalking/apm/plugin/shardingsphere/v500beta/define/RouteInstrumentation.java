@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.plugin.shardingsphere.v500beta.RouteInterceptor;
 
 /**
  * {@link RouteInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.infra.route.engine.SQLRouteEngine}.
@@ -32,8 +33,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 public class RouteInstrumentation extends AbstractShardingSphereV500BetaInstrumentation {
     
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.infra.route.engine.SQLRouteEngine";
-    
-    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v500beta.RouteInterceptor";
     
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
@@ -47,7 +46,7 @@ public class RouteInstrumentation extends AbstractShardingSphereV500BetaInstrume
                     
                     @Override
                     public String getMethodsInterceptor() {
-                        return EXECUTE_INTERCEPTOR_CLASS;
+                        return RouteInterceptor.class.getName();
                     }
                     
                     @Override
