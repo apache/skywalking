@@ -16,6 +16,7 @@ Release Notes.
 * Add `Neo4j-4.x` plugin.
 * Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
 * Fix the reponse time of gRPC.
+* Support logback `GRPCLogClientAppender` with `AsyncAppender` 
 
 #### OAP-Backend
 * Disable Spring sleuth meter analyzer by default.

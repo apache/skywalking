@@ -39,6 +39,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
+import org.apache.skywalking.apm.toolkit.logging.common.log.SkyWalkingContext;
 import org.apache.skywalking.apm.toolkit.logging.common.log.ToolkitConfig;
 
 public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundInterceptor {
@@ -112,12 +113,27 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                 .setTags(logTags.build())
                 .setBody(LogDataBody.newBuilder().setType(LogDataBody.ContentCase.TEXT.name())
                                     .setText(TextLog.newBuilder().setText(transformLogText(appender, event)).build()).build());
-        return -1 == ContextManager.getSpanId() ? builder.build()
-                : builder.setTraceContext(TraceContext.newBuilder()
-                        .setTraceId(ContextManager.getGlobalTraceId())
-                        .setSpanId(ContextManager.getSpanId())
-                        .setTraceSegmentId(ContextManager.getSegmentId())
-                        .build()).build();
+
+        if (!ContextManager.isActive()) {
+            if (event instanceof EnhancedInstance) {
+                SkyWalkingContext skyWalkingContext = (SkyWalkingContext) ((EnhancedInstance) event).getSkyWalkingDynamicField();
+                if (skyWalkingContext != null) {
+                    builder.setTraceContext(TraceContext.newBuilder()
+                            .setTraceId(skyWalkingContext.getTraceId())
+                            .setSpanId(skyWalkingContext.getSpanId())
+                            .setTraceSegmentId(skyWalkingContext.getTraceSegmentId())
+                            .build());
+                }
+            }
+        } else {
+            builder.setTraceContext(TraceContext.newBuilder()
+                    .setTraceId(ContextManager.getGlobalTraceId())
+                    .setSpanId(ContextManager.getSpanId())
+                    .setTraceSegmentId(ContextManager.getSegmentId())
+                    .build());
+        }
+
+        return builder.build();
     }
 
     private String transformLogText(final OutputStreamAppender<ILoggingEvent> appender, final ILoggingEvent event) {

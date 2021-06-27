@@ -140,6 +140,17 @@ The gRPC reporter could forward the collected logs to SkyWalking OAP server, or 
     </appender>
 ```
 
+* Support AsyncAppender
+
+```xml
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>1024</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="grpc-log"/>
+    </appender>
+```
+
 *  Add config of the plugin or use default
 
 ```properties
