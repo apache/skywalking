@@ -34,7 +34,7 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/correlation-autotag-scenario/case/healthCheck'}
               - {key: http.method, value: HEAD}
-      - segmentId: 78a0cdef42a74b4ba80b48bf72b8558d.37.16042096947740000
+      - segmentId: 05f37f53610a4d74bf05a1b6b5e35368.41.16248101515430000
         spans:
           - {operationName: Greeter.sayHello, operationId: 0, parentSpanId: 0, spanId: 1,
              spanLayer: RPCFramework, startTime: gt 0, endTime: gt 0, componentId: 23,
@@ -56,7 +56,181 @@ segmentItems:
               - {key: http.method, value: GET}
               - {key: autotag1, value: '1'}
               - {key: autotag2, value: '1'}
-      - segmentId: not null
+      - segmentId: 05f37f53610a4d74bf05a1b6b5e35368.59.16248101519140000
+        spans:
+          - operationName: Greeter.sayHello/client/Request/onMessage
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 23
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+            refs:
+              - {parentEndpoint: /correlation-autotag-scenario/case/correlation-autotag-scenario,
+                 networkAddress: '', refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
+                 traceId:  not null}
+      - segmentId: 05f37f53610a4d74bf05a1b6b5e35368.59.16248101519390002
+        spans:
+          - operationName: Greeter.sayHello/client/Request/onMessage
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 23
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+            refs:
+              - {parentEndpoint: /correlation-autotag-scenario/case/correlation-autotag-scenario,
+                 networkAddress: '', refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
+                 traceId: not null}
+      - segmentId: 05f37f53610a4d74bf05a1b6b5e35368.59.16248101519390004
+        spans:
+          - operationName: Greeter.sayHello/client/Request/onComplete
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 23
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+            refs:
+              - {parentEndpoint: /correlation-autotag-scenario/case/correlation-autotag-scenario,
+                 networkAddress: '', refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
+                 traceId: not null}
+      - segmentId: 05f37f53610a4d74bf05a1b6b5e35368.59.16248101519630006
+        spans:
+          - {operationName: Greeter.sayHello/server/Response/onMessage, operationId: 0,
+             parentSpanId: 0, spanId: 1, spanLayer: RPCFramework, startTime: gt 0,
+             endTime: gt 0, componentId: 23, isError: false, spanType: Local, peer: '',
+             skipAnalysis: false}
+          - operationName: Greeter.sayHello/server/Request/onMessage
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 23
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+            refs:
+              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
+                 parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
+                 traceId: not null}
+      - segmentId: 05f37f53610a4d74bf05a1b6b5e35368.59.16248101519680008
+        spans:
+          - {operationName: Greeter.sayHello/server/Response/onMessage, operationId: 0,
+             parentSpanId: 0, spanId: 1, spanLayer: RPCFramework, startTime: gt 0,
+             endTime: gt 0, componentId: 23, isError: false, spanType: Local, peer: '',
+             skipAnalysis: false}
+          - operationName: Greeter.sayHello/server/Request/onMessage
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 23
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+            refs:
+              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
+                 parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
+                 traceId: not null}
+      - segmentId: 05f37f53610a4d74bf05a1b6b5e35368.63.16248101519710002
+        spans:
+          - operationName: Greeter.sayHello/client/Response/onMessage
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 23
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+            refs:
+              - {parentEndpoint: /correlation-autotag-scenario/case/correlation-autotag-scenario,
+                 networkAddress: '', refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
+                 traceId: not null}
+      - segmentId: 05f37f53610a4d74bf05a1b6b5e35368.63.16248101519710004
+        spans:
+          - operationName: Greeter.sayHello/client/Response/onMessage
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 23
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+            refs:
+              - {parentEndpoint: /correlation-autotag-scenario/case/correlation-autotag-scenario,
+                 networkAddress: '', refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
+                 traceId: not null}
+      - segmentId: 05f37f53610a4d74bf05a1b6b5e35368.59.16248101519690010
+        spans:
+          - operationName: Greeter.sayHello/server/Response/onClose
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: RPCFramework
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 23
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - {key: status_code, value: OK}
+          - operationName: Greeter.sayHello/server/Request/onComplete
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 23
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+            refs:
+              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
+                 parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
+                 traceId: not null}
+      - segmentId: 05f37f53610a4d74bf05a1b6b5e35368.63.16248101519250000
         spans:
           - operationName: Greeter.sayHello
             operationId: 0
@@ -79,193 +253,7 @@ segmentItems:
                  parentTraceSegmentId: not null,
                  parentServiceInstance: not null, parentService: correlation-autotag-scenario,
                  traceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: Greeter.sayHello/client/Request/onComplete
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 23
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            refs:
-              - {parentEndpoint: /correlation-autotag-scenario/case/correlation-autotag-scenario,
-                 networkAddress: '', refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: Greeter.sayHello/client/Request/onMessage
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 23
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            refs:
-              - {parentEndpoint: /correlation-autotag-scenario/case/correlation-autotag-scenario,
-                 networkAddress: '', refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: Greeter.sayHello/client/Request/onMessage
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 23
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            refs:
-              - {parentEndpoint: /correlation-autotag-scenario/case/correlation-autotag-scenario,
-                 networkAddress: '', refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: Greeter.sayHello/server/Response/onMessage
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 23
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            refs:
-              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
-                 parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
-          - operationName: Greeter.sayHello/server/Request/onMessage
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 23
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            refs:
-              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
-                 parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: Greeter.sayHello/server/Response/onMessage
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 23
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            refs:
-              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
-                 parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
-          - operationName: Greeter.sayHello/server/Request/onMessage
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 23
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            refs:
-              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
-                 parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: Greeter.sayHello/server/Response/onClose
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 23
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            tags:
-              - {key: status_code, value: OK}
-            refs:
-              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
-                 parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
-          - operationName: Greeter.sayHello/server/Request/onComplete
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 23
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            refs:
-              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
-                 parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: Greeter.sayHello/client/Response/onMessage
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 23
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            refs:
-              - {parentEndpoint: /correlation-autotag-scenario/case/correlation-autotag-scenario,
-                 networkAddress: '', refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
-      - segmentId: not null
+      - segmentId: 05f37f53610a4d74bf05a1b6b5e35368.59.16248101519790012
         spans:
           - operationName: Greeter.sayHello/client/Response/onClose
             operationId: 0
@@ -284,24 +272,6 @@ segmentItems:
                  networkAddress: '', refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
                  parentServiceInstance: not null, parentService: correlation-autotag-scenario,
                  traceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: Greeter.sayHello/client/Response/onMessage
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 23
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            refs:
-              - {parentEndpoint: /correlation-autotag-scenario/case/correlation-autotag-scenario,
-                 networkAddress: '', refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
 meterItems: []
+
 
