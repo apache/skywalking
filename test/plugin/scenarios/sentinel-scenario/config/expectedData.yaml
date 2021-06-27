@@ -28,7 +28,7 @@ segmentItems:
       spanLayer: Unknown
       startTime: not null
       endTime: not null
-      componentId: 112
+      componentId: 113
       isError: false
       spanType: Local
       peer: ''
@@ -38,7 +38,7 @@ segmentItems:
         - {key: block_type, value: flow}
         - {key: blocked, value: 'true'}
     - {operationName: Sentinel/test_SphU_entry, operationId: 0, parentSpanId: 0, spanId: 1,
-      spanLayer: Unknown, startTime: not null, endTime: not null, componentId: 112,
+      spanLayer: Unknown, startTime: not null, endTime: not null, componentId: 113,
       isError: false, spanType: Local, peer: '', skipAnalysis: false}
     - operationName: Sentinel/test_SphU_asyncEntry
       operationId: 0
@@ -47,7 +47,7 @@ segmentItems:
       spanLayer: Unknown
       startTime: not null
       endTime: not null
-      componentId: 112
+      componentId: 113
       isError: false
       spanType: Local
       peer: ''
