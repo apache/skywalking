@@ -32,7 +32,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
         <!-- Cannot be testing spring(3.2.0 ~ 3.2.8) because the tomcat image unsupported jdk1.7 -->
         <test.framework.version>3.1.0.RELEASE</test.framework.version>
         <test.framework>spring-scheduled</test.framework>

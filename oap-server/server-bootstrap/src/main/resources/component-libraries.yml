@@ -365,8 +365,11 @@ tcp:
 AzureHttpTrigger:
   id: 111
   languages: Java,C#,Node.js,Python
-Sentinel:
+Neo4j:
   id: 112
+  languages: Java
+Sentinel:
+  id: 113
   languages: Java
 
 # .NET/.NET Core components

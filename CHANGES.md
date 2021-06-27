@@ -5,10 +5,16 @@ Release Notes.
 8.7.0
 ------------------
 #### Project
-
+* Extract dependency management to a bom.
+* Add JDK 16 to test matrix.
 
 #### Java Agent
 * Supports modifying span attributes in async mode.
+* Agent supports the collection of JVM arguments and jar dependency information.
+* [Temporary] Support authentication for log report channel. This feature and grpc channel is going to be removed after Satellite 0.2.0 release.
+* Remove deprecated gRPC method, `io.grpc.ManagedChannelBuilder#nameResolverFactory`. See [gRPC-java 7133](https://github.com/grpc/grpc-java/issues/7133) for more details.
+* Add `Neo4j-4.x` plugin.
+* Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
 * Add agent plugin to support Sentinel.
 
 #### OAP-Backend

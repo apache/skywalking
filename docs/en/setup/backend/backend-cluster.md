@@ -1,6 +1,11 @@
 # Cluster Management
 In many product environments, the backend needs to support high throughput and provide HA to maintain robustness,
 so you always need cluster management in product env.
+
+NOTICE, cluster management doesn't provide service discovery mechanism for agents and probes. We recommend agents/probes using
+gateway to load balancer to access OAP clusters.
+
+The core feature of cluster management is supporting the whole OAP cluster running distributed aggregation and analysis for telemetry data.
  
 There are various ways to manage the cluster in the backend. Choose the one that best suits your needs.
 

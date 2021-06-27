@@ -201,5 +201,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent MYBATIS = new OfficialComponent(109, "MyBatis");
 
-    public static final OfficialComponent SENTINEL = new OfficialComponent(112, "Sentinel");
+    public static final OfficialComponent NEO4J = new OfficialComponent(112, "Neo4j");
+
+    public static final OfficialComponent SENTINEL = new OfficialComponent(113, "Sentinel");
 }

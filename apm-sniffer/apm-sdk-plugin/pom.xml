@@ -112,6 +112,7 @@
         <module>mssql-jdbc-plugin</module>
         <module>cxf-3.x-plugin</module>
         <module>jsonrpc4j-1.x-plugin</module>
+        <module>neo4j-4.x-plugin</module>
         <module>sentinel-1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
