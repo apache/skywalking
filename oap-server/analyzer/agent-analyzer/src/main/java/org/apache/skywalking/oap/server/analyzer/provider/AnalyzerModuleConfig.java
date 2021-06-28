@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.CustomTraceSampleRateWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
@@ -47,7 +48,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     /**
      * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
      * service instance mapping and service instance client side relation are ignored.
-     *
+     * <p>
      * Read component-libraries.yml for more details.
      */
     @Getter
@@ -76,6 +77,9 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private TraceLatencyThresholdsAndWatcher traceLatencyThresholdsAndWatcher;
+    @Setter
+    @Getter
+    private CustomTraceSampleRateWatcher customTraceSampleRateWatcher;
     /**
      * Analysis trace status.
      * <p>
@@ -135,7 +139,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
                     virtualPeers.add(Integer.parseInt(component));
                 } catch (NumberFormatException e) {
                     log.warn("noUpstreamRealAddressAgents config {} includes illegal value {}",
-                             noUpstreamRealAddressAgents, component
+                            noUpstreamRealAddressAgents, component
                     );
                 }
             }

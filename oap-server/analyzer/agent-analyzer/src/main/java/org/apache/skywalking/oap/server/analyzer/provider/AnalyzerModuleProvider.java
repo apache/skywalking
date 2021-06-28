@@ -19,12 +19,14 @@
 package org.apache.skywalking.oap.server.analyzer.provider;
 
 import java.util.List;
+
 import lombok.Getter;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessService;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.CustomTraceSampleRateWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
@@ -59,6 +61,8 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     @Getter
     private TraceSampleRateWatcher traceSampleRateWatcher;
     @Getter
+    private CustomTraceSampleRateWatcher customTraceSampleRateWatcher;
+    @Getter
     private TraceLatencyThresholdsAndWatcher traceLatencyThresholdsAndWatcher;
 
     private List<MeterConfig> meterConfigs;
@@ -91,18 +95,20 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         uninstrumentedGatewaysConfig = new UninstrumentedGatewaysConfig(this);
 
         traceSampleRateWatcher = new TraceSampleRateWatcher(this);
+        customTraceSampleRateWatcher = new CustomTraceSampleRateWatcher(this);
         traceLatencyThresholdsAndWatcher = new TraceLatencyThresholdsAndWatcher(this);
 
         moduleConfig.setDbLatencyThresholdsAndWatcher(thresholds);
         moduleConfig.setUninstrumentedGatewaysConfig(uninstrumentedGatewaysConfig);
         moduleConfig.setTraceSampleRateWatcher(traceSampleRateWatcher);
+        moduleConfig.setCustomTraceSampleRateWatcher(customTraceSampleRateWatcher);
         moduleConfig.setTraceLatencyThresholdsAndWatcher(traceLatencyThresholdsAndWatcher);
 
         segmentParserService = new SegmentParserServiceImpl(getManager(), moduleConfig);
         this.registerServiceImplementation(ISegmentParserService.class, segmentParserService);
 
         meterConfigs = MeterConfigs.loadConfig(
-            moduleConfig.getConfigPath(), moduleConfig.meterAnalyzerActiveFileNames());
+                moduleConfig.getConfigPath(), moduleConfig.meterAnalyzerActiveFileNames());
         processService = new MeterProcessService(getManager());
         this.registerServiceImplementation(IMeterProcessService.class, processService);
     }
@@ -111,18 +117,18 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     public void start() throws ModuleStartException {
         // load official analysis
         getManager().find(CoreModule.NAME)
-                    .provider()
-                    .getService(OALEngineLoaderService.class)
-                    .load(CoreOALDefine.INSTANCE);
+                .provider()
+                .getService(OALEngineLoaderService.class)
+                .load(CoreOALDefine.INSTANCE);
 
         DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME)
-                                                                              .provider()
-                                                                              .getService(
-                                                                                  DynamicConfigurationService.class);
+                .provider()
+                .getService(DynamicConfigurationService.class);
         dynamicConfigurationService.registerConfigChangeWatcher(thresholds);
         dynamicConfigurationService.registerConfigChangeWatcher(uninstrumentedGatewaysConfig);
         dynamicConfigurationService.registerConfigChangeWatcher(traceSampleRateWatcher);
         dynamicConfigurationService.registerConfigChangeWatcher(traceLatencyThresholdsAndWatcher);
+        dynamicConfigurationService.registerConfigChangeWatcher(customTraceSampleRateWatcher);
 
         segmentParserService.setListenerManager(listenerManager());
 
@@ -136,10 +142,10 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {
-            TelemetryModule.NAME,
-            CoreModule.NAME,
-            ConfigurationModule.NAME
+        return new String[]{
+                TelemetryModule.NAME,
+                CoreModule.NAME,
+                ConfigurationModule.NAME
         };
     }
 
