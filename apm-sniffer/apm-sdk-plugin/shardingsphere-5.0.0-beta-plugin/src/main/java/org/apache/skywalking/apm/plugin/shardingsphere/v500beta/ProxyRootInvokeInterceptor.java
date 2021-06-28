@@ -27,10 +27,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-/**
- * ProxyRootInvokeInterceptor enhances org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask,
- * creating a local span that records the overall execution of sql.
- */
 public class ProxyRootInvokeInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override

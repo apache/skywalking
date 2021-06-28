@@ -29,10 +29,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-/**
- * {@link ExecuteInterceptor} enhances {@link org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutorCallback},
- * creating a local span that records the execution of sql.
- */
 public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override

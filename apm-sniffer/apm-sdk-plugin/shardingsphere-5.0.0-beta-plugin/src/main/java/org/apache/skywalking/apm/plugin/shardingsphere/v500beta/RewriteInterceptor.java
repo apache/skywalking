@@ -26,10 +26,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-/**
- * {@link RewriteInterceptor} enhances {@link org.apache.shardingsphere.infra.rewrite.SQLRewriteEntry},
- * creating a local span that records the route of sql.
- */
 public class RewriteInterceptor implements InstanceMethodsAroundInterceptor {
     
     @Override

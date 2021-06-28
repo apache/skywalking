@@ -28,10 +28,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-/**
- * {@link ParseInterceptor} enhances {@link org.apache.shardingsphere.infra.parser.ShardingSphereSQLParserEngine},
- * creating a local span that records the parse of sql.
- */
 public class ParseInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
