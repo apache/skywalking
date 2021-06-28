@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.testcase.shardingsphere.service.config;
 
 import org.apache.shardingsphere.driver.api.ShardingSphereDataSourceFactory;
 import org.apache.shardingsphere.infra.config.algorithm.ShardingSphereAlgorithmConfiguration;
+import org.apache.shardingsphere.infra.config.properties.ConfigurationPropertyKey;
 import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.rule.ShardingTableRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.strategy.keygen.KeyGenerateStrategyConfiguration;
@@ -60,7 +61,8 @@ public final class ShardingDatabasesAndTablesConfigurationPrecise implements Exa
         tableOrderItemInlineProperties.setProperty("algorithm-expression", "t_order_item_${order_id % 2}");
         shardingRuleConfig.getShardingAlgorithms().put("t_order_item_inline", new ShardingSphereAlgorithmConfiguration("INLINE", tableOrderItemInlineProperties));
         Properties properties = new Properties();
-        properties.setProperty("max-connections-size-per-query", "16");
+        properties.setProperty(ConfigurationPropertyKey.MAX_CONNECTIONS_SIZE_PER_QUERY.getKey(), "16");
+        properties.setProperty(ConfigurationPropertyKey.SQL_SHOW.getKey(), "true");
         DATA_SOURCE = ShardingSphereDataSourceFactory.createDataSource(createDataSourceMap(), Collections.singletonList(shardingRuleConfig), properties);
     }
     
