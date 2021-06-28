@@ -21,13 +21,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 
 public abstract class AbstractShardingSphereV500BetaInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     
-    public static final String[] WITHNESS_CLASSES = {
-            "org.apache.shardingsphere.driver.executor.JDBCLockEngine",
-            "org.apache.shardingsphere.proxy.backend.communication.ProxyLockEngine"
-    };
-    
     @Override
     protected final String[] witnessClasses() {
-        return WITHNESS_CLASSES;
+        return new String[]{"org.apache.shardingsphere.infra.context.kernel.KernelProcessor"};
     }
 }
