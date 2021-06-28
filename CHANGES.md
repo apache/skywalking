@@ -51,6 +51,9 @@ Release Notes.
 * Add Python celery plugin.
 * Fix default config for metrics.
 
+#### jedis-2.x-plugin
+* add `db.statement` for block command with a timeout parameter like `blpop`
+
 #### Documentation
 
 
