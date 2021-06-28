@@ -5,14 +5,20 @@ Release Notes.
 8.7.0
 ------------------
 #### Project
-
+* Extract dependency management to a bom.
+* Add JDK 16 to test matrix.
 
 #### Java Agent
 * Supports modifying span attributes in async mode.
+* Agent supports the collection of JVM arguments and jar dependency information.
+* [Temporary] Support authentication for log report channel. This feature and grpc channel is going to be removed after Satellite 0.2.0 release.
+* Remove deprecated gRPC method, `io.grpc.ManagedChannelBuilder#nameResolverFactory`. See [gRPC-java 7133](https://github.com/grpc/grpc-java/issues/7133) for more details.
+* Add `Neo4j-4.x` plugin.
+* Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
+* Fix the reponse time of gRPC.
 
 #### OAP-Backend
 * Disable Spring sleuth meter analyzer by default.
-* Use MAL to calculate JVM metrics, remove OAL dependency.
 * Only count 5xx as error in Envoy ALS receiver.
 * Upgrade apollo core caused by CVE-2020-15170.
 * Upgrade kubernetes client caused by CVE-2020-28052.
@@ -33,10 +39,19 @@ Release Notes.
 * Upgrade zookeeper caused by CVE-2019-0201. 
 * Upgrade snake yaml caused by CVE-2017-18640.
 * Upgrade embed tomcat caused by CVE-2020-13935.
-
+* Upgrade commons-lang3 to avoid potential NPE in some JDK versions.
+* OAL supports generating metrics from events.
+* Support endpoint name grouping by OpenAPI definitions.
+* Fix CounterWindow increase computing issue.
+* Performance: optimize Envoy ALS analyzer performance in high traffic load scenario (reduce ~1cpu in ~10k RPS).
+* Performance: trim useless metadata fields in Envoy ALS metadata to improve performance.
 
 #### UI
-
+* Fix the date component for log conditions.
+* Fix selector keys for duplicate options.
+* Add Python celery plugin.
+* Fix default config for metrics.
+* Fix trace table for profile ui.
 
 #### Documentation
 

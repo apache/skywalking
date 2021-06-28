@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
-import org.apache.skywalking.oap.server.core.source.Source;
+import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 
 /**
@@ -30,10 +30,10 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
  */
 public class MockReceiver implements SourceReceiver {
     @Getter
-    private List<Source> receivedSources = new ArrayList<>();
+    private List<ISource> receivedSources = new ArrayList<>();
 
     @Override
-    public void receive(final Source source) {
+    public void receive(final ISource source) {
         receivedSources.add(source);
     }
 

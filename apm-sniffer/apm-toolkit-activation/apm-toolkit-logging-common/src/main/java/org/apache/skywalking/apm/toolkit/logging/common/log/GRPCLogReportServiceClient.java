@@ -18,8 +18,16 @@
 
 package org.apache.skywalking.apm.toolkit.logging.common.log;
 
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
+import io.grpc.ClientInterceptors;
+import io.grpc.ForwardingClientCall;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
@@ -38,6 +46,7 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogReportServiceGrpc;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * Report log to server by grpc
@@ -55,6 +64,8 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
 
     private AtomicBoolean disconnected = new AtomicBoolean(false);
 
+    private static final Metadata.Key<String> AUTH_HEAD_HEADER_NAME = Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER);
+
     @Override
     public void boot() throws Throwable {
         carrier = new DataCarrier<>("gRPC-log", "gRPC-log",
@@ -70,7 +81,9 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
             )
             .usePlaintext()
             .build();
-        asyncStub = LogReportServiceGrpc.newStub(channel)
+
+        Channel decoratedChannel = decorateLogChannelWithAuthentication(channel);
+        asyncStub = LogReportServiceGrpc.newStub(decoratedChannel)
                                         .withMaxOutboundMessageSize(
                                             ToolkitConfig.Plugin.Toolkit.Log.GRPC.Reporter.MAX_MESSAGE_SIZE);
     }
@@ -144,4 +157,25 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
             waitStatus.wait4Finish();
         }
     }
+
+    private Channel decorateLogChannelWithAuthentication(Channel channel) {
+        if (StringUtil.isEmpty(Config.Agent.AUTHENTICATION)) {
+            return channel;
+        }
+
+        return ClientInterceptors.intercept(channel, new ClientInterceptor() {
+            @Override
+            public <REQ, RESP> ClientCall<REQ, RESP> interceptCall(MethodDescriptor<REQ, RESP> method,
+                                                                   CallOptions options, Channel channel) {
+                return new ForwardingClientCall.SimpleForwardingClientCall<REQ, RESP>(channel.newCall(method, options)) {
+                    @Override
+                    public void start(Listener<RESP> responseListener, Metadata headers) {
+                        headers.put(AUTH_HEAD_HEADER_NAME, Config.Agent.AUTHENTICATION);
+                        super.start(responseListener, headers);
+                    }
+                };
+            }
+        });
+    }
+
 }

@@ -52,6 +52,62 @@ This calculates the metrics data from each request of the service instance.
 | tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
 | tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
 
+#### Secondary scopes of `ServiceInstance` 
+
+This calculates the metrics data if the service instance is a JVM and collects through javaagent.
+
+1. SCOPE `ServiceInstanceJVMCPU`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| usePercent | The percentage of CPU time spent.| | double|
+
+2. SCOPE `ServiceInstanceJVMMemory`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| heapStatus | Indicates whether the metric has a heap property or not. | | bool |
+| init | See the JVM documentation. | | long |
+| max | See the JVM documentation. | | long |
+| used | See the JVM documentation. | | long |
+| committed | See the JVM documentation. | | long |
+
+3. SCOPE `ServiceInstanceJVMMemoryPool`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| poolType | The type may be CODE_CACHE_USAGE, NEWGEN_USAGE, OLDGEN_USAGE, SURVIVOR_USAGE, PERMGEN_USAGE, or METASPACE_USAGE based on different versions of JVM. | | enum |
+| init | See the JVM documentation. | | long |
+| max | See the JVM documentation. | | long |
+| used | See the JVM documentation. | | long |
+| committed | See the JVM documentation. | | long |
+
+4. SCOPE `ServiceInstanceJVMGC`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| phrase | Includes both NEW and OLD. | | Enum |
+| time | The time spent in GC. | | long |
+| count | The count in GC operations. | | long |
+
+5. SCOPE `ServiceInstanceJVMThread`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| liveCount | The current number of live threads. | | int |
+| daemonCount | The current number of daemon threads. | | int |
+| peakCount | The current number of peak threads. | | int |
+
 ### SCOPE `Endpoint`
 
 This calculates the metrics data from each request of the endpoint in the service. 
@@ -181,7 +237,7 @@ This calculates the metrics data from each request of the page in the browser ap
 
 ### SCOPE `BrowserAppPagePerf`
 
-This calculates the metrics data form each request of the page in the browser application (browser only).
+This calculates the metrics data from each request of the page in the browser application (browser only).
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
@@ -201,3 +257,17 @@ This calculates the metrics data form each request of the page in the browser ap
 | ttlTime | Time to interact. | | int(in ms) |
 | firstPackTime | First pack time. | | int(in ms) |
 | fmpTime | First Meaningful Paint. | | int(in ms) |
+
+### SCOPE `Event`
+
+This calculates the metrics data from [events](event.md).
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name | The name of the event. |  | string |
+| service | The service name to which the event belongs to. | | string |
+| serviceInstance | The service instance to which the event belongs to, if any. | | string|
+| endpoint | The service endpoint to which the event belongs to, if any. | | string|
+| type | The type of the event, `Normal` or `Error`. | | string|
+| message | The message of the event. | | string |
+| parameters | The parameters in the `message`, see [parameters](event.md#parameters). | | string |

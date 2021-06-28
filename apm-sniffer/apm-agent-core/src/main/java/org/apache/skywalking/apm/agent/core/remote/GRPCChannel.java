@@ -22,6 +22,8 @@ import io.grpc.Channel;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.NameResolverRegistry;
+import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.NettyChannelBuilder;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,8 +36,10 @@ public class GRPCChannel {
     private final Channel channelWithDecorators;
 
     private GRPCChannel(String host, int port, List<ChannelBuilder> channelBuilders,
-        List<ChannelDecorator> decorators) throws Exception {
+                        List<ChannelDecorator> decorators) throws Exception {
         ManagedChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(host, port);
+
+        NameResolverRegistry.getDefaultRegistry().register(new DnsNameResolverProvider());
 
         for (ChannelBuilder builder : channelBuilders) {
             channelBuilder = builder.build(channelBuilder);

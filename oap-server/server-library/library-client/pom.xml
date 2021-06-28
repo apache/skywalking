@@ -28,6 +28,10 @@
     <artifactId>library-client</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <test.elasticsearch.version>6.3.2</test.elasticsearch.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -89,7 +93,7 @@
                                 <configuration>
                                     <images>
                                         <image>
-                                            <name>elastic/elasticsearch:${elasticsearch.version}</name>
+                                            <name>elastic/elasticsearch:${test.elasticsearch.version}</name>
                                             <alias>elastic-client-integration-test</alias>
                                             <run>
                                                 <ports>
