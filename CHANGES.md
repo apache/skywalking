@@ -15,11 +15,11 @@ Release Notes.
 * Remove deprecated gRPC method, `io.grpc.ManagedChannelBuilder#nameResolverFactory`. See [gRPC-java 7133](https://github.com/grpc/grpc-java/issues/7133) for more details.
 * Add `Neo4j-4.x` plugin.
 * Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
+* Fix the reponse time of gRPC.
 * Add `ShardingSphere-5.0.0-beta` plugin.
 
 #### OAP-Backend
 * Disable Spring sleuth meter analyzer by default.
-* Use MAL to calculate JVM metrics, remove OAL dependency.
 * Only count 5xx as error in Envoy ALS receiver.
 * Upgrade apollo core caused by CVE-2020-15170.
 * Upgrade kubernetes client caused by CVE-2020-28052.
@@ -45,12 +45,14 @@ Release Notes.
 * Support endpoint name grouping by OpenAPI definitions.
 * Fix CounterWindow increase computing issue.
 * Performance: optimize Envoy ALS analyzer performance in high traffic load scenario (reduce ~1cpu in ~10k RPS).
+* Performance: trim useless metadata fields in Envoy ALS metadata to improve performance.
 
 #### UI
 * Fix the date component for log conditions.
 * Fix selector keys for duplicate options.
 * Add Python celery plugin.
 * Fix default config for metrics.
+* Fix trace table for profile ui.
 
 #### Documentation
 
