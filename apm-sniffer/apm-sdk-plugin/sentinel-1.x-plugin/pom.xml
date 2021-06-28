@@ -38,6 +38,7 @@
             <groupId>com.alibaba.csp</groupId>
             <artifactId>sentinel-core</artifactId>
             <version>${sentinel-core.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
