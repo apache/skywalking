@@ -36,7 +36,7 @@ public class ServiceMetaInfoFactoryImpl implements ServiceMetaInfoFactory {
     }
 
     @Override
-    public ServiceMetaInfo fromStruct(final Struct struct) throws Exception {
+    public ServiceMetaInfo fromStruct(final Struct struct) {
         return new ServiceMetaInfoAdapter(struct);
     }
 }

@@ -121,9 +121,8 @@ public class ServiceMetaInfoAdapter extends ServiceMetaInfo {
      * The same functionality with {@link ServiceMetaInfoAdapter#ServiceMetaInfoAdapter(com.google.protobuf.ByteString)}.
      *
      * @param metadata the {@link Struct struct} to adapt from.
-     * @throws Exception if the {@link Struct struct} can not be adapted to a {@link ServiceMetaInfo}.
      */
-    public ServiceMetaInfoAdapter(final Struct metadata) throws Exception {
+    public ServiceMetaInfoAdapter(final Struct metadata) {
         FieldsHelper.SINGLETON.inflate(requireNonNull(metadata), this);
     }
 
