@@ -29,10 +29,6 @@
     <description>A backend starter specially for ElasticSearch 7 storage</description>
     <packaging>jar</packaging>
 
-    <properties>
-        <elasticsearch.version>7.10.2</elasticsearch.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -57,6 +53,18 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.skywalking</groupId>
+                <artifactId>oap-server-bom-es7</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <finalName>skywalking-oap</finalName>

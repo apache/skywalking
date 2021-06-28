@@ -1,5 +1,4 @@
 private void do${metricsName}(${sourcePackage}${sourceName} source) {
-${metricsClassPackage}${metricsName}Metrics metrics = new ${metricsClassPackage}${metricsName}Metrics();
 
 <#if filterExpressions??>
     <#list filterExpressions as filterExpression>
@@ -9,6 +8,7 @@ ${metricsClassPackage}${metricsName}Metrics metrics = new ${metricsClassPackage}
     </#list>
 </#if>
 
+${metricsClassPackage}${metricsName}Metrics metrics = new ${metricsClassPackage}${metricsName}Metrics();
 metrics.setTimeBucket(source.getTimeBucket());
 <#list fieldsFromSource as field>
     metrics.${field.fieldSetter}(source.${field.fieldGetter}());

@@ -42,6 +42,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | maxSizeOfAnalyzeProfileSnapshot|The max number of snapshots analyzed by OAP| - | 12000 |
 | - | - | syncThreads|The number of threads used to synchronously refresh the metrics data to the storage.| SW_CORE_SYNC_THREADS | 2 |
 | - | - | maxSyncOperationNum|The maximum number of processes supported for each synchronous storage operation. When the number of the flush data is greater than this value, it will be assigned to multiple cores for execution.| SW_CORE_MAX_SYNC_OPERATION_NUM | 50000 |
+| - | - | enableEndpointNameGroupingByOpenapi |Turn it on then automatically grouping endpoint by the given OpenAPI definitions.| SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI | true |
 |cluster|standalone| - | standalone is not suitable for one node running, no available configuration.| - | - |
 | - | zookeeper|nameSpace|The namespace, represented by root path, isolates the configurations in the zookeeper.|SW_NAMESPACE| `/`, root path|
 | - | - | hostPort|hosts and ports of Zookeeper Cluster|SW_CLUSTER_ZK_HOST_PORT| localhost:2181|

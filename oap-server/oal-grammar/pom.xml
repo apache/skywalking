@@ -27,6 +27,10 @@
 
     <artifactId>oal-grammar</artifactId>
 
+    <properties>
+        <antlr.version>4.7.1</antlr.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.antlr</groupId>

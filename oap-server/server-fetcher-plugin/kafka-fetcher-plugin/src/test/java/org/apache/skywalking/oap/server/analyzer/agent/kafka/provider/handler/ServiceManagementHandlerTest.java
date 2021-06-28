@@ -23,16 +23,16 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.management.v3.InstancePingPkg;
 import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
-import org.apache.skywalking.oap.server.core.source.Source;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.mock.MockModuleManager;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.mock.MockModuleProvider;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
+import org.apache.skywalking.oap.server.core.source.ISource;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -52,7 +52,7 @@ public class ServiceManagementHandlerTest {
     public static SourceReceiverRule SOURCE_RECEIVER = new SourceReceiverRule() {
 
         @Override
-        protected void verify(final List<Source> sourceList) throws Throwable {
+        protected void verify(final List<ISource> sourceList) throws Throwable {
             ServiceInstanceUpdate instanceUpdate = (ServiceInstanceUpdate) sourceList.get(0);
             Assert.assertEquals(instanceUpdate.getName(), SERVICE_INSTANCE);
 

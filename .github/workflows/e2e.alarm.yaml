@@ -33,6 +33,7 @@ concurrency:
 
 jobs:
   Alarm:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Alarm
     runs-on: ubuntu-latest
     strategy:

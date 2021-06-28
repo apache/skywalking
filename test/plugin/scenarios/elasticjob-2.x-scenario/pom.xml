@@ -33,7 +33,7 @@
         <!-- Cannot be testing elasticjob (2.0.0 ~ 2.0.2) because the job configuration class incompatible -->
         <test.framework.version>2.0.3</test.framework.version>
         <spring-boot-version>2.1.6.RELEASE</spring-boot-version>
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
         <okhttp-version>3.0.0</okhttp-version>
     </properties>
 

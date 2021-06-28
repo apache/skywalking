@@ -46,6 +46,7 @@ import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4Openapi;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateInitializer;
@@ -159,6 +160,11 @@ public class CoreModuleProvider extends ModuleProvider {
         try {
             endpointNameGroupingRuleWatcher = new EndpointNameGroupingRuleWatcher(
                 this, endpointNameGrouping);
+
+            if (moduleConfig.isEnableEndpointNameGroupingByOpenapi()) {
+                endpointNameGrouping.setEndpointGroupingRule4Openapi(
+                    new EndpointGroupingRuleReader4Openapi("openapi-definitions").read());
+            }
         } catch (FileNotFoundException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

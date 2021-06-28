@@ -33,6 +33,7 @@ concurrency:
 
 jobs:
   PythonAgent:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: PythonAgent
     runs-on: ubuntu-latest
     timeout-minutes: 30
