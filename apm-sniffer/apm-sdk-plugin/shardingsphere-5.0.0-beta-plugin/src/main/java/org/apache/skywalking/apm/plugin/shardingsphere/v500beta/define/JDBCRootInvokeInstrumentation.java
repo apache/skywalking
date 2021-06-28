@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.shardingsphere.v500beta.JDBCRootInvokeInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesNoArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
@@ -54,7 +55,11 @@ public class JDBCRootInvokeInstrumentation extends AbstractShardingSphereV500Bet
                     
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("execute");
+                        return named("executeQuery")
+                                .or(named("executeUpdate"))
+                                .or(named("execute0"))
+                                .or(named("execute").and(takesNoArguments()))
+                                .or(named("executeBatch"));
                     }
                     
                     @Override
