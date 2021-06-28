@@ -195,7 +195,7 @@ public class JedisMethodInterceptorTest {
 
     private Method getMockBlpopMethod() {
         try {
-            return Jedis.class.getMethod("blpop", String[].class);
+            return Jedis.class.getMethod("blpop", int.class, String[].class);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
             return null;
