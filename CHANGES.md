@@ -50,6 +50,7 @@ Release Notes.
 * Fix selector keys for duplicate options.
 * Add Python celery plugin.
 * Fix default config for metrics.
+* Fix trace tabel for profile ui.
 
 #### Documentation
 
