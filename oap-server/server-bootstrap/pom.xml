@@ -285,7 +285,6 @@
                         <exclude>zabbix-rules/</exclude>
                         <exclude>lal/</exclude>
                         <exclude>log-mal-rules/</exclude>
-                        <exclude>jvm-metrics-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>
