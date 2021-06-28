@@ -19,7 +19,6 @@ Release Notes.
 
 #### OAP-Backend
 * Disable Spring sleuth meter analyzer by default.
-* Use MAL to calculate JVM metrics, remove OAL dependency.
 * Only count 5xx as error in Envoy ALS receiver.
 * Upgrade apollo core caused by CVE-2020-15170.
 * Upgrade kubernetes client caused by CVE-2020-28052.
