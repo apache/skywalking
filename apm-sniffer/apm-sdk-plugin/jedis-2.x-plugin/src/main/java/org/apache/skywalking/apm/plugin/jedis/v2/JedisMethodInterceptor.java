@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.jedis.v2;
 
 import java.lang.reflect.Method;
+import java.util.StringJoiner;
 
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -40,10 +41,14 @@ public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor 
         Tags.DB_TYPE.set(span, "Redis");
         SpanLayer.asCache(span);
 
-        if (allArguments.length > 0 && allArguments[0] instanceof String) {
-            Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
-        } else if (allArguments.length > 0 && allArguments[0] instanceof byte[]) {
-            Tags.DB_STATEMENT.set(span, method.getName());
+        if (allArguments.length > 0) {
+            if (allArguments[0] instanceof String) {
+                Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
+            } else if (allArguments[0] instanceof byte[]) {
+                Tags.DB_STATEMENT.set(span, method.getName());
+            } else if (allArguments[0] instanceof Integer) {
+                Tags.DB_STATEMENT.set(span, method.getName() + " " + concatArguments(allArguments));
+            }
         }
     }
 
@@ -59,5 +64,17 @@ public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor 
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
         span.log(t);
+    }
+
+    private String concatArguments(Object[] allArguments) {
+        String keys = "";
+        if (allArguments.length < 2) {
+            return keys;
+        }
+        StringJoiner joiner = new StringJoiner(" ");
+        for (int i = 1; i < allArguments.length; i++) {
+            joiner.add(allArguments[i].toString());
+        }
+        return joiner.toString();
     }
 }

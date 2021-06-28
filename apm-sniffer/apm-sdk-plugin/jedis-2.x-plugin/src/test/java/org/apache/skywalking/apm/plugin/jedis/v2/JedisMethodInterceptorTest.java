@@ -120,6 +120,29 @@ public class JedisMethodInterceptorTest {
         assertLogData(SpanHelper.getLogs(spans.get(0)));
     }
 
+    @Test
+    public void testInterceptWithBlockingApi() throws Throwable {
+        Object[] arguments = new Object[] {
+                1,
+                "OperationKey1",
+                "OperationKey2"
+        };
+        Class[] argumentTypes = new Class[] {
+                int.class,
+                String.class,
+                String.class
+        };
+        Method method = getMockBlpopMethod();
+        assert method != null;
+        interceptor.beforeMethod(enhancedInstance, method, arguments, argumentTypes, null);
+        interceptor.afterMethod(enhancedInstance, method, arguments, argumentTypes, null);
+
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertRedisBlpopSpan(spans.get(0));
+    }
+
     private void assertLogData(List<LogDataEntity> logDataEntities) {
         assertThat(logDataEntities.size(), is(1));
         LogDataEntity logData = logDataEntities.get(0);
@@ -142,6 +165,16 @@ public class JedisMethodInterceptorTest {
         assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.CACHE));
     }
 
+    private void assertRedisBlpopSpan(AbstractTracingSpan span) {
+        assertThat(span.getOperationName(), is("Jedis/blpop"));
+        assertThat(span.isExit(), is(true));
+        assertThat(SpanHelper.getComponentId(span), is(30));
+        List<TagValuePair> tags = SpanHelper.getTags(span);
+        assertThat(tags.get(0).getValue(), is("Redis"));
+        assertThat(tags.get(1).getValue(), is("blpop OperationKey1 OperationKey2"));
+        assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.CACHE));
+    }
+
     private Method getMockSetMethod() {
         try {
             return Jedis.class.getMethod("set", String.class, String.class);
@@ -154,6 +187,15 @@ public class JedisMethodInterceptorTest {
     private Method getMockGetMethod() {
         try {
             return Jedis.class.getMethod("get", String.class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Method getMockBlpopMethod() {
+        try {
+            return Jedis.class.getMethod("blpop", String[].class);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
             return null;
