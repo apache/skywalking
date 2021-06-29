@@ -236,7 +236,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             // because in worst case, we override one time bucket metrics due to dirty-write in the cluster re-balancing case.
             // In down-sampling cases(hour/day), the cache would be clear periodically to keep memory safe,
             // then have to reload(multiGet) metrics from database.
-            if (enableDatabaseSession && !isDownSampling && metricsDAO.isInsertAndUpdateSensitive()) {
+            if (enableDatabaseSession && !isDownSampling && !metricsDAO.isInsertAndUpdateSensitive()) {
                 return;
             }
             final List<Metrics> dbMetrics = metricsDAO.multiGet(model, noInCacheMetrics);
