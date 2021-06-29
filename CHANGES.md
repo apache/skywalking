@@ -45,6 +45,7 @@ Release Notes.
 * Fix CounterWindow increase computing issue.
 * Performance: optimize Envoy ALS analyzer performance in high traffic load scenario (reduce ~1cpu in ~10k RPS).
 * Performance: trim useless metadata fields in Envoy ALS metadata to improve performance.
+* Support configure sampling rate dynamically follow the service or instance or interface latitude on the backend side
 
 #### UI
 * Fix the date component for log conditions.
