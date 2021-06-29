@@ -18,13 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import com.google.common.collect.Lists;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -43,16 +48,18 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @Slf4j
 public enum PersistenceTimer {
     INSTANCE;
-    private Boolean isStarted = false;
+    @VisibleForTesting
+    boolean isStarted = false;
     private final Boolean debug;
     private CounterMetrics errorCounter;
     private HistogramMetrics prepareLatency;
     private HistogramMetrics executeLatency;
+    private HistogramMetrics allLatency;
     private long lastTime = System.currentTimeMillis();
-    private final List<PrepareRequest> prepareRequests = new ArrayList<>(50000);
     private int syncOperationThreadsNum;
     private int maxSyncoperationNum;
     private ExecutorService executorService;
+    private ExecutorService prepareExecutorService;
 
     PersistenceTimer() {
         this.debug = System.getProperty("debug") != null;
@@ -77,9 +84,15 @@ public enum PersistenceTimer {
             "persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
             MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
+        allLatency = metricsCreator.createHistogramMetric(
+            "persistence_timer_bulk_all_latency", "Latency of the all stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
+
         syncOperationThreadsNum = moduleConfig.getSyncThreads();
         maxSyncoperationNum = moduleConfig.getMaxSyncOperationNum();
         executorService = Executors.newFixedThreadPool(syncOperationThreadsNum);
+        prepareExecutorService = Executors.newFixedThreadPool(moduleConfig.getPrepareThreads());
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor()
                      .scheduleWithFixedDelay(
@@ -93,43 +106,61 @@ public enum PersistenceTimer {
     }
 
     private void extractDataAndSave(IBatchDAO batchDAO) {
+
         if (log.isDebugEnabled()) {
             log.debug("Extract data and save");
         }
 
         long startTime = System.currentTimeMillis();
+        HistogramMetrics.Timer allTimer = allLatency.createTimer();
+        // Use `stop` as a control signal to make fail-fast in the persistence process.
+        AtomicBoolean stop = new AtomicBoolean(false);
 
+        DefaultBlockingBatchQueue<PrepareRequest> prepareQueue = new DefaultBlockingBatchQueue(
+            this.maxSyncoperationNum);
         try {
-            HistogramMetrics.Timer timer = prepareLatency.createTimer();
+            List<PersistenceWorker<? extends StorageData>> persistenceWorkers = new ArrayList<>();
+            persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
+            persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
 
-            try {
-                List<PersistenceWorker> persistenceWorkers = new ArrayList<>();
-                persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
-                persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
+            // CountDownLatch makes sure all prepare threads done eventually.
+            CountDownLatch prepareStageCountDownLatch = new CountDownLatch(persistenceWorkers.size());
 
-                persistenceWorkers.forEach(worker -> {
-                    if (log.isDebugEnabled()) {
-                        log.debug("extract {} worker data and save", worker.getClass().getName());
+            persistenceWorkers.forEach(worker -> {
+                prepareExecutorService.submit(() -> {
+                    if (stop.get()) {
+                        prepareStageCountDownLatch.countDown();
+                        return;
                     }
 
-                    worker.buildBatchRequests(prepareRequests);
-
-                    worker.endOfRound(System.currentTimeMillis() - lastTime);
+                    HistogramMetrics.Timer timer = prepareLatency.createTimer();
+                    try {
+                        if (log.isDebugEnabled()) {
+                            log.debug("extract {} worker data and save", worker.getClass().getName());
+                        }
+                        List<PrepareRequest> innerPrepareRequests = new ArrayList<>(5000);
+                        worker.buildBatchRequests(innerPrepareRequests);
+                        // Push the prepared requests into DefaultBlockingBatchQueue,
+                        // the executorService consumes from it when it reaches the size of batch.
+                        prepareQueue.offer(innerPrepareRequests);
+                        worker.endOfRound(System.currentTimeMillis() - lastTime);
+                    } finally {
+                        timer.finish();
+                        prepareStageCountDownLatch.countDown();
+                    }
                 });
+            });
 
-                if (debug) {
-                    log.info("build batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
-                }
-            } finally {
-                timer.finish();
-            }
-
-            HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
-            try {
-                List<List<PrepareRequest>> partitions = Lists.partition(prepareRequests, maxSyncoperationNum);
-                CountDownLatch countDownLatch = new CountDownLatch(partitions.size());
-                for (final List<PrepareRequest> partition : partitions) {
-                    executorService.submit(() -> {
+            List<Future<?>> batchFutures = new ArrayList<>();
+            for (int i = 0; i < syncOperationThreadsNum; i++) {
+                Future<?> batchFuture = executorService.submit(() -> {
+                    // consume the metrics
+                    while (!stop.get()) {
+                        List<PrepareRequest> partition = prepareQueue.poll();
+                        if (partition.isEmpty()) {
+                            break;
+                        }
+                        HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
                         try {
                             if (CollectionUtils.isNotEmpty(partition)) {
                                 batchDAO.synchronous(partition);
@@ -137,23 +168,33 @@ public enum PersistenceTimer {
                         } catch (Throwable e) {
                             log.error(e.getMessage(), e);
                         } finally {
-                            countDownLatch.countDown();
+                            executeLatencyTimer.finish();
                         }
-                    });
-                }
-                countDownLatch.await();
-            } finally {
-                executeLatencyTimer.finish();
+                    }
+                    return null;
+                });
+                batchFutures.add(batchFuture);
             }
+
+            // Wait for prepare stage is done.
+            prepareStageCountDownLatch.await();
+            prepareQueue.noFurtherAppending();
+            // Wait for batch stage is done.
+            for (Future<?> result : batchFutures) {
+                result.get();
+            }
+
         } catch (Throwable e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);
         } finally {
+
             if (log.isDebugEnabled()) {
                 log.debug("Persistence data save finish");
             }
 
-            prepareRequests.clear();
+            stop.set(true);
+            allTimer.finish();
             lastTime = System.currentTimeMillis();
         }
 
@@ -161,4 +202,70 @@ public enum PersistenceTimer {
             log.info("Batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
         }
     }
+
+    @RequiredArgsConstructor
+    static class DefaultBlockingBatchQueue<E> implements BlockingBatchQueue<E> {
+
+        @Getter
+        private final int maxBatchSize;
+
+        @Getter
+        private boolean inAppendingMode = true;
+
+        private final List<E> elementData = new ArrayList<>(50000 * 3);
+
+        @Override
+        public void offer(List<E> elements) {
+            synchronized (elementData) {
+                if (!inAppendingMode) {
+                    throw new IllegalStateException();
+                }
+                elementData.addAll(elements);
+                if (elementData.size() >= maxBatchSize) {
+                    elementData.notifyAll();
+                }
+            }
+        }
+
+        @Override
+        public List<E> poll() throws InterruptedException {
+            synchronized (elementData) {
+                while (this.elementData.size() < maxBatchSize && inAppendingMode) {
+                    elementData.wait(1000);
+                }
+                if (CollectionUtils.isEmpty(elementData)) {
+                    return Collections.EMPTY_LIST;
+                }
+                List<E> sublist = this.elementData.subList(
+                    0, Math.min(maxBatchSize, this.elementData.size()));
+                List<E> partition = new ArrayList<>(sublist);
+                sublist.clear();
+                return partition;
+            }
+        }
+
+        @Override
+        public void noFurtherAppending() {
+            synchronized (elementData) {
+                inAppendingMode = false;
+                elementData.notifyAll();
+            }
+        }
+
+        @Override
+        public void furtherAppending() {
+            synchronized (elementData) {
+                inAppendingMode = true;
+                elementData.notifyAll();
+            }
+        }
+
+        @Override
+        public int size() {
+            synchronized (elementData) {
+                return elementData.size();
+            }
+        }
+    }
+
 }
