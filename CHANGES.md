@@ -45,6 +45,7 @@ Release Notes.
 * Fix CounterWindow increase computing issue.
 * Performance: optimize Envoy ALS analyzer performance in high traffic load scenario (reduce ~1cpu in ~10k RPS).
 * Performance: trim useless metadata fields in Envoy ALS metadata to improve performance.
+* Performance: cache regex pattern and result, optimize string concatenation in Envy ALS analyzer.
 
 #### UI
 * Fix the date component for log conditions.
