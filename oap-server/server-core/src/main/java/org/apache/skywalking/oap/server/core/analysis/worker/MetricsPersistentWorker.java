@@ -227,7 +227,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             if (noInCacheMetrics.isEmpty()) {
                 return;
             }
-
+            
             final List<Metrics> dbMetrics = metricsDAO.multiGet(model, noInCacheMetrics);
             if (!enableDatabaseSession) {
                 // Clear the cache only after results from DB are returned successfully.
