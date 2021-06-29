@@ -88,7 +88,6 @@ public class CaseController {
 
         try {
             AsyncEntry asyncEntry = SphU.asyncEntry("test_SphU_asyncEntry");
-
             new Thread(() -> {
                 try {
                     Thread.sleep(2000L);
