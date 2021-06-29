@@ -60,9 +60,4 @@ public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO {
     public SQLExecutor prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
         return getUpdateExecutor(model.getName(), metrics, storageBuilder);
     }
-
-    @Override
-    public boolean isInsertAndUpdateSensitive() {
-        return true;
-    }
 }

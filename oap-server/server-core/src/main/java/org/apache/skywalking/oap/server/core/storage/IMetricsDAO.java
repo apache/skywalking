@@ -54,10 +54,4 @@ public interface IMetricsDAO extends DAO {
      * executed ASAP.
      */
     UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException;
-
-    /**
-     * @return true if the DAO implementation is sensitive to distinguish insert or update. If false, it means we could
-     * use insert even the data exists in the storage.
-     */
-    boolean isInsertAndUpdateSensitive();
 }
