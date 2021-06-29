@@ -47,9 +47,6 @@ public class DBLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
                 newThresholds.put(typeValue[0].trim().toLowerCase(), Integer.parseInt(typeValue[1].trim()));
             }
         }
-        if (!newThresholds.containsKey("default")) {
-            newThresholds.put("default", 10000);
-        }
 
         thresholds.set(newThresholds);
     }
