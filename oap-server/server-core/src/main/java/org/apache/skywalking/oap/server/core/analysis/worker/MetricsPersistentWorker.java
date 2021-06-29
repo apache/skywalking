@@ -51,6 +51,11 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  */
 @Slf4j
 public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
+    /**
+     * The counter of MetricsPersistentWorker instance, to calculate session timeout offset.
+     */
+    private static long sessionTimeoutOffsetCounter = 0;
+
     private final Model model;
     private final Map<Metrics, Metrics> context;
     private final IMetricsDAO metricsDAO;
@@ -60,7 +65,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     private final Optional<MetricsTransWorker> transWorker;
     private final boolean enableDatabaseSession;
     private final boolean supportUpdate;
+    private boolean isDownSampling;
     private CounterMetrics aggregationCounter;
+    private long sessionTimeout = 70_000; // Unit, ms. 70,000ms means more than one minute.
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
@@ -74,6 +81,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         this.nextExportWorker = Optional.ofNullable(nextExportWorker);
         this.transWorker = Optional.ofNullable(transWorker);
         this.supportUpdate = supportUpdate;
+        this.isDownSampling = false;
 
         String name = "METRICS_L2_AGGREGATION";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -98,10 +106,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             new MetricsTag.Keys("metricName", "level", "dimensionality"),
             new MetricsTag.Values(model.getName(), "2", model.getDownsampling().getName())
         );
+        sessionTimeoutOffsetCounter++;
     }
 
     /**
-     * Create the leaf MetricsPersistentWorker, no next step.
+     * Create the leaf and down-sampling MetricsPersistentWorker, no next step.
      */
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             boolean enableDatabaseSession, boolean supportUpdate) {
@@ -109,6 +118,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
              null, null, null,
              enableDatabaseSession, supportUpdate
         );
+        this.isDownSampling = true;
+        // For a down-sampling metrics, we prolong the session timeout for 4 times, nearly 5 minutes.
+        // And add offset according to worker creation sequence, to avoid context clear overlap,
+        // eventually optimize load of IDs reading.
+        this.sessionTimeout = sessionTimeout * 4 + sessionTimeoutOffsetCounter * 200;
     }
 
     /**
@@ -217,6 +231,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                 return;
             }
 
+            // If session is activated and this worker is about minute level metrics,
+            // we could skip `#multiGet` and trust cache,
+            // because in worst case, we override one time bucket metrics due to dirty-write in the cluster re-balancing case.
+            // In down-sampling cases(hour/day), the cache would be clear periodically to keep memory safe,
+            // then have to reload(multiGet) metrics from database.
+            if (enableDatabaseSession && !isDownSampling) {
+                return;
+            }
             final List<Metrics> dbMetrics = metricsDAO.multiGet(model, noInCacheMetrics);
             if (!enableDatabaseSession) {
                 // Clear the cache only after results from DB are returned successfully.
@@ -235,8 +257,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             while (iterator.hasNext()) {
                 Metrics metrics = iterator.next();
                 metrics.extendSurvivalTime(tookTime);
-                // 70,000ms means more than one minute.
-                if (metrics.getSurvivalTime() > 70000) {
+
+                if (metrics.getSurvivalTime() > sessionTimeout) {
                     iterator.remove();
                 }
             }
