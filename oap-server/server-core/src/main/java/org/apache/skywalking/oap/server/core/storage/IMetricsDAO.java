@@ -32,8 +32,8 @@ public interface IMetricsDAO extends DAO {
     /**
      * Read data from the storage by given IDs.
      *
-     * @param model     target entity of this query.
-     * @param metrics   metrics list.
+     * @param model   target entity of this query.
+     * @param metrics metrics list.
      * @return the data of all given IDs. Only include existing data. Don't require to keep the same order of ids list.
      * @throws IOException when error occurs in data query.
      */
@@ -54,4 +54,10 @@ public interface IMetricsDAO extends DAO {
      * executed ASAP.
      */
     UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException;
+
+    /**
+     * @return true if the DAO implementation is sensitive to distinguish insert or update. If false, it means we could
+     * use insert even the data exists in the storage.
+     */
+    boolean isInsertAndUpdateSensitive();
 }

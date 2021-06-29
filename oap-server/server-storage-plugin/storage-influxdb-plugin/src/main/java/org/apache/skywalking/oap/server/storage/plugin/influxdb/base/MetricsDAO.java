@@ -149,4 +149,9 @@ public class MetricsDAO implements IMetricsDAO {
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) {
         return (UpdateRequest) this.prepareBatchInsert(model, metrics);
     }
+
+    @Override
+    public boolean isInsertAndUpdateSensitive() {
+        return false;
+    }
 }

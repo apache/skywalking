@@ -72,4 +72,9 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareUpdate(modelName, id, builder);
     }
+
+    @Override
+    public boolean isInsertAndUpdateSensitive() {
+        return false;
+    }
 }
