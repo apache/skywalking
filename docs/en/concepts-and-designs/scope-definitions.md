@@ -52,6 +52,62 @@ This calculates the metrics data from each request of the service instance.
 | tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
 | tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
 
+#### Secondary scopes of `ServiceInstance` 
+
+This calculates the metrics data if the service instance is a JVM and collects through javaagent.
+
+1. SCOPE `ServiceInstanceJVMCPU`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| usePercent | The percentage of CPU time spent.| | double|
+
+2. SCOPE `ServiceInstanceJVMMemory`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| heapStatus | Indicates whether the metric has a heap property or not. | | bool |
+| init | See the JVM documentation. | | long |
+| max | See the JVM documentation. | | long |
+| used | See the JVM documentation. | | long |
+| committed | See the JVM documentation. | | long |
+
+3. SCOPE `ServiceInstanceJVMMemoryPool`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| poolType | The type may be CODE_CACHE_USAGE, NEWGEN_USAGE, OLDGEN_USAGE, SURVIVOR_USAGE, PERMGEN_USAGE, or METASPACE_USAGE based on different versions of JVM. | | enum |
+| init | See the JVM documentation. | | long |
+| max | See the JVM documentation. | | long |
+| used | See the JVM documentation. | | long |
+| committed | See the JVM documentation. | | long |
+
+4. SCOPE `ServiceInstanceJVMGC`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| phrase | Includes both NEW and OLD. | | Enum |
+| time | The time spent in GC. | | long |
+| count | The count in GC operations. | | long |
+
+5. SCOPE `ServiceInstanceJVMThread`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| liveCount | The current number of live threads. | | int |
+| daemonCount | The current number of daemon threads. | | int |
+| peakCount | The current number of peak threads. | | int |
+
 ### SCOPE `Endpoint`
 
 This calculates the metrics data from each request of the endpoint in the service. 

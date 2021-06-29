@@ -18,20 +18,17 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
-import com.google.common.base.Joiner;
+import Wasm.Common.FlatNode;
+import Wasm.Common.KeyVal;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
-import Wasm.Common.FlatNode;
-import Wasm.Common.KeyVal;
 
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.Objects.nonNull;
@@ -88,10 +85,6 @@ public class ServiceMetaInfoAdapter extends ServiceMetaInfo {
 
         builder.putFields("NAME", Value.newBuilder().setStringValue(nullToEmpty(node.name())).build());
         builder.putFields("NAMESPACE", Value.newBuilder().setStringValue(nullToEmpty(node.namespace())).build());
-        builder.putFields("OWNER", Value.newBuilder().setStringValue(nullToEmpty(node.owner())).build());
-        builder.putFields("WORKLOAD_NAME", Value.newBuilder().setStringValue(nullToEmpty(node.workloadName())).build());
-        builder.putFields("ISTIO_VERSION", Value.newBuilder().setStringValue(nullToEmpty(node.istioVersion())).build());
-        builder.putFields("MESH_ID", Value.newBuilder().setStringValue(nullToEmpty(node.meshId())).build());
         builder.putFields("CLUSTER_ID", Value.newBuilder().setStringValue(nullToEmpty(node.clusterId())).build());
 
         final Struct.Builder labels = Struct.newBuilder();
@@ -101,19 +94,6 @@ public class ServiceMetaInfoAdapter extends ServiceMetaInfo {
         }
         builder.putFields("LABELS", Value.newBuilder().setStructValue(labels).build());
 
-        final Struct.Builder platformMetadata = Struct.newBuilder();
-        for (int i = 0; i < node.platformMetadataLength(); i++) {
-            final KeyVal platformMd = node.platformMetadata(i);
-            platformMetadata.putFields(nullToEmpty(platformMd.key()), Value.newBuilder().setStringValue(nullToEmpty(platformMd.value())).build());
-        }
-        builder.putFields("PLATFORM_METADATA", Value.newBuilder().setStructValue(platformMetadata).build());
-
-        final List<String> appContainers = new ArrayList<>();
-        for (int i = 0; i < node.appContainersLength(); i++) {
-            appContainers.add(node.appContainers(i));
-        }
-        builder.putFields("APP_CONTAINERS", Value.newBuilder().setStringValue(Joiner.on(",").join(appContainers)).build());
-
         return builder.build();
     }
 
@@ -121,9 +101,8 @@ public class ServiceMetaInfoAdapter extends ServiceMetaInfo {
      * The same functionality with {@link ServiceMetaInfoAdapter#ServiceMetaInfoAdapter(com.google.protobuf.ByteString)}.
      *
      * @param metadata the {@link Struct struct} to adapt from.
-     * @throws Exception if the {@link Struct struct} can not be adapted to a {@link ServiceMetaInfo}.
      */
-    public ServiceMetaInfoAdapter(final Struct metadata) throws Exception {
+    public ServiceMetaInfoAdapter(final Struct metadata) {
         FieldsHelper.SINGLETON.inflate(requireNonNull(metadata), this);
     }
 

@@ -16,27 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.envoy;
+package org.apache.skywalking.oap.server.receiver.jvm.provider;
 
-import com.google.protobuf.Struct;
-import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
-import org.apache.skywalking.oap.server.receiver.envoy.als.mx.ServiceMetaInfoAdapter;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 
-public class ServiceMetaInfoFactoryImpl implements ServiceMetaInfoFactory {
-    private static final ServiceMetaInfo UNKNOWN = new ServiceMetaInfo("UNKNOWN", "UNKNOWN");
+/**
+ * JVM OAl script includes the metrics related to JVM only.
+ */
+public class JVMOALDefine extends OALDefine {
+    public static final JVMOALDefine INSTANCE = new JVMOALDefine();
 
-    @Override
-    public Class<? extends ServiceMetaInfo> clazz() {
-        return ServiceMetaInfo.class;
-    }
-
-    @Override
-    public ServiceMetaInfo unknown() {
-        return UNKNOWN;
-    }
-
-    @Override
-    public ServiceMetaInfo fromStruct(final Struct struct) {
-        return new ServiceMetaInfoAdapter(struct);
+    private JVMOALDefine() {
+        super(
+            "oal/java-agent.oal",
+            "org.apache.skywalking.oap.server.core.source"
+        );
     }
 }
