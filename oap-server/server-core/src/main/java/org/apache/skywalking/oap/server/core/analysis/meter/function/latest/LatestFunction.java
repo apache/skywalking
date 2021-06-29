@@ -129,7 +129,7 @@ public abstract class LatestFunction extends Metrics implements AcceptableValue<
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 

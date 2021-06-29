@@ -121,7 +121,7 @@ public class InstanceTraffic extends Metrics {
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return IDManager.ServiceInstanceID.buildId(serviceId, name);
     }
 

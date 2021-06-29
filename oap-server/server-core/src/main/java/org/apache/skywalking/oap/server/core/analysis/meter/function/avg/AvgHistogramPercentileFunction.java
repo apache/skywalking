@@ -318,7 +318,7 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 

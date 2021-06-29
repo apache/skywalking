@@ -73,7 +73,7 @@ public class MetricsTest {
     public class MetricsMocker extends Metrics {
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 

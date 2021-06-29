@@ -72,7 +72,7 @@ public class ServiceInstanceRelationServerSideMetrics extends Metrics {
     private String entityId;
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 

@@ -48,6 +48,7 @@ Release Notes.
 * Performance: trim useless metadata fields in Envoy ALS metadata to improve performance.
 * Fix: slowDBAccessThreshold dynamic config error when not configured.
 * Performance: cache regex pattern and result, optimize string concatenation in Envy ALS analyzer.
+* Performance: cache metrics id and entity id in `Metrics` and `ISource`.
 
 #### UI
 * Fix the date component for log conditions.
