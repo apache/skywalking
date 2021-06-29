@@ -23,17 +23,17 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 public class DBLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
     private AtomicReference<Map<String, Integer>> thresholds;
-    private AtomicReference<String> settingsString;
+    private final String initialSettingsString;
+    private volatile String dynamicSettingsString;
 
     public DBLatencyThresholdsAndWatcher(String config, ModuleProvider provider) {
         super(AnalyzerModule.NAME, provider, "slowDBAccessThreshold");
         thresholds = new AtomicReference<>(new HashMap<>());
-        settingsString = new AtomicReference<>(Const.EMPTY_STRING);
+        initialSettingsString = config;
 
         activeSetting(config);
     }
@@ -47,12 +47,8 @@ public class DBLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
                 newThresholds.put(typeValue[0].trim().toLowerCase(), Integer.parseInt(typeValue[1].trim()));
             }
         }
-        if (!newThresholds.containsKey("default")) {
-            newThresholds.put("default", 10000);
-        }
 
         thresholds.set(newThresholds);
-        settingsString.set(config);
     }
 
     public int getThreshold(String type) {
@@ -67,14 +63,16 @@ public class DBLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
     @Override
     public void notify(ConfigChangeEvent value) {
         if (EventType.DELETE.equals(value.getEventType())) {
-            activeSetting("");
+            dynamicSettingsString = null;
+            activeSetting(initialSettingsString);
         } else {
+            dynamicSettingsString = value.getNewValue();
             activeSetting(value.getNewValue());
         }
     }
 
     @Override
     public String value() {
-        return settingsString.get();
+        return dynamicSettingsString;
     }
 }
