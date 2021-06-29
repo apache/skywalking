@@ -52,6 +52,9 @@ Release Notes.
 * Fix CounterWindow increase computing issue.
 * Performance: optimize Envoy ALS analyzer performance in high traffic load scenario (reduce ~1cpu in ~10k RPS).
 * Performance: trim useless metadata fields in Envoy ALS metadata to improve performance.
+* Fix: slowDBAccessThreshold dynamic config error when not configured.
+* Performance: cache regex pattern and result, optimize string concatenation in Envy ALS analyzer.
+* Performance: cache metrics id and entity id in `Metrics` and `ISource`.
 * Performance: enhance persistent session mechanism, about differentiating cache timeout for different dimensionality
   metrics. The timeout of the cache for minute and hour level metrics has been prolonged to ~5 min. 
 

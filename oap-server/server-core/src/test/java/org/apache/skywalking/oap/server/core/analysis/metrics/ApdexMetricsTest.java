@@ -104,7 +104,7 @@ public class ApdexMetricsTest {
     public class ApdexMetricsImpl extends ApdexMetrics {
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 

@@ -138,7 +138,7 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 
