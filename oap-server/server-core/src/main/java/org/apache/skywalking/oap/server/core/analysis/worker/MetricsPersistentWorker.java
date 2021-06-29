@@ -54,7 +54,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     /**
      * The counter of MetricsPersistentWorker instance, to calculate session timeout offset.
      */
-    private static long sessionTimeoutOffsetCounter = 0;
+    private static long SESSION_TIMEOUT_OFFSITE_COUNTER = 0;
 
     private final Model model;
     private final Map<Metrics, Metrics> context;
@@ -106,7 +106,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             new MetricsTag.Keys("metricName", "level", "dimensionality"),
             new MetricsTag.Values(model.getName(), "2", model.getDownsampling().getName())
         );
-        sessionTimeoutOffsetCounter++;
+        SESSION_TIMEOUT_OFFSITE_COUNTER++;
     }
 
     /**
@@ -122,7 +122,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         // For a down-sampling metrics, we prolong the session timeout for 4 times, nearly 5 minutes.
         // And add offset according to worker creation sequence, to avoid context clear overlap,
         // eventually optimize load of IDs reading.
-        this.sessionTimeout = sessionTimeout * 4 + sessionTimeoutOffsetCounter * 200;
+        this.sessionTimeout = sessionTimeout * 4 + SESSION_TIMEOUT_OFFSITE_COUNTER * 200;
     }
 
     /**
