@@ -52,7 +52,7 @@ public class LongAvgMetricsTest {
     public class LongAvgMetricsImpl extends LongAvgMetrics {
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 

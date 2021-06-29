@@ -123,7 +123,7 @@ public abstract class SumFunction extends Metrics implements AcceptableValue<Lon
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + getEntityId();
     }
 

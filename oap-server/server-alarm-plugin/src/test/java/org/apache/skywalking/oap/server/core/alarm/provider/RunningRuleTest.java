@@ -429,7 +429,7 @@ public class RunningRuleTest {
         private int value;
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 
@@ -486,7 +486,7 @@ public class RunningRuleTest {
         }
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 
@@ -538,7 +538,7 @@ public class RunningRuleTest {
         private DataTable value;
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 

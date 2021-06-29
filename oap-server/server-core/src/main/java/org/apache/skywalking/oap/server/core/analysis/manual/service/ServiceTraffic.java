@@ -67,7 +67,7 @@ public class ServiceTraffic extends Metrics {
     private String group;
 
     @Override
-    public String id() {
+    protected String id0() {
         return IDManager.ServiceID.buildId(name, nodeType);
     }
 
