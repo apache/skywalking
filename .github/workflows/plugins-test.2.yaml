@@ -60,6 +60,7 @@ jobs:
           - shardingsphere-4.x-RC3-scenario
           - shardingsphere-4.0.x-scenario
           - shardingsphere-4.x-scenario
+          - shardingsphere-5.0.0-beta-scenario
           - sofarpc-scenario
           - solrj-7.x-scenario
           - spring-3.0.x-scenario
