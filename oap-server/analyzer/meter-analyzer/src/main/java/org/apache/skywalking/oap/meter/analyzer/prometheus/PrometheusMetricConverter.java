@@ -18,9 +18,17 @@
 
 package org.apache.skywalking.oap.meter.analyzer.prometheus;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
@@ -33,10 +41,6 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
-
-import java.util.Collections;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static io.vavr.API.$;
@@ -51,11 +55,23 @@ import static org.apache.skywalking.oap.meter.analyzer.Analyzer.NIL;
  */
 @Slf4j
 public class PrometheusMetricConverter {
+    private final Pattern metricsNameEscapePattern;
+
+    private final LoadingCache<String, String> escapedMetricsNameCache =
+        CacheBuilder.newBuilder()
+                    .maximumSize(1000)
+                    .build(new CacheLoader<String, String>() {
+                        @Override
+                        public String load(final String name) {
+                            return metricsNameEscapePattern.matcher(name).replaceAll("_");
+                        }
+                    });
 
     private final MetricConvert convert;
 
     public PrometheusMetricConverter(Rule rule, MeterSystem service) {
         this.convert = new MetricConvert(rule, service);
+        this.metricsNameEscapePattern = Pattern.compile("\\.");
     }
 
     /**
@@ -146,6 +162,11 @@ public class PrometheusMetricConverter {
 
     // Returns the escaped name of the given one, with "." replaced by "_"
     protected String escapedName(final String name) {
-        return name.replaceAll("\\.", "_");
+        try {
+            return escapedMetricsNameCache.get(name);
+        } catch (ExecutionException e) {
+            log.error("Failed to get escaped metrics name from cache", e);
+            return metricsNameEscapePattern.matcher(name).replaceAll("_");
+        }
     }
 }
