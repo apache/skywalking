@@ -59,7 +59,7 @@ public class MinLongMetricsTest {
     public class MinLongMetricsImpl extends MinLongMetrics {
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 

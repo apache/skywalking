@@ -1,4 +1,4 @@
-public String id() {
+protected String id0() {
 StringBuilder splitJointId = new StringBuilder(String.valueOf(getTimeBucket()));
 <#list fieldsFromSource as sourceField>
     <#if sourceField.isID()>

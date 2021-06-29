@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 public class MockMetrics extends Metrics {
 
     @Override
-    public String id() {
+    protected String id0() {
         return "mock-metrics";
     }
 

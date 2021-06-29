@@ -131,4 +131,16 @@ public abstract class Metrics extends StreamData implements StorageData {
     private boolean isDayBucket() {
         return TimeBucket.isDayBucket(timeBucket);
     }
+
+    private volatile String id;
+
+    @Override
+    public String id() {
+        if (id == null) {
+            id = id0();
+        }
+        return id;
+    }
+
+    protected abstract String id0();
 }
