@@ -150,11 +150,6 @@ segmentItems:
             spanType: Local
             peer: ''
             skipAnalysis: false
-            refs:
-              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
-                 parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
           - operationName: Greeter.sayHello/server/Request/onMessage
             operationId: 0
             parentSpanId: -1
@@ -186,11 +181,6 @@ segmentItems:
             spanType: Local
             peer: ''
             skipAnalysis: false
-            refs:
-              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
-                 parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
           - operationName: Greeter.sayHello/server/Request/onMessage
             operationId: 0
             parentSpanId: -1
@@ -224,11 +214,6 @@ segmentItems:
             skipAnalysis: false
             tags:
               - {key: status_code, value: OK}
-            refs:
-              - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
-                 parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: correlation-autotag-scenario,
-                 traceId: not null}
           - operationName: Greeter.sayHello/server/Request/onComplete
             operationId: 0
             parentSpanId: -1
