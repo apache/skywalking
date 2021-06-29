@@ -43,9 +43,12 @@ Release Notes.
 * Upgrade commons-lang3 to avoid potential NPE in some JDK versions.
 * OAL supports generating metrics from events.
 * Support endpoint name grouping by OpenAPI definitions.
+* Concurrent create PrepareRequest when persist Metrics
 * Fix CounterWindow increase computing issue.
 * Performance: optimize Envoy ALS analyzer performance in high traffic load scenario (reduce ~1cpu in ~10k RPS).
 * Performance: trim useless metadata fields in Envoy ALS metadata to improve performance.
+* Fix: slowDBAccessThreshold dynamic config error when not configured.
+* Performance: cache regex pattern and result, optimize string concatenation in Envy ALS analyzer.
 
 #### UI
 * Fix the date component for log conditions.
