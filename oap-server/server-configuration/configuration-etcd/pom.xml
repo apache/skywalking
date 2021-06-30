@@ -54,8 +54,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mousio</groupId>
-            <artifactId>etcd4j</artifactId>
+            <groupId>io.etcd</groupId>
+            <artifactId>jetcd-core</artifactId>
         </dependency>
 
         <dependency>
@@ -66,6 +66,10 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
         </dependency>
     </dependencies>
 
@@ -106,7 +110,7 @@
                                 <configuration>
                                     <images>
                                         <image>
-                                            <name>quayio/coreos-etcd:${etcd.version}</name>
+                                            <name>bitnami/etcd:3.4.0</name>
                                             <alias>etcd-client-integration-test</alias>
                                             <run>
                                                 <ports>

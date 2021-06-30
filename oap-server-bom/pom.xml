@@ -61,7 +61,6 @@
         <nacos.version>1.4.2</nacos.version>
         <curator.version>4.3.0</curator.version>
         <curator-test.version>2.12.0</curator-test.version>
-        <etcd4j.version>2.18.0</etcd4j.version>
         <netty.version>4.1.65.Final</netty.version>
         <jackson-module-afterburner.version>2.12.2</jackson-module-afterburner.version>
         <antlr.version>4.7.1</antlr.version>
@@ -73,6 +72,8 @@
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <flatbuffers-java.version>1.12.0</flatbuffers-java.version>
         <postgresql.version>42.2.18</postgresql.version>
+        <jetcd.version>0.5.7</jetcd.version>
+        <testcontainers.version>1.15.3</testcontainers.version>
     </properties>
 
     <dependencyManagement>
@@ -329,41 +330,11 @@
                 <artifactId>nacos-client</artifactId>
                 <version>${nacos.version}</version>
             </dependency>
+
             <dependency>
-                <groupId>org.mousio</groupId>
-                <artifactId>etcd4j</artifactId>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>netty-codec-dns</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-
-                    <exclusion>
-                        <artifactId>netty-codec-dns</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-
-                    <exclusion>
-                        <artifactId>netty-codec-http</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-
-                    <exclusion>
-                        <artifactId>netty-handler</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-
-                    <exclusion>
-                        <artifactId>netty-resolver-dns</artifactId>
-                        <groupId>io.netty</groupId>
-                    </exclusion>
-
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.module</groupId>
-                        <artifactId>jackson-module-afterburner</artifactId>
-                    </exclusion>
-                </exclusions>
-                <version>${etcd4j.version}</version>
+                <groupId>io.etcd</groupId>
+                <artifactId>jetcd-core</artifactId>
+                <version>${jetcd.version}</version>
             </dependency>
 
             <dependency>
@@ -495,6 +466,13 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
