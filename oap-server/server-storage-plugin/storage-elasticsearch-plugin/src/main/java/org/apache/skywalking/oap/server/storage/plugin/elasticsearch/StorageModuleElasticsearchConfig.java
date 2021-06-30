@@ -40,7 +40,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      *
      * @since 8.7.0
      */
-    private int socketTimeout = 60000;
+    private int socketTimeout = 30000;
     /**
      * Since 6.4.0, the index of metrics and traces data in minute/hour/month precision are organized in days. ES
      * storage creates new indexes in every day.

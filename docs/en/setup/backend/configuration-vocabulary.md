@@ -82,7 +82,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | clusterNodes | ElasticSearch cluster nodes for client connection.| SW_STORAGE_ES_CLUSTER_NODES |localhost|
 | - | - | protocol | HTTP or HTTPs. | SW_STORAGE_ES_HTTP_PROTOCOL | HTTP|
 | - | - | connectTimeout | Connect timeout of ElasticSearch client. Unit is ms. | SW_STORAGE_ES_CONNECT_TIMEOUT | 500|
-| - | - | socketTimeout | Socket timeout of ElasticSearch client. Unit is ms. | SW_STORAGE_ES_SOCKET_TIMEOUT | 60000|
+| - | - | socketTimeout | Socket timeout of ElasticSearch client. Unit is ms. | SW_STORAGE_ES_SOCKET_TIMEOUT | 30000|
 | - | - | user| User name of ElasticSearch cluster| SW_ES_USER | - |
 | - | - | password | Password of ElasticSearch cluster | SW_ES_PASSWORD | - |
 | - | - | trustStorePath | Trust JKS file path. Only work when user name and password opened | SW_STORAGE_ES_SSL_JKS_PATH | - |
@@ -107,7 +107,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | clusterNodes | ElasticSearch cluster nodes for client connection.| SW_STORAGE_ES_CLUSTER_NODES |localhost|
 | - | - | protocol | HTTP or HTTPs. | SW_STORAGE_ES_HTTP_PROTOCOL | HTTP|
 | - | - | connectTimeout | Connect timeout of ElasticSearch client. Unit is ms. | SW_STORAGE_ES_CONNECT_TIMEOUT | 500|
-| - | - | socketTimeout | Socket timeout of ElasticSearch client. Unit is ms. | SW_STORAGE_ES_SOCKET_TIMEOUT | 60000|
+| - | - | socketTimeout | Socket timeout of ElasticSearch client. Unit is ms. | SW_STORAGE_ES_SOCKET_TIMEOUT | 30000|
 | - | - | user| User name of ElasticSearch cluster| SW_ES_USER | - |
 | - | - | password | Password of ElasticSearch cluster | SW_ES_PASSWORD | - |
 | - | - | trustStorePath | Trust JKS file path. Only work when user name and password opened | SW_STORAGE_ES_SSL_JKS_PATH | - |
