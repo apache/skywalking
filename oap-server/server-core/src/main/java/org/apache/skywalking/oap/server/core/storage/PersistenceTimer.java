@@ -29,7 +29,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -203,16 +202,18 @@ public enum PersistenceTimer {
         }
     }
 
-    @RequiredArgsConstructor
     static class DefaultBlockingBatchQueue<E> implements BlockingBatchQueue<E> {
-
         @Getter
         private final int maxBatchSize;
-
+        private final List<E> elementData;
         @Getter
         private boolean inAppendingMode = true;
 
-        private final List<E> elementData = new ArrayList<>(50000 * 3);
+        public DefaultBlockingBatchQueue(final int maxBatchSize) {
+            this.maxBatchSize = maxBatchSize;
+            // Use the maxBatchSize * 3 as the initial queue size to avoid ArrayList#grow
+            this.elementData = new ArrayList<>(maxBatchSize * 3);
+        }
 
         @Override
         public void offer(List<E> elements) {
