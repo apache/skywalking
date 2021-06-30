@@ -418,7 +418,7 @@ telemetry:
     sslCertChainPath: ${SW_TELEMETRY_PROMETHEUS_SSL_CERT_CHAIN_PATH:""}
 
 configuration:
-  selector: ${SW_CONFIGURATION:none}
+  selector: ${SW_CONFIGURATION:etcd}
   none:
   grpc:
     host: ${SW_DCS_SERVER_HOST:""}
@@ -440,9 +440,11 @@ configuration:
     maxRetries: ${SW_CONFIG_ZK_MAX_RETRIES:3} # max number of times to retry
   etcd:
     period: ${SW_CONFIG_ETCD_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
-    group: ${SW_CONFIG_ETCD_GROUP:skywalking}
-    serverAddr: ${SW_CONFIG_ETCD_SERVER_ADDR:localhost:2379}
-    clusterName: ${SW_CONFIG_ETCD_CLUSTER_NAME:default}
+    endpoints: ${SW_CONFIG_ETCD_ENDPOINTS:localhost:2379}
+    namespace: ${SW_CONFIG_ETCD_GROUP:skywalking}
+    authentication: ${SW_CONFIG_ETCD_AUTHENTICATION:false}
+    user: ${SW_CONFIG_ETCD_USER:}
+    password: ${SW_CONFIG_ETCD_password:}
   consul:
     # Consul host and ports, separated by comma, e.g. 1.2.3.4:8500,2.3.4.5:8500
     hostAndPorts: ${SW_CONFIG_CONSUL_HOST_AND_PORTS:1.2.3.4:8500}
