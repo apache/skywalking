@@ -24,7 +24,6 @@ Release Notes.
 * Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
 * Fix the reponse time of gRPC.
 * Add agent plugin to support Sentinel.
-* Fix the response time of gRPC.
 
 #### OAP-Backend
 
