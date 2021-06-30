@@ -9,6 +9,8 @@ Release Notes.
 
 * Extract dependency management to a bom.
 * Add JDK 16 to test matrix.
+* DataCarrier consumer add a new event notification, call `nothingToConsume` method if the queue has no element to
+  consume.
 
 #### Java Agent
 

@@ -133,5 +133,10 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         @Override
         public void onExit() {
         }
+
+        @Override
+        public void nothingToConsume() {
+            flush();
+        }
     }
 }
