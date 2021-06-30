@@ -9,6 +9,8 @@ Release Notes.
 
 * Extract dependency management to a bom.
 * Add JDK 16 to test matrix.
+* DataCarrier consumer add a new event notification, call `nothingToConsume` method if the queue has no element to
+  consume.
 
 #### Java Agent
 
@@ -56,7 +58,8 @@ Release Notes.
 * Performance: cache regex pattern and result, optimize string concatenation in Envy ALS analyzer.
 * Performance: cache metrics id and entity id in `Metrics` and `ISource`.
 * Performance: enhance persistent session mechanism, about differentiating cache timeout for different dimensionality
-  metrics. The timeout of the cache for minute and hour level metrics has been prolonged to ~5 min. 
+  metrics. The timeout of the cache for minute and hour level metrics has been prolonged to ~5 min.
+* Performance: Add L1 aggregation flush period, which reduce the CPU load and help young GC.
 
 #### UI
 
