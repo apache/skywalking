@@ -18,5 +18,7 @@ type: jvm
 entryService: http://localhost:8080/sentinel-scenario/case/sentinel-scenario
 healthCheck: http://localhost:8080/sentinel-scenario/case/healthCheck
 startScript: ./bin/startup.sh
+runningMode: with_optional
+withPlugins: apm-sentinel-1.x-plugin-*.jar
 environment:
 dependencies:
