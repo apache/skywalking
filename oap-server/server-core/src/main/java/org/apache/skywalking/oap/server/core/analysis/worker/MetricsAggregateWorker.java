@@ -42,13 +42,15 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  */
 @Slf4j
 public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
+    public final long l1FlushPeriod;
     private AbstractWorker<Metrics> nextWorker;
     private final DataCarrier<Metrics> dataCarrier;
     private final MergableBufferedData<Metrics> mergeDataCache;
     private CounterMetrics aggregationCounter;
+    private long lastSendTime = 0;
 
     MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Metrics> nextWorker,
-                           String modelName) {
+                           String modelName, long l1FlushPeriod) {
         super(moduleDefineHolder);
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergableBufferedData();
@@ -69,8 +71,10 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
                                                           .getService(MetricsCreator.class);
         aggregationCounter = metricsCreator.createCounter(
             "metrics_aggregation", "The number of rows in aggregation",
-            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "1", "minute")
+            new MetricsTag.Keys("metricName", "level", "dimensionality"),
+            new MetricsTag.Values(modelName, "1", "minute")
         );
+        this.l1FlushPeriod = l1FlushPeriod;
     }
 
     /**
@@ -93,14 +97,22 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
             mergeDataCache.accept(metrics);
         });
 
-        mergeDataCache.read().forEach(
-            data -> {
-                if (log.isDebugEnabled()) {
-                    log.debug(data.toString());
+        flush();
+    }
+
+    private void flush() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastSendTime > l1FlushPeriod) {
+            mergeDataCache.read().forEach(
+                data -> {
+                    if (log.isDebugEnabled()) {
+                        log.debug(data.toString());
+                    }
+                    nextWorker.in(data);
                 }
-                nextWorker.in(data);
-            }
-        );
+            );
+            lastSendTime = currentTime;
+        }
     }
 
     private class AggregatorConsumer implements IConsumer<Metrics> {
@@ -120,6 +132,11 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
 
         @Override
         public void onExit() {
+        }
+
+        @Override
+        public void nothingToConsume() {
+            flush();
         }
     }
 }
