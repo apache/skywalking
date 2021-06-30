@@ -23,6 +23,7 @@ Release Notes.
 * Add `Neo4j-4.x` plugin.
 * Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
 * Fix the response time of gRPC.
+* Add `ShardingSphere-5.0.0-beta` plugin.
 
 #### OAP-Backend
 
