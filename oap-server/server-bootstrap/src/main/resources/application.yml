@@ -420,7 +420,7 @@ telemetry:
     sslCertChainPath: ${SW_TELEMETRY_PROMETHEUS_SSL_CERT_CHAIN_PATH:""}
 
 configuration:
-  selector: ${SW_CONFIGURATION:etcd}
+  selector: ${SW_CONFIGURATION:none}
   none:
   grpc:
     host: ${SW_DCS_SERVER_HOST:""}
