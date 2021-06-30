@@ -23,7 +23,7 @@ depends_on:
   - mssql-server
 dependencies:
   mssql-server:
-    image: microsoft/mssql-server-linux
+    image: mcr.microsoft.com/mssql/server
     hostname: mssql-server
     expose:
       - "1433"
