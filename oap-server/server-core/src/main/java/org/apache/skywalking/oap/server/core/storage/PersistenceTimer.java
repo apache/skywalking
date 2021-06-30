@@ -212,7 +212,7 @@ public enum PersistenceTimer {
 
         public DefaultBlockingBatchQueue(final int maxBatchSize) {
             this.maxBatchSize = maxBatchSize;
-            // Use the maxBatchSize * 2 as the initial queue size to avoid ArrayList#grow
+            // Use the maxBatchSize * 3 as the initial queue size to avoid ArrayList#grow
             this.elementData = new ArrayList<>(maxBatchSize * 3);
         }
 
