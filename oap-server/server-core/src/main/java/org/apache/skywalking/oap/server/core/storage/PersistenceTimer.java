@@ -203,16 +203,18 @@ public enum PersistenceTimer {
         }
     }
 
-    @RequiredArgsConstructor
     static class DefaultBlockingBatchQueue<E> implements BlockingBatchQueue<E> {
-
         @Getter
         private final int maxBatchSize;
-
+        private final List<E> elementData;
         @Getter
         private boolean inAppendingMode = true;
 
-        private final List<E> elementData = new ArrayList<>(50000 * 3);
+        public DefaultBlockingBatchQueue(final int maxBatchSize) {
+            this.maxBatchSize = maxBatchSize;
+            // Use the maxBatchSize * 2 as the initial queue size to avoid ArrayList#grow
+            this.elementData = new ArrayList<>(maxBatchSize * 3);
+        }
 
         @Override
         public void offer(List<E> elements) {
