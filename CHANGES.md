@@ -22,7 +22,7 @@ Release Notes.
   See [gRPC-java 7133](https://github.com/grpc/grpc-java/issues/7133) for more details.
 * Add `Neo4j-4.x` plugin.
 * Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
-* Fix the reponse time of gRPC.
+* Fix the response time of gRPC.
 * Add agent plugin to support Sentinel.
 
 #### OAP-Backend
