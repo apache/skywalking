@@ -85,6 +85,7 @@ public class MultipleChannelsConsumer extends Thread {
             }
             return true;
         }
+        target.consumer.nothingToConsume();
         return false;
     }
 
@@ -112,7 +113,7 @@ public class MultipleChannelsConsumer extends Thread {
     }
 
     private static class Group {
-        private  Channels channels;
+        private Channels channels;
         private IConsumer consumer;
 
         public Group(Channels channels, IConsumer consumer) {
