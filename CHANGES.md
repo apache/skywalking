@@ -57,6 +57,7 @@ Release Notes.
 * Performance: cache metrics id and entity id in `Metrics` and `ISource`.
 * Performance: enhance persistent session mechanism, about differentiating cache timeout for different dimensionality
   metrics. The timeout of the cache for minute and hour level metrics has been prolonged to ~5 min. 
+* Upgrade etcd to v3.x.
 
 #### UI
 
