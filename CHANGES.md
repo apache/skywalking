@@ -42,7 +42,7 @@ Release Notes.
 * Upgrade netty caused by CVE-2019-20444, CVE-2019-20445, CVE-2019-16869, CVE-2020-11612, CVE-2021-21290, CVE-2021-21295
   and CVE-2021-21409.
 * Upgrade consul client caused by CVE-2018-1000844, CVE-2018-1000850.
-* Upgrade zookeeper caused by CVE-2019-0201.
+* Upgrade zookeeper caused by CVE-2019-0201, zookeeper cluster coordinator plugin now requires zookeeper server 3.5+.
 * Upgrade snake yaml caused by CVE-2017-18640.
 * Upgrade embed tomcat caused by CVE-2020-13935.
 * Upgrade commons-lang3 to avoid potential NPE in some JDK versions.
