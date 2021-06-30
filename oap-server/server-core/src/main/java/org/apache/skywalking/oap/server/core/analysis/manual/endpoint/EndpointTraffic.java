@@ -56,7 +56,7 @@ public class EndpointTraffic extends Metrics {
     private String name = Const.EMPTY_STRING;
 
     @Override
-    public String id() {
+    protected String id0() {
         // Downgrade the time bucket to day level only.
         // supportDownSampling == false for this entity.
         return IDManager.EndpointID.buildId(

@@ -54,7 +54,7 @@ public class MaxLongMetricsTest {
     public class MaxLongMetricsImpl extends MaxLongMetrics {
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 
