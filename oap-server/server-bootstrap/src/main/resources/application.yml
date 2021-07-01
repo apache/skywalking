@@ -87,6 +87,8 @@ core:
     metricsDataTTL: ${SW_CORE_METRICS_DATA_TTL:7} # Unit is day
     # The period of L1 aggregation flush to L2 aggregation. Unit is ms.
     l1FlushPeriod: ${SW_CORE_L1_AGGREGATION_FLUSH_PERIOD:500}
+    # The threshold of session time. Unit is ms. Default value is 2.5 min.
+    storageSessionTimeout: ${SW_CORE_STORAGE_SESSION_TIMEOUT:15000}
     # Cache metrics data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
     # the metrics may not be accurate within that minute.
     enableDatabaseSession: ${SW_CORE_ENABLE_DATABASE_SESSION:true}

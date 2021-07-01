@@ -65,12 +65,13 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     private final Optional<MetricsTransWorker> transWorker;
     private final boolean enableDatabaseSession;
     private final boolean supportUpdate;
+    private long sessionTimeout;
     private CounterMetrics aggregationCounter;
-    private long sessionTimeout = 70_000; // Unit, ms. 70,000ms means more than one minute.
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
-                            MetricsTransWorker transWorker, boolean enableDatabaseSession, boolean supportUpdate) {
+                            MetricsTransWorker transWorker, boolean enableDatabaseSession, boolean supportUpdate,
+                            long storageSessionTimeout) {
         super(moduleDefineHolder, new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData()));
         this.model = model;
         this.context = new HashMap<>(100);
@@ -80,6 +81,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         this.nextExportWorker = Optional.ofNullable(nextExportWorker);
         this.transWorker = Optional.ofNullable(transWorker);
         this.supportUpdate = supportUpdate;
+        this.sessionTimeout = storageSessionTimeout;
 
         String name = "METRICS_L2_AGGREGATION";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -111,15 +113,15 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      * Create the leaf and down-sampling MetricsPersistentWorker, no next step.
      */
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
-                            boolean enableDatabaseSession, boolean supportUpdate) {
+                            boolean enableDatabaseSession, boolean supportUpdate, long storageSessionTimeout) {
         this(moduleDefineHolder, model, metricsDAO,
              null, null, null,
-             enableDatabaseSession, supportUpdate
+             enableDatabaseSession, supportUpdate, storageSessionTimeout
         );
         // For a down-sampling metrics, we prolong the session timeout for 4 times, nearly 5 minutes.
         // And add offset according to worker creation sequence, to avoid context clear overlap,
         // eventually optimize load of IDs reading.
-        this.sessionTimeout = sessionTimeout * 4 + SESSION_TIMEOUT_OFFSITE_COUNTER * 200;
+        this.sessionTimeout = this.sessionTimeout * 4 + SESSION_TIMEOUT_OFFSITE_COUNTER * 200;
     }
 
     /**

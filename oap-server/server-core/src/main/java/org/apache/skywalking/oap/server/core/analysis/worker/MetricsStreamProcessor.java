@@ -82,6 +82,11 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
     @Setter
     @Getter
     private boolean enableDatabaseSession;
+    /**
+     * The threshold of session time. Unit is ms. Default value is 2.5 min.
+     */
+    @Setter
+    private long storageSessionTimeout = 150_000;
 
     public static MetricsStreamProcessor getInstance() {
         return PROCESSOR;
@@ -191,7 +196,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
         MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(
             moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker, enableDatabaseSession,
-            supportUpdate
+            supportUpdate, storageSessionTimeout
         );
         persistentWorkers.add(minutePersistentWorker);
 
@@ -203,7 +208,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                                                        Model model,
                                                        boolean supportUpdate) {
         MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(
-            moduleDefineHolder, model, metricsDAO, enableDatabaseSession, supportUpdate);
+            moduleDefineHolder, model, metricsDAO, enableDatabaseSession, supportUpdate, storageSessionTimeout);
         persistentWorkers.add(persistentWorker);
 
         return persistentWorker;
