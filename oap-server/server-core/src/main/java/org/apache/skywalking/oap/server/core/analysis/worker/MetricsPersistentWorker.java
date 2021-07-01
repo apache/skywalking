@@ -171,6 +171,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         try {
             loadFromStorage(metricsList);
 
+            long timestamp = System.currentTimeMillis();
             for (Metrics metrics : metricsList) {
                 Metrics cachedMetrics = context.get(metrics);
                 if (cachedMetrics != null) {
@@ -191,10 +192,12 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                     cachedMetrics.calculate();
                     prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cachedMetrics));
                     nextWorker(cachedMetrics);
+                    cachedMetrics.setLastUpdateTimestamp(timestamp);
                 } else {
                     metrics.calculate();
                     prepareRequests.add(metricsDAO.prepareBatchInsert(model, metrics));
                     nextWorker(metrics);
+                    metrics.setLastUpdateTimestamp(timestamp);
                 }
 
                 /*
@@ -221,14 +224,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      */
     private void loadFromStorage(List<Metrics> metrics) {
         try {
-            List<Metrics> noInCacheMetrics = metrics.stream()
-                                                    .filter(m -> !context.containsKey(m) || !enableDatabaseSession)
-                                                    .collect(Collectors.toList());
-            if (noInCacheMetrics.isEmpty()) {
+            List<Metrics> notInCacheMetrics = metrics.stream()
+                                                     .filter(m -> !context.containsKey(m) || !enableDatabaseSession)
+                                                     .collect(Collectors.toList());
+            if (notInCacheMetrics.isEmpty()) {
                 return;
             }
-            
-            final List<Metrics> dbMetrics = metricsDAO.multiGet(model, noInCacheMetrics);
+
+            final List<Metrics> dbMetrics = metricsDAO.multiGet(model, notInCacheMetrics);
             if (!enableDatabaseSession) {
                 // Clear the cache only after results from DB are returned successfully.
                 context.clear();
@@ -240,14 +243,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     }
 
     @Override
-    public void endOfRound(long tookTime) {
+    public void endOfRound() {
         if (enableDatabaseSession) {
             Iterator<Metrics> iterator = context.values().iterator();
+            long timestamp = System.currentTimeMillis();
             while (iterator.hasNext()) {
                 Metrics metrics = iterator.next();
-                metrics.extendSurvivalTime(tookTime);
 
-                if (metrics.getSurvivalTime() > sessionTimeout) {
+                if (metrics.isSurvival(timestamp, sessionTimeout)) {
                     iterator.remove();
                 }
             }

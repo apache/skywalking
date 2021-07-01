@@ -54,9 +54,8 @@ public enum PersistenceTimer {
     private HistogramMetrics prepareLatency;
     private HistogramMetrics executeLatency;
     private HistogramMetrics allLatency;
-    private long lastTime = System.currentTimeMillis();
     private int syncOperationThreadsNum;
-    private int maxSyncoperationNum;
+    private int maxSyncOperationNum;
     private ExecutorService executorService;
     private ExecutorService prepareExecutorService;
 
@@ -89,7 +88,7 @@ public enum PersistenceTimer {
         );
 
         syncOperationThreadsNum = moduleConfig.getSyncThreads();
-        maxSyncoperationNum = moduleConfig.getMaxSyncOperationNum();
+        maxSyncOperationNum = moduleConfig.getMaxSyncOperationNum();
         executorService = Executors.newFixedThreadPool(syncOperationThreadsNum);
         prepareExecutorService = Executors.newFixedThreadPool(moduleConfig.getPrepareThreads());
         if (!isStarted) {
@@ -116,7 +115,7 @@ public enum PersistenceTimer {
         AtomicBoolean stop = new AtomicBoolean(false);
 
         DefaultBlockingBatchQueue<PrepareRequest> prepareQueue = new DefaultBlockingBatchQueue(
-            this.maxSyncoperationNum);
+            this.maxSyncOperationNum);
         try {
             List<PersistenceWorker<? extends StorageData>> persistenceWorkers = new ArrayList<>();
             persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
@@ -142,7 +141,7 @@ public enum PersistenceTimer {
                         // Push the prepared requests into DefaultBlockingBatchQueue,
                         // the executorService consumes from it when it reaches the size of batch.
                         prepareQueue.offer(innerPrepareRequests);
-                        worker.endOfRound(System.currentTimeMillis() - lastTime);
+                        worker.endOfRound();
                     } finally {
                         timer.finish();
                         prepareStageCountDownLatch.countDown();
@@ -194,7 +193,6 @@ public enum PersistenceTimer {
 
             stop.set(true);
             allTimer.finish();
-            lastTime = System.currentTimeMillis();
         }
 
         if (debug) {
