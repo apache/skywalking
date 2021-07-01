@@ -24,6 +24,7 @@ Release Notes.
 * Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
 * Fix the response time of gRPC.
 * Add `ShardingSphere-5.0.0-beta` plugin.
+* Fix some method exception error.
 
 #### OAP-Backend
 
