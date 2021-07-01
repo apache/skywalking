@@ -1,13 +1,10 @@
-public String id() {
-String splitJointId = String.valueOf(getTimeBucket());
+protected String id0() {
+StringBuilder splitJointId = new StringBuilder(String.valueOf(getTimeBucket()));
 <#list fieldsFromSource as sourceField>
     <#if sourceField.isID()>
-        <#if sourceField.getTypeName() == "java.lang.String">
-            splitJointId += org.apache.skywalking.oap.server.core.Const.ID_CONNECTOR + ${sourceField.fieldName};
-        <#else>
-            splitJointId += org.apache.skywalking.oap.server.core.Const.ID_CONNECTOR + String.valueOf(${sourceField.fieldName});
-        </#if>
+        splitJointId.append(org.apache.skywalking.oap.server.core.Const.ID_CONNECTOR)
+                    .append(${sourceField.fieldName});
     </#if>
 </#list>
-return splitJointId;
+return splitJointId.toString();
 }

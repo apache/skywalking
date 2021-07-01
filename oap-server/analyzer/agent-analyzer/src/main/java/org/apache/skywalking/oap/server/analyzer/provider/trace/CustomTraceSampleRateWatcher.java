@@ -101,7 +101,6 @@ public class CustomTraceSampleRateWatcher extends ConfigChangeWatcher {
             return new Yaml(new ClassFilterConstructor(new Class[]{
                     ServiceInfos.class,
                     ServiceInfo.class,
-                    SampleInfo.class,
             }))
                     .loadAs(reader, ServiceInfos.class);
         } catch (FileNotFoundException e) {
@@ -114,8 +113,7 @@ public class CustomTraceSampleRateWatcher extends ConfigChangeWatcher {
         try {
             return new Yaml(new ClassFilterConstructor(new Class[]{
                     ServiceInfos.class,
-                    ServiceInfo.class,
-                    SampleInfo.class,
+                    ServiceInfo.class
             }))
                     .loadAs(ymlContent, ServiceInfos.class);
         } catch (Exception e) {
@@ -132,10 +130,6 @@ public class CustomTraceSampleRateWatcher extends ConfigChangeWatcher {
         // service latitude
         private AtomicReference<Integer> sampleRate;
         private AtomicReference<Integer> duration;
-        // service instance latitude
-        private List<SampleInfo> instances;
-        // service endpoint latitude
-        private List<SampleInfo> endpoints;
     }
 
     @ToString
@@ -154,19 +148,6 @@ public class CustomTraceSampleRateWatcher extends ConfigChangeWatcher {
         public Iterator<ServiceInfo> iterator() {
             return services.iterator();
         }
-    }
-
-    @Getter
-    @Setter
-    @ToString
-    public static class SampleInfo {
-
-        private String name;
-        // sampling rate
-        private AtomicReference<Integer> sampleRate;
-        // trace latency time
-        private AtomicReference<Integer> duration;
-
     }
 
 }

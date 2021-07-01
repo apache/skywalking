@@ -67,7 +67,7 @@ public class PercentMetricsTest {
     public class PercentMetricsImpl extends PercentMetrics {
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 

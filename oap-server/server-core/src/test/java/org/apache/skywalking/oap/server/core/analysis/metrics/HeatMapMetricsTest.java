@@ -88,7 +88,7 @@ public class HeatMapMetricsTest {
     public class HistogramMetricsMocker extends HistogramMetrics {
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 

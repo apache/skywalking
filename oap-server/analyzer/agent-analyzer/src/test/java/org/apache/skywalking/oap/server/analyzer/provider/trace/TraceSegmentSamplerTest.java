@@ -47,21 +47,7 @@ public class TraceSegmentSamplerTest {
         SegmentObject segmentObject = SegmentObject.newBuilder().setService("serverName1").build();
         TraceSegmentSampler segmentSampler = new TraceSegmentSampler(traceSampleRateWatcher, customTraceSampleRateWatcher);
         int duration = 12000;
-        
-        // service
         Assert.assertTrue(segmentSampler.shouldSample(segmentObject, duration));
-
-        // instance
-        SegmentObject segmentObject2 = SegmentObject.newBuilder().setService("serverName1")
-                .setServiceInstance("hostName@127.0.0.1").build();
-        Assert.assertTrue(segmentSampler.shouldSample(segmentObject2, duration));
-
-        // enpoints
-        SpanObject spanObject = SpanObject.newBuilder().setOperationName("/url").build();
-        SegmentObject segmentObject3 = SegmentObject.newBuilder().setService("serverName1")
-                .addSpans(0, spanObject).build();
-
-        Assert.assertTrue(segmentSampler.shouldSample(segmentObject3, duration));
     }
 
 }

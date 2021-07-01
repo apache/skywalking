@@ -14,14 +14,6 @@
 # limitations under the License.
 
 services:
-  - name: serverName
-    instances:
-      - name: hostName@127.0.0.1
-        sampleRate: 900
-        duration: 10000
-    endpoints:
-      - name: '/url'
-        sampleRate: 800
-        duration: 10000
+  - name: serverName1
     sampleRate: 1000
     duration: 10000

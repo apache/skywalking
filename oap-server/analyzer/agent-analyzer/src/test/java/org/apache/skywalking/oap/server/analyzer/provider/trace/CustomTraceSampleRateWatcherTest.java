@@ -66,10 +66,6 @@ public class CustomTraceSampleRateWatcherTest {
         CustomTraceSampleRateWatcher.ServiceInfo serviceInfo = watcher.getSample("serverName1");
         Assert.assertEquals(serviceInfo.getSampleRate().get().intValue(), 2000);
         Assert.assertEquals(serviceInfo.getDuration().get().intValue(), 20000);
-        Assert.assertEquals(serviceInfo.getEndpoints().get(0).getDuration().get().intValue(), 20000);
-        Assert.assertEquals(serviceInfo.getEndpoints().get(0).getSampleRate().get().intValue(), 2000);
-        Assert.assertEquals(serviceInfo.getInstances().get(0).getSampleRate().get().intValue(), 2000);
-        Assert.assertEquals(serviceInfo.getInstances().get(0).getDuration().get().intValue(), 20000);
         Assert.assertEquals(provider.getModuleConfig().getCustomTraceSampleRateWatcher().getSample("serverName1").getSampleRate().get().intValue(), 2000);
     }
 
@@ -139,33 +135,9 @@ public class CustomTraceSampleRateWatcherTest {
             ConfigTable table = new ConfigTable();
             table.add(new ConfigTable.ConfigItem("agent-analyzer.default.custom-trace-sample-rate", "services:\n" +
                     "  - name: serverName1\n" +
-                    "    instances:\n" +
-                    "      - name: hostName1@127.0.0.1\n" +
-                    "        sampleRate: 2000\n" +
-                    "        duration: 20000\n" +
-                    "    endpoints:\n" +
-                    "      - name: '/url'\n" +
-                    "        sampleRate: 2000\n" +
-                    "        duration: 20000\n" +
                     "    sampleRate: 2000\n" +
                     "    duration: 20000"));
             return Optional.of(table);
         }
-    }
-
-    public static void main(String[] args) {
-        CustomTraceSampleRateWatcherTest customTraceSampleRateWatcherTest = new CustomTraceSampleRateWatcherTest();
-        customTraceSampleRateWatcherTest.init();
-        try {
-            customTraceSampleRateWatcherTest.testInit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            customTraceSampleRateWatcherTest.testDynamicUpdate();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        customTraceSampleRateWatcherTest.testNotify();
     }
 }
