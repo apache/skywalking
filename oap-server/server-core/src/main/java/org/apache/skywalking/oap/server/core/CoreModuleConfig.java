@@ -56,7 +56,7 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private boolean enableDatabaseSession;
     /**
-     * The threshold of session time. Unit is ms. Default value is 2.5 min.
+     * The threshold of session time. Unit is ms. Default value is 70s.
      */
     private long storageSessionTimeout = 70_000;
     private final List<String> downsampling;
