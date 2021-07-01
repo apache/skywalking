@@ -25,6 +25,7 @@ Release Notes.
 * Fix the response time of gRPC.
 * Support parameter collection for SqlServer.
 * Add `ShardingSphere-5.0.0-beta` plugin.
+* Fix some method exception error.
 
 #### OAP-Backend
 
