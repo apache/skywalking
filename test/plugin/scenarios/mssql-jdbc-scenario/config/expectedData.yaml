@@ -64,7 +64,7 @@ segmentItems:
               - {key: db.type, value: sql}
               - {key: db.instance, value: tempdb}
               - {key: db.statement, value: 'SELECT id, value FROM test_007 WHERE id=?'}
-              - {key: db.sql.parameters, value: '1'}
+              - {key: db.sql.parameters, value: '[1]'}
             logs: []
             startTime: nq 0
             endTime: nq 0
