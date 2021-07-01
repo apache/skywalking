@@ -78,9 +78,6 @@ import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-/**
- *
- */
 @Slf4j
 public class ElasticSearch7Client extends ElasticSearchClient {
     public ElasticSearch7Client(final String clusterNodes,
@@ -89,10 +86,12 @@ public class ElasticSearch7Client extends ElasticSearchClient {
                                 final String trustStorePass,
                                 final String user,
                                 final String password,
-                                List<IndexNameConverter> indexNameConverters) {
+                                List<IndexNameConverter> indexNameConverters,
+                                int connectTimeout,
+                                int socketTimeout) {
         super(
             clusterNodes, protocol, trustStorePath, trustStorePass, user, password,
-            indexNameConverters
+            indexNameConverters, connectTimeout, socketTimeout
         );
     }
 

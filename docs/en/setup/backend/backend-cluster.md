@@ -22,7 +22,7 @@ You can specify any of them in the `selector` property to enable it.
 ## Zookeeper coordinator
 Zookeeper is a very common and widely used cluster coordinator. Set the **cluster/selector** to **zookeeper** in the yml to enable it.
 
-Required Zookeeper version: 3.4+
+Required Zookeeper version: 3.5+
 
 ```yaml
 cluster:
@@ -31,9 +31,9 @@ cluster:
 ```
 
 - `hostPort` is the list of zookeeper servers. Format is `IP1:PORT1,IP2:PORT2,...,IPn:PORTn`
-- `enableACL` enable [Zookeeper ACL](https://zookeeper.apache.org/doc/r3.4.1/zookeeperProgrammers.html#sc_ZooKeeperAccessControl) to control access to its znode.
+- `enableACL` enable [Zookeeper ACL](https://zookeeper.apache.org/doc/r3.5.5/zookeeperProgrammers.html#sc_ZooKeeperAccessControl) to control access to its znode.
 - `schema` is Zookeeper ACL schemas.
-- `expression` is a expression of ACL. The format of the expression is specific to the [schema](https://zookeeper.apache.org/doc/r3.4.1/zookeeperProgrammers.html#sc_BuiltinACLSchemes). 
+- `expression` is a expression of ACL. The format of the expression is specific to the [schema](https://zookeeper.apache.org/doc/r3.5.5/zookeeperProgrammers.html#sc_BuiltinACLSchemes). 
 - `hostPort`, `baseSleepTimeMs` and `maxRetries` are settings of Zookeeper curator client.
 
 Note: 
