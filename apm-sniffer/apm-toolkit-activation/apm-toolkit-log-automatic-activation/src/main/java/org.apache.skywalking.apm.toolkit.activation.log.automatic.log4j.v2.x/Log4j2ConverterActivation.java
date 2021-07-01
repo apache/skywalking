@@ -24,7 +24,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInte
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.isPublic;
+import static net.bytebuddy.matcher.ElementMatchers.isStatic;
+import static net.bytebuddy.matcher.ElementMatchers.returns;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 public class Log4j2ConverterActivation extends ClassStaticMethodsEnhancePluginDefine {
@@ -57,7 +60,6 @@ public class Log4j2ConverterActivation extends ClassStaticMethodsEnhancePluginDe
                                 .and(isStatic())
                                 .and(returns(named(RETURN_CLASS)));
                     }
-
 
                     @Override
                     public String getMethodsInterceptor() {
