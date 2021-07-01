@@ -18,27 +18,35 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.protobuf.Struct;
-import com.google.protobuf.Value;
 import java.io.InputStream;
-import java.lang.reflect.Method;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.Delegate;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 import org.yaml.snakeyaml.Yaml;
+
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
+
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Delegate;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public enum FieldsHelper {
@@ -54,7 +62,7 @@ public enum FieldsHelper {
     /**
      * The mappings from the field name of {@link ServiceMetaInfo} to its {@code setter}.
      */
-    private Map<String, Method> fieldSetterMapping;
+    private Map<String, BiConsumer<? super ServiceMetaInfo, String>> fieldSetterMapping;
 
     public void init(final String file,
                      final Class<? extends ServiceMetaInfo> serviceInfoClass) throws Exception {
@@ -69,7 +77,7 @@ public enum FieldsHelper {
         }
 
         final Yaml yaml = new Yaml();
-        final Map<String, String> config = (Map<String, String>) yaml.load(inputStream);
+        final Map<String, String> config = yaml.load(inputStream);
 
         fieldNameMapping = new HashMap<>(config.size());
         fieldSetterMapping = new HashMap<>(config.size());
@@ -114,10 +122,21 @@ public enum FieldsHelper {
             );
 
             try {
-                final Method setterMethod = serviceInfoClass.getMethod("set" + StringUtils.capitalize(serviceMetaInfoFieldName), String.class);
-                setterMethod.setAccessible(true);
-                fieldSetterMapping.put(serviceMetaInfoFieldName, setterMethod);
-            } catch (final NoSuchMethodException e) {
+                final String setter = "set" + StringUtils.capitalize(serviceMetaInfoFieldName);
+                final MethodHandles.Lookup lookup = MethodHandles.lookup();
+                final Class<?> parameterType = String.class;
+                final CallSite site = LambdaMetafactory.metafactory(
+                        lookup, "accept",
+                        MethodType.methodType(BiConsumer.class),
+                        MethodType.methodType(void.class, Object.class, Object.class),
+                        lookup.findVirtual(serviceInfoClass, setter,
+                                           MethodType.methodType(void.class, parameterType)),
+                        MethodType.methodType(void.class, serviceInfoClass, parameterType));
+                final MethodHandle factory = site.getTarget();
+                final BiConsumer<? super ServiceMetaInfo, String> method =
+                        (BiConsumer<? super ServiceMetaInfo, String>) factory.invoke();
+                fieldSetterMapping.put(serviceMetaInfoFieldName, method);
+            } catch (final Throwable e) {
                 throw new ModuleStartException("Initialize method error", e);
             }
         }
@@ -129,9 +148,8 @@ public enum FieldsHelper {
      *
      * @param metadata        the {@link Struct} metadata from where to retrieve and inflate the {@code serviceMetaInfo}.
      * @param serviceMetaInfo the {@code serviceMetaInfo} to be inflated.
-     * @throws Exception if failed to inflate the {@code serviceMetaInfo}
      */
-    public void inflate(final Struct metadata, final ServiceMetaInfo serviceMetaInfo) throws Exception {
+    public void inflate(final Struct metadata, final ServiceMetaInfo serviceMetaInfo) {
         final Value empty = Value.newBuilder().setStringValue("-").build();
         final Value root = Value.newBuilder().setStructValue(metadata).build();
         for (final Map.Entry<String, ServiceNameFormat> entry : fieldNameMapping.entrySet()) {
@@ -153,7 +171,7 @@ public enum FieldsHelper {
             }
             final String value = Strings.lenientFormat(serviceNameFormat.format, values);
             if (!Strings.isNullOrEmpty(value)) {
-                fieldSetterMapping.get(entry.getKey()).invoke(serviceMetaInfo, value);
+                fieldSetterMapping.get(entry.getKey()).accept(serviceMetaInfo, value);
             }
         }
     }

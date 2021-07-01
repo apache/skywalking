@@ -31,6 +31,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 @ScopeDeclaration(id = SERVICE, name = "Service", catalog = SERVICE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class Service extends Source {
+    private volatile String entityId;
+
     @Override
     public int scope() {
         return DefaultScopeDefine.SERVICE;
@@ -38,7 +40,10 @@ public class Service extends Source {
 
     @Override
     public String getEntityId() {
-        return IDManager.ServiceID.buildId(name, nodeType);
+        if (entityId == null) {
+            entityId = IDManager.ServiceID.buildId(name, nodeType);
+        }
+        return entityId;
     }
 
     @Getter

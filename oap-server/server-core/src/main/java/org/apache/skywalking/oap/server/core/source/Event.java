@@ -73,7 +73,7 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
     public static final String END_TIME = "end_time";
 
     @Override
-    public String id() {
+    protected String id0() {
         return getUuid();
     }
 

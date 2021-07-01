@@ -82,7 +82,7 @@ public class NetworkAddressAlias extends Metrics {
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return IDManager.NetworkAddressAliasDefine.buildId(address);
     }
 

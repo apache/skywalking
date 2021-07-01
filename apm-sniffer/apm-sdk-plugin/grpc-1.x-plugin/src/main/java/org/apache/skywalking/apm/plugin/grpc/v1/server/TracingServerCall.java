@@ -23,26 +23,22 @@ import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.Status;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
-
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.RESPONSE_ON_CLOSE_OPERATION_NAME;
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.RESPONSE_ON_MESSAGE_OPERATION_NAME;
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.SERVER;
+import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
 
 public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.SimpleForwardingServerCall<REQUEST, RESPONSE> {
 
     private final String operationPrefix;
-    private final ContextSnapshot contextSnapshot;
 
-    protected TracingServerCall(ServerCall<REQUEST, RESPONSE> delegate, ContextSnapshot contextSnapshot) {
+    protected TracingServerCall(ServerCall<REQUEST, RESPONSE> delegate) {
         super(delegate);
         this.operationPrefix = OperationNameFormatUtil.formatOperationName(delegate.getMethodDescriptor()) + SERVER;
-        this.contextSnapshot = contextSnapshot;
     }
 
     @Override
@@ -52,7 +48,6 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
             final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + RESPONSE_ON_MESSAGE_OPERATION_NAME);
             span.setComponent(ComponentsDefine.GRPC);
             span.setLayer(SpanLayer.RPC_FRAMEWORK);
-            ContextManager.continued(contextSnapshot);
 
             try {
                 super.sendMessage(message);
@@ -72,7 +67,6 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
         final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + RESPONSE_ON_CLOSE_OPERATION_NAME);
         span.setComponent(ComponentsDefine.GRPC);
         span.setLayer(SpanLayer.RPC_FRAMEWORK);
-        ContextManager.continued(contextSnapshot);
         switch (status.getCode()) {
             case OK:
                 break;
@@ -108,4 +102,5 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
             ContextManager.stopSpan();
         }
     }
+
 }

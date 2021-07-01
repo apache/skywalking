@@ -150,7 +150,7 @@ public abstract class AvgLabeledFunction extends Metrics implements AcceptableVa
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 
