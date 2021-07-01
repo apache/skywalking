@@ -41,7 +41,6 @@
         <logback-classic.version>1.2.3</logback-classic.version>
         <jackson-version>2.12.2</jackson-version>
         <yaml.version>1.28</yaml.version>
-        <tomcat.version>9.0.48</tomcat.version>
 
         <ui.path>${project.parent.basedir}/skywalking-ui</ui.path>
     </properties>
