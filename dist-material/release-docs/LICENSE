@@ -343,6 +343,8 @@ The text of each license is the standard Apache 2.0 license.
     okio 1.17.2: https://github.com/square/okio Apache 2.0
     caffeine 2.6.2: https://github.com/ben-manes/caffeine Apache 2.0
     simpleclient_httpserver from prometheus https://github.com/prometheus/client_java Apache 2.0
+    jetcd 0.5.3, https://github.com/etcd-io/jetcd, Apache 2.0
+    failasfe 2.3.4, https://github.com/jhalterman/failsafe, Apache 2.0
 
 ========================================================================
 MIT licenses

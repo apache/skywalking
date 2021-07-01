@@ -40,6 +40,7 @@ elasticsearch-secure-sm-6.3.2.jar
 elasticsearch-x-content-6.3.2.jar
 error_prone_annotations-2.3.2.jar
 etcd4j-2.18.0.jar
+failsafe-2.3.4.jar
 failureaccess-1.0.1.jar
 flatbuffers-java-1.12.0.jar
 freemarker-2.3.28.jar
@@ -49,6 +50,7 @@ groovy-3.0.3.jar
 grpc-api-1.32.1.jar
 grpc-context-1.32.1.jar
 grpc-core-1.32.1.jar
+grpc-grpclb-1.32.1.jar
 grpc-netty-1.32.1.jar
 grpc-protobuf-1.32.1.jar
 grpc-protobuf-lite-1.32.1.jar
@@ -79,6 +81,9 @@ javassist-3.25.0-GA.jar
 javax.inject-1.jar
 javax.servlet-api-3.1.0.jar
 jcl-over-slf4j-1.7.30.jar
+jetcd-common-0.5.3.jar
+jetcd-core-0.5.3.jar
+jetcd-resolver-0.5.3.jar
 jetty-http-9.4.40.v20210413.jar
 jetty-io-9.4.40.v20210413.jar
 jetty-security-9.4.40.v20210413.jar

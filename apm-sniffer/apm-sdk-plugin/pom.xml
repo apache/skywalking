@@ -28,8 +28,92 @@
 
     <artifactId>apm-sdk-plugin</artifactId>
     <modules>
+        <module>dubbo-plugin</module>
+        <module>jdbc-commons</module>
+        <module>httpClient-4.x-plugin</module>
+        <module>jedis-2.x-plugin</module>
+        <module>redisson-3.x-plugin</module>
+        <module>tomcat-7.x-8.x-plugin</module>
+        <module>motan-plugin</module>
+        <module>mongodb-3.x-plugin</module>
+        <module>mongodb-4.x-plugin</module>
+        <module>feign-default-http-9.x-plugin</module>
+        <module>okhttp-3.x-plugin</module>
+        <module>okhttp-4.x-plugin</module>
+        <module>okhttp-common</module>
+        <module>spring-plugins</module>
+        <module>struts2-2.x-plugin</module>
+        <module>nutz-plugins</module>
+        <module>jetty-plugin</module>
+        <module>spymemcached-2.x-plugin</module>
+        <module>sharding-jdbc-1.5.x-plugin</module>
+        <module>sharding-sphere-3.x-plugin</module>
+        <module>sharding-sphere-4.x-plugin</module>
+        <module>sharding-sphere-4.x-RC3-plugin</module>
+        <module>sharding-sphere-4.0.x-plugin</module>
+        <module>sharding-sphere-4.1.0-plugin</module>
+        <module>shardingsphere-5.0.0-beta-plugin</module>
+        <module>xmemcached-2.x-plugin</module>
+        <module>grpc-1.x-plugin</module>
+        <module>mysql-5.x-plugin</module>
+        <module>mysql-6.x-plugin</module>
+        <module>mysql-8.x-plugin</module>
+        <module>mysql-common</module>
+        <module>h2-1.x-plugin</module>
+        <module>postgresql-8.x-plugin</module>
+        <module>rocketMQ-3.x-plugin</module>
+        <module>rocketMQ-4.x-plugin</module>
+        <module>elastic-job-2.x-plugin</module>
+        <module>elastic-job-3.x-plugin</module>
+        <module>mongodb-2.x-plugin</module>
+        <module>httpasyncclient-4.x-plugin</module>
         <module>kafka-commons</module>
         <module>kafka-plugin</module>
+        <module>servicecomb-plugin</module>
+        <module>hystrix-1.x-plugin</module>
+        <module>sofarpc-plugin</module>
+        <module>activemq-5.x-plugin</module>
+        <module>elasticsearch-5.x-plugin</module>
+        <module>elasticsearch-6.x-plugin</module>
+        <module>elasticsearch-7.x-plugin</module>
+        <module>undertow-plugins</module>
+        <module>rabbitmq-5.x-plugin</module>
+        <module>dubbo-conflict-patch</module>
+        <module>canal-1.x-plugin</module>
+        <module>dubbo-2.7.x-plugin</module>
+        <module>dubbo-2.7.x-conflict-patch</module>
+        <module>vertx-plugins</module>
+        <module>resteasy-plugin</module>
+        <module>solrj-7.x-plugin</module>
+        <module>cassandra-java-driver-3.x-plugin</module>
+        <module>light4j-plugins</module>
+        <module>ehcache-2.x-plugin</module>
+        <module>pulsar-plugin</module>
+        <module>netty-socketio-plugin</module>
+        <module>armeria-0.84.x-plugin</module>
+        <module>armeria-0.85.x-plugin</module>
+        <module>httpclient-3.x-plugin</module>
+        <module>play-2.x-plugin</module>
+        <module>lettuce-5.x-plugin</module>
+        <module>avro-plugin</module>
+        <module>finagle-6.25.x-plugin</module>
+        <module>quasar-plugin</module>
+        <module>mariadb-2.x-plugin</module>
+        <module>influxdb-2.x-plugin</module>
+        <module>baidu-brpc-plugin</module>
+        <module>hbase-1.x-2.x-plugin</module>
+        <module>graphql-plugin</module>
+        <module>xxl-job-2.x-plugin</module>
+        <module>thrift-plugin</module>
+        <module>httpclient-commons</module>
+        <module>asynchttpclient-2.x-plugin</module>
+        <module>dbcp-2.x-plugin</module>
+        <module>mssql-commons</module>
+        <module>mssql-jtds-1.x-plugin</module>
+        <module>mssql-jdbc-plugin</module>
+        <module>cxf-3.x-plugin</module>
+        <module>jsonrpc4j-1.x-plugin</module>
+        <module>neo4j-4.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
