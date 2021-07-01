@@ -44,7 +44,7 @@ public class CustomTraceSampleRateWatcherTest {
         CustomTraceSampleRateWatcher customTraceSampleRateWatcher = new CustomTraceSampleRateWatcher(provider);
         CustomTraceSampleRateWatcher.ServiceInfos serviceInfos
                 = Whitebox.invokeMethod(customTraceSampleRateWatcher, "parseFromFile", "custom-trace-sample-rate.yml");
-        Assert.assertEquals(1, serviceInfos.getServices().size());
+        Assert.assertEquals(2, serviceInfos.getServices().size());
 
     }
 

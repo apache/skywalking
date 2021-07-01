@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
-import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleProvider;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.TraceSegmentSampler;
 import org.junit.Assert;
@@ -38,7 +37,7 @@ public class TraceSegmentSamplerTest {
         customTraceSampleRateWatcher = new CustomTraceSampleRateWatcher(provider);
         CustomTraceSampleRateWatcher.ServiceInfos serviceInfos
                 = Whitebox.invokeMethod(customTraceSampleRateWatcher, "parseFromFile", "custom-trace-sample-rate.yml");
-        Assert.assertEquals(1, serviceInfos.getServices().size());
+        Assert.assertEquals(2, serviceInfos.getServices().size());
         traceSampleRateWatcher = new TraceSampleRateWatcher(provider);
     }
 

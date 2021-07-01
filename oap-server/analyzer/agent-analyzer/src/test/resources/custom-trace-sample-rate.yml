@@ -15,5 +15,8 @@
 
 services:
   - name: serverName1
-    sampleRate: 1000
+    sampleRate: 2000
     duration: 10000
+  - name: serverName2
+    sampleRate: 100
+    duration: 5000
