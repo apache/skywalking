@@ -302,7 +302,6 @@ The text of each license is the standard Apache 2.0 license.
     rxnetty 0.4.9: https://github.com/ReactiveX/rxnetty, Apache 2.0
     servo 0.10.1: https://github.com/Netflix/servo, Apache 2.0
     validation-api 1.1.0.Final: http://beanvalidation.org/licensing/, Apache 2.0
-    zuul-core 1.3.0: https://github.com/Netflix/zuul, Apache 2.0
     HikariCP 3.1.0: https://github.com/brettwooldridge/HikariCP, Apache 2.0
     zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
