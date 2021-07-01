@@ -71,6 +71,7 @@ Release Notes.
 * Add Python celery plugin.
 * Fix default config for metrics.
 * Fix trace table for profile ui.
+* Fix the error of server response time in the topology.
 
 #### Documentation
 
