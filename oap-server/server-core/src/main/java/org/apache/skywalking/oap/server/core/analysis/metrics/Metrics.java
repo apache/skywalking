@@ -94,7 +94,7 @@ public abstract class Metrics extends StreamData implements StorageData {
      * @param expiredThreshold represents the duration between last update time and the time point removing from cache.
      * @return true means this metrics should be removed from cache.
      */
-    public boolean isSurvival(long timestamp, long expiredThreshold) {
+    public boolean isExpired(long timestamp, long expiredThreshold) {
         return timestamp - lastUpdateTimestamp > expiredThreshold;
     }
 

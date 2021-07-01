@@ -24,7 +24,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | recordDataTTL|The lifecycle of record data. Record data includes traces, top n sampled records, and logs. Unit is day. Minimal value is 2.|SW_CORE_RECORD_DATA_TTL|3|
 | - | - | metricsDataTTL|The lifecycle of metrics data, including the metadata. Unit is day. Recommend metricsDataTTL >= recordDataTTL. Minimal value is 2.| SW_CORE_METRICS_DATA_TTL|7|
 | - | - | l1FlushPeriod| The period of L1 aggregation flush to L2 aggregation. Unit is ms. | SW_CORE_L1_AGGREGATION_FLUSH_PERIOD | 500 |
-| - | - | storageSessionTimeout| TThe threshold of session time. Unit is ms. Default value is 2.5 min. | SW_CORE_STORAGE_SESSION_TIMEOUT | 150000 |
+| - | - | storageSessionTimeout| TThe threshold of session time. Unit is ms. Default value is 70s. | SW_CORE_STORAGE_SESSION_TIMEOUT | 70000 |
 | - | - | enableDatabaseSession|Cache metrics data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute.|SW_CORE_ENABLE_DATABASE_SESSION|true|
 | - | - | topNReportPeriod|The execution period of top N sampler, which saves sampled data into the storage. Unit is minute|SW_CORE_TOPN_REPORT_PERIOD|10|
 | - | - | activeExtraModelColumns|Append the names of entity, such as service name, into the metrics storage entities.|SW_CORE_ACTIVE_EXTRA_MODEL_COLUMNS|false|

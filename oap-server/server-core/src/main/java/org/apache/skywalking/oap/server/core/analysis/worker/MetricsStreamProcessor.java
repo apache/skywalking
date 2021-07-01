@@ -83,10 +83,10 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
     @Getter
     private boolean enableDatabaseSession;
     /**
-     * The threshold of session time. Unit is ms. Default value is 2.5 min.
+     * The threshold of session time. Unit is ms. Default value is 70s.
      */
     @Setter
-    private long storageSessionTimeout = 150_000;
+    private long storageSessionTimeout = 70_000;
 
     public static MetricsStreamProcessor getInstance() {
         return PROCESSOR;

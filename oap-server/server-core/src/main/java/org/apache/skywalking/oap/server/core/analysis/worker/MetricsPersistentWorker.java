@@ -252,7 +252,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             while (iterator.hasNext()) {
                 Metrics metrics = iterator.next();
 
-                if (metrics.isSurvival(timestamp, sessionTimeout)) {
+                if (metrics.isExpired(timestamp, sessionTimeout)) {
                     iterator.remove();
                 }
             }

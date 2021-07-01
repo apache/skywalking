@@ -65,7 +65,7 @@ Release Notes.
 * Support connectTimeout and socketTimeout settings for ElasticSearch6 and ElasticSearch7 storages.
 * Re-implement storage session mechanism, cached metrics are removed only according to their last access timestamp,
   rather than first time. This makes sure hot data never gets removed unexpectedly.
-* Support session expired threshold configurable. And set default to 2.5 min, rather than 70s.
+* Support session expired threshold configurable. 
 
 #### UI
 
