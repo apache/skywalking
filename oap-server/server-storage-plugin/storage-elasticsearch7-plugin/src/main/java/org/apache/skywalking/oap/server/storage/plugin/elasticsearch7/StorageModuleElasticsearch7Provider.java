@@ -161,7 +161,7 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
         elasticSearch7Client = new ElasticSearch7Client(
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
-            indexNameConverters(config.getNameSpace())
+            indexNameConverters(config.getNameSpace()), config.getConnectTimeout(), config.getSocketTimeout()
         );
         this.registerServiceImplementation(
             IBatchDAO.class,
