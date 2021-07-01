@@ -119,6 +119,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     protected volatile RestHighLevelClient client;
     protected DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     protected final ReentrantLock connectLock = new ReentrantLock();
+    private final int connectTimeout;
+    private final int socketTimeout;
 
     public ElasticSearchClient(String clusterNodes,
                                String protocol,
@@ -126,7 +128,9 @@ public class ElasticSearchClient implements Client, HealthCheckable {
                                String trustStorePass,
                                String user,
                                String password,
-                               List<IndexNameConverter> indexNameConverters) {
+                               List<IndexNameConverter> indexNameConverters,
+                               int connectTimeout,
+                               int socketTimeout) {
         this.clusterNodes = clusterNodes;
         this.protocol = protocol;
         this.user = user;
@@ -134,6 +138,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         this.indexNameConverters = indexNameConverters;
         this.trustStorePath = trustStorePath;
         this.trustStorePass = trustStorePass;
+        this.connectTimeout = connectTimeout;
+        this.socketTimeout = socketTimeout;
     }
 
     @Override
@@ -183,6 +189,11 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         } else {
             builder = RestClient.builder(pairsList.toArray(new HttpHost[0]));
         }
+        builder.setRequestConfigCallback(
+            requestConfigBuilder -> requestConfigBuilder
+                .setConnectTimeout(connectTimeout)
+                .setSocketTimeout(socketTimeout)
+        );
 
         return new RestHighLevelClient(builder);
     }

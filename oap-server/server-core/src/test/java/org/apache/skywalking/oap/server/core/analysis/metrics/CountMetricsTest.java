@@ -56,7 +56,7 @@ public class CountMetricsTest {
 
     public class CountMetricsImpl extends CountMetrics {
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 

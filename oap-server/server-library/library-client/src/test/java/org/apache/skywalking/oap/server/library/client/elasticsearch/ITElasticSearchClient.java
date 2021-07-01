@@ -69,7 +69,7 @@ public class ITElasticSearchClient {
         final String esAddress = System.getProperty("elastic.search.address");
         final String esProtocol = System.getProperty("elastic.search.protocol");
         client = new ElasticSearchClient(esAddress, esProtocol, "", "", "test", "test",
-                                         indexNameConverters(namespace)
+                                         indexNameConverters(namespace), 500, 6000
         );
         client.connect();
     }

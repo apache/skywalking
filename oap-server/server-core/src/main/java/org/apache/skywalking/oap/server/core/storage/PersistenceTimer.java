@@ -29,7 +29,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -55,9 +54,8 @@ public enum PersistenceTimer {
     private HistogramMetrics prepareLatency;
     private HistogramMetrics executeLatency;
     private HistogramMetrics allLatency;
-    private long lastTime = System.currentTimeMillis();
     private int syncOperationThreadsNum;
-    private int maxSyncoperationNum;
+    private int maxSyncOperationNum;
     private ExecutorService executorService;
     private ExecutorService prepareExecutorService;
 
@@ -90,7 +88,7 @@ public enum PersistenceTimer {
         );
 
         syncOperationThreadsNum = moduleConfig.getSyncThreads();
-        maxSyncoperationNum = moduleConfig.getMaxSyncOperationNum();
+        maxSyncOperationNum = moduleConfig.getMaxSyncOperationNum();
         executorService = Executors.newFixedThreadPool(syncOperationThreadsNum);
         prepareExecutorService = Executors.newFixedThreadPool(moduleConfig.getPrepareThreads());
         if (!isStarted) {
@@ -117,7 +115,7 @@ public enum PersistenceTimer {
         AtomicBoolean stop = new AtomicBoolean(false);
 
         DefaultBlockingBatchQueue<PrepareRequest> prepareQueue = new DefaultBlockingBatchQueue(
-            this.maxSyncoperationNum);
+            this.maxSyncOperationNum);
         try {
             List<PersistenceWorker<? extends StorageData>> persistenceWorkers = new ArrayList<>();
             persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
@@ -143,7 +141,7 @@ public enum PersistenceTimer {
                         // Push the prepared requests into DefaultBlockingBatchQueue,
                         // the executorService consumes from it when it reaches the size of batch.
                         prepareQueue.offer(innerPrepareRequests);
-                        worker.endOfRound(System.currentTimeMillis() - lastTime);
+                        worker.endOfRound();
                     } finally {
                         timer.finish();
                         prepareStageCountDownLatch.countDown();
@@ -195,7 +193,6 @@ public enum PersistenceTimer {
 
             stop.set(true);
             allTimer.finish();
-            lastTime = System.currentTimeMillis();
         }
 
         if (debug) {
@@ -203,16 +200,18 @@ public enum PersistenceTimer {
         }
     }
 
-    @RequiredArgsConstructor
     static class DefaultBlockingBatchQueue<E> implements BlockingBatchQueue<E> {
-
         @Getter
         private final int maxBatchSize;
-
+        private final List<E> elementData;
         @Getter
         private boolean inAppendingMode = true;
 
-        private final List<E> elementData = new ArrayList<>(50000 * 3);
+        public DefaultBlockingBatchQueue(final int maxBatchSize) {
+            this.maxBatchSize = maxBatchSize;
+            // Use the maxBatchSize * 3 as the initial queue size to avoid ArrayList#grow
+            this.elementData = new ArrayList<>(maxBatchSize * 3);
+        }
 
         @Override
         public void offer(List<E> elements) {

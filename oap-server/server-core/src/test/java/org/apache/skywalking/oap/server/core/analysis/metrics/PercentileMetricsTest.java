@@ -118,7 +118,7 @@ public class PercentileMetricsTest {
     public class PercentileMetricsMocker extends PercentileMetrics {
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 

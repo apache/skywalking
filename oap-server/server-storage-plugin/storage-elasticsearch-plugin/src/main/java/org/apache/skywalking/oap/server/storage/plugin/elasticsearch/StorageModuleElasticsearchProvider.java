@@ -163,11 +163,11 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         elasticSearchClient = new ElasticSearchClient(
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
-            indexNameConverters(config.getNameSpace())
+            indexNameConverters(config.getNameSpace()), config.getConnectTimeout(), config.getSocketTimeout()
         );
         this.registerServiceImplementation(
             IBatchDAO.class,
-            new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(),  config
+            new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config
                 .getFlushInterval(), config.getConcurrentRequests())
         );
         this.registerServiceImplementation(StorageDAO.class, new StorageEsDAO(elasticSearchClient));

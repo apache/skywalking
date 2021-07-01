@@ -148,7 +148,7 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 

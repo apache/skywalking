@@ -80,6 +80,7 @@ public class ConsumerThread<T> extends Thread {
             }
             return true;
         }
+        consumer.nothingToConsume();
         return false;
     }
 

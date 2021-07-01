@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
@@ -37,17 +38,13 @@ import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is a wrapper of the gRPC client for sending message to each other OAP server. It contains a block queue to
  * buffering the message and sending the message by batch.
  */
+@Slf4j
 public class GRPCRemoteClient implements RemoteClient {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GRPCRemoteClient.class);
-
     private final int channelSize;
     private final int bufferSize;
     private final Address address;
@@ -76,13 +73,23 @@ public class GRPCRemoteClient implements RemoteClient {
         remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME)
                                              .provider()
                                              .getService(MetricsCreator.class)
-                                             .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.", new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(address
-                                                                                                                                                                                                                 .toString(), "N"));
+                                             .createCounter(
+                                                 "remote_out_count",
+                                                 "The number(client side) of inside remote inside aggregate rpc.",
+                                                 new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(
+                                                     address
+                                                         .toString(), "N")
+                                             );
         remoteOutErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME)
                                                   .provider()
                                                   .getService(MetricsCreator.class)
-                                                  .createCounter("remote_out_error_count", "The error number(client side) of inside remote inside aggregate rpc.", new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(address
-                                                                                                                                                                                                                                  .toString(), "N"));
+                                                  .createCounter(
+                                                      "remote_out_error_count",
+                                                      "The error number(client side) of inside remote inside aggregate rpc.",
+                                                      new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(
+                                                          address
+                                                              .toString(), "N")
+                                                  );
     }
 
     @Override
@@ -160,13 +167,13 @@ public class GRPCRemoteClient implements RemoteClient {
                 streamObserver.onCompleted();
             } catch (Throwable t) {
                 remoteOutErrorCounter.inc();
-                LOGGER.error(t.getMessage(), t);
+                log.error(t.getMessage(), t);
             }
         }
 
         @Override
         public void onError(List<RemoteMessage> remoteMessages, Throwable t) {
-            LOGGER.error(t.getMessage(), t);
+            log.error(t.getMessage(), t);
         }
 
         @Override
@@ -183,38 +190,47 @@ public class GRPCRemoteClient implements RemoteClient {
     private StreamObserver<RemoteMessage> createStreamObserver() {
         int sleepTotalMillis = 0;
         int sleepMillis = 10;
-        while (concurrentStreamObserverNumber.incrementAndGet() > 10) {
-            concurrentStreamObserverNumber.addAndGet(-1);
 
+        // Control the concurrency of gRPC streaming stub.
+        // If over 10 created and not finished/error, this blocks the method.
+        while (concurrentStreamObserverNumber.get() > 10) {
             try {
                 Thread.sleep(sleepMillis);
             } catch (InterruptedException e) {
-                LOGGER.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
 
             sleepTotalMillis += sleepMillis;
 
             if (sleepTotalMillis > 60000) {
-                LOGGER.warn("Remote client block times over 60 seconds.");
+                log.warn("Remote client [{}] block times over 60 seconds. Current streaming number {}",
+                         address, concurrentStreamObserverNumber.get()
+                );
+                // Reset sleepTotalMillis to avoid too many warn logs.
+                sleepTotalMillis = 0;
             }
         }
 
-        return getStub().withDeadlineAfter(remoteTimeout, TimeUnit.SECONDS).call(new StreamObserver<Empty>() {
-            @Override
-            public void onNext(Empty empty) {
-            }
+        final StreamObserver<RemoteMessage> remoteMessageStreamObserver
+            = getStub().withDeadlineAfter(remoteTimeout, TimeUnit.SECONDS)
+                       .call(new StreamObserver<Empty>() {
+                           @Override
+                           public void onNext(Empty empty) {
+                           }
 
-            @Override
-            public void onError(Throwable throwable) {
-                concurrentStreamObserverNumber.addAndGet(-1);
-                LOGGER.error(throwable.getMessage(), throwable);
-            }
+                           @Override
+                           public void onError(Throwable throwable) {
+                               concurrentStreamObserverNumber.addAndGet(-1);
+                               log.error(throwable.getMessage(), throwable);
+                           }
 
-            @Override
-            public void onCompleted() {
-                concurrentStreamObserverNumber.addAndGet(-1);
-            }
-        });
+                           @Override
+                           public void onCompleted() {
+                               concurrentStreamObserverNumber.addAndGet(-1);
+                           }
+                       });
+        concurrentStreamObserverNumber.incrementAndGet();
+        return remoteMessageStreamObserver;
     }
 
     @Override
