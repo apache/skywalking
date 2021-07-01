@@ -61,6 +61,7 @@ Release Notes.
 * Performance: enhance persistent session mechanism, about differentiating cache timeout for different dimensionality
   metrics. The timeout of the cache for minute and hour level metrics has been prolonged to ~5 min.
 * Performance: Add L1 aggregation flush period, which reduce the CPU load and help young GC.
+* Support connectTimeout and socketTimeout settings for ElasticSearch6 and ElasticSearch7 storages.
 
 #### UI
 
