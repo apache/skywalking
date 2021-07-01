@@ -443,7 +443,7 @@ configuration:
   etcd:
     period: ${SW_CONFIG_ETCD_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
     endpoints: ${SW_CONFIG_ETCD_ENDPOINTS:localhost:2379}
-    namespace: ${SW_CONFIG_ETCD_GROUP:skywalking}
+    namespace: ${SW_CONFIG_ETCD_NAMESPACE:/skywalking/}
     authentication: ${SW_CONFIG_ETCD_AUTHENTICATION:false}
     user: ${SW_CONFIG_ETCD_USER:}
     password: ${SW_CONFIG_ETCD_password:}

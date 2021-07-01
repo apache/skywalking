@@ -20,7 +20,7 @@ test-module:
 
 
 configuration:
-  etcd-v3:
+  etcd:
     # Etcd Server Host
     endpoints: ${etcd.endpoint}
     # Etcd Configuration Group
