@@ -83,10 +83,10 @@ public abstract class Metrics extends StreamData implements StorageData {
     /**
      * Set the last update timestamp
      *
-     * @param timestamp to extend
+     * @param timestamp last update timestamp
      */
     public void setLastUpdateTimestamp(long timestamp) {
-        lastUpdateTimestamp += timestamp;
+        lastUpdateTimestamp = timestamp;
     }
 
     /**
