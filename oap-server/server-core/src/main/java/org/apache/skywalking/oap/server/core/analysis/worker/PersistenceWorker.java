@@ -55,10 +55,8 @@ public abstract class PersistenceWorker<INPUT extends StorageData> extends Abstr
     /**
      * The persistence process is driven by the {@link org.apache.skywalking.oap.server.core.storage.PersistenceTimer}.
      * This is a notification method for the worker when every round finished.
-     *
-     * @param tookTime The time costs in this round.
      */
-    public abstract void endOfRound(long tookTime);
+    public abstract void endOfRound();
 
     /**
      * Prepare the batch persistence, transfer all prepared data to the executable data format based on the storage
