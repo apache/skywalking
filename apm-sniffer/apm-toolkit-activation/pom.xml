@@ -34,6 +34,7 @@
         <module>apm-toolkit-trace-activation</module>
         <module>apm-toolkit-meter-activation</module>
         <module>apm-toolkit-logging-common</module>
+        <module>apm-toolkit-log-automatic-activation</module>
     </modules>
 
     <artifactId>apm-toolkit-activation</artifactId>
