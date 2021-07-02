@@ -39,7 +39,7 @@ public class GuavaCachePluginInstrumentation extends ClassInstanceMethodsEnhance
     public static final String PUT_ALL_ENHANCE_METHOD = "putAll";
     public static final String PUT_ENHANCE_METHOD = "put";
     public static final String GET_IF_PRESENT_ENHANCE_METHOD = "getIfPresent";
-    public static final String CACHE_OPERATION_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.guava.cache.GuavaCacheInterceptor";
+    public static final String GUAVA_CACHE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.guava.cache.GuavaCacheInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -63,7 +63,7 @@ public class GuavaCachePluginInstrumentation extends ClassInstanceMethodsEnhance
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return CACHE_OPERATION_INTERCEPTOR_CLASS;
+                        return GUAVA_CACHE_INTERCEPTOR_CLASS;
                     }
 
                     @Override

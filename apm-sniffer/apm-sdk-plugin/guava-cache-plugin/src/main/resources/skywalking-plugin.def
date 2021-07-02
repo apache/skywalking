@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-guava=org.apache.skywalking.apm.plugin.guava.cache.define.GuavaCachePluginInstrumentation
+guava-cache=org.apache.skywalking.apm.plugin.guava.cache.define.GuavaCachePluginInstrumentation
