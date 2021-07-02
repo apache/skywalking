@@ -26,6 +26,8 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
+import org.apache.skywalking.apm.plugin.jdbc.PreparedStatementParameterBuilder;
 import org.apache.skywalking.apm.plugin.jdbc.SqlBodyUtil;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
@@ -47,6 +49,13 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, SqlBodyUtil.limitSqlBodySize(cacheObject.getSql()));
             span.setComponent(connectInfo.getComponent());
+            if (JDBCPluginConfig.Plugin.JDBC.TRACE_SQL_PARAMETERS) {
+                final Object[] parameters = cacheObject.getParameters();
+                if (parameters != null && parameters.length > 0) {
+                    int maxIndex = cacheObject.getMaxIndex();
+                    Constants.SQL_PARAMETERS.set(span, getParameterString(parameters, maxIndex));
+                }
+            }
             SpanLayer.asDB(span);
         }
     }
@@ -72,5 +81,12 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     private String buildOperationName(ConnectionInfo connectionInfo, String methodName, String statementName) {
         return connectionInfo.getDBType() + "/JDBI/" + statementName + "/" + methodName;
+    }
+    
+    private String getParameterString(Object[] parameters, int maxIndex) {
+        return new PreparedStatementParameterBuilder()
+                .setParameters(parameters)
+                .setMaxIndex(maxIndex)
+                .build();
     }
 }

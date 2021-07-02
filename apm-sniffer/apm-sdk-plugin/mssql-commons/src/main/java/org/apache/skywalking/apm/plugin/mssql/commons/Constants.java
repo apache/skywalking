@@ -18,10 +18,14 @@
 
 package org.apache.skywalking.apm.plugin.mssql.commons;
 
+import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
+
 public class Constants {
     public static final String CREATE_CALLABLE_STATEMENT_INTERCEPTOR = "org.apache.skywalking.apm.plugin.mssql.commons.CreateCallableStatementInterceptor";
     public static final String CREATE_PREPARED_STATEMENT_INTERCEPTOR = "org.apache.skywalking.apm.plugin.mssql.commons.CreatePreparedStatementInterceptor";
     public static final String CREATE_STATEMENT_INTERCEPTOR = "org.apache.skywalking.apm.plugin.mssql.commons.CreateStatementInterceptor";
     public static final String PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.mssql.commons.PreparedStatementExecuteMethodsInterceptor";
     public static final String STATEMENT_EXECUTE_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.mssql.commons.StatementExecuteMethodsInterceptor";
+    
+    public static final StringTag SQL_PARAMETERS = new StringTag("db.sql.parameters");
 }
