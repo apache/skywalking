@@ -45,6 +45,7 @@ public class CaseController {
         try (SQLExecutor sqlExecute = new SQLExecutor()) {
             sqlExecute.createTable(CREATE_TABLE_SQL);
             sqlExecute.insertData(INSERT_DATA_SQL, "1", "1");
+            sqlExecute.queryData(QUERY_DATA_SQL, "1");
             sqlExecute.dropTable(DROP_TABLE_SQL);
         } catch (Exception e) {
             LOGGER.error("Failed to execute sql.", e);
