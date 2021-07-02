@@ -86,7 +86,7 @@ public class TopNWorker extends PersistenceWorker<TopN> {
      * This method used to clear the expired cache, but TopN is not following it.
      */
     @Override
-    public void endOfRound(long tookTime) {
+    public void endOfRound() {
     }
 
     @Override

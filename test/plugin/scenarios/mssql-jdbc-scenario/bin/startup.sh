@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} ${home}/../libs/mssql-jdbc-scenario.jar &
+java -jar ${agent_opts}  -Dskywalking.plugin.jdbc.trace_sql_parameters=true ${home}/../libs/mssql-jdbc-scenario.jar &

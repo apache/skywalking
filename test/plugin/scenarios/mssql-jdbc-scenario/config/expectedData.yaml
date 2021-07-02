@@ -46,6 +46,25 @@ segmentItems:
               - {key: db.type, value: sql}
               - {key: db.instance, value: tempdb}
               - {key: db.statement, value: 'INSERT INTO test_007(id, value) VALUES(?,?)'}
+              - {key: db.sql.parameters, value: '[1,1]'}
+            logs: []
+            startTime: nq 0
+            endTime: nq 0
+            isError: false
+            spanLayer: Database
+            spanType: Exit
+            componentId: 104
+            peer: mssql-server:1433
+            skipAnalysis: 'false'
+          - operationName: Mssql/JDBI/PreparedStatement/execute
+            operationId: eq 0
+            parentSpanId: 0
+            spanId: 3
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: tempdb}
+              - {key: db.statement, value: 'SELECT id, value FROM test_007 WHERE id=?'}
+              - {key: db.sql.parameters, value: '[1]'}
             logs: []
             startTime: nq 0
             endTime: nq 0
@@ -58,7 +77,7 @@ segmentItems:
           - operationName: Mssql/JDBI/Statement/execute
             operationId: eq 0
             parentSpanId: 0
-            spanId: 3
+            spanId: 4
             tags:
               - {key: db.type, value: sql}
               - {key: db.instance, value: tempdb}
@@ -75,7 +94,7 @@ segmentItems:
           - operationName: Mssql/JDBI/Connection/close
             operationId: eq 0
             parentSpanId: 0
-            spanId: 4
+            spanId: 5
             tags:
               - {key: db.type, value: sql}
               - {key: db.instance, value: tempdb}
