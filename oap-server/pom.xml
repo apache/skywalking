@@ -54,7 +54,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <maven-docker-plugin.version>0.30.0</maven-docker-plugin.version>
-        <etcd.version>v3.2.3</etcd.version>
         <zookeeper.image.version>3.5</zookeeper.image.version>
         <kafka-clients.version>2.4.1</kafka-clients.version>
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>

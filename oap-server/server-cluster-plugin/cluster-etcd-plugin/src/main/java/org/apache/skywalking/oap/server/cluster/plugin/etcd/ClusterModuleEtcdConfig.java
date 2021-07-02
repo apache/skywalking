@@ -18,25 +18,21 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
+@Data
 public class ClusterModuleEtcdConfig extends ModuleConfig {
-
-    @Setter
-    @Getter
     private String serviceName;
-    @Setter
-    @Getter
-    private String hostPort;
-    @Setter
-    @Getter
-    private boolean isSSL;
-    @Setter
-    @Getter
+    private String endpoints;
+    private String namespace;
+
+    private String authority;
+
+    private boolean authentication;
+    private String user;
+    private String password;
+
     private String internalComHost;
-    @Setter
-    @Getter
     private int internalComPort = -1;
 }

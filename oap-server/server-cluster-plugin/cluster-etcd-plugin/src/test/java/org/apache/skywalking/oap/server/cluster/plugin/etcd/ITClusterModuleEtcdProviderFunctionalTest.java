@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
+import com.google.common.collect.Lists;
+import io.etcd.jetcd.Client;
 import java.util.Collections;
 import java.util.List;
-import mousio.etcd4j.EtcdClient;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
@@ -33,10 +34,13 @@ import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -45,21 +49,24 @@ import static org.mockito.Mockito.mock;
 
 public class ITClusterModuleEtcdProviderFunctionalTest {
 
-    private String etcdAddress;
-    private ModuleManager moduleManager = mock(ModuleManager.class);
-    private NoneTelemetryProvider telemetryProvider = mock(NoneTelemetryProvider.class);
+    private static String ENDPOINTS;
+    private static ModuleManager MODULE_MANAGER = mock(ModuleManager.class);
+    private static NoneTelemetryProvider TELEMETRY_PROVIDER = mock(NoneTelemetryProvider.class);
 
-    @Before
-    public void before() {
-        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
-                .thenReturn(new MetricsCreatorNoop());
+    private static final GenericContainer CONTAINER = new GenericContainer(
+        DockerImageName.parse("bitnami/etcd:3.4.0"));
+
+    @BeforeClass
+    public static void setup() {
+        CONTAINER.setEnv(Lists.newArrayList("ALLOW_NONE_AUTHENTICATION=yes"));
+        CONTAINER.start();
+
+        Mockito.when(TELEMETRY_PROVIDER.getService(MetricsCreator.class))
+               .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
-        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
-        String etcdHost = System.getProperty("etcd.host");
-        String port = System.getProperty("etcd.port");
-        assertTrue(!StringUtil.isEmpty(etcdHost) && !StringUtil.isEmpty(port));
-        etcdAddress = etcdHost + ":" + port;
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", TELEMETRY_PROVIDER);
+        Mockito.when(MODULE_MANAGER.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
+        ENDPOINTS = "http://127.0.0.1:" + CONTAINER.getMappedPort(2379);
     }
 
     @Test
@@ -160,7 +167,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         validateServiceInstance(addressB, addressA, remoteInstancesOfB);
 
         // unregister A
-        EtcdClient client = Whitebox.getInternalState(providerA, "client");
+        Client client = Whitebox.getInternalState(getClusterRegister(providerA), "client");
         client.close();
 
         // only B
@@ -176,12 +183,12 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
     }
 
     private ClusterModuleEtcdProvider createProvider(String serviceName, String internalComHost,
-        int internalComPort) throws ModuleStartException {
+                                                     int internalComPort) throws ModuleStartException {
         ClusterModuleEtcdProvider provider = new ClusterModuleEtcdProvider();
 
         ClusterModuleEtcdConfig config = (ClusterModuleEtcdConfig) provider.createConfigBeanIfAbsent();
 
-        config.setHostPort(etcdAddress);
+        config.setEndpoints(ENDPOINTS);
         config.setServiceName(serviceName);
 
         if (!StringUtil.isEmpty(internalComHost)) {
@@ -191,7 +198,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         if (internalComPort > 0) {
             config.setInternalComPort(internalComPort);
         }
-        provider.setManager(moduleManager);
+        provider.setManager(MODULE_MANAGER);
         provider.prepare();
         provider.start();
         provider.notifyAfterCompleted();
@@ -211,7 +218,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
     }
 
     private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals,
-        int cyclic) throws InterruptedException {
+                                                  int cyclic) throws InterruptedException {
         do {
             List<RemoteInstance> instances = getClusterNodesQuery(provider).queryRemoteNodes();
             if (instances.size() == goals) {
@@ -240,5 +247,10 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
 
         assertTrue(selfExist);
         assertTrue(otherExist);
+    }
+
+    @AfterClass
+    public static void teardown() {
+        CONTAINER.close();
     }
 }
