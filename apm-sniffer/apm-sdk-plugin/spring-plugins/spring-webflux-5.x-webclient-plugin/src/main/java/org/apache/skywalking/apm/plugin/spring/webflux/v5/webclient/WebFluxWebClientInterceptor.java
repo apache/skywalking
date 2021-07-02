@@ -24,8 +24,8 @@ import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.InstanceMethodsAroundInterceptorV2;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -36,10 +36,10 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.function.BiConsumer;
 
-public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterceptor {
+public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterceptorV2 {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInvocationContext context) throws Throwable {
         if (allArguments[0] == null) {
             //illegal args,can't trace ignore
             return;
@@ -63,22 +63,22 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
         if (request instanceof EnhancedInstance) {
             ((EnhancedInstance) request).setSkyWalkingDynamicField(contextCarrier);
         }
-        
+
         //user async interface
         span.prepareForAsync();
         ContextManager.stopSpan();
 
-        objInst.setSkyWalkingDynamicField(span);
+        context.setContext(span);
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret, MethodInvocationContext context) throws Throwable {
         // fix the problem that allArgument[0] may be null
         if (allArguments[0] == null) {
             return ret;
         }
         Mono<ClientResponse> ret1 = (Mono<ClientResponse>) ret;
-        AbstractSpan span = (AbstractSpan) objInst.getSkyWalkingDynamicField();
+        AbstractSpan span = (AbstractSpan) context.getContext();
         return ret1.doAfterSuccessOrError(new BiConsumer<ClientResponse, Throwable>() {
             @Override
             public void accept(ClientResponse clientResponse, Throwable throwable) {
@@ -98,7 +98,7 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t, MethodInvocationContext context) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.errorOccurred();
         activeSpan.log(t);
