@@ -23,6 +23,7 @@ Release Notes.
 * Add `Neo4j-4.x` plugin.
 * Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
 * Fix the response time of gRPC.
+* Support parameter collection for SqlServer.
 * Add `ShardingSphere-5.0.0-beta` plugin.
 * Fix some method exception error.
 * Add agent plugin to support Sentinel.
@@ -64,6 +65,9 @@ Release Notes.
   metrics. The timeout of the cache for minute and hour level metrics has been prolonged to ~5 min.
 * Performance: Add L1 aggregation flush period, which reduce the CPU load and help young GC.
 * Support connectTimeout and socketTimeout settings for ElasticSearch6 and ElasticSearch7 storages.
+* Re-implement storage session mechanism, cached metrics are removed only according to their last access timestamp,
+  rather than first time. This makes sure hot data never gets removed unexpectedly.
+* Support session expired threshold configurable. 
 
 #### UI
 

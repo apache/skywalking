@@ -288,8 +288,10 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(
             UITemplateManagementService.class, new UITemplateManagementService(getManager()));
 
-        MetricsStreamProcessor.getInstance().setEnableDatabaseSession(moduleConfig.isEnableDatabaseSession());
-        MetricsStreamProcessor.getInstance().setL1FlushPeriod(moduleConfig.getL1FlushPeriod());
+        final MetricsStreamProcessor metricsStreamProcessor = MetricsStreamProcessor.getInstance();
+        metricsStreamProcessor.setEnableDatabaseSession(moduleConfig.isEnableDatabaseSession());
+        metricsStreamProcessor.setL1FlushPeriod(moduleConfig.getL1FlushPeriod());
+        metricsStreamProcessor.setStorageSessionTimeout(moduleConfig.getStorageSessionTimeout());
         TopNStreamProcessor.getInstance().setTopNWorkerReportCycle(moduleConfig.getTopNReportPeriod());
         apdexThresholdConfig = new ApdexThresholdConfig(this);
         ApdexMetrics.setDICT(apdexThresholdConfig);
