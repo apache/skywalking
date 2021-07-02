@@ -38,6 +38,8 @@ import java.util.function.BiConsumer;
 
 public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterceptor {
 
+    private final ThreadLocal<AbstractSpan> spanLocal = new ThreadLocal<>();
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         if (allArguments[0] == null) {
@@ -63,12 +65,12 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
         if (request instanceof EnhancedInstance) {
             ((EnhancedInstance) request).setSkyWalkingDynamicField(contextCarrier);
         }
-        
+
         //user async interface
         span.prepareForAsync();
         ContextManager.stopSpan();
 
-        objInst.setSkyWalkingDynamicField(span);
+        spanLocal.set(span);
     }
 
     @Override
@@ -78,7 +80,8 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
             return ret;
         }
         Mono<ClientResponse> ret1 = (Mono<ClientResponse>) ret;
-        AbstractSpan span = (AbstractSpan) objInst.getSkyWalkingDynamicField();
+        AbstractSpan span = spanLocal.get();
+        spanLocal.remove();
         return ret1.doAfterSuccessOrError(new BiConsumer<ClientResponse, Throwable>() {
             @Override
             public void accept(ClientResponse clientResponse, Throwable throwable) {
