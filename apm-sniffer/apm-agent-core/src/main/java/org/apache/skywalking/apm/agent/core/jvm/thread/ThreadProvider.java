@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.jvm.thread;
 
 import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import org.apache.skywalking.apm.network.language.agent.v3.Thread;
 
@@ -31,12 +32,63 @@ public enum ThreadProvider {
     }
 
     public Thread getThreadMetrics() {
+        int newThreadCount = 0;
+        int runnableThreadCount = 0;
+        int blockedThreadCount = 0;
+        int waitThreadCount = 0;
+        int timeWaitThreadCount = 0;
+        int terminatedThreadCount = 0;
+
+        ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds());
+        if (threadInfos != null) {
+            for (ThreadInfo threadInfo : threadInfos) {
+                if (threadInfo != null) {
+                    switch (threadInfo.getThreadState()) {
+                        case NEW:
+                            newThreadCount++;
+                            break;
+                        case RUNNABLE:
+                            runnableThreadCount++;
+                            break;
+                        case BLOCKED:
+                            blockedThreadCount++;
+                            break;
+                        case WAITING:
+                            waitThreadCount++;
+                            break;
+                        case TIMED_WAITING:
+                            timeWaitThreadCount++;
+                            break;
+                        case TERMINATED:
+                            terminatedThreadCount++;
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    terminatedThreadCount++;
+                }
+            }
+        }
+
         int threadCount = threadMXBean.getThreadCount();
         int daemonThreadCount = threadMXBean.getDaemonThreadCount();
         int peakThreadCount = threadMXBean.getPeakThreadCount();
+        int deadlocked = threadMXBean.findDeadlockedThreads() != null ? threadMXBean.findDeadlockedThreads().length : 0;
+        int monitorDeadlocked = threadMXBean.findMonitorDeadlockedThreads() != null ?
+                threadMXBean.findMonitorDeadlockedThreads().length : 0;
         return Thread.newBuilder().setLiveCount(threadCount)
                 .setDaemonCount(daemonThreadCount)
-                .setPeakCount(peakThreadCount).build();
+                .setPeakCount(peakThreadCount)
+                .setDeadlocked(deadlocked)
+                .setMonitorDeadlocked(monitorDeadlocked)
+                .setNewThreadCount(newThreadCount)
+                .setRunnableThreadCount(runnableThreadCount)
+                .setBlockedThreadCount(blockedThreadCount)
+                .setWaitThreadCount(waitThreadCount)
+                .setTimeWaitThreadCount(timeWaitThreadCount)
+                .setTerminatedThreadCount(terminatedThreadCount)
+                .build();
     }
 
 }

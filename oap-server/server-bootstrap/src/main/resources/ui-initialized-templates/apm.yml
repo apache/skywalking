@@ -398,7 +398,29 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
-                  "metricName": "instance_jvm_thread_live_count, instance_jvm_thread_daemon_count, instance_jvm_thread_peak_count"
+                  "metricName": "instance_jvm_thread_live_count, instance_jvm_thread_daemon_count, instance_jvm_thread_peak_count, instance_jvm_thread_deadlocked, instance_jvm_thread_monitor_deadlocked"
+                },
+                {
+                  "width": 3,
+                  "title": "JVM Thread State Count (Java Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "instance_jvm_thread_new_thread_count, instance_jvm_thread_runnable_thread_count, instance_jvm_thread_blocked_thread_count, instance_jvm_thread_wait_thread_count, instance_jvm_thread_time_wait_thread_count, instance_jvm_thread_terminated_thread_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar"
+                },
+                {
+                  "width": 3,
+                  "title": "JVM Class Count (Java Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "instance_jvm_class_loaded_class_count, instance_jvm_class_unloaded_class_count, instance_jvm_class_total_loaded_class_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartArea"
                 },
                 {
                   "width": 3,
