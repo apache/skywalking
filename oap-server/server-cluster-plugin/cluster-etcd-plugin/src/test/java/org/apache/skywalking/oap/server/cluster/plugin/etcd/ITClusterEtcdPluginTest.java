@@ -36,6 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.Assert.assertEquals;
@@ -63,6 +64,7 @@ public class ITClusterEtcdPluginTest {
 
     @BeforeClass
     public static void setup() {
+        CONTAINER.setWaitStrategy(new LogMessageWaitStrategy().withRegEx("*etcd setup finished!.*"));
         CONTAINER.setEnv(Lists.newArrayList("ALLOW_NONE_AUTHENTICATION=yes"));
         CONTAINER.start();
     }
@@ -144,9 +146,9 @@ public class ITClusterEtcdPluginTest {
         ByteSequence prefix = ByteSequence.from(SERVICE_NAME + "/", Charset.defaultCharset());
         GetResponse response = CLIENT.getKVClient()
                                      .get(
-                                            ByteSequence.EMPTY,
-                                            GetOption.newBuilder().withPrefix(prefix).build()
-                                        ).get();
+                                         ByteSequence.EMPTY,
+                                         GetOption.newBuilder().withPrefix(prefix).build()
+                                     ).get();
 
         response.getKvs().forEach(e -> {
             try {

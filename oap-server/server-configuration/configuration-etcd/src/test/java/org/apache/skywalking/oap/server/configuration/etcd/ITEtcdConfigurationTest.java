@@ -41,6 +41,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 import org.yaml.snakeyaml.Yaml;
 
@@ -60,6 +61,7 @@ public class ITEtcdConfigurationTest {
         CONTAINER.setEnv(Lists.newArrayList(
             "ALLOW_NONE_AUTHENTICATION=yes"
         ));
+        CONTAINER.setWaitStrategy(new LogMessageWaitStrategy().withRegEx("*etcd setup finished!.*"));
         CONTAINER.start();
         System.setProperty("etcd.endpoint", "http://127.0.0.1:" + CONTAINER.getMappedPort(2379));
 

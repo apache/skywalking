@@ -75,7 +75,7 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
         }
         this.serviceNameBS = ByteSequence.from(serviceName, Charset.defaultCharset());
         ClientBuilder builder = Client.builder()
-                                      .endpoints(config.getEndpoints())
+                                      .endpoints(config.getEndpointArray())
                                       .authority(config.getAuthority());
         if (StringUtil.isNotEmpty(config.getNamespace())) {
             builder.namespace(ByteSequence.from(config.getNamespace(), Charset.defaultCharset()));

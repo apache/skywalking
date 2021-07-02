@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
+import java.util.Arrays;
 import lombok.Data;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
@@ -35,4 +36,16 @@ public class ClusterModuleEtcdConfig extends ModuleConfig {
 
     private String internalComHost;
     private int internalComPort = -1;
+
+    public String getNamespace() {
+        if (!namespace.endsWith("/")) {
+            return namespace + "/";
+        }
+        return namespace;
+    }
+
+    public String[] getEndpointArray() {
+        return Arrays.stream(endpoints.split("\\s*,\\s*")).toArray(String[]::new);
+
+    }
 }

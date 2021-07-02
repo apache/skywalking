@@ -65,10 +65,11 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | internalComHost| The hostname registered in the Consul for the internal communication of OAP cluster.| - | -|
 | - | - | internalComPort| The port registered in the Consul for the internal communication of OAP cluster.| - | -1|
 | - | etcd| serviceName| Service name used for SkyWalking cluster. |SW_SERVICE_NAME|SkyWalking_OAP_Cluster|
-| - | - | hostPort| hosts and ports used of etcd cluster.| SW_CLUSTER_ETCD_HOST_PORT|localhost:2379|
-| - | - | isSSL| Open SSL for the connection between SkyWalking and etcd cluster.| - | - |
-| - | - | internalComHost| The hostname registered in the etcd for the internal communication of OAP cluster.| - | -|
-| - | - | internalComPort| The port registered in the etcd for the internal communication of OAP cluster.| - | -1|
+| - | - | endpoints| hosts and ports used of etcd cluster.| SW_CLUSTER_ETCD_ENDPOINTS|localhost:2379|
+| - | - | namespace | Namespace used for SkyWalking cluster. |SW_CLUSTER_ETCD_NAMESPACE | /skywalking |
+| - | - | authentication | Whether has authentication. | SW_CLUSTER_ETCD_AUTHENTICATION | false |
+| - | - | user | Etcd auth username | SW_CLUSTER_ETCD_USER | |
+| - | - | password | Etcd auth password | SW_CLUSTER_ETCD_PASSWORD | |
 | - | Nacos| serviceName| Service name used for SkyWalking cluster. |SW_SERVICE_NAME|SkyWalking_OAP_Cluster|
 | - | - | hostPort| hosts and ports used of Nacos cluster.| SW_CLUSTER_NACOS_HOST_PORT|localhost:8848|
 | - | - | namespace| Namespace used by SkyWalking node coordination.| SW_CLUSTER_NACOS_NAMESPACE|public|
@@ -265,7 +266,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | maxRetries| The max retry time of re-trying.|SW_CONFIG_ZK_MAX_RETRIES|3|
 | - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60 |
 | - | etcd| endpoints | hosts and ports used of etcd cluster(If there are multiple, separate them with commas). | SW_CONFIG_ETCD_ENDPOINTS | localhost:2379 | 
-| - | - | namespace | Namespace used for SkyWalking cluster. |SW_CONFIG_ETCD_NAMESPACE | /skywalking/ |
+| - | - | namespace | Namespace used for SkyWalking cluster. |SW_CONFIG_ETCD_NAMESPACE | /skywalking |
 | - | - | authentication | Whether has authentication. | SW_CONFIG_ETCD_AUTHENTICATION | false |
 | - | - | user | Etcd auth username | SW_CONFIG_ETCD_USER | |
 | - | - | password | Etcd auth password | SW_CONFIG_ETCD_PASSWORD | |
