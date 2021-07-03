@@ -131,6 +131,7 @@ netty-codec-4.1.65.Final.jar
 netty-codec-http-4.1.65.Final.jar
 netty-codec-http2-4.1.65.Final.jar
 netty-codec-socks-4.1.65.Final.jar
+netty-codec-dns-4.1.65.Final.jar
 netty-common-4.1.65.Final.jar
 netty-handler-4.1.65.Final.jar
 netty-handler-proxy-4.1.65.Final.jar
