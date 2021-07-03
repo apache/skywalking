@@ -194,6 +194,7 @@ Now, we have the following known optional plugins.
 * Plugin of spring-webflux-5.x in the optional plugin folder. Please only activate this plugin when you use webflux alone as a web container. If you are using SpringMVC 5 or Spring Gateway, you don't need this plugin.
 * Plugin of mybatis-3.x in optional plugin folder. The reason of being optional plugin is, many local span are generated, which also spend more CPU, memory and network.
 * Plugin of sentinel-1.x in the optional plugin folder. The reason for being an optional plugin is, the sentinel plugin generates a large number of local spans, which have a potential performance impact.
+* Plugin of ehcache-2.x in the optional plugin folder. The reason for being an optional plugin is, this plugin enhanced cache framework, generates large number of local spans, which have a potential performance impact.
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
