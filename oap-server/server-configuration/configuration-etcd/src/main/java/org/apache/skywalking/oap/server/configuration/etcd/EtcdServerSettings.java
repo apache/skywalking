@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.configuration.etcd;
 
+import com.google.common.base.Strings;
 import java.util.Arrays;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -37,6 +38,9 @@ public class EtcdServerSettings extends ModuleConfig {
     private boolean authentication;
 
     public String getNamespace() {
+        if (Strings.isNullOrEmpty(namespace)) {
+            return null;
+        }
         if (!namespace.endsWith("/")) {
             return namespace + "/";
         }

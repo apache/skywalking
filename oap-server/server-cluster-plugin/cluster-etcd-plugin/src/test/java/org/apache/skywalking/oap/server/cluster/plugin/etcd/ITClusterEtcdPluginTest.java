@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
-import com.google.common.collect.Lists;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.kv.GetResponse;
@@ -30,14 +29,9 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
-import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -45,10 +39,10 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
 @Slf4j
-public class ITClusterEtcdPluginTest {
+public class ITClusterEtcdPluginTest extends AbstractEtcdContainerBaseTest {
     private ClusterModuleEtcdConfig etcdConfig;
 
-    private static Client CLIENT;
+    private Client client;
 
     private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
 
@@ -59,15 +53,6 @@ public class ITClusterEtcdPluginTest {
     private final Address internalAddress = new Address("10.0.0.3", 1002, false);
 
     private static final String SERVICE_NAME = "my-service";
-
-    private static final GenericContainer CONTAINER = new GenericContainer(DockerImageName.parse("bitnami/etcd:3.5.0"));
-
-    @BeforeClass
-    public static void setup() {
-        CONTAINER.setWaitStrategy(new LogMessageWaitStrategy().withRegEx("*etcd setup finished!.*"));
-        CONTAINER.setEnv(Lists.newArrayList("ALLOW_NONE_AUTHENTICATION=yes"));
-        CONTAINER.start();
-    }
 
     @Before
     public void before() throws Exception {
@@ -82,14 +67,8 @@ public class ITClusterEtcdPluginTest {
         ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
         coordinator = new EtcdCoordinator(manager, etcdConfig);
 
-        CLIENT = Whitebox.getInternalState(coordinator, "client");
+        client = Whitebox.getInternalState(coordinator, "client");
         Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
-    }
-
-    @AfterClass
-    public static void after() throws Exception {
-        CLIENT.close();
-        CONTAINER.close();
     }
 
     @Test
@@ -144,7 +123,7 @@ public class ITClusterEtcdPluginTest {
 
     private void clear() throws Throwable {
         ByteSequence prefix = ByteSequence.from(SERVICE_NAME + "/", Charset.defaultCharset());
-        GetResponse response = CLIENT.getKVClient()
+        GetResponse response = client.getKVClient()
                                      .get(
                                          ByteSequence.EMPTY,
                                          GetOption.newBuilder().withPrefix(prefix).build()
@@ -152,7 +131,7 @@ public class ITClusterEtcdPluginTest {
 
         response.getKvs().forEach(e -> {
             try {
-                CLIENT.getKVClient().delete(e.getKey()).get();
+                client.getKVClient().delete(e.getKey()).get();
             } catch (Exception exp) {
                 log.error("", exp);
             }

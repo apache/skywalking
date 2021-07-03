@@ -13,43 +13,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
-import com.google.common.base.Strings;
-import java.util.Arrays;
-import lombok.Data;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import com.google.common.collect.Lists;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+import org.testcontainers.utility.DockerImageName;
 
-@Data
-public class ClusterModuleEtcdConfig extends ModuleConfig {
-    private String serviceName;
-    private String endpoints;
-    private String namespace;
+abstract class AbstractEtcdContainerBaseTest {
+    static final GenericContainer CONTAINER = new GenericContainer(DockerImageName.parse("bitnami/etcd:3.5.0"));
 
-    private String authority;
 
-    private boolean authentication;
-    private String user;
-    private String password;
-
-    private String internalComHost;
-    private int internalComPort = -1;
-
-    public String getNamespace() {
-        if (Strings.isNullOrEmpty(namespace)) {
-            return null;
-        }
-        if (!namespace.endsWith("/")) {
-            return namespace + "/";
-        }
-        return namespace;
-    }
-
-    public String[] getEndpointArray() {
-        return Arrays.stream(endpoints.split("\\s*,\\s*")).toArray(String[]::new);
-
+    static {
+        CONTAINER.setWaitStrategy(new LogMessageWaitStrategy().withRegEx(".*etcd setup finished!.*"));
+        CONTAINER.withReuse(false);
+        CONTAINER.setEnv(Lists.newArrayList("ALLOW_NONE_AUTHENTICATION=yes"));
+        CONTAINER.start();
     }
 }

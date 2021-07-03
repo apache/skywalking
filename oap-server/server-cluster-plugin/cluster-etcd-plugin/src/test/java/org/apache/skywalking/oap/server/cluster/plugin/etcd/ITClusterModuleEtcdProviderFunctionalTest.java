@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
-import com.google.common.collect.Lists;
 import io.etcd.jetcd.Client;
 import java.util.Collections;
 import java.util.List;
@@ -34,33 +33,24 @@ import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class ITClusterModuleEtcdProviderFunctionalTest {
+public class ITClusterModuleEtcdProviderFunctionalTest extends AbstractEtcdContainerBaseTest {
 
     private static String ENDPOINTS;
     private static ModuleManager MODULE_MANAGER = mock(ModuleManager.class);
     private static NoneTelemetryProvider TELEMETRY_PROVIDER = mock(NoneTelemetryProvider.class);
 
-    private static final GenericContainer CONTAINER = new GenericContainer(
-        DockerImageName.parse("bitnami/etcd:3.4.0"));
-
-    @BeforeClass
-    public static void setup() {
-        CONTAINER.setEnv(Lists.newArrayList("ALLOW_NONE_AUTHENTICATION=yes"));
-        CONTAINER.start();
-
+    @Before
+    public void setup() {
         Mockito.when(TELEMETRY_PROVIDER.getService(MetricsCreator.class))
                .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
@@ -249,8 +239,4 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         assertTrue(otherExist);
     }
 
-    @AfterClass
-    public static void teardown() {
-        CONTAINER.close();
-    }
 }
