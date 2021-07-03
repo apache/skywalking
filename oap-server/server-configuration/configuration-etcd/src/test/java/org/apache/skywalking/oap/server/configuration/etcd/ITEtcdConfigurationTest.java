@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.oap.server.configuration.etcd;
 
-import com.google.common.collect.Lists;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -39,9 +39,10 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 import org.yaml.snakeyaml.Yaml;
 
@@ -51,18 +52,18 @@ import static org.junit.Assert.assertNull;
 
 @Slf4j
 public class ITEtcdConfigurationTest {
-    private static final GenericContainer CONTAINER = new GenericContainer(DockerImageName.parse("bitnami/etcd:3.5.0"));
+    @ClassRule
+    public static final GenericContainer CONTAINER =
+        new GenericContainer(DockerImageName.parse("bitnami/etcd:3.5.0"))
+            .waitingFor(Wait.forLogMessage(".*etcd setup finished!.*", 1))
+            .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"));
+
     private static EtcdConfigurationTestProvider PROVIDER;
 
     private static final String TEST_VALUE = "value";
 
     @BeforeClass
     public static void beforeClass() throws FileNotFoundException, ModuleConfigException, ModuleNotFoundException, ModuleStartException {
-        CONTAINER.setEnv(Lists.newArrayList(
-            "ALLOW_NONE_AUTHENTICATION=yes"
-        ));
-        CONTAINER.setWaitStrategy(new LogMessageWaitStrategy().withRegEx("*etcd setup finished!.*"));
-        CONTAINER.start();
         System.setProperty("etcd.endpoint", "http://127.0.0.1:" + CONTAINER.getMappedPort(2379));
 
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
