@@ -162,7 +162,8 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
 
                 @Override
                 public void onError(final Throwable throwable) {
-                    log.error("", throwable);
+                    log.error("Failed to keep alive in Etcd coordinator", throwable);
+                    healthChecker.unHealth(throwable);
                 }
 
                 @Override
