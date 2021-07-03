@@ -34,28 +34,34 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class ITClusterModuleEtcdProviderFunctionalTest extends AbstractEtcdContainerBaseTest {
+public class ITClusterModuleEtcdProviderFunctionalTest {
 
     private static String ENDPOINTS;
-    private static ModuleManager MODULE_MANAGER = mock(ModuleManager.class);
     private static NoneTelemetryProvider TELEMETRY_PROVIDER = mock(NoneTelemetryProvider.class);
+
+    @ClassRule
+    public static final GenericContainer CONTAINER =
+        new GenericContainer(DockerImageName.parse("bitnami/etcd:3.5.0"))
+            .waitingFor(Wait.forLogMessage(".*etcd setup finished!.*", 1))
+            .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"));
 
     @Before
     public void setup() {
         Mockito.when(TELEMETRY_PROVIDER.getService(MetricsCreator.class))
                .thenReturn(new MetricsCreatorNoop());
-        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", TELEMETRY_PROVIDER);
-        Mockito.when(MODULE_MANAGER.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         ENDPOINTS = "http://127.0.0.1:" + CONTAINER.getMappedPort(2379);
     }
 
@@ -188,7 +194,12 @@ public class ITClusterModuleEtcdProviderFunctionalTest extends AbstractEtcdConta
         if (internalComPort > 0) {
             config.setInternalComPort(internalComPort);
         }
-        provider.setManager(MODULE_MANAGER);
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", TELEMETRY_PROVIDER);
+        ModuleManager manager = mock(ModuleManager.class);
+        Mockito.when(manager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
+
+        provider.setManager(manager);
         provider.prepare();
         provider.start();
         provider.notifyAfterCompleted();

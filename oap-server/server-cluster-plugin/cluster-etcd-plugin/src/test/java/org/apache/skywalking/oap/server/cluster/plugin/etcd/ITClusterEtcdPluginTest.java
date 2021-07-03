@@ -23,6 +23,7 @@ import io.etcd.jetcd.Client;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.options.GetOption;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
@@ -30,8 +31,12 @@ import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -39,7 +44,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
 @Slf4j
-public class ITClusterEtcdPluginTest extends AbstractEtcdContainerBaseTest {
+public class ITClusterEtcdPluginTest {
     private ClusterModuleEtcdConfig etcdConfig;
 
     private Client client;
@@ -53,6 +58,12 @@ public class ITClusterEtcdPluginTest extends AbstractEtcdContainerBaseTest {
     private final Address internalAddress = new Address("10.0.0.3", 1002, false);
 
     private static final String SERVICE_NAME = "my-service";
+
+    @ClassRule
+    public static final GenericContainer CONTAINER =
+        new GenericContainer(DockerImageName.parse("bitnami/etcd:3.5.0"))
+            .waitingFor(Wait.forLogMessage(".*etcd setup finished!.*", 1))
+            .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"));
 
     @Before
     public void before() throws Exception {
