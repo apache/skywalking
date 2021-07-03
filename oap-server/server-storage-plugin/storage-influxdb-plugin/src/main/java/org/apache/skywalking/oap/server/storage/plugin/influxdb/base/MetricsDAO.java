@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.TagName;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
@@ -103,31 +104,32 @@ public class MetricsDAO implements IMetricsDAO {
         }
 
         final Query query = new Query(queryStr);
-        QueryResult.Series series = client.queryForSingleSeries(query);
+        List<QueryResult.Series> seriesList = client.queryForSeries(query);
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result: {}", query.getCommand(), series);
+            log.debug("SQL: {} result: {}", query.getCommand(), seriesList);
         }
 
-        if (series == null) {
+        if (CollectionUtils.isEmpty(seriesList)) {
             return Collections.emptyList();
         }
 
         final List<Metrics> newMetrics = Lists.newArrayList();
-        final List<String> columns = series.getColumns();
         final Map<String, String> storageAndColumnMap = metaInfo.getStorageAndColumnMap();
+        seriesList.forEach(series -> {
+            final List<String> columns = series.getColumns();
+            series.getValues().forEach(values -> {
+                Map<String, Object> data = Maps.newHashMap();
 
-        series.getValues().forEach(values -> {
-            Map<String, Object> data = Maps.newHashMap();
+                for (int i = 1; i < columns.size(); i++) {
+                    Object value = values.get(i);
+                    if (value instanceof StorageDataComplexObject) {
+                        value = ((StorageDataComplexObject) value).toStorageData();
+                    }
 
-            for (int i = 1; i < columns.size(); i++) {
-                Object value = values.get(i);
-                if (value instanceof StorageDataComplexObject) {
-                    value = ((StorageDataComplexObject) value).toStorageData();
+                    data.put(storageAndColumnMap.get(columns.get(i)), value);
                 }
-
-                data.put(storageAndColumnMap.get(columns.get(i)), value);
-            }
-            newMetrics.add(storageBuilder.storage2Entity(data));
+                newMetrics.add(storageBuilder.storage2Entity(data));
+            });
         });
 
         return newMetrics;
