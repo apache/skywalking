@@ -50,6 +50,7 @@
         <module>kotlin-coroutine-plugin</module>
         <module>quartz-scheduler-2.x-plugin</module>
         <module>mybatis-3.x-plugin</module>
+        <module>sentinel-1.x-plugin</module>
         <module>ehcache-2.x-plugin</module>
     </modules>
 

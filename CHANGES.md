@@ -27,6 +27,7 @@ Release Notes.
 * Add `ShardingSphere-5.0.0-beta` plugin.
 * Fix some method exception error.
 * Fix async finish repeatedly in `spring-webflux-5.x-webclient` plugin.
+* Add agent plugin to support Sentinel.
 * Move `ehcache-2.x` plugin as an optional plugin.
 
 #### OAP-Backend
