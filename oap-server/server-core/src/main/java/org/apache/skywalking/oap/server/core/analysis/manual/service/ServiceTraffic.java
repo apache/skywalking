@@ -102,6 +102,7 @@ public class ServiceTraffic extends Metrics {
             serviceTraffic.setName((String) dbMap.get(NAME));
             serviceTraffic.setNodeType(NodeType.valueOf(((Number) dbMap.get(NODE_TYPE)).intValue()));
             serviceTraffic.setGroup((String) dbMap.get(GROUP));
+            serviceTraffic.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             return serviceTraffic;
         }
 
@@ -118,6 +119,7 @@ public class ServiceTraffic extends Metrics {
             map.put(NAME, serviceName);
             map.put(NODE_TYPE, storageData.getNodeType().value());
             map.put(GROUP, storageData.getGroup());
+            map.put(TIME_BUCKET, storageData.getTimeBucket());
             return map;
         }
     }
