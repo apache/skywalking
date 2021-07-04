@@ -71,7 +71,7 @@ Release Notes.
   rather than first time. This makes sure hot data never gets removed unexpectedly.
 * Support session expired threshold configurable.
 * Fix InfluxDB storage-plugin Metrics#multiGet issue.
-* Upgrade etcd cluster coordinator and dynamic configuration to v3.x.
+* Replace zuul proxy with spring cloud gateway 2.x. in webapp module.
 
 #### UI
 

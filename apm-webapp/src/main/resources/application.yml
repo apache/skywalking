@@ -17,28 +17,30 @@
 server:
   port: 8080
 
-zuul:
-  ignoredServices: '*'
-  routes:
-    api:
-      path: /graphql
-      serviceId: collector
-    login:
-      path: /login/account
-      serviceId: collector
-
-collector:
-  path: /graphql
-  ribbon:
-    # Point to all backend's restHost:restPort, split by ,
-    listOfServers: 127.0.0.1:12800
-
 spring:
-  resources:
-    add-mappings: false
+  cloud:
+    gateway:
+      routes:
+        - id: oap-route
+          uri: lb://oap-service
+          predicates:
+            - Path=/graphql/**
+    discovery:
+      client:
+        simple:
+          instances:
+            oap-service:
+              - uri: http://127.0.0.1:12800
+            # - uri: http://<oap-host-1>:<oap-port1>
+            # - uri: http://<oap-host-2>:<oap-port2>
+
   mvc:
     throw-exception-if-no-handler-found: true
-      
+
+  web:
+    resources:
+      add-mappings: true
+
 management:
-  # Customizing the management endpoint paths
-  context-path: /manage
+  server:
+    base-path: /manage

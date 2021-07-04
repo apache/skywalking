@@ -30,6 +30,7 @@ env:
   TAG: ${{ github.sha }}
   SCRIPTS_DIR: test/e2e-mesh/e2e-istio/scripts
   SW_OAP_BASE_IMAGE: openjdk:11-jdk
+  SW_KUBERNETES_COMMIT_SHA: 6d5897616ce30ebb1706c0cf566ac36f733d93e0
 
 concurrency:
   group: e2e-istio-${{ github.event.pull_request.number || github.ref }}
@@ -95,7 +96,7 @@ jobs:
         run: |
           git clone https://github.com/apache/skywalking-kubernetes.git
           cd skywalking-kubernetes
-          git reset --hard 2fdcdc3bb39496bf49626755e8f60c998be5f587
+          git reset --hard $SW_KUBERNETES_COMMIT_SHA
           cd chart
           mkdir -p skywalking/files/conf.d/oap/ && cp ../../test/e2e/e2e-test/src/test/resources/metadata-service-mapping.yaml skywalking/files/conf.d/oap/metadata-service-mapping.yaml
           helm dep up skywalking
@@ -237,7 +238,7 @@ jobs:
         run: |
           git clone https://github.com/apache/skywalking-kubernetes.git
           cd skywalking-kubernetes
-          git reset --hard dd749f25913830c47a97430618cefc4167612e75
+          git reset --hard $SW_KUBERNETES_COMMIT_SHA
           cd chart
           helm dep up skywalking
           helm -n istio-system install skywalking skywalking \

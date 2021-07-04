@@ -21,7 +21,7 @@ services:
       file: ../base-compose.yml
       service: ui
     environment:
-      - SW_OAP_ADDRESS=oap1:12800,oap2:12800
+      - SW_OAP_ADDRESS=http://oap1:12800,http://oap2:12800
     depends_on:
       oap1:
         condition: service_healthy

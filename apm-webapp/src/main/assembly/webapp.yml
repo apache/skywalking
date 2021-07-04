@@ -1,10 +1,9 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -17,10 +16,30 @@
 server:
   port: 8080
 
-collector:
-  path: /graphql
-  ribbon:
-    ReadTimeout: 10000
-    # Point to all backend's restHost:restPort, split by ,
-    listOfServers: 127.0.0.1:12800
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: oap-route
+          uri: lb://oap-service
+          predicates:
+            - Path=/graphql/**
+    discovery:
+      client:
+        simple:
+          instances:
+            oap-service:
+              - uri: http://127.0.0.1:12800
+            # - uri: http://<oap-host-1>:<oap-port1>
+            # - uri: http://<oap-host-2>:<oap-port2>
 
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+  web:
+    resources:
+      add-mappings: true
+
+management:
+  server:
+    base-path: /manage
