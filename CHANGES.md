@@ -69,9 +69,10 @@ Release Notes.
 * Support connectTimeout and socketTimeout settings for ElasticSearch6 and ElasticSearch7 storages.
 * Re-implement storage session mechanism, cached metrics are removed only according to their last access timestamp,
   rather than first time. This makes sure hot data never gets removed unexpectedly.
-* Support session expired threshold configurable.
+* Support session expired threshold configurable. 
 * Fix InfluxDB storage-plugin Metrics#multiGet issue.
 * Replace zuul proxy with spring cloud gateway 2.x. in webapp module.
+* Upgrade etcd cluster coordinator and dynamic configuration to v3.x.
 
 #### UI
 
