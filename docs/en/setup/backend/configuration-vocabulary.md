@@ -64,7 +64,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | aclToken| ALC Token of Consul. Empty string means `without ALC token`.| SW_CLUSTER_CONSUL_ACLTOKEN | - |
 | - | - | internalComHost| The hostname registered in the Consul for the internal communication of OAP cluster.| - | -|
 | - | - | internalComPort| The port registered in the Consul for the internal communication of OAP cluster.| - | -1|
-| - | etcd| serviceName| Service name used for SkyWalking cluster. |SW_SERVICE_NAME|SkyWalking_OAP_Cluster|
+| - | etcd| serviceName| Service name used for SkyWalking cluster. |SW_CLUSTER_ETCD_SERVICE_NAME|SkyWalking_OAP_Cluster|
 | - | - | endpoints| hosts and ports used of etcd cluster.| SW_CLUSTER_ETCD_ENDPOINTS|localhost:2379|
 | - | - | namespace | Namespace used for SkyWalking cluster. |SW_CLUSTER_ETCD_NAMESPACE | /skywalking |
 | - | - | authentication | Whether has authentication. | SW_CLUSTER_ETCD_AUTHENTICATION | false |

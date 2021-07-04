@@ -95,6 +95,14 @@ Set the **cluster/selector** to **etcd** in the yml to enable it.
 cluster:
   selector: ${SW_CLUSTER:etcd}
   # other configurations
+  etcd:
+    # etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
+    endpoints: ${SW_CLUSTER_ETCD_ENDPOINTS:localhost:2379}
+    namespace: ${SW_CLUSTER_ETCD_NAMESPACE:/skywalking}
+    serviceName: ${SW_SCLUSTER_ETCD_ERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    authentication: ${SW_CLUSTER_ETCD_AUTHENTICATION:false}
+    user: ${SW_SCLUSTER_ETCD_USER:}
+    password: ${SW_SCLUSTER_ETCD_PASSWORD:}
 ```
 
 Same as the Zookeeper coordinator,
