@@ -131,7 +131,6 @@ nacos-client-1.4.2.jar
 nacos-common-1.4.2.jar
 netty-buffer-4.1.65.Final.jar
 netty-codec-4.1.65.Final.jar
-netty-codec-dns-4.1.65.Final.jar
 netty-codec-http-4.1.65.Final.jar
 netty-codec-http2-4.1.65.Final.jar
 netty-codec-socks-4.1.65.Final.jar
