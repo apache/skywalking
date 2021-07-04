@@ -21,9 +21,11 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,6 +41,7 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.TagName;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
@@ -103,32 +106,38 @@ public class MetricsDAO implements IMetricsDAO {
         }
 
         final Query query = new Query(queryStr);
-        QueryResult.Series series = client.queryForSingleSeries(query);
+        final List<QueryResult.Result> results = client.query(query);
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result: {}", query.getCommand(), series);
+            log.debug("SQL: {} result: {}", query.getCommand(), results);
         }
 
-        if (series == null) {
+        if (CollectionUtils.isEmpty(results)) {
             return Collections.emptyList();
         }
 
         final List<Metrics> newMetrics = Lists.newArrayList();
-        final List<String> columns = series.getColumns();
         final Map<String, String> storageAndColumnMap = metaInfo.getStorageAndColumnMap();
+        results.stream()
+               .map(QueryResult.Result::getSeries)
+               .filter(Objects::nonNull)
+               .flatMap(Collection::stream)
+               .filter(Objects::nonNull)
+               .forEach(series -> {
+                   final List<String> columns = series.getColumns();
+                   series.getValues().forEach(values -> {
+                       Map<String, Object> data = Maps.newHashMap();
 
-        series.getValues().forEach(values -> {
-            Map<String, Object> data = Maps.newHashMap();
+                       for (int i = 1; i < columns.size(); i++) {
+                           Object value = values.get(i);
+                           if (value instanceof StorageDataComplexObject) {
+                               value = ((StorageDataComplexObject) value).toStorageData();
+                           }
 
-            for (int i = 1; i < columns.size(); i++) {
-                Object value = values.get(i);
-                if (value instanceof StorageDataComplexObject) {
-                    value = ((StorageDataComplexObject) value).toStorageData();
-                }
-
-                data.put(storageAndColumnMap.get(columns.get(i)), value);
-            }
-            newMetrics.add(storageBuilder.storage2Entity(data));
-        });
+                           data.put(storageAndColumnMap.get(columns.get(i)), value);
+                       }
+                       newMetrics.add(storageBuilder.storage2Entity(data));
+                   });
+               });
 
         return newMetrics;
     }

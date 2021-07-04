@@ -22,7 +22,7 @@ services:
       oap:
         condition: service_healthy
     environment:
-      SW_OAP_ADDRESS: oap:12800
+      SW_OAP_ADDRESS: http://oap:12800
     expose:
       - '8080'
     image: skywalking/ui:latest
