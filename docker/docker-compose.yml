@@ -61,4 +61,4 @@ services:
     ports:
       - 8080:8080
     environment:
-      SW_OAP_ADDRESS: oap:12800
+      SW_OAP_ADDRESS: http://oap:12800

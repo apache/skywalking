@@ -51,6 +51,7 @@ jobs:
           - httpclient-3.x-scenario
           - httpclient-4.3.x-scenario
           - hystrix-scenario
+          - sentinel-scenario
           - influxdb-scenario
           - jdk-http-scenario
           - jdk-threading-scenario

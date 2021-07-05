@@ -251,7 +251,9 @@ The text of each license is the standard Apache 2.0 license.
     Joda-Time 2.10.5: http://www.joda.org/joda-time/ , Apache 2.0
     Joda-Convert 2.2.1: http://www.joda.org/joda-convert/ , Apache 2.0
     Spring Framework 4.3.14.RELEASE: https://github.com/spring-projects/spring-framework, Apache 2.0
-    Spring Boot 1.5.22.RELEASE: https://spring.io/, Apache 2.0
+    Spring Boot 2.4.8: https://spring.io/, Apache 2.0
+    Spring Cloud Gateway 3.0.3: https://spring.io/projects/spring-cloud, Apache-2.0
+    Spring Cloud Load Balancer 3.0.3: https://spring.io/projects/spring-cloud, Apache-2.0
     Spring Cloud Config 1.4.1: https://github.com/spring-cloud/spring-cloud-config, Apache-2.0
     Spring Cloud Netflix Zuul 1.3.0: https://github.com/spring-cloud/spring-cloud-netflix, Apache 2.0
     Apache: commons-logging 1.1.3: https://github.com/apache/commons-logging, Apache 2.0
@@ -270,7 +272,6 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
     Apache: commons-compress 1.20: https://github.com/apache/commons-compress, Apache 2.0
     Apache: commons-collections4 4.4: https://mvnrepository.com/artifact/org.apache.commons/commons-collections4, Apache 2.0
-    Apache: tomcat 8.5.66: https://github.com/apache/tomcat/tree/trunk, Apache 2.0
     Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
     netty 4.1.65: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
@@ -302,7 +303,6 @@ The text of each license is the standard Apache 2.0 license.
     rxnetty 0.4.9: https://github.com/ReactiveX/rxnetty, Apache 2.0
     servo 0.10.1: https://github.com/Netflix/servo, Apache 2.0
     validation-api 1.1.0.Final: http://beanvalidation.org/licensing/, Apache 2.0
-    zuul-core 1.3.0: https://github.com/Netflix/zuul, Apache 2.0
     HikariCP 3.1.0: https://github.com/brettwooldridge/HikariCP, Apache 2.0
     zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
