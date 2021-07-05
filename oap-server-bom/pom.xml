@@ -73,10 +73,19 @@
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <flatbuffers-java.version>1.12.0</flatbuffers-java.version>
         <postgresql.version>42.2.18</postgresql.version>
+        <jetcd.version>0.5.3</jetcd.version>
+        <testcontainers.version>1.15.3</testcontainers.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -200,6 +209,16 @@
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-netty</artifactId>
                 <version>${grpc.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty-codec-http2</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty-handler-proxy</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>io.grpc</groupId>
@@ -251,6 +270,11 @@
                         <artifactId>grpc-stub</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-grpclb</artifactId>
+                <version>${grpc.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
@@ -329,65 +353,37 @@
                 <artifactId>nacos-client</artifactId>
                 <version>${nacos.version}</version>
             </dependency>
+
             <dependency>
-                <groupId>org.mousio</groupId>
-                <artifactId>etcd4j</artifactId>
+                <groupId>io.etcd</groupId>
+                <artifactId>jetcd-core</artifactId>
+                <version>${jetcd.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>netty-codec-dns</artifactId>
-                        <groupId>io.netty</groupId>
+                        <groupId>io.grpc</groupId>
+                        <artifactId>grpc-core</artifactId>
                     </exclusion>
-
                     <exclusion>
-                        <artifactId>netty-codec-dns</artifactId>
-                        <groupId>io.netty</groupId>
+                        <groupId>io.grpc</groupId>
+                        <artifactId>grpc-netty</artifactId>
                     </exclusion>
-
                     <exclusion>
-                        <artifactId>netty-codec-http</artifactId>
-                        <groupId>io.netty</groupId>
+                        <groupId>io.grpc</groupId>
+                        <artifactId>grpc-protobuf</artifactId>
                     </exclusion>
-
                     <exclusion>
-                        <artifactId>netty-handler</artifactId>
-                        <groupId>io.netty</groupId>
+                        <groupId>io.grpc</groupId>
+                        <artifactId>grpc-stub</artifactId>
                     </exclusion>
-
                     <exclusion>
-                        <artifactId>netty-resolver-dns</artifactId>
-                        <groupId>io.netty</groupId>
+                        <groupId>io.grpc</groupId>
+                        <artifactId>grpc-grpclb</artifactId>
                     </exclusion>
-
                     <exclusion>
-                        <groupId>com.fasterxml.jackson.module</groupId>
-                        <artifactId>jackson-module-afterburner</artifactId>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
                     </exclusion>
                 </exclusions>
-                <version>${etcd4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-handler</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-resolver-dns</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-codec-dns</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-codec-http</artifactId>
-                <version>${netty.version}</version>
             </dependency>
 
             <dependency>
@@ -495,6 +491,13 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

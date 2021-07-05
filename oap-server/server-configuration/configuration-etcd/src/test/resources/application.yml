@@ -22,12 +22,8 @@ test-module:
 configuration:
   etcd:
     # Etcd Server Host
-    serverAddr: ${etcd.host}:${etcd.port}
-    # Etcd Server Port
-    port: ${etcd.port}
+    endpoints: ${etcd.endpoint}
     # Etcd Configuration Group
-    group: 'skywalking'
+    namespace: /skywalking/
     # Unit seconds, sync period. Default fetch every 60 seconds.
     period: 1
-    # the name of current cluster, set the name if you want to upstream system known.
-    clusterName: "default"
