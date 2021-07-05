@@ -76,7 +76,7 @@ services:
     networks:
       - e2e
     environment:
-      - SW_OAP_ADDRESS=oap:12800
+      - SW_OAP_ADDRESS=http://oap:12800
 
   provider:
     build:
