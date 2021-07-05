@@ -71,6 +71,7 @@ core:
     restIdleTimeOut: ${SW_CORE_REST_JETTY_IDLE_TIMEOUT:30000}
     restAcceptorPriorityDelta: ${SW_CORE_REST_JETTY_DELTA:0}
     restAcceptQueueSize: ${SW_CORE_REST_JETTY_QUEUE_SIZE:0}
+    httpMaxRequestHeaderSize: ${SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     maxConcurrentCallsPerConnection: ${SW_CORE_GRPC_MAX_CONCURRENT_CALL:0}

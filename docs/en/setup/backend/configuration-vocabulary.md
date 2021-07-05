@@ -12,6 +12,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restIdleTimeOut| Connector idle timeout in milliseconds of restful service| SW_CORE_REST_JETTY_IDLE_TIMEOUT|30000|
 | - | - | restAcceptorPriorityDelta| Thread priority delta to give to acceptor threads of restful service| SW_CORE_REST_JETTY_DELTA|0|
 | - | - | restAcceptQueueSize| ServerSocketChannel backlog  of restful service| SW_CORE_REST_JETTY_QUEUE_SIZE|0|
+| - | - | httpMaxRequestHeaderSize| Maximum request header size accepted| SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE|8192|
 | - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes|SW_CORE_GRPC_HOST|0.0.0.0|
 | - | - | gRPCPort| Binding port of gRPC service | SW_CORE_GRPC_PORT|11800|
 | - | - | gRPCSslEnabled| Activate SSL for gRPC service | SW_CORE_GRPC_SSL_ENABLED|false|
