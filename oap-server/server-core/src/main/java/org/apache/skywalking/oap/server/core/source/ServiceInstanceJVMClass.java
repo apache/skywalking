@@ -57,7 +57,7 @@ public class ServiceInstanceJVMClass extends Source {
     private long loadedClassCount;
     @Getter
     @Setter
-    private long unloadedClassCount;
+    private long totalUnloadedClassCount;
     @Getter
     @Setter
     private long totalLoadedClassCount;

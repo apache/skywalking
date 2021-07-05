@@ -32,10 +32,10 @@ public enum ClassProvider {
 
     public Class getClassMetrics() {
         int loadedClassCount = classLoadingMXBean.getLoadedClassCount();
-        long unloadedClassCount = classLoadingMXBean.getUnloadedClassCount();
+        long totalUnloadedClassCount = classLoadingMXBean.getUnloadedClassCount();
         long totalLoadedClassCount = classLoadingMXBean.getTotalLoadedClassCount();
         return Class.newBuilder().setLoadedClassCount(loadedClassCount)
-                .setUnloadedClassCount(unloadedClassCount)
+                .setTotalUnloadedClassCount(totalUnloadedClassCount)
                 .setTotalLoadedClassCount(totalLoadedClassCount)
                 .build();
     }

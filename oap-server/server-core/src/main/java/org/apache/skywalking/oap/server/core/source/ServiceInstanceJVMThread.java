@@ -63,26 +63,20 @@ public class ServiceInstanceJVMThread extends Source {
     private long peakCount;
     @Getter
     @Setter
-    private long deadlocked;
+    private long newStateThreadCount;
     @Getter
     @Setter
-    private long monitorDeadlocked;
+    private long runnableStateThreadCount;
     @Getter
     @Setter
-    private long newThreadCount;
+    private long blockedStateThreadCount;
     @Getter
     @Setter
-    private long runnableThreadCount;
+    private long waitingStateThreadCount;
     @Getter
     @Setter
-    private long blockedThreadCount;
+    private long timedWaitingStateThreadCount;
     @Getter
     @Setter
-    private long waitThreadCount;
-    @Getter
-    @Setter
-    private long timeWaitThreadCount;
-    @Getter
-    @Setter
-    private long terminatedThreadCount;
+    private long terminatedStateThreadCount;
 }

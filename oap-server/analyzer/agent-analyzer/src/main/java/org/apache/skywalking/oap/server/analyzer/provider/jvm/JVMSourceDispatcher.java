@@ -197,14 +197,12 @@ public class JVMSourceDispatcher {
         serviceInstanceJVMThread.setLiveCount(thread.getLiveCount());
         serviceInstanceJVMThread.setDaemonCount(thread.getDaemonCount());
         serviceInstanceJVMThread.setPeakCount(thread.getPeakCount());
-        serviceInstanceJVMThread.setDeadlocked(thread.getDeadlocked());
-        serviceInstanceJVMThread.setMonitorDeadlocked(thread.getMonitorDeadlocked());
-        serviceInstanceJVMThread.setNewThreadCount(thread.getNewThreadCount());
-        serviceInstanceJVMThread.setRunnableThreadCount(thread.getRunnableThreadCount());
-        serviceInstanceJVMThread.setBlockedThreadCount(thread.getBlockedThreadCount());
-        serviceInstanceJVMThread.setWaitThreadCount(thread.getWaitThreadCount());
-        serviceInstanceJVMThread.setTimeWaitThreadCount(thread.getTimeWaitThreadCount());
-        serviceInstanceJVMThread.setTerminatedThreadCount(thread.getTerminatedThreadCount());
+        serviceInstanceJVMThread.setNewStateThreadCount(thread.getNewStateThreadCount());
+        serviceInstanceJVMThread.setRunnableStateThreadCount(thread.getRunnableStateThreadCount());
+        serviceInstanceJVMThread.setBlockedStateThreadCount(thread.getBlockedStateThreadCount());
+        serviceInstanceJVMThread.setWaitingStateThreadCount(thread.getWaitingStateThreadCount());
+        serviceInstanceJVMThread.setTimedWaitingStateThreadCount(thread.getTimedWaitingStateThreadCount());
+        serviceInstanceJVMThread.setTerminatedStateThreadCount(thread.getTerminatedStateThreadCount());
         serviceInstanceJVMThread.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceJVMThread);
     }
@@ -221,7 +219,7 @@ public class JVMSourceDispatcher {
         serviceInstanceJVMClass.setServiceId(serviceId);
         serviceInstanceJVMClass.setServiceName(service);
         serviceInstanceJVMClass.setLoadedClassCount(clazz.getLoadedClassCount());
-        serviceInstanceJVMClass.setUnloadedClassCount(clazz.getUnloadedClassCount());
+        serviceInstanceJVMClass.setTotalUnloadedClassCount(clazz.getTotalUnloadedClassCount());
         serviceInstanceJVMClass.setTotalLoadedClassCount(clazz.getTotalLoadedClassCount());
         serviceInstanceJVMClass.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceJVMClass);

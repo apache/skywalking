@@ -32,41 +32,41 @@ public enum ThreadProvider {
     }
 
     public Thread getThreadMetrics() {
-        int newThreadCount = 0;
-        int runnableThreadCount = 0;
-        int blockedThreadCount = 0;
-        int waitThreadCount = 0;
-        int timeWaitThreadCount = 0;
-        int terminatedThreadCount = 0;
+        int newStateThreadCount = 0;
+        int runnableStateThreadCount = 0;
+        int blockedStateThreadCount = 0;
+        int waitingStateThreadCount = 0;
+        int timedWaitingStateThreadCount = 0;
+        int terminatedStateThreadCount = 0;
 
-        ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds());
+        ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), 0);
         if (threadInfos != null) {
             for (ThreadInfo threadInfo : threadInfos) {
                 if (threadInfo != null) {
                     switch (threadInfo.getThreadState()) {
                         case NEW:
-                            newThreadCount++;
+                            newStateThreadCount++;
                             break;
                         case RUNNABLE:
-                            runnableThreadCount++;
+                            runnableStateThreadCount++;
                             break;
                         case BLOCKED:
-                            blockedThreadCount++;
+                            blockedStateThreadCount++;
                             break;
                         case WAITING:
-                            waitThreadCount++;
+                            waitingStateThreadCount++;
                             break;
                         case TIMED_WAITING:
-                            timeWaitThreadCount++;
+                            timedWaitingStateThreadCount++;
                             break;
                         case TERMINATED:
-                            terminatedThreadCount++;
+                            terminatedStateThreadCount++;
                             break;
                         default:
                             break;
                     }
                 } else {
-                    terminatedThreadCount++;
+                    terminatedStateThreadCount++;
                 }
             }
         }
@@ -74,20 +74,15 @@ public enum ThreadProvider {
         int threadCount = threadMXBean.getThreadCount();
         int daemonThreadCount = threadMXBean.getDaemonThreadCount();
         int peakThreadCount = threadMXBean.getPeakThreadCount();
-        int deadlocked = threadMXBean.findDeadlockedThreads() != null ? threadMXBean.findDeadlockedThreads().length : 0;
-        int monitorDeadlocked = threadMXBean.findMonitorDeadlockedThreads() != null ?
-                threadMXBean.findMonitorDeadlockedThreads().length : 0;
         return Thread.newBuilder().setLiveCount(threadCount)
                 .setDaemonCount(daemonThreadCount)
                 .setPeakCount(peakThreadCount)
-                .setDeadlocked(deadlocked)
-                .setMonitorDeadlocked(monitorDeadlocked)
-                .setNewThreadCount(newThreadCount)
-                .setRunnableThreadCount(runnableThreadCount)
-                .setBlockedThreadCount(blockedThreadCount)
-                .setWaitThreadCount(waitThreadCount)
-                .setTimeWaitThreadCount(timeWaitThreadCount)
-                .setTerminatedThreadCount(terminatedThreadCount)
+                .setNewStateThreadCount(newStateThreadCount)
+                .setRunnableStateThreadCount(runnableStateThreadCount)
+                .setBlockedStateThreadCount(blockedStateThreadCount)
+                .setWaitingStateThreadCount(waitingStateThreadCount)
+                .setTimedWaitingStateThreadCount(timedWaitingStateThreadCount)
+                .setTerminatedStateThreadCount(terminatedStateThreadCount)
                 .build();
     }
 
