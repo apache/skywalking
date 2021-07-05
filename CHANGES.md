@@ -73,6 +73,7 @@ Release Notes.
 * Fix InfluxDB storage-plugin Metrics#multiGet issue.
 * Replace zuul proxy with spring cloud gateway 2.x. in webapp module.
 * Upgrade etcd cluster coordinator and dynamic configuration to v3.x.
+* Add thread state metric and class loaded info metric to JVMMetric.
 
 #### UI
 
