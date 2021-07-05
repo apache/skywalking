@@ -77,6 +77,8 @@ configuration:
     password: ${SW_CONFIG_ETCD_password:}
 ```
 
+**NOTICE**, only the v3 protocol is supported since 8.7.0. 
+
 ## Dynamic Configuration Consul Implementation
 
 [Consul](https://github.com/rickfast/consul-client) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
