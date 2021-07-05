@@ -115,6 +115,7 @@ metrics based on the tracing data.
   * JRE Callable and Runnable (Optional²)
 * Cache
   * [Ehcache](https://www.ehcache.org/) 2.x
+  * [GuavaCache](https://github.com/google/guava) 18.x -> 23.x
 * Kotlin
   * [Coroutine](https://kotlinlang.org/docs/reference/coroutines-overview.html) 1.0.1 -> 1.3.x (Optional²)
 * GraphQL
