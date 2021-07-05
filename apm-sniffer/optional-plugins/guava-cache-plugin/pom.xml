@@ -21,16 +21,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
+        <artifactId>optional-plugins</artifactId>
         <version>8.7.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>guava-cache-plugin</artifactId>
+    <name>guava-cache-plugin</name>
+    <packaging>jar</packaging>
+
+    <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <guava-cache-client.version>19.0</guava-cache-client.version>
+        <guava-client.version>23.0</guava-client.version>
     </properties>
 
     <dependencies>
@@ -38,7 +41,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>${guava-cache-client.version}</version>
+            <version>${guava-client.version}</version>
             <scope>provided</scope>
         </dependency>
 

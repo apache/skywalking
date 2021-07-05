@@ -46,6 +46,8 @@ public class GuavaCacheInterceptorTest {
 
     private GuavaCacheInterceptor guavaCacheInterceptor;
 
+    private GuavaCacheAllInterceptor guavaCacheAllInterceptor;
+
     private Object[] operateObjectArguments;
 
     private Exception exception;
@@ -65,8 +67,9 @@ public class GuavaCacheInterceptorTest {
     @Before
     public void setUp() throws Exception {
         guavaCacheInterceptor = new GuavaCacheInterceptor();
+        guavaCacheAllInterceptor = new GuavaCacheAllInterceptor();
         exception = new Exception();
-        operateObjectArguments = new Object[] {"dataKey"};
+        operateObjectArguments = new Object[]{"dataKey"};
         Class<?> cache = Class.forName("com.google.common.cache.LocalCache$LocalManualCache");
         getAllPresentMethod = Whitebox.getMethods(cache, "getAllPresent")[0];
         invalidateAllMethod = Whitebox.getMethods(cache, "invalidateAll")[0];
@@ -80,18 +83,18 @@ public class GuavaCacheInterceptorTest {
 
     @Test
     public void assertGetAllPresentSuccess() throws Throwable {
-        guavaCacheInterceptor.beforeMethod(null, getAllPresentMethod, null, null, null);
-        guavaCacheInterceptor.handleMethodException(null, getAllPresentMethod, null, null, exception);
-        guavaCacheInterceptor.afterMethod(null, getAllPresentMethod, null, null, null);
+        guavaCacheAllInterceptor.beforeMethod(null, getAllPresentMethod, null, null, null);
+        guavaCacheAllInterceptor.handleMethodException(null, getAllPresentMethod, null, null, exception);
+        guavaCacheAllInterceptor.afterMethod(null, getAllPresentMethod, null, null, null);
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
     }
 
     @Test
     public void assertInvalidAllSuccess() throws Throwable {
-        guavaCacheInterceptor.beforeMethod(null, invalidateAllMethod, null, null, null);
-        guavaCacheInterceptor.handleMethodException(null, invalidateAllMethod, null, null, exception);
-        guavaCacheInterceptor.afterMethod(null, invalidateAllMethod, null, null, null);
+        guavaCacheAllInterceptor.beforeMethod(null, invalidateAllMethod, null, null, null);
+        guavaCacheAllInterceptor.handleMethodException(null, invalidateAllMethod, null, null, exception);
+        guavaCacheAllInterceptor.afterMethod(null, invalidateAllMethod, null, null, null);
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
     }
@@ -117,9 +120,9 @@ public class GuavaCacheInterceptorTest {
 
     @Test
     public void assertPutAllMethodSuccess() throws Throwable {
-        guavaCacheInterceptor.beforeMethod(null, putAllMethod, null, null, null);
-        guavaCacheInterceptor.handleMethodException(null, putAllMethod, null, null, exception);
-        guavaCacheInterceptor.afterMethod(null, putAllMethod, null, null, null);
+        guavaCacheAllInterceptor.beforeMethod(null, putAllMethod, null, null, null);
+        guavaCacheAllInterceptor.handleMethodException(null, putAllMethod, null, null, exception);
+        guavaCacheAllInterceptor.afterMethod(null, putAllMethod, null, null, null);
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
     }

@@ -40,6 +40,7 @@ public class GuavaCachePluginInstrumentation extends ClassInstanceMethodsEnhance
     public static final String PUT_ENHANCE_METHOD = "put";
     public static final String GET_IF_PRESENT_ENHANCE_METHOD = "getIfPresent";
     public static final String GUAVA_CACHE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.guava.cache.GuavaCacheInterceptor";
+    public static final String GUAVA_CACHE_ALL_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.guava.cache.GuavaCacheAllInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -52,11 +53,8 @@ public class GuavaCachePluginInstrumentation extends ClassInstanceMethodsEnhance
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(GET_ALL_PRESENT_ENHANCE_METHOD)
-                                .or(named(INVALIDATE_ALL_ENHANCE_METHOD))
-                                .or(named(GET_ENHANCE_METHOD))
+                        return named(GET_ENHANCE_METHOD)
                                 .or(named(INVALIDATE_ENHANCE_METHOD))
-                                .or(named(PUT_ALL_ENHANCE_METHOD))
                                 .or(named(PUT_ENHANCE_METHOD))
                                 .or(named(GET_IF_PRESENT_ENHANCE_METHOD));
                     }
@@ -64,6 +62,25 @@ public class GuavaCachePluginInstrumentation extends ClassInstanceMethodsEnhance
                     @Override
                     public String getMethodsInterceptor() {
                         return GUAVA_CACHE_INTERCEPTOR_CLASS;
+                    }
+
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return true;
+                    }
+
+                },
+                new InstanceMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named(GET_ALL_PRESENT_ENHANCE_METHOD)
+                                .or(named(INVALIDATE_ALL_ENHANCE_METHOD))
+                                .or(named(PUT_ALL_ENHANCE_METHOD));
+                    }
+
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return GUAVA_CACHE_ALL_INTERCEPTOR_CLASS;
                     }
 
                     @Override
