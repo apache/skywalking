@@ -297,6 +297,7 @@ receiver-sharing-server:
     restIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
     restAcceptorPriorityDelta: ${SW_RECEIVER_SHARING_JETTY_DELTA:0}
     restAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
+    httpMaxRequestHeaderSize: ${SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
     # For gRPC server
     gRPCHost: ${SW_RECEIVER_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_RECEIVER_GRPC_PORT:0}
