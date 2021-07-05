@@ -15,5 +15,5 @@
 # limitations under the License.
 
 type: tomcat
-entryService: http://localhost:8080/guava-scenario/case/ehcache
-healthCheck: http://localhost:8080/guava-scenario/healthCheck
+entryService: http://localhost:8080/guava-cache-scenario/case/guava
+healthCheck: http://localhost:8080/guava-cache-scenario/healthCheck

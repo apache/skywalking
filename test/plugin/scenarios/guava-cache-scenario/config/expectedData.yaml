@@ -118,6 +118,6 @@ segmentItems:
       spanType: Entry
       peer: ''
       tags:
-      - {key: url, value: 'http://localhost:8080/guava-scenario/case/ehcache'}
+      - {key: url, value: 'http://localhost:8080/guava-cache-scenario/case/guava'}
       - {key: http.method, value: GET}
       skipAnalysis: 'false'
