@@ -104,9 +104,25 @@ This calculates the metrics data if the service instance is a JVM and collects t
 |---|---|---|---|
 | name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
 | serviceName | The name of the service. | | string |
-| liveCount | The current number of live threads. | | int |
-| daemonCount | The current number of daemon threads. | | int |
-| peakCount | The current number of peak threads. | | int |
+| liveCount | The current number of live threads. | | long |
+| daemonCount | The current number of daemon threads. | | long |
+| peakCount | The current number of peak threads. | | long |
+| newStateThreadCount | The current number of threads in new state. | | long |
+| runnableStateThreadCount | The current number of threads in runnable state. | | long |
+| blockedStateThreadCount | The current number of threads in blocked state. | | long |
+| waitingStateThreadCount | The current number of threads in waiting state. | | long |
+| timedWaitingStateThreadCount | The current number of threads in time-waiting state. | | long |
+| terminatedStateThreadCount | The current number of threads in terminated state. | | long |
+
+6. SCOPE `ServiceInstanceJVMClass`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| loadedClassCount | The number of classes that are currently loaded in the JVM. | | long |
+| totalUnloadedClassCount | The total number of classes unloaded since the JVM has started execution. | | long |
+| totalLoadedClassCount | The total number of classes that have been loaded since the JVM has started execution. | | long |
 
 ### SCOPE `Endpoint`
 
