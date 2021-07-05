@@ -57,7 +57,7 @@ public class EtcdConfigurationTestProvider extends ModuleProvider {
             private volatile String testValue;
 
             @Override
-            public void notify(ConfigChangeWatcher.ConfigChangeEvent value) {
+            public void notify(ConfigChangeEvent value) {
                 LOGGER.info("ConfigChangeWatcher.ConfigChangeEvent: {}", value);
                 if (EventType.DELETE.equals(value.getEventType())) {
                     testValue = null;
