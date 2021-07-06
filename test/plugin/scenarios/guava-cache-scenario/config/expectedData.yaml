@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 segmentItems:
-- serviceName: guava-scenario
+- serviceName: guava-cache-scenario
   segmentSize: ge 2
   segments:
   - segmentId: not null
@@ -30,6 +30,8 @@ segmentItems:
       isError: false
       spanType: Local
       peer: ''
+      tags:
+      - {key: db.statement, value: testKey1}
       skipAnalysis: 'false'
     - operationName: GuavaCache/invalidate
       operationId: 0
@@ -42,6 +44,8 @@ segmentItems:
       isError: false
       spanType: Local
       peer: ''
+      tags:
+      - {key: db.statement, value: testKey1}
       skipAnalysis: 'false'
     - operationName: GuavaCache/get
       operationId: 0
@@ -54,6 +58,8 @@ segmentItems:
       isError: false
       spanType: Local
       peer: ''
+      tags:
+      - {key: db.statement, value: testKey1}
       skipAnalysis: 'false'
     - operationName: GuavaCache/getIfPresent
       operationId: 0
@@ -66,6 +72,8 @@ segmentItems:
       isError: false
       spanType: Local
       peer: ''
+      tags:
+      - {key: db.statement, value: testKey1}
       skipAnalysis: 'false'
     - operationName: GuavaCache/invalidate
       operationId: 0
@@ -78,6 +86,8 @@ segmentItems:
       isError: false
       spanType: Local
       peer: ''
+      tags:
+      - {key: db.statement, value: testKey1}
       skipAnalysis: 'false'
     - {operationName: GuavaCache/putAll, operationId: 0, parentSpanId: 0, panId: 6,
       spanLayer: Cache, startTime: nq 0, endTime: nq 0, componentId: 114, isError: false,
