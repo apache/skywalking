@@ -197,12 +197,10 @@ public class JVMSourceDispatcher {
         serviceInstanceJVMThread.setLiveCount(thread.getLiveCount());
         serviceInstanceJVMThread.setDaemonCount(thread.getDaemonCount());
         serviceInstanceJVMThread.setPeakCount(thread.getPeakCount());
-        serviceInstanceJVMThread.setNewStateThreadCount(thread.getNewStateThreadCount());
         serviceInstanceJVMThread.setRunnableStateThreadCount(thread.getRunnableStateThreadCount());
         serviceInstanceJVMThread.setBlockedStateThreadCount(thread.getBlockedStateThreadCount());
         serviceInstanceJVMThread.setWaitingStateThreadCount(thread.getWaitingStateThreadCount());
         serviceInstanceJVMThread.setTimedWaitingStateThreadCount(thread.getTimedWaitingStateThreadCount());
-        serviceInstanceJVMThread.setTerminatedStateThreadCount(thread.getTerminatedStateThreadCount());
         serviceInstanceJVMThread.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceJVMThread);
     }
