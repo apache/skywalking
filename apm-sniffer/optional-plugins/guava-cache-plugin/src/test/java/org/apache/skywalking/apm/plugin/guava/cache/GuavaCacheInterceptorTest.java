@@ -117,7 +117,6 @@ public class GuavaCacheInterceptorTest {
         Assert.assertThat(traceSegments.size(), is(1));
     }
 
-
     @Test
     public void assertPutAllMethodSuccess() throws Throwable {
         guavaCacheAllInterceptor.beforeMethod(null, putAllMethod, null, null, null);
