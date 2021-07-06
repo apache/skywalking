@@ -17,3 +17,5 @@
 type: tomcat
 entryService: http://localhost:8080/guava-cache-scenario/case/guava
 healthCheck: http://localhost:8080/guava-cache-scenario/healthCheck
+runningMode: with_optional
+withPlugins: apm-guava-cache-plugin-*.jar

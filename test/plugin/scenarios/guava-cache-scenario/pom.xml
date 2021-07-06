@@ -32,7 +32,7 @@
 
 
         <test.framework>guava</test.framework>
-        <test.framework.version>18.0</test.framework.version>
+        <test.framework.version>23.0</test.framework.version>
     </properties>
 
     <name>skywalking-guava-cache-scenario</name>

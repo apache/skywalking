@@ -26,7 +26,7 @@
         <version>8.7.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>guava-cache-plugin</artifactId>
+    <artifactId>apm-guava-cache-plugin</artifactId>
     <name>guava-cache-plugin</name>
     <packaging>jar</packaging>
 
