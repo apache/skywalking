@@ -20,7 +20,12 @@ set -e
 
 export LOGGING_CONFIG="webapp/logback.xml"
 
-[[ ! -z "$SW_OAP_ADDRESS" ]] && export COLLECTOR_RIBBON_LISTOFSERVERS=${SW_OAP_ADDRESS} && echo "COLLECTOR_RIBBON_LISTOFSERVERS=$COLLECTOR_RIBBON_LISTOFSERVERS"
-[[ ! -z "$SW_TIMEOUT" ]] && export COLLECTOR_RIBBON_READTIMEOUT=${SW_TIMEOUT} && echo "COLLECTOR_RIBBON_READTIMEOUT=$COLLECTOR_RIBBON_READTIMEOUT"
+if [[ ! -z "$SW_OAP_ADDRESS" ]]; then
+  address_arr=(${SW_OAP_ADDRESS//,/ })
+  for i in "${!address_arr[@]}"
+  do
+      JAVA_OPTS="${JAVA_OPTS} -Dspring.cloud.discovery.client.simple.instances.oap-service[$i].uri=${address_arr[$i]}"
+  done
+fi
 
-exec java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar webapp/skywalking-webapp.jar "$@"
+exec java  ${JAVA_OPTS} -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar webapp/skywalking-webapp.jar "$@"

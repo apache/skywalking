@@ -13,38 +13,41 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.skywalking.oap.server.configuration.etcd;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.google.common.base.Strings;
+import java.util.Arrays;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * entity wrapps the etcd cluster configuration.
- */
+@Data
 @ToString
-@Getter
-@Setter
+@EqualsAndHashCode(callSuper = true)
 public class EtcdServerSettings extends ModuleConfig {
+    private int period;
+    private String endpoints;
+    private String namespace;
+    private String authority;
+    private String user;
+    private String password;
 
-    private String clusterName = "default";
-    /**
-     * etcd cluster address, like "10.10.10.1:2379, 10.10.10.2:2379,10.10.10.3.2379".
-     */
-    private String serverAddr;
+    private boolean authentication;
 
-    /**
-     * directory for configuration
-     */
-    private String group;
+    public String getNamespace() {
+        if (Strings.isNullOrEmpty(namespace)) {
+            return null;
+        }
+        if (!namespace.endsWith("/")) {
+            return namespace + "/";
+        }
+        return namespace;
+    }
 
-    /**
-     * sec for interval refresh config data.
-     */
-    private int period = 60;
-
+    public String[] getEndpointArray() {
+        return Arrays.stream(endpoints.split("\\s*,\\s*")).toArray(String[]::new);
+    }
 }

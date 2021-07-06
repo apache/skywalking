@@ -20,15 +20,10 @@ package org.apache.skywalking.apm.webapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 
 @SpringBootApplication
-@EnableZuulProxy
-public class ApplicationStartUp extends SpringBootServletInitializer {
-
+public class ApplicationStartUp {
     public static void main(String[] args) {
         SpringApplication.run(ApplicationStartUp.class, args);
     }
-
 }

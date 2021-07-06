@@ -70,10 +70,14 @@ configuration:
   selector: ${SW_CONFIGURATION:etcd}
   etcd:
     period: ${SW_CONFIG_ETCD_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
-    group: ${SW_CONFIG_ETCD_GROUP:skywalking}
-    serverAddr: ${SW_CONFIG_ETCD_SERVER_ADDR:localhost:2379}
-    clusterName: ${SW_CONFIG_ETCD_CLUSTER_NAME:default}
+    endpoints: ${SW_CONFIG_ETCD_ENDPOINTS:localhost:2379}
+    namespace: ${SW_CONFIG_ETCD_NAMESPACE:/skywalking}
+    authentication: ${SW_CONFIG_ETCD_AUTHENTICATION:false}
+    user: ${SW_CONFIG_ETCD_USER:}
+    password: ${SW_CONFIG_ETCD_password:}
 ```
+
+**NOTICE**, only the v3 protocol is supported since 8.7.0. 
 
 ## Dynamic Configuration Consul Implementation
 
