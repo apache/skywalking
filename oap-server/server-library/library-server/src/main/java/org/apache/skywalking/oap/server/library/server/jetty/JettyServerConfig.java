@@ -41,4 +41,6 @@ public class JettyServerConfig {
     private int jettyAcceptorPriorityDelta = 0;
     @Builder.Default
     private int jettyAcceptQueueSize = 0;
+    @Builder.Default
+    private int jettyHttpMaxRequestHeaderSize = 8192;
 }
