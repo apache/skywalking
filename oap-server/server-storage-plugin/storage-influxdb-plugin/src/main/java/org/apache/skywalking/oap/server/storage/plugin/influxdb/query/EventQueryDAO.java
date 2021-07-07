@@ -26,6 +26,7 @@ import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.source.Event;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -110,10 +111,12 @@ public class EventQueryDAO implements IEventQueryDAO {
 
     protected List<WhereQueryImpl<SelectQueryImpl>> buildWhereQueries(final EventQueryCondition condition) {
         List<WhereQueryImpl<SelectQueryImpl>> queries = new ArrayList<>(2);
+
+        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
         final String topFunc = Order.DES.equals(condition.getOrder()) ? InfluxConstants.SORT_DES : InfluxConstants.SORT_ASC;
         final WhereQueryImpl<SelectQueryImpl> recallWhereQuery =
                 select().raw(ALL_FIELDS)
-                        .function(topFunc, Event.START_TIME, condition.getSize())
+                        .function(topFunc, Event.START_TIME, page.getLimit() + page.getFrom())
                         .from(client.getDatabase(), Event.INDEX_NAME)
                         .where();
         final SelectQueryImpl countQuery = select().count(Event.UUID).from(client.getDatabase(), Event.INDEX_NAME);

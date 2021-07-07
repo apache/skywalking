@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 
 public enum PaginationUtils {
@@ -30,21 +32,10 @@ public enum PaginationUtils {
         return new Page(from, limit);
     }
 
-    public class Page {
-        private int from;
-        private int limit;
-
-        Page(int from, int limit) {
-            this.from = from;
-            this.limit = limit;
-        }
-
-        public int getFrom() {
-            return from;
-        }
-
-        public int getLimit() {
-            return limit;
-        }
+    @Data
+    @RequiredArgsConstructor
+    public static class Page {
+        private final int from;
+        private final int limit;
     }
 }
