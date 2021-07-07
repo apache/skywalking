@@ -74,6 +74,7 @@ Release Notes.
 * Replace zuul proxy with spring cloud gateway 2.x. in webapp module.
 * Upgrade etcd cluster coordinator and dynamic configuration to v3.x.
 * Configuration: Allow to configure server maximum request header size.
+* Add thread state metric and class loaded info metric to JVMMetric.
 
 #### UI
 
