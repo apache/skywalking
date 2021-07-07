@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
-import java.net.URI;
-import java.util.List;
-import mousio.etcd4j.EtcdClient;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -38,10 +35,7 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
 
     private final ClusterModuleEtcdConfig config;
 
-    private EtcdClient client;
-
     public ClusterModuleEtcdProvider() {
-        super();
         this.config = new ClusterModuleEtcdConfig();
     }
 
@@ -62,12 +56,13 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        List<URI> uris = EtcdUtils.parse(config);
-        //TODO check isSSL
-        client = new EtcdClient(uris.toArray(new URI[] {}));
-        EtcdCoordinator coordinator = new EtcdCoordinator(getManager(), config, client);
-        this.registerServiceImplementation(ClusterRegister.class, coordinator);
-        this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
+        try {
+            EtcdCoordinator coordinator = new EtcdCoordinator(getManager(), config);
+            this.registerServiceImplementation(ClusterRegister.class, coordinator);
+            this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
+        } catch (Exception e) {
+            throw new ModuleStartException("Failed to start ETCD coordinator.", e);
+        }
     }
 
     @Override

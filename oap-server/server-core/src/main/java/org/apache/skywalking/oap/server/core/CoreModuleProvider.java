@@ -221,6 +221,8 @@ public class CoreModuleProvider extends ModuleProvider {
                                                                .jettyMaxThreads(moduleConfig.getRestMaxThreads())
                                                                .jettyAcceptQueueSize(
                                                                    moduleConfig.getRestAcceptQueueSize())
+                                                               .jettyHttpMaxRequestHeaderSize(
+                                                                   moduleConfig.getHttpMaxRequestHeaderSize())
                                                                .build();
         jettyServer = new JettyServer(jettyServerConfig);
         jettyServer.initialize();

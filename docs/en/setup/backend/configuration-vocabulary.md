@@ -12,6 +12,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restIdleTimeOut| Connector idle timeout in milliseconds of restful service| SW_CORE_REST_JETTY_IDLE_TIMEOUT|30000|
 | - | - | restAcceptorPriorityDelta| Thread priority delta to give to acceptor threads of restful service| SW_CORE_REST_JETTY_DELTA|0|
 | - | - | restAcceptQueueSize| ServerSocketChannel backlog  of restful service| SW_CORE_REST_JETTY_QUEUE_SIZE|0|
+| - | - | httpMaxRequestHeaderSize| Maximum request header size accepted| SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE|8192|
 | - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes|SW_CORE_GRPC_HOST|0.0.0.0|
 | - | - | gRPCPort| Binding port of gRPC service | SW_CORE_GRPC_PORT|11800|
 | - | - | gRPCSslEnabled| Activate SSL for gRPC service | SW_CORE_GRPC_SSL_ENABLED|false|
@@ -64,11 +65,12 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | aclToken| ALC Token of Consul. Empty string means `without ALC token`.| SW_CLUSTER_CONSUL_ACLTOKEN | - |
 | - | - | internalComHost| The hostname registered in the Consul for the internal communication of OAP cluster.| - | -|
 | - | - | internalComPort| The port registered in the Consul for the internal communication of OAP cluster.| - | -1|
-| - | etcd| serviceName| Service name used for SkyWalking cluster. |SW_SERVICE_NAME|SkyWalking_OAP_Cluster|
-| - | - | hostPort| hosts and ports used of etcd cluster.| SW_CLUSTER_ETCD_HOST_PORT|localhost:2379|
-| - | - | isSSL| Open SSL for the connection between SkyWalking and etcd cluster.| - | - |
-| - | - | internalComHost| The hostname registered in the etcd for the internal communication of OAP cluster.| - | -|
-| - | - | internalComPort| The port registered in the etcd for the internal communication of OAP cluster.| - | -1|
+| - | etcd| serviceName| Service name used for SkyWalking cluster. |SW_CLUSTER_ETCD_SERVICE_NAME|SkyWalking_OAP_Cluster|
+| - | - | endpoints| hosts and ports used of etcd cluster.| SW_CLUSTER_ETCD_ENDPOINTS|localhost:2379|
+| - | - | namespace | Namespace used for SkyWalking cluster. |SW_CLUSTER_ETCD_NAMESPACE | /skywalking |
+| - | - | authentication | Whether has authentication. | SW_CLUSTER_ETCD_AUTHENTICATION | false |
+| - | - | user | Etcd auth username | SW_CLUSTER_ETCD_USER | |
+| - | - | password | Etcd auth password | SW_CLUSTER_ETCD_PASSWORD | |
 | - | Nacos| serviceName| Service name used for SkyWalking cluster. |SW_SERVICE_NAME|SkyWalking_OAP_Cluster|
 | - | - | hostPort| hosts and ports used of Nacos cluster.| SW_CLUSTER_NACOS_HOST_PORT|localhost:8848|
 | - | - | namespace| Namespace used by SkyWalking node coordination.| SW_CLUSTER_NACOS_NAMESPACE|public|
@@ -174,6 +176,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restIdleTimeOut| Connector idle timeout in milliseconds of restful service| SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT|30000|
 | - | - | restAcceptorPriorityDelta| Thread priority delta to give to acceptor threads of restful service| SW_RECEIVER_SHARING_JETTY_DELTA|0|
 | - | - | restAcceptQueueSize| ServerSocketChannel backlog  of restful service| SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE|0|
+| - | - | httpMaxRequestHeaderSize| Maximum request header size accepted| SW_RECEIVER_SHARING_HTTP_MAX_REQUEST_HEADER_SIZE|8192|
 | - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes| SW_RECEIVER_GRPC_HOST | 0.0.0.0. Not Activated |
 | - | - | gRPCPort| Binding port of gRPC service | SW_RECEIVER_GRPC_PORT | Not Activated |
 | - | - | gRPCThreadPoolSize|Pool size of gRPC server| SW_RECEIVER_GRPC_THREAD_POOL_SIZE | CPU core * 4|
@@ -264,9 +267,11 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | baseSleepTimeMs|The period of Zookeeper client between two retries. Unit is ms.|SW_CONFIG_ZK_BASE_SLEEP_TIME_MS|1000|
 | - | - | maxRetries| The max retry time of re-trying.|SW_CONFIG_ZK_MAX_RETRIES|3|
 | - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60 |
-| - | etcd| clusterName| Service name used for SkyWalking cluster. |SW_CONFIG_ETCD_CLUSTER_NAME|default|
-| - | - | serverAddr| hosts and ports used of etcd cluster.| SW_CONFIG_ETCD_SERVER_ADDR|localhost:2379|
-| - | - | group |Additional prefix of the configuration key| SW_CONFIG_ETCD_GROUP | skywalking|
+| - | etcd| endpoints | hosts and ports used of etcd cluster(If there are multiple, separate them with commas). | SW_CONFIG_ETCD_ENDPOINTS | localhost:2379 | 
+| - | - | namespace | Namespace used for SkyWalking cluster. |SW_CONFIG_ETCD_NAMESPACE | /skywalking |
+| - | - | authentication | Whether has authentication. | SW_CONFIG_ETCD_AUTHENTICATION | false |
+| - | - | user | Etcd auth username | SW_CONFIG_ETCD_USER | |
+| - | - | password | Etcd auth password | SW_CONFIG_ETCD_PASSWORD | |
 | - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60
 | - | consul | hostPort| hosts and ports used of Consul cluster.| SW_CONFIG_CONSUL_HOST_AND_PORTS|localhost:8500|
 | - | - | aclToken| ALC Token of Consul. Empty string means `without ALC token`.| SW_CONFIG_CONSUL_ACL_TOKEN | - |

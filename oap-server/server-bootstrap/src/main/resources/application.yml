@@ -38,9 +38,13 @@ cluster:
     hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
     aclToken: ${SW_CLUSTER_CONSUL_ACLTOKEN:""}
   etcd:
-    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
     # etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
-    hostPort: ${SW_CLUSTER_ETCD_HOST_PORT:localhost:2379}
+    endpoints: ${SW_CLUSTER_ETCD_ENDPOINTS:localhost:2379}
+    namespace: ${SW_CLUSTER_ETCD_NAMESPACE:/skywalking}
+    serviceName: ${SW_SCLUSTER_ETCD_ERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    authentication: ${SW_CLUSTER_ETCD_AUTHENTICATION:false}
+    user: ${SW_SCLUSTER_ETCD_USER:}
+    password: ${SW_SCLUSTER_ETCD_PASSWORD:}
   nacos:
     serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
     hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
@@ -67,6 +71,7 @@ core:
     restIdleTimeOut: ${SW_CORE_REST_JETTY_IDLE_TIMEOUT:30000}
     restAcceptorPriorityDelta: ${SW_CORE_REST_JETTY_DELTA:0}
     restAcceptQueueSize: ${SW_CORE_REST_JETTY_QUEUE_SIZE:0}
+    httpMaxRequestHeaderSize: ${SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     maxConcurrentCallsPerConnection: ${SW_CORE_GRPC_MAX_CONCURRENT_CALL:0}
@@ -292,6 +297,7 @@ receiver-sharing-server:
     restIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
     restAcceptorPriorityDelta: ${SW_RECEIVER_SHARING_JETTY_DELTA:0}
     restAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
+    httpMaxRequestHeaderSize: ${SW_RECEIVER_SHARING_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
     # For gRPC server
     gRPCHost: ${SW_RECEIVER_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_RECEIVER_GRPC_PORT:0}
@@ -448,9 +454,11 @@ configuration:
     maxRetries: ${SW_CONFIG_ZK_MAX_RETRIES:3} # max number of times to retry
   etcd:
     period: ${SW_CONFIG_ETCD_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
-    group: ${SW_CONFIG_ETCD_GROUP:skywalking}
-    serverAddr: ${SW_CONFIG_ETCD_SERVER_ADDR:localhost:2379}
-    clusterName: ${SW_CONFIG_ETCD_CLUSTER_NAME:default}
+    endpoints: ${SW_CONFIG_ETCD_ENDPOINTS:localhost:2379}
+    namespace: ${SW_CONFIG_ETCD_NAMESPACE:/skywalking}
+    authentication: ${SW_CONFIG_ETCD_AUTHENTICATION:false}
+    user: ${SW_CONFIG_ETCD_USER:}
+    password: ${SW_CONFIG_ETCD_password:}
   consul:
     # Consul host and ports, separated by comma, e.g. 1.2.3.4:8500,2.3.4.5:8500
     hostAndPorts: ${SW_CONFIG_CONSUL_HOST_AND_PORTS:1.2.3.4:8500}

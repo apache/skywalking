@@ -41,7 +41,7 @@ elasticsearch-rest-high-level-client-7.10.2.jar
 elasticsearch-secure-sm-7.10.2.jar
 elasticsearch-x-content-7.10.2.jar
 error_prone_annotations-2.3.2.jar
-etcd4j-2.18.0.jar
+failsafe-2.3.4.jar
 failureaccess-1.0.1.jar
 flatbuffers-java-1.12.0.jar
 freemarker-2.3.28.jar
@@ -51,6 +51,7 @@ groovy-3.0.3.jar
 grpc-api-1.32.1.jar
 grpc-context-1.32.1.jar
 grpc-core-1.32.1.jar
+grpc-grpclb-1.32.1.jar
 grpc-netty-1.32.1.jar
 grpc-protobuf-1.32.1.jar
 grpc-protobuf-lite-1.32.1.jar
@@ -81,6 +82,9 @@ javassist-3.25.0-GA.jar
 javax.inject-1.jar
 javax.servlet-api-3.1.0.jar
 jcl-over-slf4j-1.7.30.jar
+jetcd-common-0.5.3.jar
+jetcd-core-0.5.3.jar
+jetcd-resolver-0.5.3.jar
 jetty-http-9.4.40.v20210413.jar
 jetty-io-9.4.40.v20210413.jar
 jetty-security-9.4.40.v20210413.jar
@@ -92,7 +96,6 @@ jna-5.5.0.jar
 joda-time-2.10.5.jar
 jopt-simple-4.6.jar
 jose4j-0.7.6.jar
-json-flattener-0.6.0.jar
 jsr305-3.0.2.jar
 kafka-clients-2.4.1.jar
 kotlin-reflect-1.1.1.jar
@@ -120,7 +123,6 @@ lucene-spatial3d-8.7.0.jar
 lucene-suggest-8.7.0.jar
 lz4-java-1.6.0.jar
 mapper-extras-client-7.10.2.jar
-minimal-json-0.9.5.jar
 moshi-1.5.0.jar
 msgpack-core-0.8.16.jar
 mvel2-2.4.8.Final.jar
@@ -129,19 +131,17 @@ nacos-client-1.4.2.jar
 nacos-common-1.4.2.jar
 netty-buffer-4.1.65.Final.jar
 netty-codec-4.1.65.Final.jar
-netty-codec-dns-4.1.65.Final.jar
 netty-codec-http-4.1.65.Final.jar
-netty-codec-http2-4.1.51.Final.jar
-netty-codec-socks-4.1.51.Final.jar
+netty-codec-http2-4.1.65.Final.jar
+netty-codec-socks-4.1.65.Final.jar
 netty-common-4.1.65.Final.jar
 netty-handler-4.1.65.Final.jar
-netty-handler-proxy-4.1.51.Final.jar
+netty-handler-proxy-4.1.65.Final.jar
 netty-resolver-4.1.65.Final.jar
-netty-resolver-dns-4.1.65.Final.jar
 netty-tcnative-boringssl-static-2.0.39.Final.jar
 netty-transport-4.1.65.Final.jar
-netty-transport-native-epoll-4.1.45.Final.jar
-netty-transport-native-unix-common-4.1.45.Final.jar
+netty-transport-native-epoll-4.1.65.Final.jar
+netty-transport-native-unix-common-4.1.65.Final.jar
 okhttp-3.14.9.jar
 okio-1.17.2.jar
 parent-join-client-7.10.2.jar

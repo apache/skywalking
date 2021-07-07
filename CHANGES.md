@@ -26,6 +26,9 @@ Release Notes.
 * Support parameter collection for SqlServer.
 * Add `ShardingSphere-5.0.0-beta` plugin.
 * Fix some method exception error.
+* Fix async finish repeatedly in `spring-webflux-5.x-webclient` plugin.
+* Add agent plugin to support Sentinel.
+* Move `ehcache-2.x` plugin as an optional plugin.
 
 #### OAP-Backend
 
@@ -66,6 +69,11 @@ Release Notes.
 * Support connectTimeout and socketTimeout settings for ElasticSearch6 and ElasticSearch7 storages.
 * Re-implement storage session mechanism, cached metrics are removed only according to their last access timestamp,
   rather than first time. This makes sure hot data never gets removed unexpectedly.
+* Support session expired threshold configurable. 
+* Fix InfluxDB storage-plugin Metrics#multiGet issue.
+* Replace zuul proxy with spring cloud gateway 2.x. in webapp module.
+* Upgrade etcd cluster coordinator and dynamic configuration to v3.x.
+* Configuration: Allow to configure server maximum request header size.
 * Support session expired threshold configurable.
 * Support configure sampling rate dynamically for service dimension on the backend side.
 

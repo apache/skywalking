@@ -17,3 +17,5 @@
 type: tomcat
 entryService: http://localhost:8080/ehcache-2.x-scenario/case/ehcache
 healthCheck: http://localhost:8080/ehcache-2.x-scenario/healthCheck
+runningMode: with_optional
+withPlugins: apm-ehcache-2.x-plugin-*.jar
