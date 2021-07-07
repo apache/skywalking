@@ -178,8 +178,8 @@ public class SimpleE2EBase extends SkyWalkingTestAdapter {
     }
 
     protected void verifyRelationMetrics(final List<Call> calls,
-                                       final String[] relationClientMetrics,
-                                       final String[] relationServerMetrics) throws Exception {
+                                         final String[] relationClientMetrics,
+                                         final String[] relationServerMetrics) throws Exception {
         for (Call call : calls) {
             for (String detectPoint : call.getDetectPoints()) {
                 switch (detectPoint) {
