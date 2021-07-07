@@ -19,8 +19,7 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.CustomTraceSampleRateWatcher;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateSettingWatcher;
 
 /**
  * The sampler makes the sampling mechanism works at backend side. Sample result: [0,sampleRate) sampled, (sampleRate,~)
@@ -28,33 +27,31 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateW
  */
 public class TraceSegmentSampler {
 
-    private TraceSampleRateWatcher traceSampleRateWatcher;
-    private CustomTraceSampleRateWatcher customTraceSampleRateWatcher;
+    private TraceSampleRateSettingWatcher traceSampleRateSettingWatcher;
 
-    public TraceSegmentSampler(TraceSampleRateWatcher traceSampleRateWatcher,
-                               CustomTraceSampleRateWatcher customTraceSampleRateWatcher) {
-        this.traceSampleRateWatcher = traceSampleRateWatcher;
-        this.customTraceSampleRateWatcher = customTraceSampleRateWatcher;
+    public TraceSegmentSampler(TraceSampleRateSettingWatcher traceSampleRateSettingWatcher) {
+        this.traceSampleRateSettingWatcher = traceSampleRateSettingWatcher;
     }
 
     public boolean shouldSample(SegmentObject segmentObject, int duration) {
         int sample = Math.abs(segmentObject.getTraceId().hashCode()) % 10000;
         String serviceName = segmentObject.getService();
-        CustomTraceSampleRateWatcher.ServiceInfo serviceInfo = customTraceSampleRateWatcher.getSample(serviceName);
-        if (serviceInfo != null) {
-            // service latitude
-            if (service(serviceInfo, sample, duration)) {
+        TraceSampleRateSettingWatcher.ServiceSampleConfig sampleConfig = traceSampleRateSettingWatcher.getSample(serviceName);
+        if (sampleConfig != null) {
+            if (service(sampleConfig, sample, duration)) {
                 return true;
             }
         }
-        return sample < traceSampleRateWatcher.getSampleRate();
+        return sample < traceSampleRateSettingWatcher.getSampleRate();
     }
 
-    private boolean service(CustomTraceSampleRateWatcher.ServiceInfo serviceInfo, int sample, int duration) {
-        if (serviceInfo.getDuration() != null && duration > serviceInfo.getDuration().get()) {
+    private boolean service(TraceSampleRateSettingWatcher.ServiceSampleConfig sampleConfig, int sample, int duration) {
+        // trace latency
+        if (sampleConfig.getDuration() != null && duration > sampleConfig.getDuration().get()) {
             return true;
         }
-        if (serviceInfo.getSampleRate() != null && sample < serviceInfo.getSampleRate().get()) {
+        // sampling rate
+        if (sampleConfig.getSampleRate() != null && sample < sampleConfig.getSampleRate().get()) {
             return true;
         }
         return false;

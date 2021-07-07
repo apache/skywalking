@@ -67,7 +67,7 @@ Release Notes.
 * Re-implement storage session mechanism, cached metrics are removed only according to their last access timestamp,
   rather than first time. This makes sure hot data never gets removed unexpectedly.
 * Support session expired threshold configurable.
-* Support configure sampling rate dynamically for service latitude on the backend side.
+* Support configure sampling rate dynamically for service dimension on the backend side.
 
 #### UI
 

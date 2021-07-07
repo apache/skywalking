@@ -25,12 +25,11 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
 import java.util.Optional;
 import java.util.Set;
 
-public class CustomTraceSampleRateWatcherTest {
+public class ServiceSampleRateSettingWatcherTest {
 
     private AnalyzerModuleProvider provider;
 
@@ -39,39 +38,28 @@ public class CustomTraceSampleRateWatcherTest {
         provider = new AnalyzerModuleProvider();
     }
 
-    @Test
-    public void testInit() throws Exception {
-        CustomTraceSampleRateWatcher customTraceSampleRateWatcher = new CustomTraceSampleRateWatcher(provider);
-        CustomTraceSampleRateWatcher.ServiceInfos serviceInfos
-                = Whitebox.invokeMethod(customTraceSampleRateWatcher, "parseFromFile", "custom-trace-sample-rate.yml");
-        Assert.assertEquals(2, serviceInfos.getServices().size());
-
-    }
-
     @Test(timeout = 20000)
     public void testDynamicUpdate() throws InterruptedException {
-        ConfigWatcherRegister register = new CustomTraceSampleRateWatcherTest.MockConfigWatcherRegister(3);
+        ConfigWatcherRegister register = new MockConfigWatcherRegister(3);
 
-        CustomTraceSampleRateWatcher watcher = new CustomTraceSampleRateWatcher(provider);
-        provider.getModuleConfig().setCustomTraceSampleRateWatcher(watcher);
+        TraceSampleRateSettingWatcher watcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
+        provider.getModuleConfig().setTraceSampleRateSettingWatcher(watcher);
         register.registerConfigChangeWatcher(watcher);
         register.start();
 
-        while (watcher.getSample("serverName1") != null) {
-            Thread.sleep(2000);
+        while (watcher.getSample("serverName1") == null) {
+            Thread.sleep(1000);
         }
-        // Let object to init finished; If not it will be null.
-        Thread.sleep(1000);
 
-        CustomTraceSampleRateWatcher.ServiceInfo serviceInfo = watcher.getSample("serverName1");
+        TraceSampleRateSettingWatcher.ServiceSampleConfig serviceInfo = watcher.getSample("serverName1");
         Assert.assertEquals(serviceInfo.getSampleRate().get().intValue(), 2000);
-        Assert.assertEquals(serviceInfo.getDuration().get().intValue(), 20000);
-        Assert.assertEquals(provider.getModuleConfig().getCustomTraceSampleRateWatcher().getSample("serverName1").getSampleRate().get().intValue(), 2000);
+        Assert.assertEquals(serviceInfo.getDuration().get().intValue(), 30000);
+        Assert.assertEquals(provider.getModuleConfig().getTraceSampleRateSettingWatcher().getSample("serverName1").getSampleRate().get().intValue(), 2000);
     }
 
     @Test
     public void testNotify() {
-        CustomTraceSampleRateWatcher watcher = new CustomTraceSampleRateWatcher(provider);
+        TraceSampleRateSettingWatcher watcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "services:\n" +
                         "  - name: serverName1\n" +
@@ -133,10 +121,10 @@ public class CustomTraceSampleRateWatcherTest {
         @Override
         public Optional<ConfigTable> readConfig(Set<String> keys) {
             ConfigTable table = new ConfigTable();
-            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.custom-trace-sample-rate", "services:\n" +
+            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.traceSampleRateSetting", "services:\n" +
                     "  - name: serverName1\n" +
                     "    sampleRate: 2000\n" +
-                    "    duration: 20000"));
+                    "    duration: 30000"));
             return Optional.of(table);
         }
     }

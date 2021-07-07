@@ -24,29 +24,29 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
 public class TraceSegmentSamplerTest {
     private AnalyzerModuleProvider provider;
-    private CustomTraceSampleRateWatcher customTraceSampleRateWatcher;
-    private TraceSampleRateWatcher traceSampleRateWatcher;
+    private TraceSampleRateSettingWatcher traceSampleRateSettingWatcher;
 
     @Before
     public void init() throws Exception {
         provider = new AnalyzerModuleProvider();
-        customTraceSampleRateWatcher = new CustomTraceSampleRateWatcher(provider);
-        CustomTraceSampleRateWatcher.ServiceInfos serviceInfos
-                = Whitebox.invokeMethod(customTraceSampleRateWatcher, "parseFromFile", "custom-trace-sample-rate.yml");
-        Assert.assertEquals(2, serviceInfos.getServices().size());
-        traceSampleRateWatcher = new TraceSampleRateWatcher(provider);
+        traceSampleRateSettingWatcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
+        Assert.assertEquals(10000, traceSampleRateSettingWatcher.getSampleRate());
+        Assert.assertEquals(-1, traceSampleRateSettingWatcher.getSlowTraceSegmentThreshold());
     }
 
     @Test
     public void shouldSample() {
-        SegmentObject segmentObject = SegmentObject.newBuilder().setService("serverName1").build();
-        TraceSegmentSampler segmentSampler = new TraceSegmentSampler(traceSampleRateWatcher, customTraceSampleRateWatcher);
+        SegmentObject segmentObject = SegmentObject.newBuilder().setService("name1").build();
+        TraceSegmentSampler segmentSampler = new TraceSegmentSampler(traceSampleRateSettingWatcher);
+        // test sampleRate
         int duration = 12000;
         Assert.assertTrue(segmentSampler.shouldSample(segmentObject, duration));
+        // test duration
+        int duration2 = 30000;
+        Assert.assertTrue(segmentSampler.shouldSample(segmentObject, duration2));
     }
 
 }

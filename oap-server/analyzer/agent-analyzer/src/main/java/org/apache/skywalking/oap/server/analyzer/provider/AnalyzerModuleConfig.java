@@ -23,10 +23,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.CustomTraceSampleRateWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceLatencyThresholdsAndWatcher;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateSettingWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
 import org.apache.skywalking.oap.server.core.Const;
@@ -45,6 +43,12 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private int sampleRate = 10000;
+    /**
+     * The sample rate setting file
+     */
+    @Setter
+    @Getter
+    private String traceSampleRateSettingFile;
     /**
      * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
      * service instance mapping and service instance client side relation are ignored.
@@ -73,13 +77,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
     @Setter
     @Getter
-    private TraceSampleRateWatcher traceSampleRateWatcher;
-    @Setter
-    @Getter
-    private TraceLatencyThresholdsAndWatcher traceLatencyThresholdsAndWatcher;
-    @Setter
-    @Getter
-    private CustomTraceSampleRateWatcher customTraceSampleRateWatcher;
+    private TraceSampleRateSettingWatcher traceSampleRateSettingWatcher;
     /**
      * Analysis trace status.
      * <p>
@@ -138,9 +136,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
                 try {
                     virtualPeers.add(Integer.parseInt(component));
                 } catch (NumberFormatException e) {
-                    log.warn("noUpstreamRealAddressAgents config {} includes illegal value {}",
-                            noUpstreamRealAddressAgents, component
-                    );
+                    log.warn("noUpstreamRealAddressAgents config {} includes illegal value {}", noUpstreamRealAddressAgents, component);
                 }
             }
         }

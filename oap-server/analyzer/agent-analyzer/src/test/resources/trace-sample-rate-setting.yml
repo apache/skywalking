@@ -13,7 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+defaults:
+  sampleRate: 10000
+  duration: -1
 services:
-  - name: serverName # the server name which show skywalking-ui
-    sampleRate: 1000 # endpoint latitude
-    duration: 10000 # trace latency time
+  - name: name1
+    sampleRate: 1000
+    duration: 20000
+  - name: name2
+    sampleRate: 2000
+    duration: 30000

@@ -11,10 +11,8 @@ Right now, SkyWalking supports following dynamic configurations.
 |alarm.default.alarm-settings| The alarm settings, will override `alarm-settings.yml`. | same as [`alarm-settings.yml`](backend-alarm.md) |
 |core.default.apdexThreshold| The apdex threshold settings, will override `service-apdex-threshold.yml`. | same as [`service-apdex-threshold.yml`](apdex-threshold.md) |
 |core.default.endpoint-name-grouping| The endpoint name grouping setting, will override `endpoint-name-grouping.yml`. | same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md) |
-|agent-analyzer.default.sampleRate| Trace sampling , override `receiver-trace/default/sampleRate` of `application.yml`. | 10000 |
-|agent-analyzer.default.slowTraceSegmentThreshold| Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond. override `receiver-trace/default/slowTraceSegmentThreshold` of `application.yml`. | -1 |
 |configuration-discovery.default.agentConfigurations| The ConfigurationDiscovery settings | look at [`configuration-discovery.md`](../service-agent/java-agent/configuration-discovery.md) |
-|agent-analyzer.default.custom-trace-sample-rate| The sampling rate for service, override `custom-trace-sample-rate.yml`. It has a higher priority than `agent-analyzer.default.sampleRate` and `agent-analyzer.default.slowTraceSegmentThreshold`. | same as [`custom-trace-sample-rate.yml`](uninstrumented-gateways.md#configuration-format) | 
+|agent-analyzer.default.traceSampleRateSetting| The sampling rate for default and service dimension, override `trace-sample-rate-setting.yml`. | same as [`trace-sample-rate-setting.yml`](trace-sampling.md) | 
 
 This feature depends on upstream service, so it is **DISABLED** by default.
 
