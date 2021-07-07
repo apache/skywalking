@@ -182,6 +182,12 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     private boolean enableEndpointNameGroupingByOpenapi = true;
 
+    /**
+     * The maximum size in bytes allowed for request headers.
+     * Use -1 to disable it.
+     */
+    private int httpMaxRequestHeaderSize = 8192;
+
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }

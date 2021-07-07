@@ -107,12 +107,10 @@ This calculates the metrics data if the service instance is a JVM and collects t
 | liveCount | The current number of live threads. | | long |
 | daemonCount | The current number of daemon threads. | | long |
 | peakCount | The current number of peak threads. | | long |
-| newStateThreadCount | The current number of threads in new state. | | long |
 | runnableStateThreadCount | The current number of threads in runnable state. | | long |
 | blockedStateThreadCount | The current number of threads in blocked state. | | long |
 | waitingStateThreadCount | The current number of threads in waiting state. | | long |
 | timedWaitingStateThreadCount | The current number of threads in time-waiting state. | | long |
-| terminatedStateThreadCount | The current number of threads in terminated state. | | long |
 
 6. SCOPE `ServiceInstanceJVMClass`
 
