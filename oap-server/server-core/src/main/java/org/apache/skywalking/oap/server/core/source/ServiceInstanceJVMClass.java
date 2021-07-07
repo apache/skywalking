@@ -22,14 +22,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_JVM_THREAD;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_JVM_CLASS;
 
-@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_THREAD, name = "ServiceInstanceJVMThread", catalog = SERVICE_INSTANCE_CATALOG_NAME)
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_CLASS, name = "ServiceInstanceJVMClass", catalog = SERVICE_INSTANCE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
-public class ServiceInstanceJVMThread extends Source {
+public class ServiceInstanceJVMClass extends Source {
     @Override
     public int scope() {
-        return SERVICE_INSTANCE_JVM_THREAD;
+        return SERVICE_INSTANCE_JVM_CLASS;
     }
 
     @Override
@@ -54,23 +54,11 @@ public class ServiceInstanceJVMThread extends Source {
     private String serviceId;
     @Getter
     @Setter
-    private long liveCount;
+    private long loadedClassCount;
     @Getter
     @Setter
-    private long daemonCount;
+    private long totalUnloadedClassCount;
     @Getter
     @Setter
-    private long peakCount;
-    @Getter
-    @Setter
-    private long runnableStateThreadCount;
-    @Getter
-    @Setter
-    private long blockedStateThreadCount;
-    @Getter
-    @Setter
-    private long waitingStateThreadCount;
-    @Getter
-    @Setter
-    private long timedWaitingStateThreadCount;
+    private long totalLoadedClassCount;
 }

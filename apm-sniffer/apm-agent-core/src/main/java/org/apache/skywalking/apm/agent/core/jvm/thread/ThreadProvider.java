@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.jvm.thread;
 
 import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import org.apache.skywalking.apm.network.language.agent.v3.Thread;
 
@@ -31,12 +32,47 @@ public enum ThreadProvider {
     }
 
     public Thread getThreadMetrics() {
+        int runnableStateThreadCount = 0;
+        int blockedStateThreadCount = 0;
+        int waitingStateThreadCount = 0;
+        int timedWaitingStateThreadCount = 0;
+
+        ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), 0);
+        if (threadInfos != null) {
+            for (ThreadInfo threadInfo : threadInfos) {
+                if (threadInfo == null) {
+                    continue;
+                }
+                switch (threadInfo.getThreadState()) {
+                    case RUNNABLE:
+                        runnableStateThreadCount++;
+                        break;
+                    case BLOCKED:
+                        blockedStateThreadCount++;
+                        break;
+                    case WAITING:
+                        waitingStateThreadCount++;
+                        break;
+                    case TIMED_WAITING:
+                        timedWaitingStateThreadCount++;
+                        break;
+                    default:
+                        break;
+                    }
+            }
+        }
+
         int threadCount = threadMXBean.getThreadCount();
         int daemonThreadCount = threadMXBean.getDaemonThreadCount();
         int peakThreadCount = threadMXBean.getPeakThreadCount();
         return Thread.newBuilder().setLiveCount(threadCount)
                 .setDaemonCount(daemonThreadCount)
-                .setPeakCount(peakThreadCount).build();
+                .setPeakCount(peakThreadCount)
+                .setRunnableStateThreadCount(runnableStateThreadCount)
+                .setBlockedStateThreadCount(blockedStateThreadCount)
+                .setWaitingStateThreadCount(waitingStateThreadCount)
+                .setTimedWaitingStateThreadCount(timedWaitingStateThreadCount)
+                .build();
     }
 
 }
