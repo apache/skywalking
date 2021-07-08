@@ -33,7 +33,7 @@ public class GuavaCacheInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        AbstractSpan span = ContextManager.createLocalSpan("Guava/" + method.getName());
+        AbstractSpan span = ContextManager.createLocalSpan("GuavaCache/" + method.getName());
         span.setComponent(ComponentsDefine.GUAVA_CACHE);
         Object key = allArguments[0];
         if (key != null) {
