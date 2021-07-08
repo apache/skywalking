@@ -29,3 +29,10 @@ instance_jvm_old_gc_count = from(ServiceInstanceJVMGC.count).filter(phrase == GC
 instance_jvm_thread_live_count = from(ServiceInstanceJVMThread.liveCount).longAvg();
 instance_jvm_thread_daemon_count = from(ServiceInstanceJVMThread.daemonCount).longAvg();
 instance_jvm_thread_peak_count = from(ServiceInstanceJVMThread.peakCount).longAvg();
+instance_jvm_thread_runnable_state_thread_count = from(ServiceInstanceJVMThread.runnableStateThreadCount).longAvg();
+instance_jvm_thread_blocked_state_thread_count = from(ServiceInstanceJVMThread.blockedStateThreadCount).longAvg();
+instance_jvm_thread_waiting_state_thread_count = from(ServiceInstanceJVMThread.waitingStateThreadCount).longAvg();
+instance_jvm_thread_timed_waiting_state_thread_count = from(ServiceInstanceJVMThread.timedWaitingStateThreadCount).longAvg();
+instance_jvm_class_loaded_class_count = from(ServiceInstanceJVMClass.loadedClassCount).longAvg();
+instance_jvm_class_total_unloaded_class_count = from(ServiceInstanceJVMClass.totalUnloadedClassCount).longAvg();
+instance_jvm_class_total_loaded_class_count = from(ServiceInstanceJVMClass.totalLoadedClassCount).longAvg();
