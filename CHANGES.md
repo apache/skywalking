@@ -29,7 +29,8 @@ Release Notes.
 * Fix async finish repeatedly in `spring-webflux-5.x-webclient` plugin.
 * Add agent plugin to support Sentinel.
 * Move `ehcache-2.x` plugin as an optional plugin.
-* Support `guava-cache` plugin
+* Support `guava-cache` plugin.
+* Enhance the compatibility of `mysql-8.x-plugin` plugin.
 
 #### OAP-Backend
 
