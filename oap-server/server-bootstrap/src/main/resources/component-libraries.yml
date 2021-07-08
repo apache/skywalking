@@ -371,6 +371,9 @@ Neo4j:
 Sentinel:
   id: 113
   languages: Java
+GuavaCache:
+  id: 114
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

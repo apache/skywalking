@@ -23,6 +23,7 @@
 - graphql
 - grpc-1.x
 - gson-2.8.x
+- guava-cache
 - h2-1.x
 - hbase-1.x/2.x
 - httpasyncclient-4.x

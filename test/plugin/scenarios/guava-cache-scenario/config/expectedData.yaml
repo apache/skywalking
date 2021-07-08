@@ -1,0 +1,101 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+segmentItems:
+- serviceName: guava-cache-scenario
+  segmentSize: ge 1
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: GuavaCache/put
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Cache
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 114
+      isError: false
+      spanType: Local
+      peer: ''
+      tags:
+      - {key: db.statement, value: testKey1}
+      skipAnalysis: 'false'
+    - operationName: GuavaCache/invalidate
+      operationId: 0
+      parentSpanId: 0
+      spanId: 2
+      spanLayer: Cache
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 114
+      isError: false
+      spanType: Local
+      peer: ''
+      tags:
+      - {key: db.statement, value: testKey1}
+      skipAnalysis: 'false'
+    - operationName: GuavaCache/get
+      operationId: 0
+      parentSpanId: 0
+      spanId: 3
+      spanLayer: Cache
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 114
+      isError: false
+      spanType: Local
+      peer: ''
+      tags:
+      - {key: db.statement, value: testKey1}
+      skipAnalysis: 'false'
+    - operationName: GuavaCache/getIfPresent
+      operationId: 0
+      parentSpanId: 0
+      spanId: 4
+      spanLayer: Cache
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 114
+      isError: false
+      spanType: Local
+      peer: ''
+      tags:
+      - {key: db.statement, value: testKey1}
+      skipAnalysis: 'false'
+    - {operationName: GuavaCache/putAll, operationId: 0, parentSpanId: 0, spanId: 5, spanLayer: Cache,
+       startTime: nq 0, endTime: nq 0, componentId: 114, isError: false,
+       spanType: Local, peer: '', skipAnalysis: false}
+    - {operationName: GuavaCache/getAllPresent, operationId: 0, parentSpanId: 0, spanId: 6,
+       spanLayer: Cache, startTime: nq 0, endTime: nq 0, componentId: 114,
+       isError: false, spanType: Local, peer: '', skipAnalysis: false}
+    - {operationName: GuavaCache/invalidateAll, operationId: 0, parentSpanId: 0, spanId: 7,
+       spanLayer: Cache, startTime: nq 0, endTime: nq 0, componentId: 114,
+       isError: false, spanType: Local, peer: '', skipAnalysis: false}
+    - operationName: /guava-cache-scenario/case/guava
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/guava-cache-scenario/case/guava'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'
