@@ -52,6 +52,7 @@
         <module>mybatis-3.x-plugin</module>
         <module>sentinel-1.x-plugin</module>
         <module>ehcache-2.x-plugin</module>
+        <module>guava-cache-plugin</module>
     </modules>
 
     <dependencies>

@@ -71,6 +71,7 @@ jobs:
           - gateway-2.0.x-scenario
           - grpc-scenario
           - gson-scenario
+          - guava-cache-scenario
           - elasticjob-3.x-scenario
           - springmvc-reactive-scenario
           - springmvc-reactive-devtools-scenario
