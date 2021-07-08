@@ -22,7 +22,7 @@ import com.mysql.cj.conf.HostInfo;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
-import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.URLParser;
+import org.apache.skywalking.apm.plugin.jdbc.mysql.ConnectionCache;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
@@ -40,7 +40,7 @@ public class ConnectionCreateInterceptor implements StaticMethodsAroundIntercept
         Object ret) {
         if (ret instanceof EnhancedInstance) {
             final HostInfo hostInfo = (HostInfo) allArguments[0];
-            ConnectionInfo connectionInfo = URLParser.parser(hostInfo.getDatabaseUrl());
+            ConnectionInfo connectionInfo = ConnectionCache.get(hostInfo.getHostPortPair());
             ((EnhancedInstance) ret).setSkyWalkingDynamicField(connectionInfo);
         }
         return ret;

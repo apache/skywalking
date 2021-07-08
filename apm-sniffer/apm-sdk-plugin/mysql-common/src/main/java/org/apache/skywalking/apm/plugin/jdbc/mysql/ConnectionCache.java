@@ -29,8 +29,12 @@ public class ConnectionCache {
     private static final String CONNECTION_SPLIT_STR = ",";
 
     public static ConnectionInfo get(String host, String port) {
-        final String connStr = String.format("%s:%s", host, port);
-        return CONNECTIONS_MAP.get(connStr);
+        final String hostPortPair = String.format("%s:%s", host, port);
+        return CONNECTIONS_MAP.get(hostPortPair);
+    }
+
+    public static ConnectionInfo get(String hostPortPair) {
+        return CONNECTIONS_MAP.get(hostPortPair);
     }
 
     public static void save(ConnectionInfo connectionInfo) {
