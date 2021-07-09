@@ -38,7 +38,7 @@
                 "pageNum": {pageNum},
                 "pageSize": {pageSize},
                 "needTotal": {needTotal}
-            },
+            }
         }
     }
 }
