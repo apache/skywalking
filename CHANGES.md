@@ -77,6 +77,7 @@ Release Notes.
 * Upgrade etcd cluster coordinator and dynamic configuration to v3.x.
 * Configuration: Allow to configure server maximum request header size.
 * Add thread state metric and class loaded info metric to JVMMetric.
+* Performance: compile LAL DSL statically and run with type checked.
 
 #### UI
 

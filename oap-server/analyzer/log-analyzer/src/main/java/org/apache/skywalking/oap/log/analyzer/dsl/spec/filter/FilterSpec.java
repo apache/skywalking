@@ -18,10 +18,10 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl.spec.filter;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.protobuf.TextFormat;
 import groovy.lang.Closure;
-import java.lang.reflect.Type;
+import groovy.lang.DelegatesTo;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -57,14 +57,14 @@ public class FilterSpec extends AbstractSpec {
 
     private final SinkSpec sink;
 
-    private final Type parsedType;
+    private final TypeReference<Map<String, Object>> parsedType;
 
     public FilterSpec(final ModuleManager moduleManager,
                       final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
         super(moduleManager, moduleConfig);
 
-        parsedType = new TypeToken<Map<String, Object>>() {
-        }.getType();
+        parsedType = new TypeReference<Map<String, Object>>() {
+        };
 
         factories = Arrays.asList(
             new RecordAnalysisListener.Factory(moduleManager(), moduleConfig()),
@@ -81,7 +81,7 @@ public class FilterSpec extends AbstractSpec {
     }
 
     @SuppressWarnings("unused")
-    public void text(final Closure<Void> cl) {
+    public void text(@DelegatesTo(TextParserSpec.class) final Closure<?> cl) {
         if (BINDING.get().shouldAbort()) {
             return;
         }
@@ -90,7 +90,7 @@ public class FilterSpec extends AbstractSpec {
     }
 
     @SuppressWarnings("unused")
-    public void json(final Closure<Void> cl) {
+    public void json(@DelegatesTo(JsonParserSpec.class) final Closure<?> cl) {
         if (BINDING.get().shouldAbort()) {
             return;
         }
@@ -99,7 +99,8 @@ public class FilterSpec extends AbstractSpec {
 
         final LogData.Builder logData = BINDING.get().log();
         try {
-            final Map<String, Object> parsed = jsonParser.create().fromJson(
+
+            final Map<String, Object> parsed = jsonParser.create().readValue(
                 logData.getBody().getJson().getJson(), parsedType
             );
 
@@ -111,8 +112,8 @@ public class FilterSpec extends AbstractSpec {
         }
     }
 
-    @SuppressWarnings({"unused", "unchecked"})
-    public void yaml(final Closure<Void> cl) {
+    @SuppressWarnings({"unused"})
+    public void yaml(@DelegatesTo(YamlParserSpec.class) final Closure<?> cl) {
         if (BINDING.get().shouldAbort()) {
             return;
         }
@@ -121,7 +122,7 @@ public class FilterSpec extends AbstractSpec {
 
         final LogData.Builder logData = BINDING.get().log();
         try {
-            final Map<String, Object> parsed = (Map<String, Object>) yamlParser.create().load(
+            final Map<String, Object> parsed = yamlParser.create().load(
                 logData.getBody().getYaml().getYaml()
             );
 
@@ -134,7 +135,7 @@ public class FilterSpec extends AbstractSpec {
     }
 
     @SuppressWarnings("unused")
-    public void extractor(final Closure<Void> cl) {
+    public void extractor(@DelegatesTo(ExtractorSpec.class) final Closure<?> cl) {
         if (BINDING.get().shouldAbort()) {
             return;
         }
@@ -143,7 +144,7 @@ public class FilterSpec extends AbstractSpec {
     }
 
     @SuppressWarnings("unused")
-    public void sink(final Closure<Void> cl) {
+    public void sink(@DelegatesTo(SinkSpec.class) final Closure<?> cl) {
         if (BINDING.get().shouldAbort()) {
             return;
         }
@@ -166,7 +167,7 @@ public class FilterSpec extends AbstractSpec {
     }
 
     @SuppressWarnings("unused")
-    public void filter(final Closure<Void> cl) {
+    public void filter(final Closure<?> cl) {
         cl.call();
     }
 }

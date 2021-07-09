@@ -20,21 +20,21 @@ rules:
         json {
         }
         // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)
-        if (parsed?.response?.responseCode < 400 && !parsed?.commonProperties?.responseFlags) {
+        if (parsed?.response?.responseCode as Integer < 400 && !parsed?.commonProperties?.responseFlags) {
           abort {}
         }
         extractor {
           if (parsed?.response?.responseCode) {
             tag 'status.code': parsed?.response?.responseCode as int
           }
-          tag 'response.flag': parsed?.commonProperties?.responseFlags?.keySet()
+          tag 'response.flag': (parsed?.commonProperties?.responseFlags as Map)?.keySet()
         }
         sink {
           sampler {
             if (parsed?.commonProperties?.responseFlags) {
               // use service:errorCode as sampler id so that each service:errorCode has its own sampler,
               // e.g. checkoutservice:[upstreamConnectionFailure], checkoutservice:[upstreamRetryLimitExceeded]
-              rateLimit("${log.service}:${parsed?.commonProperties?.responseFlags?.keySet()}") {
+              rateLimit("${log.service}:${(parsed?.commonProperties?.responseFlags as Map)?.keySet()}") {
                 qps 100
               }
             } else {
