@@ -18,6 +18,15 @@
 
 package org.apache.skywalking.apm.plugin.grpc.v1.client;
 
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.BLOCKING_CALL_EXIT_SPAN;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.CLIENT;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_CANCEL_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_COMPLETE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_MESSAGE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.RESPONSE_ON_CLOSE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.RESPONSE_ON_MESSAGE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.formatOperationName;
+
 import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.ForwardingClientCall;
@@ -35,15 +44,6 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
-
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.BLOCKING_CALL_EXIT_SPAN;
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.CLIENT;
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_CANCEL_OPERATION_NAME;
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_COMPLETE_OPERATION_NAME;
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_MESSAGE_OPERATION_NAME;
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.RESPONSE_ON_CLOSE_OPERATION_NAME;
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.RESPONSE_ON_MESSAGE_OPERATION_NAME;
-import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.formatOperationName;
 
 /**
  * Fully client tracing for gRPC servers.
@@ -199,7 +199,7 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
             ContextManager.continued(contextSnapshot);
             if (!status.isOk()) {
                 span.log(status.asRuntimeException());
-                Tags.STATUS_CODE.set(span, status.getCode().name());
+                Tags.RESPONSE_CODE.set(span, status.getCode().name());
             }
 
             try {

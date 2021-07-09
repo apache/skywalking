@@ -158,6 +158,7 @@ public class MultiScopesAnalysisListenerTest {
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(6);
         Assert.assertEquals("mock-service", service.getName());
         Assert.assertEquals(500, service.getResponseCode());
+        Assert.assertEquals("500", service.getResponseCodeStr());
         Assert.assertFalse(service.isStatus());
         Assert.assertEquals("mock-instance", serviceInstance.getName());
         Assert.assertEquals("/springMVC", endpoint.getName());

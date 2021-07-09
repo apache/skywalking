@@ -42,7 +42,7 @@ public class HttpContextHandleDispatchResponseInterceptor implements InstanceMet
         HttpClientRequest clientRequest = httpContext.clientRequest();
         VertxContext context = ((HttpClientRequestContext) ((EnhancedInstance) clientRequest)
                 .getSkyWalkingDynamicField()).vertxContext;
-        Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(httpContext.clientResponse().statusCode()));
+        Tags.STATUS_CODE.set(context.getSpan(), httpContext.clientResponse().statusCode());
         context.getSpan().asyncFinish();
 
         AbstractSpan span = ContextManager.createLocalSpan("#" + context.getSpan().getOperationName());

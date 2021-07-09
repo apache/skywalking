@@ -40,7 +40,7 @@ public final class Tags {
     /**
      * STATUS_CODE records the http status code of the response.
      */
-    public static final StringTag STATUS_CODE = new StringTag(2, "status_code", true);
+    public static final IntegerTag STATUS_CODE = new IntegerTag(2, "status_code", true);
 
     /**
      * DB_TYPE records database type, such as sql, redis, cassandra and so on.
@@ -89,6 +89,12 @@ public final class Tags {
      * recorded, such as a batch consumption in MQ.
      */
     public static final StringTag TRANSMISSION_LATENCY = new StringTag(15, "transmission.latency", false);
+
+    /**
+     * RESPONSE_CODE records the code string of the response. This is different from status code, which is
+     * used to record http response code.
+     */
+    public static final StringTag RESPONSE_CODE = new StringTag(18, "response_code", true);
 
     public static final class HTTP {
         public static final StringTag METHOD = new StringTag(10, "http.method");

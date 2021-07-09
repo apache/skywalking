@@ -70,6 +70,9 @@ public class Service extends Source {
     private int responseCode;
     @Getter
     @Setter
+    private String responseCodeStr;
+    @Getter
+    @Setter
     private RequestType type;
     @Getter
     @Setter

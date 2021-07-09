@@ -49,7 +49,7 @@ public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseCon
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode >= 400) {
                 AbstractSpan span = ContextManager.activeSpan().errorOccurred();
-                Tags.STATUS_CODE.set(span, String.valueOf(statusCode));
+                Tags.STATUS_CODE.set(span, statusCode);
             }
             ContextManager.stopSpan();
         }

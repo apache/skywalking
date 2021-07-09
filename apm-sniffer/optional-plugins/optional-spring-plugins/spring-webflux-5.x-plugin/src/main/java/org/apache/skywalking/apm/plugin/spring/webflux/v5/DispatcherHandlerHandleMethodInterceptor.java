@@ -87,7 +87,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
                     HttpStatus httpStatus = exchange.getResponse().getStatusCode();
                     // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
                     if (httpStatus != null) {
-                        Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
+                        Tags.STATUS_CODE.set(span, httpStatus.value());
                         if (httpStatus.isError()) {
                             span.errorOccurred();
                         }

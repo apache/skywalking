@@ -72,7 +72,7 @@ public class TracingHandler implements HttpHandler {
                     nextListener.proceed();
                     if (httpServerExchange.getStatusCode() >= 400) {
                         span.errorOccurred();
-                        Tags.STATUS_CODE.set(span, Integer.toString(httpServerExchange.getStatusCode()));
+                        Tags.STATUS_CODE.set(span, httpServerExchange.getStatusCode());
                     }
                     span.asyncFinish();
                 }

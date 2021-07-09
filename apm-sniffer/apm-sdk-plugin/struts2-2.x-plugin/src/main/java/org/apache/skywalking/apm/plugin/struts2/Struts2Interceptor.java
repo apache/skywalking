@@ -71,7 +71,7 @@ public class Struts2Interceptor implements InstanceMethodsAroundInterceptor {
         AbstractSpan span = ContextManager.activeSpan();
         if (IS_SERVLET_GET_STATUS_METHOD_EXIST && response.getStatus() >= 400) {
             span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
+            Tags.STATUS_CODE.set(span, response.getStatus());
         }
         ContextManager.stopSpan();
         return ret;

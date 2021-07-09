@@ -89,6 +89,9 @@ public class ServiceRelation extends Source {
     private int responseCode;
     @Getter
     @Setter
+    private String responseCodeStr;
+    @Getter
+    @Setter
     private RequestType type;
     @Getter
     @Setter

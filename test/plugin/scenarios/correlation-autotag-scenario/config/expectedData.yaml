@@ -213,7 +213,7 @@ segmentItems:
             peer: ''
             skipAnalysis: false
             tags:
-              - {key: status_code, value: OK}
+              - {key: response_code, value: OK}
           - operationName: Greeter.sayHello/server/Request/onComplete
             operationId: 0
             parentSpanId: -1

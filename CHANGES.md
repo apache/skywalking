@@ -31,6 +31,7 @@ Release Notes.
 * Move `ehcache-2.x` plugin as an optional plugin.
 * Support `guava-cache` plugin.
 * Enhance the compatibility of `mysql-8.x-plugin` plugin.
+* Modify `Tags.STATUS_CODE` field type from `StringTag` to `IntegerTag`, and add `Tags.RESPONSE_CODE` field to hold other response code value except http call.
 
 #### OAP-Backend
 
@@ -77,6 +78,7 @@ Release Notes.
 * Upgrade etcd cluster coordinator and dynamic configuration to v3.x.
 * Configuration: Allow to configure server maximum request header size.
 * Add thread state metric and class loaded info metric to JVMMetric.
+* Add `responseCodeStr` field to analysis source.
 
 #### UI
 

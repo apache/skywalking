@@ -243,9 +243,12 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             if (SpanTags.STATUS_CODE.equals(tag.getKey())) {
                 try {
                     sourceBuilder.setResponseCode(Integer.parseInt(tag.getValue()));
+                    sourceBuilder.setResponseCodeStr(tag.getValue());
                 } catch (NumberFormatException e) {
                     log.warn("span {} has illegal status code {}", span, tag.getValue());
                 }
+            } else if (SpanTags.RESPONSE_CODE.equals(tag.getKey())) {
+                sourceBuilder.setResponseCodeStr(tag.getValue());
             }
             sourceBuilder.setTag(tag);
         });
