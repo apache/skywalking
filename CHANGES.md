@@ -78,6 +78,7 @@ Release Notes.
 * Configuration: Allow to configure server maximum request header size.
 * Add thread state metric and class loaded info metric to JVMMetric.
 * Performance: compile LAL DSL statically and run with type checked.
+* Add pagination to event query protocol.
 
 #### UI
 
