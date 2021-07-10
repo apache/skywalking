@@ -88,6 +88,7 @@ Release Notes.
 * Fix default config for metrics.
 * Fix trace table for profile ui.
 * Fix the error of server response time in the topology.
+* Fix chart types for setting metrics configure.
 
 #### Documentation
 
