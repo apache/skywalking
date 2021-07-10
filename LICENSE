@@ -215,23 +215,9 @@ Apache 2.0 licenses
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-   proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
-   proto files from istio/api: https://github.com/istio/api      Apache 2.0
+   proto files from cncf/udpa: https://github.com/cncf/udpa Apache 2.0
    proto files from envoyproxy/data-plane-api: https://github.com/envoyproxy/data-plane-api  Apache 2.0
    proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
-   proto files from lyft/protoc-gen-validate: https://github.com/lyft/protoc-gen-validate Apache 2.0
-   proto files from gogo/googleapis: https://github.com/gogo/googleapis Apache 2.0
    flatbuffers files from istio/proxy: https://github.com/istio/proxy Apache 2.0
    mvnw files from https://github.com/takari/maven-wrapper Apache 2.0
    svg files from skywalking-ui/src/assets/icons: https://github.com/google/material-design-icons Apache 2.0
-
-========================================================================
-BSD licenses
-========================================================================
-
-The following components are provided under a BSD license. See project link for details.
-The text of each license is also included at licenses/LICENSE-[project].txt.
-
-   proto files from gogo: https://github.com/gogo/protobuf  BSD-2
-   proto files from grpc-gateway, https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-swagger/options BSD-3
-
