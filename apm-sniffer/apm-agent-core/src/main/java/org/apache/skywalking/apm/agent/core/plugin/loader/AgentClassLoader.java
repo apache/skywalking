@@ -77,7 +77,6 @@ public class AgentClassLoader extends ClassLoader {
             synchronized (AgentClassLoader.class) {
                 if (DEFAULT_LOADER == null) {
                     DEFAULT_LOADER = new AgentClassLoader(PluginBootstrap.class.getClassLoader());
-                    Thread.currentThread().setContextClassLoader(DEFAULT_LOADER);
                 }
             }
         }
