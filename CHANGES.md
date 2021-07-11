@@ -31,6 +31,7 @@ Release Notes.
 * Move `ehcache-2.x` plugin as an optional plugin.
 * Support `guava-cache` plugin.
 * Enhance the compatibility of `mysql-8.x-plugin` plugin.
+* Support Kafka SASL login module.
 
 #### OAP-Backend
 
