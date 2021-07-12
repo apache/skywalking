@@ -33,8 +33,8 @@ public class SynchronousDispatcherInstrumentation extends ClassInstanceMethodsEn
 
     private static final String ENHANCE_CLASS = "org.jboss.resteasy.core.SynchronousDispatcher";
 
-    private static final String INVOKE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.resteasy.v3.server.SynchronousDispatcherInterceptor";
-    private static final String INVOKE_EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.resteasy.v3.server.SynchronousDispatcherExceptionInterceptor";
+    private static final String INVOKE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.resteasy.v4.server.SynchronousDispatcherInterceptor";
+    private static final String INVOKE_EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.resteasy.v4.server.SynchronousDispatcherExceptionInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

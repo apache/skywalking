@@ -24,20 +24,26 @@
         <version>8.6.0</version>
     </parent>
 
-    <artifactId>resteasy-server-3.x-plugin</artifactId>
+    <artifactId>resteasy-server-4.x-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>apm-resteasy-server-3.x-plugin</name>
+    <name>apm-resteasy-server-4.x-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
-        <resteasy.version>3.1.0.Final</resteasy.version>
+        <resteasy.version>4.7.0.Final</resteasy.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxrs</artifactId>
+            <artifactId>resteasy-core</artifactId>
+            <version>${resteasy.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-core-spi</artifactId>
             <version>${resteasy.version}</version>
             <scope>provided</scope>
         </dependency>

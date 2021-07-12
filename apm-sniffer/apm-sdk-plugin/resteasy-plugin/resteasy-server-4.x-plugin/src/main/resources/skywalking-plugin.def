@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resteasy-server-3.x=org.apache.skywalking.apm.plugin.resteasy.v3.server.define.SynchronousDispatcherInstrumentation
+resteasy-server-4.x=org.apache.skywalking.apm.plugin.resteasy.v4.server.define.SynchronousDispatcherInstrumentation

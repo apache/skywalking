@@ -26,7 +26,7 @@
 
     <artifactId>resteasy-plugin</artifactId>
     <modules>
-        <module>resteasy-server-3.x-plugin</module>
+        <module>resteasy-server-4.x-plugin</module>
     </modules>
 
     <packaging>pom</packaging>
