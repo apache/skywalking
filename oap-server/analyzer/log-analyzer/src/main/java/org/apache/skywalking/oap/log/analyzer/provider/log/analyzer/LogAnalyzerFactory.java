@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,21 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.log.analyzer.provider.log;
+package org.apache.skywalking.oap.log.analyzer.provider.log.analyzer;
 
-import com.google.protobuf.Message;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.oap.server.library.module.Service;
-
-/**
- * Analyze the collected log data.
- */
-public interface ILogAnalyzerService extends Service {
-
-    void doAnalysis(LogData.Builder log, Message extraLog);
-
-    default void doAnalysis(LogData logData, Message extraLog) {
-        doAnalysis(logData.toBuilder(), extraLog);
-    }
+public class LogAnalyzerFactory {
 
 }

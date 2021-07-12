@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl;
 
+import com.google.protobuf.Message;
+import groovy.lang.Closure;
+import groovy.lang.GroovyObjectSupport;
+import groovy.lang.MissingPropertyException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import lombok.Getter;
@@ -44,6 +48,7 @@ public class Binding extends groovy.lang.Binding {
         setProperty(KEY_LOG, log);
         setProperty(KEY_SAVE, true);
         setProperty(KEY_ABORT, false);
+        parsed().log = log;
         return this;
     }
 
@@ -53,6 +58,15 @@ public class Binding extends groovy.lang.Binding {
 
     public LogData.Builder log() {
         return (LogData.Builder) getProperty(KEY_LOG);
+    }
+
+    public Binding extraLog(final Message extraLog) {
+        parsed().extraLog = extraLog;
+        return this;
+    }
+
+    public Message extraLog() {
+        return parsed().getExtraLog();
     }
 
     public Binding parsed(final Matcher parsed) {
@@ -92,19 +106,32 @@ public class Binding extends groovy.lang.Binding {
         return (boolean) getProperty(KEY_ABORT);
     }
 
-    public static class Parsed {
+    public static class Parsed extends GroovyObjectSupport {
         @Getter
         private Matcher matcher;
 
         @Getter
         private Map<String, Object> map;
 
+        @Getter
+        private Message.Builder log;
+
+        @Getter
+        private Message extraLog;
+
         public Object getAt(final String key) {
-            if (matcher != null) {
-                return matcher.group(key);
+            Object result;
+            if (matcher != null && (result = matcher.group(key)) != null) {
+                return result;
             }
-            if (map != null) {
-                return map.get(key);
+            if (map != null && (result = map.get(key)) != null) {
+                return result;
+            }
+            if (extraLog != null && (result = getField(extraLog, key)) != null) {
+                return result;
+            }
+            if (log != null && (result = getField(log, key)) != null) {
+                return result;
             }
             return null;
         }
@@ -112,6 +139,16 @@ public class Binding extends groovy.lang.Binding {
         @SuppressWarnings("unused")
         public Object propertyMissing(final String name) {
             return getAt(name);
+        }
+
+        static Object getField(Object obj, String name) {
+            try {
+                Closure<?> c = new Closure<Object>(obj, obj) {
+                };
+                return c.getProperty(name);
+            } catch (MissingPropertyException ignored) {
+            }
+            return null;
         }
     }
 }

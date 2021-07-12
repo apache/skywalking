@@ -19,13 +19,17 @@
 package org.apache.skywalking.oap.log.analyzer.dsl.spec.filter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import lombok.SneakyThrows;
+import org.apache.skywalking.apm.network.logging.v3.JSONLog;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.ExtractorSpec;
@@ -41,6 +45,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.toJSON;
 
 public class FilterSpec extends AbstractSpec {
     private static final Logger LOGGER = LoggerFactory.getLogger(FilterSpec.class);
@@ -143,6 +149,7 @@ public class FilterSpec extends AbstractSpec {
         cl.call();
     }
 
+    @SneakyThrows
     @SuppressWarnings("unused")
     public void sink(@DelegatesTo(SinkSpec.class) final Closure<?> cl) {
         if (BINDING.get().shouldAbort()) {
@@ -153,6 +160,7 @@ public class FilterSpec extends AbstractSpec {
 
         final Binding b = BINDING.get();
         final LogData.Builder logData = b.log();
+        final Message extraLog = b.extraLog();
 
         if (!b.shouldSave()) {
             if (LOGGER.isDebugEnabled()) {
@@ -161,9 +169,19 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
 
+        if (extraLog != null) {
+            logData.setBody(
+                LogDataBody.newBuilder()
+                           .setJson(
+                               JSONLog.newBuilder()
+                                      .setJson(toJSON(extraLog))
+                                      .build())
+                           .build()
+            );
+        }
         factories.stream()
                  .map(LogAnalysisListenerFactory::create)
-                 .forEach(it -> it.parse(logData).build());
+                 .forEach(it -> it.parse(logData, extraLog).build());
     }
 
     @SuppressWarnings("unused")
