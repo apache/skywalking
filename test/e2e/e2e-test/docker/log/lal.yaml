@@ -23,7 +23,7 @@ rules:
         }
         extractor {
           metrics {
-            timestamp log.timestamp
+            timestamp log.timestamp as Long
             labels level: parsed.level, service: log.service, instance: log.serviceInstance
             name "log_count"
             value 1

@@ -44,6 +44,7 @@ import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -96,6 +97,8 @@ public class KafkaProducerManager implements BootService, Runnable {
 
     @Override
     public void run() {
+        Thread.currentThread().setContextClassLoader(AgentClassLoader.getDefault());
+
         Properties properties = new Properties();
         properties.setProperty(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaReporterPluginConfig.Plugin.Kafka.BOOTSTRAP_SERVERS);

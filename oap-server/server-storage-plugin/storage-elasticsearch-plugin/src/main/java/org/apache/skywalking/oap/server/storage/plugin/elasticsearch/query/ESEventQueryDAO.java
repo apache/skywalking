@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.source.Event;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -129,7 +130,10 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
         EventQueryCondition condition = conditionList.get(0);
         final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
         sourceBuilder.sort(Event.START_TIME, Order.DES.equals(queryOrder) ? SortOrder.DESC : SortOrder.ASC);
-        sourceBuilder.size(condition.getSize());
+
+        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        sourceBuilder.from(page.getFrom());
+        sourceBuilder.size(page.getLimit());
         return sourceBuilder;
     }
 
@@ -144,7 +148,10 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
 
         final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
         sourceBuilder.sort(Event.START_TIME, Order.DES.equals(queryOrder) ? SortOrder.DESC : SortOrder.ASC);
-        sourceBuilder.size(condition.getSize());
+
+        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        sourceBuilder.from(page.getFrom());
+        sourceBuilder.size(page.getLimit());
 
         return sourceBuilder;
     }

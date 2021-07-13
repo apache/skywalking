@@ -17,12 +17,14 @@
 
 package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 
+import com.google.protobuf.Message;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
@@ -41,6 +43,8 @@ import org.apache.skywalking.oap.server.core.source.Log;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.toJSON;
+
 /**
  * RecordAnalysisListener forwards the log data to the persistence layer with the query required conditions.
  */
@@ -57,7 +61,9 @@ public class RecordAnalysisListener implements LogAnalysisListener {
     }
 
     @Override
-    public LogAnalysisListener parse(final LogData.Builder logData) {
+    @SneakyThrows
+    public LogAnalysisListener parse(final LogData.Builder logData,
+                                     final Message extraLog) {
         LogDataBody body = logData.getBody();
         log.setUniqueId(UUID.randomUUID().toString().replace("-", ""));
         // timestamp
@@ -100,6 +106,9 @@ public class RecordAnalysisListener implements LogAnalysisListener {
         } else if (body.hasJson()) {
             log.setContentType(ContentType.JSON);
             log.setContent(body.getJson().getJson());
+        } else if (extraLog != null) {
+            log.setContentType(ContentType.JSON);
+            log.setContent(toJSON(extraLog));
         }
         if (logData.getTags().getDataCount() > 0) {
             log.setTagsRawData(logData.getTags().toByteArray());

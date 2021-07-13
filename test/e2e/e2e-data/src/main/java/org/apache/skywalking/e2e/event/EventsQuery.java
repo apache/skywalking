@@ -27,4 +27,7 @@ import org.apache.skywalking.e2e.AbstractQuery;
 @Accessors(fluent = true)
 public class EventsQuery extends AbstractQuery<EventsQuery> {
     private String uuid;
+    private String pageNum = "1";
+    private String pageSize = "20";
+    private String needTotal = "true";
 }

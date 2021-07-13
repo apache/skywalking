@@ -29,6 +29,9 @@ Release Notes.
 * Fix async finish repeatedly in `spring-webflux-5.x-webclient` plugin.
 * Add agent plugin to support Sentinel.
 * Move `ehcache-2.x` plugin as an optional plugin.
+* Support `guava-cache` plugin.
+* Enhance the compatibility of `mysql-8.x-plugin` plugin.
+* Support Kafka SASL login module.
 
 #### OAP-Backend
 
@@ -74,7 +77,10 @@ Release Notes.
 * Replace zuul proxy with spring cloud gateway 2.x. in webapp module.
 * Upgrade etcd cluster coordinator and dynamic configuration to v3.x.
 * Configuration: Allow to configure server maximum request header size.
-* Support session expired threshold configurable.
+* Add thread state metric and class loaded info metric to JVMMetric.
+* Performance: compile LAL DSL statically and run with type checked.
+* Add pagination to event query protocol.
+* Performance: optimize Envoy error logs persistence performance.
 * Support configure sampling rate dynamically for service dimension on the backend side.
 
 #### UI
@@ -85,6 +91,7 @@ Release Notes.
 * Fix default config for metrics.
 * Fix trace table for profile ui.
 * Fix the error of server response time in the topology.
+* Fix chart types for setting metrics configure.
 
 #### Documentation
 
