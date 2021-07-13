@@ -18,99 +18,114 @@
 
 package org.apache.skywalking.oap.server.configuration.etcd;
 
+import io.etcd.jetcd.ByteSequence;
+import io.etcd.jetcd.Client;
+import io.etcd.jetcd.KV;
 import java.io.FileNotFoundException;
 import java.io.Reader;
-import java.net.URI;
-import java.util.List;
+import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
-import mousio.etcd4j.EtcdClient;
-import mousio.etcd4j.promises.EtcdResponsePromise;
-import mousio.etcd4j.responses.EtcdKeysResponse;
+import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
+import org.apache.skywalking.oap.server.library.module.ModuleConfigException;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleNotFoundException;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
+@Slf4j
 public class ITEtcdConfigurationTest {
+    @ClassRule
+    public static final GenericContainer CONTAINER =
+        new GenericContainer(DockerImageName.parse("bitnami/etcd:3.5.0"))
+            .waitingFor(Wait.forLogMessage(".*etcd setup finished!.*", 1))
+            .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"));
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ITEtcdConfigurationTest.class);
+    private static EtcdConfigurationTestProvider PROVIDER;
 
-    private final Yaml yaml = new Yaml();
+    private static final String TEST_VALUE = "value";
 
-    private EtcdServerSettings settings;
+    @BeforeClass
+    public static void beforeClass() throws FileNotFoundException, ModuleConfigException, ModuleNotFoundException, ModuleStartException {
+        System.setProperty("etcd.endpoint", "http://127.0.0.1:" + CONTAINER.getMappedPort(2379));
 
-    private EtcdConfigurationTestProvider provider;
-
-    private EtcdClient client;
-
-    @Before
-    public void setUp() throws Exception {
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
 
         final ModuleManager moduleManager = new ModuleManager();
         moduleManager.init(applicationConfiguration);
 
-        final String etcdHost = System.getProperty("etcd.host");
-        final String etcdPort = System.getProperty("etcd.port");
-        LOGGER.info("etcdHost: {}, etcdPort: {}", etcdHost, etcdPort);
-        Properties properties = new Properties();
-        properties.setProperty("serverAddr", etcdHost + ":" + etcdPort);
+        PROVIDER = (EtcdConfigurationTestProvider) moduleManager.find(EtcdConfigurationTestModule.NAME).provider();
 
-        List<URI> uris = EtcdUtils.parseProp(properties);
-        client = new EtcdClient(uris.toArray(new URI[] {}));
-
-        provider = (EtcdConfigurationTestProvider) moduleManager.find(EtcdConfigurationTestModule.NAME).provider();
-
-        assertNotNull(provider);
+        assertNotNull(PROVIDER);
     }
 
     @Test(timeout = 20000)
     public void shouldReadUpdated() throws Exception {
-        assertNull(provider.watcher.value());
+        assertNull(PROVIDER.watcher.value());
 
-        assertTrue(publishConfig("test-module.default.testKey", "skywalking", "500"));
+        KV client = Client.builder()
+                          .endpoints("http://localhost:" + CONTAINER.getMappedPort(2379))
+                          .namespace(ByteSequence.from("/skywalking/", Charset.defaultCharset()))
+                          .build()
+                          .getKVClient();
 
-        for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
-            LOGGER.info("value is : {}", provider.watcher.value());
+        client.put(
+            ByteSequence.from("test-module.default.testKey", Charset.defaultCharset()),
+            ByteSequence.from(TEST_VALUE, Charset.defaultCharset())
+        ).get();
+
+        for (String v = PROVIDER.watcher.value(); v == null; v = PROVIDER.watcher.value()) {
+            log.info("value is : {}", PROVIDER.watcher.value());
+            TimeUnit.MILLISECONDS.sleep(200L);
         }
 
-        assertEquals("500", provider.watcher.value());
+        assertEquals(TEST_VALUE, PROVIDER.watcher.value());
 
-        assertTrue(removeConfig("test-module.default.testKey", "skywalking"));
+        client.delete(ByteSequence.from("test-module.default.testKey", Charset.defaultCharset())).get();
 
-        for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
+        for (String v = PROVIDER.watcher.value(); v != null; v = PROVIDER.watcher.value()) {
+            TimeUnit.MILLISECONDS.sleep(200L);
         }
 
-        assertNull(provider.watcher.value());
+        assertNull(PROVIDER.watcher.value());
     }
 
     @SuppressWarnings("unchecked")
-    private void loadConfig(ApplicationConfiguration configuration) throws FileNotFoundException {
+    private static void loadConfig(ApplicationConfiguration configuration) throws FileNotFoundException {
+        final Yaml yaml = new Yaml();
+
         Reader applicationReader = ResourceUtils.read("application.yml");
         Map<String, Map<String, Map<String, ?>>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
         if (CollectionUtils.isNotEmpty(moduleConfig)) {
             moduleConfig.forEach((moduleName, providerConfig) -> {
                 if (providerConfig.size() > 0) {
-                    ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(moduleName);
+                    ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(
+                        moduleName);
                     providerConfig.forEach((name, propertiesConfig) -> {
                         Properties properties = new Properties();
                         if (propertiesConfig != null) {
                             propertiesConfig.forEach((key, value) -> {
                                 properties.put(key, value);
-                                final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value + "", properties));
+                                final Object replaceValue = yaml.load(
+                                    PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value + "", properties));
                                 if (replaceValue != null) {
                                     properties.replace(key, replaceValue);
                                 }
@@ -123,24 +138,8 @@ public class ITEtcdConfigurationTest {
         }
     }
 
-    private boolean publishConfig(String key, String group, String value) {
-        try {
-            client.putDir(group).send().get();
-            EtcdResponsePromise<EtcdKeysResponse> promise = client.put(generateKey(key, group), value).send();
-            promise.get();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    @AfterClass
+    public static void teardown() {
+        CONTAINER.close();
     }
-
-    private boolean removeConfig(String key, String group) throws Exception {
-        client.delete(generateKey(key, group)).send().get();
-        return true;
-    }
-
-    private String generateKey(String key, String group) {
-        return new StringBuilder("/").append(group).append("/").append(key).toString();
-    }
-
 }

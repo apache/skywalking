@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.cluster;
 
 import com.google.common.collect.Lists;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.junit.Assert;
 import org.junit.Test;
@@ -99,6 +100,15 @@ public class OAPNodeCheckerTest {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
         remoteInstances.add(new RemoteInstance(new Address("192.168.0.1", 8899, true)));
         remoteInstances.add(new RemoteInstance(new Address("192.168.0.2", 8899, false)));
+        ClusterHealthStatus clusterHealthStatus = OAPNodeChecker.isHealth(remoteInstances);
+        Assert.assertTrue(clusterHealthStatus.isHealth());
+    }
+
+    @Test
+    public void healthWhenReceiverRoleWithEmptySelfInstance() {
+        List<RemoteInstance> remoteInstances = new ArrayList<>();
+        remoteInstances.add(new RemoteInstance(new Address("192.168.0.1", 8892, false)));
+        OAPNodeChecker.setROLE(CoreModuleConfig.Role.Receiver);
         ClusterHealthStatus clusterHealthStatus = OAPNodeChecker.isHealth(remoteInstances);
         Assert.assertTrue(clusterHealthStatus.isHealth());
     }

@@ -44,7 +44,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -154,19 +154,20 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
     }
 
     @Override
-    public void combine(final Metrics metrics) {
+    public boolean combine(final Metrics metrics) {
         AvgHistogramPercentileFunction percentile = (AvgHistogramPercentileFunction) metrics;
 
-        if (ranks.size() > 0) {
-            if (this.ranks.size() != ranks.size()) {
+        if (this.ranks.size() > 0) {
+            IntList ranksOfThat = percentile.getRanks();
+            if (this.ranks.size() != ranksOfThat.size()) {
                 log.warn("Incompatible ranks size = [{}}] for current PercentileFunction[{}]",
-                         ranks.size(), this.ranks.size()
+                         ranksOfThat.size(), this.ranks.size()
                 );
-                return;
+                return true;
             } else {
-                if (!this.ranks.equals(percentile.getRanks())) {
-                    log.warn("Rank {} doesn't exist in the previous ranks {}", percentile.getRanks(), ranks);
-                    return;
+                if (!this.ranks.equals(ranksOfThat)) {
+                    log.warn("Rank {} doesn't exist in the previous ranks {}", ranksOfThat, this.ranks);
+                    return true;
                 }
             }
         }
@@ -175,6 +176,7 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
         this.count.append(percentile.count);
 
         this.isCalculated = false;
+        return true;
     }
 
     @Override
@@ -316,7 +318,7 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 
@@ -325,10 +327,10 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
         return AvgPercentileFunctionBuilder.class;
     }
 
-    public static class AvgPercentileFunctionBuilder implements StorageBuilder<AvgHistogramPercentileFunction> {
+    public static class AvgPercentileFunctionBuilder implements StorageHashMapBuilder<AvgHistogramPercentileFunction> {
 
         @Override
-        public AvgHistogramPercentileFunction map2Data(final Map<String, Object> dbMap) {
+        public AvgHistogramPercentileFunction storage2Entity(final Map<String, Object> dbMap) {
             AvgHistogramPercentileFunction metrics = new AvgHistogramPercentileFunction() {
                 @Override
                 public AcceptableValue<PercentileArgument> createNew() {
@@ -346,7 +348,7 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
         }
 
         @Override
-        public Map<String, Object> data2Map(final AvgHistogramPercentileFunction storageData) {
+        public Map<String, Object> entity2Storage(final AvgHistogramPercentileFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SUMMATION, storageData.getSummation());
             map.put(COUNT, storageData.getCount());

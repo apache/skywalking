@@ -35,7 +35,7 @@ public interface InfluxConstants {
 
         String ID_COLUMN = "_id";
 
-        String NAME = "_name";
+        String NAME = "_name_";
 
         String ENTITY_ID = "_entity_id";
 

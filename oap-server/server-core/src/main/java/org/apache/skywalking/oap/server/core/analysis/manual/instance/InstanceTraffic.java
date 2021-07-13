@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE;
@@ -69,11 +69,11 @@ public class InstanceTraffic extends Metrics {
     private long lastPingTimestamp;
     @Setter
     @Getter
-    @Column(columnName = PROPERTIES, storageOnly = true)
+    @Column(columnName = PROPERTIES, storageOnly = true, length = 50000)
     private JsonObject properties;
 
     @Override
-    public void combine(final Metrics metrics) {
+    public boolean combine(final Metrics metrics) {
         final InstanceTraffic instanceTraffic = (InstanceTraffic) metrics;
         this.lastPingTimestamp = instanceTraffic.getLastPingTimestamp();
         if (instanceTraffic.getProperties() != null && instanceTraffic.getProperties().size() > 0) {
@@ -85,6 +85,7 @@ public class InstanceTraffic extends Metrics {
         if (this.getTimeBucket() > metrics.getTimeBucket()) {
             this.setTimeBucket(metrics.getTimeBucket());
         }
+        return true;
     }
 
     @Override
@@ -120,13 +121,13 @@ public class InstanceTraffic extends Metrics {
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return IDManager.ServiceInstanceID.buildId(serviceId, name);
     }
 
-    public static class Builder implements StorageBuilder<InstanceTraffic> {
+    public static class Builder implements StorageHashMapBuilder<InstanceTraffic> {
         @Override
-        public InstanceTraffic map2Data(final Map<String, Object> dbMap) {
+        public InstanceTraffic storage2Entity(final Map<String, Object> dbMap) {
             InstanceTraffic instanceTraffic = new InstanceTraffic();
             instanceTraffic.setServiceId((String) dbMap.get(SERVICE_ID));
             instanceTraffic.setName((String) dbMap.get(NAME));
@@ -140,7 +141,7 @@ public class InstanceTraffic extends Metrics {
         }
 
         @Override
-        public Map<String, Object> data2Map(final InstanceTraffic storageData) {
+        public Map<String, Object> entity2Storage(final InstanceTraffic storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(NAME, storageData.getName());

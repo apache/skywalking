@@ -35,7 +35,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @MeterFunction(functionName = "avgLabeled")
@@ -72,10 +72,11 @@ public abstract class AvgLabeledFunction extends Metrics implements AcceptableVa
     private DataTable value = new DataTable(30);
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         AvgLabeledFunction longAvgMetrics = (AvgLabeledFunction) metrics;
         summation.append(longAvgMetrics.summation);
         count.append(longAvgMetrics.count);
+        return true;
     }
 
     @Override
@@ -149,7 +150,7 @@ public abstract class AvgLabeledFunction extends Metrics implements AcceptableVa
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 
@@ -168,9 +169,9 @@ public abstract class AvgLabeledFunction extends Metrics implements AcceptableVa
         return AvgLabeledStorageBuilder.class;
     }
 
-    public static class AvgLabeledStorageBuilder implements StorageBuilder<AvgLabeledFunction> {
+    public static class AvgLabeledStorageBuilder implements StorageHashMapBuilder<AvgLabeledFunction> {
         @Override
-        public AvgLabeledFunction map2Data(final Map<String, Object> dbMap) {
+        public AvgLabeledFunction storage2Entity(final Map<String, Object> dbMap) {
             AvgLabeledFunction metrics = new AvgLabeledFunction() {
                 @Override
                 public AcceptableValue<DataTable> createNew() {
@@ -187,7 +188,7 @@ public abstract class AvgLabeledFunction extends Metrics implements AcceptableVa
         }
 
         @Override
-        public Map<String, Object> data2Map(final AvgLabeledFunction storageData) {
+        public Map<String, Object> entity2Storage(final AvgLabeledFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SUMMATION, storageData.getSummation());
             map.put(VALUE, storageData.getValue());

@@ -16,3 +16,8 @@
 
 mssql-jdbc=org.apache.skywalking.apm.plugin.mssql.jdbc.define.DriverInstrumentation
 mssql-jdbc=org.apache.skywalking.apm.plugin.mssql.jdbc.define.ConnectionInstrumentation
+mssql-jdbc=org.apache.skywalking.apm.plugin.mssql.jdbc.define.PreparedStatementInstrumentation
+mssql-jdbc=org.apache.skywalking.apm.plugin.mssql.jdbc.define.StatementInstrumentation
+mssql-jdbc=org.apache.skywalking.apm.plugin.mssql.jdbc.define.PreparedStatementSetterInstrumentation
+mssql-jdbc=org.apache.skywalking.apm.plugin.mssql.jdbc.define.PreparedStatementNullSetterInstrumentation
+mssql-jdbc=org.apache.skywalking.apm.plugin.mssql.jdbc.define.PreparedStatementIgnoredSetterInstrumentation

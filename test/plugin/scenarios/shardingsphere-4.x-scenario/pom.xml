@@ -138,11 +138,11 @@
     <pluginRepositories>
         <pluginRepository>
             <id>spring-snapshots</id>
-            <url>http://repo.spring.io/snapshot</url>
+            <url>https://repo.spring.io/snapshot</url>
         </pluginRepository>
         <pluginRepository>
             <id>spring-milestones</id>
-            <url>http://repo.spring.io/milestone</url>
+            <url>https://repo.spring.io/milestone</url>
         </pluginRepository>
     </pluginRepositories>
 </project>

@@ -34,13 +34,16 @@ on:
       - '!oap-server/**'
       - '!**.md'
 
+concurrency:
+  group: plugins-2-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   PluginsTest:
     name: Plugin
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
-      fail-fast: true
       matrix:
         case:
           - okhttp-scenario
@@ -57,6 +60,7 @@ jobs:
           - shardingsphere-4.x-RC3-scenario
           - shardingsphere-4.0.x-scenario
           - shardingsphere-4.x-scenario
+          - shardingsphere-5.0.0-beta-scenario
           - sofarpc-scenario
           - solrj-7.x-scenario
           - spring-3.0.x-scenario
@@ -66,6 +70,7 @@ jobs:
           - spring-tx-scenario
           - struts2.3-scenario
           - struts2.5-scenario
+          - cxf-scenario
     steps:
       - uses: actions/checkout@v2
         with:
@@ -80,11 +85,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 8
-      - name: Build SkyWalking Agent
-        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
-      - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
-      - name: ${{ matrix.case }}
-        run: bash test/plugin/run.sh ${{ matrix.case }}
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
+      - name: Run Plugin Test
+        uses: ./.github/actions/plugins-test
+        with:
+          test_case: ${{ matrix.case }}

@@ -16,3 +16,5 @@
 
 mssql-jtds-1.x=org.apache.skywalking.apm.plugin.mssql.jtds.v1.define.DriverInstrumentation
 mssql-jtds-1.x=org.apache.skywalking.apm.plugin.mssql.jtds.v1.define.ConnectionInstrumentation
+mssql-jtds-1.x=org.apache.skywalking.apm.plugin.mssql.jtds.v1.define.PreparedStatementInstrumentation
+mssql-jtds-1.x=org.apache.skywalking.apm.plugin.mssql.jtds.v1.define.StatementInstrumentation

@@ -27,7 +27,7 @@ services:
       SW_CORE_GRPC_SSL_KEY_PATH: /skywalking/certs/server-key.pem
       SW_CORE_GRPC_SSL_CERT_CHAIN_PATH: /skywalking/certs/server.crt
       SW_CORE_GRPC_SSL_TRUSTED_CA_PATH: /skywalking/certs/ca.crt
-      SW_PROMETHEUS_FETCHER_ACTIVE: "true"
+      SW_PROMETHEUS_FETCHER: "default"
       SW_TELEMETRY: prometheus
 
   ui:

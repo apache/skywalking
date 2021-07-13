@@ -34,8 +34,13 @@ public class CaseConfiguration {
     private Map<String, DependencyComponent> dependencies;
     private List<String> environment;
     private List<String> expose;
-    private List<String> depends_on;
+    private List<String> dependsOn;
     private String runningMode;
     private String withPlugins;
     private List<RequestHeader> extendEntryHeader;
+
+    //make sure that depends_on can be set correctly
+    public void setDepends_on(List<String> dependsOn) {
+        this.dependsOn = dependsOn;
+    }
 }

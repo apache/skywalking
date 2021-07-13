@@ -35,6 +35,7 @@ public abstract class ModelInstaller implements ModelCreator.CreatingListener {
     protected final Client client;
     private final ModuleManager moduleManager;
 
+    @Override
     public void whenCreating(Model model) throws StorageException {
         if (RunningMode.isNoInitMode()) {
             while (!isExists(model)) {

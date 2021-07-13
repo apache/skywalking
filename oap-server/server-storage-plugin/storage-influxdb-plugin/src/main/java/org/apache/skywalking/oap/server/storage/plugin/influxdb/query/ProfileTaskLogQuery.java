@@ -37,8 +37,8 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
 public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
-    private InfluxClient client;
-    private int fetchTaskLogMaxSize;
+    private final InfluxClient client;
+    private final int fetchTaskLogMaxSize;
 
     public ProfileTaskLogQuery(InfluxClient client, int fetchTaskLogMaxSize) {
         this.client = client;
@@ -68,16 +68,14 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
         series.getValues().stream()
               // re-sort by self, because of the result order by time.
               .sorted((a, b) -> Long.compare(((Number) b.get(1)).longValue(), ((Number) a.get(1)).longValue()))
-              .forEach(values -> {
-                  taskLogs.add(ProfileTaskLog.builder()
-                                             .id((String) values.get(2))
-                                             .taskId((String) values.get(3))
-                                             .instanceId((String) values.get(4))
-                                             .operationTime(((Number) values.get(5)).longValue())
-                                             .operationType(ProfileTaskLogOperationType.parse(
-                                                 ((Number) values.get(6)).intValue()))
-                                             .build());
-              });
+              .forEach(values -> taskLogs.add(ProfileTaskLog.builder()
+                                                        .id((String) values.get(2))
+                                                        .taskId((String) values.get(3))
+                                                        .instanceId((String) values.get(4))
+                                                        .operationTime(((Number) values.get(5)).longValue())
+                                                        .operationType(ProfileTaskLogOperationType.parse(
+                                             ((Number) values.get(6)).intValue()))
+                                                        .build()));
         return taskLogs;
     }
 }

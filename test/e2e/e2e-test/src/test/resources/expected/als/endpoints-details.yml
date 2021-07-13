@@ -15,4 +15,4 @@
 
 endpoints:
   - key: not null
-    label: /details/0
+    label: GET:/details/0

@@ -57,7 +57,7 @@ public class KafkaMeterE2E extends SkyWalkingTestAdapter {
     protected DockerComposeContainer<?> justForSideEffects;
 
     @SuppressWarnings("unused")
-    @ContainerHostAndPort(name = "ui", port = 8080)
+    @ContainerHostAndPort(name = "oap", port = 12800)
     protected HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")
@@ -111,7 +111,7 @@ public class KafkaMeterE2E extends SkyWalkingTestAdapter {
 
         LOGGER.info("instances: {}", instances);
 
-        load("expected/simple/instances.yml").as(InstancesMatcher.class).verify(instances);
+        load("expected/meter/instances.yml").as(InstancesMatcher.class).verify(instances);
 
         return instances;
     }

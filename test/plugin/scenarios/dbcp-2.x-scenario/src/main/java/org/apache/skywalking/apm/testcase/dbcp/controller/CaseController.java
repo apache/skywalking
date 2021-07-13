@@ -33,7 +33,7 @@ public class CaseController {
     @Autowired
     CaseService caseService;
 
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     private static final String SUCCESS = "Success";
     
@@ -43,7 +43,7 @@ public class CaseController {
         try {
             caseService.testCase();
         } catch (Exception e) {
-            logger.error("Failed to execute sql.", e);
+            LOGGER.error("Failed to execute sql.", e);
             throw e;
         }
         return SUCCESS;

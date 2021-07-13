@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.3.0-SNAPSHOT</version>
+        <version>8.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -83,11 +83,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-istio-telemetry-receiver-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-management-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -118,7 +113,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>opencensus-receiver-plugin</artifactId>
+            <artifactId>otel-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -129,6 +124,26 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-browser-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-log-recevier-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-discovery-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-event-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-zabbix-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- receiver module -->
@@ -250,9 +265,7 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.2</version>
                 <configuration>
                     <excludes>
                         <exclude>application.yml</exclude>
@@ -262,11 +275,16 @@
                         <exclude>gateways.yml</exclude>
                         <exclude>service-apdex-threshold.yml</exclude>
                         <exclude>endpoint-name-grouping.yml</exclude>
+                        <exclude>metadata-service-mapping.yaml</exclude>
                         <exclude>oal/</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
+                        <exclude>envoy-metrics-rules/</exclude>
                         <exclude>meter-analyzer-config/</exclude>
-                        <exclude>oc-rules/</exclude>
+                        <exclude>otel-oc-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>
+                        <exclude>zabbix-rules/</exclude>
+                        <exclude>lal/</exclude>
+                        <exclude>log-mal-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

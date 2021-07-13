@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -34,8 +35,6 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateResponse;
 
-import java.lang.reflect.Method;
-
 import static org.apache.skywalking.apm.plugin.elasticsearch.v6.ElasticsearchPluginConfig.Plugin.Elasticsearch.ELASTICSEARCH_DSL_LENGTH_THRESHOLD;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v6.ElasticsearchPluginConfig.Plugin.Elasticsearch.TRACE_DSL;
 
@@ -45,26 +44,22 @@ public class AdapterActionFutureActionGetMethodsInterceptor implements InstanceM
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                              Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
-        if (!isTrace(objInst)) {
-            return;
+        if (isTrace(objInst)) {
+            AbstractSpan span = ContextManager.createLocalSpan(Constants.DB_TYPE + "/" + Constants.BASE_FUTURE_METHOD);
+            span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
+            Tags.DB_TYPE.set(span, Constants.DB_TYPE);
         }
-
-        AbstractSpan span = ContextManager.createLocalSpan(Constants.DB_TYPE + "/" + Constants.BASE_FUTURE_METHOD);
-        span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
-        Tags.DB_TYPE.set(span, Constants.DB_TYPE);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
 
-        if (!isTrace(objInst)) {
-            return ret;
+        if (isTrace(objInst)) {
+            AbstractSpan span = ContextManager.activeSpan();
+            parseResponseInfo((ActionResponse) ret, span);
+            ContextManager.stopSpan();
         }
-
-        AbstractSpan span = ContextManager.activeSpan();
-        parseResponseInfo((ActionResponse) ret, span);
-        ContextManager.stopSpan();
         return ret;
     }
 

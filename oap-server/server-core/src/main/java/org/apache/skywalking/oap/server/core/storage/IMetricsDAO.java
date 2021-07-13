@@ -32,12 +32,12 @@ public interface IMetricsDAO extends DAO {
     /**
      * Read data from the storage by given IDs.
      *
-     * @param model target entity of this query.
-     * @param ids   ID list.
+     * @param model   target entity of this query.
+     * @param metrics metrics list.
      * @return the data of all given IDs. Only include existing data. Don't require to keep the same order of ids list.
      * @throws IOException when error occurs in data query.
      */
-    List<Metrics> multiGet(Model model, List<String> ids) throws IOException;
+    List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException;
 
     /**
      * Transfer the given metrics to an executable insert statement.

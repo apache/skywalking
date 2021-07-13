@@ -34,13 +34,16 @@ on:
       - '!oap-server/**'
       - '!**.md'
 
+concurrency:
+  group: plugins-1-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   PluginsTest:
     name: Plugin
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
-      fail-fast: true
       matrix:
         case:
           - h2-scenario
@@ -48,6 +51,7 @@ jobs:
           - httpclient-3.x-scenario
           - httpclient-4.3.x-scenario
           - hystrix-scenario
+          - sentinel-scenario
           - influxdb-scenario
           - jdk-http-scenario
           - jdk-threading-scenario
@@ -62,6 +66,7 @@ jobs:
           - postgresql-above9.4.1207-scenario
           - mssql-jtds-scenario
           - mssql-jdbc-scenario
+          - mybatis-3.x-scenario
     steps:
       - uses: actions/checkout@v2
         with:
@@ -76,11 +81,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 8
-      - name: Build SkyWalking Agent
-        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
-      - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
-      - name: ${{ matrix.case }}
-        run: bash test/plugin/run.sh ${{ matrix.case }}
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
+      - name: Run Plugin Test
+        uses: ./.github/actions/plugins-test
+        with:
+          test_case: ${{ matrix.case }}

@@ -36,16 +36,16 @@ public class ConsumerInterceptor implements ClientInterceptor {
     private static final Logger LOGGER = LogManager.getLogger(ConsumerInterceptor.class);
 
     @Override
-    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> descriptor,
-        CallOptions options, Channel channel) {
+    public <REQ_T, RESP_T> ClientCall<REQ_T, RESP_T> interceptCall(MethodDescriptor<REQ_T, RESP_T> descriptor,
+                                                                   CallOptions options, Channel channel) {
         LOGGER.info("start interceptor!");
         LOGGER.info("method type: {}", descriptor.getType());
-        return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(channel.newCall(descriptor, options)) {
+        return new ForwardingClientCall.SimpleForwardingClientCall<REQ_T, RESP_T>(channel.newCall(descriptor, options)) {
             @Override
-            public void start(Listener<RespT> responseListener, Metadata headers) {
+            public void start(Listener<RESP_T> responseListener, Metadata headers) {
                 LOGGER.info("Peer: {}", channel.authority());
                 LOGGER.info("Operation Name : {}", descriptor.getFullMethodName());
-                Interceptor<RespT> tracingResponseListener = new Interceptor(responseListener);
+                Interceptor<RESP_T> tracingResponseListener = new Interceptor(responseListener);
                 tracingResponseListener.contextSnapshot = "contextSnapshot";
                 delegate().start(tracingResponseListener, headers);
             }
@@ -63,19 +63,19 @@ public class ConsumerInterceptor implements ClientInterceptor {
             }
 
             @Override
-            public void sendMessage(ReqT message) {
+            public void sendMessage(REQ_T message) {
                 LOGGER.info("sendMessage ....");
                 super.sendMessage(message);
             }
         };
     }
 
-    private static class Interceptor<RespT> extends ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT> {
+    private static class Interceptor<RESP_T> extends ForwardingClientCallListener.SimpleForwardingClientCallListener<RESP_T> {
         private static final Logger LOGGER = LogManager.getLogger(Interceptor.class);
 
         private Object contextSnapshot;
 
-        protected Interceptor(ClientCall.Listener<RespT> delegate) {
+        protected Interceptor(ClientCall.Listener<RESP_T> delegate) {
             super(delegate);
         }
 
@@ -89,7 +89,7 @@ public class ConsumerInterceptor implements ClientInterceptor {
         }
 
         @Override
-        public void onMessage(RespT message) {
+        public void onMessage(RESP_T message) {
             LOGGER.info("contextSnapshot: {}", contextSnapshot);
             delegate().onMessage(message);
         }

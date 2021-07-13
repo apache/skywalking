@@ -34,7 +34,7 @@ import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.
 
 public final class ShardingDatabasesAndTablesConfigurationPrecise implements ExampleConfiguration {
 
-    private static DataSource dataSource;
+    private static DataSource DATA_SOURCE;
 
     @Override
     public DataSource createDataSource() throws SQLException {
@@ -46,13 +46,13 @@ public final class ShardingDatabasesAndTablesConfigurationPrecise implements Exa
         shardingRuleConfig.setDefaultTableShardingStrategyConfig(new StandardShardingStrategyConfiguration("order_id", new PreciseModuloShardingTableAlgorithm()));
         Properties properties = new Properties();
         properties.setProperty("max.connections.size.per.query", "16");
-        dataSource = ShardingDataSourceFactory.createDataSource(createDataSourceMap(), shardingRuleConfig, new HashMap<String, Object>(), properties);
-        return dataSource;
+        DATA_SOURCE = ShardingDataSourceFactory.createDataSource(createDataSourceMap(), shardingRuleConfig, new HashMap<String, Object>(), properties);
+        return DATA_SOURCE;
     }
 
     @Override
     public DataSource getDataSource() {
-        return dataSource;
+        return DATA_SOURCE;
     }
 
     private static TableRuleConfiguration getOrderTableRuleConfiguration() {

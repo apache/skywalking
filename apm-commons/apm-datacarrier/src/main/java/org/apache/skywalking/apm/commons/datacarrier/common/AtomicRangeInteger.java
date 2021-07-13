@@ -54,18 +54,22 @@ public class AtomicRangeInteger extends Number implements Serializable {
         return this.values.get(VALUE_OFFSET);
     }
 
+    @Override
     public int intValue() {
         return this.values.get(VALUE_OFFSET);
     }
 
+    @Override
     public long longValue() {
         return this.values.get(VALUE_OFFSET);
     }
 
+    @Override
     public float floatValue() {
         return this.values.get(VALUE_OFFSET);
     }
 
+    @Override
     public double doubleValue() {
         return this.values.get(VALUE_OFFSET);
     }

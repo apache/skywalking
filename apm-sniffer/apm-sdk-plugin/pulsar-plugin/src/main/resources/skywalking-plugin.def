@@ -16,4 +16,7 @@
 
 pulsar=org.apache.skywalking.apm.plugin.pulsar.define.SendCallbackInstrumentation
 pulsar=org.apache.skywalking.apm.plugin.pulsar.define.PulsarConsumerInstrumentation
+pulsar=org.apache.skywalking.apm.plugin.pulsar.define.PulsarConsumerListenerInstrumentation
 pulsar=org.apache.skywalking.apm.plugin.pulsar.define.PulsarProducerInstrumentation
+pulsar=org.apache.skywalking.apm.plugin.pulsar.define.MessageInstrumentation
+pulsar=org.apache.skywalking.apm.plugin.pulsar.define.TopicMessageInstrumentation

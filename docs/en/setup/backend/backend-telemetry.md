@@ -1,4 +1,7 @@
 # Telemetry for backend
+The OAP backend cluster itself is a distributed streaming process system. To assist the Ops team,
+we provide the telemetry for the OAP backend itself. 
+
 By default, the telemetry is disabled by setting `selector` to `none`, like this
 
 ```yaml
@@ -14,43 +17,6 @@ telemetry:
 ```
 
 but you can set one of `prometheus` to enable them, for more information, refer to the details below.
-
-## Prometheus
-Prometheus is supported as telemetry implementor. 
-By using this, prometheus collects metrics from SkyWalking backend.
-
-Set `prometheus` to provider. The endpoint open at `http://0.0.0.0:1234/` and `http://0.0.0.0:1234/metrics`.
-```yaml
-telemetry:
-  selector: ${SW_TELEMETRY:prometheus}
-  prometheus:
-```
-
-Set host and port if needed.
-```yaml
-telemetry:
-  selector: ${SW_TELEMETRY:prometheus}
-  prometheus:
-    host: 127.0.0.1
-    port: 1543
-```
-
-Set SSL relevant settings to expose a secure endpoint. Notice private key file and cert chain file could be uploaded once
-changes are applied to them.
-```yaml
-telemetry:
-  selector: ${SW_TELEMETRY:prometheus}
-  prometheus:
-    host: 127.0.0.1
-    port: 1543
-    sslEnabled: true
-    sslKeyPath: /etc/ssl/key.pem
-    sslCertChainPath: /etc/ssl/cert-chain.pem
-```
-
-### Grafana Visualization
-Provide the grafana dashboard settings. Check [SkyWalking Telemetry dashboard](grafana.json) config.
-
 
 ## Self Observability
 
@@ -74,7 +40,7 @@ telemetry:
 prometheus-fetcher:
   selector: ${SW_PROMETHEUS_FETCHER:default}
   default:
-    active: ${SW_PROMETHEUS_FETCHER_ACTIVE:true}
+    enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self"}
 ``` 
 
 3. Make sure `config/fetcher-prom-rules/self.yaml` exists. 
@@ -124,3 +90,48 @@ staticConfig:
     service: oap-server
 ...
 ```
+
+___
+
+**WARNING**, since Apr 21, 2021, **Grafana** project has been relicensed to **AGPL-v3**, no as Apache 2.0 anymore. Check the LICENSE details.
+The following Prometheus + Grafana solution is optional, not a recommendation.
+
+## Prometheus
+Prometheus is supported as telemetry implementor. 
+By using this, prometheus collects metrics from SkyWalking backend.
+
+Set `prometheus` to provider. The endpoint open at `http://0.0.0.0:1234/` and `http://0.0.0.0:1234/metrics`.
+```yaml
+telemetry:
+  selector: ${SW_TELEMETRY:prometheus}
+  prometheus:
+```
+
+Set host and port if needed.
+```yaml
+telemetry:
+  selector: ${SW_TELEMETRY:prometheus}
+  prometheus:
+    host: 127.0.0.1
+    port: 1543
+```
+
+Set SSL relevant settings to expose a secure endpoint. Notice private key file and cert chain file could be uploaded once
+changes are applied to them.
+```yaml
+telemetry:
+  selector: ${SW_TELEMETRY:prometheus}
+  prometheus:
+    host: 127.0.0.1
+    port: 1543
+    sslEnabled: true
+    sslKeyPath: /etc/ssl/key.pem
+    sslCertChainPath: /etc/ssl/cert-chain.pem
+```
+
+### Grafana Visualization
+Provide the grafana dashboard settings. 
+Check [SkyWalking OAP Cluster Monitor Dashboard](grafana-cluster.json) config and [SkyWalking OAP Instance Monitor Dashboard](grafana-instance.json) config.
+
+
+

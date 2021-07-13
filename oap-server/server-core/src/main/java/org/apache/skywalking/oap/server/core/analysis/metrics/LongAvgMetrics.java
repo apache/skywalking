@@ -54,9 +54,10 @@ public abstract class LongAvgMetrics extends Metrics implements LongValueHolder 
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         LongAvgMetrics longAvgMetrics = (LongAvgMetrics) metrics;
         combine(longAvgMetrics.summation, longAvgMetrics.count);
+        return true;
     }
 
     @Override

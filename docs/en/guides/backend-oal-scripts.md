@@ -1,12 +1,7 @@
 # Official OAL script
-First, read [OAL introduction](../concepts-and-designs/oal.md).
+First, read the [OAL introduction](../concepts-and-designs/oal.md).
 
-Find OAL script at the `/config/oal/*.oal` of SkyWalking dist, since 8.0.0.
-You could change it(such as adding filter condition, or add new metrics) and reboot the OAP server, then it will affect.
+From 8.0.0, you may find the OAL script at `/config/oal/*.oal` of the SkyWalking dist.
+You could change it, such as by adding filter conditions or new metrics. Then, reboot the OAP server, and it will come into effect.
 
-All metrics named in this script could be used in alarm and UI query. 
-
-Notice,
-
-If you try to add or remove some metrics, UI may break, we only recommend you to do this when you plan
-to build your own UI based on the customization analysis core. 
+All metrics named in this script may be used in alarm and UI query.

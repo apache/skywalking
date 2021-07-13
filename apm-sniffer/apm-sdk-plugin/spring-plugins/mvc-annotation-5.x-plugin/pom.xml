@@ -19,7 +19,7 @@
     <parent>
         <artifactId>spring-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.3.0-SNAPSHOT</version>
+        <version>8.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,6 +33,7 @@
         <spring-core.version>5.0.0.RELEASE</spring-core.version>
         <spring-webmvc.version>5.0.0.RELEASE</spring-webmvc.version>
         <javax-servlet-api.version>3.0.1</javax-servlet-api.version>
+        <spring-webflux.version>5.0.0.RELEASE</spring-webflux.version>
     </properties>
 
     <dependencies>
@@ -58,6 +59,12 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-springmvc-annotation-commons</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <version>${spring-webflux.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

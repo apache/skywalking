@@ -43,7 +43,7 @@ import org.apache.tomcat.util.http.Parameters;
 
 /**
  * {@link TomcatInvokeInterceptor} fetch the serialized context data by using {@link
- * HttpServletRequest#getHeader(String)}. The {@link TraceSegment#refs} of current trace segment will reference to the
+ * HttpServletRequest#getHeader(String)}. The {@link TraceSegment#ref} of current trace segment will reference to the
  * trace segment id of the previous level if the serialized context is not null.
  */
 public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor {
@@ -58,7 +58,7 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
     }
 
     /**
-     * * The {@link TraceSegment#refs} of current trace segment will reference to the trace segment id of the previous
+     * * The {@link TraceSegment#ref} of current trace segment will reference to the trace segment id of the previous
      * level if the serialized context is not null.
      *
      * @param result change this result, if you want to truncate the method.
@@ -101,8 +101,8 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
         if (!TomcatPluginConfig.Plugin.Tomcat.COLLECT_HTTP_PARAMS && span.isProfiling()) {
             collectHttpParam(request, span);
         }
-        ContextManager.stopSpan();
         ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);
+        ContextManager.stopSpan();
         return ret;
     }
 

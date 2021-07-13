@@ -43,9 +43,10 @@ public abstract class MinDoubleMetrics extends Metrics implements DoubleValueHol
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         MinDoubleMetrics minDoubleMetrics = (MinDoubleMetrics) metrics;
         combine(minDoubleMetrics.value);
+        return true;
     }
 
     @Override

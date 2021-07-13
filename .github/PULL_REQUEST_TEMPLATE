@@ -1,6 +1,6 @@
 <!--
-    ⚠️ Please make sure to read this template first, pull requests that doesn't accord with this template
-    may be closed without notice.
+    ⚠️ Please make sure to read this template first, pull requests that don't accord with this template
+    maybe closed without notice.
     Texts surrounded by `<` and `>` are meant to be replaced by you, e.g. <framework name>, <issue number>.
     Put an `x` in the `[ ]` to mark the item as CHECKED. `[x]`
 -->
@@ -8,7 +8,7 @@
 <!-- ==== 🐛 Remove this line WHEN AND ONLY WHEN you're fixing a bug, follow the checklist 👇 ====
 ### Fix <bug description or the bug issue number or bug issue link>
 - [ ] Add a unit test to verify that the fix works.
-- [ ] Explain briefly about why the bug exists and how to fix it.
+- [ ] Explain briefly why the bug exists and how to fix it.
      ==== 🐛 Remove this line WHEN AND ONLY WHEN you're fixing a bug, follow the checklist 👆 ==== -->
 
 <!-- ==== 🔌 Remove this line WHEN AND ONLY WHEN you're adding a new plugin, follow the checklist 👇 ====

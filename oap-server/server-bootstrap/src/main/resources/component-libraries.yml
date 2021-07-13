@@ -344,6 +344,36 @@ dbcp:
 mssql-jdbc-driver:
   id: 104
   languages: Java
+Apache-CXF:
+  id: 105
+  languages: Java
+dolphinscheduler:
+  id: 106
+  languages: Java
+JsonRpc:
+  id: 107
+  languages: Java
+seata:
+  id: 108
+  languages: Java
+MyBatis:
+  id: 109
+  languages: Java
+tcp:
+  id: 110
+  languages: Java
+AzureHttpTrigger:
+  id: 111
+  languages: Java,C#,Node.js,Python
+Neo4j:
+  id: 112
+  languages: Java
+Sentinel:
+  id: 113
+  languages: Java
+GuavaCache:
+  id: 114
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -401,7 +431,7 @@ SmartSql:
 HttpServer:
   id: 4001
   languages: Node.js
-express:
+Express:
   id: 4002
   languages: Node.js
 Egg:
@@ -409,6 +439,12 @@ Egg:
   languages: Node.js
 Koa:
   id: 4004
+  languages: Node.js
+Axios:
+  id: 4005
+  languages: Node.js
+Mongoose:
+  id: 4006
   languages: Node.js
 
 # Golang components
@@ -446,7 +482,12 @@ GoMicroServer:
 Nginx:
   id: 6000
   languages: Lua
-
+Kong:
+  id: 6001
+  languages: Lua
+APISIX:
+  id: 6002
+  languages: Lua
 
 # [7000, 8000) are reserved for Python components
 Python:
@@ -469,6 +510,21 @@ Tornado:
   languages: Python
 Urllib3:
   id: 7006
+  languages: Python
+Sanic:
+  id: 7007
+  languages: Python
+AioHttp:
+  id: 7008
+  languages: Python
+Pyramid:
+  id: 7009
+  languages: Python
+Psychopg:
+  id: 7010
+  languages: Python
+Celery:
+  id: 7011
   languages: Python
 
 # PHP components
@@ -497,6 +553,15 @@ Predis:
 EnvoyProxy:
   id: 9000
   languages: C++
+
+# Javascript components
+# [10000, 11000) for Javascript agent
+JavaScript:
+  id: 10000
+  languages: JavaScript
+ajax:
+  id: 10001
+  languages: JavaScript
 
 # Component Server mapping defines the server display names of some components
 # e.g.
@@ -542,3 +607,4 @@ Component-Server-Mappings:
   PyMysql: Mysql
   spring-kafka-consumer: kafka-consumer
   mssql-jdbc-driver: SqlServer
+  Psychopg: PostgreSQL

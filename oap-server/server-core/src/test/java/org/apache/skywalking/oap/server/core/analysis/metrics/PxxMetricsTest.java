@@ -97,7 +97,7 @@ public class PxxMetricsTest {
         }
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 

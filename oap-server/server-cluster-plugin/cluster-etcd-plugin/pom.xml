@@ -21,7 +21,7 @@
     <parent>
         <artifactId>server-cluster-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.3.0-SNAPSHOT</version>
+        <version>8.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -37,35 +37,54 @@
         </dependency>
 
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-dns</artifactId>
+            <groupId>io.etcd</groupId>
+            <artifactId>jetcd-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-codec-http</artifactId>
+            <artifactId>netty-codec-http2</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
+            <artifactId>netty-handler-proxy</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-resolver-dns</artifactId>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.mousio</groupId>
-            <artifactId>etcd4j</artifactId>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-afterburner</artifactId>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-grpclb</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -74,69 +93,8 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <configuration>
-                            <sourceMode>all</sourceMode>
-                            <logDate>default</logDate>
-                            <verbose>true</verbose>
-                            <imagePullPolicy>IfNotPresent</imagePullPolicy>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>start</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>start</goal>
-                                </goals>
-                                <configuration>
-                                    <images>
-                                        <image>
-                                            <name>quayio/coreos-etcd:${etcd.version}</name>
-                                            <alias>etcd-client-integration-test</alias>
-                                            <run>
-                                                <ports>
-                                                    <port>+etcd.host:etcd.port:2379</port>
-                                                </ports>
-                                                <wait>
-                                                    <time>20000</time>
-                                                </wait>
-                                                <entrypoint>
-                                                    <!-- exec form  -->
-                                                    <exec>
-                                                        <arg>/usr/local/bin/etcd</arg>
-                                                        <arg>--advertise-client-urls=http://0.0.0.0:2379</arg>
-                                                        <arg>--listen-client-urls=http://0.0.0.0:2379</arg>
-                                                    </exec>
-                                                </entrypoint>
-                                            </run>
-                                        </image>
-                                    </images>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>remove-it-etcd</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <etcd.host>
-                                    ${etcd.host}
-                                </etcd.host>
-                                <etcd.port>
-                                    ${etcd.port}
-                                </etcd.port>
-                            </systemPropertyVariables>
-                        </configuration>
                         <executions>
                             <execution>
                                 <goals>

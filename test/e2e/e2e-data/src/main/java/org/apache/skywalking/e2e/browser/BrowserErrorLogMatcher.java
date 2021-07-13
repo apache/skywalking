@@ -72,11 +72,11 @@ public class BrowserErrorLogMatcher extends AbstractMatcher<BrowserErrorLog> {
         }
 
         if (nonNull(getLine())) {
-            doVerify(getLine(), String.valueOf(log.getLine()));
+            doVerify(getLine(), log.getLine());
         }
 
         if (nonNull(getCol())) {
-            doVerify(getCol(), String.valueOf(log.getCol()));
+            doVerify(getCol(), log.getCol());
         }
 
         if (nonNull(getStack())) {
@@ -88,7 +88,7 @@ public class BrowserErrorLogMatcher extends AbstractMatcher<BrowserErrorLog> {
         }
 
         if (nonNull(getFirstReportedError())) {
-            doVerify(getFirstReportedError(), String.valueOf(log.isFirstReportedError()));
+            doVerify(getFirstReportedError(), log.isFirstReportedError());
         }
     }
 }

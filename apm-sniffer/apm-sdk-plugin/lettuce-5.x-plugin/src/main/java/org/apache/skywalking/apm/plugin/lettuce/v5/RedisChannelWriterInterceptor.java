@@ -18,7 +18,10 @@
 
 package org.apache.skywalking.apm.plugin.lettuce.v5;
 
-import io.lettuce.core.protocol.RedisCommand;
+import java.lang.reflect.Method;
+import java.util.Collection;
+
+import org.apache.skywalking.apm.agent.core.conf.Constants;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -28,11 +31,17 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.util.StringUtil;
 
-import java.lang.reflect.Method;
-import java.util.Collection;
+import io.lettuce.core.protocol.CommandArgs;
+import io.lettuce.core.protocol.RedisCommand;
 
 public class RedisChannelWriterInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
+
+    private static final String PASSWORD_MASK = "******";
+    private static final String ABBR = "...";
+    private static final String DELIMITER_SPACE = " ";
+    private static final String AUTH = "AUTH";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -47,6 +56,9 @@ public class RedisChannelWriterInterceptor implements InstanceMethodsAroundInter
             String command = redisCommand.getType().name();
             operationName = operationName + command;
             dbStatement.append(command);
+            if (LettucePluginConfig.Plugin.Lettuce.TRACE_REDIS_PARAMETERS) {
+                dbStatement.append(DELIMITER_SPACE).append(getArgsStatement(redisCommand));
+            }
         } else if (allArguments[0] instanceof Collection) {
             @SuppressWarnings("unchecked") Collection<RedisCommand> redisCommands = (Collection<RedisCommand>) allArguments[0];
             operationName = operationName + "BATCH_WRITE";
@@ -60,6 +72,20 @@ public class RedisChannelWriterInterceptor implements InstanceMethodsAroundInter
         Tags.DB_TYPE.set(span, "Redis");
         Tags.DB_STATEMENT.set(span, dbStatement.toString());
         SpanLayer.asCache(span);
+    }
+    
+    private String getArgsStatement(RedisCommand redisCommand) {
+        String statement;
+        if (AUTH.equalsIgnoreCase(redisCommand.getType().name())) {
+            statement = PASSWORD_MASK;
+        } else {
+            CommandArgs args = redisCommand.getArgs();
+            statement = (args != null) ? args.toCommandString() : Constants.EMPTY_STRING;
+        }
+        if (StringUtil.isNotEmpty(statement) && statement.length() > LettucePluginConfig.Plugin.Lettuce.REDIS_PARAMETER_MAX_LENGTH) {
+            statement = statement.substring(0, LettucePluginConfig.Plugin.Lettuce.REDIS_PARAMETER_MAX_LENGTH) + ABBR;
+        }
+        return statement;
     }
 
     @Override

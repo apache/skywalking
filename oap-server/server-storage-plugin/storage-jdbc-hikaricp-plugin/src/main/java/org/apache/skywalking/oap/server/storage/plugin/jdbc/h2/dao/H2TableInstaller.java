@@ -27,7 +27,6 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
@@ -76,7 +75,6 @@ public class H2TableInstaller extends ModelInstaller {
             tableCreateSQL.appendLine("id VARCHAR(512) PRIMARY KEY, ");
             for (int i = 0; i < model.getColumns().size(); i++) {
                 ModelColumn column = model.getColumns().get(i);
-                ColumnName name = column.getColumnName();
                 tableCreateSQL.appendLine(
                     getColumn(column) + (i != model.getColumns().size() - 1 ? "," : ""));
             }

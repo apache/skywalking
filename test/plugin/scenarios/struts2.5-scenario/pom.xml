@@ -33,7 +33,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
         <test.framework.version>2.5.1</test.framework.version>
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
     </properties>
 
     <dependencies>

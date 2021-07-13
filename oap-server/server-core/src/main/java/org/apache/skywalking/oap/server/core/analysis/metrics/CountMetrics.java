@@ -42,9 +42,10 @@ public abstract class CountMetrics extends Metrics implements LongValueHolder {
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         CountMetrics countMetrics = (CountMetrics) metrics;
         combine(countMetrics.value);
+        return true;
     }
 
     @Override

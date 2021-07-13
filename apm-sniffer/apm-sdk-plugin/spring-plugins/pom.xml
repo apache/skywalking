@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>8.3.0-SNAPSHOT</version>
+        <version>8.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>spring-plugins</artifactId>
@@ -38,6 +38,7 @@
         <module>mvc-annotation-commons</module>
         <module>spring-commons</module>
         <module>mvc-annotation-5.x-plugin</module>
+        <module>spring-kafka-1.x-plugin</module>
         <module>spring-kafka-2.x-plugin</module>
         <module>scheduled-annotation-plugin</module>
         <module>spring-webflux-5.x-webclient-plugin</module>

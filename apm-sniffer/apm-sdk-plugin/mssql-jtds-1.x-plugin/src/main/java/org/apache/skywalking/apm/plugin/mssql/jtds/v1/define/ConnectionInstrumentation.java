@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.mssql.jtds.v1.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
+import org.apache.skywalking.apm.plugin.mssql.commons.define.AbstractConnectionInstrumentation;
 
 /**
  * {@link ConnectionInstrumentation} presents that skywalking intercepts.

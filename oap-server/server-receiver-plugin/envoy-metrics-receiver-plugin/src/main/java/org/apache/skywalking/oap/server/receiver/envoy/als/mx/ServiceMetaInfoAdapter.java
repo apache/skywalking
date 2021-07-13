@@ -18,18 +18,19 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
+import Wasm.Common.FlatNode;
+import Wasm.Common.KeyVal;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
 import java.nio.ByteBuffer;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
-import Wasm.Common.FlatNode;
-import Wasm.Common.KeyVal;
 
+import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
@@ -58,8 +59,8 @@ public class ServiceMetaInfoAdapter extends ServiceMetaInfo {
             }
         }
 
-        setServiceName(Optional.ofNullable(flatNode.labelsByKey("app")).map(KeyVal::value).orElse("-"));
-        setServiceInstanceName(flatNode.name());
+        final Struct metadata = requireNonNull(extractStructFromNodeFlatBuffer(flatNode));
+        FieldsHelper.SINGLETON.inflate(metadata, this);
     }
 
     /**
@@ -73,12 +74,35 @@ public class ServiceMetaInfoAdapter extends ServiceMetaInfo {
     }
 
     /**
+     * This method does the reverse conversion of https://github.com/istio/proxy/blob/938a9485a4286f0ce824b76df221a9bb6c8a6989/extensions/common/proto_util.cc#L112. It extracts the metadata from the
+     * {@link FlatNode flat buffer node} so that we can reuse the logic of {@link FieldsHelper}.
+     *
+     * @param node the flat buffer node where to extract the metadata
+     * @return the metadata {@link Struct}
+     */
+    public static Struct extractStructFromNodeFlatBuffer(final FlatNode node) {
+        final Struct.Builder builder = Struct.newBuilder();
+
+        builder.putFields("NAME", Value.newBuilder().setStringValue(nullToEmpty(node.name())).build());
+        builder.putFields("NAMESPACE", Value.newBuilder().setStringValue(nullToEmpty(node.namespace())).build());
+        builder.putFields("CLUSTER_ID", Value.newBuilder().setStringValue(nullToEmpty(node.clusterId())).build());
+
+        final Struct.Builder labels = Struct.newBuilder();
+        for (int i = 0; i < node.labelsLength(); i++) {
+            final KeyVal label = node.labels(i);
+            labels.putFields(nullToEmpty(label.key()), Value.newBuilder().setStringValue(nullToEmpty(label.value())).build());
+        }
+        builder.putFields("LABELS", Value.newBuilder().setStructValue(labels).build());
+
+        return builder.build();
+    }
+
+    /**
      * The same functionality with {@link ServiceMetaInfoAdapter#ServiceMetaInfoAdapter(com.google.protobuf.ByteString)}.
      *
      * @param metadata the {@link Struct struct} to adapt from.
-     * @throws Exception if the {@link Struct struct} can not be adapted to a {@link ServiceMetaInfo}.
      */
-    public ServiceMetaInfoAdapter(final Struct metadata) throws Exception {
+    public ServiceMetaInfoAdapter(final Struct metadata) {
         FieldsHelper.SINGLETON.inflate(requireNonNull(metadata), this);
     }
 

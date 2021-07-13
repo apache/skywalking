@@ -172,22 +172,6 @@ public enum CustomizeConfiguration {
                             Constants.XML_ELEMENT_OPERATION_NAME)
                     .getNodeValue());
         }
-        if (methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_CLOSE_BEFORE_METHOD) != null) {
-            MethodConfiguration.setCloseBeforeMethod(configuration, Boolean.valueOf(methodDesc.getAttributes()
-                    .getNamedItem(
-                            Constants.XML_ELEMENT_CLOSE_BEFORE_METHOD)
-                    .getNodeValue()));
-        } else {
-            MethodConfiguration.setCloseBeforeMethod(configuration, false);
-        }
-        if (methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_CLOSE_AFTER_METHOD) != null) {
-            MethodConfiguration.setCloseAfterMethod(configuration, Boolean.valueOf(methodDesc.getAttributes()
-                    .getNamedItem(
-                            Constants.XML_ELEMENT_CLOSE_AFTER_METHOD)
-                    .getNodeValue()));
-        } else {
-            MethodConfiguration.setCloseAfterMethod(configuration, false);
-        }
         if (methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_METHOD_IS_STATIC) != null) {
             MethodConfiguration.setStatic(configuration, Boolean.valueOf(methodDesc.getAttributes()
                     .getNamedItem(

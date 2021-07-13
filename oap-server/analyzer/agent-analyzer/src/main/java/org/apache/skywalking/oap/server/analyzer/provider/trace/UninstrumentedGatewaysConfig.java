@@ -38,8 +38,8 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.apache.skywalking.oap.server.library.util.yaml.ClassFilterConstructor;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 
 import static java.util.Objects.isNull;
 
@@ -86,8 +86,9 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
         } else {
             gatewayInstanceKeyedByAddress = StreamSupport.stream(gateways.spliterator(), false)
                                                          .flatMap(instance -> instance.getInstances().stream())
-                                                         .collect(Collectors.toMap(GatewayInstanceInfo::getAddress, Function
-                                                             .identity()));
+                                                         .collect(
+                                                             Collectors.toMap(GatewayInstanceInfo::getAddress, Function
+                                                                 .identity()));
         }
     }
 
@@ -102,7 +103,12 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
     private GatewayInfos parseGatewaysFromFile(final String file) {
         try {
             final Reader reader = ResourceUtils.read(file);
-            return new Yaml().loadAs(reader, GatewayInfos.class);
+            return new Yaml(new ClassFilterConstructor(new Class[] {
+                GatewayInfos.class,
+                GatewayInfo.class,
+                GatewayInstanceInfo.class,
+                }))
+                .loadAs(reader, GatewayInfos.class);
         } catch (FileNotFoundException e) {
             log.error("Cannot load gateways from: {}", file, e);
         }
@@ -111,7 +117,12 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
 
     private GatewayInfos parseGatewaysFromYml(final String ymlContent) {
         try {
-            return new Yaml(new Constructor(GatewayInfos.class)).loadAs(ymlContent, GatewayInfos.class);
+            return new Yaml(new ClassFilterConstructor(new Class[] {
+                GatewayInfos.class,
+                GatewayInfo.class,
+                GatewayInstanceInfo.class,
+                }))
+                .loadAs(ymlContent, GatewayInfos.class);
         } catch (Exception e) {
             log.error("Failed to parse yml content as gateways: \n{}", ymlContent, e);
         }

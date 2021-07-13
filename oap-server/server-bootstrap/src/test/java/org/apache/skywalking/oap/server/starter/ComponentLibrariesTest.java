@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.starter;
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.Map;
-import org.apache.commons.collections.map.CaseInsensitiveMap;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -41,7 +41,7 @@ public class ComponentLibrariesTest {
     public void testComponentsAreInSync() throws Exception {
         final Reader reader = ResourceUtils.read("component-libraries.yml");
         final Map map = new Yaml().loadAs(reader, Map.class);
-        final CaseInsensitiveMap caseInsensitiveMap = new CaseInsensitiveMap(map);
+        final CaseInsensitiveMap<String, Object> caseInsensitiveMap = new CaseInsensitiveMap<>(map);
         for (final Field field : ComponentsDefine.class.getFields()) {
             final OfficialComponent component = (OfficialComponent) field.get(null);
             final String normalizedComponentName = component.getName().replaceAll("\\.", "");

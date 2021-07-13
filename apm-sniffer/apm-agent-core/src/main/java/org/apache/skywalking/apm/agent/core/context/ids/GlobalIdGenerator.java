@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.apm.agent.core.context.ids;
 
-import java.util.Random;
 import java.util.UUID;
+
 import org.apache.skywalking.apm.util.StringUtil;
 
 public final class GlobalIdGenerator {
@@ -56,9 +56,8 @@ public final class GlobalIdGenerator {
         private short threadSeq;
 
         // Just for considering time-shift-back only.
-        private long runRandomTimestamp;
-        private int lastRandomValue;
-        private Random random;
+        private long lastShiftTimestamp;
+        private int lastShiftValue;
 
         private IDContext(long lastTimestamp, short threadSeq) {
             this.lastTimestamp = lastTimestamp;
@@ -74,14 +73,11 @@ public final class GlobalIdGenerator {
 
             if (currentTimeMillis < lastTimestamp) {
                 // Just for considering time-shift-back by Ops or OS. @hanahmily 's suggestion.
-                if (random == null) {
-                    random = new Random();
+                if (lastShiftTimestamp != currentTimeMillis) {
+                    lastShiftValue++;
+                    lastShiftTimestamp = currentTimeMillis;
                 }
-                if (runRandomTimestamp != currentTimeMillis) {
-                    lastRandomValue = random.nextInt();
-                    runRandomTimestamp = currentTimeMillis;
-                }
-                return lastRandomValue;
+                return lastShiftValue;
             } else {
                 lastTimestamp = currentTimeMillis;
                 return lastTimestamp;

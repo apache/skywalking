@@ -40,23 +40,23 @@ public class CaseController {
 
     @RequestMapping("/influxdb-scenario")
     @ResponseBody
-    public String testcase(){
+    public String testcase() {
         InfluxDBExecutor executor = new InfluxDBExecutor(serverURL);
         // createDatabase
         String db = "skywalking";
         executor.createDatabase(db);
         // createRetentionPolicy
         String rp = "one_day";
-        executor.createRetentionPolicyWithOneDay(db,rp);
+        executor.createRetentionPolicyWithOneDay(db, rp);
         Point point = Point.measurement("heartbeat")
-            .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-            .tag("host", "127.0.0.1")
-            .addField("device_name", "sensor x")
-            .build();
+                .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .tag("host", "127.0.0.1")
+                .addField("device_name", "sensor x")
+                .build();
         // write
-        executor.write(db,rp,point);
+        executor.write(db, rp, point);
         // query
-        executor.query(db,"SELECT * FROM heartbeat");
+        executor.query(db, "SELECT * FROM heartbeat");
         return SUCCESS;
     }
 

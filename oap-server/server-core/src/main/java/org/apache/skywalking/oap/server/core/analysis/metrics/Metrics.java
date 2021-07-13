@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -29,6 +30,9 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  * Metrics represents the statistic data, which analysis by OAL script or hard code. It has the lifecycle controlled by
  * TTL(time to live).
  */
+@EqualsAndHashCode(of = {
+    "timeBucket"
+})
 public abstract class Metrics extends StreamData implements StorageData {
 
     public static final String TIME_BUCKET = "time_bucket";
@@ -46,14 +50,16 @@ public abstract class Metrics extends StreamData implements StorageData {
      * Time in the cache, only work when MetricsPersistentWorker#enableDatabaseSession == true.
      */
     @Getter
-    private long survivalTime = 0L;
+    private long lastUpdateTimestamp = 0L;
 
     /**
      * Merge the given metrics instance, these two must be the same metrics type.
      *
      * @param metrics to be merged
+     * @return {@code true} if the combined metrics should be continuously processed. {@code false} means it should be
+     * abandoned, and the implementation needs to keep the data unaltered in this case.
      */
-    public abstract void combine(Metrics metrics);
+    public abstract boolean combine(Metrics metrics);
 
     /**
      * Calculate the metrics final value when required.
@@ -75,12 +81,21 @@ public abstract class Metrics extends StreamData implements StorageData {
     public abstract Metrics toDay();
 
     /**
-     * Extend the {@link #survivalTime}
+     * Set the last update timestamp
      *
-     * @param value to extend
+     * @param timestamp last update timestamp
      */
-    public void extendSurvivalTime(long value) {
-        survivalTime += value;
+    public void setLastUpdateTimestamp(long timestamp) {
+        lastUpdateTimestamp = timestamp;
+    }
+
+    /**
+     * @param timestamp        of current time
+     * @param expiredThreshold represents the duration between last update time and the time point removing from cache.
+     * @return true means this metrics should be removed from cache.
+     */
+    public boolean isExpired(long timestamp, long expiredThreshold) {
+        return timestamp - lastUpdateTimestamp > expiredThreshold;
     }
 
     public long toTimeBucketInHour() {
@@ -126,4 +141,16 @@ public abstract class Metrics extends StreamData implements StorageData {
     private boolean isDayBucket() {
         return TimeBucket.isDayBucket(timeBucket);
     }
+
+    private volatile String id;
+
+    @Override
+    public String id() {
+        if (id == null) {
+            id = id0();
+        }
+        return id;
+    }
+
+    protected abstract String id0();
 }

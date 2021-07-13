@@ -28,7 +28,7 @@ import org.apache.skywalking.e2e.AbstractQuery;
 @EqualsAndHashCode(callSuper = true)
 public class ReadMetricsQuery extends AbstractQuery<ReadMetricsQuery> {
 
-    public static String METER_INSTANCE_CPU_PERCENTAGE = "meter_instance_cpu_percentage";
+    public static String METER_INSTANCE_CPU_PERCENTAGE = "meter_oap_instance_cpu_percentage";
 
     public static String[] ALL_SO11Y_LINER_METRICS = {
         METER_INSTANCE_CPU_PERCENTAGE
@@ -39,5 +39,7 @@ public class ReadMetricsQuery extends AbstractQuery<ReadMetricsQuery> {
     private String serviceName;
 
     private String instanceName;
+
+    private String scope = "ServiceInstance";
 
 }

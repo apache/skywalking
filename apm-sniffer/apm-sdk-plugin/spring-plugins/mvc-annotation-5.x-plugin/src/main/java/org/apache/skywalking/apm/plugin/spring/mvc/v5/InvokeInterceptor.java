@@ -17,47 +17,70 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.v5;
 
-import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.RuntimeContext;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.ReactiveRequestHolder;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.ReactiveResponseHolder;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.InstanceMethodsAroundInterceptorV2;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Method;
+
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 
-public class InvokeInterceptor implements InstanceMethodsAroundInterceptor {
+public class InvokeInterceptor implements InstanceMethodsAroundInterceptorV2 {
     @Override
-    public void beforeMethod(final EnhancedInstance objInst,
-                             final Method method,
-                             final Object[] allArguments,
-                             final Class<?>[] argumentsTypes,
-                             final MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInvocationContext context) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        ContextManager.getRuntimeContext()
-                      .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, new ReactiveResponseHolder(exchange.getResponse()));
-        ContextManager.getRuntimeContext()
-                      .put(REQUEST_KEY_IN_RUNTIME_CONTEXT, new ReactiveRequestHolder(exchange.getRequest()));
+        final ServerHttpResponse response = exchange.getResponse();
+        /**
+         * First, we put the slot in the RuntimeContext,
+         * as well as the MethodInvocationContext (MIC),
+         * so that we can access it in the {@link org.apache.skywalking.apm.plugin.spring.mvc.v5.InvokeInterceptor#afterMethod}
+         * Then we fetch the slot from {@link org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.AbstractMethodInterceptor#afterMethod}
+         * and fulfill the slot with the real AbstractSpan.
+         * Afterwards, we can safely remove the RuntimeContext.
+         * Finally, when the lambda executes in the {@link reactor.core.publisher.Mono#doFinally},
+         * ref of span could be acquired from MIC.
+         */
+        AbstractSpan[] ref = new AbstractSpan[1];
+        RuntimeContext runtimeContext = ContextManager.getRuntimeContext();
+        runtimeContext.put(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT, ref);
+        runtimeContext.put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, response);
+        runtimeContext.put(REQUEST_KEY_IN_RUNTIME_CONTEXT, exchange.getRequest());
+        context.setContext(ref);
     }
 
     @Override
-    public Object afterMethod(final EnhancedInstance objInst,
-                              final Method method,
-                              final Object[] allArguments,
-                              final Class<?>[] argumentsTypes,
-                              final Object ret) throws Throwable {
-        return ret;
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret, MethodInvocationContext context) throws Throwable {
+        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+        return ((Mono) ret).doFinally(s -> {
+            Object ctx = context.getContext();
+            if (ctx == null) {
+                return;
+            }
+            AbstractSpan span = ((AbstractSpan[]) ctx)[0];
+            if (span == null) {
+                return;
+            }
+            HttpStatus httpStatus = exchange.getResponse().getStatusCode();
+            if (httpStatus != null && httpStatus.isError()) {
+                span.errorOccurred();
+                Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
+            }
+            span.asyncFinish();
+        });
     }
 
     @Override
-    public void handleMethodException(final EnhancedInstance objInst,
-                                      final Method method,
-                                      final Object[] allArguments,
-                                      final Class<?>[] argumentsTypes,
-                                      final Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t, MethodInvocationContext context) {
 
     }
 }

@@ -12,6 +12,7 @@
     <option name="CLASS_NAMES_IN_JAVADOC" value="3" />
     <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="999" />
     <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="999" />
+    <option name="INSERT_OVERRIDE_ANNOTATION" value="true" />
     <option name="PACKAGES_TO_USE_IMPORT_ON_DEMAND">
       <value />
     </option>

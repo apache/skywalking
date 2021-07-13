@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -36,6 +37,7 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -49,6 +51,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2BatchDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2HistoryDeleteDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetricsQueryDAO;
@@ -99,6 +102,8 @@ public class TiDBStorageProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
+        this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
+        
         mysqlClient = new JDBCHikariCPClient(config.getProperties());
 
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient));
@@ -125,11 +130,23 @@ public class TiDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IMetadataQueryDAO.class, new H2MetadataQueryDAO(mysqlClient, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new MySQLAggregationQueryDAO(mysqlClient));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new MySQLAlarmQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IAlarmQueryDAO.class, new MySQLAlarmQueryDAO(
+                mysqlClient,
+                getManager(),
+                config.getMaxSizeOfArrayColumn(),
+                config.getNumOfSearchableValuesPerTag()));
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(mysqlClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(mysqlClient));
-        this.registerServiceImplementation(ILogQueryDAO.class, new MySQLLogQueryDAO(mysqlClient));
+        this.registerServiceImplementation(
+            ILogQueryDAO.class,
+            new MySQLLogQueryDAO(
+                mysqlClient,
+                getManager(),
+                config.getMaxSizeOfArrayColumn(),
+                config.getNumOfSearchableValuesPerTag()
+            )
+        );
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(mysqlClient));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(mysqlClient));
@@ -138,6 +155,8 @@ public class TiDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(UITemplateManagementDAO.class, new H2UITemplateManagementDAO(mysqlClient));
 
         this.registerServiceImplementation(IHistoryDeleteDAO.class, new TiDBHistoryDeleteDAO(mysqlClient));
+
+        this.registerServiceImplementation(IEventQueryDAO.class, new H2EventQueryDAO(mysqlClient));
     }
 
     @Override
@@ -151,6 +170,20 @@ public class TiDBStorageProvider extends ModuleProvider {
                                                + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
                                                + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
                                                + "]. Potential out of bound in the runtime.");
+        }
+        final int numOfSearchableLogsTags = configService.getSearchableLogsTags().split(Const.COMMA).length;
+        if (numOfSearchableLogsTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
+            throw new ModuleStartException("Size of searchableLogsTags[" + numOfSearchableLogsTags
+                                               + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
+                                               + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
+                                               + "]. Potential out of bound in the runtime.");
+        }
+        final int numOfSearchableAlarmTags = configService.getSearchableAlarmTags().split(Const.COMMA).length;
+        if (numOfSearchableAlarmTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
+            throw new ModuleStartException("Size of searchableAlarmTags[" + numOfSearchableAlarmTags
+                    + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
+                    + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
+                    + "]. Potential out of bound in the runtime.");
         }
 
         try {

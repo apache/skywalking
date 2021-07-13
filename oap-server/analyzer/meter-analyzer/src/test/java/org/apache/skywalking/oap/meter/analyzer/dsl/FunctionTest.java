@@ -19,12 +19,13 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
-import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static org.hamcrest.CoreMatchers.is;
@@ -55,64 +56,71 @@ public class FunctionTest {
         return Arrays.asList(new Object[][] {
             {
                 "tag-override",
-                of("instance_cpu_percentage", SampleFamily.build(Sample.builder().labels(of("region", "us")).build())),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(Sample.builder().labels(of("region", "us")).name("instance_cpu_percentage").build()).build()),
                 "instance_cpu_percentage.tag({ ['svc':'product', 'instance':'10.0.0.1'] })",
-                Result.success(SampleFamily.build(Sample.builder().labels(of("svc", "product", "instance", "10.0.0.1")).build())),
+                Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().labels(of("svc", "product", "instance", "10.0.0.1")).name("instance_cpu_percentage").build()).build()),
                 false,
             },
             {
                 "tag-add",
-                of("instance_cpu_percentage", SampleFamily.build(Sample.builder().labels(of("region", "us")).build())),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(Sample.builder().labels(of("region", "us")).name("instance_cpu_percentage").build()).build()),
                 "instance_cpu_percentage.tag({tags -> tags.az = 'az1' })",
-                Result.success(SampleFamily.build(Sample.builder().labels(of("region", "us", "az", "az1")).build())),
+                Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().labels(of("region", "us", "az", "az1")).name("instance_cpu_percentage").build()).build()),
                 false,
             },
             {
                 "tag-remove",
-                of("instance_cpu_percentage", SampleFamily.build(Sample.builder().labels(of("region", "us")).build())),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(Sample.builder().labels(of("region", "us")).name("instance_cpu_percentage").build()).build()),
                 "instance_cpu_percentage.tag({tags -> tags.remove('region') })",
-                Result.success(SampleFamily.build(Sample.builder().labels(ImmutableMap.of()).build())),
+                Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().labels(ImmutableMap.of()).name("instance_cpu_percentage").build()).build()),
                 false,
             },
             {
                 "tag-update",
-                of("instance_cpu_percentage", SampleFamily.build(Sample.builder().labels(of("region", "us")).build())),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(Sample.builder().labels(of("region", "us")).name("instance_cpu_percentage").build()).build()),
                 "instance_cpu_percentage.tag({tags -> if (tags['region'] == 'us') {tags.region = 'zh'} })",
-                Result.success(SampleFamily.build(Sample.builder().labels(of("region", "zh")).build())),
+                Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().labels(of("region", "zh")).name("instance_cpu_percentage").build()).build()),
                 false,
             },
             {
+                "tag-append",
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(Sample.builder().labels(of("region", "us")).name("instance_cpu_percentage").build()).build()),
+                "instance_cpu_percentage.tag({tags -> tags.region = 'prefix::' + tags.region})",
+                Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().labels(of("region", "prefix::us")).name("instance_cpu_percentage").build()).build()),
+                false,
+                },
+            {
                 "histogram",
-                of("instance_cpu_percentage", SampleFamily.build(
-                    Sample.builder().labels(of("le", "0.025")).value(100).build(),
-                    Sample.builder().labels(of("le", "1.25")).value(300).build(),
-                    Sample.builder().labels(of("le", "0.75")).value(122).build(),
-                    Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).build())
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", "0.025")).value(100).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", "1.25")).value(300).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", "0.75")).value(122).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).name("instance_cpu_percentage").build()).build()
                 ),
                 "instance_cpu_percentage.histogram()",
-                Result.success(SampleFamily.buildHistogram(
-                    Sample.builder().labels(of("le", "0")).value(100).build(),
-                    Sample.builder().labels(of("le", "25")).value(22).build(),
-                    Sample.builder().labels(of("le", "750")).value(178).build(),
-                    Sample.builder().labels(of("le", "1250")).value(110).build())
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", "0")).value(100).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", "25")).value(22).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", "750")).value(178).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", "1250")).value(110).name("instance_cpu_percentage").build()).build()
                 ),
                 false,
             },
             {
                 "histogram_percentile",
-                of("instance_cpu_percentage", SampleFamily.build(
-                    Sample.builder().labels(of("le", "0.025")).value(100).build(),
-                    Sample.builder().labels(of("le", "1.25")).value(300).build(),
-                    Sample.builder().labels(of("le", "0.75")).value(122).build(),
-                    Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).build())
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", "0.025")).value(100).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", "1.25")).value(300).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", "0.75")).value(122).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).name("instance_cpu_percentage").build()).build()
                 ),
                 "instance_cpu_percentage.histogram().histogram_percentile([75,99])",
-                Result.success(SampleFamily.buildHistogramPercentile(SampleFamily.buildHistogram(
-                    Sample.builder().labels(of("le", "0")).value(100).build(),
-                    Sample.builder().labels(of("le", "25")).value(22).build(),
-                    Sample.builder().labels(of("le", "750")).value(178).build(),
-                    Sample.builder().labels(of("le", "1250")).value(110).build())
-                , new int[]{75, 99})),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", "0")).value(100).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", "25")).value(22).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", "750")).value(178).name("instance_cpu_percentage").build(),
+                    Sample.builder().labels(of("le", "1250")).value(110).name("instance_cpu_percentage").build()).build()
+                ),
                 false,
             },
         });

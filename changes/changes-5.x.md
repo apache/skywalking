@@ -135,7 +135,7 @@
 ------------------
  
 #### UI -> Collector GraphQL query protocol
-  - Replace all tps to throughtput/cpm(calls per min)
+  - Replace all tps to throughput/cpm(calls per min)
   - Add `getThermodynamic` service
   - Update version to beta
  
@@ -157,7 +157,7 @@
   - Support TLS.
   - Support namespace.
   - Support token auth.
-  - Group and aggregate requests based on reponse time and timeline, support Thermodynamic chart query
+  - Group and aggregate requests based on response time and timeline, support Thermodynamic chart query
   - Support component librariy setting through yml file for better extendibility.
   - Optimize performance.
   - Support short column name in ES or other storage implementor.

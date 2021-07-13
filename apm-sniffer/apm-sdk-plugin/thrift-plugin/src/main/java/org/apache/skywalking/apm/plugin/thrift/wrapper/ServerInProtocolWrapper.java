@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.plugin.thrift.wrapper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -45,6 +46,7 @@ public class ServerInProtocolWrapper extends AbstractProtocolWrapper {
     private static final ILog LOGGER = LogManager.getLogger(ServerInProtocolWrapper.class);
     private static final StringTag TAG_ARGS = new StringTag("args");
     private AbstractContext context;
+    private static final String HAVE_CREATED_SPAN = "HAVE_CREATED_SPAN";
 
     public ServerInProtocolWrapper(final TProtocol protocol) {
         super(protocol);
@@ -52,6 +54,7 @@ public class ServerInProtocolWrapper extends AbstractProtocolWrapper {
 
     public void initial(AbstractContext context) {
         this.context = context;
+        ContextManager.getRuntimeContext().put(HAVE_CREATED_SPAN, false);
     }
 
     @Override
@@ -72,6 +75,7 @@ public class ServerInProtocolWrapper extends AbstractProtocolWrapper {
                 span.tag(TAG_ARGS, context.getArguments());
                 span.setComponent(ComponentsDefine.THRIFT_SERVER);
                 SpanLayer.asRPCFramework(span);
+                ContextManager.getRuntimeContext().put(HAVE_CREATED_SPAN, true);
             } catch (Throwable throwable) {
                 LOGGER.error("Failed to resolve header or create EntrySpan.", throwable);
             } finally {
@@ -81,7 +85,29 @@ public class ServerInProtocolWrapper extends AbstractProtocolWrapper {
             }
             return readFieldBegin();
         }
+
         return field;
+    }
+
+    @Override
+    public void readMessageEnd() throws TException {
+        super.readMessageEnd();
+        Boolean haveCreatedSpan =
+                (Boolean) ContextManager.getRuntimeContext().get(HAVE_CREATED_SPAN);
+        if (haveCreatedSpan != null && !haveCreatedSpan) {
+            try {
+                AbstractSpan span = ContextManager.createEntrySpan(
+                        context.getOperatorName(), createContextCarrier(null));
+                span.start(context.startTime);
+                span.tag(TAG_ARGS, context.getArguments());
+                span.setComponent(ComponentsDefine.THRIFT_SERVER);
+                SpanLayer.asRPCFramework(span);
+            } catch (Throwable throwable) {
+                LOGGER.error("Failed to create EntrySpan.", throwable);
+            } finally {
+                context = null;
+            }
+        }
     }
 
     private ContextCarrier createContextCarrier(Map<String, String> header) {

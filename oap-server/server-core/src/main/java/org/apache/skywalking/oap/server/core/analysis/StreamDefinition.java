@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @RequiredArgsConstructor
 @Getter

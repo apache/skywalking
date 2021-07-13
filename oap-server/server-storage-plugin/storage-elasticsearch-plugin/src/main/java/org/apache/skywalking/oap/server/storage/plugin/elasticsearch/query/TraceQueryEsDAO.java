@@ -25,8 +25,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameMaker;
 import org.elasticsearch.action.search.SearchResponse;
@@ -71,7 +72,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                                        int from,
                                        TraceState traceState,
                                        QueryOrder queryOrder,
-                                       final List<SpanTag> tags) throws IOException {
+                                       final List<Tag> tags) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -126,14 +127,16 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             BoolQueryBuilder tagMatchQuery = QueryBuilders.boolQuery();
-            tags.forEach(tag -> {
-                tagMatchQuery.must(QueryBuilders.termQuery(SegmentRecord.TAGS, tag.toString()));
-            });
+            tags.forEach(tag -> tagMatchQuery.must(QueryBuilders.termQuery(SegmentRecord.TAGS, tag.toString())));
             mustQueryList.add(tagMatchQuery);
         }
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
-        SearchResponse response = getClient().search(new TimeRangeIndexNameMaker(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB), sourceBuilder);
+        SearchResponse response = getClient().search(
+            new TimeRangeIndexNameMaker(
+                IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME), startSecondTB,
+                endSecondTB
+            ), sourceBuilder);
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().totalHits);
 
@@ -162,7 +165,8 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
         sourceBuilder.size(segmentQueryMaxSize);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(
+            IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME), sourceBuilder);
 
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {

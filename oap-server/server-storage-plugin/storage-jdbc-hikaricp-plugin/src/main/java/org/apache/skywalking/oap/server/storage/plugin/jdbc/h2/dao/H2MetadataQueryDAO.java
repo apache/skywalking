@@ -63,7 +63,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(ServiceTraffic.NODE_TYPE).append("=?");
         condition.add(NodeType.Normal.value());
         if (StringUtil.isNotEmpty(group)) {
-            sql.append(ServiceTraffic.GROUP).append("=?");
+            sql.append(" and ").append(ServiceTraffic.GROUP).append("=?");
             condition.add(group);
         }
         sql.append(" limit ").append(metadataQueryMaxSize);

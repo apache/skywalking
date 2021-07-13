@@ -16,14 +16,16 @@
 - elastic-job-3.x
 - elasticsearch-5.x
 - elasticsearch-6.x
+- elasticsearch-7.x
 - feign-default-http-9.x
 - feign-pathvar-9.x
 - finagle
 - graphql
 - grpc-1.x
 - gson-2.8.x
+- guava-cache
 - h2-1.x
-- hbase-1.x
+- hbase-1.x/2.x
 - httpasyncclient-4.x
 - httpclient-3.x
 - httpclient-4.x
@@ -45,6 +47,7 @@
 - mongodb-3.x
 - mongodb-4.x
 - motan-0.x
+- mybatis-3.x
 - mysql-5.x
 - mysql-6.x
 - mysql-8.x
@@ -52,6 +55,7 @@
 - nutz-http-1.x
 - nutz-mvc-annotation-1.x
 - okhttp-3.x
+- okhttp-4.x
 - play-2.x
 - postgresql-8.x
 - pulsar
@@ -62,6 +66,7 @@
 - resteasy-server-3.x
 - rocketMQ-3.x
 - rocketMQ-4.x
+- sentinel-1.x
 - servicecomb-0.x
 - servicecomb-1.x
 - sharding-jdbc-1.5.x
@@ -70,6 +75,7 @@
 - sharding-sphere-4.1.0
 - sharding-sphere-4.x
 - sharding-sphere-4.x-rc3
+- shardingsphere-5.0.0-beta
 - sofarpc
 - solrj-7.x
 - spring-annotation
@@ -80,6 +86,7 @@
 - spring-cloud-gateway-2.1.x
 - spring-concurrent-util-4.x
 - spring-core-patch
+- spring-kafka-1.x
 - spring-kafka-2.x
 - spring-mvc-annotation
 - spring-mvc-annotation-3.x
@@ -111,3 +118,7 @@
 - zookeeper-3.4.x
 - mssql-jtds-1.x
 - mssql-jdbc
+- apache-cxf-3.x
+- jsonrpc4j
+- spring-cloud-gateway-3.x
+- neo4j-4.x

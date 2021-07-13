@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
+
+import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
@@ -30,6 +31,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 @ScopeDeclaration(id = SERVICE_INSTANCE, name = "ServiceInstance", catalog = SERVICE_INSTANCE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceInstance extends Source {
+    private volatile String entityId;
+
     @Override
     public int scope() {
         return DefaultScopeDefine.SERVICE_INSTANCE;
@@ -37,7 +40,10 @@ public class ServiceInstance extends Source {
 
     @Override
     public String getEntityId() {
-        return IDManager.ServiceInstanceID.buildId(serviceId, name);
+        if (entityId == null) {
+            entityId = IDManager.ServiceInstanceID.buildId(serviceId, name);
+        }
+        return entityId;
     }
 
     @Getter
@@ -74,6 +80,10 @@ public class ServiceInstance extends Source {
     @Getter
     @Setter
     private SideCar sideCar = new SideCar();
+
+    @Getter
+    @Setter
+    private TCPInfo tcpInfo = new TCPInfo();
 
     @Override
     public void prepare() {

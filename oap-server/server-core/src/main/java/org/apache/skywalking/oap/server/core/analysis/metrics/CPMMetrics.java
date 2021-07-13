@@ -47,9 +47,10 @@ public abstract class CPMMetrics extends Metrics implements LongValueHolder {
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         CPMMetrics cpmMetrics = (CPMMetrics) metrics;
         combine(cpmMetrics.total);
+        return true;
     }
 
     @Override

@@ -32,7 +32,7 @@ segmentItems:
       peer: not null
       tags:
       - {key: db.type, value: Redis}
-      - {key: db.statement, value: GET}
+      - {key: db.statement, value: GET key<key>}
       skipAnalysis: 'false'
     - operationName: Lettuce/BATCH_WRITE
       operationId: 0

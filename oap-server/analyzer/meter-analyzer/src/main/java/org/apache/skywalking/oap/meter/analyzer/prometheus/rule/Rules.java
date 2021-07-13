@@ -24,6 +24,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -40,6 +41,10 @@ public class Rules {
     private static final Logger LOG = LoggerFactory.getLogger(Rule.class);
 
     public static List<Rule> loadRules(final String path) throws ModuleStartException {
+        return loadRules(path, Collections.emptyList());
+    }
+
+    public static List<Rule> loadRules(final String path, List<String> enabledRules) throws ModuleStartException {
         File[] rules;
         try {
             rules = ResourceUtils.getPathFiles(path);
@@ -50,8 +55,14 @@ public class Rules {
             .filter(File::isFile)
             .map(f -> {
                 try (Reader r = new FileReader(f)) {
+                    String fileName = f.getName();
+                    int dotIndex = fileName.lastIndexOf('.');
+                    fileName = (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+                    if (!enabledRules.contains(fileName)) {
+                        return null;
+                    }
                     Rule rule = new Yaml().loadAs(r, Rule.class);
-                    rule.setName(f.getName().replace(".", "_"));
+                    rule.setName(fileName);
                     return rule;
                 } catch (IOException e) {
                     LOG.debug("Reading file {} failed", f, e);

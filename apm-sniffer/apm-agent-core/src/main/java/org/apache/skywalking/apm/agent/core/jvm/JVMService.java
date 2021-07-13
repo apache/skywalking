@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.jvm.clazz.ClassProvider;
 import org.apache.skywalking.apm.agent.core.jvm.cpu.CPUProvider;
 import org.apache.skywalking.apm.agent.core.jvm.gc.GCProvider;
 import org.apache.skywalking.apm.agent.core.jvm.memory.MemoryProvider;
@@ -37,8 +38,8 @@ import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
- * The <code>JVMService</code> represents a timer, which collectors JVM cpu, memory, memorypool and gc info, and send
- * the collected info to Collector through the channel provided by {@link GRPCChannelManager}
+ * The <code>JVMService</code> represents a timer, which collectors JVM cpu, memory, memorypool, gc, thread and class info,
+ * and send the collected info to Collector through the channel provided by {@link GRPCChannelManager}
  */
 @DefaultImplementor
 public class JVMService implements BootService, Runnable {
@@ -100,6 +101,7 @@ public class JVMService implements BootService, Runnable {
             jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricsList());
             jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());
             jvmBuilder.setThread(ThreadProvider.INSTANCE.getThreadMetrics());
+            jvmBuilder.setClazz(ClassProvider.INSTANCE.getClassMetrics());
 
             sender.offer(jvmBuilder.build());
         } catch (Exception e) {

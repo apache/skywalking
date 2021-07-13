@@ -31,9 +31,11 @@ import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.Expression;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.ExpressionContext;
+import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 /**
@@ -134,4 +136,11 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         return this.rules.getDingtalks();
     }
 
+    public FeishuSettings getFeishuSettings() {
+        return this.rules.getFeishus();
+    }
+
+    public WeLinkSettings getWeLinkSettings() {
+        return this.rules.getWelinks();
+    }
 }

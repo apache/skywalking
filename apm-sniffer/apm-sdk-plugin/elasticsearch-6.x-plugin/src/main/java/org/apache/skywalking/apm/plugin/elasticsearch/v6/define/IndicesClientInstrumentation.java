@@ -84,6 +84,22 @@ public class IndicesClientInstrumentation extends ClassEnhancePluginDefine {
                 public boolean isOverrideArgs() {
                     return false;
                 }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("analyze").or(named("analyzeAsync"));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return Constants.INDICES_CLIENT_ANALYZE_METHODS_INTERCEPTOR;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }

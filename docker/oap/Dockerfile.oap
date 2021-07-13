@@ -16,7 +16,23 @@
 
 ARG BASE_IMAGE='adoptopenjdk/openjdk8:alpine'
 
-FROM apache/skywalking-base:8.1.0-es6 AS cli
+FROM golang:1.14 AS cli
+
+ARG COMMIT_HASH=9f267876493943716434fdaa30047a14c0b5b2d9
+ARG CLI_CODE=${COMMIT_HASH}.tar.gz
+ARG CLI_CODE_URL=https://github.com/apache/skywalking-cli/archive/${CLI_CODE}
+
+ENV CGO_ENABLED=0
+ENV GO111MODULE=on
+
+WORKDIR /cli
+
+ADD ${CLI_CODE_URL} .
+RUN tar -xf ${CLI_CODE} --strip 1
+RUN rm ${CLI_CODE}
+
+RUN mkdir -p /skywalking/bin/
+RUN make linux && mv bin/swctl-latest-linux-amd64 /skywalking/bin/swctl
 
 FROM $BASE_IMAGE
 

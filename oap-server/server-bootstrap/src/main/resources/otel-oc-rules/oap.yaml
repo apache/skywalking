@@ -1,0 +1,71 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+expSuffix: tag({tags -> tags.service = 'oap::' + tags.service}).instance(['service'], ['host_name'])
+metricPrefix: meter_oap
+metricsRules:
+  - name: instance_cpu_percentage
+    exp: (process_cpu_seconds_total * 100).sum(['service', 'host_name']).rate('PT1M')
+  - name: instance_jvm_memory_bytes_used
+    exp: jvm_memory_bytes_used.sum(['service', 'host_name'])
+  - name: instance_jvm_young_gc_count
+    exp: jvm_gc_collection_seconds_count.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation').sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_jvm_young_gc_time
+    exp: jvm_gc_collection_seconds_sum.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation').sum(['service', 'host_name']) * 1000
+  - name: instance_jvm_old_gc_count
+    exp: jvm_gc_collection_seconds_count.tagMatch('gc', 'PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation').sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_jvm_old_gc_time
+    exp: jvm_gc_collection_seconds_sum.tagMatch('gc', 'PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation').sum(['service', 'host_name']) * 1000
+  - name: instance_trace_count
+    exp: trace_in_latency_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_trace_latency_percentile
+    exp: trace_in_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+  - name: instance_trace_analysis_error_count
+    exp: trace_analysis_error_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_mesh_count
+    exp: mesh_analysis_latency_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_mesh_latency_percentile
+    exp: mesh_analysis_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+  - name: instance_mesh_analysis_error_count
+    exp: mesh_analysis_error_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_metrics_first_aggregation
+    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '1').sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_metrics_second_aggregation
+    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '2').sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_persistence_execute_percentile
+    exp: persistence_timer_bulk_execute_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+  - name: instance_persistence_prepare_percentile
+    exp: persistence_timer_bulk_prepare_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+  - name: instance_persistence_error_count
+    exp: persistence_timer_bulk_error_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_persistence_execute_count
+    exp: persistence_timer_bulk_execute_latency_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_persistence_prepare_count
+    exp: persistence_timer_bulk_prepare_latency_count.sum(['service', 'host_name']).increase('PT1M')

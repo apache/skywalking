@@ -14,16 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openjdk:8u181-jdk-stretch
+FROM adoptopenjdk/openjdk8:alpine
 
 ENV DIST_NAME=apache-skywalking-apm-bin \
     JAVA_OPTS=" -Xms256M " \
-    SW_OAP_ADDRESS="127.0.0.1:12800" \
-    SW_TIMEOUT="20000"
+    SW_OAP_ADDRESS="http://127.0.0.1:12800"
 
 COPY "$DIST_NAME.tar.gz" /
 
 RUN set -ex; \
+    apk add bash; \
     tar -xzf "$DIST_NAME.tar.gz"; \
     rm -rf "$DIST_NAME.tar.gz"; \
     rm -rf "$DIST_NAME/config"; \

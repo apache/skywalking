@@ -19,6 +19,7 @@
 package org.apache.skywalking.e2e.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.apache.skywalking.e2e.User;
 import org.apache.skywalking.e2e.UserRepo;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,6 +46,15 @@ public class UserController {
     public User createAuthor(@RequestBody final User user) throws InterruptedException {
         Thread.sleep(randomSleepLong(sleepMin, sleepMax));
         return userRepo.save(user);
+    }
+
+    @PostMapping("/correlation")
+    public String correlation() throws InterruptedException {
+        Thread.sleep(randomSleepLong(sleepMin, sleepMax));
+        TraceContext.putCorrelation("PROVIDER_KEY", "provider");
+        return TraceContext.getCorrelation("CONSUMER_KEY").orElse("") + "_"
+            + TraceContext.getCorrelation("MIDDLE_KEY").orElse("") + "_"
+            + TraceContext.getCorrelation("PROVIDER_KEY").orElse("");
     }
 
     private long randomSleepLong(int min, int max) {

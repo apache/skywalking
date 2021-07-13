@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -74,14 +74,14 @@ public class AvgLabeledFunctionTest {
     public void testBuilder() throws IllegalAccessException, InstantiationException {
         function.accept(MeterEntity.newService("request_count"), build(asList("200", "404"), asList(10L, 2L)));
         function.calculate();
-        StorageBuilder<AvgLabeledFunction> storageBuilder = function.builder().newInstance();
+        StorageHashMapBuilder<AvgLabeledFunction> storageBuilder = function.builder().newInstance();
 
-        Map<String, Object> map = storageBuilder.data2Map(function);
+        Map<String, Object> map = storageBuilder.entity2Storage(function);
         map.put(SUMMATION, ((DataTable) map.get(SUMMATION)).toStorageData());
         map.put(COUNT, ((DataTable) map.get(COUNT)).toStorageData());
         map.put(VALUE, ((DataTable) map.get(VALUE)).toStorageData());
 
-        AvgLabeledFunction function2 = storageBuilder.map2Data(map);
+        AvgLabeledFunction function2 = storageBuilder.storage2Entity(map);
         assertThat(function2.getValue(), is(function.getValue()));
     }
 

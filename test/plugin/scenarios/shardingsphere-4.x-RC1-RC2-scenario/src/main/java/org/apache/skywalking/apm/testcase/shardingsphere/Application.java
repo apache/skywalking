@@ -18,13 +18,6 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere;
 
-import javax.sql.DataSource;
-import org.apache.skywalking.apm.testcase.shardingsphere.service.api.service.CommonService;
-import org.apache.skywalking.apm.testcase.shardingsphere.service.config.ShardingDatabasesAndTablesConfigurationPrecise;
-import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.jdbc.JDBCOrderItemRepositoryImpl;
-import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.jdbc.JDBCOrderRepositoryImpl;
-import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.service.RawPojoService;
-import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.DataSourceUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
@@ -34,7 +27,7 @@ public class Application extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         try {
-           
+
             SpringApplication.run(Application.class, args);
         } catch (Exception e) {
             // Never do this

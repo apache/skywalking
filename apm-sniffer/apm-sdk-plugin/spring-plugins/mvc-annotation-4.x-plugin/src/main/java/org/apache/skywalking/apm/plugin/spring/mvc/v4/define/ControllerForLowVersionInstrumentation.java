@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import static net.bytebuddy.matcher.ElementMatchers.any;
 
 public class ControllerForLowVersionInstrumentation extends AbstractControllerInstrumentation {
-    public static final String WITNESS_CLASSES_LOW_VERSION = "org.springframework.web.context.support.ServletContextPropertyPlaceholderConfigurer";
+    public static final String WITNESS_CLASSES_LOW_VERSION = "org.springframework.web.method.HandlerMethodSelector";
 
     public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";
 

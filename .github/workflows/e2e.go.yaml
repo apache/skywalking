@@ -21,16 +21,19 @@ on:
     paths:
       - '**'
       - '!**.md'
-  push:
-    branches:
-      - master
+  schedule:
+    - cron: '0 18 * * *'
 
 env:
-  SKIP_TEST: true
   SW_AGENT_JDK_VERSION: 8
+
+concurrency:
+  group: e2e-go-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   GOAgent:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: GO2SKY
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -38,21 +41,18 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
       - name: Cache local Maven repository
+        if: env.SKIP_CI != 'true'
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Compile and Build
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: GO2SKY
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.GOE2E
-      - uses: actions/upload-artifact@v1
-        if: failure()
+      - name: Run E2E Test
+        if: env.SKIP_CI != 'true'
+        uses: ./.github/actions/e2e-test
         with:
-          name: logs
-          path: logs
+          test_class: org.apache.skywalking.e2e.GOE2E

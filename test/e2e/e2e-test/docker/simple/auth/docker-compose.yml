@@ -22,7 +22,7 @@ services:
       service: oap
     environment:
       SW_AUTHENTICATION: test-token
-      SW_PROMETHEUS_FETCHER_ACTIVE: "true"
+      SW_PROMETHEUS_FETCHER: "default"
       SW_TELEMETRY: prometheus
 
   ui:

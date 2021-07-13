@@ -30,6 +30,18 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private String clusterNodes;
     String protocol = "http";
     /**
+     * Connect timeout of ElasticSearch client.
+     *
+     * @since 8.7.0
+     */
+    private int connectTimeout = 500;
+    /**
+     * Socket timeout of ElasticSearch client.
+     *
+     * @since 8.7.0
+     */
+    private int socketTimeout = 30000;
+    /**
      * Since 6.4.0, the index of metrics and traces data in minute/hour/month precision are organized in days. ES
      * storage creates new indexes in every day.
      *
@@ -41,7 +53,8 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int indexReplicasNumber = 0;
     private int indexShardsNumber = 1;
     /**
-     * @since 8.2.0, the record day step is for super size dataset record index rolling when the value of it is greater than 0
+     * @since 8.2.0, the record day step is for super size dataset record index rolling when the value of it is greater
+     * than 0
      */
     private int superDatasetDayStep = -1;
     /**
@@ -52,7 +65,6 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int superDatasetIndexShardsFactor = 5;
     private int indexRefreshInterval = 2;
     private int bulkActions = 2000;
-    private int syncBulkActions = 50000;
     private int flushInterval = 10;
     private int concurrentRequests = 2;
     /**
@@ -76,5 +88,17 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int metadataQueryMaxSize = 5000;
     private int segmentQueryMaxSize = 200;
     private int profileTaskQueryMaxSize = 200;
+    /**
+     * The default analyzer for match query field. {@link org.apache.skywalking.oap.server.core.storage.annotation.Column.AnalyzerType#OAP_ANALYZER}
+     *
+     * @since 8.4.0
+     */
+    private String oapAnalyzer = "{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}";
+    /**
+     * The log analyzer for match query field. {@link org.apache.skywalking.oap.server.core.storage.annotation.Column.AnalyzerType#OAP_LOG_ANALYZER}
+     *
+     * @since 8.4.0
+     */
+    private String oapLogAnalyzer = "{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}";
     private String advanced;
 }

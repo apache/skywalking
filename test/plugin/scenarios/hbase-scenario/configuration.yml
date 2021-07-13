@@ -24,7 +24,7 @@ depends_on:
   - hbase-server
 dependencies:
   hbase-server:
-    image: harisekhon/hbase:1.4
+    image: harisekhon/hbase:2.1
     hostname: hbase-server
     expose:
       - "2181"

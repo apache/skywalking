@@ -1,0 +1,32 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+// TCP services' metrics
+service_throughput_received = from(Service.tcpInfo.receivedBytes).filter(type == RequestType.TCP).longAvg();
+service_throughput_sent = from(Service.tcpInfo.sentBytes).filter(type == RequestType.TCP).longAvg();
+service_relation_client_received = from(ServiceRelation.tcpInfo.receivedBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_relation_client_sent = from(ServiceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_relation_server_received = from(ServiceRelation.tcpInfo.receivedBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();
+service_relation_server_sent = from(ServiceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();
+
+service_instance_throughput_received = from(ServiceInstance.tcpInfo.receivedBytes).filter(type == RequestType.TCP).longAvg();
+service_instance_throughput_sent = from(ServiceInstance.tcpInfo.sentBytes).filter(type == RequestType.TCP).longAvg();
+service_instance_relation_client_received = from(ServiceInstanceRelation.tcpInfo.receivedBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_instance_relation_client_sent = from(ServiceInstanceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_instance_relation_server_received = from(ServiceInstanceRelation.tcpInfo.receivedBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();
+service_instance_relation_server_sent = from(ServiceInstanceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();

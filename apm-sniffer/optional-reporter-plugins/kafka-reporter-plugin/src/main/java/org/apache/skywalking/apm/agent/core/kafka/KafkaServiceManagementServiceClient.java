@@ -33,6 +33,7 @@ import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.jvm.LoadedLibraryCollector;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
@@ -47,7 +48,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  * A service management data(Instance registering properties and Instance pinging) reporter.
  */
 @OverrideImplementor(ServiceManagementClient.class)
-public class KafkaServiceManagementServiceClient implements BootService, Runnable {
+public class KafkaServiceManagementServiceClient implements BootService, Runnable, KafkaConnectionStatusListener {
     private static final ILog LOGGER = LogManager.getLogger(KafkaServiceManagementServiceClient.class);
 
     private static List<KeyStringValuePair> SERVICE_INSTANCE_PROPERTIES;
@@ -62,7 +63,9 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
 
     @Override
     public void prepare() {
-        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_MANAGEMENT;
+        KafkaProducerManager producerManager = ServiceManager.INSTANCE.findService(KafkaProducerManager.class);
+        producerManager.addListener(this);
+        topic = producerManager.formatTopicNameThenRegister(KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_MANAGEMENT);
 
         SERVICE_INSTANCE_PROPERTIES = new ArrayList<>();
         for (String key : Config.Agent.INSTANCE_PROPERTIES.keySet()) {
@@ -79,8 +82,6 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
 
     @Override
     public void boot() {
-        producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
-
         heartbeatFuture = Executors.newSingleThreadScheduledExecutor(
             new DefaultNamedThreadFactory("ServiceManagementClientKafkaProducer")
         ).scheduleAtFixedRate(new RunnableWithExceptionProtection(
@@ -91,6 +92,9 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
 
     @Override
     public void run() {
+        if (producer == null) {
+            return;
+        }
         if (Math.abs(sendPropertiesCounter.getAndAdd(1)) % Config.Collector.PROPERTIES_REPORT_PERIOD_FACTOR == 0) {
             InstanceProperties instance = InstanceProperties.newBuilder()
                                                             .setService(Config.Agent.SERVICE_NAME)
@@ -98,6 +102,7 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
                                                             .addAllProperties(OSUtil.buildOSInfo(
                                                                 Config.OsInfo.IPV4_LIST_SIZE))
                                                             .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
+                                                            .addAllProperties(LoadedLibraryCollector.buildJVMInfo())
                                                             .build();
             producer.send(new ProducerRecord<>(topic, TOPIC_KEY_REGISTER + instance.getServiceInstance(),
                                                Bytes.wrap(instance.toByteArray())
@@ -118,6 +123,13 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
     @Override
     public void onComplete() {
 
+    }
+
+    @Override
+    public void onStatusChanged(KafkaConnectionStatus status) {
+        if (status == KafkaConnectionStatus.CONNECTED) {
+            producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
+        }
     }
 
     @Override

@@ -23,11 +23,6 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
 import org.apache.skywalking.apm.util.StringUtil;
 
 public class ServerInterceptor implements io.grpc.ServerInterceptor {
@@ -43,15 +38,7 @@ public class ServerInterceptor implements io.grpc.ServerInterceptor {
                 next.setHeadValue(contextValue);
             }
         }
-
-        final AbstractSpan span = ContextManager.createEntrySpan(OperationNameFormatUtil.formatOperationName(call.getMethodDescriptor()), contextCarrier);
-        span.setComponent(ComponentsDefine.GRPC);
-        span.setLayer(SpanLayer.RPC_FRAMEWORK);
-        try {
-            return new TracingServerCallListener<>(handler.startCall(new TracingServerCall<>(call, ContextManager.capture()), headers), call
-                .getMethodDescriptor(), ContextManager.capture());
-        } finally {
-            ContextManager.stopSpan();
-        }
+        return new TracingServerCallListener<>(handler.startCall(new TracingServerCall<>(call), headers), call
+                .getMethodDescriptor(), contextCarrier);
     }
 }

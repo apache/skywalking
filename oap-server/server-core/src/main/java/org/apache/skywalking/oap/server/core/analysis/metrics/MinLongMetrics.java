@@ -43,9 +43,10 @@ public abstract class MinLongMetrics extends Metrics implements LongValueHolder 
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         MinLongMetrics minLongMetrics = (MinLongMetrics) metrics;
         combine(minLongMetrics.value);
+        return true;
     }
 
     @Override

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
-import com.google.common.base.Strings;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -36,7 +35,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -86,25 +85,21 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
 
         this.entityId = entity.id();
 
-        String template = "%s";
-        if (!Strings.isNullOrEmpty(value.getGroup())) {
-            template   = value.getGroup() + ":%s";
-        }
         final long[] values = value.getValues();
         for (int i = 0; i < values.length; i++) {
             long bucket = value.getBuckets()[i];
             String bucketName = bucket == Long.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
-            String key = String.format(template, bucketName);
-            summation.valueAccumulation(key, values[i]);
-            count.valueAccumulation(key, 1L);
+            summation.valueAccumulation(bucketName, values[i]);
+            count.valueAccumulation(bucketName, 1L);
         }
     }
 
     @Override
-    public void combine(final Metrics metrics) {
+    public boolean combine(final Metrics metrics) {
         AvgHistogramFunction histogram = (AvgHistogramFunction) metrics;
         this.summation.append(histogram.summation);
         this.count.append(histogram.count);
+        return true;
     }
 
     @Override
@@ -172,7 +167,7 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 
@@ -181,10 +176,10 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
         return AvgHistogramFunctionBuilder.class;
     }
 
-    public static class AvgHistogramFunctionBuilder implements StorageBuilder<AvgHistogramFunction> {
+    public static class AvgHistogramFunctionBuilder implements StorageHashMapBuilder<AvgHistogramFunction> {
 
         @Override
-        public AvgHistogramFunction map2Data(final Map<String, Object> dbMap) {
+        public AvgHistogramFunction storage2Entity(final Map<String, Object> dbMap) {
             AvgHistogramFunction metrics = new AvgHistogramFunction() {
                 @Override
                 public AcceptableValue<BucketedValues> createNew() {
@@ -200,7 +195,7 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
         }
 
         @Override
-        public Map<String, Object> data2Map(final AvgHistogramFunction storageData) {
+        public Map<String, Object> entity2Storage(final AvgHistogramFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(DATASET, storageData.getDataset());
             map.put(COUNT, storageData.getCount());

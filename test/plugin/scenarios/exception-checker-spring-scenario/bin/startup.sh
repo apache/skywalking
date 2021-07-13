@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} -Dskywalking.statuscheck.max_recursive_depth=2 -Dskywalking.statuscheck.ignored_exceptions=test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestListedException ${home}/../libs/exception-checker-spring-scenario.jar &
+java -jar ${agent_opts} -Dskywalking.statuscheck.max_recursive_depth=2 -Dskywalking.statuscheck.ignored_exceptions=test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestListedException ${home}/../libs/exception-checker-spring-scenario.jar &

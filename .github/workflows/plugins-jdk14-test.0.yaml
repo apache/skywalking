@@ -34,11 +34,19 @@ on:
       - '!oap-server/**'
       - '!**.md'
 
+concurrency:
+  group: plugins-jdk14-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   PluginsJDK14Test:
     name: jdk14
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
+    strategy:
+      matrix:
+        case:
+          - jdk14-with-gson-scenario
     steps:
       - uses: actions/checkout@v2
         with:
@@ -52,15 +60,9 @@ jobs:
             ${{ runner.os }}-maven-
       - uses: actions/setup-java@v1
         with:
-          java-version: 8
-      - name: Build SkyWalking Agent
-        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
-      - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests -Pjdk14
-      - uses: actions/setup-java@v1
-        with:
           java-version: 14
-      - name: jdk14-with-gson-scenario (1)
-        run: bash test/plugin/run.sh --image_version=jdk14-1.0.0 jdk14-with-gson-scenario
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
+      - name: Run Plugin Test
+        uses: ./.github/actions/plugins-test
+        with:
+          test_case: ${{ matrix.case }}
+          java_version: jdk14

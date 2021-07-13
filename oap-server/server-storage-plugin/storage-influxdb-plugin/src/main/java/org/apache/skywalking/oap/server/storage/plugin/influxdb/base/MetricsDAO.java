@@ -18,99 +18,144 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.TagName;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
+import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
-import org.influxdb.querybuilder.SelectQueryImpl;
-import org.influxdb.querybuilder.WhereQueryImpl;
+import org.influxdb.querybuilder.clauses.Clause;
 
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ALL_FIELDS;
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
+import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ID_COLUMN;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
 public class MetricsDAO implements IMetricsDAO {
 
-    private final StorageBuilder<Metrics> storageBuilder;
+    private final StorageHashMapBuilder<Metrics> storageBuilder;
     private final InfluxClient client;
 
-    public MetricsDAO(InfluxClient client, StorageBuilder<Metrics> storageBuilder) {
+    public MetricsDAO(InfluxClient client, StorageHashMapBuilder<Metrics> storageBuilder) {
         this.client = client;
         this.storageBuilder = storageBuilder;
     }
 
     @Override
-    public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select()
-            .raw(ALL_FIELDS)
-            .from(client.getDatabase(), model.getName())
-            .where(contains("id", Joiner.on("|").join(ids)));
-        QueryResult.Series series = client.queryForSingleSeries(query);
-        if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result: {}", query.getCommand(), series);
+    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
+        final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
+        final String queryStr;
+        if (model.getName().endsWith("_traffic")) {
+            final Function<Metrics, Clause> clauseFunction;
+            switch (model.getName()) {
+                case EndpointTraffic.INDEX_NAME: {
+                    clauseFunction = m -> eq(TagName.SERVICE_ID, ((EndpointTraffic) m).getServiceId());
+                    break;
+                }
+                case ServiceTraffic.INDEX_NAME: {
+                    clauseFunction = m -> eq(TagName.NAME, ((ServiceTraffic) m).getName());
+                    break;
+                }
+                case InstanceTraffic.INDEX_NAME: {
+                    clauseFunction = m -> eq(TagName.SERVICE_ID, ((InstanceTraffic) m).getServiceId());
+                    break;
+                }
+                default:
+                    throw new IOException("Unknown metadata type, " + model.getName());
+            }
+            queryStr = metrics.stream().map(m -> select().raw(ALL_FIELDS)
+                                                         .from(client.getDatabase(), model.getName())
+                                                         .where(clauseFunction.apply(m))
+                                                         .and(eq(ID_COLUMN, m.id()))
+                                                         .buildQueryString()
+            ).collect(Collectors.joining(";"));
+        } else {
+            queryStr = metrics.stream().map(m -> select().raw(ALL_FIELDS)
+                                                         .from(client.getDatabase(), model.getName())
+                                                         .where(eq(
+                                                             TagName.TIME_BUCKET,
+                                                             String.valueOf(m.getTimeBucket())
+                                                         ))
+                                                         .and(eq(ID_COLUMN, m.id()))
+                                                         .buildQueryString()
+            ).collect(Collectors.joining(";"));
         }
 
-        if (series == null) {
+        final Query query = new Query(queryStr);
+        final List<QueryResult.Result> results = client.query(query);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result: {}", query.getCommand(), results);
+        }
+
+        if (CollectionUtils.isEmpty(results)) {
             return Collections.emptyList();
         }
 
-        final List<Metrics> metrics = Lists.newArrayList();
-        List<String> columns = series.getColumns();
+        final List<Metrics> newMetrics = Lists.newArrayList();
+        final Map<String, String> storageAndColumnMap = metaInfo.getStorageAndColumnMap();
+        results.stream()
+               .map(QueryResult.Result::getSeries)
+               .filter(Objects::nonNull)
+               .flatMap(Collection::stream)
+               .filter(Objects::nonNull)
+               .forEach(series -> {
+                   final List<String> columns = series.getColumns();
+                   series.getValues().forEach(values -> {
+                       Map<String, Object> data = Maps.newHashMap();
 
-        TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
-        Map<String, String> storageAndColumnMap = metaInfo.getStorageAndColumnMap();
+                       for (int i = 1; i < columns.size(); i++) {
+                           Object value = values.get(i);
+                           if (value instanceof StorageDataComplexObject) {
+                               value = ((StorageDataComplexObject) value).toStorageData();
+                           }
 
-        series.getValues().forEach(values -> {
-            Map<String, Object> data = Maps.newHashMap();
+                           data.put(storageAndColumnMap.get(columns.get(i)), value);
+                       }
+                       newMetrics.add(storageBuilder.storage2Entity(data));
+                   });
+               });
 
-            for (int i = 1; i < columns.size(); i++) {
-                Object value = values.get(i);
-                if (value instanceof StorageDataComplexObject) {
-                    value = ((StorageDataComplexObject) value).toStorageData();
-                }
-
-                data.put(storageAndColumnMap.get(columns.get(i)), value);
-            }
-            metrics.add(storageBuilder.map2Data(data));
-
-        });
-
-        return metrics;
+        return newMetrics;
     }
 
     @Override
-    public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
+    public InsertRequest prepareBatchInsert(Model model, Metrics metrics) {
         final long timestamp = TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling());
-        TableMetaInfo tableMetaInfo = TableMetaInfo.get(model.getName());
+        final TableMetaInfo tableMetaInfo = TableMetaInfo.get(model.getName());
 
         final InfluxInsertRequest request = new InfluxInsertRequest(model, metrics, storageBuilder)
             .time(timestamp, TimeUnit.MILLISECONDS);
 
-        tableMetaInfo.getStorageAndTagMap().forEach((field, tag) -> {
-            request.addFieldAsTag(field, tag);
-        });
+        tableMetaInfo.getStorageAndTagMap().forEach(request::addFieldAsTag);
         return request;
     }
 
     @Override
-    public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
+    public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) {
         return (UpdateRequest) this.prepareBatchInsert(model, metrics);
     }
 }

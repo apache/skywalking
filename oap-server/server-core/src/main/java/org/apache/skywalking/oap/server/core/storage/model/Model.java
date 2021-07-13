@@ -37,6 +37,7 @@ public class Model {
     private final boolean record;
     private final boolean superDataset;
     private final boolean isTimeSeries;
+    private final String aggregationFunctionName;
 
     public Model(final String name,
                  final List<ModelColumn> columns,
@@ -44,7 +45,8 @@ public class Model {
                  final int scopeId,
                  final DownSampling downsampling,
                  final boolean record,
-                 final boolean superDataset) {
+                 final boolean superDataset,
+                 final String aggregationFunctionName) {
         this.name = name;
         this.columns = columns;
         this.extraQueryIndices = extraQueryIndices;
@@ -53,5 +55,6 @@ public class Model {
         this.isTimeSeries = !DownSampling.None.equals(downsampling);
         this.record = record;
         this.superDataset = superDataset;
+        this.aggregationFunctionName = aggregationFunctionName;
     }
 }

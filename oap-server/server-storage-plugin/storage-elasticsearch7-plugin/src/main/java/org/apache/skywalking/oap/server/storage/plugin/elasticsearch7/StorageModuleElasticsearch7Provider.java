@@ -25,10 +25,12 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -41,6 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -68,6 +71,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao.Storag
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.AggregationQueryEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.AlarmQueryEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.BrowserLogQueryEs7DAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.ES7EventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.LogQueryEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.MetadataQueryEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.MetricsQueryEs7DAO;
@@ -83,6 +87,7 @@ import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.Stor
 /**
  * The storage provider for ElasticSearch 7.
  */
+@Slf4j
 public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     protected final StorageModuleElasticsearch7Config config;
@@ -110,7 +115,11 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-        if (!StringUtil.isEmpty(config.getNameSpace())) {
+        this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
+
+        if (StringUtil.isEmpty(config.getNameSpace())) {
+            config.setNameSpace("sw");
+        } else {
             config.setNameSpace(config.getNameSpace().toLowerCase());
         }
         if (config.getDayStep() > 1) {
@@ -152,13 +161,14 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
         elasticSearch7Client = new ElasticSearch7Client(
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
-            indexNameConverters(config.getNameSpace())
+            indexNameConverters(config.getNameSpace()), config.getConnectTimeout(), config.getSocketTimeout()
         );
-
         this.registerServiceImplementation(
-            IBatchDAO.class, new BatchProcessEsDAO(elasticSearch7Client, config.getBulkActions(), config.getSyncBulkActions(),
-                                                   config.getFlushInterval(), config.getConcurrentRequests()
-            ));
+            IBatchDAO.class,
+            new BatchProcessEsDAO(
+                elasticSearch7Client, config.getBulkActions(), config.getFlushInterval(), config.getConcurrentRequests()
+            )
+        );
         this.registerServiceImplementation(StorageDAO.class, new StorageEs7DAO(elasticSearch7Client));
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearch7Client));
@@ -197,6 +207,8 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
             ));
         this.registerServiceImplementation(
             UITemplateManagementDAO.class, new UITemplateManagementEsDAO(elasticSearch7Client));
+
+        this.registerServiceImplementation(IEventQueryDAO.class, new ES7EventQueryDAO(elasticSearch7Client));
     }
 
     @Override

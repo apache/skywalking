@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.counter.CounterWindow;
 /**
  * Sample represents the metric data point in a range of time.
  */
-@Builder
+@Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
 @Getter
@@ -43,15 +43,17 @@ public class Sample {
     final long timestamp;
 
     Sample newValue(Function<Double, Double> transform) {
-        return Sample.builder().name(name)
-            .timestamp(timestamp)
-            .labels(labels)
-            .value(transform.apply(value))
-            .build();
+        return toBuilder().value(transform.apply(value)).build();
     }
 
     Sample increase(String range, Function2<Double, Long, Double> transform) {
         Tuple2<Long, Double> i = CounterWindow.INSTANCE.increase(name, labels, value, Duration.parse(range).toMillis(), timestamp);
+        double nv = transform.apply(i._2, i._1);
+        return newValue(ignored -> nv);
+    }
+
+    Sample increase(Function2<Double, Long, Double> transform) {
+        Tuple2<Long, Double> i = CounterWindow.INSTANCE.pop(name, labels, value, timestamp);
         double nv = transform.apply(i._2, i._1);
         return newValue(ignored -> nv);
     }

@@ -77,7 +77,7 @@ public class MeterE2E extends SkyWalkingTestAdapter {
     void meters() throws Exception {
         List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
-        services = services.stream().filter(s -> !s.getLabel().equals("oap-server")).collect(Collectors.toList());
+        services = services.stream().filter(s -> !s.getLabel().equals("oap::oap-server")).collect(Collectors.toList());
         LOGGER.info("services: {}", services);
 
         load("expected/meter/services.yml").as(ServicesMatcher.class).verify(services);
@@ -108,7 +108,7 @@ public class MeterE2E extends SkyWalkingTestAdapter {
 
         LOGGER.info("instances: {}", instances);
 
-        load("expected/simple/instances.yml").as(InstancesMatcher.class).verify(instances);
+        load("expected/meter/instances.yml").as(InstancesMatcher.class).verify(instances);
 
         return instances;
     }

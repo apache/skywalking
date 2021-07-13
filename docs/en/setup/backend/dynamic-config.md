@@ -13,6 +13,7 @@ Right now, SkyWalking supports following dynamic configurations.
 |core.default.endpoint-name-grouping| The endpoint name grouping setting, will override `endpoint-name-grouping.yml`. | same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md) |
 |agent-analyzer.default.sampleRate| Trace sampling , override `receiver-trace/default/sampleRate` of `application.yml`. | 10000 |
 |agent-analyzer.default.slowTraceSegmentThreshold| Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond. override `receiver-trace/default/slowTraceSegmentThreshold` of `application.yml`. | -1 |
+|configuration-discovery.default.agentConfigurations| The ConfigurationDiscovery settings | look at [`configuration-discovery.md`](../service-agent/java-agent/configuration-discovery.md) |
 
 This feature depends on upstream service, so it is **DISABLED** by default.
 
@@ -69,10 +70,14 @@ configuration:
   selector: ${SW_CONFIGURATION:etcd}
   etcd:
     period: ${SW_CONFIG_ETCD_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
-    group: ${SW_CONFIG_ETCD_GROUP:skywalking}
-    serverAddr: ${SW_CONFIG_ETCD_SERVER_ADDR:localhost:2379}
-    clusterName: ${SW_CONFIG_ETCD_CLUSTER_NAME:default}
+    endpoints: ${SW_CONFIG_ETCD_ENDPOINTS:localhost:2379}
+    namespace: ${SW_CONFIG_ETCD_NAMESPACE:/skywalking}
+    authentication: ${SW_CONFIG_ETCD_AUTHENTICATION:false}
+    user: ${SW_CONFIG_ETCD_USER:}
+    password: ${SW_CONFIG_ETCD_password:}
 ```
+
+**NOTICE**, only the v3 protocol is supported since 8.7.0. 
 
 ## Dynamic Configuration Consul Implementation
 

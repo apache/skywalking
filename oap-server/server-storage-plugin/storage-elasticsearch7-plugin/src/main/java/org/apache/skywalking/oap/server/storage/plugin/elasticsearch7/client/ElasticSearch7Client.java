@@ -18,18 +18,26 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexNameConverter;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -37,6 +45,7 @@ import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.template.delete.DeleteIndexTemplateRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -48,10 +57,14 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.ActiveShardCount;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.GetAliasesResponse;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
@@ -59,14 +72,12 @@ import org.elasticsearch.client.indices.IndexTemplatesExistRequest;
 import org.elasticsearch.client.indices.PutIndexTemplateRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-/**
- *
- */
 @Slf4j
 public class ElasticSearch7Client extends ElasticSearchClient {
     public ElasticSearch7Client(final String clusterNodes,
@@ -75,10 +86,12 @@ public class ElasticSearch7Client extends ElasticSearchClient {
                                 final String trustStorePass,
                                 final String user,
                                 final String password,
-                                List<IndexNameConverter> indexNameConverters) {
+                                List<IndexNameConverter> indexNameConverters,
+                                int connectTimeout,
+                                int socketTimeout) {
         super(
             clusterNodes, protocol, trustStorePath, trustStorePass, user, password,
-            indexNameConverters
+            indexNameConverters, connectTimeout, socketTimeout
         );
     }
 
@@ -101,6 +114,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public boolean createIndex(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
 
@@ -110,6 +124,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return response.isAcknowledged();
     }
 
+    @Override
     public boolean createIndex(String indexName, Map<String, Object> settings,
                                Map<String, Object> mapping) throws IOException {
         indexName = formatIndexName(indexName);
@@ -140,6 +155,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return new ArrayList<>(alias.getAliases().keySet());
     }
 
+    @Override
     protected boolean deleteIndex(String indexName, boolean formatIndexName) throws IOException {
         if (formatIndexName) {
             indexName = formatIndexName(indexName);
@@ -150,12 +166,94 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return response.isAcknowledged();
     }
 
+    @Override
+    public Map<String, Object> getIndex(String indexName) throws IOException {
+        if (StringUtil.isBlank(indexName)) {
+            return new HashMap<>();
+        }
+        indexName = formatIndexName(indexName);
+        try {
+            Response response = client.getLowLevelClient()
+                                      .performRequest(new Request(HttpGet.METHOD_NAME, "/" + indexName));
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                healthChecker.health();
+                throw new IOException(
+                    "The response status code of template exists request should be 200, but it is " + statusCode);
+            }
+            Type type = new TypeToken<HashMap<String, Object>>() {
+            }.getType();
+            Map<String, Object> templates = new Gson().<HashMap<String, Object>>fromJson(
+                new InputStreamReader(response.getEntity().getContent()),
+                type
+            );
+            return (Map<String, Object>) Optional.ofNullable(templates.get(indexName)).orElse(new HashMap<>());
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                return new HashMap<>();
+            }
+            healthChecker.unHealth(e);
+            throw e;
+        } catch (IOException t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
+    }
+
+    @Override
+    public boolean updateIndexMapping(String indexName, final Map<String, Object> mapping) throws IOException {
+        indexName = formatIndexName(indexName);
+        PutMappingRequest putMappingRequest = new PutMappingRequest(indexName);
+        Gson gson = new Gson();
+        putMappingRequest.source(gson.toJson(mapping), XContentType.JSON);
+        putMappingRequest.type("_doc");
+        AcknowledgedResponse response = client.indices().putMapping(putMappingRequest, RequestOptions.DEFAULT);
+        log.debug("put {} index mapping finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        return response.isAcknowledged();
+    }
+
+    @Override
+    public Map<String, Object> getTemplate(String name) throws IOException {
+        name = formatIndexName(name);
+        try {
+            Response response = client.getLowLevelClient()
+                                      .performRequest(new Request(HttpGet.METHOD_NAME, "/_template/" + name));
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                healthChecker.health();
+                throw new IOException(
+                    "The response status code of template exists request should be 200, but it is " + statusCode);
+            }
+            Type type = new TypeToken<HashMap<String, Object>>() {
+            }.getType();
+            Map<String, Object> templates = new Gson().<HashMap<String, Object>>fromJson(
+                new InputStreamReader(response.getEntity().getContent()),
+                type
+            );
+            if (templates.containsKey(name)) {
+                return (Map<String, Object>) templates.get(name);
+            }
+            return new HashMap<>();
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                return new HashMap<>();
+            }
+            healthChecker.unHealth(e);
+            throw e;
+        } catch (IOException t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
+    }
+
+    @Override
     public boolean isExistsIndex(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
         GetIndexRequest request = new GetIndexRequest(indexName);
         return client.indices().exists(request, RequestOptions.DEFAULT);
     }
 
+    @Override
     public boolean isExistsTemplate(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
 
@@ -164,8 +262,9 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return client.indices().existsTemplate(indexTemplatesExistRequest, RequestOptions.DEFAULT);
     }
 
-    public boolean createTemplate(String indexName, Map<String, Object> settings,
-                                  Map<String, Object> mapping) throws IOException {
+    @Override
+    public boolean createOrUpdateTemplate(String indexName, Map<String, Object> settings,
+                                          Map<String, Object> mapping) throws IOException {
         indexName = formatIndexName(indexName);
 
         PutIndexTemplateRequest putIndexTemplateRequest = new PutIndexTemplateRequest(indexName).patterns(
@@ -181,6 +280,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return acknowledgedResponse.isAcknowledged();
     }
 
+    @Override
     public boolean deleteTemplate(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
 
@@ -195,6 +295,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
     @Override
     public SearchResponse doSearch(SearchSourceBuilder searchSourceBuilder, String... indexNames) throws IOException {
         SearchRequest searchRequest = new SearchRequest(indexNames);
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, true, true, false));
         searchRequest.source(searchSourceBuilder);
         try {
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -207,6 +308,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public GetResponse get(String indexName, String id) throws IOException {
         indexName = formatIndexName(indexName);
         GetRequest request = new GetRequest(indexName, id);
@@ -220,6 +322,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public SearchResponse ids(String indexName, String[] ids) throws IOException {
         indexName = formatIndexName(indexName);
 
@@ -235,6 +338,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public void forceInsert(String indexName, String id, XContentBuilder source) throws IOException {
         IndexRequest request = (IndexRequest) prepareInsert(indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
@@ -247,6 +351,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public void forceUpdate(String indexName, String id, XContentBuilder source) throws IOException {
         org.elasticsearch.action.update.UpdateRequest request = (org.elasticsearch.action.update.UpdateRequest) prepareUpdate(
             indexName, id, source);
@@ -260,16 +365,19 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public InsertRequest prepareInsert(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
         return new ElasticSearch7InsertRequest(indexName, id).source(source);
     }
 
+    @Override
     public UpdateRequest prepareUpdate(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
         return new ElasticSearch7UpdateRequest(indexName, id).doc(source);
     }
 
+    @Override
     public int delete(String indexName, String timeBucketColumnName, long endTimeBucket) throws IOException {
         indexName = formatIndexName(indexName);
 
@@ -284,6 +392,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return HttpStatus.SC_OK;
     }
 
+    @Override
     public void synchronousBulk(BulkRequest request) {
         request.timeout(TimeValue.timeValueMinutes(2));
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);
@@ -298,6 +407,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public BulkProcessor createBulkProcessor(int bulkActions, int flushInterval, int concurrentRequests) {
         BulkProcessor.Listener listener = createBulkListener();
 

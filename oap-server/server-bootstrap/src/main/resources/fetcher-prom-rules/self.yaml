@@ -38,43 +38,44 @@ staticConfig:
       sslCaFilePath:
   labels:
     service: oap-server
-defaultMetricLevel: instance(['service'], ['instance'])
+expSuffix: tag({tags -> tags.service = 'oap::' + tags.service}).instance(['service'], ['instance'])
+metricPrefix: meter_oap
 metricsRules:
   - name: instance_cpu_percentage
-    exp: (process_cpu_seconds_total * 100).rate('PT1M')
+    exp: (process_cpu_seconds_total * 100).sum(['service', 'instance']).rate('PT1M')
   - name: instance_jvm_memory_bytes_used
     exp: jvm_memory_bytes_used.sum(['service', 'instance'])
   - name: instance_jvm_young_gc_count
-    exp: jvm_gc_collection_seconds_count.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation').increase('PT1M')
+    exp: jvm_gc_collection_seconds_count.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation').sum(['service', 'instance']).increase('PT1M')
   - name: instance_jvm_young_gc_time
-    exp: jvm_gc_collection_seconds_sum.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation') * 1000
+    exp: jvm_gc_collection_seconds_sum.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation').sum(['service', 'instance']) * 1000
   - name: instance_jvm_old_gc_count
-    exp: jvm_gc_collection_seconds_count.tagMatch('gc', 'PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation').increase('PT1M')
+    exp: jvm_gc_collection_seconds_count.tagMatch('gc', 'PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation').sum(['service', 'instance']).increase('PT1M')
   - name: instance_jvm_old_gc_time
-    exp: jvm_gc_collection_seconds_sum.tagMatch('gc', 'PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation') * 1000
+    exp: jvm_gc_collection_seconds_sum.tagMatch('gc', 'PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation').sum(['service', 'instance']) * 1000
   - name: instance_trace_count
-    exp: trace_in_latency_count.increase('PT1M')
+    exp: trace_in_latency_count.sum(['service', 'instance']).increase('PT1M')
   - name: instance_trace_latency_percentile
-    exp: trace_in_latency.increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+    exp: trace_in_latency.sum(['le', 'service', 'instance']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_trace_analysis_error_count
-    exp: trace_analysis_error_count.increase('PT1M')
+    exp: trace_analysis_error_count.sum(['service', 'instance']).increase('PT1M')
   - name: instance_mesh_count
-    exp: mesh_analysis_latency_count.increase('PT1M')
+    exp: mesh_analysis_latency_count.sum(['service', 'instance']).increase('PT1M')
   - name: instance_mesh_latency_percentile
-    exp: mesh_analysis_latency.increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+    exp: mesh_analysis_latency.sum(['le', 'service', 'instance']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_mesh_analysis_error_count
-    exp: mesh_analysis_error_count.increase('PT1M')
+    exp: mesh_analysis_error_count.sum(['service', 'instance']).increase('PT1M')
   - name: instance_metrics_first_aggregation
-    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '1').sum(['service', 'instance']).increase('PT1M')
+    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '1').sum(['service', 'instance']).increase('PT5M')
   - name: instance_metrics_second_aggregation
-    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '2').sum(['service', 'instance']).increase('PT1M')
+    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '2').sum(['service', 'instance']).increase('PT5M')
   - name: instance_persistence_execute_percentile
-    exp: persistence_timer_bulk_execute_latency.increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+    exp: persistence_timer_bulk_execute_latency.sum(['le', 'service', 'instance']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_persistence_prepare_percentile
-    exp: persistence_timer_bulk_prepare_latency.increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+    exp: persistence_timer_bulk_prepare_latency.sum(['le', 'service', 'instance']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_persistence_error_count
-    exp: persistence_timer_bulk_error_count.increase('PT1M')
+    exp: persistence_timer_bulk_error_count.sum(['service', 'instance']).increase('PT5M')
   - name: instance_persistence_execute_count
-    exp: persistence_timer_bulk_execute_latency_count.increase('PT1M')
+    exp: persistence_timer_bulk_execute_latency_count.sum(['service', 'instance']).increase('PT5M')
   - name: instance_persistence_prepare_count
-    exp: persistence_timer_bulk_prepare_latency_count.increase('PT1M')
+    exp: persistence_timer_bulk_prepare_latency_count.sum(['service', 'instance']).increase('PT5M')

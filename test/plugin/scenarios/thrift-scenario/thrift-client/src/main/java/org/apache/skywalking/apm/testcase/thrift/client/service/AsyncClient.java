@@ -33,7 +33,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class AsyncClient implements IClient {
-    private static final Logger logger = LogManager.getLogger(AsyncClient.class);
+    private static final Logger LOGGER = LogManager.getLogger(AsyncClient.class);
 
     private final TNonblockingSocket transport;
     private final GreeterService.AsyncClient client;
@@ -67,13 +67,13 @@ public class AsyncClient implements IClient {
             @Override
             public void onError(final Exception exception) {
                 latch.countDown();
-                logger.error("", exception);
+                LOGGER.error("", exception);
             }
         });
         try {
             latch.await();
         } catch (InterruptedException e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
         return resp.get();
     }

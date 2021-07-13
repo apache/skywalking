@@ -24,9 +24,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
 
 @Setter
 @Getter
@@ -39,6 +41,8 @@ public class Rules {
     private WechatSettings wecchats;
     private List<CompositeAlarmRule> compositeRules;
     private DingtalkSettings dingtalks;
+    private FeishuSettings feishus;
+    private WeLinkSettings welinks;
 
     public Rules() {
         this.rules = new ArrayList<>();

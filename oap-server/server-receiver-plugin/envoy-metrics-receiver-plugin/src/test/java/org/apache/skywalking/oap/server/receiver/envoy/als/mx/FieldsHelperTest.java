@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
 import com.google.protobuf.util.JsonFormat;
-import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -51,23 +51,33 @@ public class FieldsHelperTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {
-                "serviceName: ${LABELS.app}\nserviceInstanceName: ${NAME}",
+                "serviceName: ${LABELS.\"service.istio.io/canonical-name\"}\nserviceInstanceName: ${NAME}",
                 "productpage",
                 "productpage-v1-65576bb7bf-4mzsp"
             },
             {
-                "serviceName: ${LABELS.app}-${LABELS.version}\nserviceInstanceName: ${NAME}.${NAMESPACE}",
+                "serviceName: ${LABELS.\"service.istio.io/canonical-name\"}-${LABELS.version}\nserviceInstanceName: ${NAME}.${NAMESPACE}",
                 "productpage-v1",
                 "productpage-v1-65576bb7bf-4mzsp.default"
             },
             {
-                "serviceName: ${LABELS.app}-${CLUSTER_ID}\nserviceInstanceName: ${NAME}.${NAMESPACE}.${SERVICE_ACCOUNT}",
+                "serviceName: ${LABELS.\"service.istio.io/canonical-name\"}-${CLUSTER_ID}\nserviceInstanceName: ${NAME}.${NAMESPACE}.${SERVICE_ACCOUNT}",
                 "productpage-Kubernetes",
                 "productpage-v1-65576bb7bf-4mzsp.default.bookinfo-productpage"
             },
             {
-                "serviceName: fixed-${LABELS.app}\nserviceInstanceName: yeah_${NAME}",
+                "serviceName: fixed-${LABELS.\"service.istio.io/canonical-name\"}\nserviceInstanceName: yeah_${NAME}",
                 "fixed-productpage",
+                "yeah_productpage-v1-65576bb7bf-4mzsp"
+            },
+            {
+                "serviceName: fixed-${LABELS.\"service.istio.io/not-exist\",LABELS.\"service.istio.io/canonical-name\"}\nserviceInstanceName: yeah_${NAME}",
+                "fixed-productpage",
+                "yeah_productpage-v1-65576bb7bf-4mzsp"
+            },
+            {
+                "serviceName: fixed-${LABELS.\"service.istio.io/not-exist\",LABELS.\"service.istio.io/not-exist-2\"}\nserviceInstanceName: yeah_${NAME}",
+                "fixed--",
                 "yeah_productpage-v1-65576bb7bf-4mzsp"
             }
         });

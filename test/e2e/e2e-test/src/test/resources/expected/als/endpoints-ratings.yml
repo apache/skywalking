@@ -15,4 +15,4 @@
 
 endpoints:
   - key: not null
-    label: /ratings/0
+    label: GET:/ratings/0

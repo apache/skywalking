@@ -21,8 +21,10 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -36,17 +38,17 @@ import org.influxdb.dto.Point;
  * InfluxDB Point wrapper.
  */
 public class InfluxInsertRequest implements InsertRequest, UpdateRequest {
-    private Point.Builder builder;
-    private Map<String, Object> fields = Maps.newHashMap();
+    private final Point.Builder builder;
+    private final Map<String, Object> fields = Maps.newHashMap();
 
-    public InfluxInsertRequest(Model model, StorageData storageData, StorageBuilder storageBuilder) {
-        Map<String, Object> objectMap = storageBuilder.data2Map(storageData);
-        if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
+    public <T extends StorageData> InfluxInsertRequest(Model model, T storageData, StorageHashMapBuilder<T> storageBuilder) {
+        final Map<String, Object> objectMap = storageBuilder.entity2Storage(storageData);
+        if (SegmentRecord.INDEX_NAME.equals(model.getName()) || LogRecord.INDEX_NAME.equals(model.getName()) || AlarmRecord.INDEX_NAME.equals(model.getName())) {
             objectMap.remove(SegmentRecord.TAGS);
         }
 
         for (ModelColumn column : model.getColumns()) {
-            Object value = objectMap.get(column.getColumnName().getName());
+            final Object value = objectMap.get(column.getColumnName().getName());
 
             if (value instanceof StorageDataComplexObject) {
                 fields.put(

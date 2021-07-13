@@ -18,13 +18,31 @@
 
 package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.Getter;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Getter
 public class PrometheusFetcherConfig extends ModuleConfig {
-    private boolean active;
+
+    private int maxConvertWorker;
+
+    private String enabledRules;
 
     private final String rulePath = "fetcher-prom-rules";
 
+    List<String> getEnabledRules() {
+        return Arrays.stream(Optional.ofNullable(enabledRules).orElse("").split(","))
+                     .map(String::trim)
+                     .filter(StringUtil::isNotEmpty)
+                     .collect(Collectors.toList());
+    }
+
+    public int getMaxConvertWorker() {
+        return maxConvertWorker <= 0 ? Math.max(1, Runtime.getRuntime().availableProcessors() / 2) : maxConvertWorker;
+    }
 }

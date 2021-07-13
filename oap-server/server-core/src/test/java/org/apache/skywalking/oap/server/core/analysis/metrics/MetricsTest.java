@@ -73,13 +73,13 @@ public class MetricsTest {
     public class MetricsMocker extends Metrics {
 
         @Override
-        public String id() {
+        protected String id0() {
             return null;
         }
 
         @Override
-        public void combine(Metrics metrics) {
-
+        public boolean combine(Metrics metrics) {
+            return true;
         }
 
         @Override

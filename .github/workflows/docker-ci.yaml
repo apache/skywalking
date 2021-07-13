@@ -21,6 +21,12 @@ on:
     paths:
       - '**'
       - '!**.md'
+  schedule:
+    - cron: '0 18 * * *'
+
+concurrency:
+  group: docker-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   SKIP_TEST: true
@@ -28,7 +34,8 @@ env:
   LOG_DIR: /tmp/skywalking
 jobs:
   build:
-    runs-on: ubuntu-16.04
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -52,7 +59,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Build docker image
-        run: export ES_VERSION=${{ matrix.es }} && export TAG=${{ matrix.es }} && make docker
+        run: export ES_VERSION=${{ matrix.es }} && export TAG=${{ matrix.es }} && (make docker || make docker)
       - name: Bootstrap cluster
         run: |
           case ${{ matrix.es }} in
@@ -62,7 +69,7 @@ jobs:
 
           export TAG=${{ matrix.es }}
           cd ${DOCKER_DIR} && docker-compose up -d
-      - name: Check port avaliable
+      - name: Check port available
         run: |
           source ./test/scripts/env.sh
           echo "Waiting for OAP ready"

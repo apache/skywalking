@@ -134,7 +134,7 @@ public class SnifferConfigInitializer {
         }
     }
 
-    private static void overrideConfigByAgentOptions(String agentOptions) throws IllegalAccessException {
+    private static void overrideConfigByAgentOptions(String agentOptions) throws IllegalArgumentException {
         for (List<String> terms : parseAgentOptions(agentOptions)) {
             if (terms.size() != 2) {
                 throw new IllegalArgumentException("[" + terms + "] is not a key-value pair.");

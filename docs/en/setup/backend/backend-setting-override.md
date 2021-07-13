@@ -1,6 +1,6 @@
 # Setting Override
 SkyWalking backend supports setting overrides by system properties and system environment variables. 
-You could override the settings in `application.yml`
+You may override the settings in `application.yml`
 
 ## System properties key rule
 **ModuleName**.**ProviderName**.**SettingKey**.
@@ -40,11 +40,11 @@ core:
 ```
 
 If the `REST_HOST ` environment variable exists in your operating system and its value is `172.0.4.12`, 
-then the value of `restHost` here will be overwritten to `172.0.4.12`, otherwise, it will be set to `0.0.0.0`.
+then the value of `restHost` here will be overwritten to `172.0.4.12`; otherwise, it will be set to `0.0.0.0`.
 
-By the way, Placeholder nesting is also supported, like `${REST_HOST:${ANOTHER_REST_HOST:127.0.0.1}}`.
-In this case, if the `REST_HOST ` environment variable not exists, but the ```REST_ANOTHER_REST_HOSTHOST``` 
-environment variable exists and its value is `172.0.4.12`, then the value of `restHost` here will be overwritten to `172.0.4.12`,
+Placeholder nesting is also supported, like `${REST_HOST:${ANOTHER_REST_HOST:127.0.0.1}}`.
+In this case, if the `REST_HOST ` environment variable does not exist, but the ```REST_ANOTHER_REST_HOSTHOST``` 
+environment variable exists and its value is `172.0.4.12`, then the value of `restHost` here will be overwritten to `172.0.4.12`;
 otherwise, it will be set to `127.0.0.1`.
 
 

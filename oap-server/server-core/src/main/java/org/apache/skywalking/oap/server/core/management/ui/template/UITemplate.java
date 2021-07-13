@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.analysis.worker.ManagementStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.UI_TEMPLATE;
@@ -66,9 +66,9 @@ public class UITemplate extends ManagementData {
         return name;
     }
 
-    public static class Builder implements StorageBuilder<UITemplate> {
+    public static class Builder implements StorageHashMapBuilder<UITemplate> {
         @Override
-        public UITemplate map2Data(final Map<String, Object> dbMap) {
+        public UITemplate storage2Entity(final Map<String, Object> dbMap) {
             UITemplate uiTemplate = new UITemplate();
             uiTemplate.setName((String) dbMap.get(NAME));
             uiTemplate.setType((String) dbMap.get(TYPE));
@@ -79,7 +79,7 @@ public class UITemplate extends ManagementData {
         }
 
         @Override
-        public Map<String, Object> data2Map(final UITemplate storageData) {
+        public Map<String, Object> entity2Storage(final UITemplate storageData) {
             final HashMap<String, Object> map = new HashMap<>();
             map.put(NAME, storageData.getName());
             map.put(TYPE, storageData.getType());

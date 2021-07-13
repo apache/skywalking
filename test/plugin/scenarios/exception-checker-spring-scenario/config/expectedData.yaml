@@ -36,7 +36,7 @@ segmentItems:
               - {key: http.method, value: HEAD}
       - segmentId: not null
         spans:
-          - operationName: test.org.apache.skywalking.apm.testcase.exceptionchecker.service.TestService.testAnnotatedException
+          - operationName: test.apache.skywalking.apm.testcase.exceptionchecker.service.TestService.testAnnotatedException
             operationId: 0
             parentSpanId: 0
             spanId: 1
@@ -51,11 +51,11 @@ segmentItems:
             logs:
               - logEvent:
                   - {key: event, value: error}
-                  - {key: error.kind, value: test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestAnnotatedException}
+                  - {key: error.kind, value: test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestAnnotatedException}
                   - {key: message, value: ''}
                   - key: stack
                     value: not null
-          - operationName: test.org.apache.skywalking.apm.testcase.exceptionchecker.service.TestService.testListedException
+          - operationName: test.apache.skywalking.apm.testcase.exceptionchecker.service.TestService.testListedException
             operationId: 0
             parentSpanId: 0
             spanId: 2
@@ -70,11 +70,11 @@ segmentItems:
             logs:
               - logEvent:
                   - {key: event, value: error}
-                  - {key: error.kind, value: test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestListedException}
+                  - {key: error.kind, value: test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestListedException}
                   - {key: message, value: ''}
                   - key: stack
                     value: not null
-          - operationName: test.org.apache.skywalking.apm.testcase.exceptionchecker.service.TestService.testHierarchyListedException
+          - operationName: test.apache.skywalking.apm.testcase.exceptionchecker.service.TestService.testHierarchyListedException
             operationId: 0
             parentSpanId: 0
             spanId: 3
@@ -89,11 +89,11 @@ segmentItems:
             logs:
               - logEvent:
                   - {key: event, value: error}
-                  - {key: error.kind, value: test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestHierarchyListedException}
+                  - {key: error.kind, value: test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestHierarchyListedException}
                   - {key: message, value: ''}
                   - key: stack
                     value: not null
-          - operationName: test.org.apache.skywalking.apm.testcase.exceptionchecker.service.TestService.testException
+          - operationName: test.apache.skywalking.apm.testcase.exceptionchecker.service.TestService.testException
             operationId: 0
             parentSpanId: 0
             spanId: 4
@@ -108,11 +108,11 @@ segmentItems:
             logs:
               - logEvent:
                   - {key: event, value: error}
-                  - {key: error.kind, value: test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestException}
+                  - {key: error.kind, value: test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestException}
                   - {key: message, value: ''}
                   - key: stack
                     value: not null
-          - operationName: test.org.apache.skywalking.apm.testcase.exceptionchecker.service.TestService.testRecursiveException
+          - operationName: test.apache.skywalking.apm.testcase.exceptionchecker.service.TestService.testRecursiveException
             operationId: 0
             parentSpanId: 0
             spanId: 5
@@ -127,8 +127,8 @@ segmentItems:
             logs:
               - logEvent:
                   - {key: event, value: error}
-                  - {key: error.kind, value: test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestException}
-                  - {key: message, value: test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestListedException}
+                  - {key: error.kind, value: test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestException}
+                  - {key: message, value: test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestListedException}
                   - key: stack
                     value: not null
           - operationName: /case/exceptionchecker

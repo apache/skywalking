@@ -42,9 +42,10 @@ public abstract class SumMetrics extends Metrics implements LongValueHolder {
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         SumMetrics sumMetrics = (SumMetrics) metrics;
         combine(sumMetrics.value);
+        return true;
     }
 
     @Override

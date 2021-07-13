@@ -58,7 +58,7 @@ public class MeterSystem implements Service {
     private static final String METER_CLASS_PACKAGE = "org.apache.skywalking.oap.server.core.analysis.meter.dynamic.";
     private ModuleManager manager;
     private ClassPool classPool;
-    private Map<String, Class<? extends MeterFunction>> functionRegister = new HashMap<>();
+    private Map<String, Class<? extends AcceptableValue>> functionRegister = new HashMap<>();
     /**
      * Host the dynamic meter prototype classes. These classes could be create dynamically through {@link
      * Object#clone()} in the runtime;
@@ -87,7 +87,7 @@ public class MeterSystem implements Service {
                 }
                 functionRegister.put(
                     metricsFunction.functionName(),
-                    (Class<? extends MeterFunction>) functionClass
+                    (Class<? extends AcceptableValue>) functionClass
                 );
             }
         }
@@ -99,14 +99,13 @@ public class MeterSystem implements Service {
      *
      * @param metricsName  The name used as the storage eneity and in the query stage.
      * @param functionName The function provided through {@link MeterFunction}.
-     * @return true if created, false if it exists.
      * @throws IllegalArgumentException if the parameter can't match the expectation.
      * @throws UnexpectedException      if binary code manipulation fails or stream core failure.
      */
-    public synchronized <T> boolean create(String metricsName,
+    public synchronized <T> void create(String metricsName,
         String functionName,
         ScopeType type) throws IllegalArgumentException {
-        final Class<? extends MeterFunction> meterFunction = functionRegister.get(functionName);
+        final Class<? extends AcceptableValue> meterFunction = functionRegister.get(functionName);
 
         if (meterFunction == null) {
             throw new IllegalArgumentException("Function " + functionName + " can't be found.");
@@ -123,7 +122,7 @@ public class MeterSystem implements Service {
             }
         }
         try {
-            return create(metricsName, functionName, type, Class.forName(Objects.requireNonNull(acceptance).getTypeName()));
+            create(metricsName, functionName, type, Class.forName(Objects.requireNonNull(acceptance).getTypeName()));
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException(e);
         }
@@ -135,18 +134,17 @@ public class MeterSystem implements Service {
      *
      * @param metricsName  The name used as the storage eneity and in the query stage.
      * @param functionName The function provided through {@link MeterFunction}.
-     * @return true if created, false if it exists.
      * @throws IllegalArgumentException if the parameter can't match the expectation.
      * @throws UnexpectedException      if binary code manipulation fails or stream core failure.
      */
-    public synchronized <T> boolean create(String metricsName,
+    public synchronized <T> void create(String metricsName,
                                            String functionName,
                                            ScopeType type,
                                            Class<T> dataType) throws IllegalArgumentException {
         /**
          * Create a new meter class dynamically.
          */
-        final Class<? extends MeterFunction> meterFunction = functionRegister.get(functionName);
+        final Class<? extends AcceptableValue> meterFunction = functionRegister.get(functionName);
 
         if (meterFunction == null) {
             throw new IllegalArgumentException("Function " + functionName + " can't be found.");
@@ -187,6 +185,20 @@ public class MeterSystem implements Service {
             throw new IllegalArgumentException("Function " + functionName + " can't be found by javaassist.");
         }
         final String className = formatName(metricsName);
+
+        /**
+         * Check whether the metrics class is already defined or not
+         */
+        try {
+            CtClass existingMetric = classPool.get(METER_CLASS_PACKAGE + className);
+            if (existingMetric.getSuperclass() != parentClass || type != meterPrototypes.get(metricsName).getScopeType()) {
+                throw new IllegalArgumentException(metricsName + " has been defined, but calculate function or/are scope type is/are different.");
+            }
+            log.info("Metric {} is already defined, so skip the metric creation.", metricsName);
+            return ;
+        } catch (NotFoundException e) {
+        }
+
         CtClass metricsClass = classPool.makeClass(METER_CLASS_PACKAGE + className, parentClass);
 
         /**
@@ -234,7 +246,6 @@ public class MeterSystem implements Service {
             log.error("Can't compile/load/init " + className + ".", e);
             throw new UnexpectedException(e.getMessage(), e);
         }
-        return true;
     }
 
     /**

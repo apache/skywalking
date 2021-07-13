@@ -57,7 +57,7 @@ public class ITElasticSearchClient {
     private final String namespace;
 
     public ITElasticSearchClient() {
-        namespace = "";
+        namespace = "default-test-namespace";
     }
 
     protected ITElasticSearchClient(String namespace) {
@@ -69,7 +69,7 @@ public class ITElasticSearchClient {
         final String esAddress = System.getProperty("elastic.search.address");
         final String esProtocol = System.getProperty("elastic.search.protocol");
         client = new ElasticSearchClient(esAddress, esProtocol, "", "", "test", "test",
-                                         indexNameConverters(namespace)
+                                         indexNameConverters(namespace), 500, 6000
         );
         client.connect();
     }
@@ -176,13 +176,12 @@ public class ITElasticSearchClient {
 
         String indexName = "template_operate";
 
-        client.createTemplate(indexName, settings, mapping);
+        client.createOrUpdateTemplate(indexName, settings, mapping);
 
         Assert.assertTrue(client.isExistsTemplate(indexName));
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject().field("name", "pengys").endObject();
         client.forceInsert(indexName + "-2019", "testid", builder);
-
         JsonObject index = getIndex(indexName + "-2019");
         LOGGER.info(index.toString());
 
@@ -196,7 +195,6 @@ public class ITElasticSearchClient {
                                     .getAsJsonObject("index")
                                     .get("number_of_replicas")
                                     .getAsInt());
-
         client.deleteTemplate(indexName);
         Assert.assertFalse(client.isExistsTemplate(indexName));
     }
@@ -235,7 +233,7 @@ public class ITElasticSearchClient {
         column.addProperty("type", "text");
         properties.add("name", column);
 
-        client.createTemplate(indexName, new HashMap<>(), mapping);
+        client.createOrUpdateTemplate(indexName, new HashMap<>(), mapping);
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject().field("name", "pengys").endObject();
         client.forceInsert(timeSeriesIndexName, "testid", builder);
@@ -245,6 +243,7 @@ public class ITElasticSearchClient {
         String index = indexes.get(0);
         Assert.assertTrue(client.deleteByIndexName(index));
         Assert.assertFalse(client.isExistsIndex(timeSeriesIndexName));
+        client.deleteTemplate(indexName);
     }
 
     private JsonObject getIndex(String indexName) throws IOException {

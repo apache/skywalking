@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.core.cluster;
 
 import com.google.common.collect.Sets;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.List;
@@ -27,6 +29,9 @@ import java.util.stream.Collectors;
 
 public class OAPNodeChecker {
     private static final Set<String> ILLEGAL_NODE_ADDRESS_IN_CLUSTER_MODE = Sets.newHashSet("127.0.0.1", "localhost");
+
+    @Setter
+    private static CoreModuleConfig.Role ROLE = CoreModuleConfig.Role.Mixed;
 
     public static boolean hasIllegalNodeAddress(List<RemoteInstance> remoteInstances) {
         if (CollectionUtils.isEmpty(remoteInstances)) {
@@ -50,10 +55,12 @@ public class OAPNodeChecker {
         if (CollectionUtils.isEmpty(remoteInstances)) {
             return ClusterHealthStatus.unHealth("can't get the instance list");
         }
-        List<RemoteInstance> selfInstances = remoteInstances.stream().
-                filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(selfInstances)) {
-            return ClusterHealthStatus.unHealth("can't get itself");
+        if (!CoreModuleConfig.Role.Receiver.equals(ROLE)) {
+            List<RemoteInstance> selfInstances = remoteInstances.stream().
+                    filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(selfInstances)) {
+                return ClusterHealthStatus.unHealth("can't get itself");
+            }
         }
         if (remoteInstances.size() > 1 && hasIllegalNodeAddress(remoteInstances)) {
             return ClusterHealthStatus.unHealth("find illegal node in cluster mode such as 127.0.0.1, localhost");

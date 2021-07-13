@@ -1,19 +1,15 @@
 # What is VNode?
-In the trace page, sometimes, people could find there are nodes named **VNode** as the span name, and there is no attribute 
-for this span.
+On the trace page, you may sometimes find nodes with their spans named **VNode**, and that there are no attributes for such spans.
 
-**VNode** is created by the UI itself, rather than reported from the agent or tracing SDK. It represents there are some
-span(s) missed from the trace data in this query.
+**VNode** is created by the UI itself, rather than being reported by the agent or tracing SDK. It indicates that some spans are missed in the trace data in this query.
 
 ## How does the UI detect the missing span(s)?
-The UI real check the parent spans and reference segments of all spans, if a parent id(segment id + span id) can't be found,
+The UI checks the parent spans and reference segments of all spans in real time. If no parent id(segment id + span id) could be found,
 then it creates a VNode automatically.
 
-## How does this happen?
-The VNode was introduced, because there are some cases which could cause the trace data are not always completed.
-1. The agent fail-safe mechanism activated. The SkyWalking agent has the capability to abandon the trace data, if
-there is agent->OAP network issue(unconnected, slow network speed), or the performance of the OAP cluster is not enough
-to process all traces. 
-1. Some plugins could have bugs, then some segments in the trace never stop correctly, it is hold in the memory.
+## How did this happen?
+The VNode appears when the trace data is incomplete.
+1. The agent fail-safe mechanism has been activated. The SkyWalking agent could abandon the trace data if there are any network issues between the agent and the OAP (e.g. failure to connect, slow network speeds, etc.), or if the OAP cluster is not capable of processing all traces. 
+2. Some plug-ins may have bugs, and some segments in the trace do not stop correctly and are held in the memory.
 
-In these cases, the trace would not exist in the query. Then VNode shows up. 
+In such case, the trace would not exist in the query, thus the VNode shows up. 

@@ -19,12 +19,10 @@
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.JavaxServletResponseHolder;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
@@ -38,8 +36,7 @@ public class InvokeForRequestInterceptor implements InstanceMethodsAroundInterce
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         ContextManager.getRuntimeContext()
-                      .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, new JavaxServletResponseHolder(
-                          (HttpServletResponse) ((NativeWebRequest) allArguments[0]).getNativeResponse()));
+                .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, ((NativeWebRequest) allArguments[0]).getNativeResponse());
     }
 
     @Override

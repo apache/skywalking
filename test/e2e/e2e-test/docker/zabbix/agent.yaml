@@ -1,0 +1,55 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+metricPrefix: meter_agent
+expSuffix: tag({tags -> tags.host = 'vm::' + tags.host}).service(['host'])
+entities:
+  hostPatterns:
+    - .+
+  labels:
+requiredZabbixItemKeys:
+  - system.cpu.load[all,avg15]
+  - system.cpu.load[all,avg1]
+  - system.cpu.load[all,avg5]
+  - system.cpu.util[,guest]
+  - system.cpu.util[,guest_nice]
+  - system.cpu.util[,idle]
+  - system.cpu.util[,interrupt]
+  - system.cpu.util[,iowait]
+  - system.cpu.util[,nice]
+  - system.cpu.util[,softirq]
+  - system.cpu.util[,steal]
+  - system.cpu.util[,system]
+  - system.cpu.util[,user]
+  - system.swap.size[,free]
+  - system.swap.size[,total]
+  - vfs.fs.inode[/,pfree]
+  - vfs.fs.size[/,total]
+  - vfs.fs.size[/,used]
+  - vm.memory.size[available]
+  - vm.memory.size[total]
+metrics:
+  - name: system_cpu_load
+    exp: system_cpu_load.avg(['2', 'host'])
+  - name: system_cpu_util
+    exp: system_cpu_util.avg(['2', 'host'])
+  - name: system_swap_size
+    exp: system_swap_size.avg(['2', 'host'])
+  - name: vfs_fs_inode
+    exp: vfs_fs_inode.avg(['1', '2', 'host'])
+  - name: vfs_fs_size
+    exp: vfs_fs_size.avg(['1', '2', 'host'])
+  - name: vm_memory_size
+    exp: vm_memory_size.avg(['1', 'host'])

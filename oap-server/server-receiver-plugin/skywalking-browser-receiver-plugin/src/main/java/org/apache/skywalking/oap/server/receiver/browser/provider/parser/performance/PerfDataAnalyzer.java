@@ -38,18 +38,14 @@ public class PerfDataAnalyzer {
     public void doAnalysis(BrowserPerfData browserPerfData) {
         createAnalysisListeners();
 
-        try {
-            BrowserPerfDataDecorator decorator = new BrowserPerfDataDecorator(browserPerfData);
-            // Use the server side current time.
-            long nowMillis = System.currentTimeMillis();
-            decorator.setTime(nowMillis);
+        BrowserPerfDataDecorator decorator = new BrowserPerfDataDecorator(browserPerfData);
+        // Use the server side current time.
+        long nowMillis = System.currentTimeMillis();
+        decorator.setTime(nowMillis);
 
-            notifyListener(decorator);
+        notifyListener(decorator);
 
-            notifyListenerToBuild();
-        } catch (Throwable e) {
-            log.error(e.getMessage(), e);
-        }
+        notifyListenerToBuild();
     }
 
     private void notifyListener(BrowserPerfDataDecorator decorator) {

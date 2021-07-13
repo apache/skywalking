@@ -80,7 +80,7 @@ public class JDBCHikariCPClient implements Client, HealthCheckable {
     }
 
     public void execute(Connection connection, String sql) throws JDBCClientException {
-        LOGGER.debug("execute aql: {}", sql);
+        LOGGER.debug("execute sql: {}", sql);
         try (Statement statement = connection.createStatement()) {
             statement.execute(sql);
             healthChecker.health();

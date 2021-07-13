@@ -46,13 +46,24 @@ public class CoreModuleConfig extends ModuleConfig {
     private String gRPCSslTrustedCAPath;
     private int maxConcurrentCallsPerConnection;
     private int maxMessageSize;
-    private boolean enableDatabaseSession;
     private int topNReportPeriod;
+    /**
+     * The period of L1 aggregation flush. Unit is ms.
+     */
+    private long l1FlushPeriod = 500;
+    /**
+     * Enable database flush session.
+     */
+    private boolean enableDatabaseSession;
+    /**
+     * The threshold of session time. Unit is ms. Default value is 70s.
+     */
+    private long storageSessionTimeout = 70_000;
     private final List<String> downsampling;
     /**
      * The period of doing data persistence. Unit is second.
      */
-
+    @Setter
     private long persistentPeriod = 3;
 
     private boolean enableDataKeeperExecutor = true;
@@ -125,6 +136,57 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
+    /**
+     * Define the set of logs tag keys, which should be searchable through the GraphQL.
+     *
+     * @since 8.4.0
+     */
+    @Setter
+    @Getter
+    private String searchableLogsTags = "";
+    /**
+     * Define the set of Alarm tag keys, which should be searchable through the GraphQL.
+     *
+     * @since 8.6.0
+     */
+    @Setter
+    @Getter
+    private String searchableAlarmTags = "";
+    /**
+     * The number of threads used to synchronously refresh the metrics data to the storage.
+     *
+     * @since 8.5.0
+     */
+    @Setter
+    @Getter
+    private int syncThreads = 2;
+
+    /**
+     * The number of threads used to prepare metrics data to the storage.
+     *
+     * @since 8.7.0
+     */
+    @Setter
+    @Getter
+    private int prepareThreads = 2;
+
+    /**
+     * The maximum number of processes supported for each synchronous storage operation. When the number of the flush
+     * data is greater than this value, it will be assigned to multiple cores for execution.
+     */
+    @Getter
+    @Setter
+    private int maxSyncOperationNum = 50000;
+
+    @Getter
+    @Setter
+    private boolean enableEndpointNameGroupingByOpenapi = true;
+
+    /**
+     * The maximum size in bytes allowed for request headers.
+     * Use -1 to disable it.
+     */
+    private int httpMaxRequestHeaderSize = 8192;
 
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
@@ -149,7 +211,16 @@ public class CoreModuleConfig extends ModuleConfig {
          * Aggregator mode OAP receives data from {@link #Mixed} and {@link #Aggregator} OAP nodes, and do 2nd round
          * aggregation. Then save the final result to the storage.
          */
-        Aggregator
+        Aggregator;
+
+        public static Role fromName(String name) {
+            for (Role role : Role.values()) {
+                if (role.name().equalsIgnoreCase(name)) {
+                    return role;
+                }
+            }
+            return Mixed;
+        }
     }
 
     /**

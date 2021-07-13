@@ -51,7 +51,10 @@ public class MergableBufferedData<METRICS extends Metrics> implements BufferedDa
         if (existed == null) {
             buffer.put(id, data);
         } else {
-            existed.combine(data);
+            final boolean isAbandoned = !existed.combine(data);
+            if (isAbandoned) {
+                buffer.remove(id);
+            }
         }
     }
 

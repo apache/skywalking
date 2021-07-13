@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.type.Database;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
@@ -47,7 +49,12 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
     }
 
     public List<Service> getAllServices(final String group) throws IOException {
-        return getMetadataQueryDAO().getAllServices(group);
+        return getMetadataQueryDAO().getAllServices(group).stream()
+                                    .peek(service -> {
+                                        if (service.getGroup() == null) {
+                                            service.setGroup(Const.EMPTY_STRING);
+                                        }
+                                    }).collect(Collectors.toList());
     }
 
     public List<Service> getAllBrowserServices() throws IOException {

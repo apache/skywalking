@@ -1,10 +1,10 @@
 # V8 upgrade
-SkyWalking v8 begins to use [v3 protocol](../protocols/README.md), so, it is incompatible with previous releases.
-Users who intend to upgrade in v8 series releases could follow this guidance.
+Starting from SkyWalking v8, the [v3 protocol](../protocols/README.md) has been used. This makes it incompatible with previous releases.
+Users who intend to upgrade in v8 series releases could follow the steps below.
 
 
-Register in v6 and v7 has been removed in v8 for better scaling out performance, please upgrade in the following ways.
-1. Use a different storage or a new namespace. Also, could consider erasing the whole storage index/table(s) related to SkyWalking.
-1. Deploy the whole SkyWalking cluster, and expose in a new network address.
-1. If you are using the language agents, upgrade the new agents too, meanwhile, make sure the agent has supported the different language.
-And set up the backend address to the new SkyWalking OAP cluster.
+Registers in v6 and v7 have been removed in v8 for better scaling out performance. Please upgrade following the instructions below.
+1. Use a different storage or a new namespace. You may also consider erasing the whole storage indexes or tables related to SkyWalking.
+2. Deploy the whole SkyWalking cluster, and expose it in a new network address.
+3. If you are using language agents, upgrade the new agents too; meanwhile, make sure the agents are supported in a different language.
+Then, set up the backend address to the new SkyWalking OAP cluster.

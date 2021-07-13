@@ -65,8 +65,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             default:
                 op = "sum";
         }
-        StringBuilder sql = new StringBuilder(
-            "select " + Metrics.ENTITY_ID + " id, " + op + "(" + valueColumnName + ") value from " + condition.getName() + " where ");
+        StringBuilder sql = buildMetricsValueSql(op, valueColumnName, condition.getName());
         final String entityId = condition.getEntity().buildId();
         List<Object> parameters = new ArrayList();
         if (entityId != null) {
@@ -91,6 +90,11 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             throw new IOException(e);
         }
         return defaultValue;
+    }
+
+    protected StringBuilder buildMetricsValueSql(String op, String valueColumnName, String conditionName) {
+        return new StringBuilder(
+                "select " + Metrics.ENTITY_ID + " id, " + op + "(" + valueColumnName + ") value from " + conditionName + " where ");
     }
 
     @Override

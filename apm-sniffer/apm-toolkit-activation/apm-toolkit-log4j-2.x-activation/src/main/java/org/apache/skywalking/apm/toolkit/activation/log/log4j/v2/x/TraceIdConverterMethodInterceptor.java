@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.toolkit.logging.common.log.SkyWalkingContext;
 
 import java.lang.reflect.Method;
 
@@ -34,9 +35,11 @@ public class TraceIdConverterMethodInterceptor implements InstanceMethodsAroundI
 
         //Async Thread, where ContextManager is not active
         if (!ContextManager.isActive() && allArguments[0] instanceof EnhancedInstance) {
-            tid = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
-            if (tid == null) {
+            SkyWalkingContext skyWalkingContext = (SkyWalkingContext) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+            if (skyWalkingContext == null) {
                 tid = "N/A";
+            } else {
+                tid = skyWalkingContext.getTraceId();
             }
         } else {
             tid = ContextManager.getGlobalTraceId();

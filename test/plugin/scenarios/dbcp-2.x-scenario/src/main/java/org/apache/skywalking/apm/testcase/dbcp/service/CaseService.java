@@ -31,7 +31,7 @@ import java.util.Properties;
 @Service
 public class CaseService {
 
-    public static DataSource ds;
+    public static DataSource DS;
     private static final String CREATE_TABLE_SQL = "CREATE TABLE test_DBCP(\n" + "id VARCHAR(1) PRIMARY KEY, \n" + "value VARCHAR(1) NOT NULL)";
     private static final String INSERT_DATA_SQL = "INSERT INTO test_DBCP(id, value) VALUES(1,1)";
     private static final String QUERY_DATA_SQL = "SELECT id, value FROM test_DBCP WHERE id=1";
@@ -45,7 +45,7 @@ public class CaseService {
         properties.setProperty("username", MysqlConfig.getUserName());
         properties.setProperty("password", MysqlConfig.getPassword());
         try {
-            ds = BasicDataSourceFactory.createDataSource(properties);
+            DS = BasicDataSourceFactory.createDataSource(properties);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -60,7 +60,7 @@ public class CaseService {
     }
 
     public void sqlExecutor(String sql) {
-        try (Connection conn = ds.getConnection()) {
+        try (Connection conn = DS.getConnection()) {
             Statement statement = conn.createStatement();
             statement.execute(sql);
         } catch (SQLException e) {

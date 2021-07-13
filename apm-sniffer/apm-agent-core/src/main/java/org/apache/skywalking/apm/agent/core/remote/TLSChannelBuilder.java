@@ -26,6 +26,7 @@ import java.io.File;
 import javax.net.ssl.SSLException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.Constants;
 
 /**
@@ -38,9 +39,12 @@ public class TLSChannelBuilder implements ChannelBuilder<NettyChannelBuilder> {
     public NettyChannelBuilder build(
         NettyChannelBuilder managedChannelBuilder) throws AgentPackageNotFoundException, SSLException {
         File caFile = new File(AgentPackagePath.getPath(), CA_FILE_NAME);
-        if (caFile.exists() && caFile.isFile()) {
+        boolean isCAFileExist = caFile.exists() && caFile.isFile();
+        if (Config.Agent.FORCE_TLS || isCAFileExist) {
             SslContextBuilder builder = GrpcSslContexts.forClient();
-            builder.trustManager(caFile);
+            if (isCAFileExist) {
+                builder.trustManager(caFile);
+            }
             managedChannelBuilder = managedChannelBuilder.negotiationType(NegotiationType.TLS)
                                                          .sslContext(builder.build());
         }

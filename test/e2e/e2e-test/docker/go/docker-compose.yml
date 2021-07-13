@@ -52,7 +52,7 @@ services:
         condition: service_healthy
       java-provider:
         condition: service_healthy
-    command: ['--grpc', '--oap-server', 'oap:11800', '--upstream-url', 'http://java-provider:9090/info']
+    command: ['--grpc', '--oap-server', 'oap:11800', '--upstream-url', 'http://java-provider:9090/correlation']
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 8080"]
       interval: 5s

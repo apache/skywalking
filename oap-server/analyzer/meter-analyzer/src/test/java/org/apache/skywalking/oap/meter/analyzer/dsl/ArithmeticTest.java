@@ -19,12 +19,13 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
-import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static org.hamcrest.CoreMatchers.is;
@@ -55,292 +56,414 @@ public class ArithmeticTest {
         return Arrays.asList(new Object[][] {
             {
                 "plus-scalar-1",
-                of("instance_cpu_percentage", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(1600592418481.0).build()
-                )),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(1600592418480.0)
+                          .name("instance_cpu_percentage")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("idc", "t2"))
+                          .value(1600592418481.0)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 "1000 + instance_cpu_percentage.tagEqual('idc','t1')",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592419480.0).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(1600592419480.0)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "plus-scalar",
-                of("instance_cpu_percentage", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(1600592418481.0).build()
-                )),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(1600592418480.0)
+                          .name("instance_cpu_percentage")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("idc", "t2"))
+                          .value(1600592418481.0)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 "instance_cpu_percentage.tagEqual('idc','t1') + 1000",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592419480.0).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(1600592419480.0)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "minus-scalar",
-                of("instance_cpu_percentage", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(1600592418481.0).build()
-                )),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(1600592418480.0)
+                          .name("instance_cpu_percentage")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("idc", "t2"))
+                          .value(1600592418481.0)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 "instance_cpu_percentage.tagEqual('idc','t1') - 1000",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592417480.0).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(1600592417480.0)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "multiply-scalar",
-                of("instance_cpu_percentage", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(1600592418481.0).build()
-                )),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(1600592418480.0)
+                          .name("instance_cpu_percentage")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("idc", "t2"))
+                          .value(1600592418481.0)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 "instance_cpu_percentage.tagEqual('idc','t1') * 1000",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480000.0).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(1600592418480000.0)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "divide-scalar",
-                of("instance_cpu_percentage", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(1600592418481.0).build()
-                )),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(1600592418480.0)
+                          .name("instance_cpu_percentage")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("idc", "t2"))
+                          .value(1600592418481.0)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 "instance_cpu_percentage.tagEqual('idc','t1') / 10",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(160059241848.0).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(160059241848.0)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "divide-zero",
-                of("instance_cpu_percentage", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(1600592418481.0).build()
-                )),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(1600592418480.0)
+                          .name("instance_cpu_percentage")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("idc", "t2"))
+                          .value(1600592418481.0)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 "instance_cpu_percentage.tagEqual('idc','t1') / 0",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(Double.POSITIVE_INFINITY).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(Double.POSITIVE_INFINITY)
+                          .name("instance_cpu_percentage")
+                          .build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "empty-plus-empty",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.EMPTY),
+                   "http_error_request", SampleFamily.EMPTY
+                ),
                 "http_success_request + http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
-            },
+                },
             {
                 "empty-plus-sampleFamily",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.build(
-                        Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                        Sample.builder().labels(of("idc", "t2")).value(3).build()
-                    )),
+                   "http_error_request", SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                        Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build()
+                    ).build()
+                ),
                 "http_success_request + http_error_request",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(3).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "sampleFamily-plus-empty",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.build(
-                        Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                        Sample.builder().labels(of("idc", "t2")).value(3).build()
-                    )),
+                   "http_error_request", SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                        Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build()
+                    ).build()
+                ),
                 "http_error_request + http_success_request ",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(3).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "sampleFamily-plus-sampleFamily",
-                of("http_success_request", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(100).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(30).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(40).build(),
-                    Sample.builder().labels(of("region", "us")).value(80).build()
-                ), "http_error_request", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(3).build(),
-                    Sample.builder().labels(of("idc", "t5")).value(3).build(),
-                    Sample.builder().labels(of("tz", "en-US")).value(3).build()
-                )),
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(30).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(40).name("http_success_request").build(),
+                    Sample.builder().labels(of("region", "us")).value(80).name("http_success_request").build()
+                ).build(), "http_error_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t5")).value(3).name("http_error_request").build(),
+                    Sample.builder().labels(of("tz", "en-US")).value(3).name("http_error_request").build()
+                ).build()),
                 "http_success_request + http_error_request",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(150).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(33).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(150).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(33).name("http_success_request").build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "empty-minus-empty",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.EMPTY),
+                   "http_error_request", SampleFamily.EMPTY
+                ),
                 "http_success_request - http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
-            },
+                },
             {
                 "empty-minus-sampleFamily",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.build(
-                        Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                        Sample.builder().labels(of("idc", "t2")).value(3).build()
-                    )),
+                   "http_error_request", SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                        Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build()
+                    ).build()
+                ),
                 "http_success_request - http_error_request",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(-50).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(-3).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(-50).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(-3).name("http_error_request").build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "sampleFamily-minus-empty",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.build(
-                        Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                        Sample.builder().labels(of("idc", "t2")).value(3).build()
-                    )),
+                   "http_error_request", SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                        Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build()
+                    ).build()
+                ),
                 "http_error_request - http_success_request ",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(3).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "sampleFamily-minus-sampleFamily",
-                of("http_success_request", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(100).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(30).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(40).build(),
-                    Sample.builder().labels(of("region", "us")).value(80).build()
-                ), "http_error_request", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(3).build(),
-                    Sample.builder().labels(of("idc", "t5")).value(3).build(),
-                    Sample.builder().labels(of("tz", "en-US")).value(3).build()
-                )),
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(30).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(40).name("http_success_request").build(),
+                    Sample.builder().labels(of("region", "us")).value(80).name("http_success_request").build()
+                ).build(), "http_error_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t5")).value(3).name("http_error_request").build(),
+                    Sample.builder().labels(of("tz", "en-US")).value(3).name("http_error_request").build()
+                ).build()),
                 "http_success_request - http_error_request",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(27).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(27).name("http_success_request").build()
+                ).build()),
                 false,
-            },
+                },
+            {
+                "sameSampleFamily-minus-sameSampleFamily",
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1", "service", "service1"))
+                          .value(100)
+                          .name("http_success_request")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("idc", "t2", "service", "service1"))
+                          .value(30)
+                          .name("http_success_request")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("idc", "t3", "service", "service1"))
+                          .value(40)
+                          .name("http_success_request")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("region", "us", "service", "service1"))
+                          .value(80)
+                          .name("http_success_request")
+                          .build()
+                ).build()),
+                "http_success_request.sum(['service']) - http_success_request.sum(['service'])",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("service", "service1")).value(0).name("http_success_request").build()
+                ).build()),
+                false,
+                },
             {
                 "empty-multiple-empty",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.EMPTY),
+                   "http_error_request", SampleFamily.EMPTY
+                ),
                 "http_success_request * http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
-            },
+                },
             {
                 "empty-multiple-sampleFamily",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.build(
-                        Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                        Sample.builder().labels(of("idc", "t2")).value(3).build()
-                    )),
+                   "http_error_request", SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                        Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build()
+                    ).build()
+                ),
                 "http_success_request * http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
-            },
+                },
             {
                 "sampleFamily-multiple-empty",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.build(
-                        Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                        Sample.builder().labels(of("idc", "t2")).value(3).build()
-                    )),
+                   "http_error_request", SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                        Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build()
+                    ).build()
+                ),
                 "http_error_request * http_success_request ",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
-            },
+                },
             {
                 "sampleFamily-multiple-sampleFamily",
-                of("http_success_request", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(100).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(30).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(40).build(),
-                    Sample.builder().labels(of("region", "us")).value(80).build()
-                ), "http_error_request", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(3).build(),
-                    Sample.builder().labels(of("idc", "t5")).value(3).build(),
-                    Sample.builder().labels(of("tz", "en-US")).value(3).build()
-                )),
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(30).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(40).name("http_success_request").build(),
+                    Sample.builder().labels(of("region", "us")).value(80).name("http_success_request").build()
+                ).build(), "http_error_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t5")).value(3).name("http_error_request").build(),
+                    Sample.builder().labels(of("tz", "en-US")).value(3).name("http_error_request").build()
+                ).build()),
                 "http_success_request * http_error_request",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(5000).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(90).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(5000).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(90).name("http_success_request").build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "empty-divide-empty",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.EMPTY),
+                   "http_error_request", SampleFamily.EMPTY
+                ),
                 "http_success_request / http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
-            },
+                },
             {
                 "empty-divide-sampleFamily",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.build(
-                        Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                        Sample.builder().labels(of("idc", "t2")).value(3).build()
-                    )),
+                   "http_error_request", SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                        Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build()
+                    ).build()
+                ),
                 "http_success_request / http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
-            },
+                },
             {
                 "sampleFamily-divide-empty",
                 of("http_success_request", SampleFamily.EMPTY,
-                    "http_error_request", SampleFamily.build(
-                        Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                        Sample.builder().labels(of("idc", "t2")).value(3).build()
-                    )),
+                   "http_error_request", SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                        Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build()
+                    ).build()
+                ),
                 "http_error_request / http_success_request ",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(Double.POSITIVE_INFINITY).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(Double.POSITIVE_INFINITY).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t1"))
+                          .value(Double.POSITIVE_INFINITY)
+                          .name("http_error_request")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("idc", "t2"))
+                          .value(Double.POSITIVE_INFINITY)
+                          .name("http_error_request")
+                          .build()
+                ).build()),
                 false,
-            },
+                },
             {
                 "sampleFamily-divide-sampleFamily",
-                of("http_success_request", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(100).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(30).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(40).build(),
-                    Sample.builder().labels(of("region", "us")).value(80).build()
-                ), "http_error_request", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(3).build(),
-                    Sample.builder().labels(of("idc", "t5")).value(3).build(),
-                    Sample.builder().labels(of("tz", "en-US")).value(3).build()
-                )),
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(30).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(40).name("http_success_request").build(),
+                    Sample.builder().labels(of("region", "us")).value(80).name("http_success_request").build()
+                ).build(), "http_error_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(3).name("http_error_request").build(),
+                    Sample.builder().labels(of("idc", "t5")).value(3).name("http_error_request").build(),
+                    Sample.builder().labels(of("tz", "en-US")).value(3).name("http_error_request").build()
+                ).build()),
                 "http_success_request / http_error_request",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(10).build()
-                )),
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(10).name("http_success_request").build()
+                ).build()),
                 false,
-            },
-        });
+                },
+            });
     }
 
     @Test

@@ -19,7 +19,9 @@
 package org.apache.skywalking.apm.agent;
 
 import java.lang.instrument.Instrumentation;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -34,6 +36,7 @@ import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
+import org.apache.skywalking.apm.agent.core.jvm.LoadedLibraryCollector;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
@@ -123,6 +126,7 @@ public class SkyWalkingAgent {
         agentBuilder.type(pluginFinder.buildMatch())
                     .transform(new Transformer(pluginFinder))
                     .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+                    .with(new RedefinitionListener())
                     .with(new Listener())
                     .installOn(instrumentation);
 
@@ -148,6 +152,7 @@ public class SkyWalkingAgent {
                                                 final TypeDescription typeDescription,
                                                 final ClassLoader classLoader,
                                                 final JavaModule module) {
+            LoadedLibraryCollector.registerURLClassLoader(classLoader);
             List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription);
             if (pluginDefines.size() > 0) {
                 DynamicType.Builder<?> newBuilder = builder;
@@ -213,6 +218,25 @@ public class SkyWalkingAgent {
 
         @Override
         public void onComplete(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
+        }
+    }
+
+    private static class RedefinitionListener implements AgentBuilder.RedefinitionStrategy.Listener {
+
+        @Override
+        public void onBatch(int index, List<Class<?>> batch, List<Class<?>> types) {
+            /* do nothing */
+        }
+
+        @Override
+        public Iterable<? extends List<Class<?>>> onError(int index, List<Class<?>> batch, Throwable throwable, List<Class<?>> types) {
+            LOGGER.error(throwable, "index={}, batch={}, types={}", index, batch, types);
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void onComplete(int amount, List<Class<?>> types, Map<List<Class<?>>, Throwable> failures) {
+            /* do nothing */
         }
     }
 }

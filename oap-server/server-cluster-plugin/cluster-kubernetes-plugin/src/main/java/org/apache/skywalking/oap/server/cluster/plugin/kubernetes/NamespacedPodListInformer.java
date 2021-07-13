@@ -22,6 +22,7 @@ import io.kubernetes.client.informer.SharedIndexInformer;
 import io.kubernetes.client.informer.SharedInformerFactory;
 import io.kubernetes.client.informer.cache.Lister;
 import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodList;
@@ -77,13 +78,14 @@ public enum NamespacedPodListInformer {
 
         ApiClient apiClient = Config.defaultClient();
         apiClient.setHttpClient(apiClient.getHttpClient().newBuilder().readTimeout(0, TimeUnit.SECONDS).build());
+        Configuration.setDefaultApiClient(apiClient);
         CoreV1Api coreV1Api = new CoreV1Api(apiClient);
         factory = new SharedInformerFactory(executorService);
 
         SharedIndexInformer<V1Pod> podSharedIndexInformer = factory.sharedIndexInformerFor(
             params -> coreV1Api.listNamespacedPodCall(
                 podConfig.getNamespace(), null, null, null, null,
-                podConfig.getLabelSelector(), Integer.MAX_VALUE, params.resourceVersion, 300,
+                podConfig.getLabelSelector(), Integer.MAX_VALUE, params.resourceVersion, null, params.timeoutSeconds,
                 params.watch, null
             ),
             V1Pod.class, V1PodList.class

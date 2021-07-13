@@ -44,64 +44,36 @@ class SourceBuilder {
     private final NamingControl namingControl;
 
     @Getter
+    @Setter
     private String sourceServiceName;
-
-    public void setSourceServiceName(final String sourceServiceName) {
-        this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
-    }
-
     @Getter
     @Setter
     private NodeType sourceNodeType;
     @Getter
+    @Setter
     private String sourceServiceInstanceName;
-
-    public void setSourceServiceInstanceName(final String sourceServiceInstanceName) {
-        this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
-    }
-
     /**
      * Source endpoint could be not owned by {@link #sourceServiceName}, such as in the MQ or un-instrumented proxy
      * cases. This service always comes from the span.ref, so it is always a normal service.
      */
     @Getter
+    @Setter
     private String sourceEndpointOwnerServiceName;
-
-    public void setSourceEndpointOwnerServiceName(final String sourceServiceName) {
-        this.sourceEndpointOwnerServiceName = namingControl.formatServiceName(sourceServiceName);
-    }
-
     @Getter
+    @Setter
     private String sourceEndpointName;
-
-    public void setSourceEndpointName(final String sourceEndpointName) {
-        this.sourceEndpointName = namingControl.formatEndpointName(sourceServiceName, sourceEndpointName);
-    }
-
     @Getter
+    @Setter
     private String destServiceName;
-
-    public void setDestServiceName(final String destServiceName) {
-        this.destServiceName = namingControl.formatServiceName(destServiceName);
-    }
-
     @Getter
     @Setter
     private NodeType destNodeType;
     @Getter
+    @Setter
     private String destServiceInstanceName;
-
-    public void setDestServiceInstanceName(final String destServiceInstanceName) {
-        this.destServiceInstanceName = namingControl.formatServiceName(destServiceInstanceName);
-    }
-
     @Getter
+    @Setter
     private String destEndpointName;
-
-    public void setDestEndpointName(final String destEndpointName) {
-        this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
-    }
-
     @Getter
     @Setter
     private int componentId;
@@ -125,6 +97,16 @@ class SourceBuilder {
     private long timeBucket;
     @Getter
     private final List<String> tags = new ArrayList<>();
+
+    void prepare() {
+        this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
+        this.sourceEndpointOwnerServiceName = namingControl.formatServiceName(sourceEndpointOwnerServiceName);
+        this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
+        this.sourceEndpointName = namingControl.formatEndpointName(sourceServiceName, sourceEndpointName);
+        this.destServiceName = namingControl.formatServiceName(destServiceName);
+        this.destServiceInstanceName = namingControl.formatInstanceName(destServiceInstanceName);
+        this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
+    }
 
     /**
      * The global level metrics source

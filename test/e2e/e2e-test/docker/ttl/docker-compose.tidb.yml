@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   tidb:
-    image: pingcap/tidb:latest
+    image: pingcap/tidb:v4.0.12
     expose:
       - 4000
     volumes:
@@ -37,7 +37,7 @@ services:
       service: oap
     environment:
       SW_STORAGE: tidb
-      SW_PROMETHEUS_FETCHER_ACTIVE: "true"
+      SW_PROMETHEUS_FETCHER: "default"
       SW_TELEMETRY: prometheus
       SW_JDBC_URL: "jdbc:mysql://tidb:4000/test"
       SW_DATA_SOURCE_PASSWORD: ""

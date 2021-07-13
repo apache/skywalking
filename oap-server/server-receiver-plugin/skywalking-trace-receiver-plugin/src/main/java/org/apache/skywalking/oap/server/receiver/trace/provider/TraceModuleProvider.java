@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc.TraceSegmentReportServiceHandler;
+import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc.TraceSegmentReportServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportListServletHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportSingleServletHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -65,7 +66,9 @@ public class TraceModuleProvider extends ModuleProvider {
                                                                 .provider()
                                                                 .getService(JettyHandlerRegister.class);
 
-        grpcHandlerRegister.addHandler(new TraceSegmentReportServiceHandler(getManager()));
+        TraceSegmentReportServiceHandler traceSegmentReportServiceHandler = new TraceSegmentReportServiceHandler(getManager());
+        grpcHandlerRegister.addHandler(traceSegmentReportServiceHandler);
+        grpcHandlerRegister.addHandler(new TraceSegmentReportServiceHandlerCompat(traceSegmentReportServiceHandler));
 
         jettyHandlerRegister.addHandler(new TraceSegmentReportListServletHandler(getManager()));
         jettyHandlerRegister.addHandler(new TraceSegmentReportSingleServletHandler(getManager()));

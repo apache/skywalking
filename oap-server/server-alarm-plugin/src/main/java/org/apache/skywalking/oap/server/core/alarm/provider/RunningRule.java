@@ -28,13 +28,14 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
-
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
@@ -74,6 +75,7 @@ public class RunningRule {
     private final Pattern excludeLabelsRegex;
     private final AlarmMessageFormatter formatter;
     private final boolean onlyAsCondition;
+    private final List<Tag> tags;
 
     public RunningRule(AlarmRule alarmRule) {
         metricsName = alarmRule.getMetricsName();
@@ -104,6 +106,11 @@ public class RunningRule {
             Pattern.compile(alarmRule.getExcludeLabelsRegex()) : null;
         this.formatter = new AlarmMessageFormatter(alarmRule.getMessage());
         this.onlyAsCondition = alarmRule.isOnlyAsCondition();
+        this.tags = alarmRule.getTags()
+                             .entrySet()
+                             .stream()
+                             .map(e -> new Tag(e.getKey(), e.getValue()))
+                             .collect(Collectors.toList());
     }
 
     /**
@@ -142,12 +149,13 @@ public class RunningRule {
                 threshold.setType(MetricsValueType.MULTI_INTS);
             } else if (metrics instanceof LabeledValueHolder) {
                 if (((LabeledValueHolder) metrics).getValue().keys().stream()
-                    .noneMatch(label -> validate(
-                        label,
-                        includeLabels,
-                        excludeLabels,
-                        includeLabelsRegex,
-                        excludeLabelsRegex))) {
+                                                  .noneMatch(label -> validate(
+                                                      label,
+                                                      includeLabels,
+                                                      excludeLabels,
+                                                      includeLabelsRegex,
+                                                      excludeLabelsRegex
+                                                  ))) {
                     return;
                 }
                 valueType = MetricsValueType.LABELED_LONG;
@@ -165,11 +173,11 @@ public class RunningRule {
     }
 
     /**
-     * Validate target whether matching rules which is included list, excludes list, include regular expression
-     * or exclude regular expression.
+     * Validate target whether matching rules which is included list, excludes list, include regular expression or
+     * exclude regular expression.
      */
     private boolean validate(String target, List<String> includeList, List<String> excludeList,
-        Pattern includeRegex, Pattern excludeRegex) {
+                             Pattern includeRegex, Pattern excludeRegex) {
         if (CollectionUtils.isNotEmpty(includeList)) {
             if (!includeList.contains(target)) {
                 if (log.isTraceEnabled()) {
@@ -236,6 +244,8 @@ public class RunningRule {
                 alarmMessage.setAlarmMessage(formatter.format(meta));
                 alarmMessage.setOnlyAsCondition(this.onlyAsCondition);
                 alarmMessage.setStartTime(System.currentTimeMillis());
+                alarmMessage.setPeriod(this.period);
+                alarmMessage.setTags(this.tags);
                 alarmMessageList.add(alarmMessage);
             }
         });
@@ -250,7 +260,6 @@ public class RunningRule {
     public class Window {
         private LocalDateTime endTime;
         private int period;
-        private int counter;
         private int silenceCountdown;
 
         private LinkedList<Metrics> values;
@@ -260,7 +269,6 @@ public class RunningRule {
             this.period = period;
             // -1 means silence countdown is not running.
             silenceCountdown = -1;
-            counter = 0;
             init();
         }
 
@@ -314,7 +322,10 @@ public class RunningRule {
                     // too old data
                     // also should happen, but maybe if agent/probe mechanism time is not right.
                     if (log.isTraceEnabled()) {
-                        log.trace("Timebucket is {}, endTime is {} and value size is {}", timeBucket, this.endTime, values.size());
+                        log.trace(
+                            "Timebucket is {}, endTime is {} and value size is {}", timeBucket, this.endTime,
+                            values.size()
+                        );
                     }
                     return;
                 }
@@ -332,12 +343,10 @@ public class RunningRule {
             if (isMatch()) {
                 /*
                  * When
-                 * 1. Metrics value threshold triggers alarm by rule
-                 * 2. Counter reaches the count threshold;
-                 * 3. Isn't in silence stage, judged by SilenceCountdown(!=0).
+                 * 1. Alarm trigger conditions are satisfied.
+                 * 2. Isn't in silence stage, judged by SilenceCountdown(!=0).
                  */
-                counter++;
-                if (counter >= countThreshold && silenceCountdown < 1) {
+                if (silenceCountdown < 1) {
                     silenceCountdown = silencePeriod;
                     return Optional.of(new AlarmMessage());
                 } else {
@@ -345,9 +354,6 @@ public class RunningRule {
                 }
             } else {
                 silenceCountdown--;
-                if (counter > 0) {
-                    counter--;
-                }
             }
             return Optional.empty();
         }
@@ -409,13 +415,14 @@ public class RunningRule {
                         DataTable values = ((LabeledValueHolder) metrics).getValue();
                         lexpected = RunningRule.this.threshold.getLongThreshold();
                         if (values.keys().stream().anyMatch(label ->
-                            validate(
-                                label,
-                                RunningRule.this.includeLabels,
-                                RunningRule.this.excludeLabels,
-                                RunningRule.this.includeLabelsRegex,
-                                RunningRule.this.excludeLabelsRegex)
-                            && op.test(lexpected, values.get(label)))) {
+                                                                validate(
+                                                                    label,
+                                                                    RunningRule.this.includeLabels,
+                                                                    RunningRule.this.excludeLabels,
+                                                                    RunningRule.this.includeLabelsRegex,
+                                                                    RunningRule.this.excludeLabelsRegex
+                                                                )
+                                                                    && op.test(lexpected, values.get(label)))) {
                             matchCount++;
                         }
                         break;
@@ -460,7 +467,9 @@ public class RunningRule {
                     break;
                 case LABELED_LONG:
                     DataTable dt = ((LabeledValueHolder) m).getValue();
-                    TraceLogMetric l = new TraceLogMetric(m.getTimeBucket(), dt.sortedValues(Comparator.naturalOrder()).toArray(new Number[0]));
+                    TraceLogMetric l = new TraceLogMetric(
+                        m.getTimeBucket(), dt.sortedValues(Comparator.naturalOrder())
+                                             .toArray(new Number[0]));
                     l.labels = dt.sortedKeys(Comparator.naturalOrder()).toArray(new String[0]);
                     r.add(l);
             }

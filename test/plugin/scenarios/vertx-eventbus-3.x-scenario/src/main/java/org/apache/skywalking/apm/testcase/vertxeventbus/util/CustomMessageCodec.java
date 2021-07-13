@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.testcase.vertxeventbus.util;
 
 import io.vertx.core.buffer.Buffer;

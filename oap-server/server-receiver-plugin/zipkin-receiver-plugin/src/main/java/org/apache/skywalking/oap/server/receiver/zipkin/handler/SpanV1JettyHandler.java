@@ -20,24 +20,42 @@ package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyHandler;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import zipkin2.codec.SpanBytesDecoder;
 
+@Slf4j
 public class SpanV1JettyHandler extends JettyHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SpanV1JettyHandler.class);
-
-    private ZipkinReceiverConfig config;
-    private SourceReceiver sourceReceiver;
+    private final ZipkinReceiverConfig config;
+    private final SourceReceiver sourceReceiver;
+    private final NamingControl namingControl;
+    private final HistogramMetrics histogram;
+    private final CounterMetrics errorCounter;
 
     public SpanV1JettyHandler(ZipkinReceiverConfig config, ModuleManager manager) {
         sourceReceiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        namingControl = manager.find(CoreModule.NAME).provider().getService(NamingControl.class);
         this.config = config;
+        MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
+                .provider()
+                .getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric(
+                "trace_in_latency", "The process latency of trace data",
+                new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-v1")
+        );
+        errorCounter = metricsCreator.createCounter("trace_analysis_error_count", "The error number of trace analysis",
+                new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-v1")
+        );
     }
 
     @Override
@@ -50,21 +68,21 @@ public class SpanV1JettyHandler extends JettyHandler {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
 
-        try {
+        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
             String type = request.getHeader("Content-Type");
 
             int encode = type != null && type.contains("/x-thrift") ? SpanEncode.THRIFT : SpanEncode.JSON_V1;
 
             SpanBytesDecoder decoder = SpanEncode.isThrift(encode) ? SpanBytesDecoder.THRIFT : SpanBytesDecoder.JSON_V1;
 
-            SpanProcessor processor = new SpanProcessor(sourceReceiver);
+            SpanProcessor processor = new SpanProcessor(namingControl, sourceReceiver);
             processor.convert(config, decoder, request);
 
             response.setStatus(202);
         } catch (Exception e) {
             response.setStatus(500);
-
-            LOGGER.error(e.getMessage(), e);
+            errorCounter.inc();
+            log.error(e.getMessage(), e);
         }
     }
 

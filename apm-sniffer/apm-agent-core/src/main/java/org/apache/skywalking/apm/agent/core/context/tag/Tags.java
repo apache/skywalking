@@ -63,19 +63,26 @@ public final class Tags {
     public static final StringTag DB_BIND_VARIABLES = new StringTag(6, "db.bind_vars");
 
     /**
-     * MQ_QUEUE records the queue name of message-middleware
+     * MQ_QUEUE records the queue name of message-middleware.
      */
     public static final StringTag MQ_QUEUE = new StringTag(7, "mq.queue");
 
     /**
-     * MQ_BROKER records the broker address of message-middleware
+     * MQ_BROKER records the broker address of message-middleware.
      */
     public static final StringTag MQ_BROKER = new StringTag(8, "mq.broker");
 
     /**
-     * MQ_TOPIC records the topic name of message-middleware
+     * MQ_TOPIC records the topic name of message-middleware.
      */
     public static final StringTag MQ_TOPIC = new StringTag(9, "mq.topic");
+
+    /**
+     * MQ_STATUS records the send/consume message status of message-middleware.
+     */
+    public static final StringTag MQ_STATUS = new StringTag(16, "mq_status");
+
+    public static final StringTag MYBATIS_MAPPER = new StringTag(17, "mybatis.mapper");
 
     /**
      * The latency of transmission. When there are more than one downstream parent/segment-ref(s), multiple tags will be

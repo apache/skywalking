@@ -84,6 +84,7 @@ public class JVMMetricsSender implements BootService, Runnable, GRPCChannelListe
                 }
             } catch (Throwable t) {
                 LOGGER.error(t, "send JVM metrics to Collector fail.");
+                ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(t);
             }
         }
     }

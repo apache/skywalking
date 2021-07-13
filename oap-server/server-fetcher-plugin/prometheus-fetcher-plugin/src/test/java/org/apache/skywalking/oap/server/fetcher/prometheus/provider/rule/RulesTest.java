@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
 
+import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
@@ -31,7 +32,7 @@ public class RulesTest {
 
     @Test
     public void testFetcherPrometheusRulesLoader() throws ModuleStartException {
-        List<Rule> rr = Rules.loadRules("fetcher-prom-rules");
+        List<Rule> rr = Rules.loadRules("fetcher-prom-rules", Collections.singletonList("localhost"));
 
         assertThat(rr.size(), is(1));
     }

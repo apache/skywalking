@@ -18,7 +18,7 @@ version: '2.1'
 services:
   oap:
     environment:
-      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth.yaml
+      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth
     extends:
       file: ../base-compose.yml
       service: oap

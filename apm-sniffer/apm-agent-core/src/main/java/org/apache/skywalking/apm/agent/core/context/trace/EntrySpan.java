@@ -55,7 +55,7 @@ public class EntrySpan extends StackBasedTracingSpan {
 
     @Override
     public EntrySpan tag(String key, String value) {
-        if (stackDepth == currentMaxDepth) {
+        if (stackDepth == currentMaxDepth || isInAsyncMode) {
             super.tag(key, value);
         }
         return this;
@@ -63,7 +63,7 @@ public class EntrySpan extends StackBasedTracingSpan {
 
     @Override
     public AbstractTracingSpan setLayer(SpanLayer layer) {
-        if (stackDepth == currentMaxDepth) {
+        if (stackDepth == currentMaxDepth || isInAsyncMode) {
             return super.setLayer(layer);
         } else {
             return this;
@@ -72,7 +72,7 @@ public class EntrySpan extends StackBasedTracingSpan {
 
     @Override
     public AbstractTracingSpan setComponent(Component component) {
-        if (stackDepth == currentMaxDepth) {
+        if (stackDepth == currentMaxDepth || isInAsyncMode) {
             return super.setComponent(component);
         } else {
             return this;

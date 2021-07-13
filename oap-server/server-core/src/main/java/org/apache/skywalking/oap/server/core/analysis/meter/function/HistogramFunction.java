@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -75,16 +75,17 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
     }
 
     @Override
-    public void combine(final Metrics metrics) {
+    public boolean combine(final Metrics metrics) {
         HistogramFunction histogram = (HistogramFunction) metrics;
 
         if (!dataset.keysEqual(histogram.getDataset())) {
             log.warn("Incompatible input [{}}] for current HistogramFunction[{}], entity {}",
                      histogram, this, entityId
             );
-            return;
+            return true;
         }
         this.dataset.append(histogram.dataset);
+        return true;
     }
 
     @Override
@@ -137,19 +138,19 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 
     @Override
-    public Class<? extends StorageBuilder> builder() {
+    public Class<? extends StorageHashMapBuilder> builder() {
         return HistogramFunctionBuilder.class;
     }
 
-    public static class HistogramFunctionBuilder implements StorageBuilder<HistogramFunction> {
+    public static class HistogramFunctionBuilder implements StorageHashMapBuilder<HistogramFunction> {
 
         @Override
-        public HistogramFunction map2Data(final Map<String, Object> dbMap) {
+        public HistogramFunction storage2Entity(final Map<String, Object> dbMap) {
             HistogramFunction metrics = new HistogramFunction() {
                 @Override
                 public AcceptableValue<BucketedValues> createNew() {
@@ -163,7 +164,7 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
         }
 
         @Override
-        public Map<String, Object> data2Map(final HistogramFunction storageData) {
+        public Map<String, Object> entity2Storage(final HistogramFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(DATASET, storageData.getDataset());
             map.put(TIME_BUCKET, storageData.getTimeBucket());

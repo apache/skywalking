@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.testcase.vertxeventbus.controller;
 
 import io.vertx.core.AbstractVerticle;

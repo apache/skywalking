@@ -21,6 +21,10 @@ package org.apache.skywalking.oap.server.core.query.type;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.query.type.event.Event;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,4 +34,11 @@ public class AlarmMessage {
     private String id;
     private String message;
     private Long startTime;
+    private transient String id1;
+    private final List<KeyValue> tags;
+    private List<Event> events = new ArrayList<>(2);
+
+    public AlarmMessage() {
+        tags = new ArrayList<>();
+    }
 }

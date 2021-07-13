@@ -22,5 +22,5 @@
 set -ex
 
 istioctl version || (curl -L https://istio.io/downloadIstio | sh - && sudo mv $PWD/istio-$ISTIO_VERSION/bin/istioctl /usr/local/bin/)
-istioctl install $@
+istioctl install -y $@
 kubectl label namespace default istio-injection=enabled

@@ -176,6 +176,7 @@ public class CorrelationContext {
     /**
      * Clone the context data, work for capture to cross-thread.
      */
+    @Override
     public CorrelationContext clone() {
         final CorrelationContext context = new CorrelationContext();
         context.data.putAll(this.data);

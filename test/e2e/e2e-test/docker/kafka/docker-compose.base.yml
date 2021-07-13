@@ -21,7 +21,7 @@ services:
       file: ../base-compose.yml
       service: oap
     environment:
-      SW_PROMETHEUS_FETCHER_ACTIVE: "true"
+      SW_PROMETHEUS_FETCHER: "default"
       SW_TELEMETRY: prometheus
       SW_KAFKA_FETCHER: default
       SW_KAFKA_FETCHER_SERVERS: broker-a:9092,broker-b:9092

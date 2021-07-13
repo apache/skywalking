@@ -41,9 +41,9 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 public class TableMetaInfo {
     private static final Map<String, TableMetaInfo> TABLES = new HashMap<>();
 
-    private Map<String, String> storageAndColumnMap;
-    private Map<String, String> storageAndTagMap;
-    private Model model;
+    private final Map<String, String> storageAndColumnMap;
+    private final Map<String, String> storageAndTagMap;
+    private final Model model;
 
     public static void addModel(Model model) {
         final List<ModelColumn> columns = model.getColumns();
@@ -54,17 +54,25 @@ public class TableMetaInfo {
             storageAndColumnMap.put(columnName.getStorageName(), columnName.getName());
         });
 
+        storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
         if (model.getName().endsWith("_traffic")) {
-            // instance_traffic name, service_id
-            // endpoint_traffic name, service_id
-            storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
-            if (InstanceTraffic.INDEX_NAME.equals(model.getName())
-                || EndpointTraffic.INDEX_NAME.equals(model.getName())) {
-                storageAndTagMap.put(EndpointTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
-            } else {
-                // service_traffic  name, node_type, group
-                storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
-                storageAndTagMap.put(ServiceTraffic.GROUP, InfluxConstants.TagName.SERVICE_GROUP);
+            switch (model.getName()) {
+                // instance_traffic name, service_id
+                case InstanceTraffic.INDEX_NAME: {
+                    storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
+                    storageAndTagMap.put(InstanceTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
+                    break;
+                }
+                // endpoint_traffic service_id
+                case EndpointTraffic.INDEX_NAME: {
+                    storageAndTagMap.put(EndpointTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
+                    break;
+                }
+                // service_traffic  name, group
+                case ServiceTraffic.INDEX_NAME: {
+                    storageAndTagMap.put(ServiceTraffic.GROUP, InfluxConstants.TagName.SERVICE_GROUP);
+                    storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
+                }
             }
         } else {
 
@@ -88,7 +96,7 @@ public class TableMetaInfo {
             }
         }
 
-        TableMetaInfo info = TableMetaInfo.builder()
+        final TableMetaInfo info = TableMetaInfo.builder()
                                           .model(model)
                                           .storageAndTagMap(storageAndTagMap)
                                           .storageAndColumnMap(storageAndColumnMap)

@@ -19,16 +19,14 @@
 package org.apache.skywalking.oap.server.core.exporter;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 
 @Getter
+@RequiredArgsConstructor
 public class ExportData {
-    private MetricsMetaInfo meta;
-    private Metrics metrics;
-
-    public ExportData(MetricsMetaInfo meta, Metrics metrics) {
-        this.meta = meta;
-        this.metrics = metrics;
-    }
+    private final MetricsMetaInfo meta;
+    private final Metrics metrics;
+    private final ExportEvent.EventType eventType;
 }

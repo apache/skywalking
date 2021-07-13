@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -34,6 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -51,6 +53,7 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.InfluxStora
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AggregationQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AlarmQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.BrowserLogQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.EventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.LogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetadataQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetricsQuery;
@@ -69,7 +72,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
 public class InfluxStorageProvider extends ModuleProvider {
-    private InfluxStorageConfig config;
+    private final InfluxStorageConfig config;
     private InfluxClient client;
 
     public InfluxStorageProvider() {
@@ -93,6 +96,8 @@ public class InfluxStorageProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
+        this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
+
         client = new InfluxClient(config);
 
         this.registerServiceImplementation(IBatchDAO.class, new BatchDAO(client));
@@ -119,12 +124,17 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new HistoryDeleteDAO(client));
         this.registerServiceImplementation(UITemplateManagementDAO.class, new UITemplateManagementDAOImpl(client));
+
+        this.registerServiceImplementation(IEventQueryDAO.class, new EventQueryDAO(client));
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_influxdb", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME)
+                                                   .provider()
+                                                   .getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge(
+            "storage_influxdb", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         client.registerChecker(healthChecker);
         try {
             client.connect();
@@ -137,7 +147,7 @@ public class InfluxStorageProvider extends ModuleProvider {
     }
 
     @Override
-    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    public void notifyAfterCompleted() throws ServiceNotProvidedException {
 
     }
 

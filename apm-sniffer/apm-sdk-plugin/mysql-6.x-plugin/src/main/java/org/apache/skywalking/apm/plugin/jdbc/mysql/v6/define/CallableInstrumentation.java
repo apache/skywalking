@@ -28,8 +28,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link CallableInstrumentation} define that the mysql-2.x plugin intercepts the following methods in the
- * com.mysql.jdbc.CallableStatement 1. execute 2. executeQuery 3. executeUpdate
+ * {@link CallableInstrumentation} define that the mysql-6.x plugin intercepts the following methods in the
+ * com.mysql.jdbc.cj.CallableStatement class:
+ * 1. execute 2. executeQuery 3. executeUpdate
  */
 public class CallableInstrumentation extends AbstractMysqlInstrumentation {
     private static final String ENHANCE_CLASS = "com.mysql.jdbc.cj.CallableStatement";

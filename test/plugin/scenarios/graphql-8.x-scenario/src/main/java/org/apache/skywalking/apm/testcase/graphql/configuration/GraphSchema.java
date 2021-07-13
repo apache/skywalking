@@ -50,12 +50,10 @@ public class GraphSchema {
                 .build()).build();
     }
 
-
     @Bean
     public GraphQL graphQL() {
         return new GraphQL(getSchema());
     }
-
 
     private void initOutputType() {
 

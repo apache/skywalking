@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHold
 import org.apache.skywalking.oap.server.core.analysis.metrics.PercentileMetrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -122,26 +122,26 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
     }
 
     @Override
-    public void combine(final Metrics metrics) {
+    public boolean combine(final Metrics metrics) {
         PercentileFunction percentile = (PercentileFunction) metrics;
 
         if (!dataset.keysEqual(percentile.getDataset())) {
             log.warn("Incompatible input [{}}] for current PercentileFunction[{}], entity {}",
                      percentile, this, entityId
             );
-            return;
+            return true;
         }
-        if (ranks.size() > 0) {
+        if (this.ranks.size() > 0) {
             IntList ranksOfThat = percentile.getRanks();
-            if (this.ranks.size() != ranks.size()) {
+            if (this.ranks.size() != ranksOfThat.size()) {
                 log.warn("Incompatible ranks size = [{}}] for current PercentileFunction[{}]",
-                         ranks.size(), this.ranks.size()
+                         ranksOfThat.size(), this.ranks.size()
                 );
-                return;
+                return true;
             } else {
-                if (!this.ranks.equals(percentile.getRanks())) {
-                    log.warn("Rank {} doesn't exist in the previous ranks {}", percentile.getRanks(), ranks);
-                    return;
+                if (!this.ranks.equals(ranksOfThat)) {
+                    log.warn("Rank {} doesn't exist in the previous ranks {}", ranksOfThat, this.ranks);
+                    return true;
                 }
             }
         }
@@ -149,6 +149,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
         this.dataset.append(percentile.dataset);
 
         this.isCalculated = false;
+        return true;
     }
 
     @Override
@@ -245,12 +246,12 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 
     @Override
-    public Class<? extends StorageBuilder> builder() {
+    public Class<? extends StorageHashMapBuilder> builder() {
         return PercentileFunctionBuilder.class;
     }
 
@@ -261,10 +262,10 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
         private final int[] ranks;
     }
 
-    public static class PercentileFunctionBuilder implements StorageBuilder<PercentileFunction> {
+    public static class PercentileFunctionBuilder implements StorageHashMapBuilder<PercentileFunction> {
 
         @Override
-        public PercentileFunction map2Data(final Map<String, Object> dbMap) {
+        public PercentileFunction storage2Entity(final Map<String, Object> dbMap) {
             PercentileFunction metrics = new PercentileFunction() {
                 @Override
                 public AcceptableValue<PercentileArgument> createNew() {
@@ -280,7 +281,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
         }
 
         @Override
-        public Map<String, Object> data2Map(final PercentileFunction storageData) {
+        public Map<String, Object> entity2Storage(final PercentileFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(DATASET, storageData.getDataset());
             map.put(RANKS, storageData.getRanks());

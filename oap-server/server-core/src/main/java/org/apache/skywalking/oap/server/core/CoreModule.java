@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.BrowserLogQueryService;
+import org.apache.skywalking.oap.server.core.query.EventQueryService;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
@@ -116,6 +117,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(AlarmQueryService.class);
         classes.add(TopNRecordsQueryService.class);
         classes.add(BrowserLogQueryService.class);
+        classes.add(EventQueryService.class);
     }
 
     private void addServerInterface(List<Class> classes) {

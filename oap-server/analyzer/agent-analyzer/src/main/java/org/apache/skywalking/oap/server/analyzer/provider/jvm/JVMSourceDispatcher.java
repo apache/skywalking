@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.analyzer.provider.jvm;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.CPU;
+import org.apache.skywalking.apm.network.language.agent.v3.Class;
 import org.apache.skywalking.apm.network.language.agent.v3.GC;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
 import org.apache.skywalking.apm.network.language.agent.v3.Memory;
@@ -33,6 +34,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.GCPhrase;
 import org.apache.skywalking.oap.server.core.source.MemoryPoolType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMCPU;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMClass;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMGC;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemory;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemoryPool;
@@ -63,7 +65,9 @@ public class JVMSourceDispatcher {
         this.sendToGCMetricProcess(
             service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getGcList());
         this.sendToThreadMetricProcess(
-                service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getThread());
+            service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getThread());
+        this.sendToClassMetricProcess(
+                service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getClazz());
     }
 
     private void sendToCpuMetricProcess(String service,
@@ -180,11 +184,11 @@ public class JVMSourceDispatcher {
     }
 
     private void sendToThreadMetricProcess(String service,
-            String serviceId,
-            String serviceInstance,
-            String serviceInstanceId,
-            long timeBucket,
-            Thread thread) {
+                                           String serviceId,
+                                           String serviceInstance,
+                                           String serviceInstanceId,
+                                           long timeBucket,
+                                           Thread thread) {
         ServiceInstanceJVMThread serviceInstanceJVMThread = new ServiceInstanceJVMThread();
         serviceInstanceJVMThread.setId(serviceInstanceId);
         serviceInstanceJVMThread.setName(serviceInstance);
@@ -193,7 +197,29 @@ public class JVMSourceDispatcher {
         serviceInstanceJVMThread.setLiveCount(thread.getLiveCount());
         serviceInstanceJVMThread.setDaemonCount(thread.getDaemonCount());
         serviceInstanceJVMThread.setPeakCount(thread.getPeakCount());
+        serviceInstanceJVMThread.setRunnableStateThreadCount(thread.getRunnableStateThreadCount());
+        serviceInstanceJVMThread.setBlockedStateThreadCount(thread.getBlockedStateThreadCount());
+        serviceInstanceJVMThread.setWaitingStateThreadCount(thread.getWaitingStateThreadCount());
+        serviceInstanceJVMThread.setTimedWaitingStateThreadCount(thread.getTimedWaitingStateThreadCount());
         serviceInstanceJVMThread.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceJVMThread);
+    }
+
+    private void sendToClassMetricProcess(String service,
+                                          String serviceId,
+                                          String serviceInstance,
+                                          String serviceInstanceId,
+                                          long timeBucket,
+                                          Class clazz) {
+        ServiceInstanceJVMClass serviceInstanceJVMClass = new ServiceInstanceJVMClass();
+        serviceInstanceJVMClass.setId(serviceInstanceId);
+        serviceInstanceJVMClass.setName(serviceInstance);
+        serviceInstanceJVMClass.setServiceId(serviceId);
+        serviceInstanceJVMClass.setServiceName(service);
+        serviceInstanceJVMClass.setLoadedClassCount(clazz.getLoadedClassCount());
+        serviceInstanceJVMClass.setTotalUnloadedClassCount(clazz.getTotalUnloadedClassCount());
+        serviceInstanceJVMClass.setTotalLoadedClassCount(clazz.getTotalLoadedClassCount());
+        serviceInstanceJVMClass.setTimeBucket(timeBucket);
+        sourceReceiver.receive(serviceInstanceJVMClass);
     }
 }

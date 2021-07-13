@@ -1,0 +1,146 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+segmentItems:
+  - serviceName: neo4j-4.x-scenario
+    segmentSize: ge 2
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: Neo4j/Transaction/runAsync
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Database
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 112
+            isError: false
+            spanType: Exit
+            peer: not null
+            skipAnalysis: false
+            tags:
+              - { key: db.type, value: Neo4j }
+              - { key: db.instance, value: neo4j }
+              - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
+            refs:
+              - { parentEndpoint: /neo4j-scenario/case/neo4j-scenario, networkAddress: '',
+                  refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: not null,
+                  parentServiceInstance: not null, parentService: neo4j-4.x-scenario,
+                  traceId: not null }
+      - segmentId: not null
+        spans:
+          - operationName: Neo4j/Session/runAsync
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 112
+            isError: false
+            spanType: Exit
+            peer: not null
+            skipAnalysis: false
+            tags:
+              - { key: db.type, value: Neo4j }
+              - { key: db.instance, value: neo4j }
+              - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
+          - operationName: Neo4j/Session/runAsync
+            operationId: 0
+            parentSpanId: 0
+            spanId: 2
+            spanLayer: Database
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 112
+            isError: false
+            spanType: Exit
+            peer: not null
+            skipAnalysis: false
+            tags:
+              - { key: db.type, value: Neo4j }
+              - { key: db.instance, value: neo4j }
+              - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
+          - operationName: Neo4j/Session/runRx
+            operationId: 0
+            parentSpanId: 0
+            spanId: 3
+            spanLayer: Database
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 112
+            isError: false
+            spanType: Exit
+            peer: not null
+            skipAnalysis: false
+            tags:
+              - { key: db.type, value: Neo4j }
+              - { key: db.instance, value: neo4j }
+              - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
+          - operationName: Neo4j/Transaction/runAsync
+            operationId: 0
+            parentSpanId: 0
+            spanId: 4
+            spanLayer: Database
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 112
+            isError: false
+            spanType: Exit
+            peer: not null
+            skipAnalysis: false
+            tags:
+              - { key: db.type, value: Neo4j }
+              - { key: db.instance, value: neo4j }
+              - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
+          - operationName: Neo4j/Transaction/runRx
+            operationId: 0
+            parentSpanId: 0
+            spanId: 5
+            spanLayer: Database
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 112
+            isError: false
+            spanType: Exit
+            peer: not null
+            skipAnalysis: false
+            tags:
+              - { key: db.type, value: Neo4j }
+              - { key: db.instance, value: neo4j }
+              - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
+          - operationName: /neo4j-scenario/case/neo4j-scenario
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 1
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - { key: url, value: 'http://localhost:8080/neo4j-scenario/case/neo4j-scenario' }
+              - { key: http.method, value: GET }
+meterItems: [ ]
