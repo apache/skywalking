@@ -47,12 +47,12 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     }
 
     @Override
-    public void insert(InsertRequest prepareRequest) {
+    public void insert(InsertRequest insertRequest) {
         if (bulkProcessor == null) {
             this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
         }
 
-        this.bulkProcessor.add((IndexRequest) prepareRequest);
+        this.bulkProcessor.add((IndexRequest) insertRequest);
     }
 
     @Override

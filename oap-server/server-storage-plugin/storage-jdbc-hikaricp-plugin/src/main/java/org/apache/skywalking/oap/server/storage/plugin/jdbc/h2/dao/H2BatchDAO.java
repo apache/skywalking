@@ -81,8 +81,8 @@ public class H2BatchDAO implements IBatchDAO {
     }
 
     @Override
-    public void insert(InsertRequest prepareRequest) {
-        this.dataCarrier.produce(prepareRequest);
+    public void insert(InsertRequest insertRequest) {
+        this.dataCarrier.produce(insertRequest);
     }
 
     private class H2BatchConsumer implements IConsumer<PrepareRequest> {

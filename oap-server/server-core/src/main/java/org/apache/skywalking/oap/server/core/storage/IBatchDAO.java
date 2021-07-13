@@ -31,9 +31,9 @@ public interface IBatchDAO extends DAO {
      * Push data into the database in async mode. This method is driven by streaming process. This method doesn't
      * request the data queryable immediately after the method finished.
      *
-     * @param prepareRequest data to insert.
+     * @param insertRequest data to insert.
      */
-    void insert(InsertRequest prepareRequest);
+    void insert(InsertRequest insertRequest);
 
     /**
      * Push data collection into the database in async mode. This method is driven by streaming process. This method
