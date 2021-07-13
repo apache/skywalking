@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
-import org.elasticsearch.common.unit.TimeValue;
 
 @Slf4j
 public class StorageEsInstaller extends ModelInstaller {
@@ -162,9 +161,7 @@ public class StorageEsInstaller extends ModelInstaller {
         setting.put("index.number_of_shards", model.isSuperDataset()
             ? config.getIndexShardsNumber() * config.getSuperDatasetIndexShardsFactor()
             : config.getIndexShardsNumber());
-        setting.put("index.refresh_interval", model.isRecord()
-            ? TimeValue.timeValueSeconds(10).toString()
-            : TimeValue.timeValueSeconds(config.getFlushInterval()).toString());
+        setting.put("index.refresh_interval", config.getFlushInterval());
         setting.put("analysis", getAnalyzerSetting(model.getColumns()));
         if (!StringUtil.isEmpty(config.getAdvanced())) {
             Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);

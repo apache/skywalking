@@ -57,12 +57,12 @@ public class PersistenceTimerTest {
         moduleConfig.setPersistentPeriod(Integer.MAX_VALUE);
         IBatchDAO iBatchDAO = new IBatchDAO() {
             @Override
-            public void asynchronous(InsertRequest insertRequest) {
+            public void insert(InsertRequest prepareRequest) {
 
             }
 
             @Override
-            public void synchronous(List<PrepareRequest> prepareRequests) {
+            public void flush(final List<PrepareRequest> prepareRequests) {
                 synchronized (result) {
                     result.addAll(prepareRequests);
                 }

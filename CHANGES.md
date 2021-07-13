@@ -72,15 +72,19 @@ Release Notes.
 * Support connectTimeout and socketTimeout settings for ElasticSearch6 and ElasticSearch7 storages.
 * Re-implement storage session mechanism, cached metrics are removed only according to their last access timestamp,
   rather than first time. This makes sure hot data never gets removed unexpectedly.
-* Support session expired threshold configurable. 
+* Support session expired threshold configurable.
 * Fix InfluxDB storage-plugin Metrics#multiGet issue.
 * Replace zuul proxy with spring cloud gateway 2.x. in webapp module.
 * Upgrade etcd cluster coordinator and dynamic configuration to v3.x.
-* Configuration: Allow to configure server maximum request header size.
+* Configuration: Allow configuring server maximum request header size.
 * Add thread state metric and class loaded info metric to JVMMetric.
 * Performance: compile LAL DSL statically and run with type checked.
 * Add pagination to event query protocol.
 * Performance: optimize Envoy error logs persistence performance.
+* Performance: remove the synchronous persistence mechanism from batch ElasticSearch DAO. Because the current enhanced
+  persistent session mechanism, don't require the data queryable immediately after the insert and update anymore.
+* Performance: share `flushInterval` setting for both metrics and record data, due
+  to `synchronous persistence mechanism` removed. Record flush interval used to be hardcoded as 10s.
 
 #### UI
 
