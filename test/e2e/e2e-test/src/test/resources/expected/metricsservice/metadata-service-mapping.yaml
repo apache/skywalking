@@ -13,16 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-services:
-  - key: not null
-    label: istio-dp::ratings
-  - key: not null
-    label: istio-dp::reviews
-  - key: not null
-    label: istio-dp::productpage
-  - key: not null
-    label: istio-dp::details
-  - key: not null
-    label: istio-dp::istio-ingressgateway
-  - key: not null
-    label: istio-dp::istio-egressgateway
+serviceName: ${LABELS."service.istio.io/canonical-name",LABELS."app.kubernetes.io/name",LABELS.app}
+serviceInstanceName: ${NAME}
