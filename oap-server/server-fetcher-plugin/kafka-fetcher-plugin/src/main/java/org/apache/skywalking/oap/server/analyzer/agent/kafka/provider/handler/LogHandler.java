@@ -77,7 +77,7 @@ public class LogHandler implements KafkaHandler {
     public void handle(final ConsumerRecord<String, Bytes> record) {
         try (HistogramMetrics.Timer ignore = histogram.createTimer()) {
             LogData logData = parseConsumerRecord(record);
-            logAnalyzerService.doAnalysis(logData);
+            logAnalyzerService.doAnalysis(logData, null);
         } catch (Exception e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);

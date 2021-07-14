@@ -44,6 +44,7 @@ public abstract class AbstractLogRecord extends Record {
     public static final String SPAN_ID = "span_id";
     public static final String CONTENT_TYPE = "content_type";
     public static final String CONTENT = "content";
+    public static final String CONTENT_TYPE_CLASS = "content_type_class";
     public static final String TAGS_RAW_DATA = "tags_raw_data";
     public static final String TIMESTAMP = "timestamp";
     public static final String TAGS = "tags";

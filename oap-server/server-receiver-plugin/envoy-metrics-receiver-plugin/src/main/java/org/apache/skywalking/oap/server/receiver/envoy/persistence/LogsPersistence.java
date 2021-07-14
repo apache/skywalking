@@ -21,9 +21,7 @@ package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.logging.v3.JSONLog;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
@@ -34,8 +32,6 @@ import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
 import org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
-
-import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.toJSON;
 
 /**
  * {@code LogsPersistence} analyzes the error logs and persists them to the log system.
@@ -69,7 +65,7 @@ public class LogsPersistence implements ALSHTTPAnalysis {
             }
 
             final LogData logData = convertToLogData(entry, result);
-            logAnalyzerService.doAnalysis(logData);
+            logAnalyzerService.doAnalysis(logData, entry);
         } catch (final Exception e) {
             log.error("Failed to persist Envoy access log", e);
         }
@@ -81,27 +77,17 @@ public class LogsPersistence implements ALSHTTPAnalysis {
         return prev;
     }
 
-    public LogData convertToLogData(final HTTPAccessLogEntry logEntry,
-                                    final Result result) throws Exception {
-
+    public LogData convertToLogData(final HTTPAccessLogEntry logEntry, final Result result) {
         final ServiceMetaInfo service = result.getService();
 
-        final ServiceMeshMetric.Builder metrics = new LogEntry2MetricsAdapter(logEntry, null, null).adaptCommonPart();
+        final ServiceMeshMetric.Builder metrics =
+            new LogEntry2MetricsAdapter(logEntry, null, null).adaptCommonPart();
 
         return LogData
             .newBuilder()
             .setService(service.getServiceName())
             .setServiceInstance(service.getServiceInstanceName())
             .setTimestamp(metrics.getEndTime())
-            .setBody(
-                LogDataBody
-                    .newBuilder()
-                    .setJson(
-                        JSONLog
-                            .newBuilder()
-                            .setJson(toJSON(logEntry))
-                    )
-            )
             .build();
     }
 }
