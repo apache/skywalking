@@ -36,12 +36,12 @@ public class BatchDAO implements IBatchDAO {
     }
 
     @Override
-    public void asynchronous(InsertRequest insertRequest) {
+    public void insert(InsertRequest insertRequest) {
         client.write(((InfluxInsertRequest) insertRequest).getPoint());
     }
 
     @Override
-    public void synchronous(List<PrepareRequest> prepareRequests) {
+    public void flush(List<PrepareRequest> prepareRequests) {
         if (CollectionUtils.isEmpty(prepareRequests)) {
             return;
         }

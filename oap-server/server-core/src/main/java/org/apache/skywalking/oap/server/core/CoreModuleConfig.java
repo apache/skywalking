@@ -64,7 +64,7 @@ public class CoreModuleConfig extends ModuleConfig {
      * The period of doing data persistence. Unit is second.
      */
     @Setter
-    private long persistentPeriod = 3;
+    private long persistentPeriod = 25;
 
     private boolean enableDataKeeperExecutor = true;
 
