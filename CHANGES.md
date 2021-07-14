@@ -88,8 +88,13 @@ Release Notes.
 * Remove `syncBulkActions` in ElasticSearch storage option.
 * Increase the default bulkActions(env, SW_STORAGE_ES_BULK_ACTIONS) to 5000(from 1000).
 * Increase the flush interval of ElasticSearch indices to 15s(from 10s)
+* Provide distinct for elements of metadata lists. Due to the more aggressive asynchronous flush, metadata lists have
+  more chances including duplicate elements. Don't need this as indicate anymore.
+* Reduce the flush period of hour and day level metrics, only run in 4 times of regular persistent period. This means
+  default flush period of hour and day level metrics are 25s * 4.
 
 #### UI
+
 * Fix the date component for log conditions.
 * Fix selector keys for duplicate options.
 * Add Python celery plugin.
@@ -99,6 +104,7 @@ Release Notes.
 * Fix chart types for setting metrics configure.
 
 #### Documentation
+
 * Add FAQ about `Elasticsearch exception type=version_conflict_engine_exception since 8.7.0`
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/90?closed=1)
