@@ -27,10 +27,9 @@ Meanwhile, there is little chance you could see following **warn**s in your logs
 }
 ```
 
-This would affect the system much, just a possibility of inaccurate of metrics. If this wouldn't show up in high
+This would not affect the system much, just a possibility of inaccurate of metrics. If this wouldn't show up in high
 frequency, you could ignore this directly.
 
 In case you could see many logs like this. Then it is a signal, that the flush period of your ElasticSearch template can't
 catch up your setting. Or you set the `persistentPeriod` less than the flush period.
-
 
