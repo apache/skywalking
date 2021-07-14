@@ -80,6 +80,7 @@ Release Notes.
 * Add thread state metric and class loaded info metric to JVMMetric.
 * Performance: compile LAL DSL statically and run with type checked.
 * Add pagination to event query protocol.
+* Support envoy `cluster manager` metrics.
 
 #### UI
 

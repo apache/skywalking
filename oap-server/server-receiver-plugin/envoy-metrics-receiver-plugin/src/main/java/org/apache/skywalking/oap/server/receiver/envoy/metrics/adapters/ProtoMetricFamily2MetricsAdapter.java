@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters;
 
-import com.google.common.base.Splitter;
 import io.prometheus.client.Metrics;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
@@ -35,9 +34,19 @@ import static java.util.stream.Collectors.toMap;
 @RequiredArgsConstructor
 public class ProtoMetricFamily2MetricsAdapter {
     protected final Metrics.MetricFamily metricFamily;
+    private final ClusterManagerMetricsAdapter clusterManagerMetricsAdapter;
 
     public Stream<Metric> adapt() {
         switch (metricFamily.getType()) {
+            case COUNTER:
+                return metricFamily.getMetricList()
+                                   .stream()
+                                   .map(it -> Counter.builder()
+                                                     .name(adaptMetricsName(it))
+                                                     .value(it.getCounter().getValue())
+                                                     .timestamp(adaptTimestamp(it))
+                                                     .labels(adaptLabels(it))
+                                                     .build());
             case GAUGE:
                 return metricFamily.getMetricList()
                                    .stream()
@@ -63,15 +72,11 @@ public class ProtoMetricFamily2MetricsAdapter {
         }
     }
 
-    @SuppressWarnings("unused")
     public String adaptMetricsName(final Metrics.Metric metric) {
-        if (metricFamily.getName().startsWith("cluster.inbound|")) {
-            return Splitter.on(".")
-                           .splitToList(metricFamily.getName())
-                           .stream()
-                           .filter(it -> !it.startsWith("inbound|"))
-                           .collect(Collectors.joining("_"));
+        if (metricFamily.getName().startsWith("cluster.")) {
+            return clusterManagerMetricsAdapter.adaptMetricsName(metricFamily);
         }
+
         return metricFamily.getName();
     }
 
@@ -80,9 +85,14 @@ public class ProtoMetricFamily2MetricsAdapter {
     }
 
     public Map<String, String> adaptLabels(final Metrics.Metric metric) {
-        return metric.getLabelList()
-                     .stream()
-                     .collect(toMap(Metrics.LabelPair::getName, Metrics.LabelPair::getValue));
+        Map<String, String> labels = metric.getLabelList()
+                                           .stream()
+                                           .collect(toMap(Metrics.LabelPair::getName, Metrics.LabelPair::getValue));
+        if (metricFamily.getName().startsWith("cluster.")) {
+            return clusterManagerMetricsAdapter.adaptLabels(metricFamily, labels);
+        }
+
+        return labels;
     }
 
     public long adaptTimestamp(final Metrics.Metric metric) {
