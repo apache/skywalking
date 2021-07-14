@@ -67,6 +67,16 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     private final boolean supportUpdate;
     private long sessionTimeout;
     private CounterMetrics aggregationCounter;
+    /**
+     * The counter for the round of persistent.
+     */
+    private int persistentCounter;
+    /**
+     * The mod value to control persistent. The MetricsPersistentWorker is driven by the {@link
+     * org.apache.skywalking.oap.server.core.storage.PersistenceTimer}. The down sampling level workers only execute in
+     * every {@link #persistentMod} periods. And minute level workers execute every time.
+     */
+    private int persistentMod;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
@@ -82,6 +92,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         this.transWorker = Optional.ofNullable(transWorker);
         this.supportUpdate = supportUpdate;
         this.sessionTimeout = storageSessionTimeout;
+        this.persistentCounter = 0;
+        this.persistentMod = 1;
 
         String name = "METRICS_L2_AGGREGATION";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -122,6 +134,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         // And add offset according to worker creation sequence, to avoid context clear overlap,
         // eventually optimize load of IDs reading.
         this.sessionTimeout = this.sessionTimeout * 4 + SESSION_TIMEOUT_OFFSITE_COUNTER * 200;
+        // The down sampling level worker executes every 4 periods.
+        this.persistentMod = 4;
     }
 
     /**
@@ -135,6 +149,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
 
     @Override
     public void prepareBatch(Collection<Metrics> lastCollection, List<PrepareRequest> prepareRequests) {
+        if (persistentCounter++ % persistentMod != 0) {
+            return;
+        }
+
         long start = System.currentTimeMillis();
         if (lastCollection.size() == 0) {
             return;
