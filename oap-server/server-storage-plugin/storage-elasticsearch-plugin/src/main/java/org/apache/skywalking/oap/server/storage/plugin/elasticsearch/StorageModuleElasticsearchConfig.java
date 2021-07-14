@@ -42,7 +42,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      */
     private int socketTimeout = 30000;
     /**
-     * Since 6.4.0, the index of metrics and traces data in minute/hour/month precision are organized in days. ES
+     * @since 6.4.0, the index of metrics and traces data in minute/hour/month precision are organized in days. ES
      * storage creates new indexes in every day.
      *
      * @since 7.0.0 dayStep represents how many days a single one index represents. Default is 1, meaning no difference
@@ -64,8 +64,16 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int superDatasetIndexReplicasNumber = 0;
     private int superDatasetIndexShardsFactor = 5;
     private int indexRefreshInterval = 2;
-    private int bulkActions = 2000;
-    private int flushInterval = 10;
+    /**
+     * @since 8.7.0 This setting affects all traces/logs/metrics/metadata flush policy.
+     */
+    private int bulkActions = 5000;
+    /**
+     * Period of flush, no matter `bulkActions` reached or not. Unit is second.
+     *
+     * @since 8.7.0 increase to 15s from 10s
+     */
+    private int flushInterval = 15;
     private int concurrentRequests = 2;
     /**
      * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}

@@ -85,9 +85,11 @@ Release Notes.
   persistent session mechanism, don't require the data queryable immediately after the insert and update anymore.
 * Performance: share `flushInterval` setting for both metrics and record data, due
   to `synchronous persistence mechanism` removed. Record flush interval used to be hardcoded as 10s.
+* Remove `syncBulkActions` in ElasticSearch storage option.
+* Increase the default bulkActions(env, SW_STORAGE_ES_BULK_ACTIONS) to 5000(from 1000).
+* Increase the flush interval of ElasticSearch indices to 15s(from 10s)
 
 #### UI
-
 * Fix the date component for log conditions.
 * Fix selector keys for duplicate options.
 * Add Python celery plugin.
@@ -97,6 +99,7 @@ Release Notes.
 * Fix chart types for setting metrics configure.
 
 #### Documentation
+* Add FAQ about `Elasticsearch exception type=version_conflict_engine_exception since 8.7.0`
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/90?closed=1)
 
