@@ -158,10 +158,8 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         "envoy_worker_threads_max"
     };
 
-    public static String METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE = "meter_oap_instance_persistence_execute_percentile";
-
     public static String[] ALL_SO11Y_LABELED_METRICS = {
-        METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE
+        // Nothing to check for now.
     };
     private String id;
     private String metricsName;
