@@ -161,7 +161,7 @@ public enum PersistenceTimer {
                         HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
                         try {
                             if (CollectionUtils.isNotEmpty(partition)) {
-                                batchDAO.synchronous(partition);
+                                batchDAO.flush(partition);
                             }
                         } catch (Throwable e) {
                             log.error(e.getMessage(), e);

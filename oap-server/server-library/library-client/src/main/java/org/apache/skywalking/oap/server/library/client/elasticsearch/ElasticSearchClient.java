@@ -547,6 +547,10 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return response.getStatusLine().getStatusCode();
     }
 
+    /**
+     * @since 8.7.0 SkyWalking don't use sync bulk anymore. This method is just kept for unexpected case in the future.
+     */
+    @Deprecated
     public void synchronousBulk(BulkRequest request) {
         request.timeout(TimeValue.timeValueMinutes(2));
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);
