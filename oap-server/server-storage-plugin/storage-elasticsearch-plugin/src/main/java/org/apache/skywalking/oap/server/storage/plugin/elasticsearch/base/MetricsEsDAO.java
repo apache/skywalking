@@ -83,9 +83,9 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         // the current day and the T-1 day(if at the edge between days)
         List<Metrics> result = new ArrayList<>(metrics.size());
         groupIndices.forEach((tableName, metricList) -> {
-            String[] ids = metrics.stream()
-                                  .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
-                                  .toArray(String[]::new);
+            String[] ids = metricList.stream()
+                                     .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
+                                     .toArray(String[]::new);
             try {
                 SearchResponse response = getClient().ids(tableName, ids);
                 for (int i = 0; i < response.getHits().getHits().length; i++) {
