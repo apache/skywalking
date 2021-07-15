@@ -200,7 +200,11 @@ catalog:
               - name: "Send Envoy Metrics to SkyWalking with / without Istio"
                 path: "/en/setup/envoy/metrics_service_setting"
           - name: "Infrastructure Monitoring"
-            path: "/en/setup/backend/backend-infrastructure-monitoring"
+            catalog:
+              - name: "VMs Monitoring"
+                path: "/en/setup/backend/backend-vm-monitoring"
+              - name: "K8s Monitoring"
+                path: "/en/setup/backend/backend-k8s-monitoring"
       - name: "UI Setup"
         path: "/en/setup/backend/ui-setup"
       - name: "CLI Setup"
