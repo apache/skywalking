@@ -63,7 +63,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
             storage.getDownsampling(), record,
             isSuperDatasetModel(aClass),
-            FunctionCategory.uniqueFunctionName(aClass)
+            FunctionCategory.uniqueFunctionName(aClass),
+            storage.isTimeRelativeID()
         );
 
         this.followColumnNameRules(model);

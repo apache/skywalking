@@ -92,6 +92,8 @@ Release Notes.
   more chances including duplicate elements. Don't need this as indicate anymore.
 * Reduce the flush period of hour and day level metrics, only run in 4 times of regular persistent period. This means
   default flush period of hour and day level metrics are 25s * 4.
+* Performance: optimize IDs read of ElasticSearch storage options(6 and 7). Use the physical index rather than template
+  alias name.
 
 #### UI
 

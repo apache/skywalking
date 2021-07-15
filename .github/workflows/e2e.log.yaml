@@ -36,6 +36,7 @@ jobs:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Log
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     strategy:
       matrix:
         storage: ['h2', 'mysql', 'es6', 'es7', 'influxdb']
