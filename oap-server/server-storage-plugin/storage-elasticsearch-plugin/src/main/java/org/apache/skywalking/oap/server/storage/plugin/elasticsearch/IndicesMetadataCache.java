@@ -13,18 +13,36 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.oap.server.core.storage.annotation;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import java.util.HashSet;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
-@Getter
-@RequiredArgsConstructor
-public class Storage {
-    private final String modelName;
-    private final boolean timeRelativeID;
-    private final DownSampling downsampling;
+/**
+ * IndicesMetadataCache hosts all pseudo real time metadata of indices.
+ */
+@Slf4j
+public class IndicesMetadataCache {
+    public static IndicesMetadataCache INSTANCE = new IndicesMetadataCache();
+
+    private volatile HashSet<String> existingIndices;
+
+    private IndicesMetadataCache() {
+        existingIndices = new HashSet<>();
+    }
+
+    public void update(List<String> indices) {
+        existingIndices = new HashSet<>(indices);
+    }
+
+    /**
+     * @return true if given index name exists currently.
+     */
+    public boolean isExisting(String index) {
+        return existingIndices.contains(index);
+    }
 }

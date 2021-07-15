@@ -39,4 +39,11 @@ public @interface MetricsExtension {
      * @return true if this metrics data could be updated.
      */
     boolean supportUpdate();
+
+    /**
+     * @return true means the ID of this metric entity would generate timestamp related ID, such as 20170128-serviceId.
+     * If as false, then, ID would be like serviceId directly. This is typically used for metadata level metric, such as
+     * {@link org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic}
+     */
+    boolean timeRelativeID() default false;
 }
