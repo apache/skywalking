@@ -103,9 +103,7 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
                 return;
             }
 
-            for (String index : indexes) {
-                indices.add(index);
-            }
+            indices.addAll(indexes);
         });
         IndicesMetadataCache.INSTANCE.update(indices);
     }
