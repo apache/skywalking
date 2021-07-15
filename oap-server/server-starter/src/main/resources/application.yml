@@ -242,6 +242,14 @@ storage:
     oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
+  iotdb:
+    host: ${SW_STORAGE_IOTDB_HOST:localhost}
+    rpcPort: ${SW_STORAGE_IOTDB_RPCPORT:6667}
+    username: ${SW_STORAGE_IOTDB_USERNAME:root}
+    password: ${SW_STORAGE_IOTDB_PASSWORD:root}
+    storageGroup: ${SW_STORAGE_IOTDB_STORAGEGROUP:root.skywalking}
+    sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:3}
+    fetchTaskLogMaxSize: ${SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
 
 agent-analyzer:
   selector: ${SW_AGENT_ANALYZER:default}

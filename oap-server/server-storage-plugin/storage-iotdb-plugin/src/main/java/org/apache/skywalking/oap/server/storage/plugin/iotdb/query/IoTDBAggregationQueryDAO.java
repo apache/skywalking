@@ -1,0 +1,59 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
+
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
+import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
+import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
+
+public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
+    private IoTDBClient client;
+    private static final Comparator<SelectedRecord> ASCENDING =
+            Comparator.comparingLong(a -> Long.parseLong(a.getValue()));
+    private static final Comparator<SelectedRecord> DESCENDING = (a, b) ->
+            Long.compare(Long.parseLong(b.getValue()), Long.parseLong(a.getValue()));
+
+    public IoTDBAggregationQueryDAO(IoTDBClient client) {
+        this.client = client;
+    }
+
+    @Override
+    public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration,
+                                            List<KeyValue> additionalConditions) throws IOException {
+        Comparator<SelectedRecord> comparator = DESCENDING;
+        String functionName = "top_k";
+        if (condition.getOrder().equals(Order.ASC)) {
+            functionName = "bottom_k";
+            comparator = ASCENDING;
+        }
+
+        StringBuilder query = new StringBuilder();
+        // TODO adopt entity_id index, and use group by level
+        // TODO first execute sub-query, then resort and limit
+        return null;
+    }
+}
