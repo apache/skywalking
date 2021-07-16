@@ -94,6 +94,10 @@ Release Notes.
   default flush period of hour and day level metrics are 25s * 4.
 * Performance: optimize IDs read of ElasticSearch storage options(6 and 7). Use the physical index rather than template
   alias name.
+* Adjust index refresh period as INT(flushInterval * 2/3), it used to be as same as bulk flush period. At the edge case,
+  in low traffic(traffic < bulkActions in the whole period), there is a possible case, 2 period bulks are included in
+  one index refresh rebuild operation, which could cause version conflicts. And this case can't be fixed
+  through `core/persistentPeriod` as the bulk fresh is not controlled by the persistent timer anymore.
 
 #### UI
 
