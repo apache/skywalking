@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.log.analyzer.dsl.spec.filter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
@@ -153,6 +154,7 @@ public class FilterSpec extends AbstractSpec {
 
         final Binding b = BINDING.get();
         final LogData.Builder logData = b.log();
+        final Message extraLog = b.extraLog();
 
         if (!b.shouldSave()) {
             if (LOGGER.isDebugEnabled()) {
@@ -163,7 +165,7 @@ public class FilterSpec extends AbstractSpec {
 
         factories.stream()
                  .map(LogAnalysisListenerFactory::create)
-                 .forEach(it -> it.parse(logData).build());
+                 .forEach(it -> it.parse(logData, extraLog).build());
     }
 
     @SuppressWarnings("unused")

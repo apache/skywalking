@@ -81,7 +81,7 @@ public class LogReportServiceRestHandler extends JettyHandler {
                 ProtoBufJsonUtils.fromJSON(it.toString(), builder);
                 logs.add(builder);
             }
-            logs.forEach(logAnalyzerService::doAnalysis);
+            logs.forEach(it -> logAnalyzerService.doAnalysis(it, null));
         } catch (final Exception e) {
             log.error(e.getMessage(), e);
             errorCounter.inc();

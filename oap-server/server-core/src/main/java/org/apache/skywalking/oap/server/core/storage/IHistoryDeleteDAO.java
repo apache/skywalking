@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import java.io.IOException;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 
@@ -31,8 +32,21 @@ public interface IHistoryDeleteDAO extends DAO {
      *
      * @param model                data entity.
      * @param timeBucketColumnName column name represents the time. Right now, always {@link Metrics#TIME_BUCKET}
-     * @param ttl                 the number of days should be kept
+     * @param ttl                  the number of days should be kept
      * @throws IOException when error happens in the deletion process.
      */
     void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException;
+
+    /**
+     * Inspection is also driven by the TTL timer. This method is optional to implement, typically, this could be used
+     * to do routing inspection for timer series data, and get the latest status of existing data boundaries(oldest and
+     * latest).
+     *
+     * @param models               model list
+     * @param timeBucketColumnName column name represents the time. Right now, always {@link Metrics#TIME_BUCKET}
+     * @throws IOException when error happens in the deletion process.
+     */
+    default void inspect(List<Model> models, String timeBucketColumnName) throws IOException {
+
+    }
 }

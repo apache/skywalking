@@ -17,24 +17,22 @@ rules:
   - name: envoy-als
     dsl: |
       filter {
-        json {
-        }
         // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)
-        if (parsed?.response?.responseCode as Integer < 400 && !parsed?.commonProperties?.responseFlags) {
+        if (parsed?.response?.responseCode?.value as Integer < 400 && !parsed?.commonProperties?.responseFlags?.toString()?.trim()) {
           abort {}
         }
         extractor {
           if (parsed?.response?.responseCode) {
-            tag 'status.code': parsed?.response?.responseCode as int
+            tag 'status.code': parsed?.response?.responseCode?.value
           }
-          tag 'response.flag': (parsed?.commonProperties?.responseFlags as Map)?.keySet()
+          tag 'response.flag': parsed?.commonProperties?.responseFlags
         }
         sink {
           sampler {
-            if (parsed?.commonProperties?.responseFlags) {
+            if (parsed?.commonProperties?.responseFlags?.toString()) {
               // use service:errorCode as sampler id so that each service:errorCode has its own sampler,
               // e.g. checkoutservice:[upstreamConnectionFailure], checkoutservice:[upstreamRetryLimitExceeded]
-              rateLimit("${log.service}:${(parsed?.commonProperties?.responseFlags as Map)?.keySet()}") {
+              rateLimit("${log.service}:${parsed?.commonProperties?.responseFlags?.toString()}") {
                 qps 100
               }
             } else {

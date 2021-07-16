@@ -73,8 +73,9 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         }
 
         ModelCreator modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelCreator.class);
+        // Record stream doesn't read data from database during the persistent process. Keep the timeRelativeID == false always.
         Model model = modelSetter.add(
-            recordClass, stream.scopeId(), new Storage(stream.name(), DownSampling.Second), true);
+            recordClass, stream.scopeId(), new Storage(stream.name(), false, DownSampling.Second), true);
         RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, model, recordDAO);
 
         workers.put(recordClass, persistentWorker);

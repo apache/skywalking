@@ -20,7 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
@@ -28,9 +31,13 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.IndicesMetadataCache;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
+import static java.util.stream.Collectors.groupingBy;
+
+@Slf4j
 public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     protected final StorageHashMapBuilder<Metrics> storageBuilder;
 
@@ -42,16 +49,54 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
-        String tableName = IndexController.INSTANCE.getTableName(model);
-        String[] ids = metrics.stream()
-                              .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
-                              .toArray(String[]::new);
-        SearchResponse response = getClient().ids(tableName, ids);
-        List<Metrics> result = new ArrayList<>(response.getHits().getHits().length);
-        for (int i = 0; i < response.getHits().getHits().length; i++) {
-            Metrics source = storageBuilder.storage2Entity(response.getHits().getAt(i).getSourceAsMap());
-            result.add(source);
-        }
+        Map<String, List<Metrics>> groupIndices
+            = metrics.stream()
+                     .collect(
+                         groupingBy(metric -> {
+                             if (model.isTimeRelativeID()) {
+                                 // Try to use with timestamp index name(write index),
+                                 // if latest cache shows this name doesn't exist,
+                                 // then fail back to template alias name.
+                                 // This should only happen in very rare case, such as this is the time to create new index
+                                 // as a new day comes, and the index cache is  pseudo real time.
+                                 // This case doesn't affect the result, just has lower performance due to using the alias name.
+                                 // Another case is that a removed index showing existing also due to latency,
+                                 // which could cause multiGet fails
+                                 // but this should not happen in the real runtime, TTL timer only removed the oldest indices,
+                                 // which should not have an update/insert.
+                                 String indexName = TimeSeriesUtils.writeIndexName(model, metric.getTimeBucket());
+                                 // Format the name to follow the global physical index naming policy.
+                                 if (!IndicesMetadataCache.INSTANCE.isExisting(
+                                     getClient().formatIndexName(indexName))) {
+                                     indexName = IndexController.INSTANCE.getTableName(model);
+                                 }
+                                 return indexName;
+                             } else {
+                                 // Metadata level metrics, always use alias name, due to the physical index of the records
+                                 // can't be located through timestamp.
+                                 return IndexController.INSTANCE.getTableName(model);
+                             }
+                         })
+                     );
+
+        // The groupIndices mostly include one or two group,
+        // the current day and the T-1 day(if at the edge between days)
+        List<Metrics> result = new ArrayList<>(metrics.size());
+        groupIndices.forEach((tableName, metricList) -> {
+            String[] ids = metricList.stream()
+                                     .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
+                                     .toArray(String[]::new);
+            try {
+                SearchResponse response = getClient().ids(tableName, ids);
+                for (int i = 0; i < response.getHits().getHits().length; i++) {
+                    Metrics source = storageBuilder.storage2Entity(response.getHits().getAt(i).getSourceAsMap());
+                    result.add(source);
+                }
+            } catch (IOException e) {
+                log.error("multiGet id=" + Arrays.toString(ids) + " from " + tableName + " fails.", e);
+            }
+        });
+
         return result;
     }
 
