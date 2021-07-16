@@ -89,7 +89,7 @@ public class LogReportServiceHandler extends LogReportServiceGrpc.LogReportServi
                 try {
                     LogData.Builder builder = logData.toBuilder();
                     setServiceName(builder);
-                    logAnalyzerService.doAnalysis(builder);
+                    logAnalyzerService.doAnalysis(builder, null);
                 } catch (Exception e) {
                     errorCounter.inc();
                     log.error(e.getMessage(), e);

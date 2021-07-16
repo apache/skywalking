@@ -15,16 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.core.storage.annotation;
+package org.apache.skywalking.oap.log.analyzer.provider.log.analyzer;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+public class LogAnalyzerFactory {
 
-@Getter
-@RequiredArgsConstructor
-public class Storage {
-    private final String modelName;
-    private final boolean timeRelativeID;
-    private final DownSampling downsampling;
 }

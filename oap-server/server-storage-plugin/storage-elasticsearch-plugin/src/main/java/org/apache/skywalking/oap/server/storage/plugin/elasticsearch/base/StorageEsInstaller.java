@@ -162,9 +162,19 @@ public class StorageEsInstaller extends ModelInstaller {
         setting.put("index.number_of_shards", model.isSuperDataset()
             ? config.getIndexShardsNumber() * config.getSuperDatasetIndexShardsFactor()
             : config.getIndexShardsNumber());
-        setting.put("index.refresh_interval", model.isRecord()
-            ? TimeValue.timeValueSeconds(10).toString()
-            : TimeValue.timeValueSeconds(config.getFlushInterval()).toString());
+        // Set the index refresh period as INT(flushInterval * 2/3). At the edge case,
+        // in low traffic(traffic < bulkActions in the whole period), there is a possible case, 2 period bulks are included in
+        // one index refresh rebuild operation, which could cause version conflicts. And this case can't be fixed
+        // through `core/persistentPeriod` as the bulk fresh is not controlled by the persistent timer anymore.
+        int indexRefreshInterval = config.getFlushInterval() * 2 / 3;
+        if (indexRefreshInterval < 5) {
+            // The refresh interval should not be less than 5 seconds (the recommended default value = 10s),
+            // and the bulk flush interval should not be set less than 8s (the recommended default value = 15s).
+            // This is a precaution case which makes ElasticSearch server has reasonable refresh interval,
+            // even this value is set too small by end user manually.
+            indexRefreshInterval = 5;
+        }
+        setting.put("index.refresh_interval", TimeValue.timeValueSeconds(indexRefreshInterval).toString());
         setting.put("analysis", getAnalyzerSetting(model.getColumns()));
         if (!StringUtil.isEmpty(config.getAdvanced())) {
             Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);

@@ -56,7 +56,7 @@ public class H2BatchDAO implements IBatchDAO {
     }
 
     @Override
-    public void synchronous(List<PrepareRequest> prepareRequests) {
+    public void flush(List<PrepareRequest> prepareRequests) {
         if (CollectionUtils.isEmpty(prepareRequests)) {
             return;
         }
@@ -81,7 +81,7 @@ public class H2BatchDAO implements IBatchDAO {
     }
 
     @Override
-    public void asynchronous(InsertRequest insertRequest) {
+    public void insert(InsertRequest insertRequest) {
         this.dataCarrier.produce(insertRequest);
     }
 
@@ -100,7 +100,7 @@ public class H2BatchDAO implements IBatchDAO {
 
         @Override
         public void consume(List<PrepareRequest> prepareRequests) {
-            h2BatchDAO.synchronous(prepareRequests);
+            h2BatchDAO.flush(prepareRequests);
         }
 
         @Override

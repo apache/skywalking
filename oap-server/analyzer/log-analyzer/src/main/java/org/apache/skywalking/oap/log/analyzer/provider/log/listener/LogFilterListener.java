@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 
+import com.google.protobuf.Message;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,8 +49,10 @@ public class LogFilterListener implements LogAnalysisListener {
     }
 
     @Override
-    public LogAnalysisListener parse(final LogData.Builder logData) {
-        dsls.forEach(dsl -> dsl.bind(new Binding().log(logData.build())));
+    public LogAnalysisListener parse(final LogData.Builder logData,
+                                     final Message extraLog) {
+        dsls.forEach(dsl -> dsl.bind(new Binding().log(logData.build())
+                                                  .extraLog(extraLog)));
         return this;
     }
 

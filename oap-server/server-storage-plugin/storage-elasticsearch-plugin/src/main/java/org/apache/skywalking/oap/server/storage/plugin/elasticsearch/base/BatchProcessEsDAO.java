@@ -19,22 +19,18 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BatchProcessEsDAO.class);
-
     private BulkProcessor bulkProcessor;
     private final int bulkActions;
     private final int flushInterval;
@@ -51,7 +47,7 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     }
 
     @Override
-    public void asynchronous(InsertRequest insertRequest) {
+    public void insert(InsertRequest insertRequest) {
         if (bulkProcessor == null) {
             this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
         }
@@ -60,17 +56,19 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     }
 
     @Override
-    public void synchronous(List<PrepareRequest> prepareRequests) {
+    public void flush(List<PrepareRequest> prepareRequests) {
+        if (bulkProcessor == null) {
+            this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
+        }
+
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
-            BulkRequest request = new BulkRequest();
             for (PrepareRequest prepareRequest : prepareRequests) {
                 if (prepareRequest instanceof InsertRequest) {
-                    request.add((IndexRequest) prepareRequest);
+                    this.bulkProcessor.add((IndexRequest) prepareRequest);
                 } else {
-                    request.add((UpdateRequest) prepareRequest);
+                    this.bulkProcessor.add((UpdateRequest) prepareRequest);
                 }
             }
-            getClient().synchronousBulk(request);
         }
     }
 }
