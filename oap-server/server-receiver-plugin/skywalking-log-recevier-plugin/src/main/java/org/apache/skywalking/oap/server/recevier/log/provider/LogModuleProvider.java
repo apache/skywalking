@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.recevier.log.module.LogModule;
 import org.apache.skywalking.oap.server.recevier.log.provider.handler.grpc.LogReportServiceHandler;
+import org.apache.skywalking.oap.server.recevier.log.provider.handler.rest.LogRawReportServiceRestHandler;
 import org.apache.skywalking.oap.server.recevier.log.provider.handler.rest.LogReportServiceRestHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
@@ -66,6 +67,7 @@ public class LogModuleProvider extends ModuleProvider {
                                                                 .provider()
                                                                 .getService(JettyHandlerRegister.class);
         jettyHandlerRegister.addHandler(new LogReportServiceRestHandler(getManager()));
+        jettyHandlerRegister.addHandler(new LogRawReportServiceRestHandler(getManager()));
     }
 
     @Override
