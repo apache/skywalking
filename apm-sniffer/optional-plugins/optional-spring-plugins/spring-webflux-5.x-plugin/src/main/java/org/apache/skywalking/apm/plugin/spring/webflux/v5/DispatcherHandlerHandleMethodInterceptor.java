@@ -93,7 +93,10 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
 
         AbstractSpan span = (AbstractSpan) exchange.getAttributes().get("SKYWALING_SPAN");
         
-        return ((Mono) ret).then(Mono.create(s -> setPattern(span, exchange)))
+        return ((Mono) ret).flatMap(s -> {
+                    setPattern(span, exchange);
+                    return s;
+                 })
                 .doOnError(s -> setPattern(span, exchange))
                 .doFinally(s -> {
 
