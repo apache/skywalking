@@ -77,13 +77,14 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         exchange.getAttributes().put("SKYWALING_SPAN", span);
     }
     
-    private void setPattern(AbstractSpan span, ServerWebExchange exchange) {
+    private void maybeSetPattern(AbstractSpan span, ServerWebExchange exchange) {
         if (span != null) {
-            Object pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-            if (pathPattern != null) {
-                span.setOperationName(((PathPattern) pathPattern).getPatternString());
+            PathPattern pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+            if (pathPattern != null && pathPattern.matches(exchange.getRequest().getPath().pathWithinApplication())) {
+                span.setOperationName(pathPattern.getPatternString());
             }
         }
+
     }
 
     @Override
@@ -93,14 +94,11 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
 
         AbstractSpan span = (AbstractSpan) exchange.getAttributes().get("SKYWALING_SPAN");
         
-        return ((Mono) ret).flatMap(s -> {
-                    setPattern(span, exchange);
-                    return s;
-                 })
-                .doOnError(s -> setPattern(span, exchange))
+                return ((Mono) ret)
                 .doFinally(s -> {
 
                     if (span != null) {
+                        maybeSetPattern(span, exchange);
                         try {
             
                             HttpStatus httpStatus = exchange.getResponse().getStatusCode();
