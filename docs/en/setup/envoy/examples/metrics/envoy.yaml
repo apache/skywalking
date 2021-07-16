@@ -85,7 +85,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: host.docker.internal
+                      address: skywalking
                       port_value: 11800
 
     - name: service_google

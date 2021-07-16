@@ -81,6 +81,7 @@ Release Notes.
 * Performance: compile LAL DSL statically and run with type checked.
 * Add pagination to event query protocol.
 * Performance: optimize Envoy error logs persistence performance.
+* Support envoy `cluster manager` metrics.
 * Performance: remove the synchronous persistence mechanism from batch ElasticSearch DAO. Because the current enhanced
   persistent session mechanism, don't require the data queryable immediately after the insert and update anymore.
 * Performance: share `flushInterval` setting for both metrics and record data, due
