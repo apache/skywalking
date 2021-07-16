@@ -20,15 +20,11 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -49,18 +45,13 @@ public enum PersistenceTimer {
     INSTANCE;
     @VisibleForTesting
     boolean isStarted = false;
-    private final Boolean debug;
     private CounterMetrics errorCounter;
     private HistogramMetrics prepareLatency;
     private HistogramMetrics executeLatency;
     private HistogramMetrics allLatency;
-    private int syncOperationThreadsNum;
-    private int maxSyncOperationNum;
-    private ExecutorService executorService;
     private ExecutorService prepareExecutorService;
 
     PersistenceTimer() {
-        this.debug = System.getProperty("debug") != null;
     }
 
     public void start(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
@@ -87,9 +78,6 @@ public enum PersistenceTimer {
             MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
 
-        syncOperationThreadsNum = moduleConfig.getSyncThreads();
-        maxSyncOperationNum = moduleConfig.getMaxSyncOperationNum();
-        executorService = Executors.newFixedThreadPool(syncOperationThreadsNum);
         prepareExecutorService = Executors.newFixedThreadPool(moduleConfig.getPrepareThreads());
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor()
@@ -104,167 +92,51 @@ public enum PersistenceTimer {
     }
 
     private void extractDataAndSave(IBatchDAO batchDAO) {
-
         if (log.isDebugEnabled()) {
             log.debug("Extract data and save");
         }
 
         long startTime = System.currentTimeMillis();
-        HistogramMetrics.Timer allTimer = allLatency.createTimer();
-        // Use `stop` as a control signal to make fail-fast in the persistence process.
-        AtomicBoolean stop = new AtomicBoolean(false);
 
-        DefaultBlockingBatchQueue<PrepareRequest> prepareQueue = new DefaultBlockingBatchQueue(
-            this.maxSyncOperationNum);
-        try {
+        try (HistogramMetrics.Timer allTimer = allLatency.createTimer()) {
             List<PersistenceWorker<? extends StorageData>> persistenceWorkers = new ArrayList<>();
             persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
             persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
 
-            // CountDownLatch makes sure all prepare threads done eventually.
-            CountDownLatch prepareStageCountDownLatch = new CountDownLatch(persistenceWorkers.size());
-
+            CountDownLatch countDownLatch = new CountDownLatch(persistenceWorkers.size());
             persistenceWorkers.forEach(worker -> {
                 prepareExecutorService.submit(() -> {
-                    if (stop.get()) {
-                        prepareStageCountDownLatch.countDown();
-                        return;
-                    }
-
-                    HistogramMetrics.Timer timer = prepareLatency.createTimer();
-                    try {
+                    try (HistogramMetrics.Timer timer = prepareLatency.createTimer()) {
                         if (log.isDebugEnabled()) {
                             log.debug("extract {} worker data and save", worker.getClass().getName());
                         }
                         List<PrepareRequest> innerPrepareRequests = new ArrayList<>(5000);
                         worker.buildBatchRequests(innerPrepareRequests);
-                        // Push the prepared requests into DefaultBlockingBatchQueue,
-                        // the executorService consumes from it when it reaches the size of batch.
-                        prepareQueue.offer(innerPrepareRequests);
+
+                        try (HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer()) {
+                            if (CollectionUtils.isNotEmpty(innerPrepareRequests)) {
+                                batchDAO.flush(innerPrepareRequests);
+                            }
+                        } catch (Throwable e) {
+                            log.error(e.getMessage(), e);
+                        }
                         worker.endOfRound();
                     } finally {
-                        timer.finish();
-                        prepareStageCountDownLatch.countDown();
+                        countDownLatch.countDown();
                     }
                 });
             });
 
-            List<Future<?>> batchFutures = new ArrayList<>();
-            for (int i = 0; i < syncOperationThreadsNum; i++) {
-                Future<?> batchFuture = executorService.submit(() -> {
-                    // consume the metrics
-                    while (!stop.get()) {
-                        List<PrepareRequest> partition = prepareQueue.poll();
-                        if (partition.isEmpty()) {
-                            break;
-                        }
-                        HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
-                        try {
-                            if (CollectionUtils.isNotEmpty(partition)) {
-                                batchDAO.flush(partition);
-                            }
-                        } catch (Throwable e) {
-                            log.error(e.getMessage(), e);
-                        } finally {
-                            executeLatencyTimer.finish();
-                        }
-                    }
-                    return null;
-                });
-                batchFutures.add(batchFuture);
-            }
-
-            // Wait for prepare stage is done.
-            prepareStageCountDownLatch.await();
-            prepareQueue.noFurtherAppending();
-            // Wait for batch stage is done.
-            for (Future<?> result : batchFutures) {
-                result.get();
-            }
-
+            countDownLatch.await();
         } catch (Throwable e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);
         } finally {
-
             if (log.isDebugEnabled()) {
                 log.debug("Persistence data save finish");
             }
-
-            stop.set(true);
-            allTimer.finish();
         }
 
-        if (debug) {
-            log.info("Batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
-        }
+        log.debug("Batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
     }
-
-    static class DefaultBlockingBatchQueue<E> implements BlockingBatchQueue<E> {
-        @Getter
-        private final int maxBatchSize;
-        private final List<E> elementData;
-        @Getter
-        private boolean inAppendingMode = true;
-
-        public DefaultBlockingBatchQueue(final int maxBatchSize) {
-            this.maxBatchSize = maxBatchSize;
-            // Use the maxBatchSize * 3 as the initial queue size to avoid ArrayList#grow
-            this.elementData = new ArrayList<>(maxBatchSize * 3);
-        }
-
-        @Override
-        public void offer(List<E> elements) {
-            synchronized (elementData) {
-                if (!inAppendingMode) {
-                    throw new IllegalStateException();
-                }
-                elementData.addAll(elements);
-                if (elementData.size() >= maxBatchSize) {
-                    elementData.notifyAll();
-                }
-            }
-        }
-
-        @Override
-        public List<E> poll() throws InterruptedException {
-            synchronized (elementData) {
-                while (this.elementData.size() < maxBatchSize && inAppendingMode) {
-                    elementData.wait(1000);
-                }
-                if (CollectionUtils.isEmpty(elementData)) {
-                    return Collections.EMPTY_LIST;
-                }
-                List<E> sublist = this.elementData.subList(
-                    0, Math.min(maxBatchSize, this.elementData.size()));
-                List<E> partition = new ArrayList<>(sublist);
-                sublist.clear();
-                return partition;
-            }
-        }
-
-        @Override
-        public void noFurtherAppending() {
-            synchronized (elementData) {
-                inAppendingMode = false;
-                elementData.notifyAll();
-            }
-        }
-
-        @Override
-        public void furtherAppending() {
-            synchronized (elementData) {
-                inAppendingMode = true;
-                elementData.notifyAll();
-            }
-        }
-
-        @Override
-        public int size() {
-            synchronized (elementData) {
-                return elementData.size();
-            }
-        }
-    }
-
 }

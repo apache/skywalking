@@ -53,7 +53,6 @@ public class PersistenceTimerTest {
         int count = 101;
         int workCount = 10;
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
-        moduleConfig.setMaxSyncOperationNum(5);
         moduleConfig.setPersistentPeriod(Integer.MAX_VALUE);
         IBatchDAO iBatchDAO = new IBatchDAO() {
             @Override
