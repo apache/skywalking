@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags.HTTP;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -61,6 +62,10 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         }
 
         AbstractSpan span = ContextManager.createEntrySpan(exchange.getRequest().getURI().getPath(), carrier);
+        
+        if (instance != null && instance.getSkyWalkingDynamicField() != null) {
+            ContextManager.continued((ContextSnapshot) instance.getSkyWalkingDynamicField());
+        }
         span.setComponent(ComponentsDefine.SPRING_WEBFLUX);
         SpanLayer.asHttp(span);
         Tags.URL.set(span, exchange.getRequest().getURI().toString());
@@ -71,33 +76,42 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
 
         exchange.getAttributes().put("SKYWALING_SPAN", span);
     }
-
-    @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
-        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        AbstractSpan span = (AbstractSpan) exchange.getAttributes().get("SKYWALING_SPAN");
+    
+    private void setPattern(AbstractSpan span, ServerWebExchange exchange) {
         if (span != null) {
             Object pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
             if (pathPattern != null) {
                 span.setOperationName(((PathPattern) pathPattern).getPatternString());
             }
         }
-        return ((Mono) ret).doFinally(s -> {
-            if (span != null) {
-                try {
-                    HttpStatus httpStatus = exchange.getResponse().getStatusCode();
-                    // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
-                    if (httpStatus != null) {
-                        Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
-                        if (httpStatus.isError()) {
-                            span.errorOccurred();
+    }
+
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) throws Throwable {
+        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+
+        AbstractSpan span = (AbstractSpan) exchange.getAttributes().get("SKYWALING_SPAN");
+        
+        return ((Mono) ret).then(Mono.create(s -> setPattern(span, exchange)))
+                .doOnError(s -> setPattern(span, exchange))
+                .doFinally(s -> {
+
+                    if (span != null) {
+                        try {
+            
+                            HttpStatus httpStatus = exchange.getResponse().getStatusCode();
+                            // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
+                            if (httpStatus != null) {
+                                Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
+                                if (httpStatus.isError()) {
+                                    span.errorOccurred();
+                                }
+                            }
+                        } finally {
+                            span.asyncFinish();
                         }
                     }
-                } finally {
-                    span.asyncFinish();
-                }
-            }
         });
     }
 
