@@ -23,12 +23,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.kafka.define.Constants;
 import org.apache.skywalking.apm.plugin.kafka.define.InterceptorMethod;
-import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 
 import java.lang.reflect.Method;
 
 /**
- * The interceptor intends to be imposed on the {@link KafkaMessageListenerContainer.ListenerConsumer#processSeeks()}
+ * The interceptor intends to be imposed on the method `processSeeks` in the ListenerConsumer class
+ * defined in {@link org.springframework.kafka.listener.KafkaMessageListenerContainer}
  */
 public class ProcessSeeksMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
