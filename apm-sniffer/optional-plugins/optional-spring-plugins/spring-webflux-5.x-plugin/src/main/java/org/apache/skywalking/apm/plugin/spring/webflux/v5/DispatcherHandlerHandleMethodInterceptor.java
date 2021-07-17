@@ -80,6 +80,8 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
     private void maybeSetPattern(AbstractSpan span, ServerWebExchange exchange) {
         if (span != null) {
             PathPattern pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+            //check if the best matching pattern matches url in request
+            //to avoid operationName overwritten by fallback url
             if (pathPattern != null && pathPattern.matches(exchange.getRequest().getPath().pathWithinApplication())) {
                 span.setOperationName(pathPattern.getPatternString());
             }
@@ -94,8 +96,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
 
         AbstractSpan span = (AbstractSpan) exchange.getAttributes().get("SKYWALING_SPAN");
         
-                return ((Mono) ret)
-                .doFinally(s -> {
+                return ((Mono) ret).doFinally(s -> {
 
                     if (span != null) {
                         maybeSetPattern(span, exchange);
