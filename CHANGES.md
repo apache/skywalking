@@ -100,6 +100,10 @@ Release Notes.
   in low traffic(traffic < bulkActions in the whole period), there is a possible case, 2 period bulks are included in
   one index refresh rebuild operation, which could cause version conflicts. And this case can't be fixed
   through `core/persistentPeriod` as the bulk fresh is not controlled by the persistent timer anymore.
+* The `core/maxSyncOperationNum` setting(added in 8.5.0) is removed due to metrics persistence is fully asynchronous.
+* The `core/syncThreads` setting(added in 8.5.0) is removed due to metrics persistence is fully asynchronous.
+* Optimization: Concurrency mode of execution stage for metrics is removed(added in 8.5.0). Only concurrency of prepare
+  stage is meaningful and kept.
 
 #### UI
 
