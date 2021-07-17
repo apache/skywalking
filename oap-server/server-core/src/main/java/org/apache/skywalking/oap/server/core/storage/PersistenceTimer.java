@@ -106,13 +106,22 @@ public enum PersistenceTimer {
             CountDownLatch countDownLatch = new CountDownLatch(persistenceWorkers.size());
             persistenceWorkers.forEach(worker -> {
                 prepareExecutorService.submit(() -> {
-                    try (HistogramMetrics.Timer timer = prepareLatency.createTimer()) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("extract {} worker data and save", worker.getClass().getName());
-                        }
-                        List<PrepareRequest> innerPrepareRequests = new ArrayList<>(5000);
-                        worker.buildBatchRequests(innerPrepareRequests);
+                    List<PrepareRequest> innerPrepareRequests = null;
+                    try {
+                        // Prepare stage
+                        try (HistogramMetrics.Timer timer = prepareLatency.createTimer()) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("extract {} worker data and save", worker.getClass().getName());
+                            }
 
+                            innerPrepareRequests = worker.buildBatchRequests();
+
+                            worker.endOfRound();
+                        } catch (Throwable e) {
+                            log.error(e.getMessage(), e);
+                        }
+
+                        // Execution stage
                         try (HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer()) {
                             if (CollectionUtils.isNotEmpty(innerPrepareRequests)) {
                                 batchDAO.flush(innerPrepareRequests);
@@ -120,7 +129,6 @@ public enum PersistenceTimer {
                         } catch (Throwable e) {
                             log.error(e.getMessage(), e);
                         }
-                        worker.endOfRound();
                     } finally {
                         countDownLatch.countDown();
                     }

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +40,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -87,24 +87,24 @@ public class PersistenceTimerTest {
     private MetricsPersistentWorker genWorkers(int num, int count) {
         MetricsPersistentWorker persistenceWorker = mock(MetricsPersistentWorker.class);
         doAnswer(invocation -> {
-            List argument = invocation.getArgument(0, List.class);
+            List<MockStorageData> results = new ArrayList<>(count);
             for (int i = 0; i < count; i++) {
-                argument.add(new MockStorageData(num + " " + UUID.randomUUID()));
+                results.add(new MockStorageData(num + " " + UUID.randomUUID()));
             }
-            return Void.class;
-        }).when(persistenceWorker).buildBatchRequests(anyList());
+            return results;
+        }).when(persistenceWorker).buildBatchRequests();
         return persistenceWorker;
     }
 
     private TopNWorker genTopNWorkers(int num, int count) {
         TopNWorker persistenceWorker = mock(TopNWorker.class);
         doAnswer(invocation -> {
-            List argument = invocation.getArgument(0, List.class);
+            List<MockStorageData> results = new ArrayList<>(count);
             for (int i = 0; i < count; i++) {
-                argument.add(new MockStorageData(num + " " + UUID.randomUUID()));
+                results.add(new MockStorageData(num + " " + UUID.randomUUID()));
             }
-            return Void.class;
-        }).when(persistenceWorker).buildBatchRequests(anyList());
+            return results;
+        }).when(persistenceWorker).buildBatchRequests();
         return persistenceWorker;
     }
 
