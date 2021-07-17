@@ -23,8 +23,8 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 
 /**
- * IBatchDAO provides two modes of data persistence supported by most databases, including pure insert and
- * batch hybrid insert/update.
+ * IBatchDAO provides two modes of data persistence supported by most databases, including pure insert and batch hybrid
+ * insert/update.
  */
 public interface IBatchDAO extends DAO {
     /**
@@ -38,6 +38,8 @@ public interface IBatchDAO extends DAO {
     /**
      * Push data collection into the database in async mode. This method is driven by streaming process. This method
      * doesn't request the data queryable immediately after the method finished.
+     *
+     * The method requires thread safe. The OAP core would call this concurrently.
      *
      * @param prepareRequests data to insert or update. No delete happens in streaming mode.
      */
