@@ -32,6 +32,7 @@ Release Notes.
 * Support `guava-cache` plugin.
 * Enhance the compatibility of `mysql-8.x-plugin` plugin.
 * Support Kafka SASL login module.
+* Chore: polish methods naming for `Spring-Kafka` plugins.
 
 #### OAP-Backend
 
