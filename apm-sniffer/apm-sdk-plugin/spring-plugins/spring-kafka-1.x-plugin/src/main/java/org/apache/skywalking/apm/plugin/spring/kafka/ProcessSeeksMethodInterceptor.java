@@ -23,23 +23,33 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.kafka.define.Constants;
 import org.apache.skywalking.apm.plugin.kafka.define.InterceptorMethod;
+import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 
 import java.lang.reflect.Method;
 
+/**
+ * The interceptor intends to be imposed on the {@link KafkaMessageListenerContainer.ListenerConsumer#processSeeks()}
+ */
 public class ProcessSeeksMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final String OPERATION_NAME = "/spring-kafka" + Constants.KAFKA_POLL_AND_INVOKE_OPERATION_NAME;
 
+    /**
+     * The `beforeMethod` is called before `processSeeks`, which can be used to mark the end of the last iteration.
+     */
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        InterceptorMethod.afterMethod(null);
+        InterceptorMethod.endKafkaPollAndInvokeIteration(null);
     }
 
+    /**
+     * The `afterMethod` is called after `processSeeks`, where the new PollAndInvoke iteration starts
+     */
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        InterceptorMethod.beforeMethod(OPERATION_NAME);
+        InterceptorMethod.beginKafkaPollAndInvokeIteration(OPERATION_NAME);
         return ret;
     }
 

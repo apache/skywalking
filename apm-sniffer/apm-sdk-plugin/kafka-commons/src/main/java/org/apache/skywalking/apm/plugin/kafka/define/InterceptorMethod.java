@@ -22,11 +22,11 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 
 public class InterceptorMethod {
 
-    public static void beforeMethod(String operationName) {
+    public static void beginKafkaPollAndInvokeIteration(String operationName) {
         ContextManager.getRuntimeContext().put(Constants.KAFKA_FLAG, new KafkaContext(operationName));
     }
 
-    public static Object afterMethod(Object ret) {
+    public static Object endKafkaPollAndInvokeIteration(Object ret) {
         KafkaContext context = (KafkaContext) ContextManager.getRuntimeContext().get(Constants.KAFKA_FLAG);
         if (context == null) {
             return ret;
