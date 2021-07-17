@@ -32,6 +32,7 @@ Release Notes.
 * Enhance the compatibility of `mysql-8.x-plugin` plugin.
 * Support Kafka SASL login module.
 * Fix gateway plugin async finish repeatedly when fallback url configured.
+* Chore: polish methods naming for `Spring-Kafka` plugins.
 
 #### OAP-Backend
 
