@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -148,22 +149,23 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     }
 
     @Override
-    public void prepareBatch(Collection<Metrics> lastCollection, List<PrepareRequest> prepareRequests) {
+    public List<PrepareRequest> prepareBatch(Collection<Metrics> lastCollection) {
         if (persistentCounter++ % persistentMod != 0) {
-            return;
+            return Collections.EMPTY_LIST;
         }
 
         long start = System.currentTimeMillis();
         if (lastCollection.size() == 0) {
-            return;
+            return Collections.EMPTY_LIST;
         }
 
         /*
-         * Hard coded the max size. This is only the batch size of one metrics, too large number is meaningless.
+         * Hard coded the max size. This only affect the multiIDRead if the data doesn't hit the cache.
          */
         int maxBatchGetSize = 2000;
         final int batchSize = Math.min(maxBatchGetSize, lastCollection.size());
         List<Metrics> metricsList = new ArrayList<>();
+        List<PrepareRequest> prepareRequests = new ArrayList<>(lastCollection.size());
         for (Metrics data : lastCollection) {
             transWorker.ifPresent(metricsTransWorker -> metricsTransWorker.in(data));
 
@@ -184,6 +186,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                 System.currentTimeMillis() - start, prepareRequests.size()
             );
         }
+        return prepareRequests;
     }
 
     private void flushDataToStorage(List<Metrics> metricsList,
