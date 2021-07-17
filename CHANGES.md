@@ -13,7 +13,6 @@ Release Notes.
   consume.
 
 #### Java Agent
-
 * Supports modifying span attributes in async mode.
 * Agent supports the collection of JVM arguments and jar dependency information.
 * [Temporary] Support authentication for log report channel. This feature and grpc channel is going to be removed after
@@ -32,6 +31,7 @@ Release Notes.
 * Support `guava-cache` plugin.
 * Enhance the compatibility of `mysql-8.x-plugin` plugin.
 * Support Kafka SASL login module.
+* Fix gateway plugin async finish repeatedly when fallback url configured.
 * Chore: polish methods naming for `Spring-Kafka` plugins.
 
 #### OAP-Backend
