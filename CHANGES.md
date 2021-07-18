@@ -33,6 +33,7 @@ Release Notes.
 * Support Kafka SASL login module.
 * Fix gateway plugin async finish repeatedly when fallback url configured.
 * Chore: polish methods naming for `Spring-Kafka` plugins.
+* Remove plugins for ShardingSphere legacy version.
 
 #### OAP-Backend
 
