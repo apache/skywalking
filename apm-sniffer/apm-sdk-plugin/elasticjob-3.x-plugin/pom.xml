@@ -24,21 +24,27 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-elastic-job-3.x-plugin</artifactId>
+    <artifactId>apm-elasticjob-3.x-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>elastic-job-3.x-plugin</name>
+    <name>elasticjob-3.x-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <elasticjob.version>3.0.0-alpha</elasticjob.version>
+        <elasticjob.version>3.0.0</elasticjob.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.shardingsphere.elasticjob</groupId>
             <artifactId>elasticjob-executor-kernel</artifactId>
+            <version>${elasticjob.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shardingsphere.elasticjob</groupId>
+            <artifactId>elasticjob-infra-common</artifactId>
             <version>${elasticjob.version}</version>
             <scope>provided</scope>
         </dependency>

@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.elasticjob.ElasticJobExecutorInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
@@ -33,8 +34,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class ElasticJobExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.elasticjob.executor.ElasticJobExecutor";
-    
-    private static final String JOB_EXECUTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.elasticjob.ElasticJobExecutorInterceptor";
     
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -48,15 +47,16 @@ public class ElasticJobExecutorInstrumentation extends ClassInstanceMethodsEnhan
                     
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("process").and(takesArguments(3))
-                                .and(takesArgument(0, named("org.apache.shardingsphere.elasticjob.api.listener.ShardingContexts")))
-                                .and(takesArgument(1, int.class))
-                                .and(takesArgument(2, named("org.apache.shardingsphere.elasticjob.tracing.event.JobExecutionEvent")));
+                        return named("process").and(takesArguments(4))
+                                .and(takesArgument(0, named("org.apache.shardingsphere.elasticjob.api.JobConfiguration")))
+                                .and(takesArgument(1, named("org.apache.shardingsphere.elasticjob.infra.listener.ShardingContexts")))
+                                .and(takesArgument(2, int.class))
+                                .and(takesArgument(3, named("org.apache.shardingsphere.elasticjob.tracing.event.JobExecutionEvent")));
                     }
                     
                     @Override
                     public String getMethodsInterceptor() {
-                        return JOB_EXECUTOR_INTERCEPTOR_CLASS;
+                        return ElasticJobExecutorInterceptor.class.getName();
                     }
                     
                     @Override
