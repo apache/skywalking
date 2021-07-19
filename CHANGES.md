@@ -11,6 +11,8 @@ Release Notes.
 * Add JDK 16 to test matrix.
 * DataCarrier consumer add a new event notification, call `nothingToConsume` method if the queue has no element to
   consume.
+* Build and push snapshot Docker images to GitHub Container Registry, this is only for people who want to help to test
+  the master branch codes, please don't use in production environments.
 
 #### Java Agent
 * Supports modifying span attributes in async mode.
