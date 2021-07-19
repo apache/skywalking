@@ -105,6 +105,7 @@ Release Notes.
 * The `core/syncThreads` setting(added in 8.5.0) is removed due to metrics persistence is fully asynchronous.
 * Optimization: Concurrency mode of execution stage for metrics is removed(added in 8.5.0). Only concurrency of prepare
   stage is meaningful and kept.
+* Fixed instanceTraffic update problem after enhanced the storage session mechanism.
 
 #### UI
 
