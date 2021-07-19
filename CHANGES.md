@@ -13,6 +13,7 @@ Release Notes.
   consume.
 
 #### Java Agent
+
 * Supports modifying span attributes in async mode.
 * Agent supports the collection of JVM arguments and jar dependency information.
 * [Temporary] Support authentication for log report channel. This feature and grpc channel is going to be removed after
@@ -106,6 +107,8 @@ Release Notes.
 * Optimization: Concurrency mode of execution stage for metrics is removed(added in 8.5.0). Only concurrency of prepare
   stage is meaningful and kept.
 * Fix -meters metrics topic isn't created with namespace issue
+* Enhance persistent session timeout mechanism. Because the enhanced session could cache the metadata metrics forever,
+  new timeout mechanism is designed for avoiding this specific case.
 
 #### UI
 
