@@ -67,8 +67,6 @@ public class KafkaFetcherConfig extends ModuleConfig {
      */
     private int replicationFactor = 2;
 
-    private boolean enableMeterSystem = false;
-
     private boolean enableNativeProtoLog = false;
 
     private boolean enableNativeJsonLog = false;

@@ -228,7 +228,6 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | isSharding | it was true when OAP Server in cluster. | SW_KAFKA_FETCHER_IS_SHARDING | false |
 | - | - | createTopicIfNotExist | If true, create the Kafka topic when it does not exist. | - | true |
 | - | - | partitions | The number of partitions for the topic being created. | SW_KAFKA_FETCHER_PARTITIONS | 3 |
-| - | - | enableMeterSystem | To enable to fetch and handle [Meter System](backend-meter.md) data. | SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM | false |
 | - | - | enableNativeProtoLog | To enable to fetch and handle native proto log data. | SW_KAFKA_FETCHER_ENABLE_NATIVE_PROTO_LOG | false |
 | - | - | enableNativeJsonLog | To enable to fetch and handle native json log data. | SW_KAFKA_FETCHER_ENABLE_NATIVE_JSON_LOG | false |
 | - | - | replicationFactor | The replication factor for each partition in the topic being created. | SW_KAFKA_FETCHER_PARTITIONS_FACTOR | 2 |
