@@ -33,7 +33,6 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -82,7 +81,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     /**
      * @since 8.7.0 TTL settings from {@link org.apache.skywalking.oap.server.core.CoreModuleConfig#getMetricsDataTTL()}
      */
-    private int metricsDataTTLInMillis;
+    private int metricsDataTTL;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
@@ -100,8 +99,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         this.sessionTimeout = storageSessionTimeout;
         this.persistentCounter = 0;
         this.persistentMod = 1;
-        // Convert TTL to millis to make further calculation easier.
-        this.metricsDataTTLInMillis = metricsDataTTL * 24 * 60 * 60 * 1000;
+        this.metricsDataTTL = metricsDataTTL;
 
         String name = "METRICS_L2_AGGREGATION";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -275,10 +273,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                            // database has been removed due to TTL.
                            if (!model.isTimeRelativeID() && supportUpdate) {
                                // Mostly all updatable metadata level metrics are required to do this check.
-                               final long metricsTimestamp = TimeBucket.getTimestamp(
-                                   cachedValue.getTimeBucket(), model.getDownsampling());
-                               // If the cached metric is older than the TTL indicated.
-                               if (currentTimeMillis - metricsTimestamp > metricsDataTTLInMillis) {
+
+                               if (metricsDAO.isExpiredCache(model, cachedValue, currentTimeMillis, metricsDataTTL)) {
                                    // The expired metrics should be tagged `not in cache` directly.
                                    return true;
                                }
