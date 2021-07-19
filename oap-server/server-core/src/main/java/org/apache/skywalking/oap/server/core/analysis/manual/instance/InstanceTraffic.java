@@ -79,12 +79,7 @@ public class InstanceTraffic extends Metrics {
         if (instanceTraffic.getProperties() != null && instanceTraffic.getProperties().size() > 0) {
             this.properties = instanceTraffic.getProperties();
         }
-        /**
-         * Keep the time bucket as the same time inserted.
-         */
-        if (this.getTimeBucket() > metrics.getTimeBucket()) {
-            this.setTimeBucket(metrics.getTimeBucket());
-        }
+        this.setTimeBucket(metrics.getTimeBucket());
         return true;
     }
 
