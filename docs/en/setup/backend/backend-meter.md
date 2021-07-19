@@ -15,7 +15,6 @@ kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
-    enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:true}
 ```
 
 ## Configuration file
