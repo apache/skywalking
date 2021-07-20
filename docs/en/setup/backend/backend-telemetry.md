@@ -19,7 +19,7 @@ telemetry:
 but you can set one of `prometheus` to enable them, for more information, refer to the details below.
 
 ## Self Observability
-### Dedicated IP or hostname
+### Static IP or hostname
 SkyWalking supports to collect telemetry data into OAP backend directly. Users could check them out through UI or
 GraphQL API then.
 
@@ -91,7 +91,7 @@ staticConfig:
 ...
 ```
 ### Service discovery (k8s)
-If you deploy an oap-server cluster on k8s, the oap-server instance(pod) could not has the dedicated IP or hostname. We can leverage [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes) to discover the oap-server instance and scrape & transfer the metrics to OAP [OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver). 
+If you deploy an oap-server cluster on k8s, the oap-server instance(pod) could not has the static IP or hostname. We can leverage [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes) to discover the oap-server instance and scrape & transfer the metrics to OAP [OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver). 
 
 How to install SkyWalking on k8s can refer to [Apache SkyWalking Kubernetes](https://github.com/apache/skywalking-kubernetes)
 
@@ -107,6 +107,24 @@ To set this up by the following steps:
   SW_TELEMETRY=prometheus 
   SW_OTEL_RECEIVER=default 
   SW_OTEL_RECEIVER_ENABLED_OC_RULES=oap
+  ```
+
+  Here is the example to install by Apache SkyWalking Kubernetes:
+  ```
+  helm -n istio-system install skywalking skywalking \
+               --set elasticsearch.replicas=1 \
+               --set elasticsearch.minimumMasterNodes=1 \
+               --set elasticsearch.imageTag=7.5.1 \
+               --set oap.replicas=2 \
+               --set ui.image.repository=$HUB/skywalking-ui \
+               --set ui.image.tag=$TAG \
+               --set oap.image.tag=$TAG \
+               --set oap.image.repository=$HUB/skywalking-oap \
+               --set oap.storageType=elasticsearch7 \
+               --set oap.ports.prometheus-port=1234 \ # <<< Expose self observability metrics port
+               --set oap.env.SW_TELEMETRY=prometheus \
+               --set oap.env.SW_OTEL_RECEIVER=default \ # <<< Enable Otel receiver
+               --set oap.env.SW_OTEL_RECEIVER_ENABLED_OC_RULES=oap # <<< Add oap analyzer for Otel metrics
   ```
 2. Set up OpenTelemetry Collector and config a scrape job:
 ``` yaml
