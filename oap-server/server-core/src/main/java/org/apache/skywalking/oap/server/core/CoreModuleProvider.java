@@ -290,10 +290,20 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(
             UITemplateManagementService.class, new UITemplateManagementService(getManager()));
 
+        if (moduleConfig.getMetricsDataTTL() < 2) {
+            throw new ModuleStartException(
+                "Metric TTL should be at least 2 days, current value is " + moduleConfig.getMetricsDataTTL());
+        }
+        if (moduleConfig.getRecordDataTTL() < 2) {
+            throw new ModuleStartException(
+                "Record TTL should be at least 2 days, current value is " + moduleConfig.getRecordDataTTL());
+        }
+
         final MetricsStreamProcessor metricsStreamProcessor = MetricsStreamProcessor.getInstance();
         metricsStreamProcessor.setEnableDatabaseSession(moduleConfig.isEnableDatabaseSession());
         metricsStreamProcessor.setL1FlushPeriod(moduleConfig.getL1FlushPeriod());
         metricsStreamProcessor.setStorageSessionTimeout(moduleConfig.getStorageSessionTimeout());
+        metricsStreamProcessor.setMetricsDataTTL(moduleConfig.getMetricsDataTTL());
         TopNStreamProcessor.getInstance().setTopNWorkerReportCycle(moduleConfig.getTopNReportPeriod());
         apdexThresholdConfig = new ApdexThresholdConfig(this);
         ApdexMetrics.setDICT(apdexThresholdConfig);
