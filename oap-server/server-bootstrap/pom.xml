@@ -190,7 +190,7 @@
         <!-- alarm module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>alarm-default-plugin</artifactId>
+            <artifactId>server-alarm-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
 
