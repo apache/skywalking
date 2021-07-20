@@ -88,7 +88,7 @@ public class PrometheusMetricConverter {
         return metricStream
             .peek(metric -> log.debug("Prom metric to be convert to SampleFamily: {}", metric))
             .flatMap(this::convertMetric)
-            .filter(t -> t != NIL)
+            .filter(t -> t != NIL && t._2.samples.length > 0)
             .peek(t -> log.debug("SampleFamily: {}", t))
             .collect(toImmutableMap(Tuple2::_1, Tuple2::_2, (a, b) -> {
                 log.debug("merge {} {}", a, b);
