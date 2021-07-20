@@ -13,6 +13,7 @@ Release Notes.
   consume.
 * Build and push snapshot Docker images to GitHub Container Registry, this is only for people who want to help to test
   the master branch codes, please don't use in production environments.
+* Adjust the project structure of the alarm module for convenient the user to add their own implementation.
 
 #### Java Agent
 
