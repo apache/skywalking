@@ -108,9 +108,10 @@ Release Notes.
 * The `core/syncThreads` setting(added in 8.5.0) is removed due to metrics persistence is fully asynchronous.
 * Optimization: Concurrency mode of execution stage for metrics is removed(added in 8.5.0). Only concurrency of prepare
   stage is meaningful and kept.
-* Fix -meters metrics topic isn't created with namespace issue
+* Fix `-meters` metrics topic isn't created with namespace issue
 * Enhance persistent session timeout mechanism. Because the enhanced session could cache the metadata metrics forever,
   new timeout mechanism is designed for avoiding this specific case.
+* Fix Kafka transport topics are created duplicated with and without namespace issue
 
 #### UI
 
