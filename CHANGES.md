@@ -126,6 +126,7 @@ Release Notes.
 #### Documentation
 
 * Add FAQ about `Elasticsearch exception type=version_conflict_engine_exception since 8.7.0`
+* Add Self Observability service discovery (k8s).
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/90?closed=1)
 
