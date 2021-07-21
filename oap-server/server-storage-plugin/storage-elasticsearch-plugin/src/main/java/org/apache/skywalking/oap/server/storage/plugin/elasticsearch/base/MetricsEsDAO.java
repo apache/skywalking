@@ -135,7 +135,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
             return false;
         }
         final long deadline = Long.parseLong(new DateTime(currentTimeMillis).plusDays(-ttl).toString("yyyyMMdd"));
-        final long timeBucket = TimeBucket.getTimeBucket(cachedValue.getTimeBucket(), DownSampling.Day);
+        final long timeBucket = TimeBucket.getTimeBucket(metricTimestamp, DownSampling.Day);
         // If time bucket is earlier or equals(mostly) the deadline, then the cached metric is expired.
         if (timeBucket <= deadline) {
             return true;

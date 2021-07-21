@@ -275,7 +275,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                                // Mostly all updatable metadata level metrics are required to do this check.
 
                                if (metricsDAO.isExpiredCache(model, cachedValue, currentTimeMillis, metricsDataTTL)) {
-                                   // The expired metrics should be tagged `not in cache` directly.
+                                   // The expired metrics should be removed from the context and tagged `not in cache` directly.
+                                   context.remove(m);
                                    return true;
                                }
                            }
