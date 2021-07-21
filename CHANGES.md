@@ -112,6 +112,7 @@ Release Notes.
 * Enhance persistent session timeout mechanism. Because the enhanced session could cache the metadata metrics forever,
   new timeout mechanism is designed for avoiding this specific case.
 * Fix Kafka transport topics are created duplicated with and without namespace issue
+* Fix the persistent session timeout mechanism bug.
 
 #### UI
 
