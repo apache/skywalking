@@ -113,6 +113,7 @@ Release Notes.
   new timeout mechanism is designed for avoiding this specific case.
 * Fix Kafka transport topics are created duplicated with and without namespace issue
 * Fix the persistent session timeout mechanism bug.
+* Fix possible version_conflict_engine_exception in bulk execution.
 
 #### UI
 
