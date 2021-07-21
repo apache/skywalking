@@ -114,7 +114,9 @@ public class ServiceInstanceRelationServerSideMetrics extends Metrics {
 
     @Override
     public int remoteHashCode() {
-        return hashCode();
+        int n = 17;
+        n = 31 * n + this.entityId.hashCode();
+        return n;
     }
 
     @Override
