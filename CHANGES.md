@@ -13,7 +13,6 @@ Release Notes.
   consume.
 * Build and push snapshot Docker images to GitHub Container Registry, this is only for people who want to help to test
   the master branch codes, please don't use in production environments.
-* Adjust the project structure of the alarm module for convenient the user to add their own implementation.
 
 #### Java Agent
 
@@ -129,6 +128,7 @@ Release Notes.
 #### Documentation
 
 * Add FAQ about `Elasticsearch exception type=version_conflict_engine_exception since 8.7.0`
+* Add Self Observability service discovery (k8s).
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/90?closed=1)
 
