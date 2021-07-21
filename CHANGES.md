@@ -113,6 +113,8 @@ Release Notes.
   new timeout mechanism is designed for avoiding this specific case.
 * Fix Kafka transport topics are created duplicated with and without namespace issue
 * Fix possible version_conflict_engine_exception in bulk execution.
+* Fix PrometheusMetricConverter may throw an `IllegalArgumentException` when convert metrics to SampleFamily
+* Filtering NaN value samples when build SampleFamily  
 
 #### UI
 
