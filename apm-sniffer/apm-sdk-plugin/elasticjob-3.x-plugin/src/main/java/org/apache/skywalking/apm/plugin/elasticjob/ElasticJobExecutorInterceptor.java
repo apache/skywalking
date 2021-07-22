@@ -33,8 +33,8 @@ public class ElasticJobExecutorInterceptor implements InstanceMethodsAroundInter
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) {
-        ShardingContexts shardingContexts = (ShardingContexts) allArguments[0];
-        Integer item = (Integer) allArguments[1];
+        ShardingContexts shardingContexts = (ShardingContexts) allArguments[1];
+        Integer item = (Integer) allArguments[2];
         String operateName = ComponentsDefine.ELASTIC_JOB.getName() + "/" + shardingContexts.getJobName();
         AbstractSpan span = ContextManager.createLocalSpan(operateName);
         span.setComponent(ComponentsDefine.ELASTIC_JOB);
