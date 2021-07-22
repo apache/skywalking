@@ -37,6 +37,7 @@ Release Notes.
 * Fix gateway plugin async finish repeatedly when fallback url configured.
 * Chore: polish methods naming for `Spring-Kafka` plugins.
 * Remove plugins for ShardingSphere legacy version.
+* Update agent plugin for ElasticJob GA version
 
 #### OAP-Backend
 

@@ -61,7 +61,7 @@
         <module>rocketMQ-3.x-plugin</module>
         <module>rocketMQ-4.x-plugin</module>
         <module>elastic-job-2.x-plugin</module>
-        <module>elastic-job-3.x-plugin</module>
+        <module>elasticjob-3.x-plugin</module>
         <module>mongodb-2.x-plugin</module>
         <module>httpasyncclient-4.x-plugin</module>
         <module>kafka-commons</module>

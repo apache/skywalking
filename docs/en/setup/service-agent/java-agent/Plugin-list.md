@@ -13,7 +13,7 @@
 - dubbo
 - ehcache-2.x
 - elastic-job-2.x
-- elastic-job-3.x
+- elasticjob-3.x
 - elasticsearch-5.x
 - elasticsearch-6.x
 - elasticsearch-7.x

@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.elasticjob;
 
-import org.apache.shardingsphere.elasticjob.api.listener.ShardingContexts;
+import org.apache.shardingsphere.elasticjob.infra.listener.ShardingContexts;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -32,22 +32,23 @@ import java.lang.reflect.Method;
 public class ElasticJobExecutorInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
-        ShardingContexts shardingContexts = (ShardingContexts) allArguments[0];
-        Integer item = (Integer) allArguments[1];
+                             MethodInterceptResult result) {
+        ShardingContexts shardingContexts = (ShardingContexts) allArguments[1];
+        Integer item = (Integer) allArguments[2];
         String operateName = ComponentsDefine.ELASTIC_JOB.getName() + "/" + shardingContexts.getJobName();
         AbstractSpan span = ContextManager.createLocalSpan(operateName);
         span.setComponent(ComponentsDefine.ELASTIC_JOB);
         Tags.LOGIC_ENDPOINT.set(span, Tags.VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT);
-        span.tag("item", item == null ? "" : String.valueOf(item));
-        span.tag("shardingTotalCount", Integer.toString(shardingContexts.getShardingTotalCount()));
-        span.tag("taskId", shardingContexts.getTaskId());
-        span.tag("shardingItemParameters", shardingContexts.getShardingItemParameters() == null ? "" : shardingContexts.getShardingItemParameters().toString());
+        span.tag(Tags.ofKey("item"), item == null ? "" : String.valueOf(item));
+        span.tag(Tags.ofKey("shardingTotalCount"), Integer.toString(shardingContexts.getShardingTotalCount()));
+        span.tag(Tags.ofKey("taskId"), shardingContexts.getTaskId());
+        span.tag(Tags.ofKey("shardingItemParameters"), shardingContexts.getShardingItemParameters() == null ?
+                "" : shardingContexts.getShardingItemParameters().toString());
     }
     
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+                              Object ret) {
         ContextManager.stopSpan();
         return ret;
     }
