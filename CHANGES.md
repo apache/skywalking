@@ -38,6 +38,7 @@ Release Notes.
 * Chore: polish methods naming for `Spring-Kafka` plugins.
 * Remove plugins for ShardingSphere legacy version.
 * Update agent plugin for ElasticJob GA version
+* Remove the logic of generating instance name in `KafkaServiceManagementServiceClient` class.
 
 #### OAP-Backend
 
