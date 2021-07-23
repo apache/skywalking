@@ -39,7 +39,6 @@ Release Notes.
 * Remove plugins for ShardingSphere legacy version.
 * Update agent plugin for ElasticJob GA version
 * Remove the logic of generating instance name in `KafkaServiceManagementServiceClient` class.
-* Improve the performance of `Class.getDeclaredField()` in okhttp plugin.
 
 #### OAP-Backend
 
