@@ -40,7 +40,6 @@
         <module>mvc-annotation-5.x-plugin</module>
         <module>spring-kafka-1.x-plugin</module>
         <module>spring-kafka-2.x-plugin</module>
-        <module>spring-rabbit-2.3.x-plugin</module>
         <module>scheduled-annotation-plugin</module>
         <module>spring-webflux-5.x-webclient-plugin</module>
     </modules>
