@@ -39,6 +39,7 @@ Release Notes.
 * Remove plugins for ShardingSphere legacy version.
 * Update agent plugin for ElasticJob GA version
 * Remove the logic of generating instance name in `KafkaServiceManagementServiceClient` class.
+* Add `spring-rabbit-2.3.x` optional plugin.
 
 #### OAP-Backend
 
