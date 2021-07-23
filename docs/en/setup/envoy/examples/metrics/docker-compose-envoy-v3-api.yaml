@@ -16,15 +16,15 @@
 
 version: "3"
 services:
-  envoy16:
-    image: envoyproxy/envoy-alpine:v1.16.2
+  envoy19:
+    image: envoyproxy/envoy-alpine:v1.19-latest
     command: /usr/local/bin/envoy -c /etc/envoy.yaml --service-cluster envoy-proxy
     ports:
-    - 10000:10000
+      - 10001:10000
     depends_on:
-    - skywalking
+      - skywalking
     volumes:
-    - ./envoy-v1.16.yaml:/etc/envoy.yaml
+      - ./envoy-v1.19.yaml:/etc/envoy.yaml
 
   skywalking:
     image: apache/skywalking-oap-server:latest

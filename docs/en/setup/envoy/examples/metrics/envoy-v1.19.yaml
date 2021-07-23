@@ -32,8 +32,8 @@ stats_sinks:
           cluster_name: service_skywalking
 
 node:
-  id: ingress
-  cluster: card-api-cluster
+  id: ingress-v2
+  cluster: card-api-cluster-v2
   locality:
     region: ap-southeast-1
     zone: zone1
@@ -42,8 +42,8 @@ node:
     skywalking: iscool
     envoy: isawesome
     LABELS:
-      app: test-app
-    NAME: service-instance-name
+      app: test-app-v2
+    NAME: service-instance-name-v2
 
 static_resources:
   listeners:

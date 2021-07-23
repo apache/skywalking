@@ -9,6 +9,7 @@ The example requires `docker` and `docker-compose` to be installed in your local
 
 Note that in ths setup, we override the [`log4j2.xml`](log4j2.xml) config to set the `org.apache.skywalking.oap.server.receiver.envoy` logger level to `DEBUG`. This enables us to see the messages sent by Envoy to SkyWalking OAP server.
 
+You can also find Envoy Metric Service V3 API example in [docker-compose-envoy-v3-api.yaml](./docker-compose-envoy-v3-api.yaml)
 ```
 $ make up
 $ docker-compose logs -f skywalking
@@ -111,3 +112,4 @@ skywalking_1  | }
 $ # To tear down:
 $ make down
 ```
+
