@@ -42,6 +42,18 @@ import java.lang.reflect.Method;
  */
 public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
+    private static Field FIELD_HEADERS_OF_REQUEST;
+
+    static {
+        try {
+            final Field field = Request.class.getDeclaredField("headers");
+            field.setAccessible(true);
+            FIELD_HEADERS_OF_REQUEST = field;
+        } catch (Exception ignore) {
+            FIELD_HEADERS_OF_REQUEST = null;
+        }
+    }
+
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         objInst.setSkyWalkingDynamicField(allArguments[1]);
@@ -56,28 +68,28 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
      */
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         Request request = (Request) objInst.getSkyWalkingDynamicField();
 
         ContextCarrier contextCarrier = new ContextCarrier();
         HttpUrl requestUrl = request.url();
         AbstractSpan span = ContextManager.createExitSpan(requestUrl.uri()
-                                                                    .getPath(), contextCarrier, requestUrl.host() + ":" + requestUrl
-            .port());
+                .getPath(), contextCarrier, requestUrl.host() + ":" + requestUrl
+                .port());
         span.setComponent(ComponentsDefine.OKHTTP);
         Tags.HTTP.METHOD.set(span, request.method());
         Tags.URL.set(span, requestUrl.uri().toString());
         SpanLayer.asHttp(span);
 
-        Field headersField = Request.class.getDeclaredField("headers");
-        headersField.setAccessible(true);
-        Headers.Builder headerBuilder = request.headers().newBuilder();
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            headerBuilder.set(next.getHeadKey(), next.getHeadValue());
+        if (FIELD_HEADERS_OF_REQUEST != null) {
+            Headers.Builder headerBuilder = request.headers().newBuilder();
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                headerBuilder.set(next.getHeadKey(), next.getHeadValue());
+            }
+            FIELD_HEADERS_OF_REQUEST.set(request, headerBuilder.build());
         }
-        headersField.set(request, headerBuilder.build());
     }
 
     /**
@@ -88,7 +100,7 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
      */
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         Response response = (Response) ret;
         if (response != null) {
             int statusCode = response.code();
@@ -106,7 +118,7 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan abstractSpan = ContextManager.activeSpan();
         abstractSpan.log(t);
     }
