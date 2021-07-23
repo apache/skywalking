@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters.ClusterManagerMetricsAdapter;
 
 public class EnvoyMetricReceiverConfig extends ModuleConfig {
     @Getter
@@ -38,6 +39,8 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     private String k8sServiceNameRule;
 
     private final ServiceMetaInfoFactory serviceMetaInfoFactory = new ServiceMetaInfoFactoryImpl();
+    @Getter
+    private final ClusterManagerMetricsAdapter clusterManagerMetricsAdapter = new ClusterManagerMetricsAdapter(this);
 
     public List<String> getAlsHTTPAnalysis() {
         if (Strings.isNullOrEmpty(alsHTTPAnalysis)) {

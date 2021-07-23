@@ -113,12 +113,8 @@ core:
     searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:level}
     # Define the set of alarm tag keys, which should be searchable through the GraphQL.
     searchableAlarmTags: ${SW_SEARCHABLE_ALARM_TAG_KEYS:level}
-    # The number of threads used to synchronously refresh the metrics data to the storage.
-    syncThreads: ${SW_CORE_SYNC_THREADS:2}
     # The number of threads used to prepare metrics data to the storage.
     prepareThreads: ${SW_CORE_PREPARE_THREADS:2}
-    # The maximum number of processes supported for each synchronous storage operation. When the number of the flush data is greater than this value, it will be assigned to multiple cores for execution.
-    maxSyncOperationNum: ${SW_CORE_MAX_SYNC_OPERATION_NUM:50000}
     # Turn it on then automatically grouping endpoint by the given OpenAPI definitions.
     enableEndpointNameGroupingByOpenapi: ${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:true}
 storage:
@@ -142,7 +138,9 @@ storage:
     superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
     superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0} # Represent the replicas number in the super size dataset record index, the default value is 0.
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:5000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
-    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:15} # flush the bulk every 10 seconds whatever the number of requests
+    # flush the bulk every 10 seconds whatever the number of requests
+    # INT(flushInterval * 2/3) would be used for index refresh period.
+    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:15}
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
     resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
@@ -170,7 +168,9 @@ storage:
     password: ${SW_ES_PASSWORD:""}
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:5000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
-    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:15} # flush the bulk every 10 seconds whatever the number of requests
+    # flush the bulk every 10 seconds whatever the number of requests
+    # INT(flushInterval * 2/3) would be used for index refresh period.
+    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:15}
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
     resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
@@ -251,7 +251,9 @@ storage:
     password: ${SW_ES_PASSWORD:""}
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:5000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
-    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:15} # flush the bulk every 10 seconds whatever the number of requests
+    # flush the bulk every 10 seconds whatever the number of requests
+    # INT(flushInterval * 2/3) would be used for index refresh period.
+    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:15}
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
     resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
@@ -364,7 +366,6 @@ kafka-fetcher:
     namespace: ${SW_NAMESPACE:""}
     partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
-    enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
     enableNativeProtoLog: ${SW_KAFKA_FETCHER_ENABLE_NATIVE_PROTO_LOG:false}
     enableNativeJsonLog: ${SW_KAFKA_FETCHER_ENABLE_NATIVE_JSON_LOG:false}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}

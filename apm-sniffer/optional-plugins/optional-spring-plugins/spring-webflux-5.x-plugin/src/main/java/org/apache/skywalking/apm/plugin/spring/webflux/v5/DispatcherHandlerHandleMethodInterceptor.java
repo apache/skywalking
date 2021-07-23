@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags.HTTP;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -61,6 +62,10 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         }
 
         AbstractSpan span = ContextManager.createEntrySpan(exchange.getRequest().getURI().getPath(), carrier);
+        
+        if (instance != null && instance.getSkyWalkingDynamicField() != null) {
+            ContextManager.continued((ContextSnapshot) instance.getSkyWalkingDynamicField());
+        }
         span.setComponent(ComponentsDefine.SPRING_WEBFLUX);
         SpanLayer.asHttp(span);
         Tags.URL.set(span, exchange.getRequest().getURI().toString());
@@ -71,31 +76,44 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
 
         exchange.getAttributes().put("SKYWALING_SPAN", span);
     }
+    
+    private void maybeSetPattern(AbstractSpan span, ServerWebExchange exchange) {
+        if (span != null) {
+            PathPattern pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+            //check if the best matching pattern matches url in request
+            //to avoid operationName overwritten by fallback url
+            if (pathPattern != null && pathPattern.matches(exchange.getRequest().getPath().pathWithinApplication())) {
+                span.setOperationName(pathPattern.getPatternString());
+            }
+        }
+
+    }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        return ((Mono) ret).doFinally(s -> {
-            AbstractSpan span = (AbstractSpan) exchange.getAttributes().get("SKYWALING_SPAN");
-            if (span != null) {
-                try {
-                    Object pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-                    if (pathPattern != null) {
-                        span.setOperationName(((PathPattern) pathPattern).getPatternString());
-                    }
-                    HttpStatus httpStatus = exchange.getResponse().getStatusCode();
-                    // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
-                    if (httpStatus != null) {
-                        Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
-                        if (httpStatus.isError()) {
-                            span.errorOccurred();
+
+        AbstractSpan span = (AbstractSpan) exchange.getAttributes().get("SKYWALING_SPAN");
+        
+                return ((Mono) ret).doFinally(s -> {
+
+                    if (span != null) {
+                        maybeSetPattern(span, exchange);
+                        try {
+            
+                            HttpStatus httpStatus = exchange.getResponse().getStatusCode();
+                            // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
+                            if (httpStatus != null) {
+                                Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
+                                if (httpStatus.isError()) {
+                                    span.errorOccurred();
+                                }
+                            }
+                        } finally {
+                            span.asyncFinish();
                         }
                     }
-                } finally {
-                    span.asyncFinish();
-                }
-            }
         });
     }
 

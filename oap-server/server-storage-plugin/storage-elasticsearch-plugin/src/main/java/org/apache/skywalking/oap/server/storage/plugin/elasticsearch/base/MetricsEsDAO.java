@@ -23,7 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
@@ -34,6 +37,7 @@ import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.IndicesMetadataCache;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.joda.time.DateTime;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -83,9 +87,9 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         // the current day and the T-1 day(if at the edge between days)
         List<Metrics> result = new ArrayList<>(metrics.size());
         groupIndices.forEach((tableName, metricList) -> {
-            String[] ids = metrics.stream()
-                                  .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
-                                  .toArray(String[]::new);
+            String[] ids = metricList.stream()
+                                     .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
+                                     .toArray(String[]::new);
             try {
                 SearchResponse response = getClient().ids(tableName, ids);
                 for (int i = 0; i < response.getHits().getHits().length; i++) {
@@ -116,5 +120,26 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareUpdate(modelName, id, builder);
+    }
+
+    @Override
+    public boolean isExpiredCache(final Model model,
+                                  final Metrics cachedValue,
+                                  final long currentTimeMillis,
+                                  final int ttl) {
+        final long metricTimestamp = TimeBucket.getTimestamp(
+            cachedValue.getTimeBucket(), model.getDownsampling());
+        // Fast fail check. If the duration is still less than TTL - 1 days(absolute)
+        // the cache should not be expired.
+        if (currentTimeMillis - metricTimestamp < TimeUnit.DAYS.toMillis(ttl - 1)) {
+            return false;
+        }
+        final long deadline = Long.parseLong(new DateTime(currentTimeMillis).plusDays(-ttl).toString("yyyyMMdd"));
+        final long timeBucket = TimeBucket.getTimeBucket(metricTimestamp, DownSampling.Day);
+        // If time bucket is earlier or equals(mostly) the deadline, then the cached metric is expired.
+        if (timeBucket <= deadline) {
+            return true;
+        }
+        return false;
     }
 }

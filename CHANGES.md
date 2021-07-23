@@ -11,6 +11,8 @@ Release Notes.
 * Add JDK 16 to test matrix.
 * DataCarrier consumer add a new event notification, call `nothingToConsume` method if the queue has no element to
   consume.
+* Build and push snapshot Docker images to GitHub Container Registry, this is only for people who want to help to test
+  the master branch codes, please don't use in production environments.
 
 #### Java Agent
 
@@ -32,6 +34,11 @@ Release Notes.
 * Support `guava-cache` plugin.
 * Enhance the compatibility of `mysql-8.x-plugin` plugin.
 * Support Kafka SASL login module.
+* Fix gateway plugin async finish repeatedly when fallback url configured.
+* Chore: polish methods naming for `Spring-Kafka` plugins.
+* Remove plugins for ShardingSphere legacy version.
+* Update agent plugin for ElasticJob GA version
+* Remove the logic of generating instance name in `KafkaServiceManagementServiceClient` class.
 
 #### OAP-Backend
 
@@ -81,6 +88,7 @@ Release Notes.
 * Performance: compile LAL DSL statically and run with type checked.
 * Add pagination to event query protocol.
 * Performance: optimize Envoy error logs persistence performance.
+* Support envoy `cluster manager` metrics.
 * Performance: remove the synchronous persistence mechanism from batch ElasticSearch DAO. Because the current enhanced
   persistent session mechanism, don't require the data queryable immediately after the insert and update anymore.
 * Performance: share `flushInterval` setting for both metrics and record data, due
@@ -94,6 +102,22 @@ Release Notes.
   default flush period of hour and day level metrics are 25s * 4.
 * Performance: optimize IDs read of ElasticSearch storage options(6 and 7). Use the physical index rather than template
   alias name.
+* Adjust index refresh period as INT(flushInterval * 2/3), it used to be as same as bulk flush period. At the edge case,
+  in low traffic(traffic < bulkActions in the whole period), there is a possible case, 2 period bulks are included in
+  one index refresh rebuild operation, which could cause version conflicts. And this case can't be fixed
+  through `core/persistentPeriod` as the bulk fresh is not controlled by the persistent timer anymore.
+* The `core/maxSyncOperationNum` setting(added in 8.5.0) is removed due to metrics persistence is fully asynchronous.
+* The `core/syncThreads` setting(added in 8.5.0) is removed due to metrics persistence is fully asynchronous.
+* Optimization: Concurrency mode of execution stage for metrics is removed(added in 8.5.0). Only concurrency of prepare
+  stage is meaningful and kept.
+* Fix `-meters` metrics topic isn't created with namespace issue
+* Enhance persistent session timeout mechanism. Because the enhanced session could cache the metadata metrics forever,
+  new timeout mechanism is designed for avoiding this specific case.
+* Fix Kafka transport topics are created duplicated with and without namespace issue
+* Fix the persistent session timeout mechanism bug.
+* Fix possible version_conflict_engine_exception in bulk execution.
+* Fix PrometheusMetricConverter may throw an `IllegalArgumentException` when convert metrics to SampleFamily
+* Filtering NaN value samples when build SampleFamily  
 
 #### UI
 
@@ -108,6 +132,7 @@ Release Notes.
 #### Documentation
 
 * Add FAQ about `Elasticsearch exception type=version_conflict_engine_exception since 8.7.0`
+* Add Self Observability service discovery (k8s).
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/90?closed=1)
 

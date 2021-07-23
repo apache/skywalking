@@ -13,7 +13,7 @@
 - dubbo
 - ehcache-2.x
 - elastic-job-2.x
-- elastic-job-3.x
+- elasticjob-3.x
 - elasticsearch-5.x
 - elasticsearch-6.x
 - elasticsearch-7.x
@@ -69,12 +69,9 @@
 - sentinel-1.x
 - servicecomb-0.x
 - servicecomb-1.x
-- sharding-jdbc-1.5.x
 - sharding-sphere-3.x
 - sharding-sphere-4.0.0
 - sharding-sphere-4.1.0
-- sharding-sphere-4.x
-- sharding-sphere-4.x-rc3
 - shardingsphere-5.0.0-beta
 - sofarpc
 - solrj-7.x

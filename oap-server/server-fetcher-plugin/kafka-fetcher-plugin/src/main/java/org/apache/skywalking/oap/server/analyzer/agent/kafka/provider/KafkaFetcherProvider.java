@@ -69,15 +69,13 @@ public class KafkaFetcherProvider extends ModuleProvider {
     }
 
     @Override
-    public void start() throws ServiceNotProvidedException {
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
         handlerRegister.register(new JVMMetricsHandler(getManager(), config));
         handlerRegister.register(new ServiceManagementHandler(getManager(), config));
         handlerRegister.register(new TraceSegmentHandler(getManager(), config));
         handlerRegister.register(new ProfileTaskHandler(getManager(), config));
+        handlerRegister.register(new MeterServiceHandler(getManager(), config));
 
-        if (config.isEnableMeterSystem()) {
-            handlerRegister.register(new MeterServiceHandler(getManager(), config));
-        }
         if (config.isEnableNativeProtoLog()) {
             handlerRegister.register(new LogHandler(getManager(), config));
         }

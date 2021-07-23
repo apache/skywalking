@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
@@ -61,18 +63,19 @@ public class TopNWorker extends PersistenceWorker<TopN> {
      * Force overriding the parent buildBatchRequests. Use its own report period.
      */
     @Override
-    public void buildBatchRequests(final List<PrepareRequest> prepareRequests) {
+    public List<PrepareRequest> buildBatchRequests() {
         long now = System.currentTimeMillis();
         if (now - lastReportTimestamp <= reportPeriod) {
             // Only do report in its own report period.
-            return;
+            return Collections.EMPTY_LIST;
         }
         lastReportTimestamp = now;
-        super.buildBatchRequests(prepareRequests);
+        return super.buildBatchRequests();
     }
 
     @Override
-    public void prepareBatch(Collection<TopN> lastCollection, List<PrepareRequest> prepareRequests) {
+    public List<PrepareRequest> prepareBatch(Collection<TopN> lastCollection) {
+        List<PrepareRequest> prepareRequests = new ArrayList<>(lastCollection.size());
         lastCollection.forEach(record -> {
             try {
                 prepareRequests.add(recordDAO.prepareBatchInsert(model, record));
@@ -80,6 +83,7 @@ public class TopNWorker extends PersistenceWorker<TopN> {
                 log.error(t.getMessage(), t);
             }
         });
+        return prepareRequests;
     }
 
     /**
