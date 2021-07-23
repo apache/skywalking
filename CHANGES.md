@@ -134,6 +134,7 @@ Release Notes.
 
 * Add FAQ about `Elasticsearch exception type=version_conflict_engine_exception since 8.7.0`
 * Add Self Observability service discovery (k8s).
+* Add sending Envoy Metrics to  OAP in envoy 1.19  example and bump up to  Envoy V3 api.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/90?closed=1)
 
