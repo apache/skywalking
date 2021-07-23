@@ -44,6 +44,19 @@ import java.lang.reflect.Method;
  * called.
  */
 public class AsyncCallInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
+
+    private static Field FIELD_HEADERS_OF_REQUEST;
+
+    static {
+        try {
+            final Field field = Request.class.getDeclaredField("headers");
+            field.setAccessible(true);
+            FIELD_HEADERS_OF_REQUEST = field;
+        } catch (Exception ignore) {
+            FIELD_HEADERS_OF_REQUEST = null;
+        }
+    }
+
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         /**
