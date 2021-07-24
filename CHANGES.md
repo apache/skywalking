@@ -118,7 +118,8 @@ Release Notes.
 * Fix the persistent session timeout mechanism bug.
 * Fix possible version_conflict_engine_exception in bulk execution.
 * Fix PrometheusMetricConverter may throw an `IllegalArgumentException` when convert metrics to SampleFamily
-* Filtering NaN value samples when build SampleFamily  
+* Filtering NaN value samples when build SampleFamily
+* Add Thread and ClassLoader Metrics for the self-observability and otel-oc-rules
 
 #### UI
 

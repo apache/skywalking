@@ -184,6 +184,39 @@ templates:
                   "metricLabels": "50,70,90,99",
                   "labelsIndex": "50,70,90,99",
                   "unit": "Millisecond"
+                },
+                {
+                  "width": 3,
+                  "title": "Thread Count",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_oap_jvm_thread_live_count,meter_oap_jvm_thread_daemon_count,meter_oap_jvm_thread_peak_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": 3,
+                  "title": "Thread State Count",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_oap_jvm_thread_runnable_count,meter_oap_jvm_thread_blocked_count,meter_oap_jvm_thread_waiting_count,meter_oap_jvm_thread_timed_waiting_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar"
+                },
+                {
+                  "width": 3,
+                  "title": "Class Count",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_oap_jvm_class_loaded_count,meter_oap_jvm_class_total_unloaded_count,meter_oap_jvm_class_total_loaded_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartArea"
                 }
               ]
             }
