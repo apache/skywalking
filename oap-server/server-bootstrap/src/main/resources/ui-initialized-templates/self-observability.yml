@@ -192,7 +192,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_oap_instance_jvm_thread_live_count,meter_oap_instance_jvm_thread_daemon_count,meter_oap_instance_jvm_thread_peak_count",
+                  "metricName": "meter_oap_jvm_thread_live_count,meter_oap_jvm_thread_daemon_count,meter_oap_jvm_thread_peak_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine"
                 },
@@ -203,7 +203,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_oap_instance_jvm_thread_runnable_state_thread_count,meter_oap_instance_jvm_thread_blocked_state_thread_count,meter_oap_instance_jvm_thread_waiting_state_thread_count,meter_oap_instance_jvm_thread_timed_waiting_state_thread_count",
+                  "metricName": "meter_oap_jvm_thread_runnable_count,meter_oap_jvm_thread_blocked_count,meter_oap_jvm_thread_waiting_count,meter_oap_jvm_thread_timed_waiting_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar"
                 },
@@ -214,7 +214,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_oap_instance_jvm_class_loaded_class_count,meter_oap_instance_jvm_class_total_unloaded_class_count,meter_oap_instance_jvm_class_total_loaded_class_count",
+                  "metricName": "meter_oap_jvm_class_loaded_count,meter_oap_jvm_class_total_unloaded_count,meter_oap_jvm_class_total_loaded_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartArea"
                 }

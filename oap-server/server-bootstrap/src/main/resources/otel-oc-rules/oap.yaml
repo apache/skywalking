@@ -69,23 +69,23 @@ metricsRules:
     exp: persistence_timer_bulk_execute_latency_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_persistence_prepare_count
     exp: persistence_timer_bulk_prepare_latency_count.sum(['service', 'host_name']).increase('PT1M')
-  - name: instance_jvm_thread_live_count
+  - name: jvm_thread_live_count
     exp: jvm_threads_current.sum(['service', 'host_name'])
-  - name: instance_jvm_thread_daemon_count
+  - name: jvm_thread_daemon_count
     exp: jvm_threads_daemon.sum(['service', 'host_name'])
-  - name: instance_jvm_thread_peak_count
+  - name: jvm_thread_peak_count
     exp: jvm_threads_peak.sum(['service', 'host_name'])
-  - name: instance_jvm_thread_runnable_state_thread_count
+  - name: jvm_thread_runnable_count
     exp: jvm_threads_state.tagMatch('state', 'RUNNABLE').sum(['service', 'host_name'])
-  - name: instance_jvm_thread_blocked_state_thread_count
+  - name: jvm_thread_blocked_count
     exp: jvm_threads_state.tagMatch('state', 'BLOCKED').sum(['service', 'host_name'])
-  - name: instance_jvm_thread_waiting_state_thread_count
+  - name: jvm_thread_waiting_count
     exp: jvm_threads_state.tagMatch('state', 'WAITING').sum(['service', 'host_name'])
-  - name: instance_jvm_thread_timed_waiting_state_thread_count
+  - name: jvm_thread_timed_waiting_count
     exp: jvm_threads_state.tagMatch('state', 'TIMED_WAITING').sum(['service', 'host_name'])
-  - name: instance_jvm_class_loaded_class_count
+  - name: jvm_class_loaded_count
     exp: jvm_classes_loaded.sum(['service', 'host_name'])
-  - name: instance_jvm_class_total_unloaded_class_count
+  - name: jvm_class_total_unloaded_count
     exp: jvm_classes_unloaded_total.sum(['service', 'host_name'])
-  - name: instance_jvm_class_total_loaded_class_count
+  - name: jvm_class_total_loaded_count
     exp: jvm_classes_loaded_total.sum(['service', 'host_name'])
