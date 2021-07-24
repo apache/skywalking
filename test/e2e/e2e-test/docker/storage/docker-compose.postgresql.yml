@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   postgres:
-    image: postgres:13
+    image: postgres:13.2
     networks:
       - e2e
     expose:
