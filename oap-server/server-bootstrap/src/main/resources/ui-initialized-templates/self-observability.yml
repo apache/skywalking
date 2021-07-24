@@ -194,8 +194,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "metricName": "meter_oap_instance_jvm_thread_live_count,meter_oap_instance_jvm_thread_daemon_count,meter_oap_instance_jvm_thread_peak_count",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartLine",
-                  "unit": "Per Minute"
+                  "chartType": "ChartLine"
                 },
                 {
                   "width": 3,
@@ -206,8 +205,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "metricName": "meter_oap_instance_jvm_thread_runnable_state_thread_count,meter_oap_instance_jvm_thread_blocked_state_thread_count,meter_oap_instance_jvm_thread_waiting_state_thread_count,meter_oap_instance_jvm_thread_timed_waiting_state_thread_count",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartBar",
-                  "unit": "Per Minute"
+                  "chartType": "ChartBar"
                 },
                 {
                   "width": 3,
@@ -218,8 +216,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "metricName": "meter_oap_instance_jvm_class_loaded_class_count,meter_oap_instance_jvm_class_total_unloaded_class_count,meter_oap_instance_jvm_class_total_loaded_class_count",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartArea",
-                  "unit": "Per Minute"
+                  "chartType": "ChartArea"
                 }
               ]
             }
