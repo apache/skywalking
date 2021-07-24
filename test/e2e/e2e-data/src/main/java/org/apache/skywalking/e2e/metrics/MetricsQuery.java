@@ -140,7 +140,7 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     public static String METER_INSTANCE_JVM_THREAD_LIVE_COUNT = "meter_oap_jvm_thread_live_count";
     public static String METER_INSTANCE_JVM_THREAD_RUNNABLE_STATE_THREAD_COUNT = "meter_oap_jvm_thread_runnable_count";
     public static String METER_INSTANCE_JVM_CLASS_LOADED_CLASS_COUNT = "meter_oap_jvm_class_loaded_count";
-    public static String METER_INSTANCE_JVM_CLASS_TOTAL_LOADED_CLASS_COUNT = "meter_oap_jvm_class_total_unloaded_count";
+    public static String METER_INSTANCE_JVM_CLASS_TOTAL_LOADED_CLASS_COUNT = "meter_oap_jvm_class_total_loaded_count";
 
     public static String[] ALL_SO11Y_LINER_METRICS = {
         METER_INSTANCE_CPU_PERCENTAGE,
