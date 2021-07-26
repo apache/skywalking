@@ -84,6 +84,7 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
             throw t;
         } finally {
             ContextManager.stopSpan();
+            asyncSpan.asyncFinish();
         }
     }
 
