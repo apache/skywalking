@@ -177,7 +177,13 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             buildLimit(sql, from, limit);
 
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection, "select segment_id, start_time, endpoint_name, latency, is_error, trace_id " + sql.toString(), parameters.toArray(new Object[0]))) {
+                connection, "select " +
+                            SegmentRecord.SEGMENT_ID + ", "+
+                            SegmentRecord.START_TIME + ", "+
+                            SegmentRecord.ENDPOINT_NAME + ", "+
+                            SegmentRecord.LATENCY + ", "+
+                            SegmentRecord.IS_ERROR + ", "+
+                            SegmentRecord.TRACE_ID  + " " + sql, parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 
@@ -213,10 +219,18 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection, "select segment_id, trace_id, service_id, service_instance_id, " +
-                            "endpoint_name, start_time, end_time, latency, is_error, " +
-                            "data_binary, version from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?",
-                traceId
+                connection, "select " + SegmentRecord.SEGMENT_ID + ", " +
+                            SegmentRecord.TRACE_ID  +", " +
+                            SegmentRecord.SERVICE_ID + ", " +
+                            SegmentRecord.SERVICE_INSTANCE_ID + ", " +
+                            SegmentRecord.ENDPOINT_NAME + ", " +
+                            SegmentRecord.START_TIME + ", " +
+                            SegmentRecord.END_TIME + ", " +
+                            SegmentRecord.LATENCY + ", " +
+                            SegmentRecord.IS_ERROR + ", " +
+                            SegmentRecord.DATA_BINARY + ", " +
+                            SegmentRecord.VERSION +  " from " +
+                            SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?", traceId
             )) {
                 while (resultSet.next()) {
                     SegmentRecord segmentRecord = new SegmentRecord();
