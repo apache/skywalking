@@ -177,7 +177,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             buildLimit(sql, from, limit);
 
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
+                connection, "select segment_id, start_time, endpoint_name, latency, is_error, trace_id " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 
@@ -213,7 +213,9 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?",
+                connection, "select segment_id, trace_id, service_id, service_instance_id, " +
+                            "endpoint_name, start_time, end_time, latency, is_error, " +
+                            "data_binary, version from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?",
                 traceId
             )) {
                 while (resultSet.next()) {
