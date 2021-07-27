@@ -507,3 +507,7 @@ configuration-discovery:
 receiver-event:
   selector: ${SW_RECEIVER_EVENT:default}
   default:
+
+logging:
+  selector: ${SW_LOGGING:none}
+  default:

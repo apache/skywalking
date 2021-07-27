@@ -245,6 +245,11 @@
             <artifactId>configuration-nacos</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>server-logging</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
