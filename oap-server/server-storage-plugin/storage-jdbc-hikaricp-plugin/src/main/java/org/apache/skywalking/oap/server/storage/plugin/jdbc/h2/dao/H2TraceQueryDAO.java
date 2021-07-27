@@ -178,11 +178,11 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
 
             try (ResultSet resultSet = h2Client.executeQuery(
                 connection, "select " +
-                            SegmentRecord.SEGMENT_ID + ", "+
-                            SegmentRecord.START_TIME + ", "+
-                            SegmentRecord.ENDPOINT_NAME + ", "+
-                            SegmentRecord.LATENCY + ", "+
-                            SegmentRecord.IS_ERROR + ", "+
+                            SegmentRecord.SEGMENT_ID + ", " +
+                            SegmentRecord.START_TIME + ", " +
+                            SegmentRecord.ENDPOINT_NAME + ", " +
+                            SegmentRecord.LATENCY + ", " +
+                            SegmentRecord.IS_ERROR + ", " +
                             SegmentRecord.TRACE_ID  + " " + sql, parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
@@ -220,7 +220,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
 
             try (ResultSet resultSet = h2Client.executeQuery(
                 connection, "select " + SegmentRecord.SEGMENT_ID + ", " +
-                            SegmentRecord.TRACE_ID  +", " +
+                            SegmentRecord.TRACE_ID  + ", " +
                             SegmentRecord.SERVICE_ID + ", " +
                             SegmentRecord.SERVICE_INSTANCE_ID + ", " +
                             SegmentRecord.ENDPOINT_NAME + ", " +
