@@ -120,6 +120,7 @@ Release Notes.
 * Fix PrometheusMetricConverter may throw an `IllegalArgumentException` when convert metrics to SampleFamily
 * Filtering NaN value samples when build SampleFamily
 * Add Thread and ClassLoader Metrics for the self-observability and otel-oc-rules
+* Simple optimization of trace sql query statement. Avoid "select *" query method
 
 #### UI
 
