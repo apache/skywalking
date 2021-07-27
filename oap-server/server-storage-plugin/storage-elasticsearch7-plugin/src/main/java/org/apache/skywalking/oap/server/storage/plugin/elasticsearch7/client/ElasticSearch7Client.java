@@ -264,7 +264,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
 
     @Override
     public boolean createOrUpdateTemplate(String indexName, Map<String, Object> settings,
-                                          Map<String, Object> mapping) throws IOException {
+                                          Map<String, Object> mapping, int order) throws IOException {
         indexName = formatIndexName(indexName);
 
         PutIndexTemplateRequest putIndexTemplateRequest = new PutIndexTemplateRequest(indexName).patterns(
@@ -272,7 +272,8 @@ public class ElasticSearch7Client extends ElasticSearchClient {
                                                                                                 .alias(new Alias(
                                                                                                     indexName))
                                                                                                 .settings(settings)
-                                                                                                .mapping(mapping);
+                                                                                                .mapping(mapping)
+                                                                                                .order(order);
 
         AcknowledgedResponse acknowledgedResponse = client.indices()
                                                           .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT);

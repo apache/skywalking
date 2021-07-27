@@ -121,7 +121,7 @@ public class StorageEsInstaller extends ModelInstaller {
             if (shouldUpdateTemplate) {
                 structures.putStructure(tableName, mapping);
                 boolean isAcknowledged = esClient.createOrUpdateTemplate(
-                    tableName, settings, structures.getMapping(tableName));
+                    tableName, settings, structures.getMapping(tableName), config.getIndexTemplateOrder());
                 log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
                 if (!isAcknowledged) {
                     throw new IOException("create " + tableName + " index template failure, ");
