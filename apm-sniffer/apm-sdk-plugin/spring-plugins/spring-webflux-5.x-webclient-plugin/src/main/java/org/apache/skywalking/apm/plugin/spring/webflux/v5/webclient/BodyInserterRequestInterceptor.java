@@ -36,8 +36,7 @@ public class BodyInserterRequestInterceptor implements InstanceMethodsAroundInte
         ContextCarrier contextCarrier = (ContextCarrier) objInst.getSkyWalkingDynamicField();
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
-            next = next.next();
-            clientHttpRequest.getHeaders().set(next.getHeadKey(), next.getHeadValue());
+            next = next.next();clientHttpRequest.getHeaders().set(next.getHeadKey(), next.getHeadValue());
         }
     }
 
