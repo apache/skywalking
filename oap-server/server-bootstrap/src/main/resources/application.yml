@@ -509,5 +509,5 @@ receiver-event:
   default:
 
 logging:
-  selector: ${SW_LOGGING:none}
+  selector: ${SW_LOGGING:-}
   default:
