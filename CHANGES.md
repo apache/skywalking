@@ -84,7 +84,7 @@ Release Notes.
 * Fix InfluxDB storage-plugin Metrics#multiGet issue.
 * Replace zuul proxy with spring cloud gateway 2.x. in webapp module.
 * Upgrade etcd cluster coordinator and dynamic configuration to v3.x.
-* Configuration: Allow configuring server maximum request header size.
+* Configuration: Allow configuring server maximum request header size and ES index template order.
 * Add thread state metric and class loaded info metric to JVMMetric.
 * Performance: compile LAL DSL statically and run with type checked.
 * Add pagination to event query protocol.
