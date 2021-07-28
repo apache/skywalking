@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 public class LoggingConfigWatcher extends ConfigChangeWatcher {
     private final LoggerContext ctx;
     private final OapConfiguration originConfiguration;
-    private String content;
+    private volatile String content;
 
     public LoggingConfigWatcher(final ModuleProvider provider) {
         super(CoreModule.NAME, provider, "log4j-xml");
