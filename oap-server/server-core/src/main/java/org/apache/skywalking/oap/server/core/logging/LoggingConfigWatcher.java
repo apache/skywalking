@@ -31,8 +31,8 @@ import org.apache.skywalking.oap.server.core.logging.log4j.OapConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 /**
- * LoggingConfigWatcher watches the change of logging configuration.
- * Once got the change content, it would apply them to the current logger context.
+ * LoggingConfigWatcher watches the change of logging configuration. Once got the change content, it would apply them to
+ * the current logger context.
  */
 @Slf4j
 public class LoggingConfigWatcher extends ConfigChangeWatcher {
@@ -65,8 +65,10 @@ public class LoggingConfigWatcher extends ConfigChangeWatcher {
         }
         StringBuilder builder = new StringBuilder();
         ctx.getConfiguration().getLoggers().forEach((loggerName, config) -> {
-            builder.append(loggerName).append("-").append(config.getName()).append(":")
-                   .append(config.getLevel()).append(",");
+            builder.append(Strings.isNullOrEmpty(loggerName) ? "Root" : loggerName)
+                   .append(":")
+                   .append(config.getLevel())
+                   .append(",");
         });
         this.content = builder.toString();
     }
