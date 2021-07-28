@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.logging.provider.log4j;
+package org.apache.skywalking.oap.server.core.logging.log4j;
 
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -25,6 +25,10 @@ import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Order;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 
+/**
+ * OapConfigurationFactory guarantee the log4j configuration object is {@link OapConfiguration}.
+ * It guarantees the downcast {@link Configuration} to {@link OapConfiguration} safely.
+ */
 @Plugin(name = "OapConfigurationFactory", category = "ConfigurationFactory")
 @Order(10)
 public class OapConfigurationFactory extends ConfigurationFactory {

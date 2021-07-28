@@ -16,12 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.logging.provider.log4j;
+package org.apache.skywalking.oap.server.core.logging.log4j;
 
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
 
+/**
+ * OapConfiguration is the object loaded into log4j context.
+ */
 public class OapConfiguration extends XmlConfiguration {
     public OapConfiguration(final LoggerContext loggerContext,
                             final ConfigurationSource configSource) {

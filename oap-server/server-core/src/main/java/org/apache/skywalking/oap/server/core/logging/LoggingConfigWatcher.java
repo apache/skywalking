@@ -16,22 +16,34 @@
  *
  */
 
-package org.apache.skywalking.oap.server.logging.provider;
+package org.apache.skywalking.oap.server.core.logging;
 
-import java.util.function.Function;
+import com.google.common.base.Strings;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.logging.log4j.OapConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-import org.apache.skywalking.oap.server.logging.module.LoggingModule;
 
+/**
+ * LoggingConfigWatcher watches the change of logging configuration.
+ * Once got the change content, it would apply them to the current logger context.
+ */
 @Slf4j
 public class LoggingConfigWatcher extends ConfigChangeWatcher {
-    private final Function<String, Boolean> configureCaller;
+    private final LoggerContext ctx;
+    private final OapConfiguration originConfiguration;
     private String content;
 
-    public LoggingConfigWatcher(final ModuleProvider provider, final Function<String, Boolean> configureCaller) {
-        super(LoggingModule.NAME, provider, "log4j-xml");
-        this.configureCaller = configureCaller;
+    public LoggingConfigWatcher(final ModuleProvider provider) {
+        super(CoreModule.NAME, provider, "log4j-xml");
+        this.ctx = (LoggerContext) LogManager.getContext(false);
+        this.originConfiguration = (OapConfiguration) ctx.getConfiguration();
     }
 
     @Override
@@ -42,7 +54,7 @@ public class LoggingConfigWatcher extends ConfigChangeWatcher {
             this.content = value.getNewValue();
         }
         try {
-            Boolean applied = this.configureCaller.apply(this.content);
+            boolean applied = updateConfig();
             if (log.isDebugEnabled() && applied) {
                 log.debug("applied {} B data to logging configuration", this.content.length());
             }
@@ -54,5 +66,24 @@ public class LoggingConfigWatcher extends ConfigChangeWatcher {
     @Override
     public String value() {
         return this.content;
+    }
+
+    private boolean updateConfig() {
+        if (Strings.isNullOrEmpty(content)) {
+            if (ctx.getConfiguration().equals(originConfiguration)) {
+                ctx.onChange(originConfiguration);
+                return true;
+            }
+            return false;
+        }
+        OapConfiguration oc;
+        try {
+            oc = new OapConfiguration(ctx, new ConfigurationSource(new ByteArrayInputStream(content.getBytes())));
+        } catch (IOException e) {
+            throw new RuntimeException("failed to parse string from configuration center", e);
+        }
+        oc.initialize();
+        ctx.onChange(oc);
+        return true;
     }
 }
