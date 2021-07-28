@@ -48,12 +48,15 @@ public class LoggingConfigWatcher extends ConfigChangeWatcher {
 
     @Override
     public void notify(final ConfigChangeEvent value) {
-        if (EventType.DELETE.equals(value.getEventType()) || Strings.isNullOrEmpty(value.getNewValue())) {
+        String newValue;
+        if (EventType.DELETE.equals(value.getEventType())) {
             this.content = "";
-            return;
+            newValue = "";
+        } else {
+            newValue = value.getNewValue();
         }
         try {
-            if (!reconfigure(value.getNewValue())) {
+            if (!reconfigure(newValue)) {
                 return;
             }
         } catch (Throwable t) {
@@ -76,10 +79,10 @@ public class LoggingConfigWatcher extends ConfigChangeWatcher {
     private boolean reconfigure(final String newValue) {
         if (Strings.isNullOrEmpty(newValue)) {
             if (ctx.getConfiguration().equals(originConfiguration)) {
-                ctx.onChange(originConfiguration);
-                return true;
+                return false;
             }
-            return false;
+            ctx.onChange(originConfiguration);
+            return true;
         }
         OapConfiguration oc;
         try {
