@@ -48,19 +48,24 @@ public class LoggingConfigWatcher extends ConfigChangeWatcher {
 
     @Override
     public void notify(final ConfigChangeEvent value) {
-        if (EventType.DELETE.equals(value.getEventType())) {
+        if (EventType.DELETE.equals(value.getEventType()) || Strings.isNullOrEmpty(value.getNewValue())) {
             this.content = "";
-        } else {
-            this.content = value.getNewValue();
+            return;
         }
         try {
-            boolean applied = updateConfig();
-            if (log.isDebugEnabled() && applied) {
-                log.debug("applied {} B data to logging configuration", this.content.length());
+            if (!reconfigure(value.getNewValue())) {
+                return;
             }
         } catch (Throwable t) {
             log.error("failed to apply configuration to log4j", t);
+            return;
         }
+        StringBuilder builder = new StringBuilder();
+        ctx.getConfiguration().getLoggers().forEach((loggerName, config) -> {
+            builder.append(loggerName).append("-").append(config.getName()).append(":")
+                   .append(config.getLevel()).append(",");
+        });
+        this.content = builder.toString();
     }
 
     @Override
@@ -68,8 +73,8 @@ public class LoggingConfigWatcher extends ConfigChangeWatcher {
         return this.content;
     }
 
-    private boolean updateConfig() {
-        if (Strings.isNullOrEmpty(content)) {
+    private boolean reconfigure(final String newValue) {
+        if (Strings.isNullOrEmpty(newValue)) {
             if (ctx.getConfiguration().equals(originConfiguration)) {
                 ctx.onChange(originConfiguration);
                 return true;
@@ -78,9 +83,9 @@ public class LoggingConfigWatcher extends ConfigChangeWatcher {
         }
         OapConfiguration oc;
         try {
-            oc = new OapConfiguration(ctx, new ConfigurationSource(new ByteArrayInputStream(content.getBytes())));
+            oc = new OapConfiguration(ctx, new ConfigurationSource(new ByteArrayInputStream(newValue.getBytes())));
         } catch (IOException e) {
-            throw new RuntimeException("failed to parse string from configuration center", e);
+            throw new RuntimeException(String.format("failed to parse %s from configuration center", newValue), e);
         }
         oc.initialize();
         ctx.onChange(oc);
