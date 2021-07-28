@@ -79,16 +79,15 @@ public class LoggingProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-    }
-
-    @Override
-    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
         DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME)
                                                                               .provider()
                                                                               .getService(
                                                                                   DynamicConfigurationService.class);
         dynamicConfigurationService.registerConfigChangeWatcher(configWatcher);
+    }
 
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
     }
 
     @Override
