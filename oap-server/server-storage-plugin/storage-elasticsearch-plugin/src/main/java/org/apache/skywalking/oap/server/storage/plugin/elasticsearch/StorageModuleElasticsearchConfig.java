@@ -64,6 +64,12 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int superDatasetIndexReplicasNumber = 0;
     private int superDatasetIndexShardsFactor = 5;
     private int indexRefreshInterval = 2;
+
+    /**
+     * @since 8.7.0 The order of index template.
+     */
+    private int indexTemplateOrder = 0;
+
     /**
      * @since 8.7.0 This setting affects all traces/logs/metrics/metadata flush policy.
      */
