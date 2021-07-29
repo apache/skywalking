@@ -40,6 +40,7 @@ Release Notes.
 * Update agent plugin for ElasticJob GA version
 * Remove the logic of generating instance name in `KafkaServiceManagementServiceClient` class.
 * Improve `okhttp` plugin performance by optimizing Class.getDeclaredField().
+* Fix `GRPCLogClientAppender` no context warning.
 
 #### OAP-Backend
 
