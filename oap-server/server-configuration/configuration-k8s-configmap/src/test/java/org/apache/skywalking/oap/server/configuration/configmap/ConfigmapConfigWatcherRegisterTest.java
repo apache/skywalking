@@ -67,7 +67,9 @@ public class ConfigmapConfigWatcherRegisterTest {
 
         Assert.assertTrue(optionalConfigTable.isPresent());
         ConfigTable configTable = optionalConfigTable.get();
-        Assert.assertEquals(configTable.getItems().size(), 0);
+        Assert.assertEquals(configTable.getItems().size(), 1);
+        Assert.assertEquals(configTable.getItems().get(0).getName(), "key1");
+        Assert.assertNull(configTable.getItems().get(0).getValue());
     }
 
     @Test
@@ -79,7 +81,9 @@ public class ConfigmapConfigWatcherRegisterTest {
 
         Assert.assertTrue(optionalConfigTable.isPresent());
         ConfigTable configTable = optionalConfigTable.get();
-        Assert.assertEquals(configTable.getItems().size(), 0);
+        Assert.assertEquals(configTable.getItems().size(), 1);
+        Assert.assertEquals(configTable.getItems().get(0).getName(), "key1");
+        Assert.assertNull(configTable.getItems().get(0).getValue());
     }
 
     @Test
