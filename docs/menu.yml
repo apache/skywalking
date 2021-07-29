@@ -149,6 +149,8 @@ catalog:
               path: "/en/setup/backend/advanced-deployment"
             - name: "Data Lifecycle. Time To Live (TTL)"
               path: "/en/setup/backend/ttl"
+            - name: "Dynamical Logging"
+              path: "/en/setup/backend/dynamical-logging"
           - name: "Deploy In Kubernetes"
             path: "/en/setup/backend/backend-k8s"
           - name: "Tracing"

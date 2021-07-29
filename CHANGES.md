@@ -122,7 +122,9 @@ Release Notes.
 * Filtering NaN value samples when build SampleFamily
 * Add Thread and ClassLoader Metrics for the self-observability and otel-oc-rules
 * Simple optimization of trace sql query statement. Avoid "select *" query method
-* Breaking Change: rename `qps` to `rpm` in LAL 
+* Introduce dynamical logging to update log configuration at runtime
+* Fix Kubernetes ConfigMap configuration center doesn't send delete event 
+* Breaking Change: emove `qps` and add `rpm` in LAL 
 
 #### UI
 
