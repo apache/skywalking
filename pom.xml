@@ -124,6 +124,8 @@
                 <module>apm-sniffer</module>
                 <module>apm-application-toolkit</module>
                 <module>oap-server</module>
+                <module>oap-server-bom</module>
+                <module>oap-server-bom-es7</module>
                 <module>apm-webapp</module>
                 <module>apm-dist</module>
                 <module>apm-dist-es7</module>
