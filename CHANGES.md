@@ -122,6 +122,7 @@ Release Notes.
 * Filtering NaN value samples when build SampleFamily
 * Add Thread and ClassLoader Metrics for the self-observability and otel-oc-rules
 * Simple optimization of trace sql query statement. Avoid "select *" query method
+* Breaking Change: rename `qps` to `rpm` in LAL 
 
 #### UI
 
