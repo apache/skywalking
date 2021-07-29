@@ -38,11 +38,11 @@ rules:
           sampler {
             if (log.service == "ImportantApp") {
               rateLimit("ImportantAppSampler") {
-                qps 300
+                rpm 18000
               }
             } else {
               rateLimit("OtherSampler") {
-                qps 30
+                rpm 1800
               }
             }
           }

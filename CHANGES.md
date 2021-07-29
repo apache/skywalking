@@ -124,6 +124,7 @@ Release Notes.
 * Simple optimization of trace sql query statement. Avoid "select *" query method
 * Introduce dynamical logging to update log configuration at runtime
 * Fix Kubernetes ConfigMap configuration center doesn't send delete event 
+* Breaking Change: emove `qps` and add `rpm` in LAL 
 
 #### UI
 
