@@ -41,6 +41,7 @@ Release Notes.
 * Remove the logic of generating instance name in `KafkaServiceManagementServiceClient` class.
 * Improve `okhttp` plugin performance by optimizing Class.getDeclaredField().
 * Fix `GRPCLogClientAppender` no context warning.
+* Fix `spring-webflux-5.x-webclient-plugin` NPE.
 
 #### OAP-Backend
 
