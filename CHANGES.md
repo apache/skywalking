@@ -136,6 +136,9 @@ Release Notes.
 * Fix trace table for profile ui.
 * Fix the error of server response time in the topology.
 * Fix chart types for setting metrics configure.
+* Fix logs pages number.
+* Implement a timeline for Events in a new page.
+* Fix style for event details.
 
 #### Documentation
 
