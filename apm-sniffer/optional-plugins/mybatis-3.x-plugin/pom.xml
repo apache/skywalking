@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>optional-plugins</artifactId>
-        <version>8.7.0-SNAPSHOT</version>
+        <version>8.7.0</version>
     </parent>
 
     <artifactId>apm-mybatis-3.x-plugin</artifactId>
