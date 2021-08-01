@@ -106,7 +106,7 @@ public class GRPCChannelManager implements BootService, Runnable {
                     .map(eachBackendService -> eachBackendService.split(":"))
                     .filter(domainPortPairs -> {
                         if (domainPortPairs.length < 2) {
-                            LOGGER.debug(new IllegalArgumentException(), "Service address [{}] format error", domainPortPairs[0]);
+                            LOGGER.debug("Service address [{}] format error. The expected format is IP:port", domainPortPairs[0]);
                             return false;
                         }
                         return true;
