@@ -9,6 +9,7 @@ Release Notes.
 
 #### Java Agent
 * Support Multiple DNS period resolving mechanism
+
 #### OAP-Backend
 
 #### UI
