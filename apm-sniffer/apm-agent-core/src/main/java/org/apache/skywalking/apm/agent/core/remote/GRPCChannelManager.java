@@ -103,21 +103,21 @@ public class GRPCChannelManager implements BootService, Runnable {
         if (IS_RESOLVE_DNS_PERIODICALLY && reconnect) {
             grpcServers = Arrays.stream(Config.Collector.BACKEND_SERVICE.split(","))
                     .filter(StringUtil::isNotBlank)
-                    .map(s -> s.split(":"))
-                    .filter(arr -> {
-                        if (arr.length < 2) {
-                            LOGGER.debug(new IllegalArgumentException(), "Service address [{}] format error", arr[0]);
+                    .map(eachBackendService -> eachBackendService.split(":"))
+                    .filter(domainPortPairs -> {
+                        if (domainPortPairs.length < 2) {
+                            LOGGER.debug(new IllegalArgumentException(), "Service address [{}] format error", domainPortPairs[0]);
                             return false;
                         }
                         return true;
                     })
-                    .flatMap(arr -> {
+                    .flatMap(domainPortPairs -> {
                         try {
-                            return Arrays.stream(InetAddress.getAllByName(arr[0]))
+                            return Arrays.stream(InetAddress.getAllByName(domainPortPairs[0]))
                                     .map(InetAddress::getHostAddress)
-                                    .map(ip -> String.format("%s:%s", ip, arr[1]));
+                                    .map(ip -> String.format("%s:%s", ip, domainPortPairs[1]));
                         } catch (Throwable t) {
-                            LOGGER.error(t, "Failed to resolve {} of backend service.", arr[0]);
+                            LOGGER.error(t, "Failed to resolve {} of backend service.", domainPortPairs[0]);
                         }
                         return Stream.empty();
                     })
