@@ -8,7 +8,7 @@ Release Notes.
 #### Project
 
 #### Java Agent
-
+* Support Multiple DNS period resolving mechanism
 #### OAP-Backend
 
 #### UI

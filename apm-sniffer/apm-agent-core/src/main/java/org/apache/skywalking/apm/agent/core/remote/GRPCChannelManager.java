@@ -32,6 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
@@ -40,6 +41,7 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.IS_RESOLVE_DNS_PERIODICALLY;
 
@@ -99,20 +101,28 @@ public class GRPCChannelManager implements BootService, Runnable {
     public void run() {
         LOGGER.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
         if (IS_RESOLVE_DNS_PERIODICALLY && reconnect) {
-            String backendService = Config.Collector.BACKEND_SERVICE.split(",")[0];
-            try {
-                String[] domainAndPort = backendService.split(":");
-
-                List<String> newGrpcServers = Arrays
-                        .stream(InetAddress.getAllByName(domainAndPort[0]))
-                        .map(InetAddress::getHostAddress)
-                        .map(ip -> String.format("%s:%s", ip, domainAndPort[1]))
-                        .collect(Collectors.toList());
-
-                grpcServers = newGrpcServers;
-            } catch (Throwable t) {
-                LOGGER.error(t, "Failed to resolve {} of backend service.", backendService);
-            }
+            grpcServers = Arrays.stream(Config.Collector.BACKEND_SERVICE.split(","))
+                    .filter(StringUtil::isNotBlank)
+                    .map(s -> s.split(":"))
+                    .filter(arr -> {
+                        if (arr.length < 2) {
+                            LOGGER.debug(new IllegalArgumentException(), "Service address [{}] format error", arr[0]);
+                            return false;
+                        }
+                        return true;
+                    })
+                    .flatMap(arr -> {
+                        try {
+                            return Arrays.stream(InetAddress.getAllByName(arr[0]))
+                                    .map(InetAddress::getHostAddress)
+                                    .map(ip -> String.format("%s:%s", ip, arr[1]));
+                        } catch (Throwable t) {
+                            LOGGER.error(t, "Failed to resolve {} of backend service.", arr[0]);
+                        }
+                        return Stream.empty();
+                    })
+                    .distinct()
+                    .collect(Collectors.toList());
         }
 
         if (reconnect) {
