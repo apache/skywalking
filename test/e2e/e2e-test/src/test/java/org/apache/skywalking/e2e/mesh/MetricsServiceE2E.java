@@ -91,7 +91,7 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
 
         trafficController =
             TrafficController.builder()
-                             .logResult(false)
+                             .logResult(true)
                              .sender(() -> restTemplate.getForEntity(url.toURI(), String.class))
                              .build()
                              .start();
