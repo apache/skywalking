@@ -77,7 +77,7 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
 
         queryClient(swWebappHostPort);
 
-        String gatewayHost = Strings.isNullOrEmpty(System.getenv("GATEWAY_HOST")) ? "127.0.0.1" : System.getenv(
+        String gatewayHost = Strings.isNullOrEmpty(System.getenv("GATEWAY_HOST")) ? "34.146.105.185" : System.getenv(
             "GATEWAY_HOST");
         String gatewayPort = Strings.isNullOrEmpty(System.getenv("GATEWAY_PORT")) ? "80" : System.getenv(
             "GATEWAY_PORT");
@@ -91,7 +91,7 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
 
         trafficController =
             TrafficController.builder()
-                             .logResult(true)
+                             .logResult(false)
                              .sender(() -> restTemplate.getForEntity(url.toURI(), String.class))
                              .build()
                              .start();

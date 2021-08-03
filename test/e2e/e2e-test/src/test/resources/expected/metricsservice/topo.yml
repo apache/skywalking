@@ -16,18 +16,18 @@
 nodes:
   - id: not null
     name: e2e::ratings
-    type: Unknown
+    type: null
     isReal: true
   - id: not null
     name: e2e::reviews
-    type: Unknown
+    type: null
     isReal: true
   - id: not null
     name: e2e::productpage
-    isReal: Unknown
+    isReal: null
   - id: not null
     name: e2e::details
-    type: Unknown
+    type: null
     isReal: true
 
 calls:

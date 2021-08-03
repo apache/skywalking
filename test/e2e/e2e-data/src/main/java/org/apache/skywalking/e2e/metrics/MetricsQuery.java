@@ -173,7 +173,7 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         ImmutableMap.<String, List<String>>builder()
                     .put(
                         "envoy_cluster_membership_healthy",
-                        Arrays.asList("details")
+                        Arrays.asList("e2e::details")
                     )
                     .build();
 
