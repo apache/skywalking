@@ -23,5 +23,6 @@ Release Notes.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/96?closed=1)
 
+* Fix not found error when refresh ui.
 ------------------
 Find change logs of all versions [here](changes).
