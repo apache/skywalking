@@ -231,6 +231,7 @@ jobs:
           bash ${SCRIPTS_DIR}/istio.sh \
             --set profile=demo \
             --set meshConfig.defaultConfig.envoyMetricsService.address=skywalking-oap.istio-system:11800 \
+            --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*' \
             --set values.telemetry.v2.enabled=false # disable the metadata-exchange extension intentionally to make sure metrics service doesn't rely on it
 
       - name: Install SkyWalking
