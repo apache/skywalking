@@ -39,6 +39,8 @@ import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -260,5 +262,35 @@ public class Analyzer {
             endpointTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
             MetricsStreamProcessor.getInstance().in(endpointTraffic);
         }
+        if (entity.getDetectPoint() != null) {
+            switch (entity.getDetectPoint()) {
+                case SERVER:
+                    serverSide(entity);
+                    break;
+                case CLIENT:
+                    clientSide(entity);
+                    break;
+            }
+        }
+    }
+
+    private void serverSide(MeterEntity entity) {
+        ServiceRelationServerSideMetrics metrics = new ServiceRelationServerSideMetrics();
+        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setSourceServiceId(entity.relateServiceId());
+        metrics.setDestServiceId(entity.serviceId());
+        metrics.setComponentId(0);
+        metrics.setEntityId(entity.id());
+        MetricsStreamProcessor.getInstance().in(metrics);
+    }
+
+    private void clientSide(MeterEntity entity) {
+        ServiceRelationClientSideMetrics metrics = new ServiceRelationClientSideMetrics();
+        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setSourceServiceId(entity.serviceId());
+        metrics.setDestServiceId(entity.relateServiceId());
+        metrics.setComponentId(0);
+        metrics.setEntityId(entity.id());
+        MetricsStreamProcessor.getInstance().in(metrics);
     }
 }

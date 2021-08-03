@@ -236,14 +236,17 @@ last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog').downsam
 
 ## Metric level function
 
-There are three levels in metric: service, instance and endpoint. They extract level relevant labels from metric labels, then informs the meter-system the level to which this metric belongs.
+They extract level relevant labels from metric labels, then informs the meter-system the level to which this metric belongs.
 
  - `servcie([svc_label1, svc_label2...])` extracts service level labels from the array argument.
  - `instance([svc_label1, svc_label2...], [ins_label1, ins_label2...])` extracts service level labels from the first array argument, 
                                                                         extracts instance level labels from the second array argument.
  - `endpoint([svc_label1, svc_label2...], [ep_label1, ep_label2...])` extracts service level labels from the first array argument, 
                                                                       extracts endpoint level labels from the second array argument.
-
+ - `serviceRelation(DetectPoint, [svc_label1...], [related_svc_label1...])` DetectPoint including `DetectPoint.CLIENT` and `DetectPoint.SERVER`, 
+   extracts `service` labels from the first array argument, extracts `related service` labels from the second array argument.
+   If `DetectPoint.CLIENT` the `related service` is upstream of the `service`.
+   If `DetectPoint.SERVER` the `related service` is downstream of the `service`.
 ## More Examples
 
 Please refer to [OAP Self-Observability](../../../oap-server/server-bootstrap/src/main/resources/fetcher-prom-rules/self.yaml)

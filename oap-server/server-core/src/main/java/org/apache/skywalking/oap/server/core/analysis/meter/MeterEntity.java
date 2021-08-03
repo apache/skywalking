@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
 /**
  * MeterEntity represents the entity in the meter system.
@@ -35,6 +36,8 @@ public class MeterEntity {
     private String serviceName;
     private String instanceName;
     private String endpointName;
+    private String relateServiceName;
+    private DetectPoint detectPoint;
 
     private MeterEntity(final ScopeType scopeType,
                         final String serviceName,
@@ -44,6 +47,20 @@ public class MeterEntity {
         this.serviceName = serviceName;
         this.instanceName = instanceName;
         this.endpointName = endpointName;
+    }
+
+    private MeterEntity(final ScopeType scopeType,
+                        final String serviceName,
+                        final String instanceName,
+                        final String endpointName,
+                        final String relateServiceName,
+                        final DetectPoint detectPoint) {
+        this.scopeType = scopeType;
+        this.serviceName = serviceName;
+        this.instanceName = instanceName;
+        this.endpointName = endpointName;
+        this.relateServiceName = relateServiceName;
+        this.detectPoint = detectPoint;
     }
 
     public String id() {
@@ -56,6 +73,12 @@ public class MeterEntity {
                     IDManager.ServiceID.buildId(serviceName, true), instanceName);
             case ENDPOINT:
                 return IDManager.EndpointID.buildId(IDManager.ServiceID.buildId(serviceName, true), endpointName);
+            case SERVICE_RELATION:
+                // In Meter system, only normal service, because we don't conjecture any node.
+                return IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
+                    serviceId(),
+                    relateServiceId()
+                ));
             default:
                 throw new UnexpectedException("Unexpected scope type of entity " + this.toString());
         }
@@ -63,6 +86,10 @@ public class MeterEntity {
 
     public String serviceId() {
         return IDManager.ServiceID.buildId(serviceName, true);
+    }
+
+    public String relateServiceId() {
+        return IDManager.ServiceID.buildId(relateServiceName, true);
     }
 
     /**
@@ -84,5 +111,13 @@ public class MeterEntity {
      */
     public static MeterEntity newEndpoint(String serviceName, String endpointName) {
         return new MeterEntity(ScopeType.ENDPOINT, serviceName, null, endpointName);
+    }
+
+    public static MeterEntity newServiceRelation(String serviceName,
+                                                 String relateServiceName,
+                                                 DetectPoint detectPoint) {
+        return new MeterEntity(ScopeType.SERVICE_RELATION, serviceName, null, null, relateServiceName,
+                               detectPoint
+        );
     }
 }

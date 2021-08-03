@@ -11,7 +11,8 @@ Release Notes.
 * Support Multiple DNS period resolving mechanism
 
 #### OAP-Backend
-
+* Support Metric level function `serviceRelation` in `MAL`. 
+* Support envoy metrics binding into the topology.
 #### UI
 
 #### Documentation

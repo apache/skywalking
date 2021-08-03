@@ -120,127 +120,83 @@ templates:
             }
           ]
         },
-        "tcp":{
+        "envoy_metrics":{
           "server":[
-            {
-              "width":12,
-              "title":"Response Time",
-              "height":"200",
-              "entityType":"ServiceRelation",
-              "metricType":"REGULAR_VALUE",
-              "metricName":"service_relation_server_resp_time",
-              "queryMetricType":"readMetricsValues",
-              "chartType":"ChartLine",
-              "unit":"ms"
-            },
-            {
-              "width":12,
-              "title":"Response Time Percentile",
-              "height":200,
-              "entityType":"ServiceRelation",
-              "metricType":"LABELED_VALUE",
-              "metricName":"service_relation_server_percentile",
-              "queryMetricType":"readLabeledMetricsValues",
-              "chartType":"ChartLine",
-              "unit":"ms",
-              "metricLabels":"P50, P75, P90, P95, P99",
-              "labelsIndex":"0, 1, 2, 3, 4"
-            },
-            {
-              "width":12,
-              "title":"Successful Rate",
-              "height":"200",
-              "entityType":"ServiceRelation",
-              "metricType":"REGULAR_VALUE",
-              "metricName":"service_relation_server_call_sla",
-              "queryMetricType":"readMetricsValues",
-              "chartType":"ChartLine",
-              "unit":"%",
-              "aggregation":"/",
-              "aggregationNum":"100"
-            },
-            {
-              "width":12,
-              "title":"Load",
-              "height":"200",
-              "entityType":"ServiceRelation",
-              "metricType":"REGULAR_VALUE",
-              "metricName":"service_relation_server_cpm",
-              "queryMetricType":"readMetricsValues",
-              "chartType":"ChartLine",
-              "unit":"PPM - Packets Per Minute"
-            },
-            {
-              "width":12,
-              "title":"Throughput",
-              "height":"200",
-              "entityType":"ServiceRelation",
-              "metricType":"REGULAR_VALUE",
-              "metricName":"service_relation_server_received,service_relation_server_sent",
-              "queryMetricType":"readMetricsValues",
-              "chartType":"ChartLine",
-              "unit":"PPM - Packets Per Minutes"
-            }
           ],
           "client":[
             {
               "width":12,
-              "title":"Response Time",
+              "title":"Upstream CX Active",
               "height":"200",
               "entityType":"ServiceRelation",
               "metricType":"REGULAR_VALUE",
-              "metricName":"service_relation_client_resp_time",
+              "metricName":"envoy_sr_cluster_up_cx_active",
               "queryMetricType":"readMetricsValues",
-              "chartType":"ChartLine",
-              "unit":"ms"
+              "chartType":"ChartLine"
             },
             {
               "width":12,
-              "title":"Response Time Percentile",
-              "height":200,
-              "entityType":"ServiceRelation",
-              "metricType":"LABELED_VALUE",
-              "metricName":"service_relation_client_percentile",
-              "queryMetricType":"readLabeledMetricsValues",
-              "chartType":"ChartLine",
-              "unit":"ms",
-              "metricLabels":"P50, P75, P90, P95, P99",
-              "labelsIndex":"0, 1, 2, 3, 4"
-            },
-            {
-              "width":12,
-              "title":"Successful Rate",
+              "title":"Upstream CX Increase",
               "height":"200",
               "entityType":"ServiceRelation",
               "metricType":"REGULAR_VALUE",
-              "metricName":"service_relation_client_call_sla",
+              "metricName":"envoy_sr_cluster_up_cx_incr",
               "queryMetricType":"readMetricsValues",
               "chartType":"ChartLine",
-              "unit":"%",
-              "aggregation":"/",
-              "aggregationNum":"100"
+              "unit":"Per Minute"
             },
             {
               "width":12,
-              "title":"Load",
+              "title":"Upstream RQ Active",
               "height":"200",
               "entityType":"ServiceRelation",
               "metricType":"REGULAR_VALUE",
-              "metricName":"service_relation_client_cpm",
+              "metricName":"envoy_sr_cluster_up_rq_active",
               "queryMetricType":"readMetricsValues",
-              "chartType":"ChartLine",
-              "unit":"CPM - Calls Per Minute"
+              "chartType":"ChartLine"
             },
             {
               "width":12,
-              "title":"Throughput",
+              "title":"Upstream RQ Increase",
               "height":"200",
               "entityType":"ServiceRelation",
               "metricType":"REGULAR_VALUE",
-              "metricName":"service_relation_client_received,service_relation_client_sent",
+              "metricName":"envoy_sr_cluster_up_rq_incr",
               "queryMetricType":"readMetricsValues",
               "chartType":"ChartLine",
-              "unit":"PPM - Packets Per Minutes"
+              "unit":"Per Minute"
+            },
+            {
+              "width":12,
+              "title":"Upstream RQ Pending Active",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"envoy_sr_cluster_up_rq_pending_active",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine"
+            },
+            {
+              "width":12,
+              "title":"LB Healthy Panic Increase",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"envoy_sr_cluster_lb_healthy_panic_incr",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"Per Minute"
+            },
+            {
+              "width":12,
+              "title":"Upstream CX None Healthy Increase",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"envoy_sr_cluster_up_cx_none_healthy_incr",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"Per Minute"
             }
           ]
         }
