@@ -184,7 +184,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        istio_version: [1.7.1, 1.8.2, 1.9.1]
+        istio_version: [1.8.2, 1.9.1]
     env:
       ISTIO_VERSION: ${{ matrix.istio_version }}
     steps:
