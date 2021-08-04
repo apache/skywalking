@@ -421,7 +421,6 @@ public class SampleFamily {
     public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(instanceKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.scopeType = ScopeType.SERVICE_INSTANCE);
         ExpressionParsingContext.get().ifPresent(ctx -> {
             ctx.scopeType = ScopeType.SERVICE_INSTANCE;
             ctx.scopeLabels.addAll(serviceKeys);
@@ -436,7 +435,6 @@ public class SampleFamily {
     public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(endpointKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.scopeType = ScopeType.ENDPOINT);
         ExpressionParsingContext.get().ifPresent(ctx -> {
             ctx.scopeType = ScopeType.ENDPOINT;
             ctx.scopeLabels.addAll(serviceKeys);
@@ -449,11 +447,10 @@ public class SampleFamily {
     }
 
     public SampleFamily serviceRelation(DetectPoint detectPoint,
-                                         List<String> serviceKeys,
-                                         List<String> relateServiceKeys) {
+                                        List<String> serviceKeys,
+                                        List<String> relateServiceKeys) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(relateServiceKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.scopeType = ScopeType.SERVICE_RELATION);
         ExpressionParsingContext.get().ifPresent(ctx -> {
             ctx.scopeType = ScopeType.SERVICE_RELATION;
             ctx.scopeLabels.addAll(serviceKeys);

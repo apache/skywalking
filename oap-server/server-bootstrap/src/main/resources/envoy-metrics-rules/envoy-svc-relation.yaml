@@ -32,8 +32,6 @@
 expSuffix: serviceRelation(DetectPoint.CLIENT, ['app'], ['cluster_name'])
 metricPrefix: envoy_sr
 metricsRules:
-
-
   - name: cluster_up_cx_active
     exp: envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_cx_active').tagMatch('metrics_name' , 'cluster.outbound.+').sum(['app' ,'cluster_name'])
   - name: cluster_up_cx_incr
