@@ -22,3 +22,7 @@ services:
     label: istio-dp::e2e::productpage
   - key: not null
     label: istio-dp::e2e::details
+  - key: not null
+    label: istio-dp::e2e::istio-ingressgateway
+  - key: not null
+    label: istio-dp::e2e::istio-egressgateway

@@ -24,7 +24,7 @@ nodes:
     isReal: true
   - id: not null
     name: e2e::productpage
-    isReal: null
+    isReal: true
   - id: not null
     name: e2e::details
     type: null
