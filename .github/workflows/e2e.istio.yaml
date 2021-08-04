@@ -242,8 +242,9 @@ jobs:
           git reset --hard $SW_KUBERNETES_COMMIT_SHA
           cd chart
           mkdir -p skywalking/files/conf.d/oap/ && cp ../../test/e2e/e2e-test/src/test/resources/metadata-service-mapping.yaml skywalking/files/conf.d/oap/metadata-service-mapping.yaml
-          mkdir -p skywalking/files/conf.d/oap/ && cp ../../test/e2e/e2e-test/src/test/resources/envoy-svc-relation.yaml skywalking/files/conf.d/oap/envoy-metrics-rules/envoy-svc-relation.yaml
-          mkdir -p skywalking/files/conf.d/oap/ && cp ../../test/e2e/e2e-test/src/test/resources/envoy.yaml skywalking/files/conf.d/oap/envoy-metrics-rules/envoy.yaml
+          mkdir -p skywalking/files/conf.d/oap/envoy-metrics-rules/  
+          cp ../../test/e2e/e2e-test/src/test/resources/envoy-svc-relation.yaml skywalking/files/conf.d/oap/envoy-metrics-rules/envoy-svc-relation.yaml
+          cp ../../test/e2e/e2e-test/src/test/resources/envoy.yaml skywalking/files/conf.d/oap/envoy-metrics-rules/envoy.yaml
           helm dep up skywalking
           helm -n istio-system install skywalking skywalking \
                --set fullnameOverride=skywalking \
