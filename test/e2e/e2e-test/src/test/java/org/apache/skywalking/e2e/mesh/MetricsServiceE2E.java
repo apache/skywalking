@@ -167,7 +167,6 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
         }
     }
 
-
     @RetryableTest
     void topology() throws Exception {
         LOGGER.info("topology starts {} {}", graphql, startTime);
