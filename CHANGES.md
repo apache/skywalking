@@ -16,6 +16,7 @@ Release Notes.
 * Fix CVE-2021-35515, CVE-2021-35516, CVE-2021-35517, CVE-2021-36090. Upgrade org.apache.commons:commons-compress to
   1.21.
 * kubernetes java client upgrade from 12.0.1 to 13.0.0
+* Add `event` http receiver
 * Support Metric level function `serviceRelation` in `MAL`. 
 * Support envoy metrics binding into the topology.
 

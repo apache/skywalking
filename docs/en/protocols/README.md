@@ -50,6 +50,26 @@ the following key information:
 
 The protocol is used to report events to the backend. The [doc](../concepts-and-designs/event.md) introduces the definition of an event, and [the protocol repository](https://github.com/apache/skywalking-data-collect-protocol/blob/master/event) defines gRPC services and message formats of events.
 
+Report `JSON` format events via HTTP API, the endpoint is `http://<oap-address>:12800/v3/events`.
+JSON event record example:
+```json
+[
+    {
+        "uuid": "f498b3c0-8bca-438d-a5b0-3701826ae21c",
+        "source": {
+            "service": "SERVICE-A",
+            "instance": "INSTANCE-1"
+        },
+        "name": "Reboot",
+        "type": "Normal",
+        "message": "App reboot.",
+        "parameters": {},
+        "startTime": 1628044330000,
+        "endTime": 1628044331000
+    }
+]
+```
+
 ### 3rd-party instrument protocol
 3rd-party instrument protocols are not defined by SkyWalking. They are just protocols/formats with which SkyWalking is compatible, and SkyWalking could receive them from their existing libraries. SkyWalking starts with supporting Zipkin v1, v2 data formats.
 
