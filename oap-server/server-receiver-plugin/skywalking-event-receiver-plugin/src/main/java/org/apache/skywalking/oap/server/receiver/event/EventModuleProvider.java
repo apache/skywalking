@@ -21,11 +21,13 @@ package org.apache.skywalking.oap.server.receiver.event;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.event.grpc.EventGrpcServiceHandler;
+import org.apache.skywalking.oap.server.receiver.event.rest.EventRestServiceHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 public class EventModuleProvider extends ModuleProvider {
@@ -56,6 +58,10 @@ public class EventModuleProvider extends ModuleProvider {
                                                                     .getService(GRPCHandlerRegister.class);
         final EventGrpcServiceHandler eventGRPCServiceHandler = new EventGrpcServiceHandler(getManager());
         grpcHandlerRegister.addHandler(eventGRPCServiceHandler);
+        JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME)
+                                                                .provider()
+                                                                .getService(JettyHandlerRegister.class);
+        jettyHandlerRegister.addHandler(new EventRestServiceHandler(getManager()));
     }
 
     @Override
