@@ -42,11 +42,17 @@ import org.apache.skywalking.e2e.service.instance.Instance;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
+import org.apache.skywalking.e2e.topo.Call;
+import org.apache.skywalking.e2e.topo.TopoMatcher;
+import org.apache.skywalking.e2e.topo.TopoQuery;
+import org.apache.skywalking.e2e.topo.Topology;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 
+import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENVOY_LABELED_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENVOY_LINER_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENVOY_METRICS_SERVICE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.utils.Times.now;
 import static org.apache.skywalking.e2e.utils.Yamls.exists;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
@@ -73,7 +79,7 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
 
         String gatewayHost = Strings.isNullOrEmpty(System.getenv("GATEWAY_HOST")) ? "127.0.0.1" : System.getenv(
             "GATEWAY_HOST");
-        String gatewayPort = Strings.isNullOrEmpty(System.getenv("GATEWAY_PORT")) ? "80" : System.getenv(
+        String gatewayPort = Strings.isNullOrEmpty(System.getenv("GATEWAY_PORT")) ? "9080" : System.getenv(
             "GATEWAY_PORT");
 
         HostAndPort serviceHostPort = HostAndPort.builder()
@@ -161,7 +167,7 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
         }
     }
 
-    /*
+
     @RetryableTest
     void topology() throws Exception {
         LOGGER.info("topology starts {} {}", graphql, startTime);
@@ -188,5 +194,5 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
                 }
             }
         }
-    }*/
+    }
 }

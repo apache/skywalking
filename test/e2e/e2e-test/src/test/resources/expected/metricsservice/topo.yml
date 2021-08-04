@@ -15,10 +15,6 @@
 
 nodes:
   - id: not null
-    name: e2e::ratings
-    type: null
-    isReal: true
-  - id: not null
     name: e2e::reviews
     type: null
     isReal: true
@@ -39,10 +35,5 @@ calls:
   - id: not null
     source: ZTJlOjpwcm9kdWN0cGFnZQ==.1
     target: ZTJlOjpkZXRhaWxz.1
-    detectPoints:
-      - CLIENT
-  - id: not null
-    source: ZTJlOjpyZXZpZXdz.1
-    target: ZTJlOjpyYXRpbmdz.1
     detectPoints:
       - CLIENT

@@ -164,7 +164,6 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         "envoy_memory_allocated_max",
         "envoy_memory_physical_size",
         "envoy_memory_physical_size_max",
-        "envoy_total_connections_used",
         "envoy_worker_threads",
         "envoy_worker_threads_max"
     };
