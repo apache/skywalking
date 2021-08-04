@@ -263,9 +263,10 @@ jobs:
 
       - name: Deploy demo services
         if: env.SKIP_CI != 'true'
-        run: bash ${SCRIPTS_DIR}/demo.sh
-        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/destination-rule-all.yaml
-        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/virtual-service-all-v1.yaml
+        run: |
+          bash ${SCRIPTS_DIR}/demo.sh
+          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/destination-rule-all.yaml
+          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/virtual-service-all-v1.yaml
 
       - name: Cluster Info
         if: ${{ failure() }}
