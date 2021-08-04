@@ -50,8 +50,7 @@ the following key information:
 
 The protocol is used to report events to the backend. The [doc](../concepts-and-designs/event.md) introduces the definition of an event, and [the protocol repository](https://github.com/apache/skywalking-data-collect-protocol/blob/master/event) defines gRPC services and message formats of events.
 
-
-Report `JSON` format logs via HTTP API, the endpoint is http://<oap-address>:12800/v3/events.
+Report `JSON` format events via HTTP API, the endpoint is `http://<oap-address>:12800/v3/events`.
 JSON event record example:
 ```json
 [
