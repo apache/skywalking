@@ -79,7 +79,7 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
 
         String gatewayHost = Strings.isNullOrEmpty(System.getenv("GATEWAY_HOST")) ? "127.0.0.1" : System.getenv(
             "GATEWAY_HOST");
-        String gatewayPort = Strings.isNullOrEmpty(System.getenv("GATEWAY_PORT")) ? "9080" : System.getenv(
+        String gatewayPort = Strings.isNullOrEmpty(System.getenv("GATEWAY_PORT")) ? "80" : System.getenv(
             "GATEWAY_PORT");
 
         HostAndPort serviceHostPort = HostAndPort.builder()
