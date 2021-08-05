@@ -86,6 +86,25 @@ istioctl manifest install -y \
   --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*'
 ```
 
+Note:
+`proxyStatsMatcher` only supported by `Istio 1.8+`.
+We recommend using `inclusionRegexps` to reserve the specific metrics which need to analyze that can reduce Memory and CPU overhead.
+For example, OAP used these metrics:
+
+```shell
+istioctl manifest install -y \
+  --set profile=demo `# replace the profile as per your need` \
+  --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> \ # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*membership_healthy.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[1]=.*upstream_cx_active.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[2]=.*upstream_cx_total.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[3]=.*upstream_rq_active.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[4]=.*upstream_rq_total.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[5]=.*upstream_rq_pending_active.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[6]=.*lb_healthy_panic.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[7]=.*upstream_cx_none_healthy.*'
+```
+
 # Metrics data
 
 Some Envoy statistics are listed in this [list](https://www.envoyproxy.io/docs/envoy/v1.17.0/configuration/upstream/cluster_manager/cluster_stats#config-cluster-manager-cluster-stats). A sample data that contains identifier can be found [here](identify.json), while the metrics only can be observed [here](metrics.json).
