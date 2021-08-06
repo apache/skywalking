@@ -17,6 +17,8 @@ Release Notes.
   1.21.
 * kubernetes java client upgrade from 12.0.1 to 13.0.0
 * Add `event` http receiver
+* Support Metric level function `serviceRelation` in `MAL`. 
+* Support envoy metrics binding into the topology.
 
 #### UI
 

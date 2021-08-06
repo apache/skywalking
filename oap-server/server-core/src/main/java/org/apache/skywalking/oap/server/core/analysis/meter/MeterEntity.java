@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter;
 
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
 /**
  * MeterEntity represents the entity in the meter system.
@@ -30,21 +33,16 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 @EqualsAndHashCode
 @ToString
 @Getter
+@Builder(toBuilder = true)
 public class MeterEntity {
     private ScopeType scopeType;
+    @Setter
     private String serviceName;
     private String instanceName;
     private String endpointName;
-
-    private MeterEntity(final ScopeType scopeType,
-                        final String serviceName,
-                        final String instanceName,
-                        final String endpointName) {
-        this.scopeType = scopeType;
-        this.serviceName = serviceName;
-        this.instanceName = instanceName;
-        this.endpointName = endpointName;
-    }
+    private String sourceServiceName;
+    private String destServiceName;
+    private DetectPoint detectPoint;
 
     public String id() {
         switch (scopeType) {
@@ -56,6 +54,11 @@ public class MeterEntity {
                     IDManager.ServiceID.buildId(serviceName, true), instanceName);
             case ENDPOINT:
                 return IDManager.EndpointID.buildId(IDManager.ServiceID.buildId(serviceName, true), endpointName);
+            case SERVICE_RELATION:
+                return IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
+                    sourceServiceId(),
+                    destServiceId()
+                ));
             default:
                 throw new UnexpectedException("Unexpected scope type of entity " + this.toString());
         }
@@ -65,24 +68,51 @@ public class MeterEntity {
         return IDManager.ServiceID.buildId(serviceName, true);
     }
 
+    public String sourceServiceId() {
+        return IDManager.ServiceID.buildId(sourceServiceName, true);
+    }
+
+    public String destServiceId() {
+        return IDManager.ServiceID.buildId(destServiceName, true);
+    }
+
     /**
      * Create a service level meter entity.
      */
     public static MeterEntity newService(String serviceName) {
-        return new MeterEntity(ScopeType.SERVICE, serviceName, null, null);
+        return MeterEntity.builder().scopeType(ScopeType.SERVICE).serviceName(serviceName).build();
     }
 
     /**
      * Create a service instance level meter entity.
      */
     public static MeterEntity newServiceInstance(String serviceName, String serviceInstance) {
-        return new MeterEntity(ScopeType.SERVICE_INSTANCE, serviceName, serviceInstance, null);
+        return MeterEntity.builder()
+                          .scopeType(ScopeType.SERVICE_INSTANCE)
+                          .serviceName(serviceName)
+                          .instanceName(serviceInstance)
+                          .build();
     }
 
     /**
      * Create an endpoint level meter entity.
      */
     public static MeterEntity newEndpoint(String serviceName, String endpointName) {
-        return new MeterEntity(ScopeType.ENDPOINT, serviceName, null, endpointName);
+        return MeterEntity.builder()
+                          .scopeType(ScopeType.ENDPOINT)
+                          .serviceName(serviceName)
+                          .endpointName(endpointName)
+                          .build();
+    }
+
+    public static MeterEntity newServiceRelation(String sourceServiceName,
+                                                 String destServiceName,
+                                                 DetectPoint detectPoint) {
+        return MeterEntity.builder()
+                          .scopeType(ScopeType.SERVICE_RELATION)
+                          .sourceServiceName(sourceServiceName)
+                          .destServiceName(destServiceName)
+                          .detectPoint(detectPoint)
+                          .build();
     }
 }

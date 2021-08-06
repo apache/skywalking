@@ -243,6 +243,86 @@ templates:
               "unit":"PPM - Packets Per Minutes"
             }
           ]
+        },
+        "envoy_metrics":{
+          "server":[
+          ],
+          "client":[
+            {
+              "width":12,
+              "title":"Upstream Connection Active",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"envoy_sr_cluster_up_cx_active",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine"
+            },
+            {
+              "width":12,
+              "title":"Upstream Connection Increase",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"envoy_sr_cluster_up_cx_incr",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"Per Minute"
+            },
+            {
+              "width":12,
+              "title":"Upstream Request Active",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"envoy_sr_cluster_up_rq_active",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine"
+            },
+            {
+              "width":12,
+              "title":"Upstream Request Increase",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"envoy_sr_cluster_up_rq_incr",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"Per Minute"
+            },
+            {
+              "width":12,
+              "title":"Upstream Request Pending Active",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"envoy_sr_cluster_up_rq_pending_active",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine"
+            },
+            {
+              "width":12,
+              "title":"LB Healthy Panic Increase",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"envoy_sr_cluster_lb_healthy_panic_incr",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"Per Minute"
+            },
+            {
+              "width":12,
+              "title":"Upstream Connection None Healthy Increase",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"envoy_sr_cluster_up_cx_none_healthy_incr",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"Per Minute"
+            }
+          ]
         }
       }
     # Activated as the TOPOLOGY_INSTANCE type, makes this templates added into the UI page automatically.

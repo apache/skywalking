@@ -21,6 +21,7 @@ package org.apache.skywalking.e2e.mesh;
 import com.google.common.base.Strings;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,9 @@ import org.apache.skywalking.e2e.base.SkyWalkingTestAdapter;
 import org.apache.skywalking.e2e.base.TrafficController;
 import org.apache.skywalking.e2e.common.HostAndPort;
 import org.apache.skywalking.e2e.metrics.AtLeastOneOfMetricsMatcher;
+import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsValueMatcher;
+import org.apache.skywalking.e2e.metrics.ReadLabeledMetricsQuery;
 import org.apache.skywalking.e2e.metrics.ReadMetrics;
 import org.apache.skywalking.e2e.metrics.ReadMetricsQuery;
 import org.apache.skywalking.e2e.retryable.RetryableTest;
@@ -39,10 +42,17 @@ import org.apache.skywalking.e2e.service.instance.Instance;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
+import org.apache.skywalking.e2e.topo.Call;
+import org.apache.skywalking.e2e.topo.TopoMatcher;
+import org.apache.skywalking.e2e.topo.TopoQuery;
+import org.apache.skywalking.e2e.topo.Topology;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 
+import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENVOY_LABELED_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENVOY_LINER_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENVOY_METRICS_SERVICE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.utils.Times.now;
 import static org.apache.skywalking.e2e.utils.Yamls.exists;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
@@ -50,9 +60,11 @@ import static org.apache.skywalking.e2e.utils.Yamls.load;
 @Slf4j
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class MetricsServiceE2E extends SkyWalkingTestAdapter {
-    private final String swWebappHost = Optional.ofNullable(Strings.emptyToNull(System.getenv("WEBAPP_HOST"))).orElse("127.0.0.1");
+    private final String swWebappHost = Optional.ofNullable(Strings.emptyToNull(System.getenv("WEBAPP_HOST")))
+                                                .orElse("127.0.0.1");
 
-    private final String swWebappPort = Optional.ofNullable(Strings.emptyToNull(System.getenv("WEBAPP_PORT"))).orElse("12800");
+    private final String swWebappPort = Optional.ofNullable(Strings.emptyToNull(System.getenv("WEBAPP_PORT")))
+                                                .orElse("12800");
 
     protected HostAndPort swWebappHostPort = HostAndPort.builder()
                                                         .host(swWebappHost)
@@ -65,8 +77,10 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
 
         queryClient(swWebappHostPort);
 
-        String gatewayHost = Strings.isNullOrEmpty(System.getenv("GATEWAY_HOST")) ? "127.0.0.1" : System.getenv("GATEWAY_HOST");
-        String gatewayPort = Strings.isNullOrEmpty(System.getenv("GATEWAY_PORT")) ? "80" : System.getenv("GATEWAY_PORT");
+        String gatewayHost = Strings.isNullOrEmpty(System.getenv("GATEWAY_HOST")) ? "127.0.0.1" : System.getenv(
+            "GATEWAY_HOST");
+        String gatewayPort = Strings.isNullOrEmpty(System.getenv("GATEWAY_PORT")) ? "80" : System.getenv(
+            "GATEWAY_PORT");
 
         HostAndPort serviceHostPort = HostAndPort.builder()
                                                  .host(gatewayHost)
@@ -123,6 +137,59 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
                     greaterThanZero.setValue("gt 0");
                     instanceRespTimeMatcher.setValue(greaterThanZero);
                     instanceRespTimeMatcher.verify(instanceMetrics.getValues());
+                }
+
+                for (Map.Entry<String, List<String>> entry : ALL_ENVOY_LABELED_METRICS.entrySet()) {
+                    String metricsName = entry.getKey();
+                    List<String> labels = entry.getValue();
+                    LOGGER.info("verifying envoy labeledMetrics: {}", metricsName);
+                    List<ReadMetrics> labeledMetrics = graphql.readLabeledMetrics(
+                        new ReadLabeledMetricsQuery().stepByMinute()
+                                                     .metricsName(metricsName)
+                                                     .serviceName(service.getLabel())
+                                                     .scope("ServiceInstance")
+                                                     .instanceName(instance.getLabel())
+                                                     .labels(labels)
+                    );
+                    LOGGER.info("envoy labeledMetrics: {}", labeledMetrics);
+
+                    Metrics allValues = new Metrics();
+                    for (ReadMetrics readMetrics : labeledMetrics) {
+                        allValues.getValues().addAll(readMetrics.getValues().getValues());
+                    }
+                    final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+                    final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                    greaterThanZero.setValue("gt 0");
+                    instanceRespTimeMatcher.setValue(greaterThanZero);
+                    instanceRespTimeMatcher.verify(allValues);
+                }
+            }
+        }
+    }
+
+    @RetryableTest
+    void topology() throws Exception {
+        LOGGER.info("topology starts {} {}", graphql, startTime);
+
+        final Topology topology = graphql.topo(new TopoQuery().stepByMinute().start(startTime.minusDays(1)).end(now()));
+
+        LOGGER.info("topology: {}", topology);
+
+        load("expected/metricsservice/topo.yml").as(TopoMatcher.class).verify(topology);
+
+        verifyServiceRelationMetrics(topology.getCalls());
+    }
+
+    private void verifyServiceRelationMetrics(final List<Call> calls) throws Exception {
+        verifyRelationMetrics(calls, ENVOY_METRICS_SERVICE_RELATION_CLIENT_METRICS);
+    }
+
+    private void verifyRelationMetrics(final List<Call> calls,
+                                       final String[] relationClientMetrics) throws Exception {
+        for (Call call : calls) {
+            for (String detectPoint : call.getDetectPoints()) {
+                for (String metricName : relationClientMetrics) {
+                    verifyMetrics(graphql, metricName, call.getId(), startTime);
                 }
             }
         }

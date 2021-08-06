@@ -236,13 +236,15 @@ last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog').downsam
 
 ## Metric level function
 
-There are three levels in metric: service, instance and endpoint. They extract level relevant labels from metric labels, then informs the meter-system the level to which this metric belongs.
+They extract level relevant labels from metric labels, then informs the meter-system the level to which this metric belongs.
 
  - `servcie([svc_label1, svc_label2...])` extracts service level labels from the array argument.
  - `instance([svc_label1, svc_label2...], [ins_label1, ins_label2...])` extracts service level labels from the first array argument, 
                                                                         extracts instance level labels from the second array argument.
  - `endpoint([svc_label1, svc_label2...], [ep_label1, ep_label2...])` extracts service level labels from the first array argument, 
                                                                       extracts endpoint level labels from the second array argument.
+ - `serviceRelation(DetectPoint, [source_svc_label1...], [dest_svc_label1...])` DetectPoint including `DetectPoint.CLIENT` and `DetectPoint.SERVER`, 
+   extracts `sourceService` labels from the first array argument, extracts `destService` labels from the second array argument.
 
 ## More Examples
 

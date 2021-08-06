@@ -25,17 +25,19 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
 @Getter
 @RequiredArgsConstructor
 @ToString
-public class InstanceEntityDescription implements EntityDescription {
-    private final ScopeType scopeType = ScopeType.SERVICE_INSTANCE;
-    private final List<String> serviceKeys;
-    private final List<String> instanceKeys;
+public class ServiceRelationEntityDescription implements EntityDescription {
+    private final ScopeType scopeType = ScopeType.SERVICE_RELATION;
+    private final List<String> sourceServiceKeys;
+    private final List<String> destServiceKeys;
+    private final DetectPoint detectPoint;
 
     @Override
     public List<String> getLabelKeys() {
-        return Stream.concat(this.serviceKeys.stream(), this.instanceKeys.stream()).collect(Collectors.toList());
+        return Stream.concat(this.sourceServiceKeys.stream(), this.destServiceKeys.stream()).collect(Collectors.toList());
     }
 }
