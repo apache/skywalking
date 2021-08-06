@@ -19,6 +19,7 @@ Release Notes.
 * Add `event` http receiver
 * Support Metric level function `serviceRelation` in `MAL`. 
 * Support envoy metrics binding into the topology.
+* Fix openapi-definitions folder not being read correctly.
 
 #### UI
 
