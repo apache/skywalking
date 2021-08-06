@@ -280,6 +280,7 @@
                         <exclude>fetcher-prom-rules/</exclude>
                         <exclude>envoy-metrics-rules/</exclude>
                         <exclude>meter-analyzer-config/</exclude>
+                        <exclude>openapi-definitions/</exclude>
                         <exclude>otel-oc-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>
                         <exclude>zabbix-rules/</exclude>
