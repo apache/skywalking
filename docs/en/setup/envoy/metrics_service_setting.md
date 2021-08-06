@@ -72,7 +72,7 @@ Under this circumstance, emitting the metrics to SyWalking is as simple as addin
 
 ```shell
 istioctl install -y \
-  --set profile=demo `# replace the profile as per your need` \
+  --set profile=demo # replace the profile as per your need \
   --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> \ # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
   --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*'
 ```
@@ -81,7 +81,7 @@ If you already have Istio installed, you can use the following command to apply 
 
 ```shell
 istioctl manifest install -y \
-  --set profile=demo `# replace the profile as per your need` \
+  --set profile=demo # replace the profile as per your need \
   --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> \ # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
   --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*'
 ```
@@ -93,7 +93,7 @@ For example, OAP used these metrics:
 
 ```shell
 istioctl manifest install -y \
-  --set profile=demo `# replace the profile as per your need` \
+  --set profile=demo # replace the profile as per your need \
   --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> \ # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
   --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*membership_healthy.*' \
   --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[1]=.*upstream_cx_active.*' \
