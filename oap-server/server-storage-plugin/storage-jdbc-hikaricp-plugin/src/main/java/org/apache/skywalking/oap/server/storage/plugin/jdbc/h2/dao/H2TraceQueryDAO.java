@@ -225,11 +225,9 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                             SegmentRecord.SERVICE_INSTANCE_ID + ", " +
                             SegmentRecord.ENDPOINT_NAME + ", " +
                             SegmentRecord.START_TIME + ", " +
-                            SegmentRecord.END_TIME + ", " +
                             SegmentRecord.LATENCY + ", " +
                             SegmentRecord.IS_ERROR + ", " +
-                            SegmentRecord.DATA_BINARY + ", " +
-                            SegmentRecord.VERSION +  " from " +
+                            SegmentRecord.DATA_BINARY + " from " +
                             SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?", traceId
             )) {
                 while (resultSet.next()) {
@@ -240,14 +238,12 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                     segmentRecord.setServiceInstanceId(resultSet.getString(SegmentRecord.SERVICE_INSTANCE_ID));
                     segmentRecord.setEndpointName(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
                     segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
-                    segmentRecord.setEndTime(resultSet.getLong(SegmentRecord.END_TIME));
                     segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
                     segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
                     String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
                     if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                         segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
                     }
-                    segmentRecord.setVersion(resultSet.getInt(SegmentRecord.VERSION));
                     segmentRecords.add(segmentRecord);
                 }
             }
