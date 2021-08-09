@@ -35,12 +35,10 @@ public class SegmentDispatcher implements SourceDispatcher<Segment> {
         segment.setEndpointName(source.getEndpointName());
         segment.setEndpointId(source.getEndpointId());
         segment.setStartTime(source.getStartTime());
-        segment.setEndTime(source.getEndTime());
         segment.setLatency(source.getLatency());
         segment.setIsError(source.getIsError());
         segment.setDataBinary(source.getDataBinary());
         segment.setTimeBucket(source.getTimeBucket());
-        segment.setVersion(source.getVersion());
         segment.setTagsRawData(source.getTags());
         segment.setTags(Tag.Util.toStringList(source.getTags()));
 
