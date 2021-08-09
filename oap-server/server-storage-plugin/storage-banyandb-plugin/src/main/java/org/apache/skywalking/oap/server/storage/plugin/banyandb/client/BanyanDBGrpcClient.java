@@ -25,8 +25,6 @@ import org.apache.skywalking.banyandb.Query;
 import org.apache.skywalking.banyandb.TraceServiceGrpc;
 import org.apache.skywalking.banyandb.Write;
 
-import java.util.List;
-
 public class BanyanDBGrpcClient {
     private final TraceServiceGrpc.TraceServiceBlockingStub blockingStub;
     private final TraceServiceGrpc.TraceServiceStub asyncStub;

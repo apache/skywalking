@@ -24,14 +24,23 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.banyandb.Query;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.query.type.*;
+import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
+import org.apache.skywalking.oap.server.core.query.type.Span;
+import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
+import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.client.BanyanDBGrpcClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQueryDAO {

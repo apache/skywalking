@@ -21,13 +21,16 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.dao;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
+import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.client.BanyanDBSchemaMapper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
 
 import java.util.Map;
@@ -35,12 +38,12 @@ import java.util.Map;
 @Slf4j
 public class BanyanDBStorageDAO extends H2StorageDAO {
     private final BanyanDBStorageConfig config;
-    private final BanyanDBSchemaMapper mapper;
+    private final BanyanDBSchema schema;
 
     public BanyanDBStorageDAO(ModuleManager manager, JDBCHikariCPClient h2Client, BanyanDBStorageConfig config, BanyanDBSchema schema) {
         super(manager, h2Client, config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag());
         this.config = config;
-        this.mapper = new BanyanDBSchemaMapper(schema.getFieldNames());
+        this.schema = schema;
     }
 
     @Override
@@ -52,7 +55,7 @@ public class BanyanDBStorageDAO extends H2StorageDAO {
     public IRecordDAO newRecordDao(StorageBuilder storageBuilder) {
         try {
             if (SegmentRecord.class.equals(storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType())) {
-                return new BanyanDBRecordDAO(this.manager, this.h2Client, (StorageHashMapBuilder<Record>) storageBuilder, this.config, this.mapper);
+                return new BanyanDBRecordDAO(this.manager, this.h2Client, (StorageHashMapBuilder<Record>) storageBuilder, this.config, this.schema);
             } else {
                 return super.newRecordDao(storageBuilder);
             }

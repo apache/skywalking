@@ -35,8 +35,6 @@
             <artifactId>storage-jdbc-hikaricp-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- grpc -->
-
     </dependencies>
 
     <build>

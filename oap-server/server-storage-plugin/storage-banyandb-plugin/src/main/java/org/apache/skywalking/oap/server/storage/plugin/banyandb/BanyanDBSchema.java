@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.io.CharStreams;
 import com.google.protobuf.TextFormat;
+import org.apache.skywalking.banyandb.Database;
 import org.apache.skywalking.banyandb.Query;
 import org.apache.skywalking.banyandb.Schema;
 
@@ -32,15 +33,14 @@ import java.util.Set;
 
 public class BanyanDBSchema {
     private final Schema.TraceSeries traceSeries;
+    private final Set<String> fields = new LinkedHashSet<>();
 
     private int durationIndex;
     private int traceStateIndex;
     private Schema.FieldSpec.FieldType traceStateType;
     private int valIntError;
     private String valStringError;
-
-    private Set<String> fields = new LinkedHashSet<>();
-
+    
     public static BanyanDBSchema fromTextProtoResource(String filename) {
         // read schema
         Schema.TraceSeries schema;
@@ -104,5 +104,9 @@ public class BanyanDBSchema {
 
     public Set<String> getFieldNames() {
         return this.fields;
+    }
+
+    public Database.Metadata getMetadata() {
+        return this.traceSeries.getMetadata();
     }
 }
