@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.type.*;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBGrpcClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.client.BanyanDBGrpcClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 
@@ -35,8 +35,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQueryDAO {
-    public BanyanDBTraceQueryDAO(BanyanDBStorageConfig config) {
+    private final BanyanDBSchema schema;
+
+    public BanyanDBTraceQueryDAO(BanyanDBStorageConfig config, BanyanDBSchema schema) {
         super(config.getHost(), config.getPort());
+        this.schema = schema;
     }
 
     @Override
@@ -144,10 +147,10 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
         brief.setTotal(response.getEntitiesCount());
         brief.getTraces().addAll(response.getEntitiesList().stream().map(entity -> {
             BasicTrace trace = new BasicTrace();
-            trace.setDuration(BanyanDBSchema.getDuration(entity));
+            trace.setDuration(this.schema.getDuration(entity));
             trace.setStart(String.valueOf(entity.getTimestamp().getSeconds()));
             trace.setSegmentId(entity.getEntityId());
-            trace.setError(BanyanDBSchema.isErrorEntity(entity));
+            trace.setError(this.schema.isErrorEntity(entity));
             return trace;
         }).collect(Collectors.toList()));
         return brief;
@@ -162,7 +165,7 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
                 .build());
         queryBuilder.setProjection(Query.Projection.newBuilder()
                 // add all keys
-                .addAllKeyNames(BanyanDBSchema.getFieldNames())
+                .addAllKeyNames(this.schema.getFieldNames())
                 // fetch binary part
                 .addKeyNames("data_binary")
                 .build());
@@ -188,7 +191,7 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
     }
 
     static SegmentRecord convertToSegmentRecord(Query.Entity entity, Map<String, Object> entityMap) {
-        // TODO: we still need timeBucket, endTime, version and topN?
+        // TODO: we still need endTime, version and topN?
         SegmentRecord record = new SegmentRecord();
         record.setSegmentId(entity.getEntityId());
         record.setTraceId((String) entityMap.get("trace_id"));
@@ -200,6 +203,7 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
         record.setLatency(((Number) entityMap.get("duration")).intValue());
         record.setIsError(((Number) entityMap.get("state")).intValue());
         record.setDataBinary(entity.getDataBinary().toByteArray());
+        record.setTimeBucket(entity.getTimestamp().getSeconds());
         return record;
     }
 }

@@ -27,62 +27,69 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class BanyanDBSchema {
-    public static final Schema.TraceSeries SCHEMA;
+    private final Schema.TraceSeries traceSeries;
 
-    private static int DurationIndex;
-    private static int TraceStateIndex;
-    private static Schema.FieldSpec.FieldType TraceStateType;
-    private static int valIntError;
-    private static String valStringError;
+    private int durationIndex;
+    private int traceStateIndex;
+    private Schema.FieldSpec.FieldType traceStateType;
+    private int valIntError;
+    private String valStringError;
 
-    private static Set<String> fields = new HashSet<>();
+    private Set<String> fields = new LinkedHashSet<>();
 
-    static {
+    public static BanyanDBSchema fromTextProtoResource(String filename) {
         // read schema
-        Schema.TraceSeries _schema;
+        Schema.TraceSeries schema;
         try {
-            InputStream schemaFile = BanyanDBStorageProvider.class.getClassLoader().getResourceAsStream("trace_series.textproto");
+            InputStream schemaFile = BanyanDBStorageProvider.class.getClassLoader().getResourceAsStream(filename);
             if (schemaFile != null) {
-                _schema = TextFormat.parse(CharStreams.toString(new InputStreamReader(schemaFile, StandardCharsets.UTF_8)), Schema.TraceSeries.class);
+                schema = TextFormat.parse(CharStreams.toString(new InputStreamReader(schemaFile, StandardCharsets.UTF_8)), Schema.TraceSeries.class);
             } else {
-                _schema = null;
+                schema = null;
             }
         } catch (IOException ignore) {
-            _schema = null;
+            schema = null;
         }
-        if (_schema == null) {
+        if (schema == null) {
             throw new RuntimeException("cannot find schema");
         }
-        SCHEMA = _schema;
-        for (int i = 0; i < SCHEMA.getFieldsCount(); i++) {
-            final Schema.FieldSpec spec = SCHEMA.getFields(i);
+        return new BanyanDBSchema(schema);
+    }
+
+    private BanyanDBSchema(Schema.TraceSeries traceSeries) {
+        this.traceSeries = traceSeries;
+        for (int i = 0; i < this.traceSeries.getFieldsCount(); i++) {
+            final Schema.FieldSpec spec = this.traceSeries.getFields(i);
             fields.add(spec.getName());
-            if (SCHEMA.getReservedFieldsMap().getState().getField().equals(spec.getName())) {
-                TraceStateIndex = i;
-                TraceStateType = spec.getType();
+            if (this.traceSeries.getReservedFieldsMap().getState().getField().equals(spec.getName())) {
+                traceStateIndex = i;
+                traceStateType = spec.getType();
             } else if ("duration".equals(spec.getName())) {
-                DurationIndex = i;
+                durationIndex = i;
             }
         }
-        switch (TraceStateType) {
+        if (traceStateType == null) {
+            throw new IllegalStateException("state field is not defined");
+        }
+        switch (traceStateType) {
             case FIELD_TYPE_INT:
-                valIntError = Integer.parseInt(SCHEMA.getReservedFieldsMap().getState().getValError());
+                valIntError = Integer.parseInt(this.traceSeries.getReservedFieldsMap().getState().getValError());
                 break;
             case FIELD_TYPE_STRING:
-                valStringError = SCHEMA.getReservedFieldsMap().getState().getValError();
+                valStringError = this.traceSeries.getReservedFieldsMap().getState().getValError();
                 break;
             default:
                 throw new RuntimeException("invalid traceState type");
         }
     }
 
-    public static boolean isErrorEntity(Query.Entity entity) {
-        Query.TypedPair pair = entity.getFields(TraceStateIndex);
-        switch (TraceStateType) {
+    public boolean isErrorEntity(Query.Entity entity) {
+        Query.TypedPair pair = entity.getFields(this.traceStateIndex);
+        switch (this.traceStateType) {
             case FIELD_TYPE_INT:
                 return pair.getIntPair().getValues(0) == valIntError;
             case FIELD_TYPE_STRING:
@@ -91,11 +98,11 @@ public class BanyanDBSchema {
         }
     }
 
-    public static int getDuration(Query.Entity entity) {
-        return (int) entity.getFields(DurationIndex).getIntPair().getValues(0);
+    public int getDuration(Query.Entity entity) {
+        return (int) entity.getFields(this.durationIndex).getIntPair().getValues(0);
     }
 
-    public static Set<String> getFieldNames() {
-        return fields;
+    public Set<String> getFieldNames() {
+        return this.fields;
     }
 }

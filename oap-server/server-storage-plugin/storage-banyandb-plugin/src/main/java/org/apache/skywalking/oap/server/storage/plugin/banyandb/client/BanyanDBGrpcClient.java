@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -41,7 +41,7 @@ public class BanyanDBGrpcClient {
         return this.blockingStub.query(queryRequest);
     }
 
-    public void write(List<Write.WriteRequest> writeRequests) {
+    public void write(Write.WriteRequest req) {
         StreamObserver<Write.WriteRequest> requestObserver =
                 asyncStub.write(new StreamObserver<Write.WriteResponse>() {
                     @Override
@@ -59,8 +59,6 @@ public class BanyanDBGrpcClient {
 
                     }
                 });
-        for (final Write.WriteRequest req : writeRequests) {
-            requestObserver.onNext(req);
-        }
+        requestObserver.onNext(req);
     }
 }

@@ -35,8 +35,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @RequiredArgsConstructor
 public class H2StorageDAO implements StorageDAO {
-    private final ModuleManager manager;
-    private final JDBCHikariCPClient h2Client;
+    protected final ModuleManager manager;
+    protected final JDBCHikariCPClient h2Client;
     private final int maxSizeOfArrayColumn;
     private final int numOfSearchableValuesPerTag;
 

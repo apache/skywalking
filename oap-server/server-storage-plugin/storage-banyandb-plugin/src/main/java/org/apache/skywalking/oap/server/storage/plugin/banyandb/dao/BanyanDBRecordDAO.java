@@ -18,16 +18,44 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.dao;
 
+import com.google.protobuf.ByteString;
+import com.google.protobuf.Timestamp;
+import org.apache.skywalking.banyandb.Database;
+import org.apache.skywalking.banyandb.Write;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.client.BanyanDBInsertRequest;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RecordDAO;
 
 import java.io.IOException;
+import java.util.function.Function;
 
-public class BanyanDBRecordDAO implements IRecordDAO {
+public class BanyanDBRecordDAO extends H2RecordDAO {
+    private final BanyanDBStorageConfig config;
+    private final Function<SegmentRecord, Write.EntityValue> converter;
+
+    BanyanDBRecordDAO(ModuleManager manager, JDBCHikariCPClient h2Client, StorageHashMapBuilder<Record> storageBuilder, BanyanDBStorageConfig config, Function<SegmentRecord, Write.EntityValue> converter) {
+        super(manager, h2Client, storageBuilder, config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag());
+        this.config = config;
+        this.converter = converter;
+    }
+
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        return null;
+        if (record instanceof SegmentRecord) {
+            final SegmentRecord segmentRecord = (SegmentRecord) record;
+            Write.WriteRequest request = Write.WriteRequest.newBuilder()
+                    .setMetadata(Database.Metadata.newBuilder().setGroup(this.config.getMetadataGroup()).setName(this.config.getMetadataName()).build())
+                    .setEntity(this.converter.apply(segmentRecord))
+                    .build();
+            return new BanyanDBInsertRequest(request);
+        }
+        return super.prepareBatchInsert(model, record);
     }
 }

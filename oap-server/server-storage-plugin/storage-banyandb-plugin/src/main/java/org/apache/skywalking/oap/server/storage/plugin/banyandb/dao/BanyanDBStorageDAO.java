@@ -18,40 +18,57 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.dao;
 
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
-import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ManagementDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetricsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NoneStreamDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.client.BanyanDBSchemaMapper;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
 
-@RequiredArgsConstructor
-public class BanyanDBStorageDAO implements StorageDAO {
-    private final ModuleManager manager;
-    private final JDBCHikariCPClient h2Client;
+import java.util.Map;
+
+@Slf4j
+public class BanyanDBStorageDAO extends H2StorageDAO {
+    private final BanyanDBStorageConfig config;
+    private final BanyanDBSchemaMapper mapper;
+
+    public BanyanDBStorageDAO(ModuleManager manager, JDBCHikariCPClient h2Client, BanyanDBStorageConfig config, BanyanDBSchema schema) {
+        super(manager, h2Client, config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag());
+        this.config = config;
+        this.mapper = new BanyanDBSchemaMapper(schema.getFieldNames());
+    }
 
     @Override
     public IMetricsDAO newMetricsDao(StorageBuilder storageBuilder) {
-        return new H2MetricsDAO(h2Client, (StorageHashMapBuilder<Metrics>) storageBuilder);
+        return super.newMetricsDao(storageBuilder);
     }
 
     @Override
     public IRecordDAO newRecordDao(StorageBuilder storageBuilder) {
-        return null;
+        try {
+            if (SegmentRecord.class.equals(storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType())) {
+                return new BanyanDBRecordDAO(this.manager, this.h2Client, (StorageHashMapBuilder<Record>) storageBuilder, this.config, this.mapper);
+            } else {
+                return super.newRecordDao(storageBuilder);
+            }
+        } catch (NoSuchMethodException noSuchMethodException) {
+            log.error("cannot find method storage2Entity", noSuchMethodException);
+            throw new RuntimeException("cannot find method storage2Entity");
+        }
     }
 
     @Override
     public INoneStreamDAO newNoneStreamDao(StorageBuilder storageBuilder) {
-        return new H2NoneStreamDAO(h2Client, (StorageHashMapBuilder<NoneStream>) storageBuilder);
+        return super.newNoneStreamDao(storageBuilder);
     }
 
     @Override
     public IManagementDAO newManagementDao(StorageBuilder storageBuilder) {
-        return new H2ManagementDAO(h2Client, (StorageHashMapBuilder<ManagementData>) storageBuilder);
+        return super.newManagementDao(storageBuilder);
     }
 }

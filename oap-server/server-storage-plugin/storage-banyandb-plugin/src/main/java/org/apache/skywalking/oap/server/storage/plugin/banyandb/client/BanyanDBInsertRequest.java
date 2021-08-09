@@ -16,18 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.client;
 
 import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.banyandb.Write;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 
-@Setter
-@Getter
-public class BanyanDBStorageConfig extends H2StorageConfig {
-    private String host = "127.0.0.1";
-    private int port = 17912;
+@RequiredArgsConstructor
+public class BanyanDBInsertRequest implements InsertRequest {
 
-    private String metadataGroup = "default";
-    private String metadataName = "sw";
+    @Getter
+    private final Write.WriteRequest request;
 }

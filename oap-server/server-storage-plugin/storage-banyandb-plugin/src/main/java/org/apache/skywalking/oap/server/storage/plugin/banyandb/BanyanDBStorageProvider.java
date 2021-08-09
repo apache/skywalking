@@ -30,7 +30,8 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.dao.BanyanDBTrac
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageProvider;
 
 public class BanyanDBStorageProvider extends H2StorageProvider {
-    private BanyanDBStorageConfig config;
+    private final BanyanDBStorageConfig config;
+    private final BanyanDBSchema schema;
 
     public BanyanDBStorageProvider() {
         this(new BanyanDBStorageConfig());
@@ -39,6 +40,7 @@ public class BanyanDBStorageProvider extends H2StorageProvider {
     protected BanyanDBStorageProvider(BanyanDBStorageConfig config) {
         super(config);
         this.config = config;
+        this.schema = BanyanDBSchema.fromTextProtoResource("trace_series.textproto");
     }
 
     @Override
@@ -59,8 +61,8 @@ public class BanyanDBStorageProvider extends H2StorageProvider {
         // 1) IBatchDAO
         // 2) StorageDao
         // 3) ITraceQueryDAO
-        this.registerServiceImplementation(IBatchDAO.class, new BanyanDBBatchDAO(this.getH2Client()));
-        this.registerServiceImplementation(StorageDAO.class, new BanyanDBStorageDAO(getManager(), this.getH2Client()));
-        this.registerServiceImplementation(ITraceQueryDAO.class, new BanyanDBTraceQueryDAO(this.config));
+        this.registerServiceImplementation(IBatchDAO.class, new BanyanDBBatchDAO(this.getH2Client(), this.config));
+        this.registerServiceImplementation(StorageDAO.class, new BanyanDBStorageDAO(getManager(), this.getH2Client(), this.config, this.schema));
+        this.registerServiceImplementation(ITraceQueryDAO.class, new BanyanDBTraceQueryDAO(this.config, this.schema));
     }
 }
