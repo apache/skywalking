@@ -200,7 +200,6 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
     }
 
     static SegmentRecord convertToSegmentRecord(Query.Entity entity, Map<String, Object> entityMap) {
-        // TODO: we still need endTime, version and topN?
         SegmentRecord record = new SegmentRecord();
         record.setSegmentId(entity.getEntityId());
         record.setTraceId((String) entityMap.get("trace_id"));
