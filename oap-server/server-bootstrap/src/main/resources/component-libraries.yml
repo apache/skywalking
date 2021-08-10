@@ -485,6 +485,9 @@ GoKratosClient:
 GoMysql:
   id: 5012
   languages: Golang
+Kratos:
+  id: 5013
+  languages: Golang
 
 # Lua components
 # [6000, 7000) for Lua agent
