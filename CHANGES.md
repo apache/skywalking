@@ -31,6 +31,8 @@ Release Notes.
 
 #### Documentation
 
+* Add a section in `Log Collecting And Analysis` doc, introducing the new Python agent log reporter.
+
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/96?closed=1)
 
 ------------------

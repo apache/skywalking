@@ -53,6 +53,13 @@ Log framework config examples:
 - [log4j2.x fileAppender](../../../../test/e2e/e2e-service-provider/src/main/resources/log4j2.xml)
 - [logback fileAppender](../../../../test/e2e/e2e-service-provider/src/main/resources/logback.xml)
 
+### Python agent log reporter
+[SkyWalking Python Agent](https://github.com/apache/skywalking-python) implements a log reporter for the [Logging 
+module](https://docs.python.org/3/library/logging.html) with functionalities aligning with the Java toolkits. 
+
+To explore how to enable the reporting features for your use cases, please refer to the 
+[Log Reporter Doc](https://github.com/apache/skywalking-python/blob/master/docs/LogReporter.md) for a detailed guide.
+
 ## Log Analyzer
 
 Log analyzer of OAP server supports native log data. OAP could use Log Analysis Language to
