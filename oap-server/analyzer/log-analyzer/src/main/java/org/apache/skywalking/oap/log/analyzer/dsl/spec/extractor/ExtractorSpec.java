@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,8 @@ public class ExtractorSpec extends AbstractSpec {
                          final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
         super(moduleManager, moduleConfig);
 
-        final MeterSystem meterSystem = moduleManager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
+        final MeterSystem meterSystem =
+            moduleManager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
 
         metricConverts = moduleConfig.malConfigs()
                                      .stream()
@@ -93,7 +95,7 @@ public class ExtractorSpec extends AbstractSpec {
     }
 
     @SuppressWarnings("unused")
-    public void tag(final Map<String, Object> kv) {
+    public void tag(final Map<String, ?> kv) {
         if (BINDING.get().shouldAbort()) {
             return;
         }
@@ -108,7 +110,8 @@ public class ExtractorSpec extends AbstractSpec {
                        kv.entrySet()
                          .stream()
                          .filter(it -> isNotBlank(it.getKey()))
-                         .filter(it -> nonNull(it.getValue()) && isNotBlank(Objects.toString(it.getValue())))
+                         .filter(it -> nonNull(it.getValue()) &&
+                             isNotBlank(Objects.toString(it.getValue())))
                          .map(it -> {
                              final Object val = it.getValue();
                              String valStr = Objects.toString(val);
@@ -176,7 +179,7 @@ public class ExtractorSpec extends AbstractSpec {
     }
 
     @SuppressWarnings("unused")
-    public void metrics(final Closure<Void> cl) {
+    public void metrics(@DelegatesTo(SampleBuilder.class) final Closure<?> cl) {
         if (BINDING.get().shouldAbort()) {
             return;
         }
@@ -188,8 +191,8 @@ public class ExtractorSpec extends AbstractSpec {
 
         metricConverts.forEach(it -> it.toMeter(
             ImmutableMap.<String, SampleFamily>builder()
-                .put(sample.getName(), SampleFamilyBuilder.newBuilder(sample).build())
-                .build()
+                        .put(sample.getName(), SampleFamilyBuilder.newBuilder(sample).build())
+                        .build()
         ));
     }
 
@@ -198,11 +201,15 @@ public class ExtractorSpec extends AbstractSpec {
         private final Sample.SampleBuilder sampleBuilder = Sample.builder();
 
         @SuppressWarnings("unused")
-        public Sample.SampleBuilder labels(final Map<String, String> labels) {
-            final Map<String, String> filtered = labels.entrySet()
-                                                       .stream()
-                                                       .filter(it -> isNotBlank(it.getKey()) && isNotBlank(it.getValue()))
-                                                       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        public Sample.SampleBuilder labels(final Map<String, ?> labels) {
+            final Map<String, String> filtered =
+                labels.entrySet()
+                      .stream()
+                      .filter(it -> isNotBlank(it.getKey()) && nonNull(it.getValue()))
+                      .collect(
+                          Collectors.toMap(Map.Entry::getKey,
+                                           it -> Objects.toString(it.getValue()))
+                      );
             return sampleBuilder.labels(ImmutableMap.copyOf(filtered));
         }
     }

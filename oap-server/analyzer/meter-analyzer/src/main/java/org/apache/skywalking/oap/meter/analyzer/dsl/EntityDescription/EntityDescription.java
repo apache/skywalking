@@ -25,10 +25,4 @@ public interface EntityDescription {
     ScopeType getScopeType();
 
     List<String> getLabelKeys();
-
-    List<String> getServiceKeys();
-
-    List<String> getInstanceKeys();
-
-    List<String> getEndpointKeys();
 }

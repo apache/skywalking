@@ -19,14 +19,20 @@
 package org.apache.skywalking.oap.log.analyzer.dsl;
 
 import groovy.lang.GroovyShell;
+import groovy.transform.CompileStatic;
 import groovy.util.DelegatingScript;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.log.analyzer.dsl.spec.LALDelegatingScript;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.filter.FilterSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
+
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class DSL {
@@ -38,7 +44,16 @@ public class DSL {
                          final LogAnalyzerModuleConfig config,
                          final String dsl) throws ModuleStartException {
         final CompilerConfiguration cc = new CompilerConfiguration();
-        cc.setScriptBaseClass(DelegatingScript.class.getName());
+        final ASTTransformationCustomizer customizer =
+            new ASTTransformationCustomizer(
+                singletonMap(
+                    "extensions",
+                    singletonList(LALPrecompiledExtension.class.getName())
+                ),
+                CompileStatic.class
+            );
+        cc.addCompilationCustomizers(customizer);
+        cc.setScriptBaseClass(LALDelegatingScript.class.getName());
 
         final GroovyShell sh = new GroovyShell(cc);
         final DelegatingScript script = (DelegatingScript) sh.parse(dsl);

@@ -184,11 +184,9 @@ public class TraceQuery implements ITraceQueryDAO {
                                                              .column(SegmentRecord.SERVICE_INSTANCE_ID)
                                                              .column(SegmentRecord.ENDPOINT_NAME)
                                                              .column(SegmentRecord.START_TIME)
-                                                             .column(SegmentRecord.END_TIME)
                                                              .column(SegmentRecord.LATENCY)
                                                              .column(SegmentRecord.IS_ERROR)
                                                              .column(SegmentRecord.DATA_BINARY)
-                                                             .column(SegmentRecord.VERSION)
                                                              .from(client.getDatabase(), SegmentRecord.INDEX_NAME)
                                                              .where();
 
@@ -210,12 +208,10 @@ public class TraceQuery implements ITraceQueryDAO {
             segmentRecord.setServiceInstanceId((String) values.get(4));
             segmentRecord.setEndpointName((String) values.get(5));
             segmentRecord.setStartTime(((Number) values.get(6)).longValue());
-            segmentRecord.setEndTime(((Number) values.get(7)).longValue());
-            segmentRecord.setLatency(((Number) values.get(8)).intValue());
-            segmentRecord.setIsError(((Number) values.get(9)).intValue());
-            segmentRecord.setVersion(((Number) values.get(11)).intValue());
+            segmentRecord.setLatency(((Number) values.get(7)).intValue());
+            segmentRecord.setIsError(((Number) values.get(8)).intValue());
 
-            String base64 = (String) values.get(10);
+            String base64 = (String) values.get(9);
             if (!Strings.isNullOrEmpty(base64)) {
                 segmentRecord.setDataBinary(Base64.getDecoder().decode(base64));
             }

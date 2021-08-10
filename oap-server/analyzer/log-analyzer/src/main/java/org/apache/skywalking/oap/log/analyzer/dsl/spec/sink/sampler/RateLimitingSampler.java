@@ -31,11 +31,11 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 @Accessors(fluent = true)
-@EqualsAndHashCode(of = {"qps"})
+@EqualsAndHashCode(of = {"rpm"})
 public class RateLimitingSampler implements Sampler {
     @Getter
     @Setter
-    private volatile int qps;
+    private volatile int rpm;
 
     private final AtomicInteger factor = new AtomicInteger();
 
@@ -58,7 +58,7 @@ public class RateLimitingSampler implements Sampler {
 
     @Override
     public boolean sample() {
-        return factor.getAndIncrement() < qps;
+        return factor.getAndIncrement() < rpm;
     }
 
     @Override
@@ -80,7 +80,7 @@ public class RateLimitingSampler implements Sampler {
 
             if (!started) {
                 future = Executors.newSingleThreadScheduledExecutor()
-                                  .scheduleAtFixedRate(this::reset, 1, 1, TimeUnit.SECONDS);
+                                  .scheduleAtFixedRate(this::reset, 1, 1, TimeUnit.MINUTES);
                 started = true;
             }
         }

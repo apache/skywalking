@@ -78,7 +78,7 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     public static String INSTANCE_JVM_THREAD_RUNNABLE_STATE_THREAD_COUNT = "instance_jvm_thread_runnable_state_thread_count";
     public static String INSTANCE_JVM_CLASS_LOADED_CLASS_COUNT = "instance_jvm_class_loaded_class_count";
     public static String INSTANCE_JVM_CLASS_TOTAL_LOADED_CLASS_COUNT = "instance_jvm_class_total_loaded_class_count";
-    public static String [] ALL_INSTANCE_JVM_METRICS = {
+    public static String[] ALL_INSTANCE_JVM_METRICS = {
         INSTANCE_JVM_CLASS_TOTAL_LOADED_CLASS_COUNT,
         INSTANCE_JVM_CLASS_LOADED_CLASS_COUNT,
         INSTANCE_JVM_THREAD_RUNNABLE_STATE_THREAD_COUNT,
@@ -88,16 +88,16 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         INSTANCE_JVM_MEMORY_NOHEAP,
         INSTANCE_JVM_MEMORY_HEAP_MAX,
         INSTANCE_JVM_MEMORY_HEAP,
-    };
+        };
 
-    public static String [] ALL_INSTANCE_JVM_METRICS_COMPAT = {
+    public static String[] ALL_INSTANCE_JVM_METRICS_COMPAT = {
         INSTANCE_JVM_THREAD_LIVE_COUNT,
         INSTANCE_JVM_THREAD_DAEMON_COUNT,
         INSTANCE_JVM_THREAD_PEAK_COUNT,
         INSTANCE_JVM_MEMORY_NOHEAP,
         INSTANCE_JVM_MEMORY_HEAP_MAX,
         INSTANCE_JVM_MEMORY_HEAP,
-    };
+        };
 
     public static String SERVICE_RELATION_CLIENT_CPM = "service_relation_client_cpm";
     public static String SERVICE_RELATION_SERVER_CPM = "service_relation_server_cpm";
@@ -109,6 +109,9 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     public static String SERVICE_RELATION_SERVER_P99 = "service_relation_server_p99";
     public static String[] ALL_SERVICE_RELATION_CLIENT_METRICS = {
         SERVICE_RELATION_CLIENT_CPM
+    };
+    public static String[] ENVOY_METRICS_SERVICE_RELATION_CLIENT_METRICS = {
+        "envoy_sr_cluster_up_cx_active"
     };
 
     public static String[] ALL_SERVICE_RELATION_SERVER_METRICS = {
@@ -137,13 +140,21 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     public static String METER_INSTANCE_METRICS_FIRST_AGGREGATION = "meter_oap_instance_metrics_first_aggregation";
     public static String METER_INSTANCE_PERSISTENCE_PREPARE_COUNT = "meter_oap_instance_persistence_prepare_count";
     public static String METER_INSTANCE_PERSISTENCE_EXECUTE_COUNT = "meter_oap_instance_persistence_execute_count";
+    public static String METER_JVM_THREAD_LIVE_COUNT = "meter_oap_jvm_thread_live_count";
+    public static String METER_JVM_THREAD_RUNNABLE_COUNT = "meter_oap_jvm_thread_runnable_count";
+    public static String METER_JVM_CLASS_LOADED_COUNT = "meter_oap_jvm_class_loaded_count";
+    public static String METER_JVM_CLASS_TOTAL_LOADED_COUNT = "meter_oap_jvm_class_total_loaded_count";
 
     public static String[] ALL_SO11Y_LINER_METRICS = {
         METER_INSTANCE_CPU_PERCENTAGE,
         METER_INSTANCE_JVM_MEMORY_BYTES_USED,
         METER_INSTANCE_METRICS_FIRST_AGGREGATION,
         METER_INSTANCE_PERSISTENCE_PREPARE_COUNT,
-        METER_INSTANCE_PERSISTENCE_EXECUTE_COUNT 
+        METER_INSTANCE_PERSISTENCE_EXECUTE_COUNT,
+        METER_JVM_THREAD_LIVE_COUNT,
+        METER_JVM_THREAD_RUNNABLE_COUNT,
+        METER_JVM_CLASS_LOADED_COUNT,
+        METER_JVM_CLASS_TOTAL_LOADED_COUNT
     };
 
     public static String[] ALL_ENVOY_LINER_METRICS = {
@@ -153,15 +164,20 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         "envoy_memory_allocated_max",
         "envoy_memory_physical_size",
         "envoy_memory_physical_size_max",
-        "envoy_total_connections_used",
         "envoy_worker_threads",
         "envoy_worker_threads_max"
     };
 
-    public static String METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE = "meter_oap_instance_persistence_execute_percentile";
+    public static Map<String, List<String>> ALL_ENVOY_LABELED_METRICS =
+        ImmutableMap.<String, List<String>>builder()
+                    .put(
+                        "envoy_cluster_membership_healthy",
+                        Arrays.asList("e2e::details")
+                    )
+                    .build();
 
     public static String[] ALL_SO11Y_LABELED_METRICS = {
-        METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE
+        // Nothing to check for now.
     };
     private String id;
     private String metricsName;
@@ -176,10 +192,19 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     };
 
     public static Map<String, List<String>> SIMPLE_ZABBIX_METERS = ImmutableMap.<String, List<String>>builder()
-            .put("meter_agent_system_cpu_util", Arrays.asList("idle"))
-            .put("meter_agent_vm_memory_size", Arrays.asList("total"))
-            .put("meter_agent_vfs_fs_size", Arrays.asList("/-total"))
-            .build();
+                                                                               .put(
+                                                                                   "meter_agent_system_cpu_util",
+                                                                                   Arrays.asList("idle")
+                                                                               )
+                                                                               .put(
+                                                                                   "meter_agent_vm_memory_size",
+                                                                                   Arrays.asList("total")
+                                                                               )
+                                                                               .put(
+                                                                                   "meter_agent_vfs_fs_size",
+                                                                                   Arrays.asList("/-total")
+                                                                               )
+                                                                               .build();
 
     public static String[] SIMPLE_PROM_VM_METERS = {
         "meter_vm_memory_used",
@@ -195,8 +220,14 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     };
 
     public static Map<String, List<String>> SIMPLE_PROM_VM_LABELED_METERS = ImmutableMap.<String, List<String>>builder()
-        .put("meter_vm_cpu_average_used", Arrays.asList("idle"))
-        .put("meter_vm_filesystem_percentage", Arrays.asList("/etc/hosts"))
-        .build();
+                                                                                        .put(
+                                                                                            "meter_vm_cpu_average_used",
+                                                                                            Arrays.asList("idle")
+                                                                                        )
+                                                                                        .put(
+                                                                                            "meter_vm_filesystem_percentage",
+                                                                                            Arrays.asList("/etc/hosts")
+                                                                                        )
+                                                                                        .build();
 }
 

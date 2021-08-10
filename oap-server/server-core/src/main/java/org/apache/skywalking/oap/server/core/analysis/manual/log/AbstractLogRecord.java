@@ -33,6 +33,8 @@ import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
+import static java.util.Objects.nonNull;
+
 public abstract class AbstractLogRecord extends Record {
 
     public static final String SERVICE_ID = "service_id";
@@ -120,7 +122,9 @@ public abstract class AbstractLogRecord extends Record {
             map.put(SERVICE_ID, record.getServiceId());
             map.put(SERVICE_INSTANCE_ID, record.getServiceInstanceId());
             map.put(ENDPOINT_ID, record.getEndpointId());
-            map.put(ENDPOINT_NAME, record.getEndpointName());
+            if (nonNull(record.getEndpointName())) {
+                map.put(ENDPOINT_NAME, record.getEndpointName());
+            }
             map.put(TRACE_ID, record.getTraceId());
             map.put(TRACE_SEGMENT_ID, record.getTraceSegmentId());
             map.put(SPAN_ID, record.getSpanId());

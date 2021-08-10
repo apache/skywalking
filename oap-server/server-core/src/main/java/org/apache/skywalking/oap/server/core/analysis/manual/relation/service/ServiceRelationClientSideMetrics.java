@@ -68,6 +68,13 @@ public class ServiceRelationClientSideMetrics extends Metrics {
 
     @Override
     public boolean combine(Metrics metrics) {
+        ServiceRelationClientSideMetrics serviceRelationClientSideMetrics = (ServiceRelationClientSideMetrics) metrics;
+        if (this.getComponentId() == 0 && serviceRelationClientSideMetrics.getComponentId() != 0) {
+            this.componentId = serviceRelationClientSideMetrics.getComponentId();
+        }
+        if (this.getTimeBucket() > metrics.getTimeBucket()) {
+            this.setTimeBucket(metrics.getTimeBucket());
+        }
         return true;
     }
 
@@ -100,7 +107,9 @@ public class ServiceRelationClientSideMetrics extends Metrics {
 
     @Override
     public int remoteHashCode() {
-        return this.hashCode();
+        int n = 17;
+        n = 31 * n + this.entityId.hashCode();
+        return n;
     }
 
     @Override

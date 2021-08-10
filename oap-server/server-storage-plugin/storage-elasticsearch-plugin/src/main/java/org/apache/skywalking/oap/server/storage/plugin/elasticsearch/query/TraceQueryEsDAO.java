@@ -176,14 +176,12 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             segmentRecord.setServiceId((String) searchHit.getSourceAsMap().get(SegmentRecord.SERVICE_ID));
             segmentRecord.setEndpointName((String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
             segmentRecord.setStartTime(((Number) searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)).longValue());
-            segmentRecord.setEndTime(((Number) searchHit.getSourceAsMap().get(SegmentRecord.END_TIME)).longValue());
             segmentRecord.setLatency(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
             segmentRecord.setIsError(((Number) searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue());
             String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(SegmentRecord.DATA_BINARY);
             if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                 segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
             }
-            segmentRecord.setVersion(((Number) searchHit.getSourceAsMap().get(SegmentRecord.VERSION)).intValue());
             segmentRecords.add(segmentRecord);
         }
         return segmentRecords;

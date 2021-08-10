@@ -88,7 +88,9 @@ public class AlarmQuery implements GraphQLQueryResolver {
         }
         long startSecondTB = 0;
         long endSecondTB = 0;
-        final EventQueryCondition.EventQueryConditionBuilder conditionPrototype = EventQueryCondition.builder().size(IEventQueryDAO.MAX_SIZE);
+        final EventQueryCondition.EventQueryConditionBuilder conditionPrototype =
+            EventQueryCondition.builder()
+                               .paging(new Pagination(1, IEventQueryDAO.MAX_SIZE, false));
         if (nonNull(duration)) {
             startSecondTB = duration.getStartTimeBucketInSec();
             endSecondTB = duration.getEndTimeBucketInSec();

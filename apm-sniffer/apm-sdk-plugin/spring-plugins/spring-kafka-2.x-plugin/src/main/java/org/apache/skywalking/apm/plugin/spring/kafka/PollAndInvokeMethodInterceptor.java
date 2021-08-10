@@ -33,13 +33,13 @@ public class PollAndInvokeMethodInterceptor implements InstanceMethodsAroundInte
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        InterceptorMethod.beforeMethod(OPERATION_NAME);
+        InterceptorMethod.beginKafkaPollAndInvokeIteration(OPERATION_NAME);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        return InterceptorMethod.afterMethod(ret);
+        return InterceptorMethod.endKafkaPollAndInvokeIteration(ret);
     }
 
     @Override

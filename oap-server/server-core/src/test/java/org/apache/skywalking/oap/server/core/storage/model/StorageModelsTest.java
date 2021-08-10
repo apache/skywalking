@@ -53,7 +53,7 @@ public class StorageModelsTest {
     public void testStorageModels() throws StorageException {
         StorageModels models = new StorageModels();
         models.add(TestModel.class, -1,
-                   new Storage("StorageModelsTest", DownSampling.Hour),
+                   new Storage("StorageModelsTest", false, DownSampling.Hour),
                    false
         );
 

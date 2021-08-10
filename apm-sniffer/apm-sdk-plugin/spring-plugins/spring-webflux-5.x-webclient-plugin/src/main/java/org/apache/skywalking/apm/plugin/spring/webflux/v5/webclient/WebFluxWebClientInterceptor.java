@@ -34,7 +34,6 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.function.BiConsumer;
 
 public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterceptorV2 {
 
@@ -79,15 +78,12 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
         }
         Mono<ClientResponse> ret1 = (Mono<ClientResponse>) ret;
         AbstractSpan span = (AbstractSpan) context.getContext();
-        return ret1.doAfterSuccessOrError(new BiConsumer<ClientResponse, Throwable>() {
-            @Override
-            public void accept(ClientResponse clientResponse, Throwable throwable) {
-                HttpStatus httpStatus = clientResponse.statusCode();
-                if (httpStatus != null) {
-                    Tags.STATUS_CODE.set(span, httpStatus.value());
-                    if (httpStatus.isError()) {
-                        span.errorOccurred();
-                    }
+        return ret1.doOnSuccess(clientResponse -> {
+            HttpStatus httpStatus = clientResponse.statusCode();
+            if (httpStatus != null) {
+                Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
+                if (httpStatus.isError()) {
+                    span.errorOccurred();
                 }
             }
         }).doOnError(error -> {

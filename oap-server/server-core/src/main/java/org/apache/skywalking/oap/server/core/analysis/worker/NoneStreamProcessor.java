@@ -77,7 +77,8 @@ public class NoneStreamProcessor implements StreamProcessor<NoneStream> {
         }
 
         ModelCreator modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelCreator.class);
-        Model model = modelSetter.add(streamClass, stream.scopeId(), new Storage(stream.name(), DownSampling.Second), true);
+        // None stream doesn't read data from database during the persistent process. Keep the timeRelativeID == false always.
+        Model model = modelSetter.add(streamClass, stream.scopeId(), new Storage(stream.name(), false, DownSampling.Second), true);
 
         final NoneStreamPersistentWorker persistentWorker = new NoneStreamPersistentWorker(moduleDefineHolder, model, noneStream);
         workers.put(streamClass, persistentWorker);

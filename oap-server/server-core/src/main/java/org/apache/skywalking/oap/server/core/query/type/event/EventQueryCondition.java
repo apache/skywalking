@@ -24,9 +24,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-
-import static org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO.DEFAULT_SIZE;
-import static org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO.MAX_SIZE;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
 
 @Data
 @AllArgsConstructor
@@ -45,9 +43,5 @@ public class EventQueryCondition {
 
     private Order order;
 
-    private int size;
-
-    public int getSize() {
-        return size > 0 ? Math.min(size, MAX_SIZE) : DEFAULT_SIZE;
-    }
+    private Pagination paging;
 }

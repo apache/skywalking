@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 
+import com.google.protobuf.Message;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -61,7 +62,8 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
     }
 
     @Override
-    public LogAnalysisListener parse(final LogData.Builder logData) {
+    public LogAnalysisListener parse(final LogData.Builder logData,
+                                     final Message extraLog) {
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         // to service traffic
         String serviceName = namingControl.formatServiceName(logData.getService());

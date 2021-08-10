@@ -56,8 +56,6 @@ jobs:
           - servicecomb-0.x-scenario
           - servicecomb-1.x-scenario
           - shardingsphere-3.x-scenario
-          - shardingsphere-4.x-RC1-RC2-scenario
-          - shardingsphere-4.x-RC3-scenario
           - shardingsphere-4.0.x-scenario
           - shardingsphere-4.x-scenario
           - shardingsphere-5.0.0-beta-scenario

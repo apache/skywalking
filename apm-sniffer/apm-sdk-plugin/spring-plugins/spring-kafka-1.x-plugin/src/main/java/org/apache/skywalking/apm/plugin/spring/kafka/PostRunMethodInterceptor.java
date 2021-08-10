@@ -33,7 +33,7 @@ public class PostRunMethodInterceptor implements InstanceMethodsAroundIntercepto
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        return InterceptorMethod.afterMethod(ret);
+        return InterceptorMethod.endKafkaPollAndInvokeIteration(ret);
     }
 
     @Override

@@ -77,7 +77,8 @@ public class ManagementStreamProcessor implements StreamProcessor<ManagementData
         }
 
         ModelCreator modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelCreator.class);
-        Model model = modelSetter.add(streamClass, stream.scopeId(), new Storage(stream.name(), DownSampling.None), false);
+        // Management stream doesn't read data from database during the persistent process. Keep the timeRelativeID == false always.
+        Model model = modelSetter.add(streamClass, stream.scopeId(), new Storage(stream.name(), false, DownSampling.None), false);
 
         final ManagementPersistentWorker persistentWorker = new ManagementPersistentWorker(moduleDefineHolder, model, managementDAO);
         workers.put(streamClass, persistentWorker);

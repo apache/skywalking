@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.query.PaginationUtils;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.source.Event;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
@@ -65,7 +67,10 @@ public class H2EventQueryDAO implements IEventQueryDAO {
                 result.setTotal(resultSet.getInt("total"));
             }
 
-            sql = "select * from " + Event.INDEX_NAME + whereClause + " limit " + condition.getSize();
+            PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+
+            sql = "select * from " + Event.INDEX_NAME + whereClause
+                + " limit " + page.getLimit() + " offset " + page.getFrom();
             if (log.isDebugEnabled()) {
                 log.debug("Query SQL: {}, parameters: {}", sql, parameters);
             }
@@ -92,7 +97,8 @@ public class H2EventQueryDAO implements IEventQueryDAO {
                                                        .map(Tuple2::_1)
                                                        .map(it -> it.collect(Collectors.joining(" and ")))
                                                        .collect(Collectors.joining(" or ", " where ", ""));
-        final int size = conditions.stream().mapToInt(EventQueryCondition::getSize).sum();
+        final int size = conditions.stream().map(EventQueryCondition::getPaging)
+                                   .mapToInt(Pagination::getPageSize).sum();
 
         final Events result = new Events();
         try (final Connection connection = client.getConnection()) {

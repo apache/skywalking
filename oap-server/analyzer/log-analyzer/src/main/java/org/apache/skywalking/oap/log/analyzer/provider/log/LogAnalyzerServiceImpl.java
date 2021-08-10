@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.provider.log;
 
+import com.google.protobuf.Message;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +33,9 @@ public class LogAnalyzerServiceImpl implements ILogAnalyzerService, ILogAnalysis
     private final List<LogAnalysisListenerFactory> factories = new ArrayList<>();
 
     @Override
-    public void doAnalysis(final LogData.Builder log) {
+    public void doAnalysis(final LogData.Builder log, Message extraLog) {
         LogAnalyzer analyzer = new LogAnalyzer(moduleManager, moduleConfig, this);
-        analyzer.doAnalysis(log);
+        analyzer.doAnalysis(log, extraLog);
     }
 
     @Override

@@ -44,6 +44,19 @@ import java.lang.reflect.Method;
  * called.
  */
 public class AsyncCallInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
+
+    private static Field FIELD_HEADERS_OF_REQUEST;
+
+    static {
+        try {
+            final Field field = Request.class.getDeclaredField("headers");
+            field.setAccessible(true);
+            FIELD_HEADERS_OF_REQUEST = field;
+        } catch (Exception ignore) {
+            FIELD_HEADERS_OF_REQUEST = null;
+        }
+    }
+
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         /**
@@ -73,15 +86,15 @@ public class AsyncCallInterceptor implements InstanceConstructorInterceptor, Ins
         Tags.URL.set(span, requestUrl.uri().toString());
         SpanLayer.asHttp(span);
 
-        Field headersField = Request.class.getDeclaredField("headers");
-        headersField.setAccessible(true);
-        Headers.Builder headerBuilder = request.headers().newBuilder();
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            headerBuilder.set(next.getHeadKey(), next.getHeadValue());
+        if (FIELD_HEADERS_OF_REQUEST != null) {
+            Headers.Builder headerBuilder = request.headers().newBuilder();
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                headerBuilder.set(next.getHeadKey(), next.getHeadValue());
+            }
+            FIELD_HEADERS_OF_REQUEST.set(request, headerBuilder.build());
         }
-        headersField.set(request, headerBuilder.build());
 
     }
 

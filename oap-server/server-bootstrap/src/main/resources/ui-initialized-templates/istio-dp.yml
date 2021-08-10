@@ -72,6 +72,98 @@ templates:
                   "metricName": "envoy_bug_failures",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Membership Healthy",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "envoy_cluster_membership_healthy",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Upstream Connection Active",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "envoy_cluster_up_cx_active",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Upstream Connection Increase",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "envoy_cluster_up_cx_incr",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "unit": "Per Minute",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Upstream Request Active",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "envoy_cluster_up_rq_active",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Upstream Request Increase",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "envoy_cluster_up_rq_incr",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "unit": "Per Minute",
+                  "chartType": "ChartLine"
+                },
+                {
+                    "width": "3",
+                    "title": "Upstream Request Pending Active",
+                    "height": 350,
+                    "entityType": "ServiceInstance",
+                    "independentSelector": false,
+                    "metricType": "LABELED_VALUE",
+                    "metricName": "envoy_cluster_up_rq_pending_active",
+                    "queryMetricType": "readLabeledMetricsValues",
+                    "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "LB Healthy Panic Increase",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "envoy_cluster_lb_healthy_panic_incr",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "unit": "Per Minute",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Upstream Connection None Healthy Increase",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "envoy_cluster_up_cx_none_healthy_incr",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "unit": "Per Minute",
+                  "chartType": "ChartLine"
                 }
               ]
             }

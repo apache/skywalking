@@ -38,9 +38,4 @@ public class InstanceEntityDescription implements EntityDescription {
     public List<String> getLabelKeys() {
         return Stream.concat(this.serviceKeys.stream(), this.instanceKeys.stream()).collect(Collectors.toList());
     }
-
-    @Override
-    public List<String> getEndpointKeys() {
-        throw new UnsupportedOperationException("Unsupported Operation of getEndpointKeys() " + this.toString());
-    }
 }
