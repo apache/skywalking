@@ -21,10 +21,12 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.client;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.Query;
 import org.apache.skywalking.banyandb.TraceServiceGrpc;
 import org.apache.skywalking.banyandb.Write;
 
+@Slf4j
 public class BanyanDBGrpcClient {
     private final TraceServiceGrpc.TraceServiceBlockingStub blockingStub;
     private final TraceServiceGrpc.TraceServiceStub asyncStub;
@@ -44,12 +46,11 @@ public class BanyanDBGrpcClient {
                 asyncStub.write(new StreamObserver<Write.WriteResponse>() {
                     @Override
                     public void onNext(Write.WriteResponse writeResponse) {
-
                     }
 
                     @Override
-                    public void onError(Throwable throwable) {
-
+                    public void onError(Throwable t) {
+                        log.error("fail to send throwable request", t);
                     }
 
                     @Override

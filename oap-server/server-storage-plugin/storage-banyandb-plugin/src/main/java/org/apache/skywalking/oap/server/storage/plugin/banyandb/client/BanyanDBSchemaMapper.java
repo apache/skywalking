@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.client;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.NullValue;
 import com.google.protobuf.Timestamp;
 import org.apache.skywalking.banyandb.Write;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
@@ -49,7 +50,9 @@ public class BanyanDBSchemaMapper implements Function<SegmentRecord, Write.Entit
 
         // Known mapping
         // 1) duration -> latency
+        // 2) state -> is_error
         this.keyMapping.put("duration", SegmentRecord.LATENCY);
+        this.keyMapping.put("state", SegmentRecord.IS_ERROR);
 
         // iterate over keys in the schema
         for (final String key : schemaKeys) {
@@ -69,6 +72,9 @@ public class BanyanDBSchemaMapper implements Function<SegmentRecord, Write.Entit
     }
 
     static Write.Field buildField(Object value) {
+        if (value == null) {
+            return Write.Field.newBuilder().setNull(NullValue.NULL_VALUE).build();
+        }
         if (value instanceof String) {
             return Write.Field.newBuilder().setStr(Write.Str.newBuilder().setValue((String) value).build()).build();
         } else if (value instanceof Integer) {
