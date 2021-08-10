@@ -84,6 +84,7 @@ public class BanyanDBBatchDAO extends H2BatchDAO {
                 case BANYANDB:
                 default:
                     doSend(prepareRequests);
+                    break;
             }
         });
     }
