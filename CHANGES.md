@@ -24,6 +24,7 @@ Release Notes.
   performance impact.
 * Remove `version` and `endTime` in the segment entity. Reduce indexing payload. 
 * Fix `mapper_parsing_exception` in ElasticSearch 7.14.
+* Support component IDs for Go-Kratos framework.
 
 #### UI
 
