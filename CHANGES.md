@@ -17,10 +17,13 @@ Release Notes.
   1.21.
 * kubernetes java client upgrade from 12.0.1 to 13.0.0
 * Add `event` http receiver
-* Support Metric level function `serviceRelation` in `MAL`. 
+* Support Metric level function `serviceRelation` in `MAL`.
 * Support envoy metrics binding into the topology.
 * Fix openapi-definitions folder not being read correctly.
-* Support component IDs for Go-Kratos framework
+* Trace segment wouldn't be recognized as a TopN sample service. Add through #4694 experimentally, but it caused
+  performance impact.
+* Remove `version` and `endTime` in the segment entity. Reduce indexing payload. 
+* Support component IDs for Go-Kratos framework.
 
 #### UI
 
