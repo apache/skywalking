@@ -188,7 +188,7 @@
         <compiler.version>1.8</compiler.version>
         <powermock.version>2.0.7</powermock.version>
         <checkstyle.version>6.18</checkstyle.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.2</junit.version>
         <mockito-core.version>3.5.13</mockito-core.version>
         <lombok.version>1.18.20</lombok.version>
 

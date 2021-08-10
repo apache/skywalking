@@ -142,8 +142,6 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
                 break;
         }
 
-        // TODO: add other indexed tags from tags
-
         queryBuilder.setProjection(Query.Projection.newBuilder()
                 .addAllKeyNames(projections)
                 .build());

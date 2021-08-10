@@ -40,7 +40,7 @@ public class BanyanDBSchema {
     private Schema.FieldSpec.FieldType traceStateType;
     private int valIntError;
     private String valStringError;
-    
+
     public static BanyanDBSchema fromTextProtoResource(String filename) {
         // read schema
         Schema.TraceSeries schema;
@@ -62,6 +62,7 @@ public class BanyanDBSchema {
 
     private BanyanDBSchema(Schema.TraceSeries traceSeries) {
         this.traceSeries = traceSeries;
+        // parse fields in strict order
         for (int i = 0; i < this.traceSeries.getFieldsCount(); i++) {
             final Schema.FieldSpec spec = this.traceSeries.getFields(i);
             fields.add(spec.getName());
@@ -99,6 +100,12 @@ public class BanyanDBSchema {
     }
 
     public int getDuration(Query.Entity entity) {
+        if (entity == null) {
+            return 0;
+        }
+        if (entity.getFieldsCount() <= this.durationIndex) {
+            return 0;
+        }
         return (int) entity.getFields(this.durationIndex).getIntPair().getValues(0);
     }
 
