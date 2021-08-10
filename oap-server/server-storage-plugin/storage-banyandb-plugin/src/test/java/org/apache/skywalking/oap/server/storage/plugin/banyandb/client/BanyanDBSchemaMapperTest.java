@@ -2,6 +2,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.client;
 
 import com.google.protobuf.NullValue;
 import org.apache.skywalking.banyandb.Write;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
 import org.junit.Assert;
@@ -9,6 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BanyanDBSchemaMapperTest {
     private BanyanDBSchema schema;
@@ -37,6 +40,21 @@ public class BanyanDBSchemaMapperTest {
         int state = 1;
         Instant now = Instant.now();
         byte[] byteData = new byte[]{14};
+        List<Tag> tags = new ArrayList<>();
+        String broker = "172.16.10.129:9092";
+        String topic = "topic_1";
+        String queue = "queue_2";
+        String httpMethod = "GET";
+        String httpStatusCode = "200";
+        String dbType = "SQL";
+        String dbInstance = "127.0.0.1:3306";
+        tags.add(new Tag("mq.broker", broker));
+        tags.add(new Tag("mq.topic", topic));
+        tags.add(new Tag("mq.queue", queue));
+        tags.add(new Tag("http.method", httpMethod));
+        tags.add(new Tag("status_code", httpStatusCode));
+        tags.add(new Tag("db.type", dbType));
+        tags.add(new Tag("db.instance", dbInstance));
         final SegmentRecord record = new SegmentRecord();
         record.setSegmentId(segmentId);
         record.setTraceId(traceId);
@@ -49,6 +67,7 @@ public class BanyanDBSchemaMapperTest {
         record.setIsError(state);
         record.setTimeBucket(now.getEpochSecond());
         record.setDataBinary(byteData);
+        record.setTagsRawData(tags);
         Write.EntityValue value = mapper.apply(record);
         // the length of fields in the EntityValue MUST be equal to the schema length
         Assert.assertEquals(this.schema.getFieldNames().size(), value.getFieldsCount());
@@ -74,6 +93,19 @@ public class BanyanDBSchemaMapperTest {
         Assert.assertEquals(latency, value.getFields(8).getInt().getValue());
         // 9 -> start_time
         Assert.assertEquals(now.getEpochSecond(), value.getFields(9).getInt().getValue());
-        // TODO: other tags
+        // 10 -> http.method
+        Assert.assertEquals(httpMethod, value.getFields(10).getStr().getValue());
+        // 11 -> status_code
+        Assert.assertEquals(httpStatusCode, value.getFields(11).getStr().getValue());
+        // 12 -> db.type
+        Assert.assertEquals(dbType, value.getFields(12).getStr().getValue());
+        // 13 -> db.instance
+        Assert.assertEquals(dbInstance, value.getFields(13).getStr().getValue());
+        // 14 -> mq.queue
+        Assert.assertEquals(queue, value.getFields(14).getStr().getValue());
+        // 15 -> mq.topic
+        Assert.assertEquals(topic, value.getFields(15).getStr().getValue());
+        // 16 -> mq.broker
+        Assert.assertEquals(broker, value.getFields(16).getStr().getValue());
     }
 }

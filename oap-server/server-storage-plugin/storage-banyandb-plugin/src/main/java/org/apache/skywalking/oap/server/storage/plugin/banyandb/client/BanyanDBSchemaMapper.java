@@ -22,6 +22,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.NullValue;
 import com.google.protobuf.Timestamp;
 import org.apache.skywalking.banyandb.Write;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 
 import java.util.HashMap;
@@ -31,13 +32,30 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BanyanDBSchemaMapper implements Function<SegmentRecord, Write.EntityValue> {
-    private final SegmentRecord.Builder builder;
+    private static final String TAG_PREFIX = "tags.";
 
     private final Set<String> schemaKeys;
     /**
      * Map the key defined in BanyanDB schema (i.e. *.textproto) to the field name in the {@link SegmentRecord}
      */
-    private final Map<String, String> keyMapping = new HashMap<>();
+    private static final Map<String, String> KEY_MAPPING = new HashMap<>();
+
+    static {
+        // Known mapping
+        // 1) duration -> latency
+        // 2) state -> is_error
+        // others:
+        // http.method, status_code, db.type, db.instance, mq.queue, mq.broker, mq.topic
+        KEY_MAPPING.put("duration", SegmentRecord.LATENCY);
+        KEY_MAPPING.put("state", SegmentRecord.IS_ERROR);
+        KEY_MAPPING.put("http.method", TAG_PREFIX + "http.method");
+        KEY_MAPPING.put("status_code", TAG_PREFIX + "status_code");
+        KEY_MAPPING.put("db.type", TAG_PREFIX + "db.type");
+        KEY_MAPPING.put("db.instance", TAG_PREFIX + "db.instance");
+        KEY_MAPPING.put("mq.queue", TAG_PREFIX + "mq.queue");
+        KEY_MAPPING.put("mq.broker", TAG_PREFIX + "mq.broker");
+        KEY_MAPPING.put("mq.topic", TAG_PREFIX + "mq.topic");
+    }
 
     /**
      * Map the key defined in BanyanDB schema to the Factory Lambda which can be invoked to build the Field
@@ -45,24 +63,17 @@ public class BanyanDBSchemaMapper implements Function<SegmentRecord, Write.Entit
     private final Map<String, Function<Map<String, Object>, Write.Field>> fieldsMap = new HashMap<>();
 
     public BanyanDBSchemaMapper(Set<String> schemaKeys) {
-        this.builder = new SegmentRecord.Builder();
         this.schemaKeys = schemaKeys;
-
-        // Known mapping
-        // 1) duration -> latency
-        // 2) state -> is_error
-        this.keyMapping.put("duration", SegmentRecord.LATENCY);
-        this.keyMapping.put("state", SegmentRecord.IS_ERROR);
 
         // iterate over keys in the schema
         for (final String key : schemaKeys) {
-            fieldsMap.put(key, entityMap -> buildField(entityMap.get(keyMapping.getOrDefault(key, key))));
+            fieldsMap.put(key, entityMap -> buildField(entityMap.get(KEY_MAPPING.getOrDefault(key, key))));
         }
     }
 
     @Override
     public Write.EntityValue apply(SegmentRecord segmentRecord) {
-        final Map<String, Object> objectMap = this.builder.entity2Storage(segmentRecord);
+        final Map<String, Object> objectMap = entity2Storage(segmentRecord);
 
         return Write.EntityValue.newBuilder()
                 .addAllFields(this.schemaKeys.stream().map(s -> fieldsMap.get(s).apply(objectMap)).collect(Collectors.toList()))
@@ -84,5 +95,25 @@ public class BanyanDBSchemaMapper implements Function<SegmentRecord, Write.Entit
         } else {
             throw new IllegalStateException("should not reach here");
         }
+    }
+
+    static Map<String, Object> entity2Storage(SegmentRecord segmentRecord) {
+        Map<String, Object> map = new HashMap<>();
+        map.put(SegmentRecord.SEGMENT_ID, segmentRecord.getSegmentId());
+        map.put(SegmentRecord.TRACE_ID, segmentRecord.getTraceId());
+        map.put(SegmentRecord.SERVICE_ID, segmentRecord.getServiceId());
+        map.put(SegmentRecord.SERVICE_INSTANCE_ID, segmentRecord.getServiceInstanceId());
+        map.put(SegmentRecord.ENDPOINT_NAME, segmentRecord.getEndpointName());
+        map.put(SegmentRecord.ENDPOINT_ID, segmentRecord.getEndpointId());
+        map.put(SegmentRecord.START_TIME, segmentRecord.getStartTime());
+        map.put(SegmentRecord.LATENCY, segmentRecord.getLatency());
+        map.put(SegmentRecord.IS_ERROR, segmentRecord.getIsError());
+        map.put(SegmentRecord.TIME_BUCKET, segmentRecord.getTimeBucket());
+        if (segmentRecord.getTagsRawData() != null) {
+            for (final Tag tag : segmentRecord.getTagsRawData()) {
+                map.put(TAG_PREFIX + tag.getKey().toLowerCase(), tag.getValue());
+            }
+        }
+        return map;
     }
 }
