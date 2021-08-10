@@ -23,6 +23,7 @@ Release Notes.
 * Trace segment wouldn't be recognized as a TopN sample service. Add through #4694 experimentally, but it caused
   performance impact.
 * Remove `version` and `endTime` in the segment entity. Reduce indexing payload. 
+* Fix `mapper_parsing_exception` in ElasticSearch 7.14.
 
 #### UI
 
