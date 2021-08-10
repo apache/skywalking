@@ -10,6 +10,7 @@ Release Notes.
 #### Java Agent
 
 * Support Multiple DNS period resolving mechanism
+* Fix kafka-reporter-plugin shade package conflict
 
 #### OAP-Backend
 
