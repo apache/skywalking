@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.profile;
 
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
@@ -88,7 +89,7 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
 
             basicTrace.setSegmentId(segmentRecord.getSegmentId());
             basicTrace.setStart(String.valueOf(segmentRecord.getStartTime()));
-            basicTrace.getEndpointNames().add(segmentRecord.getEndpointName());
+            basicTrace.getEndpointNames().add(IDManager.EndpointID.analysisId(segmentRecord.getEndpointId()).getEndpointName());
             basicTrace.setDuration(segmentRecord.getLatency());
             basicTrace.setError(BooleanUtils.valueToBoolean(segmentRecord.getIsError()));
             basicTrace.getTraceIds().add(segmentRecord.getSegmentId());

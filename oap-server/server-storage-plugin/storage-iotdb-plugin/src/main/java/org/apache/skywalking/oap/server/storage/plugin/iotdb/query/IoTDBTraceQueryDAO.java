@@ -42,7 +42,7 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
-                                       String endpointName, String serviceId, String serviceInstanceId,
+                                       String serviceId, String serviceInstanceId,
                                        String endpointId, String traceId, int limit, int from,
                                        TraceState traceState, QueryOrder queryOrder, List<Tag> tags)
             throws IOException {
@@ -63,11 +63,9 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
                 SegmentRecord.SERVICE_INSTANCE_ID + ", " +
                 SegmentRecord.ENDPOINT_NAME + ", " +
                 SegmentRecord.START_TIME + ", " +
-                SegmentRecord.END_TIME + ", " +
                 SegmentRecord.LATENCY + ", " +
                 SegmentRecord.IS_ERROR + ", " +
-                SegmentRecord.DATA_BINARY + ", " +
-                SegmentRecord.VERSION + " from " +
+                SegmentRecord.DATA_BINARY + " from " +
                 client.getStorageGroup() + IoTDBClient.DOT + SegmentRecord.INDEX_NAME +
                 " where " + SegmentRecord.TRACE_ID + " = " + traceId;
 

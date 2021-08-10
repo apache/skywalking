@@ -48,7 +48,7 @@ import java.util.Map;
 
 @Slf4j
 public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
-    private IoTDBClient client;
+    private final IoTDBClient client;
 
     public IoTDBMetricsQueryDAO(IoTDBClient client) {
         this.client = client;

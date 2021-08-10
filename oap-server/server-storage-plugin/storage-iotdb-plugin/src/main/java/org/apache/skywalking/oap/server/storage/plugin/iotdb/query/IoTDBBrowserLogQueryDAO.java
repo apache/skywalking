@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
-import org.elasticsearch.common.Strings;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,16 +47,14 @@ public class IoTDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
 
     @Override
     public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId,
-                                                  String pagePath, BrowserErrorCategory category, long startSecondTB,
+                                                  BrowserErrorCategory category, long startSecondTB,
                                                   long endSecondTB, int limit, int from) throws IOException {
+        // TODO re-implement
         // IoTDB doesn't support using "string_contains" and "count" together
         // IoTDB string_contains return the same size of all data with true or false
         // select all BrowserErrorLogRecord.DATA_BINARY with string_contains, then count its size and return its limit
         StringBuilder query = new StringBuilder();
         query.append("select");
-        if (Strings.isNullOrEmpty(pagePath)) {
-            query.append(" string_contains(").append(BrowserErrorLogRecord.PAGE_PATH).append(", 's'='").append(pagePath).append("'),");
-        }
         query.append(" ").append(BrowserErrorLogRecord.DATA_BINARY);
         query.append(" from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(BrowserErrorLogRecord.INDEX_NAME)
                 .append(" where 1=1 ");

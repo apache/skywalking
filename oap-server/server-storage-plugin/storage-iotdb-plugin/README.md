@@ -53,14 +53,16 @@ Timeseries。从最上层到其下某一层称为一条路径（Path），最上
 
 ### 概念划分
 
-Skywalking的每个存储模型可以认为是一个Model，Model中包含了多个Column，每个Column中具备ColumnName和ColumnType属性，分别表示Column的
-名字和类型，每个ColumnName下存储多个数据类型为ColumnType的数据Value。从关系型数据库的角度来看的话，Model即是关系表，Column即是关系表中的字段。
+Skywalking的每个存储模型可以认为是一个Model，Model中包含了多个Column，每个Column中具备ColumnName和ColumnType属性，分别表示Column的名字和类型，每个ColumnName下存储多个数据类型为ColumnType的数据Value。从关系型数据库的角度来看的话，Model即是关系表，Column即是关系表中的字段。
 
-### 方案一：类似关系型数据库的存储方案
+### 方案一：类似关系型数据库的存储方案（无法实现）
 
 将Skywalking的所有存储模型都写入IoTDB的一个存储组中，例如root.skywalking存储组。Model对应Device，Column对应Timeseries。即Skywalking的“Database -> Model
--> Column”对应到IoTDB的“Storage Group -> Device -> Timeseries”。该方案的IoTDB存储路径只有4层：root.skywalking.ModelName.ColumnName。
-该方案的优点是逻辑清晰，实现难度较低，但由于数据都存储在硬盘上，查询效率相对较差。
+-> Column”对应到IoTDB的“Storage Group -> Device ->
+Timeseries”。该方案的IoTDB存储路径只有4层：root.skywalking.ModelName.ColumnName。该方案的优点是逻辑清晰，实现难度较低，但由于数据都存储在硬盘上，查询效率相对较差。
+
+> 验证结果：该方案无法实现  
+> 原因：部分存储接口需要实现group by entity_id的查询功能，但IoTDB只支持group by time。需要采用方案二并通过group by level来实现。
 
 ### 方案二：引入索引的存储方案
 
@@ -70,14 +72,55 @@ Skywalking的每个存储模型可以认为是一个Model，Model中包含了多
 不过LayerName并不存储ColumnName，而是存储对应的Value，相当于需要索引的一个Column的不同Value存储在同一分支下的同一层。不需要索引的Column依然对应Timeseries，即路径的最后一层。
 
 由于该方案丢失了需要索引的ColumnName，所以需要通过硬编码记录需要索引的ColumnName及ColumnType。此外为了避免存储的混乱，还需要记录一个Model下多个索引Column的顺序。
+计划通过硬编码存储Model需要索引的Column的存储顺序。
 
 该方案的IoTDB存储路径长度是不定的，索引的Column越多，路径的长度越长。例如:
 
-- 需要具备索引的Model：root.skywalking.model1_name.column11_value.column12_name，
-  root.skywalking.model2_name.column21_value.column22_value.column23_name
-- 不需要具备索引的Model: root.skywalking.model3_name.column31_Name
+当前有model1(<u>column11</u>, column12)，model2(<u>column21</u>, <u>column22</u>, column23)，model3(column31)，下划线说明该字段需要索引
 
-该方案的优点是实现了索引功能，类似InfluxDB的tag，但逻辑较复杂，实现难度较大。此外还需进一步确定哪些Column需要作为索引列，这一点可以参考Elasticsearch（StorageEsInstaller），InfluxDB（TableMetaInfo），MySQL（MySQLTableInstaller）的实现。
+- 需要具备索引的Model：  
+  root.skywalking.model1_name.column11_value.column12_name，  
+  root.skywalking.model2_name.column21_value.column22_value.column23_name
+- 不需要具备索引的Model:   
+  root.skywalking.model3_name.column31_Name
+
+插入：
+
+```sql
+-- 插入model1
+insert into root.skywalking.model1_name.column11_value
+values (timestamp, column12_value);
+-- 插入model2
+insert into root.skywalking.model2_name.column21_value.column22_value
+values (timestamp, column23_name);
+```
+
+查询：
+
+```sql
+-- 查找model1的所有数据
+select *
+from root.skywalking.model1_name;
+-- 查找model2中column22_value="test"的数据
+select *
+from root.skywalking.model2_name.*.test;
+-- 按照column21分组统计model2中column23的和
+select sum(column23)
+from root.skywalking.model2_name.*.*
+group by level 3;
+```
+
+该方案的优点是实现了索引功能，类似InfluxDB的tag，但逻辑较复杂，实现难度较大。另一方面还需进一步确定哪些Column需要作为索引列，这一点可以参考Elasticsearch（StorageEsInstaller），
+InfluxDB（TableMetaInfo），MySQL（MySQLTableInstaller）的实现，以及ModelColumn的isStorageOnly属性。
+
+该方案将部分数据通过LayerName存储在内存中，在海量数据的情况下可能会导致内存开销较大。
+
+目前可以确定的索引字段
+> id  
+> time_bucket（不直接存储，而是将其转换为IoTDB自带的时间戳timestamp）  
+> entity_id  
+> service_id  
+> trace_id
 
 ### 方案的性能测试
 
@@ -99,8 +142,10 @@ Skywalking的每个存储模型可以认为是一个Model，Model中包含了多
 
 ## 已完成工作
 
-目前采取**方案一：类似关系型数据库的存储方案**实现IoTDB适配器。使用SessionPool与IoTDB服务端进行交互。插入和更新操作使用insertRecords，
-查询操作使用executeQueryStatement，删除操作使用deleteData。目前已实现插入、更新、删除的相关接口，查询接口仅部分实现。等完全实现后一块提交代码。
+目前采取**方案一：类似关系型数据库的存储方案**
+实现IoTDB适配器，实现过程中参考了JDBC和InfluxDB存储插件。使用SessionPool与IoTDB服务端进行交互。插入和更新操作使用insertRecords， 查询操
+作使用executeQueryStatement，删除操作使用deleteData。目前已实现插入、更新、删除的相关接口，查询接口仅部分实现（<u>由于IoTDB只支持group by time和group by
+level，后续将采用方案二完全实现所有接口</u>）。
 
 ### 对用户开放如下配置：
 
@@ -114,15 +159,24 @@ Skywalking的每个存储模型可以认为是一个Model，Model中包含了多
 
 ## 遇到的问题及解决方案
 
-- 问题1：IoTDB的选择函数TOP_K和BOTTOM_K在和其它字段一起查询时无法进行过滤
-    - 解决方案：通过两次查询实现需求
-- 问题2：参考InfluxDB和H2存储实现的过程中对其中部分操作理解不到位
-    - 解决方案：在Skywalking社区提问
-- 问题3：对IoTDB的特性和操作理解不够
-    - 解决方案：阅读官方文档，与导师进行沟通
+- 问题1：IoTDB的选择函数top_k和bottom_k在和其它字段一起查询时无法进行过滤
+    - 解决方案：首先仅查询top_k/bottom_k，再利用其结果过滤查询其它字段
+- 问题2：Skywalking部分存储接口要求order by查询，但IoTDB仅支持order by time
+    - 解决方案：采用top_k和bottom_k函数查询后，再对结果进行排序
+- 问题3：IoTDB的字符串函数string_contains会返回true/false，并不会对数据进行过滤
+    - 解决方案：获得查询结果后再根据true/false循环过滤
+- 问题4：Skywalking部分存储接口要求group by entity_id的分组查询，但IoTDB仅支持group by time和group by level
+    - 解决方案：采用方案二，并将entity_id作为LayerName存储，通过group by level实现分组查询
+- 问题5：Skywalking部分存储接口要求分页查询包含某字符串的数据，并按照另一字段排序。对应到IoTDB时，涉及到top_k/bottom_k，string_contains，limit，
+  offset，但string_contains和top_k不能同时使用
+    - 解决方案：目前采用"select *, string_contains() from XXX where ..."将全部数据查出来后，再对结果进行筛选、排序等操作
+- 问题6：参考InfluxDB和H2存储实现的过程中对其中部分操作理解不到位
+    - 解决方案：在Skywalking社区发送邮件提问，得到了吴晟老师的回复并取得了他的直接联系方式
+- 问题7：对IoTDB的特性和操作理解不够
+    - 解决方案：阅读官方文档，与导师黄向东保持沟通
 
 ## 后续工作安排
 
-- 继续实现方案一，熟悉其它存储插件对各个接口的实现，增加与社区的沟通
-- 对方案一进行完整测试
-- 采用方案二重构项目，比较两种方案的性能
+- 对方案一进行简单测试
+- 熟悉Skywalking的基本使用操作，阅读Elasticsearch存储插件的源码
+- 采用方案二重构项目，实现所有接口，对其进行完整测试

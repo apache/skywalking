@@ -38,7 +38,7 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
     }
 
     @Override
-    public Logs queryLogs(String serviceId, String serviceInstanceId, String endpointId, String endpointName,
+    public Logs queryLogs(String serviceId, String serviceInstanceId, String endpointId,
                           TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit, long startTB,
                           long endTB, List<Tag> tags, List<String> keywordsOfContent,
                           List<String> excludingKeywordsOfContent) throws IOException {
