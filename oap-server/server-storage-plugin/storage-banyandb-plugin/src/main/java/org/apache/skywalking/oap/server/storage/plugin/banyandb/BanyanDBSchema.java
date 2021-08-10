@@ -28,15 +28,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class BanyanDBSchema {
     private final Schema.TraceSeries traceSeries;
     private final Set<String> fields = new LinkedHashSet<>();
+    private final Map<String, Integer> fieldsIndexMapping = new HashMap<>();
 
-    private int durationIndex;
     private int traceStateIndex;
+    private int traceIdIndex;
     private Schema.FieldSpec.FieldType traceStateType;
     private int valIntError;
     private String valStringError;
@@ -69,8 +72,10 @@ public class BanyanDBSchema {
             if (this.traceSeries.getReservedFieldsMap().getState().getField().equals(spec.getName())) {
                 traceStateIndex = i;
                 traceStateType = spec.getType();
-            } else if ("duration".equals(spec.getName())) {
-                durationIndex = i;
+            } else if (this.traceSeries.getReservedFieldsMap().getTraceId().equals(spec.getName())) {
+                traceIdIndex = i;
+            } else {
+                fieldsIndexMapping.put(spec.getName(), i);
             }
         }
         if (traceStateType == null) {
@@ -99,14 +104,44 @@ public class BanyanDBSchema {
         }
     }
 
-    public int getDuration(Query.Entity entity) {
+    Query.TypedPair getField(Query.Entity entity, String key) {
         if (entity == null) {
+            return null;
+        }
+        final int fieldIndex = this.fieldsIndexMapping.getOrDefault(key, -1);
+        if (fieldIndex < 0 || entity.getFieldsCount() <= fieldIndex) {
+            return null;
+        }
+        return entity.getFields(fieldIndex);
+    }
+
+    public int getDuration(Query.Entity entity) {
+        Query.TypedPair pair = this.getField(entity, "duration");
+        if (pair == null) {
             return 0;
         }
-        if (entity.getFieldsCount() <= this.durationIndex) {
-            return 0;
+        return (int) pair.getIntPair().getValues(0);
+    }
+
+    public String getTraceId(Query.Entity entity) {
+        Query.TypedPair pair = entity.getFields(this.traceIdIndex);
+        return pair.getStrPair().getValues(0);
+    }
+
+    public String getEndpointName(Query.Entity entity) {
+        Query.TypedPair pair = this.getField(entity, "endpoint_name");
+        if (pair == null) {
+            return null;
         }
-        return (int) entity.getFields(this.durationIndex).getIntPair().getValues(0);
+        return pair.getStrPair().getValues(0);
+    }
+
+    public long getStartTime(Query.Entity entity) {
+        Query.TypedPair pair = this.getField(entity, "start_time");
+        if (pair == null) {
+            return 0L;
+        }
+        return pair.getIntPair().getValues(0);
     }
 
     public Set<String> getFieldNames() {

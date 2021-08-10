@@ -142,9 +142,11 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
         brief.getTraces().addAll(response.getEntitiesList().stream().map(entity -> {
             BasicTrace trace = new BasicTrace();
             trace.setDuration(this.schema.getDuration(entity));
-            trace.setStart(String.valueOf(entity.getTimestamp().getSeconds()));
+            trace.setStart(String.valueOf(this.schema.getStartTime(entity)));
             trace.setSegmentId(entity.getEntityId());
             trace.setError(this.schema.isErrorEntity(entity));
+            trace.getTraceIds().add(this.schema.getTraceId(entity));
+            trace.getEndpointNames().add(this.schema.getEndpointName(entity));
             return trace;
         }).collect(Collectors.toList()));
         return brief;
@@ -158,7 +160,7 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
                 .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey("trace_id").addValues(traceId).build()))
                 .build());
         queryBuilder.setProjection(Query.Projection.newBuilder()
-                // add all keysx
+                // add all keys
                 .addAllKeyNames(this.schema.getFieldNames())
                 // fetch binary part
                 .addKeyNames("data_binary")
