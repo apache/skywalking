@@ -10,6 +10,3 @@
 [submodule "test/e2e/e2e-protocol/src/main/proto"]
 	path = test/e2e/e2e-protocol/src/main/proto
 	url = https://github.com/apache/skywalking-data-collect-protocol.git
-[submodule "oap-server/server-storage-plugin/storage-banyandb-plugin/skywalking-banyandb"]
-	path = oap-server/server-storage-plugin/storage-banyandb-plugin/skywalking-banyandb
-	url = git@github.com:apache/skywalking-banyandb

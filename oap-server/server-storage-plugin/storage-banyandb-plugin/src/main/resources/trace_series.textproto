@@ -1,0 +1,101 @@
+# proto-file: banyandb/v1/schema.proto
+# proto-message: TraceSeries
+metadata: {
+  name: "sw"
+  group: "default"
+}
+fields: [
+  {
+    name: "trace_id"
+    type: FIELD_TYPE_STRING
+  },{
+    name: "state"
+    type: FIELD_TYPE_INT
+  },{
+    name: "service_id"
+    type: FIELD_TYPE_STRING
+  },{
+    name: "service_instance_id",
+    type: FIELD_TYPE_STRING
+  },
+  {
+    name: "endpoint_id",
+    type: FIELD_TYPE_STRING
+  },
+  {
+    name: "service_name",
+    type: FIELD_TYPE_STRING
+  },
+  {
+    name: "service_instance_name",
+    type: FIELD_TYPE_STRING
+  },
+  {
+    name: "endpoint_name",
+    type: FIELD_TYPE_STRING
+  },
+  {
+    name: "duration",
+    type: FIELD_TYPE_INT
+  },
+  {
+    name: "start_time",
+    type: FIELD_TYPE_INT
+  },
+  {
+    name: "http.method",
+    type: FIELD_TYPE_STRING
+  },
+  {
+    name: "status_code",
+    type: FIELD_TYPE_STRING
+  },
+  {
+    name: "db.type",
+    type: FIELD_TYPE_STRING
+  },
+  {
+    name: "db.instance",
+    type: FIELD_TYPE_STRING
+  },
+  {
+    name: "mq.queue",
+    type: FIELD_TYPE_STRING
+  },
+  {
+    name: "mq.topic",
+    type: FIELD_TYPE_STRING
+  },
+  {
+    name: "mq.broker",
+    type: FIELD_TYPE_STRING
+  }
+]
+reserved_fields_map: {
+  trace_id: "trace_id"
+  series_id: [
+    "service_id",
+    "service_instance_id"
+  ]
+  state: {
+    field: "state",
+    val_success: "0",
+    val_error: "1"
+  }
+}
+shard: {
+  number: 2
+  routing_fields: [
+    "service_id",
+    "service_instance_id",
+    "endpoint_id"
+  ]
+}
+duration: {
+  val: 7
+  unit: DURATION_UNIT_DAY
+}
+updated_at: {
+  seconds: 1622933202
+  nanos: 0
+}
