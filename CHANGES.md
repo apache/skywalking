@@ -20,14 +20,11 @@ Release Notes.
 * Support Metric level function `serviceRelation` in `MAL`. 
 * Support envoy metrics binding into the topology.
 * Fix openapi-definitions folder not being read correctly.
+* Support component IDs for Go-Kratos framework
 
 #### UI
 
 * Fix not found error when refresh UI.
-
-#### Go2Sky
-
-* Support middleware plugin for Go-Kratos framework
 
 #### Documentation
 
