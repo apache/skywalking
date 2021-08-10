@@ -25,6 +25,10 @@ Release Notes.
 
 * Fix not found error when refresh UI.
 
+#### Go2Sky
+
+* Support middleware plugin for Go-Kratos framework
+
 #### Documentation
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/96?closed=1)
