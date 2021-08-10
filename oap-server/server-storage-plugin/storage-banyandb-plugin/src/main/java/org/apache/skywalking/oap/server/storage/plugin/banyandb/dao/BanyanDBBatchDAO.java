@@ -44,7 +44,7 @@ public class BanyanDBBatchDAO extends H2BatchDAO {
     public BanyanDBBatchDAO(JDBCHikariCPClient h2Client, BanyanDBStorageConfig config) {
         super(h2Client);
 
-        this.grpcClient = new BanyanDBGrpcClient(config.getHost(), config.getPort());
+        this.grpcClient = new BanyanDBGrpcClient(config.createChannel());
 
         String name = "BANYANDB_BATCH_INSERT";
         BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, 1, 20);

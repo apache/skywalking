@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.client;
 
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.Query;
@@ -31,8 +30,7 @@ public class BanyanDBGrpcClient {
     private final TraceServiceGrpc.TraceServiceBlockingStub blockingStub;
     private final TraceServiceGrpc.TraceServiceStub asyncStub;
 
-    public BanyanDBGrpcClient(String host, int port) {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port).build();
+    public BanyanDBGrpcClient(ManagedChannel channel) {
         blockingStub = TraceServiceGrpc.newBlockingStub(channel);
         asyncStub = TraceServiceGrpc.newStub(channel);
     }

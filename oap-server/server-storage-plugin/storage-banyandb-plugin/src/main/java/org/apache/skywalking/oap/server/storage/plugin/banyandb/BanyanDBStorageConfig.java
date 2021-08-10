@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
@@ -27,4 +29,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 public class BanyanDBStorageConfig extends H2StorageConfig {
     private String host = "127.0.0.1";
     private int port = 17912;
+
+    public ManagedChannel createChannel() {
+        return ManagedChannelBuilder.forAddress(host, port).build();
+    }
 }

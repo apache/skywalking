@@ -19,7 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.dao;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Timestamp;
+import io.grpc.ManagedChannel;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.banyandb.Query;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -37,26 +39,39 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQueryDAO {
+    /**
+     * The magic numbers used below can be found here
+     * https://github.com/apache/skywalking-banyandb/blob/b7845b0cd9fbebf71d3fc990ad6eae5f3ec16771/banyand/series/series.go#L33-L40,
+     * 0 -> TraceStateDefault = TraceStateSuccess + TraceStateError
+     * 1 -> TraceStateSuccess
+     * 2 -> TraceStateError
+     */
+    static final int TRACE_STATE_DEFAULT = 0;
+    static final int TRACE_STATE_SUCCESS = 1;
+    static final int TRACE_STATE_ERROR = 2;
+
+    private static final Set<String> DEFAULT_PROJECTION = ImmutableSet.of("duration", "state", "start_time", "trace_id");
+
     private final BanyanDBSchema schema;
 
     public BanyanDBTraceQueryDAO(BanyanDBStorageConfig config, BanyanDBSchema schema) {
-        super(config.getHost(), config.getPort());
+        this(config.createChannel(), schema);
+    }
+
+    BanyanDBTraceQueryDAO(ManagedChannel channel, BanyanDBSchema schema) {
+        super(channel);
         this.schema = schema;
     }
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String endpointName, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
-        Set<String> projections = new HashSet<>();
-        projections.add("duration");
-        projections.add("state");
-        Query.QueryRequest.Builder queryBuilder = Query.QueryRequest.newBuilder();
+        Query.QueryRequest.Builder queryBuilder = Query.QueryRequest.newBuilder().setMetadata(this.schema.getMetadata());
         if (startSecondTB != 0 && endSecondTB != 0) {
             queryBuilder.setTimeRange(Query.TimeRange.newBuilder()
                     .setBegin(Timestamp.newBuilder().setSeconds(startSecondTB))
@@ -64,65 +79,38 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
         }
         if (minDuration != 0) {
             // duration >= minDuration
-            queryBuilder.addFields(Query.PairQuery.newBuilder()
-                    .setOp(Query.PairQuery.BinaryOp.BINARY_OP_GE)
-                    .setCondition(Query.TypedPair.newBuilder().setIntPair(Query.IntPair.newBuilder().setKey("duration").addValues(minDuration).build()))
-                    .build());
+            queryBuilder.addFields(buildInt("duration", Query.PairQuery.BinaryOp.BINARY_OP_GE, minDuration));
         }
         if (maxDuration != 0) {
             // duration <= maxDuration
-            queryBuilder.addFields(Query.PairQuery.newBuilder()
-                    .setOp(Query.PairQuery.BinaryOp.BINARY_OP_LE)
-                    .setCondition(Query.TypedPair.newBuilder().setIntPair(Query.IntPair.newBuilder().setKey("duration").addValues(maxDuration).build()))
-                    .build());
+            queryBuilder.addFields(buildInt("duration", Query.PairQuery.BinaryOp.BINARY_OP_LE, maxDuration));
         }
 
         if (!Strings.isNullOrEmpty(endpointName)) {
-            queryBuilder.addFields(Query.PairQuery.newBuilder()
-                    .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
-                    .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey("endpoint_name").addValues(endpointName).build()))
-                    .build());
+            queryBuilder.addFields(buildStr("endpoint_name", Query.PairQuery.BinaryOp.BINARY_OP_EQ, endpointName));
         }
 
         if (StringUtil.isNotEmpty(serviceId)) {
-            queryBuilder.addFields(Query.PairQuery.newBuilder()
-                    .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
-                    .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey("service_id").addValues(serviceId).build()))
-                    .build());
+            queryBuilder.addFields(buildStr("service_id", Query.PairQuery.BinaryOp.BINARY_OP_EQ, serviceId));
         }
 
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
-            queryBuilder.addFields(Query.PairQuery.newBuilder()
-                    .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
-                    .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey("service_instance_id").addValues(serviceInstanceId).build()))
-                    .build());
+            queryBuilder.addFields(buildStr("service_instance_id", Query.PairQuery.BinaryOp.BINARY_OP_EQ, serviceInstanceId));
         }
 
         if (!Strings.isNullOrEmpty(endpointId)) {
-            queryBuilder.addFields(Query.PairQuery.newBuilder()
-                    .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
-                    .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey("endpoint_id").addValues(endpointId).build()))
-                    .build());
+            queryBuilder.addFields(buildStr("endpoint_id", Query.PairQuery.BinaryOp.BINARY_OP_EQ, endpointId));
         }
 
         switch (traceState) {
             case ERROR:
-                queryBuilder.addFields(Query.PairQuery.newBuilder()
-                        .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
-                        .setCondition(Query.TypedPair.newBuilder().setIntPair(Query.IntPair.newBuilder().setKey("state").addValues(2).build()))
-                        .build());
+                queryBuilder.addFields(buildInt("state", Query.PairQuery.BinaryOp.BINARY_OP_EQ, TRACE_STATE_ERROR));
                 break;
             case SUCCESS:
-                queryBuilder.addFields(Query.PairQuery.newBuilder()
-                        .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
-                        .setCondition(Query.TypedPair.newBuilder().setIntPair(Query.IntPair.newBuilder().setKey("state").addValues(1).build()))
-                        .build());
+                queryBuilder.addFields(buildInt("state", Query.PairQuery.BinaryOp.BINARY_OP_EQ, TRACE_STATE_SUCCESS));
                 break;
             default:
-                queryBuilder.addFields(Query.PairQuery.newBuilder()
-                        .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
-                        .setCondition(Query.TypedPair.newBuilder().setIntPair(Query.IntPair.newBuilder().setKey("state").addValues(0).build()))
-                        .build());
+                queryBuilder.addFields(buildInt("state", Query.PairQuery.BinaryOp.BINARY_OP_EQ, TRACE_STATE_DEFAULT));
                 break;
         }
 
@@ -132,7 +120,6 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
                         .setKeyName("start_time")
                         .setSort(Query.QueryOrder.Sort.SORT_DESC)
                         .build());
-                projections.add("start_time");
                 break;
             case BY_DURATION:
                 queryBuilder.setOrderBy(Query.QueryOrder.newBuilder()
@@ -143,7 +130,7 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
         }
 
         queryBuilder.setProjection(Query.Projection.newBuilder()
-                .addAllKeyNames(projections)
+                .addAllKeyNames(DEFAULT_PROJECTION)
                 .build());
         queryBuilder.setLimit(limit);
         queryBuilder.setOffset(from);
@@ -165,13 +152,13 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        Query.QueryRequest.Builder queryBuilder = Query.QueryRequest.newBuilder();
+        Query.QueryRequest.Builder queryBuilder = Query.QueryRequest.newBuilder().setMetadata(this.schema.getMetadata());
         queryBuilder.addFields(Query.PairQuery.newBuilder()
                 .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
                 .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey("trace_id").addValues(traceId).build()))
                 .build());
         queryBuilder.setProjection(Query.Projection.newBuilder()
-                // add all keys
+                // add all keysx
                 .addAllKeyNames(this.schema.getFieldNames())
                 // fetch binary part
                 .addKeyNames("data_binary")
@@ -211,5 +198,26 @@ public class BanyanDBTraceQueryDAO extends BanyanDBGrpcClient implements ITraceQ
         record.setDataBinary(entity.getDataBinary().toByteArray());
         record.setTimeBucket(entity.getTimestamp().getSeconds());
         return record;
+    }
+
+    static Query.PairQuery buildInt(String key, Query.PairQuery.BinaryOp op, int value) {
+        return Query.PairQuery.newBuilder()
+                .setOp(op)
+                .setCondition(Query.TypedPair.newBuilder().setIntPair(Query.IntPair.newBuilder().setKey(key).addValues(value).build()).build())
+                .build();
+    }
+
+    static Query.PairQuery buildInt(String key, Query.PairQuery.BinaryOp op, long value) {
+        return Query.PairQuery.newBuilder()
+                .setOp(op)
+                .setCondition(Query.TypedPair.newBuilder().setIntPair(Query.IntPair.newBuilder().setKey(key).addValues(value).build()).build())
+                .build();
+    }
+
+    static Query.PairQuery buildStr(String key, Query.PairQuery.BinaryOp op, String value) {
+        return Query.PairQuery.newBuilder()
+                .setOp(op)
+                .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey(key).addValues(value).build()).build())
+                .build();
     }
 }
