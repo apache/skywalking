@@ -63,5 +63,6 @@ header:
     - '**/src/main/proto/protoc-gen-swagger/**'
     - '**/src/main/proto/validate/validate.proto'
     - '**/src/main/proto/opencensus/**'
+    - '**/*.textproto'
 
   comment: on-failure
