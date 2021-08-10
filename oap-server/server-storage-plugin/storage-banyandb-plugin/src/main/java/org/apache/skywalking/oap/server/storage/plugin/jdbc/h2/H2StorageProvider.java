@@ -19,6 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
 
 import java.util.Properties;
+
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -85,10 +88,16 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 public class H2StorageProvider extends ModuleProvider {
 
     private H2StorageConfig config;
+
+    @Getter(AccessLevel.PROTECTED)
     private JDBCHikariCPClient h2Client;
 
     public H2StorageProvider() {
         config = new H2StorageConfig();
+    }
+
+    protected H2StorageProvider(H2StorageConfig config) {
+        this.config = config;
     }
 
     @Override
