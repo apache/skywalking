@@ -22,11 +22,11 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2BrowserLogQueryDAO;
 
 public class PostgreSQLBrowserLogQueryDAO extends H2BrowserLogQueryDAO {
-    
+
     public PostgreSQLBrowserLogQueryDAO(JDBCHikariCPClient h2Client) {
         super(h2Client);
     }
-    
+
     @Override
     protected String buildCountStatement(String sql) {
         return "select count(*) total from (select 1 " + sql + " ) tempTable ";

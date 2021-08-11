@@ -39,7 +39,6 @@ public interface ILogQueryDAO extends Service {
     Logs queryLogs(String serviceId,
                    String serviceInstanceId,
                    String endpointId,
-                   String endpointName,
                    TraceScopeCondition relatedTrace,
                    Order queryOrder,
                    int from,
