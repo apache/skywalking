@@ -29,6 +29,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>storage-jdbc-hikaricp-plugin</module>
+        <module>storage-banyandb-plugin</module>
         <module>storage-elasticsearch-plugin</module>
         <module>storage-elasticsearch7-plugin</module>
         <module>storage-zipkin-elasticsearch7-plugin</module>

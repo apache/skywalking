@@ -1,0 +1,198 @@
+// Licensed to Apache Software Foundation (ASF) under one or more contributor
+// license agreements. See the NOTICE file distributed with
+// this work for additional information regarding copyright
+// ownership. Apache Software Foundation (ASF) licenses this file to you under
+// the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+syntax = "proto3";
+
+option java_package = "org.apache.skywalking.banyandb";
+option go_package = "github.com/apache/skywalking-banyandb/api/proto/banyandb/v1;v1";
+
+package banyandb.v1;
+
+import "google/protobuf/timestamp.proto";
+import "banyandb/v1/database.proto";
+
+message ShardInfo {
+  uint32 number = 1;
+  repeated string routing_fields = 2;
+}
+
+// Duration represents the elapsed time between two instants
+message Duration {
+  uint32 val = 1;
+  enum DurationUnit {
+    DURATION_UNIT_UNSPECIFIED = 0;
+    DURATION_UNIT_HOUR = 1;
+    DURATION_UNIT_DAY = 2;
+    DURATION_UNIT_WEEK = 3;
+    DURATION_UNIT_MONTH = 4;
+  }
+  DurationUnit unit = 2;
+}
+
+message FieldSpec {
+  string name = 1;
+  enum FieldType {
+    FIELD_TYPE_UNSPECIFIED = 0;
+    FIELD_TYPE_STRING = 1;
+    FIELD_TYPE_INT = 2;
+    FIELD_TYPE_STRING_ARRAY = 3;
+    FIELD_TYPE_INT_ARRAY = 4;
+  }
+  FieldType type = 2;
+}
+
+message TraceStateMap {
+  string field = 1;
+  string val_success = 2;
+  string val_error = 3;
+}
+
+// The key in TraceFieldMap are reserved by trace series engine. Their corresponding value is the Fields or
+// the combination of Fields
+message TraceFieldMap {
+  // trace_id the unique identity of a single trace
+  string trace_id = 1;
+  // series_id groups entities into a storage bucket
+  repeated string series_id = 2;
+  // state indicates the trace is "success" or "error"
+  TraceStateMap state = 3;
+}
+
+// TraceSeries represents a trace storage object
+message TraceSeries {
+  // metadata is the identity of a trace series
+  Metadata metadata = 1;
+  // fields defines accepted fields
+  repeated FieldSpec fields = 2;
+  // reserved_fields_map indicates how to index reserved fields to ingested fields
+  TraceFieldMap reserved_fields_map = 3;
+  // shard indicates how trace data distributes
+  ShardInfo shard = 4;
+  // duration determines how long a TraceSeries keeps its data
+  Duration duration = 5;
+  // updated_at_nanoseconds indicates when the TraceSeries is updated
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+// IndexObject defines who should be indexed.
+message IndexObject {
+  // name is the identity of a IndexObject
+  string name = 1;
+  // fields are the combination that refers to an indexed object
+  // If the elements in fields are more than 1, the object will generate a multi-field index
+  // Caveat: All fields in a multi-field index MUST have an identical IndexType
+  repeated string fields = 2;
+  // IndexType determine the index structure under the hood
+  // Fields with SeriesInternal type is reserved by Series module, would not be indexed by Index module.
+  enum IndexType {
+    INDEX_TYPE_UNSPECIFIED = 0;
+    INDEX_TYPE_TEXT = 1;
+    INDEX_TYPE_NUMERICAL = 2;
+    INDEX_TYPE_ID = 3;
+    INDEX_TYPE_MULTI_TEXT = 4;
+    INDEX_TYPE_MULTI_NUMERICAL = 5;
+    INDEX_TYPE_SERIES_INTERNAL = 6;
+  }
+  // type is the IndexType of this IndexObject.
+  IndexType type = 3;
+}
+
+// IndexRule defines how to generate indices based on IndexObject
+// IndexRule should bind to an Series through an IndexRuleBinding to generate proper indices.
+// Example: A trace entity wants to index fields: trace_id, service_name, endpoint_name, and latency.
+//          and service_name and endpoint_name would combine a multi-field index.
+// The index rule could be:
+// IndexRule {
+//     metadata: {
+//         name: sw_trace
+//         group: production
+//     }
+//     objects: [
+//        {
+//            fields: [trace_id]
+//            type: ID
+//        },
+//        {
+//            fields: [service_name, endpoint_name]
+//            type: Text
+//        },
+//        {
+//            fields: [latency]
+//            type: Numerical
+//        },
+//    ]
+//    updated_at_nanoseconds: .......
+// }
+message IndexRule {
+  // metadata define the rule's identity
+  Metadata metadata = 1;
+  // objects refer to which fields should be indexed
+  repeated IndexObject objects = 2;
+  // updated_at_nanoseconds indicates when the IndexRule is updated
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+// Series defines which subject(series) would generate indices
+// For example, if a TraceSeries's metadata is {name: sw_trace, group: production},
+//                in consequence, the Series is
+//                series {
+//                    catalog: Trace
+//                    series: {name: sw_trace, group: production}
+//                }
+message Series {
+  // Catalog refers to a placement contains objects belonged to a particular data type
+  enum Catalog {
+    CATALOG_UNSPECIFIED = 0;
+    CATALOG_TRACE = 1;
+    CATALOG_LOG = 2;
+    CATALOG_METRIC = 3;
+  }
+  // catalog is where the subject/series belongs to
+  Catalog catalog = 1;
+  // series refers to a series in a particular catalog
+  Metadata series = 2;
+}
+
+// IndexRuleBinding is a bridge to connect an IndexRule to several Series
+// This binding is valid between begin_at_nanoseconds and expire_at_nanoseconds, that provides flexible strategies
+// to control how to generate time series indices.
+message IndexRuleBinding {
+  // metadata is the identity of this binding
+  Metadata metadata = 1;
+  // rule_ref refers to the IndexRule
+  Metadata rule_ref = 2;
+  // subjects indicate the subjects of binding action
+  repeated Series subjects = 3;
+  // begin_at_nanoseconds is the timestamp, after which the binding will be active
+  google.protobuf.Timestamp begin_at = 4;
+  // expire_at_nanoseconds it the timestamp, after which the binding will be inactive
+  // expire_at_nanoseconds must be larger than begin_at_nanoseconds
+  google.protobuf.Timestamp expire_at = 5;
+  // updated_at_nanoseconds indicates when the IndexRuleBinding is updated
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message IndexRuleEvent {
+  Metadata series = 1;
+  message ShardedIndexRule {
+    uint64 shard_id = 1;
+    repeated IndexRule rules  = 2;
+  }
+  repeated ShardedIndexRule rules = 2;
+  Action action = 4;
+  google.protobuf.Timestamp time = 5;
+}
