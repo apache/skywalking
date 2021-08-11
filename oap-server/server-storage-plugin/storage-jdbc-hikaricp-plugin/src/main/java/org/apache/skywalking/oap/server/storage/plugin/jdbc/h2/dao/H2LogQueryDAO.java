@@ -179,7 +179,9 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                     log.setServiceId(resultSet.getString(SERVICE_ID));
                     log.setServiceInstanceId(resultSet.getString(SERVICE_INSTANCE_ID));
                     log.setEndpointId(resultSet.getString(ENDPOINT_ID));
-                    log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+                    if (log.getEndpointId() != null) {
+                        log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+                    }
                     log.setTraceId(resultSet.getString(TRACE_ID));
                     log.setTimestamp(resultSet.getLong(TIMESTAMP));
                     log.setContentType(ContentType.instanceOf(resultSet.getInt(CONTENT_TYPE)));

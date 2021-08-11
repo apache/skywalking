@@ -146,7 +146,9 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
             log.setServiceInstanceId((String) searchHit.getSourceAsMap()
                                                        .get(AbstractLogRecord.SERVICE_INSTANCE_ID));
             log.setEndpointId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_ID));
-            log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+            if (log.getEndpointId() != null) {
+                log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+            }
             log.setTraceId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.TRACE_ID));
             log.setTimestamp(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.TIMESTAMP)).longValue());
             log.setContentType(ContentType.instanceOf(

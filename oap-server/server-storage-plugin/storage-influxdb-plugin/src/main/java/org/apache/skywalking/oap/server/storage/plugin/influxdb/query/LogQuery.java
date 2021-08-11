@@ -160,7 +160,9 @@ public class LogQuery implements ILogQueryDAO {
                 log.setServiceId((String) data.get(SERVICE_ID));
                 log.setServiceInstanceId((String) data.get(SERVICE_INSTANCE_ID));
                 log.setEndpointId((String) data.get(ENDPOINT_ID));
-                log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+                if (log.getEndpointId() != null) {
+                    log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+                }
                 log.setTraceId((String) data.get(TRACE_ID));
                 log.setTimestamp(((Number) data.get(TIMESTAMP)).longValue());
                 log.setContentType(
