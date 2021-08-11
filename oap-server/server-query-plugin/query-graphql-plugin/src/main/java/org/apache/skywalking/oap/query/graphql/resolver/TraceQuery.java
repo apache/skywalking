@@ -67,14 +67,13 @@ public class TraceQuery implements GraphQLQueryResolver {
 
         int minDuration = condition.getMinTraceDuration();
         int maxDuration = condition.getMaxTraceDuration();
-        String endpointName = condition.getEndpointName();
         String endpointId = condition.getEndpointId();
         TraceState traceState = condition.getTraceState();
         QueryOrder queryOrder = condition.getQueryOrder();
         Pagination pagination = condition.getPaging();
 
         return getQueryService().queryBasicTraces(
-            condition.getServiceId(), condition.getServiceInstanceId(), endpointId, traceId, endpointName, minDuration,
+            condition.getServiceId(), condition.getServiceInstanceId(), endpointId, traceId, minDuration,
             maxDuration, traceState, queryOrder, pagination, startSecondTB, endSecondTB, condition.getTags()
         );
     }

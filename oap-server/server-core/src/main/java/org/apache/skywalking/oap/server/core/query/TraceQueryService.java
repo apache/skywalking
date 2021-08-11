@@ -77,7 +77,6 @@ public class TraceQueryService implements Service {
                                        final String serviceInstanceId,
                                        final String endpointId,
                                        final String traceId,
-                                       final String endpointName,
                                        final int minTraceDuration,
                                        int maxTraceDuration,
                                        final TraceState traceState,
@@ -89,7 +88,7 @@ public class TraceQueryService implements Service {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
         return getTraceQueryDAO().queryBasicTraces(
-            startTB, endTB, minTraceDuration, maxTraceDuration, endpointName, serviceId, serviceInstanceId, endpointId,
+            startTB, endTB, minTraceDuration, maxTraceDuration, serviceId, serviceInstanceId, endpointId,
             traceId, page.getLimit(), page.getFrom(), traceState, queryOrder, tags
         );
     }

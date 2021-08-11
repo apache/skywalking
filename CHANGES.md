@@ -22,9 +22,12 @@ Release Notes.
 * Fix openapi-definitions folder not being read correctly.
 * Trace segment wouldn't be recognized as a TopN sample service. Add through #4694 experimentally, but it caused
   performance impact.
-* Remove `version` and `endTime` in the segment entity. Reduce indexing payload. 
+* Remove `version` and `endTime` in the segment entity. Reduce indexing payload.
 * Fix `mapper_parsing_exception` in ElasticSearch 7.14.
 * Support component IDs for Go-Kratos framework.
+* [Break Change] Remove endpoint name in the trace query condition. Only support `query by endpoint id`.
+* Fix `ProfileSnapshotExporterTest` case on `OpenJDK Runtime Environment AdoptOpenJDK-11.0.11+9 (build 11.0.11+9)`,
+  MacOS.
 
 #### UI
 
