@@ -476,17 +476,11 @@ GoMicroClient:
 GoMicroServer:
   id: 5009
   languages: Golang
-GoKratosServer:
+Kratos:
   id: 5010
-  languages: Golang
-GoKratosClient:
-  id: 5011
   languages: Golang
 GoMysql:
   id: 5012
-  languages: Golang
-Kratos:
-  id: 5013
   languages: Golang
 
 # Lua components
@@ -620,6 +614,4 @@ Component-Server-Mappings:
   spring-kafka-consumer: kafka-consumer
   mssql-jdbc-driver: SqlServer
   Psychopg: PostgreSQL
-  GoKratosClient: Kratos
-  GoKratosServer: Kratos
   GoMysql: Mysql
