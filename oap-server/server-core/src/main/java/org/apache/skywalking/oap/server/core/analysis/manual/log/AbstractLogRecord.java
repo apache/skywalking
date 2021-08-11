@@ -37,7 +37,6 @@ public abstract class AbstractLogRecord extends Record {
 
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_INSTANCE_ID = "service_instance_id";
-    public static final String ENDPOINT_NAME = "endpoint_name";
     public static final String ENDPOINT_ID = "endpoint_id";
     public static final String TRACE_ID = "trace_id";
     public static final String TRACE_SEGMENT_ID = "trace_segment_id";
