@@ -2,21 +2,29 @@ package org.apache.skywalking.banyandb.client.impl;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.NullValue;
 import com.google.protobuf.Timestamp;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.Query;
 import org.apache.skywalking.banyandb.TraceServiceGrpc;
 import org.apache.skywalking.banyandb.Write;
-import org.apache.skywalking.banyandb.client.BanyanDBClient;
+import org.apache.skywalking.banyandb.client.BanyanDBService;
 import org.apache.skywalking.banyandb.client.request.TraceSearchRequest;
+import org.apache.skywalking.banyandb.client.request.TraceWriteRequest;
 import org.apache.skywalking.banyandb.client.response.BanyanDBEntity;
 import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
 
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-public class BanyanDBGrpcClient implements BanyanDBClient {
+@Slf4j
+public class BanyanDBGrpcClient implements BanyanDBService {
     private static final Set<String> DEFAULT_PROJECTION = ImmutableSet.of("duration", "state", "start_time", "trace_id");
 
     private final TraceServiceGrpc.TraceServiceBlockingStub stub;
@@ -128,26 +136,31 @@ public class BanyanDBGrpcClient implements BanyanDBClient {
     }
 
     @Override
-    public Future<Boolean> writeEntity() {
-        Write.WriteRequest request = Write.WriteRequest.newBuilder().setMetadata(BanyanDBSchema.METADATA).build();
-        StreamObserver<org.apache.skywalking.banyandb.Write.WriteRequest> observer = this.asyncStub.write(new StreamObserver<Write.WriteResponse>() {
-            @Override
-            public void onNext(Write.WriteResponse writeResponse) {
+    public void writeEntity(List<TraceWriteRequest> data) {
+        StreamObserver<org.apache.skywalking.banyandb.Write.WriteRequest> observer = this.asyncStub.withDeadlineAfter(30, TimeUnit.SECONDS)
+                .write(new StreamObserver<Write.WriteResponse>() {
+                    @Override
+                    public void onNext(Write.WriteResponse writeResponse) {
+                    }
 
-            }
+                    @Override
+                    public void onError(Throwable throwable) {
+                        log.error("fail to send request", throwable);
+                    }
 
-            @Override
-            public void onError(Throwable throwable) {
+                    @Override
+                    public void onCompleted() {
+                    }
+                });
 
-            }
-
-            @Override
-            public void onCompleted() {
-
-            }
-        });
-        observer.onNext(request);
-        return null;
+        for (final TraceWriteRequest entity : data) {
+            Write.EntityValue entityValue = Write.EntityValue.newBuilder()
+                    .addAllFields(buildWriteFields(entity.getFields()))
+                    .setDataBinary(ByteString.copyFrom(entity.getDataBinary()))
+                    .setTimestamp(Timestamp.newBuilder().setSeconds(entity.getTimestampSeconds()).setNanos(entity.getTimestampNanos()).build())
+                    .setEntityId(entity.getEntityId()).build();
+            observer.onNext(Write.WriteRequest.newBuilder().setMetadata(BanyanDBSchema.METADATA).setEntity(entityValue).build());
+        }
     }
 
     static Query.PairQuery buildInt(String key, Query.PairQuery.BinaryOp op, int value) {
@@ -169,5 +182,24 @@ public class BanyanDBGrpcClient implements BanyanDBClient {
                 .setOp(op)
                 .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey(key).addValues(value).build()).build())
                 .build();
+    }
+
+    static List<Write.Field> buildWriteFields(List<Object> fieldList) {
+        return fieldList.stream().map(BanyanDBGrpcClient::buildField).collect(Collectors.toList());
+    }
+
+    static Write.Field buildField(Object value) {
+        if (value == null) {
+            return Write.Field.newBuilder().setNull(NullValue.NULL_VALUE).build();
+        }
+        if (value instanceof String) {
+            return Write.Field.newBuilder().setStr(Write.Str.newBuilder().setValue((String) value).build()).build();
+        } else if (value instanceof Integer) {
+            return Write.Field.newBuilder().setInt(Write.Int.newBuilder().setValue((Integer) value).build()).build();
+        } else if (value instanceof Long) {
+            return Write.Field.newBuilder().setInt(Write.Int.newBuilder().setValue((Long) value).build()).build();
+        } else {
+            throw new IllegalStateException("should not reach here");
+        }
     }
 }

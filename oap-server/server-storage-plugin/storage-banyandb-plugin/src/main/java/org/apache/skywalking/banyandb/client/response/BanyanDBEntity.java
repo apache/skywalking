@@ -12,8 +12,8 @@ public class BanyanDBEntity {
     @Singular
     private Map<String, Object> fields;
 
-    private String entityId;
+    private final String entityId;
     private byte[] binaryData;
-    private long timestampSeconds;
-    private long timestampNanoSeconds;
+    private final long timestampSeconds;
+    private final int timestampNanoSeconds;
 }

@@ -1,16 +1,17 @@
 package org.apache.skywalking.banyandb.client;
 
 import org.apache.skywalking.banyandb.client.request.TraceSearchRequest;
+import org.apache.skywalking.banyandb.client.request.TraceWriteRequest;
 import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
 
-import java.util.concurrent.Future;
+import java.util.List;
 
-public interface BanyanDBTraceClient {
+public interface BanyanDBTraceService {
     // read/query
     BanyanDBQueryResponse queryBasicTraces(TraceSearchRequest request);
 
     BanyanDBQueryResponse queryByTraceId(String traceId);
 
     // write
-    Future<Boolean> writeEntity();
+    void writeEntity(List<TraceWriteRequest> data);
 }

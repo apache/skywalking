@@ -1,4 +1,4 @@
-package org.apache.skywalking.banyandb.client.impl;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.skywalking.banyandb.Database;
@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Set;
 
 public class BanyanDBSchema {
-    static final Database.Metadata METADATA = Database.Metadata.newBuilder().setName("sw").setGroup("default").build();
-    static final List<String> FIELD_NAMES;
+    public static final Database.Metadata METADATA = Database.Metadata.newBuilder().setName("sw").setGroup("default").build();
+    public static final List<String> FIELD_NAMES;
 
     static {
         Set<String> fields = new LinkedHashSet<>();
@@ -18,9 +18,6 @@ public class BanyanDBSchema {
         fields.add("service_id");
         fields.add("service_instance_id");
         fields.add("endpoint_id");
-        fields.add("service_name");
-        fields.add("service_instance_name");
-        fields.add("endpoint_name");
         fields.add("duration");
         fields.add("start_time");
         fields.add("http.method");
