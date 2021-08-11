@@ -50,7 +50,6 @@ public class BrowserLogQuery implements IBrowserLogQueryDAO {
     public BrowserErrorLogs queryBrowserErrorLogs(final String serviceId,
                                                   final String serviceVersionId,
                                                   final String pagePathId,
-                                                  final String pagePath,
                                                   final BrowserErrorCategory category,
                                                   final long startSecondTB,
                                                   final long endSecondTB,
@@ -80,10 +79,6 @@ public class BrowserLogQuery implements IBrowserLogQueryDAO {
         if (nonNull(category)) {
             recallQuery.and(eq(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
         }
-        if (StringUtil.isNotEmpty(pagePath)) {
-            recallQuery.and(contains(BrowserErrorLogRecord.PAGE_PATH, pagePath.replaceAll("/", "\\\\/")));
-        }
-
         WhereQueryImpl<SelectQueryImpl> countQuery = select()
             .count(BrowserErrorLogRecord.SERVICE_ID)
             .from(client.getDatabase(), BrowserErrorLogRecord.INDEX_NAME)

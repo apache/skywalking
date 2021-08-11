@@ -46,7 +46,6 @@ public class BrowserLogQueryService implements Service {
     public BrowserErrorLogs queryBrowserErrorLogs(final String serviceId,
                                                   final String serviceVersionId,
                                                   final String pagePathId,
-                                                  final String pagePath,
                                                   final ErrorCategory category,
                                                   final long startSecondTB,
                                                   final long endSecondTB,
@@ -58,7 +57,7 @@ public class BrowserLogQueryService implements Service {
                                                      .orElse(null);
 
         return getBrowserLogQueryDAO().queryBrowserErrorLogs(
-            serviceId, serviceVersionId, pagePathId, pagePath, errorCategory, startSecondTB, endSecondTB,
+            serviceId, serviceVersionId, pagePathId, errorCategory, startSecondTB, endSecondTB,
             page.getLimit(),
             page.getFrom()
         );

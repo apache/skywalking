@@ -46,7 +46,6 @@ public class BrowserLogQueryEsDAO extends EsDAO implements IBrowserLogQueryDAO {
     public BrowserErrorLogs queryBrowserErrorLogs(final String serviceId,
                                                   final String serviceVersionId,
                                                   final String pagePathId,
-                                                  final String pagePath,
                                                   final BrowserErrorCategory category,
                                                   final long startSecondTB,
                                                   final long endSecondTB,
@@ -60,11 +59,6 @@ public class BrowserLogQueryEsDAO extends EsDAO implements IBrowserLogQueryDAO {
         if (startSecondTB != 0 && endSecondTB != 0) {
             boolQueryBuilder.must().add(
                 QueryBuilders.rangeQuery(BrowserErrorLogRecord.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
-        }
-
-        if (!Strings.isNullOrEmpty(pagePath)) {
-            String matchCName = MatchCNameBuilder.INSTANCE.build(BrowserErrorLogRecord.PAGE_PATH);
-            boolQueryBuilder.must().add(QueryBuilders.matchPhraseQuery(matchCName, pagePath));
         }
         if (StringUtil.isNotEmpty(serviceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(BrowserErrorLogRecord.SERVICE_ID, serviceId));
