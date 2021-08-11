@@ -6,6 +6,7 @@ Release Notes.
 ------------------
 
 #### Project
+* Upgrade jdk 11 in dockerfile and remove unused java_opts.
 
 #### Java Agent
 

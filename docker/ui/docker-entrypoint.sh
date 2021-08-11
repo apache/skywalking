@@ -28,4 +28,4 @@ if [[ ! -z "$SW_OAP_ADDRESS" ]]; then
   done
 fi
 
-exec java  ${JAVA_OPTS} -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar webapp/skywalking-webapp.jar "$@"
+exec java  ${JAVA_OPTS} -jar webapp/skywalking-webapp.jar "$@"
