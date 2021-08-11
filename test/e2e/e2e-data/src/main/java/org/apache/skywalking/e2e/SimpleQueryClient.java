@@ -410,7 +410,6 @@ public class SimpleQueryClient {
                                             .collect(Collectors.joining())
                                             .replace("{serviceId}", query.serviceId())
                                             .replace("{endpointId}", query.endpointId())
-                                            .replace("{endpointName}", query.endpointName())
                                             .replace("{start}", query.start())
                                             .replace("{end}", query.end())
                                             .replace("{step}", query.step())

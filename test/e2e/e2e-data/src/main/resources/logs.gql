@@ -21,7 +21,6 @@
                 serviceId,
                 serviceInstanceName,
                 serviceInstanceId,
-                endpointName,
                 endpointId,
                 traceId,
                 timestamp,
@@ -37,7 +36,6 @@
         "condition": {
             "serviceId": "{serviceId}",
             "endpointId": "{endpointId}",
-            "endpointName": "{endpointName}",
             "queryDuration": {
                 "start": "{start}",
                 "end": "{end}",
