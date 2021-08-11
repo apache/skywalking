@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.DATA_BINARY;
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.ENDPOINT_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.ENDPOINT_NAME;
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.LATENCY;
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.SEGMENT_ID;
@@ -61,7 +60,6 @@ public class H2SegmentRecordBuilder extends AbstractSearchTagBuilder<Record> {
         map.put(TRACE_ID, storageData.getTraceId());
         map.put(SERVICE_ID, storageData.getServiceId());
         map.put(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
-        map.put(ENDPOINT_NAME, storageData.getEndpointName());
         map.put(ENDPOINT_ID, storageData.getEndpointId());
         map.put(START_TIME, storageData.getStartTime());
         map.put(LATENCY, storageData.getLatency());
@@ -83,7 +81,6 @@ public class H2SegmentRecordBuilder extends AbstractSearchTagBuilder<Record> {
         record.setTraceId((String) dbMap.get(TRACE_ID));
         record.setServiceId((String) dbMap.get(SERVICE_ID));
         record.setServiceInstanceId((String) dbMap.get(SERVICE_INSTANCE_ID));
-        record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
         record.setEndpointId((String) dbMap.get(ENDPOINT_ID));
         record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
         record.setLatency(((Number) dbMap.get(LATENCY)).intValue());

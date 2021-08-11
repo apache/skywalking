@@ -180,7 +180,6 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         }
 
         segment.setEndpointId(endpointId);
-        segment.setEndpointName(endpointName);
 
         sourceReceiver.receive(segment);
     }
