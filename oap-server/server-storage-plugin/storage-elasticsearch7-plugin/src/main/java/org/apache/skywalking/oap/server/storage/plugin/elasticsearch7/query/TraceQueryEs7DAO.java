@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
@@ -32,7 +33,6 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameMaker;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
@@ -55,7 +55,6 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
                                        long endSecondTB,
                                        long minDuration,
                                        long maxDuration,
-                                       String endpointName,
                                        String serviceId,
                                        String serviceInstanceId,
                                        String endpointId,
@@ -84,10 +83,6 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
                 rangeQueryBuilder.lte(maxDuration);
             }
             boolQueryBuilder.must().add(rangeQueryBuilder);
-        }
-        if (!Strings.isNullOrEmpty(endpointName)) {
-            String matchCName = MatchCNameBuilder.INSTANCE.build(SegmentRecord.ENDPOINT_NAME);
-            mustQueryList.add(QueryBuilders.matchPhraseQuery(matchCName, endpointName));
         }
         if (StringUtil.isNotEmpty(serviceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_ID, serviceId));
@@ -126,7 +121,9 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
         sourceBuilder.from(from);
         SearchResponse response = getClient().search(
             new TimeRangeIndexNameMaker(
-                IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME), startSecondTB, endSecondTB), sourceBuilder);
+                IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME), startSecondTB,
+                endSecondTB
+            ), sourceBuilder);
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().getTotalHits().value);
 
@@ -135,7 +132,10 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
 
             basicTrace.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
             basicTrace.setStart(String.valueOf(searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)));
-            basicTrace.getEndpointNames().add((String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
+            basicTrace.getEndpointNames().add(
+                IDManager.EndpointID.analysisId(
+                    (String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_ID)
+                ).getEndpointName());
             basicTrace.setDuration(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
             basicTrace.setError(
                 BooleanUtils.valueToBoolean(

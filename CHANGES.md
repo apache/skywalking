@@ -25,6 +25,7 @@ Release Notes.
 * Remove `version` and `endTime` in the segment entity. Reduce indexing payload. 
 * Fix `mapper_parsing_exception` in ElasticSearch 7.14.
 * Support component IDs for Go-Kratos framework.
+* [Break Change] Remove endpoint name in the trace query condition. Only support `query by endpoint id`.
 
 #### UI
 
