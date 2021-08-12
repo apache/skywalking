@@ -159,7 +159,7 @@ For extension of the component name/ID, please follow the [component library def
 ### Special Span Tags
 All tags are available in the trace view. Meanwhile, in the OAP backend analysis, some special tags or tag combinations provide other advanced features.
 
-#### Tag key `status_code`
+#### Tag key `http.status_code`
 The value should be an integer. The response code of OAL entities corresponds to this value.
 
 #### Tag keys `db.statement` and `db.type`.

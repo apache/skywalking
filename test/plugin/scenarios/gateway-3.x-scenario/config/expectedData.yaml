@@ -57,7 +57,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/provider/b/testcase'}
       - {key: http.method, value: GET}
-      - {key: status_code, value: '200'}
+      - {key: http.status_code, value: 200}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -74,7 +74,7 @@ segmentItems:
       peer: 'localhost:18070'
       tags:
       - {key: url, value: not null}
-      - {key: status_code, value: '200'}
+      - {key: http.status_code, value: 200}
       skipAnalysis: 'false'
     - operationName: SpringCloudGateway/RoutingFilter
       operationId: 0

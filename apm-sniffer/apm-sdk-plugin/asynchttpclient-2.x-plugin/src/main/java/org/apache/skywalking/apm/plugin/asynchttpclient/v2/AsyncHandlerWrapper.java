@@ -51,7 +51,7 @@ public class AsyncHandlerWrapper implements AsyncHandler {
     @Override
     public State onStatusReceived(final HttpResponseStatus httpResponseStatus) throws Exception {
         int statusCode = httpResponseStatus.getStatusCode();
-        Tags.STATUS_CODE.set(asyncSpan, statusCode);
+        Tags.HTTP_RESPONSE_STATUS_CODE.set(asyncSpan, statusCode);
         if (statusCode >= 400) {
             asyncSpan.errorOccurred();
         }

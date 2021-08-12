@@ -92,7 +92,7 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
                 }
                 break;
         }
-        Tags.RESPONSE_CODE.set(span, status.getCode().name());
+        Tags.RPC_RESPONSE_STATUS_CODE.set(span, status.getCode().name());
 
         try {
             super.close(status, trailers);

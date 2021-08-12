@@ -10,6 +10,7 @@ Release Notes.
 #### Java Agent
 
 * Support Multiple DNS period resolving mechanism
+* Modify `Tags.STATUS_CODE` field name to `Tags.HTTP_RESPONSE_STATUS_CODE` and type from `StringTag` to `IntegerTag`, add `Tags.RPC_RESPONSE_STATUS_CODE` field to hold rpc response code value.
 
 #### OAP-Backend
 
@@ -25,6 +26,7 @@ Release Notes.
 * Remove `version` and `endTime` in the segment entity. Reduce indexing payload. 
 * Fix `mapper_parsing_exception` in ElasticSearch 7.14.
 * Support component IDs for Go-Kratos framework.
+* Add `rpcStatusCode` for `rpc.status_code` tag. The `responseCode` field is marked as deprecated and replaced by `httpResponseStatusCode` field. 
 
 #### UI
 

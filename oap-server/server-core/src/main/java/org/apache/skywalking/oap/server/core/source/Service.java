@@ -67,10 +67,14 @@ public class Service extends Source {
     private boolean status;
     @Getter
     @Setter
+    @Deprecated
     private int responseCode;
     @Getter
     @Setter
-    private String responseCodeStr;
+    private int httpResponseStatusCode;
+    @Getter
+    @Setter
+    private String rpcStatusCode;
     @Getter
     @Setter
     private RequestType type;

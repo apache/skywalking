@@ -77,7 +77,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             final AbstractSpan span = ContextManager.activeSpan();
             if (statusCode >= 400) {
                 span.errorOccurred();
-                Tags.STATUS_CODE.set(span, statusCode);
+                Tags.HTTP_RESPONSE_STATUS_CODE.set(span, statusCode);
             }
             final HttpMethod httpMethod = (HttpMethod) allArguments[1];
             if (httpMethod == null) {

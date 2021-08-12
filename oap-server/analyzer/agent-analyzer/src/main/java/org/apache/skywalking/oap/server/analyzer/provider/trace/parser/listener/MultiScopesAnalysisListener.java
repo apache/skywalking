@@ -240,15 +240,15 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         sourceBuilder.setLatency((int) latency);
         sourceBuilder.setResponseCode(Const.NONE);
         span.getTagsList().forEach(tag -> {
-            if (SpanTags.STATUS_CODE.equals(tag.getKey())) {
+            if (SpanTags.HTTP_RESPONSE_STATUS_CODE.equals(tag.getKey())) {
                 try {
                     sourceBuilder.setResponseCode(Integer.parseInt(tag.getValue()));
-                    sourceBuilder.setResponseCodeStr(tag.getValue());
+                    sourceBuilder.setHttpResponseStatusCode(Integer.parseInt(tag.getValue()));
                 } catch (NumberFormatException e) {
                     log.warn("span {} has illegal status code {}", span, tag.getValue());
                 }
-            } else if (SpanTags.RESPONSE_CODE.equals(tag.getKey())) {
-                sourceBuilder.setResponseCodeStr(tag.getValue());
+            } else if (SpanTags.RPC_RESPONSE_STATUS_CODE.equals(tag.getKey())) {
+                sourceBuilder.setRpcStatusCode(tag.getValue());
             }
             sourceBuilder.setTag(tag);
         });

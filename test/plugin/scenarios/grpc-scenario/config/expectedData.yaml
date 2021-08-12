@@ -169,7 +169,7 @@ segmentItems:
             spanType: Local
             peer: ''
             tags:
-              - {key: response_code, value: OK}
+              - {key: rpc.status_code, value: OK}
             skipAnalysis: 'false'
           - operationName: GreeterBlocking.sayHello/server/Request/onComplete
             operationId: 0
@@ -317,7 +317,7 @@ segmentItems:
             spanType: Local
             peer: ''
             tags:
-              - {key: response_code, value: UNKNOWN}
+              - {key: rpc.status_code, value: UNKNOWN}
             logs:
               - logEvent:
                   - {key: event, value: error}
@@ -370,7 +370,7 @@ segmentItems:
             spanType: Local
             peer: ''
             tags:
-              - {key: response_code, value: UNKNOWN}
+              - {key: rpc.status_code, value: UNKNOWN}
             logs:
               - logEvent:
                   - {key: event, value: error}
@@ -428,7 +428,7 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/grpc-scenario/case/grpc-scenario'}
               - {key: http.method, value: GET}
-              - {key: status_code, value: '500'}
+              - {key: http.status_code, value: 500}
             logs:
               - logEvent:
                   - {key: event, value: error}

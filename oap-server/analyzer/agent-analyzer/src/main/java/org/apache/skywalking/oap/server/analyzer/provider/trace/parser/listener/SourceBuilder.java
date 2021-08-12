@@ -85,10 +85,14 @@ class SourceBuilder {
     private boolean status;
     @Getter
     @Setter
+    @Deprecated
     private int responseCode;
     @Getter
     @Setter
-    private String responseCodeStr;
+    private int httpResponseStatusCode;
+    @Getter
+    @Setter
+    private String rpcStatusCode;
     @Getter
     @Setter
     private RequestType type;
@@ -122,7 +126,8 @@ class SourceBuilder {
         all.setLatency(latency);
         all.setStatus(status);
         all.setResponseCode(responseCode);
-        all.setResponseCodeStr(responseCodeStr);
+        all.setHttpResponseStatusCode(httpResponseStatusCode);
+        all.setRpcStatusCode(rpcStatusCode);
         all.setType(type);
         all.setTimeBucket(timeBucket);
         all.setTags(tags);
@@ -141,7 +146,8 @@ class SourceBuilder {
         service.setLatency(latency);
         service.setStatus(status);
         service.setResponseCode(responseCode);
-        service.setResponseCodeStr(responseCodeStr);
+        service.setHttpResponseStatusCode(httpResponseStatusCode);
+        service.setRpcStatusCode(rpcStatusCode);
         service.setType(type);
         service.setTags(tags);
         service.setTimeBucket(timeBucket);
@@ -164,7 +170,8 @@ class SourceBuilder {
         serviceRelation.setLatency(latency);
         serviceRelation.setStatus(status);
         serviceRelation.setResponseCode(responseCode);
-        serviceRelation.setResponseCodeStr(responseCodeStr);
+        serviceRelation.setHttpResponseStatusCode(httpResponseStatusCode);
+        serviceRelation.setRpcStatusCode(rpcStatusCode);
         serviceRelation.setType(type);
         serviceRelation.setDetectPoint(detectPoint);
         serviceRelation.setTimeBucket(timeBucket);
@@ -184,7 +191,8 @@ class SourceBuilder {
         serviceInstance.setLatency(latency);
         serviceInstance.setStatus(status);
         serviceInstance.setResponseCode(responseCode);
-        serviceInstance.setResponseCodeStr(responseCodeStr);
+        serviceInstance.setHttpResponseStatusCode(httpResponseStatusCode);
+        serviceInstance.setRpcStatusCode(rpcStatusCode);
         serviceInstance.setType(type);
         serviceInstance.setTags(tags);
         serviceInstance.setTimeBucket(timeBucket);
@@ -210,7 +218,8 @@ class SourceBuilder {
         serviceInstanceRelation.setLatency(latency);
         serviceInstanceRelation.setStatus(status);
         serviceInstanceRelation.setResponseCode(responseCode);
-        serviceInstanceRelation.setResponseCodeStr(responseCodeStr);
+        serviceInstanceRelation.setHttpResponseStatusCode(httpResponseStatusCode);
+        serviceInstanceRelation.setRpcStatusCode(rpcStatusCode);
         serviceInstanceRelation.setType(type);
         serviceInstanceRelation.setDetectPoint(detectPoint);
         serviceInstanceRelation.setTimeBucket(timeBucket);
@@ -229,7 +238,8 @@ class SourceBuilder {
         endpoint.setLatency(latency);
         endpoint.setStatus(status);
         endpoint.setResponseCode(responseCode);
-        endpoint.setResponseCodeStr(responseCodeStr);
+        endpoint.setHttpResponseStatusCode(httpResponseStatusCode);
+        endpoint.setRpcStatusCode(rpcStatusCode);
         endpoint.setType(type);
         endpoint.setTags(tags);
         endpoint.setTimeBucket(timeBucket);
@@ -261,7 +271,8 @@ class SourceBuilder {
         endpointRelation.setRpcLatency(latency);
         endpointRelation.setStatus(status);
         endpointRelation.setResponseCode(responseCode);
-        endpointRelation.setResponseCodeStr(responseCodeStr);
+        endpointRelation.setHttpResponseStatusCode(httpResponseStatusCode);
+        endpointRelation.setRpcStatusCode(rpcStatusCode);
         endpointRelation.setType(type);
         endpointRelation.setDetectPoint(detectPoint);
         endpointRelation.setTimeBucket(timeBucket);

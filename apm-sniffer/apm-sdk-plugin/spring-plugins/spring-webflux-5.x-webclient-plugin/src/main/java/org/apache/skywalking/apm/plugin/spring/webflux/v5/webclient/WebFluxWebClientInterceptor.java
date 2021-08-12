@@ -81,7 +81,7 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
         return ret1.doOnSuccess(clientResponse -> {
             HttpStatus httpStatus = clientResponse.statusCode();
             if (httpStatus != null) {
-                Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
+                Tags.HTTP_RESPONSE_STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
                 if (httpStatus.isError()) {
                     span.errorOccurred();
                 }

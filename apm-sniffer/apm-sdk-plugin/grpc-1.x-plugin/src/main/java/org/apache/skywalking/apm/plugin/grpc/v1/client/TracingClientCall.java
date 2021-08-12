@@ -199,7 +199,7 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
             ContextManager.continued(contextSnapshot);
             if (!status.isOk()) {
                 span.log(status.asRuntimeException());
-                Tags.RESPONSE_CODE.set(span, status.getCode().name());
+                Tags.RPC_RESPONSE_STATUS_CODE.set(span, status.getCode().name());
             }
 
             try {

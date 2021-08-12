@@ -61,7 +61,7 @@ public class SynchronousDispatcherInterceptor implements InstanceMethodsAroundIn
         AbstractSpan span = ContextManager.activeSpan();
         if (response.getStatus() >= 400) {
             span.errorOccurred();
-            Tags.STATUS_CODE.set(span, response.getStatus());
+            Tags.HTTP_RESPONSE_STATUS_CODE.set(span, response.getStatus());
         }
         ContextManager.stopSpan();
         return ret;

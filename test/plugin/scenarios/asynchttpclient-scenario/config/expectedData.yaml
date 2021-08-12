@@ -34,7 +34,7 @@ segmentItems:
             tags:
               - {key: http.method, value: GET}
               - {key: url, value: 'http://localhost:8080/asynchttpclient/back'}
-              - {key: status_code, value: '200'}
+              - {key: http.status_code, value: 200}
           - operationName: /asynchttpclient/case
             operationId: 0
             parentSpanId: -1

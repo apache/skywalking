@@ -92,7 +92,7 @@ public class HttpClientRequestInterceptor implements InstanceMethodsAroundInterc
                     } else if (httpClientResponse.status().code() > 400) {
                         abstractSpan.errorOccurred();
                     }
-                    Tags.STATUS_CODE.set(abstractSpan, httpClientResponse.status().code());
+                    Tags.HTTP_RESPONSE_STATUS_CODE.set(abstractSpan, httpClientResponse.status().code());
                     abstractSpan.asyncFinish();
                 }
 

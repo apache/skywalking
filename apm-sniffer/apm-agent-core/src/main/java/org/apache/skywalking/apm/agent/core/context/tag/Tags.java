@@ -40,7 +40,7 @@ public final class Tags {
     /**
      * STATUS_CODE records the http status code of the response.
      */
-    public static final IntegerTag STATUS_CODE = new IntegerTag(2, "status_code", true);
+    public static final IntegerTag HTTP_RESPONSE_STATUS_CODE = new IntegerTag(2, "http.status_code", true);
 
     /**
      * DB_TYPE records database type, such as sql, redis, cassandra and so on.
@@ -94,7 +94,7 @@ public final class Tags {
      * RESPONSE_CODE records the code string of the response. This is different from status code, which is
      * used to record http response code.
      */
-    public static final StringTag RESPONSE_CODE = new StringTag(18, "response_code", true);
+    public static final StringTag RPC_RESPONSE_STATUS_CODE = new StringTag(18, "rpc.status_code", true);
 
     public static final class HTTP {
         public static final StringTag METHOD = new StringTag(10, "http.method");
