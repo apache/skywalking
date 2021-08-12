@@ -32,11 +32,13 @@ Release Notes.
 * [Break Change] Remove page path in the browser log query condition. Only support `query by page path id`.
 * [Break Change] Remove endpoint name in the backend log query condition. Only support `query by endpoint id`.
 * [Break Change] Fix typo for a column `page_path_id`(was `pate_path_id`) of storage entity `browser_error_log`.   
+* Add component id for Python falcon plugin.
 
 #### UI
 
 * Fix not found error when refresh UI.
 * Update endpointName to endpointId in the query trace condition.
+* Add Python falcon icon on the UI.
 
 #### Documentation
 
