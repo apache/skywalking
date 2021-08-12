@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.dao;
 
 import com.google.common.base.Strings;
@@ -6,6 +24,7 @@ import org.apache.skywalking.banyandb.client.request.TraceFetchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceSearchQuery;
 import org.apache.skywalking.banyandb.client.request.TraceSearchRequest;
 import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
@@ -33,7 +52,7 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
-        TraceSearchRequest.TraceSearchRequestBuilder<?, ?> queryBuilder = TraceSearchRequest.builder().name(BanyanDBSchema.name).group(BanyanDBSchema.group);
+        TraceSearchRequest.TraceSearchRequestBuilder<?, ?> queryBuilder = TraceSearchRequest.builder().name(BanyanDBSchema.NAME).group(BanyanDBSchema.GROUP);
         if (startSecondTB != 0 && endSecondTB != 0) {
             queryBuilder.timeRange(TraceSearchRequest.TimeRange.builder()
                     .startTime(startSecondTB)
@@ -92,11 +111,13 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
         brief.getTraces().addAll(response.getEntities().stream().map(entity -> {
             BasicTrace trace = new BasicTrace();
             trace.setDuration(((Long) entity.getFields().get("duration")).intValue());
-            trace.setStart(String.valueOf(entity.getFields().get("start_time")));
+            trace.setStart(String.valueOf(entity.getFields().get(SegmentRecord.START_TIME)));
             trace.setSegmentId(entity.getEntityId());
             trace.setError(((Long) entity.getFields().get("state")).intValue() == 1);
-            trace.getTraceIds().add((String) entity.getFields().get("trace_id"));
-            // TODO: endpoint names?
+            trace.getTraceIds().add((String) entity.getFields().get(SegmentRecord.TRACE_ID));
+            trace.getEndpointNames().add(IDManager.EndpointID.analysisId(
+                    (String) entity.getFields().get(SegmentRecord.ENDPOINT_ID)
+            ).getEndpointName());
             return trace;
         }).collect(Collectors.toList()));
         return brief;
@@ -105,7 +126,7 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         TraceFetchRequest.TraceFetchRequestBuilder<?, ?> queryBuilder = TraceFetchRequest.builder()
-                .name(BanyanDBSchema.name).group(BanyanDBSchema.group)
+                .name(BanyanDBSchema.NAME).group(BanyanDBSchema.GROUP)
                 .traceId(traceId)
                 .projections(BanyanDBSchema.FIELD_NAMES)
                 .projection("data_binary");

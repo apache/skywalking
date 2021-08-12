@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.dao;
 
 import com.google.common.collect.ImmutableList;
@@ -9,7 +27,6 @@ import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcCleanupRule;
 import org.apache.skywalking.banyandb.Query;
 import org.apache.skywalking.banyandb.TraceServiceGrpc;
-import org.apache.skywalking.banyandb.client.impl.BanyanDBGrpcClient;
 import org.apache.skywalking.banyandb.client.request.TraceSearchQuery;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
@@ -65,7 +82,7 @@ public class BanyanDBTraceQueryDAOTest {
         ManagedChannel channel = grpcCleanup.register(
                 InProcessChannelBuilder.forName(serverName).directExecutor().build());
 
-        BanyanDBClient client = new BanyanDBClient(new BanyanDBGrpcClient(channel));
+        BanyanDBClient client = new BanyanDBClient(channel);
 
         // Create a BanyanDBTraceQueryDAO using the in-process channel;
         queryDAO = new BanyanDBTraceQueryDAO(client);
@@ -94,8 +111,8 @@ public class BanyanDBTraceQueryDAOTest {
         verify(serviceImpl).query(requestCaptor.capture(), ArgumentMatchers.any());
         final Query.QueryRequest request = requestCaptor.getValue();
         // assert metadata
-        Assert.assertEquals(BanyanDBSchema.name, request.getMetadata().getName());
-        Assert.assertEquals(BanyanDBSchema.group, request.getMetadata().getGroup());
+        Assert.assertEquals(BanyanDBSchema.NAME, request.getMetadata().getName());
+        Assert.assertEquals(BanyanDBSchema.GROUP, request.getMetadata().getGroup());
         // assert timeRange
         Assert.assertEquals(begin.getEpochSecond(), request.getTimeRange().getBegin().getSeconds());
         Assert.assertEquals(end.getEpochSecond(), request.getTimeRange().getEnd().getSeconds());
@@ -139,8 +156,8 @@ public class BanyanDBTraceQueryDAOTest {
         verify(serviceImpl).query(requestCaptor.capture(), ArgumentMatchers.any());
         final Query.QueryRequest request = requestCaptor.getValue();
         // assert metadata
-        Assert.assertEquals(BanyanDBSchema.name, request.getMetadata().getName());
-        Assert.assertEquals(BanyanDBSchema.group, request.getMetadata().getGroup());
+        Assert.assertEquals(BanyanDBSchema.NAME, request.getMetadata().getName());
+        Assert.assertEquals(BanyanDBSchema.GROUP, request.getMetadata().getGroup());
         // assert timeRange
         Assert.assertEquals(begin.getEpochSecond(), request.getTimeRange().getBegin().getSeconds());
         Assert.assertEquals(end.getEpochSecond(), request.getTimeRange().getEnd().getSeconds());
@@ -171,8 +188,8 @@ public class BanyanDBTraceQueryDAOTest {
         verify(serviceImpl).query(requestCaptor.capture(), ArgumentMatchers.any());
         final Query.QueryRequest request = requestCaptor.getValue();
         // assert metadata
-        Assert.assertEquals(BanyanDBSchema.name, request.getMetadata().getName());
-        Assert.assertEquals(BanyanDBSchema.group, request.getMetadata().getGroup());
+        Assert.assertEquals(BanyanDBSchema.NAME, request.getMetadata().getName());
+        Assert.assertEquals(BanyanDBSchema.GROUP, request.getMetadata().getGroup());
         Assert.assertEquals(1, request.getFieldsCount());
         // assert fields
         assertCollectionEqual(request.getFieldsList(), ImmutableList.of(
