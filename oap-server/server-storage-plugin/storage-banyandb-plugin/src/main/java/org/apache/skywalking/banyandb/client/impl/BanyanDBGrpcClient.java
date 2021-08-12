@@ -1,12 +1,12 @@
 package org.apache.skywalking.banyandb.client.impl;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.NullValue;
 import com.google.protobuf.Timestamp;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.banyandb.Database;
 import org.apache.skywalking.banyandb.Query;
 import org.apache.skywalking.banyandb.TraceServiceGrpc;
 import org.apache.skywalking.banyandb.Write;
@@ -16,10 +16,8 @@ import org.apache.skywalking.banyandb.client.request.TraceSearchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceWriteRequest;
 import org.apache.skywalking.banyandb.client.response.BanyanDBEntity;
 import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -35,7 +33,9 @@ public class BanyanDBGrpcClient implements BanyanDBService {
 
     @Override
     public BanyanDBQueryResponse queryBasicTraces(TraceSearchRequest request) {
-        Query.QueryRequest.Builder queryBuilder = Query.QueryRequest.newBuilder().setMetadata(BanyanDBSchema.METADATA);
+        Query.QueryRequest.Builder queryBuilder = Query.QueryRequest.newBuilder()
+                .setMetadata(Database.Metadata.newBuilder().setGroup(request.getGroup()).setName(request.getName()).build());
+
         if (request.getTimeRange() != null && request.getTimeRange().getStartTime() != 0 && request.getTimeRange().getEndTime() != 0) {
             queryBuilder.setTimeRange(Query.TimeRange.newBuilder()
                     .setBegin(Timestamp.newBuilder().setSeconds(request.getTimeRange().getStartTime()))
@@ -61,7 +61,7 @@ public class BanyanDBGrpcClient implements BanyanDBService {
     @Override
     public BanyanDBQueryResponse queryByTraceId(TraceFetchRequest traceFetchRequest) {
         Query.QueryRequest.Builder queryBuilder = Query.QueryRequest.newBuilder()
-                .setMetadata(BanyanDBSchema.METADATA)
+                .setMetadata(Database.Metadata.newBuilder().setGroup(traceFetchRequest.getGroup()).setName(traceFetchRequest.getName()).build())
                 .addFields(Query.PairQuery.newBuilder()
                         .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
                         .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey("trace_id").addValues(traceFetchRequest.getTraceId()).build()))
@@ -120,7 +120,9 @@ public class BanyanDBGrpcClient implements BanyanDBService {
                     .setDataBinary(ByteString.copyFrom(entity.getDataBinary()))
                     .setTimestamp(Timestamp.newBuilder().setSeconds(entity.getTimestampSeconds()).setNanos(entity.getTimestampNanos()).build())
                     .setEntityId(entity.getEntityId()).build();
-            observer.onNext(Write.WriteRequest.newBuilder().setMetadata(BanyanDBSchema.METADATA).setEntity(entityValue).build());
+            observer.onNext(Write.WriteRequest.newBuilder()
+                    .setMetadata(Database.Metadata.newBuilder().setName(entity.getName()).setGroup(entity.getGroup()).build())
+                    .setEntity(entityValue).build());
         }
     }
 

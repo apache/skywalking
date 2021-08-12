@@ -2,15 +2,18 @@ package org.apache.skywalking.banyandb.client.request;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Singular;
+import lombok.experimental.SuperBuilder;
 import org.apache.skywalking.banyandb.Query;
 
 import java.util.List;
 
-@Builder
+@SuperBuilder
 @Data
-public class TraceSearchRequest {
+@EqualsAndHashCode(callSuper = true)
+public class TraceSearchRequest extends HasMetadata {
     // timeRange
     private final TimeRange timeRange;
 

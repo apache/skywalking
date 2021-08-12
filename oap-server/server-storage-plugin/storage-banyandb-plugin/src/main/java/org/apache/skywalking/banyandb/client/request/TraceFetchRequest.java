@@ -1,14 +1,14 @@
 package org.apache.skywalking.banyandb.client.request;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-@Builder
+@SuperBuilder
 @Getter
-public class TraceFetchRequest {
+public class TraceFetchRequest extends HasMetadata {
     private final String traceId;
 
     @Singular

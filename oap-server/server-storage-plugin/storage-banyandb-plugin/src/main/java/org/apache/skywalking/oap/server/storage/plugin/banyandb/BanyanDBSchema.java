@@ -2,14 +2,14 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
-import org.apache.skywalking.banyandb.Database;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 public class BanyanDBSchema {
-    public static final Database.Metadata METADATA = Database.Metadata.newBuilder().setName("sw").setGroup("default").build();
+    public static final String name = "sw";
+    public static final String group = "default";
     public static final List<String> FIELD_NAMES;
 
     static {
