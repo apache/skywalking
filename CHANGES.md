@@ -38,7 +38,7 @@ Release Notes.
 
 * Fix not found error when refresh UI.
 * Update endpointName to endpointId in the query trace condition.
-* Add Python falcon plugin UI.
+* Add Python falcon icon on the UI.
 
 #### Documentation
 
