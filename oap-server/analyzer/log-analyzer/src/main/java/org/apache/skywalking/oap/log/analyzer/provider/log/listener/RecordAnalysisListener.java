@@ -85,7 +85,6 @@ public class RecordAnalysisListener implements LogAnalysisListener {
         if (StringUtil.isNotEmpty(logData.getEndpoint())) {
             String endpointName = namingControl.formatEndpointName(serviceName, logData.getEndpoint());
             log.setEndpointId(IDManager.EndpointID.buildId(serviceId, endpointName));
-            log.setEndpointName(endpointName);
         }
         // trace
         TraceContext traceContext = logData.getTraceContext();
