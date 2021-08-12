@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContext;
 import org.apache.skywalking.banyandb.client.BanyanDBService;
 import org.apache.skywalking.banyandb.client.impl.BanyanDBGrpcClient;

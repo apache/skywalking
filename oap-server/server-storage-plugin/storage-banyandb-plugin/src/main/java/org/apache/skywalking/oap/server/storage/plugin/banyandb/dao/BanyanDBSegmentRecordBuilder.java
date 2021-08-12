@@ -44,7 +44,7 @@ public class BanyanDBSegmentRecordBuilder implements StorageHashMapBuilder<Recor
         map.put(SegmentRecord.TRACE_ID, WriteValue.strValue(segmentRecord.getTraceId()));
         map.put(SegmentRecord.SERVICE_ID, WriteValue.strValue(segmentRecord.getServiceId()));
         map.put(SegmentRecord.SERVICE_INSTANCE_ID, WriteValue.strValue(segmentRecord.getServiceInstanceId()));
-        map.put(SegmentRecord.ENDPOINT_ID, WriteValue.strValue((segmentRecord.getEndpointId())));
+        map.put(SegmentRecord.ENDPOINT_ID, WriteValue.strValue(segmentRecord.getEndpointId()));
         map.put(SegmentRecord.START_TIME, WriteValue.intValue(segmentRecord.getStartTime()));
         map.put("duration", WriteValue.intValue(segmentRecord.getLatency()));
         map.put("state", WriteValue.intValue(segmentRecord.getIsError()));
