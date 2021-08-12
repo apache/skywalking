@@ -93,7 +93,7 @@ segmentItems:
       tags:
       - {key: url, value: not null}
       - {key: http.method, value: GET}
-      - {key: http.status_code, value: 500}
+      - {key: http.status_code, value: '500'}
       logs:
       - logEvent:
         - {key: event, value: error}

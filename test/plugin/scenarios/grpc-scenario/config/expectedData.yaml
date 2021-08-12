@@ -428,7 +428,7 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/grpc-scenario/case/grpc-scenario'}
               - {key: http.method, value: GET}
-              - {key: http.status_code, value: 500}
+              - {key: http.status_code, value: '500'}
             logs:
               - logEvent:
                   - {key: event, value: error}
