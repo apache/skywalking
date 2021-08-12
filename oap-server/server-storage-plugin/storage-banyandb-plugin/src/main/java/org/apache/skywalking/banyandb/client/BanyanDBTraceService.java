@@ -1,5 +1,6 @@
 package org.apache.skywalking.banyandb.client;
 
+import org.apache.skywalking.banyandb.client.request.TraceFetchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceSearchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceWriteRequest;
 import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
@@ -10,7 +11,7 @@ public interface BanyanDBTraceService {
     // read/query
     BanyanDBQueryResponse queryBasicTraces(TraceSearchRequest request);
 
-    BanyanDBQueryResponse queryByTraceId(String traceId);
+    BanyanDBQueryResponse queryByTraceId(TraceFetchRequest traceFetchRequest);
 
     // write
     void writeEntity(List<TraceWriteRequest> data);

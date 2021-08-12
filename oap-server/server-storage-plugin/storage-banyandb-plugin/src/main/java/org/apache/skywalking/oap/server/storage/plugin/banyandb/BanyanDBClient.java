@@ -2,6 +2,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.client.BanyanDBService;
+import org.apache.skywalking.banyandb.client.request.TraceFetchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceSearchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceWriteRequest;
 import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
@@ -30,8 +31,8 @@ public class BanyanDBClient implements Client, BanyanDBService {
     }
 
     @Override
-    public BanyanDBQueryResponse queryByTraceId(String traceId) {
-        return delegation.queryByTraceId(traceId);
+    public BanyanDBQueryResponse queryByTraceId(TraceFetchRequest traceFetchRequest) {
+        return this.delegation.queryByTraceId(traceFetchRequest);
     }
 
     @Override

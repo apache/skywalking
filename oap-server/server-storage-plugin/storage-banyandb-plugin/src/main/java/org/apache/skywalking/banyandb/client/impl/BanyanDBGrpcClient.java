@@ -1,6 +1,5 @@
 package org.apache.skywalking.banyandb.client.impl;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.NullValue;
@@ -12,6 +11,7 @@ import org.apache.skywalking.banyandb.Query;
 import org.apache.skywalking.banyandb.TraceServiceGrpc;
 import org.apache.skywalking.banyandb.Write;
 import org.apache.skywalking.banyandb.client.BanyanDBService;
+import org.apache.skywalking.banyandb.client.request.TraceFetchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceSearchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceWriteRequest;
 import org.apache.skywalking.banyandb.client.response.BanyanDBEntity;
@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class BanyanDBGrpcClient implements BanyanDBService {
-    private static final Set<String> DEFAULT_PROJECTION = ImmutableSet.of("duration", "state", "start_time", "trace_id");
-
     private final TraceServiceGrpc.TraceServiceBlockingStub stub;
     private final TraceServiceGrpc.TraceServiceStub asyncStub;
 
@@ -44,42 +42,7 @@ public class BanyanDBGrpcClient implements BanyanDBService {
                     .setEnd(Timestamp.newBuilder().setSeconds(request.getTimeRange().getEndTime())).build());
         }
 
-        if (request.getMinDuration() != 0) {
-            // duration >= minDuration
-            queryBuilder.addFields(buildInt("duration", Query.PairQuery.BinaryOp.BINARY_OP_GE, request.getMinDuration()));
-        }
-        if (request.getMaxDuration() != 0) {
-            // duration <= maxDuration
-            queryBuilder.addFields(buildInt("duration", Query.PairQuery.BinaryOp.BINARY_OP_LE, request.getMaxDuration()));
-        }
-
-        if (!Strings.isNullOrEmpty(request.getEndpointName())) {
-            queryBuilder.addFields(buildStr("endpoint_name", Query.PairQuery.BinaryOp.BINARY_OP_EQ, request.getEndpointName()));
-        }
-
-        if (!Strings.isNullOrEmpty(request.getServiceId())) {
-            queryBuilder.addFields(buildStr("service_id", Query.PairQuery.BinaryOp.BINARY_OP_EQ, request.getServiceId()));
-        }
-
-        if (!Strings.isNullOrEmpty(request.getServiceInstanceId())) {
-            queryBuilder.addFields(buildStr("service_instance_id", Query.PairQuery.BinaryOp.BINARY_OP_EQ, request.getServiceInstanceId()));
-        }
-
-        if (!Strings.isNullOrEmpty(request.getEndpointId())) {
-            queryBuilder.addFields(buildStr("endpoint_id", Query.PairQuery.BinaryOp.BINARY_OP_EQ, request.getEndpointId()));
-        }
-
-        switch (request.getTraceState()) {
-            case ERROR:
-                queryBuilder.addFields(buildInt("state", Query.PairQuery.BinaryOp.BINARY_OP_EQ, TraceSearchRequest.TraceState.ERROR.getState()));
-                break;
-            case SUCCESS:
-                queryBuilder.addFields(buildInt("state", Query.PairQuery.BinaryOp.BINARY_OP_EQ, TraceSearchRequest.TraceState.SUCCESS.getState()));
-                break;
-            default:
-                queryBuilder.addFields(buildInt("state", Query.PairQuery.BinaryOp.BINARY_OP_EQ, TraceSearchRequest.TraceState.ALL.getState()));
-                break;
-        }
+        request.getQueries().forEach((q) -> queryBuilder.addFields(q.toPairQuery()));
 
         queryBuilder.setOrderBy(Query.QueryOrder.newBuilder()
                 .setKeyName(request.getQueryOrderField())
@@ -87,7 +50,7 @@ public class BanyanDBGrpcClient implements BanyanDBService {
                 .build());
 
         queryBuilder.setProjection(Query.Projection.newBuilder()
-                .addAllKeyNames(DEFAULT_PROJECTION)
+                .addAllKeyNames(request.getProjections())
                 .build());
         queryBuilder.setLimit(request.getLimit());
         queryBuilder.setOffset(request.getOffset());
@@ -96,18 +59,16 @@ public class BanyanDBGrpcClient implements BanyanDBService {
     }
 
     @Override
-    public BanyanDBQueryResponse queryByTraceId(String traceId) {
-        Query.QueryRequest.Builder queryBuilder = Query.QueryRequest.newBuilder().setMetadata(BanyanDBSchema.METADATA);
-        queryBuilder.addFields(Query.PairQuery.newBuilder()
-                .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
-                .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey("trace_id").addValues(traceId).build()))
-                .build());
-        queryBuilder.setProjection(Query.Projection.newBuilder()
-                // add all keys
-                .addAllKeyNames(BanyanDBSchema.FIELD_NAMES)
-                // fetch binary part
-                .addKeyNames("data_binary")
-                .build());
+    public BanyanDBQueryResponse queryByTraceId(TraceFetchRequest traceFetchRequest) {
+        Query.QueryRequest.Builder queryBuilder = Query.QueryRequest.newBuilder()
+                .setMetadata(BanyanDBSchema.METADATA)
+                .addFields(Query.PairQuery.newBuilder()
+                        .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
+                        .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey("trace_id").addValues(traceFetchRequest.getTraceId()).build()))
+                        .build())
+                .setProjection(Query.Projection.newBuilder()
+                        .addAllKeyNames(traceFetchRequest.getProjections())
+                        .build());
         return convertToResponse(this.stub.query(queryBuilder.build()));
     }
 
@@ -161,27 +122,6 @@ public class BanyanDBGrpcClient implements BanyanDBService {
                     .setEntityId(entity.getEntityId()).build();
             observer.onNext(Write.WriteRequest.newBuilder().setMetadata(BanyanDBSchema.METADATA).setEntity(entityValue).build());
         }
-    }
-
-    static Query.PairQuery buildInt(String key, Query.PairQuery.BinaryOp op, int value) {
-        return Query.PairQuery.newBuilder()
-                .setOp(op)
-                .setCondition(Query.TypedPair.newBuilder().setIntPair(Query.IntPair.newBuilder().setKey(key).addValues(value).build()).build())
-                .build();
-    }
-
-    static Query.PairQuery buildInt(String key, Query.PairQuery.BinaryOp op, long value) {
-        return Query.PairQuery.newBuilder()
-                .setOp(op)
-                .setCondition(Query.TypedPair.newBuilder().setIntPair(Query.IntPair.newBuilder().setKey(key).addValues(value).build()).build())
-                .build();
-    }
-
-    static Query.PairQuery buildStr(String key, Query.PairQuery.BinaryOp op, String value) {
-        return Query.PairQuery.newBuilder()
-                .setOp(op)
-                .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey(key).addValues(value).build()).build())
-                .build();
     }
 
     static List<Write.Field> buildWriteFields(List<Object> fieldList) {

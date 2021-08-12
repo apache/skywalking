@@ -8,6 +8,7 @@ import java.util.List;
 
 public class BanyanDBQueryResponse {
     @Setter
+    @Getter
     private int total;
 
     @Getter

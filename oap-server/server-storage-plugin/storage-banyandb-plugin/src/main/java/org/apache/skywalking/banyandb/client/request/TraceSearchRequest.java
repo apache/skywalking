@@ -3,35 +3,34 @@ package org.apache.skywalking.banyandb.client.request;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Singular;
 import org.apache.skywalking.banyandb.Query;
+
+import java.util.List;
 
 @Builder
 @Data
 public class TraceSearchRequest {
+    // timeRange
     private final TimeRange timeRange;
 
-    // (min|max)duration
-    private final long maxDuration;
-    private final long minDuration;
-
-    // indexed fields
-    private final String endpointName;
-    private final String serviceId;
-    private final String serviceInstanceId;
-    private final String endpointId;
+    // query parameters
+    @Singular
+    private final List<TraceSearchQuery> queries;
 
     // paging parameters: limit & offset
     private final int limit;
     private final int offset;
 
-    // traceState
-    private final TraceState traceState;
-    // queryOrder
+    // query order
     private final String queryOrderField;
     private final SortOrder queryOrderSort;
 
+    @Singular
+    private final List<String> projections;
+
     @Builder
-    @Data
+    @Getter
     public static class TimeRange {
         private final long startTime;
         private final long endTime;
@@ -48,14 +47,21 @@ public class TraceSearchRequest {
         }
     }
 
-    public enum TraceState {
-        ALL(0), SUCCESS(1), ERROR(2);
+    public enum BinaryOperator {
+        EQ(Query.PairQuery.BinaryOp.BINARY_OP_EQ),
+        NE(Query.PairQuery.BinaryOp.BINARY_OP_NE),
+        LT(Query.PairQuery.BinaryOp.BINARY_OP_LT),
+        LE(Query.PairQuery.BinaryOp.BINARY_OP_LE),
+        GT(Query.PairQuery.BinaryOp.BINARY_OP_GT),
+        GE(Query.PairQuery.BinaryOp.BINARY_OP_GE),
+        HAVING(Query.PairQuery.BinaryOp.BINARY_OP_HAVING),
+        NOT_HAVING(Query.PairQuery.BinaryOp.BINARY_OP_NOT_HAVING);
 
         @Getter
-        private final int state;
+        private final Query.PairQuery.BinaryOp op;
 
-        TraceState(int state) {
-            this.state = state;
+        BinaryOperator(Query.PairQuery.BinaryOp op) {
+            this.op = op;
         }
     }
 }

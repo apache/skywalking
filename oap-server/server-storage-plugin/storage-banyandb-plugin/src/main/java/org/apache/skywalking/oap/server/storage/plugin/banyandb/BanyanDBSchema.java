@@ -1,6 +1,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableList;
+import lombok.Getter;
 import org.apache.skywalking.banyandb.Database;
 
 import java.util.LinkedHashSet;
@@ -28,5 +29,16 @@ public class BanyanDBSchema {
         fields.add("mq.topic");
         fields.add("mq.broker");
         FIELD_NAMES = ImmutableList.copyOf(fields);
+    }
+
+    public enum TraceState {
+        ALL(0), SUCCESS(1), ERROR(2);
+
+        @Getter
+        private final int state;
+
+        TraceState(int state) {
+            this.state = state;
+        }
     }
 }
