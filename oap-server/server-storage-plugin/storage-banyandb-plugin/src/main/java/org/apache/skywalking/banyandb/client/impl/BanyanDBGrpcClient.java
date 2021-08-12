@@ -134,15 +134,21 @@ public class BanyanDBGrpcClient implements BanyanDBService {
                 });
 
         for (final TraceWriteRequest entity : data) {
-            Write.EntityValue entityValue = Write.EntityValue.newBuilder()
-                    .addAllFields(buildWriteFields(entity.getFields()))
-                    .setDataBinary(ByteString.copyFrom(entity.getDataBinary()))
-                    .setTimestamp(Timestamp.newBuilder().setSeconds(entity.getTimestampSeconds()).setNanos(entity.getTimestampNanos()).build())
-                    .setEntityId(entity.getEntityId()).build();
-            observer.onNext(Write.WriteRequest.newBuilder()
-                    .setMetadata(Database.Metadata.newBuilder().setName(entity.getName()).setGroup(entity.getGroup()).build())
-                    .setEntity(entityValue).build());
+            try {
+                Write.EntityValue entityValue = Write.EntityValue.newBuilder()
+                        .addAllFields(buildWriteFields(entity.getFields()))
+                        .setDataBinary(ByteString.copyFrom(entity.getDataBinary()))
+                        .setTimestamp(Timestamp.newBuilder().setSeconds(entity.getTimestampSeconds()).setNanos(entity.getTimestampNanos()).build())
+                        .setEntityId(entity.getEntityId()).build();
+                observer.onNext(Write.WriteRequest.newBuilder()
+                        .setMetadata(Database.Metadata.newBuilder().setName(entity.getName()).setGroup(entity.getGroup()).build())
+                        .setEntity(entityValue).build());
+            } catch (Throwable t) {
+                log.error("fail to convert entityValue and send data");
+            }
         }
+
+        observer.onCompleted();
     }
 
     @VisibleForTesting
