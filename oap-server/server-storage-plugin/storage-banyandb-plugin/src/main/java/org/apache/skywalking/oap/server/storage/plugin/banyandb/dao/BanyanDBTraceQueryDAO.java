@@ -52,7 +52,7 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
-        TraceSearchRequest.TraceSearchRequestBuilder<?, ?> queryBuilder = TraceSearchRequest.builder().name(BanyanDBSchema.NAME).group(BanyanDBSchema.GROUP);
+        TraceSearchRequest.TraceSearchRequestBuilder queryBuilder = TraceSearchRequest.builder();
         if (startSecondTB != 0 && endSecondTB != 0) {
             queryBuilder.timeRange(TraceSearchRequest.TimeRange.builder()
                     .startTime(startSecondTB)
@@ -60,43 +60,43 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
         }
         if (minDuration != 0) {
             // duration >= minDuration
-            queryBuilder.query(TraceSearchQuery.Ge("duration", minDuration));
+            queryBuilder.query(TraceSearchQuery.ge("duration", minDuration));
         }
         if (maxDuration != 0) {
             // duration <= maxDuration
-            queryBuilder.query(TraceSearchQuery.Le("duration", maxDuration));
+            queryBuilder.query(TraceSearchQuery.le("duration", maxDuration));
         }
 
         if (!Strings.isNullOrEmpty(serviceId)) {
-            queryBuilder.query(TraceSearchQuery.Eq("service_id", serviceId));
+            queryBuilder.query(TraceSearchQuery.eq("service_id", serviceId));
         }
 
         if (!Strings.isNullOrEmpty(serviceInstanceId)) {
-            queryBuilder.query(TraceSearchQuery.Eq("service_instance_id", serviceInstanceId));
+            queryBuilder.query(TraceSearchQuery.eq("service_instance_id", serviceInstanceId));
         }
 
         if (!Strings.isNullOrEmpty(endpointId)) {
-            queryBuilder.query(TraceSearchQuery.Eq("endpoint_id", endpointId));
+            queryBuilder.query(TraceSearchQuery.eq("endpoint_id", endpointId));
         }
 
         switch (traceState) {
             case ERROR:
-                queryBuilder.query(TraceSearchQuery.Eq("state", BanyanDBSchema.TraceState.ERROR.getState()));
+                queryBuilder.query(TraceSearchQuery.eq("state", BanyanDBSchema.TraceState.ERROR.getState()));
                 break;
             case SUCCESS:
-                queryBuilder.query(TraceSearchQuery.Eq("state", BanyanDBSchema.TraceState.SUCCESS.getState()));
+                queryBuilder.query(TraceSearchQuery.eq("state", BanyanDBSchema.TraceState.SUCCESS.getState()));
                 break;
             default:
-                queryBuilder.query(TraceSearchQuery.Eq("state", BanyanDBSchema.TraceState.ALL.getState()));
+                queryBuilder.query(TraceSearchQuery.eq("state", BanyanDBSchema.TraceState.ALL.getState()));
                 break;
         }
 
         switch (queryOrder) {
             case BY_START_TIME:
-                queryBuilder.queryOrderField("start_time").queryOrderSort(TraceSearchRequest.SortOrder.DESC);
+                queryBuilder.orderBy(TraceSearchRequest.OrderBy.builder().fieldName("start_time").sort(TraceSearchRequest.SortOrder.DESC).build());
                 break;
             case BY_DURATION:
-                queryBuilder.queryOrderField("duration").queryOrderSort(TraceSearchRequest.SortOrder.DESC);
+                queryBuilder.orderBy(TraceSearchRequest.OrderBy.builder().fieldName("duration").sort(TraceSearchRequest.SortOrder.DESC).build());
                 break;
         }
 
@@ -126,7 +126,6 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         TraceFetchRequest.TraceFetchRequestBuilder<?, ?> queryBuilder = TraceFetchRequest.builder()
-                .name(BanyanDBSchema.NAME).group(BanyanDBSchema.GROUP)
                 .traceId(traceId)
                 .projections(BanyanDBSchema.FIELD_NAMES)
                 .projection("data_binary");

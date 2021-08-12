@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.banyandb.client.impl;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.NullValue;
 import com.google.protobuf.Timestamp;
 import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import io.netty.handler.ssl.SslContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.Database;
 import org.apache.skywalking.banyandb.Query;
@@ -33,6 +34,7 @@ import org.apache.skywalking.banyandb.client.BanyanDBService;
 import org.apache.skywalking.banyandb.client.request.TraceFetchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceSearchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceWriteRequest;
+import org.apache.skywalking.banyandb.client.request.WriteValue;
 import org.apache.skywalking.banyandb.client.response.BanyanDBEntity;
 import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
 
@@ -44,16 +46,23 @@ import java.util.stream.Collectors;
 public class BanyanDBGrpcClient implements BanyanDBService {
     private final TraceServiceGrpc.TraceServiceBlockingStub stub;
     private final TraceServiceGrpc.TraceServiceStub asyncStub;
+    private final Database.Metadata metadata;
 
-    public BanyanDBGrpcClient(ManagedChannel managedChannel) {
-        this.stub = TraceServiceGrpc.newBlockingStub(managedChannel);
-        this.asyncStub = TraceServiceGrpc.newStub(managedChannel);
+    public BanyanDBGrpcClient(String host, int port, SslContext sslContext, String group, String name) {
+        ManagedChannel channel = null;
+        if (sslContext == null) {
+            channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
+        }
+        channel = NettyChannelBuilder.forAddress(host, port).sslContext(sslContext).build();
+        this.stub = TraceServiceGrpc.newBlockingStub(channel);
+        this.asyncStub = TraceServiceGrpc.newStub(channel);
+        this.metadata = Database.Metadata.newBuilder().setGroup(group).setName(name).build();
     }
 
     @Override
     public BanyanDBQueryResponse queryBasicTraces(TraceSearchRequest request) {
         Query.QueryRequest.Builder queryBuilder = Query.QueryRequest.newBuilder()
-                .setMetadata(Database.Metadata.newBuilder().setGroup(request.getGroup()).setName(request.getName()).build());
+                .setMetadata(this.metadata);
 
         if (request.getTimeRange() != null && request.getTimeRange().getStartTime() != 0 && request.getTimeRange().getEndTime() != 0) {
             queryBuilder.setTimeRange(Query.TimeRange.newBuilder()
@@ -64,8 +73,8 @@ public class BanyanDBGrpcClient implements BanyanDBService {
         request.getQueries().forEach(q -> queryBuilder.addFields(q.toPairQuery()));
 
         queryBuilder.setOrderBy(Query.QueryOrder.newBuilder()
-                .setKeyName(request.getQueryOrderField())
-                .setSort(request.getQueryOrderSort().getSort())
+                .setKeyName(request.getOrderBy().getFieldName())
+                .setSort(request.getOrderBy().getSort().getSort())
                 .build());
 
         queryBuilder.setProjection(Query.Projection.newBuilder()
@@ -80,7 +89,7 @@ public class BanyanDBGrpcClient implements BanyanDBService {
     @Override
     public BanyanDBQueryResponse queryByTraceId(TraceFetchRequest traceFetchRequest) {
         Query.QueryRequest.Builder queryBuilder = Query.QueryRequest.newBuilder()
-                .setMetadata(Database.Metadata.newBuilder().setGroup(traceFetchRequest.getGroup()).setName(traceFetchRequest.getName()).build())
+                .setMetadata(this.metadata)
                 .addFields(Query.PairQuery.newBuilder()
                         .setOp(Query.PairQuery.BinaryOp.BINARY_OP_EQ)
                         .setCondition(Query.TypedPair.newBuilder().setStrPair(Query.StrPair.newBuilder().setKey("trace_id").addValues(traceFetchRequest.getTraceId()).build()))
@@ -136,12 +145,12 @@ public class BanyanDBGrpcClient implements BanyanDBService {
         for (final TraceWriteRequest entity : data) {
             try {
                 Write.EntityValue entityValue = Write.EntityValue.newBuilder()
-                        .addAllFields(buildWriteFields(entity.getFields()))
+                        .addAllFields(entity.getFields().stream().map(WriteValue::toWriteField).collect(Collectors.toList()))
                         .setDataBinary(ByteString.copyFrom(entity.getDataBinary()))
                         .setTimestamp(Timestamp.newBuilder().setSeconds(entity.getTimestampSeconds()).setNanos(entity.getTimestampNanos()).build())
                         .setEntityId(entity.getEntityId()).build();
                 observer.onNext(Write.WriteRequest.newBuilder()
-                        .setMetadata(Database.Metadata.newBuilder().setName(entity.getName()).setGroup(entity.getGroup()).build())
+                        .setMetadata(this.metadata)
                         .setEntity(entityValue).build());
             } catch (Throwable t) {
                 log.error("fail to convert entityValue and send data");
@@ -149,25 +158,5 @@ public class BanyanDBGrpcClient implements BanyanDBService {
         }
 
         observer.onCompleted();
-    }
-
-    @VisibleForTesting
-    public static List<Write.Field> buildWriteFields(List<Object> fieldList) {
-        return fieldList.stream().map(BanyanDBGrpcClient::buildField).collect(Collectors.toList());
-    }
-
-    static Write.Field buildField(Object value) {
-        if (value == null) {
-            return Write.Field.newBuilder().setNull(NullValue.NULL_VALUE).build();
-        }
-        if (value instanceof String) {
-            return Write.Field.newBuilder().setStr(Write.Str.newBuilder().setValue((String) value).build()).build();
-        } else if (value instanceof Integer) {
-            return Write.Field.newBuilder().setInt(Write.Int.newBuilder().setValue((Integer) value).build()).build();
-        } else if (value instanceof Long) {
-            return Write.Field.newBuilder().setInt(Write.Int.newBuilder().setValue((Long) value).build()).build();
-        } else {
-            throw new IllegalStateException("should not reach here");
-        }
     }
 }

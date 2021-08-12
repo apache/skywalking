@@ -64,14 +64,7 @@ public class BanyanDBClient implements Client, BanyanDBService, HealthCheckable 
 
     @Override
     public void connect() throws Exception {
-        if (channel == null) {
-            if (sslContext == null) {
-                channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
-                return;
-            }
-            channel = NettyChannelBuilder.forAddress(host, port).sslContext(sslContext).build();
-        }
-        this.delegation = new BanyanDBGrpcClient(this.channel);
+        this.delegation = new BanyanDBGrpcClient(this.host, this.port, this.sslContext, BanyanDBSchema.GROUP, BanyanDBSchema.NAME);
     }
 
     @Override

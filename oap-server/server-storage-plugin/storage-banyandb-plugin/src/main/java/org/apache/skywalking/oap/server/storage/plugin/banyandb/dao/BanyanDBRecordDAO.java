@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.dao;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.banyandb.client.request.WriteValue;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
 import org.apache.skywalking.banyandb.client.request.TraceWriteRequest;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
@@ -59,10 +60,15 @@ public class BanyanDBRecordDAO implements IRecordDAO {
      * @param segmentRecordMap which comes from {@link SegmentRecord}
      * @return an ordered list of {@link Object}s which is accepted by BanyanDB Client
      */
-    static List<Object> buildFieldObjects(Map<String, Object> segmentRecordMap) {
-        List<Object> objectList = new ArrayList<>(BanyanDBSchema.FIELD_NAMES.size());
+    static List<WriteValue<?>> buildFieldObjects(Map<String, Object> segmentRecordMap) {
+        List<WriteValue<?>> objectList = new ArrayList<>(BanyanDBSchema.FIELD_NAMES.size());
         for (String fieldName : BanyanDBSchema.FIELD_NAMES) {
-            objectList.add(segmentRecordMap.get(fieldName));
+            Object val = segmentRecordMap.get(fieldName);
+            if (val == null) {
+                objectList.add(WriteValue.nullValue());
+            } else {
+                objectList.add((WriteValue<?>) val);
+            }
         }
         return objectList;
     }

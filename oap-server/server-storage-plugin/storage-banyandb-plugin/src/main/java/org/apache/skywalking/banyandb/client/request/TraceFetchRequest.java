@@ -26,7 +26,7 @@ import java.util.List;
 
 @SuperBuilder
 @Getter
-public class TraceFetchRequest extends HasMetadata {
+public class TraceFetchRequest {
     private final String traceId;
 
     @Singular

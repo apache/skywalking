@@ -47,24 +47,24 @@ public class TraceSearchQuery {
     }
 
     // String
-    public static TraceSearchQuery Eq(String key, String val) {
+    public static TraceSearchQuery eq(String key, String val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.EQ, val, Query.TypedPair.TypedCase.STR_PAIR);
     }
 
-    public static TraceSearchQuery Ne(String key, String val) {
+    public static TraceSearchQuery ne(String key, String val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.NE, val, Query.TypedPair.TypedCase.STR_PAIR);
     }
 
     // long
-    public static TraceSearchQuery Eq(String key, long val) {
+    public static TraceSearchQuery eq(String key, long val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.EQ, val, Query.TypedPair.TypedCase.INT_PAIR);
     }
 
-    public static TraceSearchQuery Ne(String key, long val) {
+    public static TraceSearchQuery ne(String key, long val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.NE, val, Query.TypedPair.TypedCase.INT_PAIR);
     }
 
-    public static TraceSearchQuery Le(String key, long val) {
+    public static TraceSearchQuery le(String key, long val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.LE, val, Query.TypedPair.TypedCase.INT_PAIR);
     }
 
@@ -72,7 +72,7 @@ public class TraceSearchQuery {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.LT, val, Query.TypedPair.TypedCase.INT_PAIR);
     }
 
-    public static TraceSearchQuery Ge(String key, long val) {
+    public static TraceSearchQuery ge(String key, long val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.GE, val, Query.TypedPair.TypedCase.INT_PAIR);
     }
 

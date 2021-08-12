@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.dao;
 
 import org.apache.skywalking.banyandb.Write;
-import org.apache.skywalking.banyandb.client.impl.BanyanDBGrpcClient;
+import org.apache.skywalking.banyandb.client.request.WriteValue;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -31,6 +31,7 @@ import org.junit.Test;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BanyanDBSegmentRecordBuilderTest {
     private StorageHashMapBuilder<Record> builder;
@@ -78,7 +79,7 @@ public class BanyanDBSegmentRecordBuilderTest {
         record.setTimeBucket(now.getEpochSecond());
         record.setDataBinary(byteData);
         record.setTagsRawData(tags);
-        List<Write.Field> value = BanyanDBGrpcClient.buildWriteFields(BanyanDBRecordDAO.buildFieldObjects(builder.entity2Storage(record)));
+        List<Write.Field> value = BanyanDBRecordDAO.buildFieldObjects(builder.entity2Storage(record)).stream().map(WriteValue::toWriteField).collect(Collectors.toList());
         // 0 -> trace_id
         Assert.assertEquals(traceId, value.get(0).getStr().getValue());
         // 1 -> state

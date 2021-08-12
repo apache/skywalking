@@ -16,16 +16,14 @@
  *
  */
 
-package org.apache.skywalking.banyandb.client.request;
+package org.apache.skywalking.banyandb.client;
 
-import lombok.EqualsAndHashCode;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
-@EqualsAndHashCode
-public class HasMetadata {
+@AllArgsConstructor
+public class Metadata {
     private final String group;
     private final String name;
 }

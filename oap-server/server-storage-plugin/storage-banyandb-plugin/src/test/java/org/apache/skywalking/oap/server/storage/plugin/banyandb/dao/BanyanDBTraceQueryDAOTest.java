@@ -170,12 +170,12 @@ public class BanyanDBTraceQueryDAOTest {
         assertCollectionEqual(Lists.newArrayList("duration", "state", "start_time", "trace_id"), request.getProjection().getKeyNamesList());
         // assert fields
         assertCollectionEqual(request.getFieldsList(), ImmutableList.of(
-                TraceSearchQuery.Ge("duration", minDuration).toPairQuery(), // 1 -> duration >= minDuration
-                TraceSearchQuery.Le("duration", maxDuration).toPairQuery(), // 2 -> duration <= maxDuration
-                TraceSearchQuery.Eq("service_id", serviceId).toPairQuery(), // 3 -> service_id
-                TraceSearchQuery.Eq("service_instance_id", serviceInstanceId).toPairQuery(), // 4 -> service_instance_id
-                TraceSearchQuery.Eq("endpoint_id", endpointId).toPairQuery(), // 5 -> endpoint_id
-                TraceSearchQuery.Eq("state", BanyanDBSchema.TraceState.SUCCESS.getState()).toPairQuery() // 7 -> state
+                TraceSearchQuery.ge("duration", minDuration).toPairQuery(), // 1 -> duration >= minDuration
+                TraceSearchQuery.le("duration", maxDuration).toPairQuery(), // 2 -> duration <= maxDuration
+                TraceSearchQuery.eq("service_id", serviceId).toPairQuery(), // 3 -> service_id
+                TraceSearchQuery.eq("service_instance_id", serviceInstanceId).toPairQuery(), // 4 -> service_instance_id
+                TraceSearchQuery.eq("endpoint_id", endpointId).toPairQuery(), // 5 -> endpoint_id
+                TraceSearchQuery.eq("state", BanyanDBSchema.TraceState.SUCCESS.getState()).toPairQuery() // 7 -> state
         ));
     }
 
@@ -193,7 +193,7 @@ public class BanyanDBTraceQueryDAOTest {
         Assert.assertEquals(1, request.getFieldsCount());
         // assert fields
         assertCollectionEqual(request.getFieldsList(), ImmutableList.of(
-                TraceSearchQuery.Eq("trace_id", traceId).toPairQuery()
+                TraceSearchQuery.eq("trace_id", traceId).toPairQuery()
         ));
         // assert projections
         Set<String> projections = new HashSet<>(BanyanDBSchema.FIELD_NAMES);

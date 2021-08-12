@@ -18,19 +18,17 @@
 
 package org.apache.skywalking.banyandb.client.request;
 
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Singular;
-import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-@SuperBuilder
+@Builder
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class TraceWriteRequest extends HasMetadata {
+public class TraceWriteRequest {
     @Singular
-    private final List<Object> fields;
+    private final List<WriteValue<?>> fields;
 
     private byte[] dataBinary;
 

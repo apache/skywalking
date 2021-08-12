@@ -20,18 +20,15 @@ package org.apache.skywalking.banyandb.client.request;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Singular;
-import lombok.experimental.SuperBuilder;
 import org.apache.skywalking.banyandb.Query;
 
 import java.util.List;
 
-@SuperBuilder
+@Builder
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class TraceSearchRequest extends HasMetadata {
+public class TraceSearchRequest {
     // timeRange
     private final TimeRange timeRange;
 
@@ -44,8 +41,7 @@ public class TraceSearchRequest extends HasMetadata {
     private final int offset;
 
     // query order
-    private final String queryOrderField;
-    private final SortOrder queryOrderSort;
+    private final OrderBy orderBy;
 
     @Singular
     private final List<String> projections;
@@ -55,6 +51,13 @@ public class TraceSearchRequest extends HasMetadata {
     public static class TimeRange {
         private final long startTime;
         private final long endTime;
+    }
+
+    @Builder
+    @Getter
+    public static class OrderBy {
+        private final String fieldName;
+        private final SortOrder sort;
     }
 
     public enum SortOrder {
