@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class BanyanDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
     @Override
-    public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId, String pagePath, BrowserErrorCategory category, long startSecondTB, long endSecondTB, int limit, int from) throws IOException {
+    public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId, BrowserErrorCategory category, long startSecondTB, long endSecondTB, int limit, int from) throws IOException {
         return new BrowserErrorLogs();
     }
 }

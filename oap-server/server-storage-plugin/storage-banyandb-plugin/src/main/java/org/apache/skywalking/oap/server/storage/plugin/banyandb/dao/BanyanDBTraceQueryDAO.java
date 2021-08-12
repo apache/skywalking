@@ -33,7 +33,7 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
-        TraceSearchRequest.TraceSearchRequestBuilder queryBuilder = TraceSearchRequest.builder();
+        TraceSearchRequest.TraceSearchRequestBuilder<?, ?> queryBuilder = TraceSearchRequest.builder().name(BanyanDBSchema.name).group(BanyanDBSchema.group);
         if (startSecondTB != 0 && endSecondTB != 0) {
             queryBuilder.timeRange(TraceSearchRequest.TimeRange.builder()
                     .startTime(startSecondTB)
@@ -104,7 +104,8 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        TraceFetchRequest.TraceFetchRequestBuilder queryBuilder = TraceFetchRequest.builder()
+        TraceFetchRequest.TraceFetchRequestBuilder<?, ?> queryBuilder = TraceFetchRequest.builder()
+                .name(BanyanDBSchema.name).group(BanyanDBSchema.group)
                 .traceId(traceId)
                 .projections(BanyanDBSchema.FIELD_NAMES)
                 .projection("data_binary");

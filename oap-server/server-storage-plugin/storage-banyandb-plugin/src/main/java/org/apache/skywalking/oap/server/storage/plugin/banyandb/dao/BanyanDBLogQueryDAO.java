@@ -11,7 +11,7 @@ import java.util.List;
 
 public class BanyanDBLogQueryDAO implements ILogQueryDAO {
     @Override
-    public Logs queryLogs(String serviceId, String serviceInstanceId, String endpointId, String endpointName, TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit, long startTB, long endTB, List<Tag> tags, List<String> keywordsOfContent, List<String> excludingKeywordsOfContent) throws IOException {
+    public Logs queryLogs(String serviceId, String serviceInstanceId, String endpointId, TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit, long startTB, long endTB, List<Tag> tags, List<String> keywordsOfContent, List<String> excludingKeywordsOfContent) throws IOException {
         return new Logs();
     }
 }

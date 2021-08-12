@@ -1,13 +1,13 @@
 package org.apache.skywalking.banyandb.client.request;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Singular;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-@Builder
+@SuperBuilder
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class TraceWriteRequest extends HasMetadata {
