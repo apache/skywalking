@@ -52,8 +52,7 @@ public class BrowserLogQuery implements GraphQLQueryResolver {
 
         return getQueryService().queryBrowserErrorLogs(
             condition.getServiceId(), condition.getServiceVersionId(), condition.getPagePathId(),
-            condition.getPagePath(), condition.getCategory()
-            , startSecondTB, endSecondTB, condition.getPaging()
+            condition.getCategory(), startSecondTB, endSecondTB, condition.getPaging()
         );
     }
 }

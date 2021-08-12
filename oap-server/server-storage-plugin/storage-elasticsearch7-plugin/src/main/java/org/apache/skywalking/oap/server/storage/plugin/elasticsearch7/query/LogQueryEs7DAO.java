@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import java.io.IOException;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -61,7 +62,6 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
     public Logs queryLogs(final String serviceId,
                           final String serviceInstanceId,
                           final String endpointId,
-                          final String endpointName,
                           final TraceScopeCondition relatedTrace,
                           final Order queryOrder,
                           final int from,
@@ -88,10 +88,6 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
         }
         if (isNotEmpty(endpointId)) {
             mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.ENDPOINT_ID, endpointId));
-        }
-        if (isNotEmpty(endpointName)) {
-            String matchCName = MatchCNameBuilder.INSTANCE.build(AbstractLogRecord.ENDPOINT_NAME);
-            mustQueryList.add(QueryBuilders.matchPhraseQuery(matchCName, endpointName));
         }
         if (nonNull(relatedTrace)) {
             if (isNotEmpty(relatedTrace.getTraceId())) {
@@ -150,7 +146,9 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
             log.setServiceInstanceId((String) searchHit.getSourceAsMap()
                                                        .get(AbstractLogRecord.SERVICE_INSTANCE_ID));
             log.setEndpointId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_ID));
-            log.setEndpointName((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_NAME));
+            if (log.getEndpointId() != null) {
+                log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+            }
             log.setTraceId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.TRACE_ID));
             log.setTimestamp(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.TIMESTAMP)).longValue());
             log.setContentType(ContentType.instanceOf(

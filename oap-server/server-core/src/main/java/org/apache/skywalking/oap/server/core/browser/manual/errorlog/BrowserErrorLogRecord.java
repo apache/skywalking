@@ -33,8 +33,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
-import static java.util.Objects.nonNull;
-
 @SuperDataset
 @Stream(name = BrowserErrorLogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.BROWSER_ERROR_LOG, builder = BrowserErrorLogRecord.Builder.class, processor = RecordStreamProcessor.class)
 public class BrowserErrorLogRecord extends Record {
@@ -42,8 +40,7 @@ public class BrowserErrorLogRecord extends Record {
     public static final String UNIQUE_ID = "unique_id";
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_VERSION_ID = "service_version_id";
-    public static final String PAGE_PATH_ID = "pate_path_id";
-    public static final String PAGE_PATH = "page_path";
+    public static final String PAGE_PATH_ID = "page_path_id";
     public static final String TIMESTAMP = "timestamp";
     public static final String ERROR_CATEGORY = "error_category";
     public static final String DATA_BINARY = "data_binary";
@@ -75,11 +72,6 @@ public class BrowserErrorLogRecord extends Record {
 
     @Setter
     @Getter
-    @Column(columnName = PAGE_PATH, matchQuery = true)
-    private String pagePath;
-
-    @Setter
-    @Getter
     @Column(columnName = TIMESTAMP)
     private long timestamp;
 
@@ -101,7 +93,6 @@ public class BrowserErrorLogRecord extends Record {
             record.setServiceId((String) dbMap.get(SERVICE_ID));
             record.setServiceVersionId((String) dbMap.get(SERVICE_VERSION_ID));
             record.setPagePathId((String) dbMap.get(PAGE_PATH_ID));
-            record.setPagePath((String) dbMap.get(PAGE_PATH));
             record.setTimestamp(((Number) dbMap.get(TIMESTAMP)).longValue());
             record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             record.setErrorCategory(((Number) dbMap.get(ERROR_CATEGORY)).intValue());
@@ -121,9 +112,6 @@ public class BrowserErrorLogRecord extends Record {
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(SERVICE_VERSION_ID, storageData.getServiceVersionId());
             map.put(PAGE_PATH_ID, storageData.getPagePathId());
-            if (nonNull(storageData.getPagePath())) {
-                map.put(PAGE_PATH, storageData.getPagePath());
-            }
             map.put(TIMESTAMP, storageData.getTimestamp());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             map.put(ERROR_CATEGORY, storageData.getErrorCategory());

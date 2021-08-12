@@ -33,7 +33,6 @@ public class LogRecordDispatcher implements SourceDispatcher<Log> {
         record.setServiceId(source.getServiceId());
         record.setServiceInstanceId(source.getServiceInstanceId());
         record.setEndpointId(source.getEndpointId());
-        record.setEndpointName(source.getEndpointName());
         record.setTraceId(source.getTraceId());
         record.setTraceSegmentId(source.getTraceSegmentId());
         record.setSpanId(source.getSpanId());
