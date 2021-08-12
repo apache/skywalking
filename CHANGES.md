@@ -25,10 +25,12 @@ Release Notes.
 * Remove `version` and `endTime` in the segment entity. Reduce indexing payload. 
 * Fix `mapper_parsing_exception` in ElasticSearch 7.14.
 * Support component IDs for Go-Kratos framework.
+* Add component id for Python falcon plugin.
 
 #### UI
 
 * Fix not found error when refresh UI.
+* Add Python falcon plugin UI.
 
 #### Documentation
 
