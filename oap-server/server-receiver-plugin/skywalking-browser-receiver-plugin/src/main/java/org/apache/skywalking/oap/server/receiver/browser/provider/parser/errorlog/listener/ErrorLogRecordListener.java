@@ -87,7 +87,6 @@ public class ErrorLogRecordListener implements ErrorLogAnalysisListener {
 
         // page
         String pagePath = namingControl.formatEndpointName(serviceName, decorator.getPagePath());
-        errorLog.setPagePath(pagePath);
         errorLog.setPagePathId(IDManager.EndpointID.buildId(serviceId, pagePath));
 
         // raw data
