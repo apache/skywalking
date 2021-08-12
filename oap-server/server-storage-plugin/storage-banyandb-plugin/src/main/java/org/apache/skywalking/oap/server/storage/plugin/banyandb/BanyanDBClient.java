@@ -30,14 +30,18 @@ import org.apache.skywalking.banyandb.client.request.TraceSearchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceWriteRequest;
 import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
 import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class BanyanDBClient implements Client, BanyanDBService {
+public class BanyanDBClient implements Client, BanyanDBService, HealthCheckable {
     private ManagedChannel channel;
     private BanyanDBService delegation;
+    private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
 
     private String host;
     private int port;
@@ -81,16 +85,41 @@ public class BanyanDBClient implements Client, BanyanDBService {
 
     @Override
     public BanyanDBQueryResponse queryBasicTraces(TraceSearchRequest request) {
-        return delegation.queryBasicTraces(request);
+        try {
+            BanyanDBQueryResponse resp = delegation.queryBasicTraces(request);
+            this.healthChecker.health();
+            return resp;
+        } catch (Throwable t) {
+            this.healthChecker.unHealth(t);
+            throw t;
+        }
     }
 
     @Override
     public BanyanDBQueryResponse queryByTraceId(TraceFetchRequest traceFetchRequest) {
-        return this.delegation.queryByTraceId(traceFetchRequest);
+        try {
+            BanyanDBQueryResponse resp = this.delegation.queryByTraceId(traceFetchRequest);
+            this.healthChecker.health();
+            return resp;
+        } catch (Throwable t) {
+            this.healthChecker.unHealth(t);
+            throw t;
+        }
     }
 
     @Override
     public void writeEntity(List<TraceWriteRequest> data) {
-        delegation.writeEntity(data);
+        try {
+            delegation.writeEntity(data);
+            this.healthChecker.health();
+        } catch (Throwable t) {
+            this.healthChecker.unHealth(t);
+            throw t;
+        }
+    }
+
+    @Override
+    public void registerChecker(HealthChecker healthChecker) {
+        this.healthChecker.register(healthChecker);
     }
 }

@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.netty.NettyChannelBuilder;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -97,9 +95,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
-        ManagedChannelBuilder builder = NettyChannelBuilder.forAddress(config.getHost(), config.getPort());
-
-        this.client = new BanyanDBClient(builder.build());
+        this.client = new BanyanDBClient(config.getHost(), config.getPort());
 
         this.registerServiceImplementation(IBatchDAO.class, new BanyanDBBatchDAO(client));
         this.registerServiceImplementation(StorageDAO.class, new BanyanDBStorageDAO());
@@ -137,7 +133,12 @@ public class BanyanDBStorageProvider extends ModuleProvider {
                 .getService(MetricsCreator.class);
         HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge(
                 "storage_banyandb", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        // TODO: health checker,
+        this.client.registerChecker(healthChecker);
+        try {
+            this.client.connect();
+        } catch (Exception e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
     }
 
     @Override
