@@ -143,6 +143,8 @@ have been highlighted.
 ## Log
 Since 8.3.0, SkyWalking provides log query for the browser monitoring. Use [Apache SkyWalking Client JS](https://github.com/apache/skywalking-client-js)
 agent would collect metrics and error logs.
+Since 8.5.0, SkyWalking supports collecting logs through our native agents and 3rd party agents(such as Fluentd, Filebeat). 
+Read [Log Analyzer Document](../setup/backend/log-analyzer.md) for more details.
 
 <img src="https://skywalking.apache.org/ui-doc/8.3.0/log.png"/>
 

@@ -71,10 +71,6 @@ public class SegmentRecord extends Record {
     private String serviceInstanceId;
     @Setter
     @Getter
-    @Column(columnName = ENDPOINT_NAME, matchQuery = true)
-    private String endpointName;
-    @Setter
-    @Getter
     @Column(columnName = ENDPOINT_ID)
     private String endpointId;
     @Setter
@@ -119,7 +115,6 @@ public class SegmentRecord extends Record {
             map.put(TRACE_ID, storageData.getTraceId());
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
-            map.put(ENDPOINT_NAME, storageData.getEndpointName());
             map.put(ENDPOINT_ID, storageData.getEndpointId());
             map.put(START_TIME, storageData.getStartTime());
             map.put(LATENCY, storageData.getLatency());
@@ -141,7 +136,6 @@ public class SegmentRecord extends Record {
             record.setTraceId((String) dbMap.get(TRACE_ID));
             record.setServiceId((String) dbMap.get(SERVICE_ID));
             record.setServiceInstanceId((String) dbMap.get(SERVICE_INSTANCE_ID));
-            record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
             record.setEndpointId((String) dbMap.get(ENDPOINT_ID));
             record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
             record.setLatency(((Number) dbMap.get(LATENCY)).intValue());

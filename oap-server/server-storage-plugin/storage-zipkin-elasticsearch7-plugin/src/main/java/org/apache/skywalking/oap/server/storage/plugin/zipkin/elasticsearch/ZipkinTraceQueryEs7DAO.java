@@ -19,13 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.zipkin.elasticsearch;
 
 import com.google.common.base.Strings;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -56,7 +54,6 @@ import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
 
 import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.ENDPOINT_ID;
-import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.ENDPOINT_NAME;
 import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.LATENCY;
 import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.SERVICE_ID;
@@ -77,7 +74,6 @@ public class ZipkinTraceQueryEs7DAO extends EsDAO implements ITraceQueryDAO {
                                        long endSecondTB,
                                        long minDuration,
                                        long maxDuration,
-                                       String endpointName,
                                        String serviceId,
                                        String serviceInstanceId,
                                        String endpointId,
@@ -107,9 +103,6 @@ public class ZipkinTraceQueryEs7DAO extends EsDAO implements ITraceQueryDAO {
                 rangeQueryBuilder.lte(maxDuration);
             }
             mustQueryList.add(rangeQueryBuilder);
-        }
-        if (!Strings.isNullOrEmpty(endpointName)) {
-            mustQueryList.add(QueryBuilders.matchPhraseQuery(ENDPOINT_NAME, endpointName));
         }
         if (StringUtil.isNotEmpty(serviceId)) {
             mustQueryList.add(QueryBuilders.termQuery(SERVICE_ID, serviceId));
@@ -159,7 +152,7 @@ public class ZipkinTraceQueryEs7DAO extends EsDAO implements ITraceQueryDAO {
             BasicTrace basicTrace = new BasicTrace();
 
             final ZipkinSpanRecord zipkinSpanRecord = new ZipkinSpanRecord.Builder().storage2Entity(
-                    searchHit.getSourceAsMap());
+                searchHit.getSourceAsMap());
 
             basicTrace.setSegmentId(zipkinSpanRecord.getSpanId());
             basicTrace.setStart(String.valueOf((long) zipkinSpanRecord.getStartTime()));
@@ -181,7 +174,7 @@ public class ZipkinTraceQueryEs7DAO extends EsDAO implements ITraceQueryDAO {
 
     @Override
     public List<org.apache.skywalking.oap.server.core.query.type.Span> doFlexibleTraceQuery(
-            String traceId) throws IOException {
+        String traceId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.termQuery(TRACE_ID, traceId));
         sourceBuilder.sort(START_TIME, SortOrder.ASC);
@@ -214,12 +207,12 @@ public class ZipkinTraceQueryEs7DAO extends EsDAO implements ITraceQueryDAO {
             });
             if (StringUtil.isNotEmpty(serviceId)) {
                 final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
-                        serviceId);
+                    serviceId);
                 swSpan.setServiceCode(serviceIDDefinition.getName());
             }
             if (StringUtil.isNotEmpty(serviceInstanceId)) {
                 final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
-                        serviceInstanceId);
+                    serviceInstanceId);
                 swSpan.setServiceInstanceName(instanceIDDefinition.getName());
             }
             swSpan.setSpanId(0);
