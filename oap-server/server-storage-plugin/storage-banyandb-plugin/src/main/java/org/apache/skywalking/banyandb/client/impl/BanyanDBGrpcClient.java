@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.banyandb.client.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.NullValue;
 import com.google.protobuf.Timestamp;
@@ -144,7 +145,8 @@ public class BanyanDBGrpcClient implements BanyanDBService {
         }
     }
 
-    static List<Write.Field> buildWriteFields(List<Object> fieldList) {
+    @VisibleForTesting
+    public static List<Write.Field> buildWriteFields(List<Object> fieldList) {
         return fieldList.stream().map(BanyanDBGrpcClient::buildField).collect(Collectors.toList());
     }
 

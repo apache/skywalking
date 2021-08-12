@@ -29,7 +29,7 @@ import java.util.Map;
 public class BanyanDBSegmentRecordBuilder implements StorageHashMapBuilder<Record> {
     @Override
     public SegmentRecord storage2Entity(Map<String, Object> dbMap) {
-        return null;
+        return new SegmentRecord();
     }
 
     /**
