@@ -53,16 +53,10 @@ public class Segment extends Source {
     private String serviceInstanceId;
     @Setter
     @Getter
-    private String endpointName;
-    @Setter
-    @Getter
     private String endpointId;
     @Setter
     @Getter
     private long startTime;
-    @Setter
-    @Getter
-    private long endTime;
     @Setter
     @Getter
     private int latency;
@@ -72,9 +66,6 @@ public class Segment extends Source {
     @Setter
     @Getter
     private byte[] dataBinary;
-    @Setter
-    @Getter
-    private int version;
     @Setter
     @Getter
     private List<Tag> tags = new ArrayList<>();

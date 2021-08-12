@@ -35,14 +35,4 @@ public class ServiceEntityDescription implements EntityDescription {
     public List<String> getLabelKeys() {
         return serviceKeys;
     }
-
-    @Override
-    public List<String> getInstanceKeys() {
-        throw new UnsupportedOperationException("Unsupported Operation of getInstanceKeys() " + this.toString());
-    }
-
-    @Override
-    public List<String> getEndpointKeys() {
-        throw new UnsupportedOperationException("Unsupported Operation of getEndpointKeys() " + this.toString());
-    }
 }

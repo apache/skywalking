@@ -33,7 +33,6 @@ public abstract class AbstractLog extends Source {
     private String serviceId;
     private String serviceInstanceId;
     private String endpointId;
-    private String endpointName;
     private String traceId;
     private String traceSegmentId;
     private int spanId;

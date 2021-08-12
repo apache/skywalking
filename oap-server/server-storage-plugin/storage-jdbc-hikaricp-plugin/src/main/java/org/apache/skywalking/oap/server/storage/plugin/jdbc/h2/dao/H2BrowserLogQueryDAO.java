@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import com.google.common.base.Strings;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -43,7 +42,6 @@ public class H2BrowserLogQueryDAO implements IBrowserLogQueryDAO {
     public BrowserErrorLogs queryBrowserErrorLogs(String serviceId,
                                                   String serviceVersionId,
                                                   String pagePathId,
-                                                  String pagePath,
                                                   BrowserErrorCategory category,
                                                   long startSecondTB,
                                                   long endSecondTB,
@@ -78,10 +76,6 @@ public class H2BrowserLogQueryDAO implements IBrowserLogQueryDAO {
         if (nonNull(category)) {
             sql.append(" and ").append(BrowserErrorLogRecord.ERROR_CATEGORY).append(" = ?");
             parameters.add(category.getValue());
-        }
-        if (!Strings.isNullOrEmpty(pagePath)) {
-            sql.append(" and ").append(BrowserErrorLogRecord.PAGE_PATH).append(" like concat('%',?,'%')");
-            parameters.add(pagePath);
         }
 
         BrowserErrorLogs logs = new BrowserErrorLogs();

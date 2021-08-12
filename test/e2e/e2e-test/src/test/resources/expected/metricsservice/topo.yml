@@ -13,5 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-serviceName: ${LABELS."service.istio.io/canonical-name",LABELS."app.kubernetes.io/name",LABELS.app}
-serviceInstanceName: ${NAME}
+nodes:
+  - id: not null
+    name: e2e::reviews
+    type: null
+    isReal: true
+  - id: not null
+    name: e2e::productpage
+    isReal: true
+  - id: not null
+    name: e2e::details
+    type: null
+    isReal: true
+
+calls:
+  - id: not null
+    source: ZTJlOjpwcm9kdWN0cGFnZQ==.1
+    target: ZTJlOjpyZXZpZXdz.1
+    detectPoints:
+      - CLIENT
+  - id: not null
+    source: ZTJlOjpwcm9kdWN0cGFnZQ==.1
+    target: ZTJlOjpkZXRhaWxz.1
+    detectPoints:
+      - CLIENT

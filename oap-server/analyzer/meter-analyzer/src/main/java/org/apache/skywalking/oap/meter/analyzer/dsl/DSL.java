@@ -22,6 +22,7 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.util.DelegatingScript;
 import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.K8sRetagType;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
@@ -41,6 +42,7 @@ public final class DSL {
         cc.setScriptBaseClass(DelegatingScript.class.getName());
         ImportCustomizer icz = new ImportCustomizer();
         icz.addImport("K8sRetagType", K8sRetagType.class.getName());
+        icz.addImport("DetectPoint", DetectPoint.class.getName());
         cc.addCompilationCustomizers(icz);
         GroovyShell sh = new GroovyShell(new Binding(), cc);
         DelegatingScript script = (DelegatingScript) sh.parse(expression);

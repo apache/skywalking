@@ -98,10 +98,8 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         segment.setLatency(duration);
         segment.setStartTime(startTimestamp);
         segment.setTimeBucket(timeBucket);
-        segment.setEndTime(endTimestamp);
         segment.setIsError(BooleanUtils.booleanToValue(isError));
         segment.setDataBinary(segmentObject.toByteArray());
-        segment.setVersion(3);
 
         endpointName = namingControl.formatEndpointName(serviceName, span.getOperationName());
         endpointId = IDManager.EndpointID.buildId(
@@ -182,7 +180,6 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         }
 
         segment.setEndpointId(endpointId);
-        segment.setEndpointName(endpointName);
 
         sourceReceiver.receive(segment);
     }

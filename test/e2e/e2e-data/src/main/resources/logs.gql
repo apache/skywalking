@@ -37,7 +37,6 @@
         "condition": {
             "serviceId": "{serviceId}",
             "endpointId": "{endpointId}",
-            "endpointName": "{endpointName}",
             "queryDuration": {
                 "start": "{start}",
                 "end": "{end}",

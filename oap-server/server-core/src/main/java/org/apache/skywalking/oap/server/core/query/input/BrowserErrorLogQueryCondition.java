@@ -28,7 +28,6 @@ public class BrowserErrorLogQueryCondition {
     private String serviceId;
     private String serviceVersionId;
     private String pagePathId;
-    private String pagePath;
     private ErrorCategory category;
     private Duration queryDuration;
     private Pagination paging;
