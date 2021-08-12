@@ -36,6 +36,7 @@ Release Notes.
 #### UI
 
 * Fix not found error when refresh UI.
+* Update endpointName to endpointId in the query trace condition.
 
 #### Documentation
 
