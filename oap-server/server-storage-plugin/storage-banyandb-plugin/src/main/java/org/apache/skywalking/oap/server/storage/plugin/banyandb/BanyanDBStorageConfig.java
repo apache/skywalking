@@ -26,5 +26,5 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Setter
 public class BanyanDBStorageConfig extends ModuleConfig {
     private String host = "127.0.0.1";
-    private int port = 8080;
+    private int port = 17912;
 }
