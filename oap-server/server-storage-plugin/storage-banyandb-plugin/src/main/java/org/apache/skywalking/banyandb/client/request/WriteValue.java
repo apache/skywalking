@@ -21,7 +21,6 @@ package org.apache.skywalking.banyandb.client.request;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.Write;
 
-
 @RequiredArgsConstructor
 public abstract class WriteValue<T> {
     protected final T value;
