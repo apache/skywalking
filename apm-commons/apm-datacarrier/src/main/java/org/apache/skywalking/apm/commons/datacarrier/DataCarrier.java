@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.commons.datacarrier;
 
+import java.util.Properties;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumeDriver;
@@ -90,12 +91,16 @@ public class DataCarrier<T> {
      *
      * @param consumerClass class of consumer
      * @param num           number of consumer threads
+     * @param properties    for initializing consumer.
      */
-    public DataCarrier consume(Class<? extends IConsumer<T>> consumerClass, int num, long consumeCycle) {
+    public DataCarrier consume(Class<? extends IConsumer<T>> consumerClass,
+                               int num,
+                               long consumeCycle,
+                               Properties properties) {
         if (driver != null) {
             driver.close(channels);
         }
-        driver = new ConsumeDriver<T>(this.name, this.channels, consumerClass, num, consumeCycle);
+        driver = new ConsumeDriver<T>(this.name, this.channels, consumerClass, num, consumeCycle, properties);
         driver.begin(channels);
         return this;
     }
@@ -108,7 +113,7 @@ public class DataCarrier<T> {
      * @param num           number of consumer threads
      */
     public DataCarrier consume(Class<? extends IConsumer<T>> consumerClass, int num) {
-        return this.consume(consumerClass, num, 20);
+        return this.consume(consumerClass, num, 20, new Properties());
     }
 
     /**

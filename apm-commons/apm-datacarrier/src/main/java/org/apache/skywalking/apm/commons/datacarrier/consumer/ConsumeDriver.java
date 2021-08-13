@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
@@ -31,20 +32,27 @@ public class ConsumeDriver<T> implements IDriver {
     private Channels<T> channels;
     private ReentrantLock lock;
 
-    public ConsumeDriver(String name, Channels<T> channels, Class<? extends IConsumer<T>> consumerClass, int num,
-        long consumeCycle) {
+    public ConsumeDriver(String name,
+                         Channels<T> channels, Class<? extends IConsumer<T>> consumerClass,
+                         int num,
+                         long consumeCycle,
+                         Properties properties) {
         this(channels, num);
         for (int i = 0; i < num; i++) {
-            consumerThreads[i] = new ConsumerThread("DataCarrier." + name + ".Consumer." + i + ".Thread", getNewConsumerInstance(consumerClass), consumeCycle);
+            consumerThreads[i] = new ConsumerThread(
+                "DataCarrier." + name + ".Consumer." + i + ".Thread", getNewConsumerInstance(consumerClass, properties),
+                consumeCycle
+            );
             consumerThreads[i].setDaemon(true);
         }
     }
 
     public ConsumeDriver(String name, Channels<T> channels, IConsumer<T> prototype, int num, long consumeCycle) {
         this(channels, num);
-        prototype.init();
+        prototype.init(new Properties());
         for (int i = 0; i < num; i++) {
-            consumerThreads[i] = new ConsumerThread("DataCarrier." + name + ".Consumer." + i + ".Thread", prototype, consumeCycle);
+            consumerThreads[i] = new ConsumerThread(
+                "DataCarrier." + name + ".Consumer." + i + ".Thread", prototype, consumeCycle);
             consumerThreads[i].setDaemon(true);
         }
 
@@ -57,10 +65,10 @@ public class ConsumeDriver<T> implements IDriver {
         lock = new ReentrantLock();
     }
 
-    private IConsumer<T> getNewConsumerInstance(Class<? extends IConsumer<T>> consumerClass) {
+    private IConsumer<T> getNewConsumerInstance(Class<? extends IConsumer<T>> consumerClass, Properties properties) {
         try {
             IConsumer<T> inst = consumerClass.getDeclaredConstructor().newInstance();
-            inst.init();
+            inst.init(properties);
             return inst;
         } catch (InstantiationException e) {
             throw new ConsumerCannotBeCreatedException(e);

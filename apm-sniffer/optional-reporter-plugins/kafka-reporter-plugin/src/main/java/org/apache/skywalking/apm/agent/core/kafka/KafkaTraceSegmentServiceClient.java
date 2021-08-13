@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.kafka;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -77,7 +78,7 @@ public class KafkaTraceSegmentServiceClient implements BootService, IConsumer<Tr
     }
 
     @Override
-    public void init() {
+    public void init(final Properties properties) {
 
     }
 

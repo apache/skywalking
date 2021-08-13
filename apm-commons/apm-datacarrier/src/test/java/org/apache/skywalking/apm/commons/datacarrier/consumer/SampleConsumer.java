@@ -19,13 +19,14 @@
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.List;
+import java.util.Properties;
 import org.apache.skywalking.apm.commons.datacarrier.SampleData;
 
 public class SampleConsumer implements IConsumer<SampleData> {
     public int i = 1;
 
     @Override
-    public void init() {
+    public void init(final Properties properties) {
 
     }
 
