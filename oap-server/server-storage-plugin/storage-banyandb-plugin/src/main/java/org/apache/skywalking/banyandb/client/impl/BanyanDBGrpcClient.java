@@ -144,9 +144,11 @@ public class BanyanDBGrpcClient implements BanyanDBService {
 
         for (final TraceWriteRequest entity : data) {
             try {
-                Write.EntityValue entityValue = Write.EntityValue.newBuilder()
-                        .addAllFields(entity.getFields().stream().map(WriteValue::toWriteField).collect(Collectors.toList()))
-                        .setDataBinary(ByteString.copyFrom(entity.getDataBinary()))
+                Write.EntityValue.Builder entityValueBuilder = Write.EntityValue.newBuilder();
+                for (final WriteValue<?> writeValue : entity.getFields()) {
+                    entityValueBuilder.addFields(writeValue.toWriteField());
+                }
+                Write.EntityValue entityValue = entityValueBuilder.setDataBinary(ByteString.copyFrom(entity.getDataBinary()))
                         .setTimestamp(Timestamp.newBuilder().setSeconds(entity.getTimestampSeconds()).setNanos(entity.getTimestampNanos()).build())
                         .setEntityId(entity.getEntityId()).build();
                 observer.onNext(Write.WriteRequest.newBuilder()
