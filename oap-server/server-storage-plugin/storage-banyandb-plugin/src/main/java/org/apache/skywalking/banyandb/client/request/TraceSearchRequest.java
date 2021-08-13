@@ -21,6 +21,7 @@ package org.apache.skywalking.banyandb.client.request;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Singular;
 import org.apache.skywalking.banyandb.Query;
 
@@ -46,14 +47,14 @@ public class TraceSearchRequest {
     @Singular
     private final List<String> projections;
 
-    @Builder
+    @RequiredArgsConstructor
     @Getter
     public static class TimeRange {
         private final long startTime;
         private final long endTime;
     }
 
-    @Builder
+    @RequiredArgsConstructor
     @Getter
     public static class OrderBy {
         private final String fieldName;

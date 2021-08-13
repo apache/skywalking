@@ -54,9 +54,7 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
         TraceSearchRequest.TraceSearchRequestBuilder queryBuilder = TraceSearchRequest.builder();
         if (startSecondTB != 0 && endSecondTB != 0) {
-            queryBuilder.timeRange(TraceSearchRequest.TimeRange.builder()
-                    .startTime(startSecondTB)
-                    .endTime(endSecondTB).build());
+            queryBuilder.timeRange(new TraceSearchRequest.TimeRange(startSecondTB, endSecondTB));
         }
         if (minDuration != 0) {
             // duration >= minDuration
@@ -93,10 +91,10 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
 
         switch (queryOrder) {
             case BY_START_TIME:
-                queryBuilder.orderBy(TraceSearchRequest.OrderBy.builder().fieldName("start_time").sort(TraceSearchRequest.SortOrder.DESC).build());
+                queryBuilder.orderBy(new TraceSearchRequest.OrderBy("start_time", TraceSearchRequest.SortOrder.DESC));
                 break;
             case BY_DURATION:
-                queryBuilder.orderBy(TraceSearchRequest.OrderBy.builder().fieldName("duration").sort(TraceSearchRequest.SortOrder.DESC).build());
+                queryBuilder.orderBy(new TraceSearchRequest.OrderBy("duration", TraceSearchRequest.SortOrder.DESC));
                 break;
         }
 
