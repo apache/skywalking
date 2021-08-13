@@ -18,26 +18,29 @@
 
 package org.apache.skywalking.banyandb.v1.client;
 
+import com.google.protobuf.Timestamp;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.banyandb.v1.Banyandb;
 
-/**
- * Client connection options.
- */
-@Setter
-@Getter(AccessLevel.PACKAGE)
-public class Options {
-    /**
-     * Max inbound message size
-     */
-    private int maxInboundMessageSize = 1024 * 1024 * 50;
-    /**
-     * Threshold of gRPC blocking query, unit is second
-     */
-    private int deadline = 30;
+@RequiredArgsConstructor
+@Getter(AccessLevel.PROTECTED)
+public class TimestampRange {
+    private final long begin;
+    private final long end;
 
-    Options() {
+    /**
+     * @return TimeRange accordingly.
+     */
+    Banyandb.TimeRange build() {
+        final Banyandb.TimeRange.Builder builder = Banyandb.TimeRange.newBuilder();
+        builder.setBegin(Timestamp.newBuilder()
+                                  .setSeconds(begin / 1000)
+                                  .setNanos((int) (begin % 1000 * 1000)));
+        builder.setBegin(Timestamp.newBuilder()
+                                  .setSeconds(end / 1000)
+                                  .setNanos((int) (end % 1000 * 1000)));
+        return builder.build();
     }
-
 }

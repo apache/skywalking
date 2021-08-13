@@ -52,12 +52,20 @@ public class TraceWrite {
      * wouldn't deserialize this. So, no format requirement.
      */
     private final byte[] binary;
-    private final List<WriteField> fields;
+    /**
+     * The values of fields, which are defined by the schema. In the bulk write process, BanyanDB client doesn't require
+     * field names anymore.
+     */
+    private final List<Field> fields;
 
+    /**
+     * @param group of the BanyanDB client connected.
+     * @return {@link BanyandbTrace.WriteRequest} for the bulk process.
+     */
     BanyandbTrace.WriteRequest build(String group) {
         final BanyandbTrace.WriteRequest.Builder builder = BanyandbTrace.WriteRequest.newBuilder();
         builder.setMetadata(Banyandb.Metadata.newBuilder().setGroup(group).setName(name).build());
-        final Banyandb.EntityValue.Builder entityBuilder = Banyandb.EntityValue.newBuilder();
+        final BanyandbTrace.EntityValue.Builder entityBuilder = BanyandbTrace.EntityValue.newBuilder();
         entityBuilder.setEntityId(entityId);
         entityBuilder.setTimestamp(Timestamp.newBuilder()
                                             .setSeconds(timestamp / 1000)
@@ -65,6 +73,6 @@ public class TraceWrite {
         entityBuilder.setDataBinary(ByteString.copyFrom(binary));
         fields.forEach(writeField -> entityBuilder.addFields(writeField.toField()));
         builder.setEntity(entityBuilder.build());
-        return null;
+        return builder.build();
     }
 }

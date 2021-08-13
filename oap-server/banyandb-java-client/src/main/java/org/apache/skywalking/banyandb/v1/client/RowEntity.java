@@ -18,26 +18,26 @@
 
 package org.apache.skywalking.banyandb.v1.client;
 
-import lombok.AccessLevel;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
-import lombok.Setter;
+import org.apache.skywalking.banyandb.v1.trace.BanyandbTrace;
 
 /**
- * Client connection options.
+ * RowEntity represents an entity of BanyanDB entity.
  */
-@Setter
-@Getter(AccessLevel.PACKAGE)
-public class Options {
-    /**
-     * Max inbound message size
-     */
-    private int maxInboundMessageSize = 1024 * 1024 * 50;
-    /**
-     * Threshold of gRPC blocking query, unit is second
-     */
-    private int deadline = 30;
+@Getter
+public class RowEntity {
+    private final String id;
+    private final long timestamp;
+    private final byte[] binary;
+    private final List<FieldAndValue> fields;
 
-    Options() {
+    RowEntity(BanyandbTrace.Entity entity) {
+        id = entity.getEntityId();
+        timestamp = entity.getTimestamp().getSeconds() * 1000 + entity.getTimestamp().getNanos() / 1000;
+        binary = entity.getDataBinary().toByteArray();
+        fields = new ArrayList<>(entity.getFieldsCount());
+        entity.getFieldsList().forEach(field -> fields.add(FieldAndValue.build(field)));
     }
-
 }

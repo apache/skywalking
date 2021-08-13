@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
  */
 public abstract class BulkWriteProcessor {
     protected final int flushInterval;
-    private DataCarrier queue;
+    protected DataCarrier buffer;
 
     /**
      * Create the processor.
@@ -44,12 +44,12 @@ public abstract class BulkWriteProcessor {
      */
     protected BulkWriteProcessor(String processorName, int maxBulkSize, int flushInterval, int concurrency) {
         this.flushInterval = flushInterval;
-        this.queue = new DataCarrier(processorName, maxBulkSize, concurrency);
+        this.buffer = new DataCarrier(processorName, maxBulkSize, concurrency);
         Properties properties = new Properties();
         properties.put("maxBulkSize", maxBulkSize);
         properties.put("flushInterval", flushInterval);
         properties.put("BulkWriteProcessor", this);
-        queue.consume(QueueWatcher.class, concurrency);
+        buffer.consume(QueueWatcher.class, concurrency, 20, properties);
     }
 
     /**
@@ -63,11 +63,12 @@ public abstract class BulkWriteProcessor {
         private BulkWriteProcessor bulkWriteProcessor;
 
         @Override
-        public void init() {
+        public void init(Properties properties) {
             lastFlushTimestamp = System.currentTimeMillis();
-            //TODO: initialize maxBulkSize and flushInterval
-            flushInterval = flushInterval * 1000;
+            maxBulkSize = (Integer) properties.get("maxBulkSize");
+            flushInterval = (Integer) properties.get("flushInterval") * 1000;
             cachedData = new ArrayList(maxBulkSize);
+            bulkWriteProcessor = (BulkWriteProcessor) properties.get("BulkWriteProcessor");
         }
 
         @Override

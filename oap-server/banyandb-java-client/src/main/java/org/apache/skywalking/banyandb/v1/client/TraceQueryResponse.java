@@ -18,26 +18,28 @@
 
 package org.apache.skywalking.banyandb.v1.client;
 
-import lombok.AccessLevel;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
-import lombok.Setter;
+import org.apache.skywalking.banyandb.v1.trace.BanyandbTrace;
 
 /**
- * Client connection options.
+ * TraceQueryResponse represents the trace query result.
  */
-@Setter
-@Getter(AccessLevel.PACKAGE)
-public class Options {
-    /**
-     * Max inbound message size
-     */
-    private int maxInboundMessageSize = 1024 * 1024 * 50;
-    /**
-     * Threshold of gRPC blocking query, unit is second
-     */
-    private int deadline = 30;
+public class TraceQueryResponse {
+    @Getter
+    private List<RowEntity> entities;
 
-    Options() {
+    TraceQueryResponse(BanyandbTrace.QueryResponse response) {
+        final List<BanyandbTrace.Entity> entitiesList = response.getEntitiesList();
+        entities = new ArrayList<>(entitiesList.size());
+        entitiesList.forEach(entity -> entities.add(new RowEntity(entity)));
     }
 
+    /**
+     * @return size of the response set.
+     */
+    public int size() {
+        return entities.size();
+    }
 }

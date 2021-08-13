@@ -18,18 +18,20 @@
 
 package org.apache.skywalking.banyandb.v1.client;
 
+import java.util.List;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.v1.Banyandb;
 
 import static com.google.protobuf.NullValue.NULL_VALUE;
 
 /**
- * WriteField represents a value of column/field for a write-op value.
+ * WriteField represents a value of column/field in the write-op or response.
  */
-public interface WriteField {
+public interface Field {
     Banyandb.Field toField();
 
-    class NullField implements WriteField {
+    class NullField implements Field {
 
         @Override
         public Banyandb.Field toField() {
@@ -41,8 +43,9 @@ public interface WriteField {
      * The value of a String type field.
      */
     @RequiredArgsConstructor
-    class StringField implements WriteField {
-        private final String value;
+    @Getter
+    class StringField implements Field {
+        protected final String value;
 
         @Override
         public Banyandb.Field toField() {
@@ -54,12 +57,13 @@ public interface WriteField {
      * The value of a String array type field.
      */
     @RequiredArgsConstructor
-    class StringArrayField implements WriteField {
-        private final String[] value;
+    @Getter
+    class StringArrayField implements Field {
+        protected final List<String> value;
 
         @Override
         public Banyandb.Field toField() {
-            return null;
+            return Banyandb.Field.newBuilder().setStrArray(Banyandb.StrArray.newBuilder().addAllValue(value)).build();
         }
     }
 
@@ -67,15 +71,27 @@ public interface WriteField {
      * The value of an int64(Long) type field.
      */
     @RequiredArgsConstructor
-    class LongField {
-        private final long value;
+    @Getter
+    class LongField implements Field {
+        protected final Long value;
+
+        @Override
+        public Banyandb.Field toField() {
+            return Banyandb.Field.newBuilder().setInt(Banyandb.Int.newBuilder().setValue(value)).build();
+        }
     }
 
     /**
      * The value of an int64(Long) array type field.
      */
     @RequiredArgsConstructor
-    class LongArrayField {
-        private final long[] value;
+    @Getter
+    class LongArrayField implements Field {
+        protected final List<Long> value;
+
+        @Override
+        public Banyandb.Field toField() {
+            return Banyandb.Field.newBuilder().setIntArray(Banyandb.IntArray.newBuilder().addAllValue(value)).build();
+        }
     }
 }

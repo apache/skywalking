@@ -31,7 +31,7 @@ import org.apache.skywalking.banyandb.v1.trace.TraceServiceGrpc;
 @Slf4j
 public class TraceBulkWriteProcessor extends BulkWriteProcessor {
     /**
-     * The instance name.
+     * The BanyanDB instance name.
      */
     private final String group;
     private TraceServiceGrpc.TraceServiceStub traceServiceStub;
@@ -53,6 +53,15 @@ public class TraceBulkWriteProcessor extends BulkWriteProcessor {
         super("TraceBulkWriteProcessor", maxBulkSize, flushInterval, concurrency);
         this.group = group;
         this.traceServiceStub = traceServiceStub;
+    }
+
+    /**
+     * Add the trace to the bulk processor.
+     *
+     * @param traceWrite to add.
+     */
+    public void add(TraceWrite traceWrite) {
+        this.buffer.produce(traceWrite);
     }
 
     @Override
