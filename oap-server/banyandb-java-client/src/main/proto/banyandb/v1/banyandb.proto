@@ -1,0 +1,148 @@
+// Licensed to Apache Software Foundation (ASF) under one or more contributor
+// license agreements. See the NOTICE file distributed with
+// this work for additional information regarding copyright
+// ownership. Apache Software Foundation (ASF) licenses this file to you under
+// the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+syntax = "proto3";
+
+option java_package = "org.apache.skywalking.banyandb.v1";
+
+package banyandb.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// Metadata is for multi-tenant, multi-model use
+message Metadata {
+  // group contains a set of options, like retention policy, max
+  string group = 1;
+  // name of the entity
+  string name = 2;
+}
+
+// IntPair in a typed pair with an int64 as values
+message IntPair {
+  string key = 1;
+  int64 value = 2;
+  bool isNull = 3;
+}
+
+// StrPair in a typed pair with a string as values
+message StrPair {
+  string key = 1;
+  string value = 2;
+  bool isNull = 3;
+}
+
+// IntPair in a typed pair with an array of int64 as values
+message IntArrayPair {
+  string key = 1;
+  repeated int64 value = 2;
+  bool isNull = 3;
+}
+
+// StrPair in a typed pair with an array of string as values
+message StrArrayPair {
+  string key = 1;
+  repeated string value = 2;
+  bool isNull = 3;
+}
+
+// Pair is the building block of a record which is equivalent to a key-value pair.
+// In the context of Trace, it could be metadata of a trace such as service_name, service_instance, etc.
+// Besides, other fields/tags are organized in key-value pair in the underlying storage layer.
+// One should notice that the values can be a multi-value.
+message TypedPair {
+  oneof typed {
+    IntPair int_pair = 1;
+    StrPair str_pair = 2;
+    IntArrayPair int_array_pair = 3;
+    StrArrayPair str_array_pair = 4;
+  }
+}
+
+// PairQuery consists of the query condition with a single binary operator to be imposed
+// For 1:1 BinaryOp, values in condition must be an array with length = 1,
+// while for 1:N BinaryOp, values can be an array with length >= 1.
+message PairQuery {
+  // BinaryOp specifies the operation imposed to the given query condition
+  // For EQ, NE, LT, GT, LE and GE, only one operand should be given, i.e. one-to-one relationship.
+  // HAVING and NOT_HAVING allow multi-value to be the operand such as array/vector, i.e. one-to-many relationship.
+  // For example, "keyA" contains "valueA" **and** "valueB"
+  enum BinaryOp {
+    BINARY_OP_UNSPECIFIED = 0;
+    BINARY_OP_EQ = 1;
+    BINARY_OP_NE = 2;
+    BINARY_OP_LT = 3;
+    BINARY_OP_GT = 4;
+    BINARY_OP_LE = 5;
+    BINARY_OP_GE = 6;
+    BINARY_OP_HAVING = 7;
+    BINARY_OP_NOT_HAVING = 8;
+  }
+  BinaryOp op = 1;
+  TypedPair condition = 2;
+}
+
+// QueryOrder means a Sort operation to be done for a given field.
+// The key_name refers to the key of a Pair.
+message QueryOrder {
+  string key_name = 1;
+  enum Sort {
+    SORT_UNSPECIFIED = 0;
+    SORT_DESC = 1;
+    SORT_ASC = 2;
+  }
+  Sort sort = 2;
+}
+
+// Projection is used to select the names of keys to be returned.
+message Projection {
+  // The key_name refers to the key(s) of Pair(s).
+  repeated string key_names = 1;
+}
+
+// TimeRange is a range query for uint64,
+// the range here follows left-inclusive and right-exclusive rule, i.e. [begin, end) if both edges exist
+message TimeRange {
+  google.protobuf.Timestamp begin = 1;
+  google.protobuf.Timestamp end = 2;
+}
+
+message Str {
+  string value = 1;
+}
+
+message Int {
+  int64 value = 1;
+}
+
+message StrArray {
+  repeated string value = 1;
+}
+
+message IntArray {
+  repeated int64 value = 1;
+}
+
+message Field {
+  oneof value_type {
+    google.protobuf.NullValue null = 1;
+    Str str = 2;
+    StrArray str_array = 3;
+    Int int = 4;
+    IntArray int_array = 5;
+  }
+}

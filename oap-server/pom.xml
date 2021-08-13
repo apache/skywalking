@@ -48,6 +48,7 @@
         <module>server-tools</module>
         <module>server-fetcher-plugin</module>
         <module>server-health-checker</module>
+        <module>banyandb-java-client</module>
     </modules>
 
     <properties>
