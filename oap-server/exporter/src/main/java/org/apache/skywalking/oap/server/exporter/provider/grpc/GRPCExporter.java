@@ -22,6 +22,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -121,7 +122,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     }
 
     @Override
-    public void init() {
+    public void init(final Properties properties) {
 
     }
 

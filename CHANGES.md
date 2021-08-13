@@ -6,7 +6,10 @@ Release Notes.
 ------------------
 
 #### Project
+
 * Upgrade jdk 11 in dockerfile and remove unused java_opts.
+* DataCarrier changes a `#consume` API to add properties as a parameter to initialize consumer when
+  use `Class<? extends IConsumer<T>> consumerClass`.
 
 #### Java Agent
 
@@ -31,7 +34,7 @@ Release Notes.
   MacOS.
 * [Break Change] Remove page path in the browser log query condition. Only support `query by page path id`.
 * [Break Change] Remove endpoint name in the backend log query condition. Only support `query by endpoint id`.
-* [Break Change] Fix typo for a column `page_path_id`(was `pate_path_id`) of storage entity `browser_error_log`.   
+* [Break Change] Fix typo for a column `page_path_id`(was `pate_path_id`) of storage entity `browser_error_log`.
 * Add component id for Python falcon plugin.
 
 #### UI
