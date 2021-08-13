@@ -34,7 +34,6 @@
     <modules>
         <module>apm-commons</module>
         <module>apm-protocol</module>
-        <module>oap-server/banyandb-java-client</module>
     </modules>
     <packaging>pom</packaging>
 
