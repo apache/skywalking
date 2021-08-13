@@ -19,9 +19,10 @@
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.List;
+import java.util.Properties;
 
 public interface IConsumer<T> {
-    void init();
+    void init(final Properties properties);
 
     void consume(List<T> data);
 
