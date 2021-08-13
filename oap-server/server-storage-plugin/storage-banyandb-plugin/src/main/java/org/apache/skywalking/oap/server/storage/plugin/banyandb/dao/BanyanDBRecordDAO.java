@@ -44,7 +44,7 @@ public class BanyanDBRecordDAO implements IRecordDAO {
             SegmentRecord segmentRecord = (SegmentRecord) record;
             TraceWriteRequest request = TraceWriteRequest.builder()
                     .dataBinary(segmentRecord.getDataBinary())
-                    .timestampSeconds(record.getTimeBucket())
+                    .timestampSeconds(segmentRecord.getStartTime())
                     .entityId(segmentRecord.getSegmentId())
                     .fields(buildFieldObjects(this.storageBuilder.entity2Storage(segmentRecord)))
                     .build();

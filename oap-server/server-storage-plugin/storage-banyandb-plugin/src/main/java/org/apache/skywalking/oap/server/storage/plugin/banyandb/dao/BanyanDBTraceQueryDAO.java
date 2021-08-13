@@ -139,7 +139,6 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
             record.setLatency(((Number) entity.getFields().get("duration")).intValue());
             record.setIsError(((Number) entity.getFields().get("state")).intValue());
             record.setDataBinary(entity.getBinaryData());
-            record.setTimeBucket(entity.getTimestampSeconds());
             return record;
         }).collect(Collectors.toList());
     }
