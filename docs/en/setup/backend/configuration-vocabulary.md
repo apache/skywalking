@@ -224,7 +224,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | maxConvertWorker | The maximize meter convert worker. | SW_PROMETHEUS_FETCHER_NUM_CONVERT_WORKER | -1(by default, half the number of CPU core(s)) |   
 | kafka-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details. | - | - |
 | - | - | bootstrapServers | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | SW_KAFKA_FETCHER_SERVERS | localhost:9092 |
-| - | - | namespace | Namespace aims to isolate multi OAP cluster when using the same Kafka cluster. If you set a namespace for Kafka fetcher, OAP will add a prefix to topic name. You should also set namespace in `agent.config`. | SW_NAMESPACE | - |
+| - | - | namespace | Namespace aims to isolate multi OAP cluster when using the same Kafka cluster. If you set a namespace for Kafka fetcher, OAP will add a prefix to topic name. You should also set namespace in `agent.config`. The property is named `plugin.kafka.namespace`. | SW_NAMESPACE | - |
 | - | - | groupId | A unique string that identifies the consumer group to which this consumer belongs.| - | skywalking-consumer |
 | - | - | consumePartitions | Indicates which PartitionId(s) of the topics is/are assigned to the OAP server. Separated by commas if multiple. | SW_KAFKA_FETCHER_CONSUME_PARTITIONS | - |
 | - | - | isSharding | True when OAP Server is in cluster. | SW_KAFKA_FETCHER_IS_SHARDING | false |
