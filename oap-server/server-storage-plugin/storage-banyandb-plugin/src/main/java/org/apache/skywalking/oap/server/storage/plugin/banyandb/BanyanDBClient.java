@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
-import com.google.common.annotations.VisibleForTesting;
-import io.grpc.ManagedChannel;
 import io.netty.handler.ssl.SslContext;
 import org.apache.skywalking.banyandb.client.BanyanDBService;
 import org.apache.skywalking.banyandb.client.impl.BanyanDBGrpcClient;
@@ -34,21 +32,14 @@ import org.apache.skywalking.oap.server.library.util.HealthChecker;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class BanyanDBClient implements Client, BanyanDBService, HealthCheckable {
-    private ManagedChannel channel;
     private BanyanDBService delegation;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
 
-    private String host;
-    private int port;
-    private SslContext sslContext;
-
-    @VisibleForTesting
-    public BanyanDBClient(ManagedChannel channel) {
-        this.channel = channel;
-    }
+    private final String host;
+    private final int port;
+    private final SslContext sslContext;
 
     public BanyanDBClient(String host, int port) {
         this(host, port, null);
@@ -62,16 +53,17 @@ public class BanyanDBClient implements Client, BanyanDBService, HealthCheckable 
 
     @Override
     public void connect() throws Exception {
-        this.delegation = new BanyanDBGrpcClient(this.host, this.port, this.sslContext, BanyanDBSchema.GROUP, BanyanDBSchema.NAME);
+        this.delegation = BanyanDBGrpcClient.newBuilder()
+                .host(this.host)
+                .port(this.port)
+                .sslContext(this.sslContext)
+                .metadata(BanyanDBSchema.GROUP, BanyanDBSchema.NAME)
+                .build();
     }
 
     @Override
     public void shutdown() throws IOException {
-        try {
-            this.channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException ex) {
-            this.channel.shutdownNow();
-        }
+        this.delegation.close();
     }
 
     @Override

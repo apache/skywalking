@@ -18,11 +18,17 @@
 
 package org.apache.skywalking.banyandb.client;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 /**
  * BanyanDBService is a full-featured BanyanDB Service,
  * which only includes BanyanDBTraceService.
  * <p>
  * In the future, BanyanDBMetricsService, BanyanDBLogService will be added.
  */
-public interface BanyanDBService extends BanyanDBTraceService {
+public interface BanyanDBService extends BanyanDBTraceService, Closeable {
+    @Override
+    default void close() throws IOException {
+    }
 }

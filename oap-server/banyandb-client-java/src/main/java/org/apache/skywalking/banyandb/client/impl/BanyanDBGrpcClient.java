@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.banyandb.client.impl;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.netty.handler.ssl.SslContext;
@@ -38,6 +40,7 @@ import org.apache.skywalking.banyandb.client.request.WriteValue;
 import org.apache.skywalking.banyandb.client.response.BanyanDBEntity;
 import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -47,14 +50,26 @@ public class BanyanDBGrpcClient implements BanyanDBService {
     private final TraceServiceGrpc.TraceServiceStub asyncStub;
     private final Database.Metadata metadata;
 
-    public BanyanDBGrpcClient(String host, int port, SslContext sslContext, String group, String name) {
-        ManagedChannel channel = null;
-        if (sslContext == null) {
-            channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
+    private ManagedChannel channel;
+
+    private BanyanDBGrpcClient(Builder builder) {
+        ManagedChannel channel;
+        if (builder.sslContext == null) {
+            channel = NettyChannelBuilder.forAddress(builder.host, builder.port).usePlaintext().build();
+        } else {
+            channel = NettyChannelBuilder.forAddress(builder.host, builder.port).sslContext(builder.sslContext).build();
         }
-        channel = NettyChannelBuilder.forAddress(host, port).sslContext(sslContext).build();
-        this.stub = TraceServiceGrpc.newBlockingStub(channel);
-        this.asyncStub = TraceServiceGrpc.newStub(channel);
+        this.channel = channel;
+        this.stub = TraceServiceGrpc.newBlockingStub(this.channel);
+        this.asyncStub = TraceServiceGrpc.newStub(this.channel);
+        this.metadata = Database.Metadata.newBuilder().setGroup(builder.group).setName(builder.name).build();
+    }
+
+    @VisibleForTesting
+    public BanyanDBGrpcClient(ManagedChannel channel, String group, String name) {
+        this.channel = channel;
+        this.stub = TraceServiceGrpc.newBlockingStub(this.channel);
+        this.asyncStub = TraceServiceGrpc.newStub(this.channel);
         this.metadata = Database.Metadata.newBuilder().setGroup(group).setName(name).build();
     }
 
@@ -159,5 +174,82 @@ public class BanyanDBGrpcClient implements BanyanDBService {
         }
 
         observer.onCompleted();
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            this.channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException ex) {
+            this.channel.shutdownNow();
+        }
+    }
+
+    /**
+     * @return a new builder for BanyanDBClient
+     */
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private String host;
+        private int port;
+        private SslContext sslContext;
+
+        private String group;
+        private String name;
+
+        /**
+         * Set host
+         *
+         * @param host the hostname of the target BanyanBD server
+         */
+        public Builder host(String host) {
+            this.host = host;
+            return this;
+        }
+
+        /**
+         * Set port
+         *
+         * @param port the port of the target BanyanBD server
+         */
+        public Builder port(int port) {
+            this.port = port;
+            return this;
+        }
+
+        /**
+         * Set sslContext if using ssl
+         *
+         * @param sslContext the sslContext to be used for network communication
+         */
+        public Builder sslContext(SslContext sslContext) {
+            this.sslContext = sslContext;
+            return this;
+        }
+
+        /**
+         * Set metadata for the given client
+         *
+         * @param group group of the entity
+         * @param name  name of the entity
+         */
+        public Builder metadata(String group, String name) {
+            this.group = group;
+            this.name = name;
+            return this;
+        }
+
+        public BanyanDBService build() {
+            Preconditions.checkArgument(!Strings.isNullOrEmpty(host), "host must not be null or empty");
+            Preconditions.checkArgument(port > 0, "port must be valid");
+
+            Preconditions.checkArgument(!Strings.isNullOrEmpty(this.group), "group of the metadata must not be null or empty");
+            Preconditions.checkArgument(!Strings.isNullOrEmpty(this.name), "name of the metadata must not be null or empty");
+
+            return new BanyanDBGrpcClient(this);
+        }
     }
 }

@@ -27,7 +27,11 @@ import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcCleanupRule;
 import org.apache.skywalking.banyandb.Query;
 import org.apache.skywalking.banyandb.TraceServiceGrpc;
+import org.apache.skywalking.banyandb.client.impl.BanyanDBGrpcClient;
+import org.apache.skywalking.banyandb.client.request.TraceFetchRequest;
 import org.apache.skywalking.banyandb.client.request.TraceSearchQuery;
+import org.apache.skywalking.banyandb.client.request.TraceSearchRequest;
+import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBClient;
@@ -82,7 +86,18 @@ public class BanyanDBTraceQueryDAOTest {
         ManagedChannel channel = grpcCleanup.register(
                 InProcessChannelBuilder.forName(serverName).directExecutor().build());
 
-        BanyanDBClient client = new BanyanDBClient(channel);
+        final BanyanDBGrpcClient grpcClient = new BanyanDBGrpcClient(channel, BanyanDBSchema.GROUP, BanyanDBSchema.NAME);
+        BanyanDBClient client = new BanyanDBClient("127.0.0.0", 1000) {
+            @Override
+            public BanyanDBQueryResponse queryBasicTraces(TraceSearchRequest request) {
+                return grpcClient.queryBasicTraces(request);
+            }
+
+            @Override
+            public BanyanDBQueryResponse queryByTraceId(TraceFetchRequest traceFetchRequest) {
+                return grpcClient.queryByTraceId(traceFetchRequest);
+            }
+        };
 
         // Create a BanyanDBTraceQueryDAO using the in-process channel;
         queryDAO = new BanyanDBTraceQueryDAO(client);

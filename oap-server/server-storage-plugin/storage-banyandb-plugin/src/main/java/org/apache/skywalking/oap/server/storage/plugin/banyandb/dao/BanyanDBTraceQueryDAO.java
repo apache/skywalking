@@ -123,11 +123,11 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBClient> implement
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        TraceFetchRequest.TraceFetchRequestBuilder<?, ?> queryBuilder = TraceFetchRequest.builder()
+        TraceFetchRequest request = TraceFetchRequest.builder()
                 .traceId(traceId)
                 .projections(BanyanDBSchema.FIELD_NAMES)
-                .projection("data_binary");
-        BanyanDBQueryResponse response = this.getClient().queryByTraceId(queryBuilder.build());
+                .projection("data_binary").build();
+        BanyanDBQueryResponse response = this.getClient().queryByTraceId(request);
         return response.getEntities().stream().map(entity -> {
             SegmentRecord record = new SegmentRecord();
             record.setSegmentId(entity.getEntityId());
