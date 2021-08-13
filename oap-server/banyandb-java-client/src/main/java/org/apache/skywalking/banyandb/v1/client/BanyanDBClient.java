@@ -23,16 +23,15 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.NameResolverRegistry;
 import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import java.util.concurrent.locks.ReentrantLock;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.banyandb.v1.trace.TraceServiceGrpc;
 
 /**
  * BanyanDBClient represents a client instance interacting with BanyanDB server. This is built on the top of BanyanDB v1
  * gRPC APIs.
  */
-@RequiredArgsConstructor
 @Slf4j
 public class BanyanDBClient {
     /**
@@ -57,9 +56,49 @@ public class BanyanDBClient {
      */
     private volatile ManagedChannel managedChannel;
     /**
+     * gRPC client stub
+     */
+    private volatile TraceServiceGrpc.TraceServiceStub traceServiceStub;
+    /**
      * The connection status.
      */
     private volatile boolean isConnected = false;
+    /**
+     * A lock to control the race condition in establishing and disconnecting network connection.
+     */
+    private volatile ReentrantLock connectionEstablishLock;
+
+    /**
+     * Create a BanyanDB client instance
+     *
+     * @param host  IP or domain name
+     * @param port  Server port
+     * @param group Database instance name
+     */
+    public BanyanDBClient(final String host, final int port, final String group) {
+        this(host, port, group, new Options());
+    }
+
+    /**
+     * Create a BanyanDB client instance with custom options
+     *
+     * @param host    IP or domain name
+     * @param port    Server port
+     * @param group   Database instance name
+     * @param options for database connection
+     */
+    public BanyanDBClient(final String host,
+                          final int port,
+                          final String group,
+                          final Options options) {
+        this.host = host;
+        this.port = port;
+        this.group = group;
+        this.options = options;
+        this.connectionEstablishLock = new ReentrantLock();
+
+        NameResolverRegistry.getDefaultRegistry().register(new DnsNameResolverProvider());
+    }
 
     /**
      * Connect to the server.
@@ -67,25 +106,23 @@ public class BanyanDBClient {
      * @throws RuntimeException if server is not reachable.
      */
     public void connect() {
-        NameResolverRegistry.getDefaultRegistry().register(new DnsNameResolverProvider());
+        connectionEstablishLock.lock();
+        try {
+            if (!isConnected) {
+                final ManagedChannelBuilder nettyChannelBuilder = NettyChannelBuilder.forAddress(host, port);
+                nettyChannelBuilder.maxInboundMessageSize(options.getMaxInboundMessageSize());
 
-        final ManagedChannelBuilder nettyChannelBuilder = NettyChannelBuilder.forAddress(host, port);
-        nettyChannelBuilder.maxInboundMessageSize(options.getMaxInboundMessageSize());
-
-        managedChannel = nettyChannelBuilder.build();
-        isConnected = true;
-    }
-
-    /**
-     * Client connection options.
-     */
-    @Setter
-    @Getter
-    public class Options {
-        private int maxInboundMessageSize = 1024 * 1024 * 50;
-
-        private Options() {
+                managedChannel = nettyChannelBuilder.build();
+                traceServiceStub = TraceServiceGrpc.newStub(managedChannel);
+                isConnected = true;
+            }
+        } finally {
+            connectionEstablishLock.unlock();
         }
+    }
+
+    public void writeTrace(TraceWrite write) {
 
     }
+
 }

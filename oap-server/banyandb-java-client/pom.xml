@@ -44,6 +44,10 @@
             <version>${org.apache.tomcat.annotations-api.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-datacarrier</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

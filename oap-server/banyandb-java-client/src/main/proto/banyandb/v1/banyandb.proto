@@ -24,11 +24,6 @@ package banyandb.v1;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 
-service TraceService {
-  rpc Query(banyandb.v1.QueryRequest) returns (banyandb.v1.QueryResponse);
-  rpc Write(stream banyandb.v1.WriteRequest) returns (stream banyandb.v1.WriteResponse);
-}
-
 // Metadata is for multi-tenant, multi-model use
 message Metadata {
   // group contains a set of options, like retention policy, max
@@ -95,33 +90,6 @@ message QueryOrder {
   Sort sort = 2;
 }
 
-// Entity represents
-// (Trace context) a Span defined in Google Dapper paper or equivalently a Segment in Skywalking.
-// (Log context) a log
-message Entity {
-  // entity_id could be span_id of a Span or segment_id of a Segment in the context of Trace
-  string entity_id = 1;
-  // timestamp represents
-  // 1) either the start time of a Span/Segment,
-  // 2) or the timestamp of a log
-  google.protobuf.Timestamp timestamp = 2;
-  // data_binary contains all un-indexed Tags and other key-value pairs
-  bytes data_binary = 3;
-  // fields contains all indexed Field. Some typical names,
-  // - trace_id
-  // - duration
-  // - service_name
-  // - service_instance_id
-  // - end_time_nanoseconds
-  repeated TypedPair fields = 4;
-}
-
-// QueryResponse is the response for a query to the Query module.
-message QueryResponse {
-  // entities are the actual data returned
-  repeated Entity entities = 1;
-}
-
 // Projection is used to select the names of keys to be returned.
 message Projection {
   // The key_name refers to the key(s) of Pair(s).
@@ -133,29 +101,6 @@ message Projection {
 message TimeRange {
   google.protobuf.Timestamp begin = 1;
   google.protobuf.Timestamp end = 2;
-}
-
-// QueryRequest is the request contract for query.
-message QueryRequest {
-  // metadata is required
-  Metadata metadata = 1;
-  // time_range is a range query with begin/end time of entities in the timeunit of nanoseconds.
-  // In the context of Trace, it represents the range of the `startTime` for spans/segments,
-  // while in the context of Log, it means the range of the timestamp(s) for logs.
-  // it is always recommended to specify time range for performance reason
-  TimeRange time_range = 2;
-  // offset is used to support pagination, together with the following limit
-  uint32 offset = 3;
-  // limit is used to impose a boundary on the number of records being returned
-  uint32 limit = 4;
-  // order_by is given to specify the sort for a field. So far, only fields in the type of Integer are supported
-  QueryOrder order_by = 5;
-  // fields are indexed. Some typical fields are listed below,
-  // - trace_id: if given, it takes precedence over other fields and will be used to retrieve entities before other conditions are imposed
-  // - duration: typical for trace context
-  repeated PairQuery fields = 6;
-  // projection can be used to select the key names of the entities in the response
-  Projection projection = 7;
 }
 
 message Str {
@@ -183,28 +128,3 @@ message Field {
     IntArray int_array = 5;
   }
 }
-
-message EntityValue {
-  // entity_id could be span_id of a Span or segment_id of a Segment in the context of Trace
-  string entity_id = 1;
-  // timestamp_nanoseconds is in the timeunit of nanoseconds. It represents
-  // 1) either the start time of a Span/Segment,
-  // 2) or the timestamp of a log
-  google.protobuf.Timestamp timestamp = 2;
-  // binary representation of segments, including tags, spans...
-  bytes data_binary = 3;
-  // support all of indexed fields in the fields.
-  // Pair only has value, as the value of PairValue match with the key
-  // by the index rules and index rule bindings of Metadata group.
-  // indexed fields of multiple entities are compression in the fields.
-  repeated Field fields = 4;
-}
-
-message WriteRequest {
-  // the metadata is only required in the first write.
-  Metadata metadata = 1;
-  // the entity is required.
-  EntityValue entity = 2;
-}
-
-message WriteResponse {}
