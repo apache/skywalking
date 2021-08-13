@@ -78,7 +78,7 @@ public class GRPCExporterTest {
 
     @Test
     public void init() {
-        exporter.init(properties);
+        exporter.init(null);
     }
 
     @Test
