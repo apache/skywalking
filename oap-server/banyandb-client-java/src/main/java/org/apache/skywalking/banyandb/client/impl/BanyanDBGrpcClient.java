@@ -27,6 +27,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.Database;
 import org.apache.skywalking.banyandb.Query;
@@ -40,6 +41,8 @@ import org.apache.skywalking.banyandb.client.request.WriteValue;
 import org.apache.skywalking.banyandb.client.response.BanyanDBEntity;
 import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
 
+import javax.net.ssl.SSLException;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -54,10 +57,10 @@ public class BanyanDBGrpcClient implements BanyanDBService {
 
     private BanyanDBGrpcClient(Builder builder) {
         ManagedChannel channel;
-        if (builder.sslContext == null) {
-            channel = NettyChannelBuilder.forAddress(builder.host, builder.port).usePlaintext().build();
-        } else {
+        if (builder.useSSL && builder.sslContext != null) {
             channel = NettyChannelBuilder.forAddress(builder.host, builder.port).sslContext(builder.sslContext).build();
+        } else {
+            channel = NettyChannelBuilder.forAddress(builder.host, builder.port).usePlaintext().build();
         }
         this.channel = channel;
         this.stub = TraceServiceGrpc.newBlockingStub(this.channel);
@@ -195,10 +198,17 @@ public class BanyanDBGrpcClient implements BanyanDBService {
     public static class Builder {
         private String host;
         private int port;
-        private SslContext sslContext;
 
         private String group;
         private String name;
+
+        private boolean useSSL = false;
+
+        private File keyCertChainFile;
+        private File keyFile;
+        private String keyPassword;
+
+        private SslContext sslContext;
 
         /**
          * Set host
@@ -221,12 +231,18 @@ public class BanyanDBGrpcClient implements BanyanDBService {
         }
 
         /**
-         * Set sslContext if using ssl
+         * Set ssl certificates with password which implies SSL should be used for building connections
          *
-         * @param sslContext the sslContext to be used for network communication
+         * @param keyCertChainFile an X.509 certificate chain file in PEM format
+         * @param keyFile          a PKCS#8 private key file in PEM format
+         * @param keyPassword      the password of the {@code keyFile}, or {@code null} if it's not
+         *                         password-protected
          */
-        public Builder sslContext(SslContext sslContext) {
-            this.sslContext = sslContext;
+        public Builder useSSL(File keyCertChainFile, File keyFile, String keyPassword) {
+            this.useSSL = true;
+            this.keyCertChainFile = keyCertChainFile;
+            this.keyFile = keyFile;
+            this.keyPassword = keyPassword;
             return this;
         }
 
@@ -248,6 +264,16 @@ public class BanyanDBGrpcClient implements BanyanDBService {
 
             Preconditions.checkArgument(!Strings.isNullOrEmpty(this.group), "group of the metadata must not be null or empty");
             Preconditions.checkArgument(!Strings.isNullOrEmpty(this.name), "name of the metadata must not be null or empty");
+
+            if (this.useSSL) {
+                try {
+                    sslContext = SslContextBuilder.forClient()
+                            .keyManager(this.keyCertChainFile, this.keyFile, this.keyPassword)
+                            .build();
+                } catch (SSLException sslEx) {
+                    throw new IllegalArgumentException(sslEx);
+                }
+            }
 
             return new BanyanDBGrpcClient(this);
         }

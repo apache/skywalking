@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
-import io.netty.handler.ssl.SslContext;
 import org.apache.skywalking.banyandb.client.BanyanDBService;
 import org.apache.skywalking.banyandb.client.impl.BanyanDBGrpcClient;
 import org.apache.skywalking.banyandb.client.request.TraceFetchRequest;
@@ -39,16 +38,10 @@ public class BanyanDBClient implements Client, BanyanDBService, HealthCheckable 
 
     private final String host;
     private final int port;
-    private final SslContext sslContext;
 
     public BanyanDBClient(String host, int port) {
-        this(host, port, null);
-    }
-
-    public BanyanDBClient(String host, int port, final SslContext sslContext) {
         this.host = host;
         this.port = port;
-        this.sslContext = sslContext;
     }
 
     @Override
@@ -56,7 +49,6 @@ public class BanyanDBClient implements Client, BanyanDBService, HealthCheckable 
         this.delegation = BanyanDBGrpcClient.newBuilder()
                 .host(this.host)
                 .port(this.port)
-                .sslContext(this.sslContext)
                 .metadata(BanyanDBSchema.GROUP, BanyanDBSchema.NAME)
                 .build();
     }
