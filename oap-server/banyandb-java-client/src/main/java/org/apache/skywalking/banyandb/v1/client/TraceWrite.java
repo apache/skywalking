@@ -18,20 +18,24 @@
 
 package org.apache.skywalking.banyandb.v1.client;
 
+import com.google.protobuf.ByteString;
+import com.google.protobuf.Timestamp;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import org.apache.skywalking.banyandb.v1.Banyandb;
+import org.apache.skywalking.banyandb.v1.trace.BanyandbTrace;
 
 /**
  * TraceWrite represents a write operation, including necessary fields, for {@link
- * BanyanDBClient#writeTrace(TraceWrite)}.
+ * BanyanDBClient#buildTraceWriteProcessor}.
  */
 @Builder
 @Getter(AccessLevel.PROTECTED)
 public class TraceWrite {
     /**
-     * Ower name current entity
+     * Owner name current entity
      */
     private final String name;
     /**
@@ -50,4 +54,17 @@ public class TraceWrite {
     private final byte[] binary;
     private final List<WriteField> fields;
 
+    BanyandbTrace.WriteRequest build(String group) {
+        final BanyandbTrace.WriteRequest.Builder builder = BanyandbTrace.WriteRequest.newBuilder();
+        builder.setMetadata(Banyandb.Metadata.newBuilder().setGroup(group).setName(name).build());
+        final Banyandb.EntityValue.Builder entityBuilder = Banyandb.EntityValue.newBuilder();
+        entityBuilder.setEntityId(entityId);
+        entityBuilder.setTimestamp(Timestamp.newBuilder()
+                                            .setSeconds(timestamp / 1000)
+                                            .setNanos((int) (timestamp % 1000 * 1000)));
+        entityBuilder.setDataBinary(ByteString.copyFrom(binary));
+        fields.forEach(writeField -> entityBuilder.addFields(writeField.toField()));
+        builder.setEntity(entityBuilder.build());
+        return null;
+    }
 }

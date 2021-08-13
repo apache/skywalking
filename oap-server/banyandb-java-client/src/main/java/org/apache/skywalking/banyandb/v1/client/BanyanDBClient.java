@@ -121,8 +121,17 @@ public class BanyanDBClient {
         }
     }
 
-    public void writeTrace(TraceWrite write) {
-
+    /**
+     * Create a build process for trace write.
+     *
+     * @param maxBulkSize   the max bulk size for the flush operation
+     * @param flushInterval if given maxBulkSize is not reached in this period, the flush would be trigger
+     *                      automatically. Unit is second
+     * @param concurrency   the number of concurrency would run for the flush max
+     * @return trace bulk write processor
+     */
+    public TraceBulkWriteProcessor buildTraceWriteProcessor(int maxBulkSize, int flushInterval, int concurrency) {
+        return new TraceBulkWriteProcessor(group, traceServiceStub, maxBulkSize, flushInterval, concurrency);
     }
 
 }

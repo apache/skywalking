@@ -19,29 +19,48 @@
 package org.apache.skywalking.banyandb.v1.client;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.banyandb.v1.Banyandb;
+
+import static com.google.protobuf.NullValue.NULL_VALUE;
 
 /**
  * WriteField represents a value of column/field for a write-op value.
  */
 public interface WriteField {
-    class NullField {
+    Banyandb.Field toField();
 
+    class NullField implements WriteField {
+
+        @Override
+        public Banyandb.Field toField() {
+            return Banyandb.Field.newBuilder().setNull(NULL_VALUE).build();
+        }
     }
 
     /**
      * The value of a String type field.
      */
     @RequiredArgsConstructor
-    class StringField {
+    class StringField implements WriteField {
         private final String value;
+
+        @Override
+        public Banyandb.Field toField() {
+            return Banyandb.Field.newBuilder().setStr(Banyandb.Str.newBuilder().setValue(value)).build();
+        }
     }
 
     /**
      * The value of a String array type field.
      */
     @RequiredArgsConstructor
-    class StringArrayField {
+    class StringArrayField implements WriteField {
         private final String[] value;
+
+        @Override
+        public Banyandb.Field toField() {
+            return null;
+        }
     }
 
     /**

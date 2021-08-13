@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.banyandb.v1.client;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 
@@ -26,9 +28,10 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
  * BulkWriteProcessor is a timeline and size dual driven processor.
  *
  * It includes an internal queue and timer, and accept the data sequentially. With the given thresholds of time and
- * size, it could activate {@link #flush()} to continue the process to the next step.
+ * size, it could activate flush to continue the process to the next step.
  */
-public abstract class BulkWriteProcessor<T> {
+public abstract class BulkWriteProcessor {
+    protected final int flushInterval;
     private DataCarrier queue;
 
     /**
@@ -36,26 +39,55 @@ public abstract class BulkWriteProcessor<T> {
      *
      * @param maxBulkSize   the max bulk size for the flush operation
      * @param flushInterval if given maxBulkSize is not reached in this period, the flush would be trigger
-     *                      automatically
+     *                      automatically. Unit is second.
      * @param concurrency   the number of concurrency would run for the flush max.
      */
     protected BulkWriteProcessor(String processorName, int maxBulkSize, int flushInterval, int concurrency) {
-        this.queue = new DataCarrier(processorName, maxBulkSize * 2, 2);
+        this.flushInterval = flushInterval;
+        this.queue = new DataCarrier(processorName, maxBulkSize, concurrency);
+        Properties properties = new Properties();
+        properties.put("maxBulkSize", maxBulkSize);
+        properties.put("flushInterval", flushInterval);
+        properties.put("BulkWriteProcessor", this);
         queue.consume(QueueWatcher.class, concurrency);
     }
 
     /**
-     * The internal queue consumer for buld process.
+     * The internal queue consumer for build process.
      */
     private static class QueueWatcher implements IConsumer {
+        private long lastFlushTimestamp;
+        private int maxBulkSize;
+        private int flushInterval;
+        private List cachedData;
+        private BulkWriteProcessor bulkWriteProcessor;
+
         @Override
         public void init() {
-
+            lastFlushTimestamp = System.currentTimeMillis();
+            //TODO: initialize maxBulkSize and flushInterval
+            flushInterval = flushInterval * 1000;
+            cachedData = new ArrayList(maxBulkSize);
         }
 
         @Override
         public void consume(final List data) {
-
+            if (data.size() >= maxBulkSize) {
+                // The data#size actually wouldn't over the maxBulkSize due to the DataCarrier channel's max size.
+                // This is just to preventing unexpected case and avoid confusion about dropping into else section.
+                bulkWriteProcessor.flush(data);
+                lastFlushTimestamp = System.currentTimeMillis();
+            } else {
+                data.forEach(element -> {
+                    cachedData.add(element);
+                    if (cachedData.size() >= maxBulkSize) {
+                        // Flush and re-init.
+                        bulkWriteProcessor.flush(cachedData);
+                        cachedData = new ArrayList(maxBulkSize);
+                        lastFlushTimestamp = System.currentTimeMillis();
+                    }
+                });
+            }
         }
 
         @Override
@@ -70,9 +102,16 @@ public abstract class BulkWriteProcessor<T> {
 
         @Override
         public void nothingToConsume() {
-
+            if (System.currentTimeMillis() - lastFlushTimestamp > flushInterval) {
+                bulkWriteProcessor.flush(cachedData);
+                cachedData = new ArrayList(maxBulkSize);
+                lastFlushTimestamp = System.currentTimeMillis();
+            }
         }
     }
 
-    protected abstract void flush();
+    /**
+     * @param data to be flush.
+     */
+    protected abstract void flush(List data);
 }
