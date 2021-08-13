@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.remote;
 
 import java.util.List;
 
+import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
@@ -49,7 +50,7 @@ public class LogReportServiceClient implements BootService, IConsumer<LogData> {
     }
 
     @Override
-    public void init() {
+    public void init(final Properties properties) {
 
     }
 

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
@@ -100,7 +101,7 @@ public class TopNWorker extends PersistenceWorker<TopN> {
 
     private class TopNConsumer implements IConsumer<TopN> {
         @Override
-        public void init() {
+        public void init(final Properties properties) {
         }
 
         @Override
