@@ -27,37 +27,69 @@ import org.apache.skywalking.banyandb.Query;
 
 import java.util.List;
 
+/**
+ * A wrapped request for conditional trace search with complex query conditions
+ */
 @Builder
 @Data
 public class TraceSearchRequest {
-    // timeRange
+    /**
+     * time range of the entities requested
+     */
     private final TimeRange timeRange;
 
-    // query parameters
+    /**
+     * conditions of the entities requested.
+     * the various conditions are implicitly organized as logical "AND"
+     */
     @Singular
     private final List<TraceSearchQuery> queries;
 
-    // paging parameters: limit & offset
+    /**
+     * paging parameters
+     * 1) limit: total records to be returned
+     * 2) offset: record to be skipped from the beginning
+     */
     private final int limit;
     private final int offset;
 
-    // query order
+    /**
+     * sorted field name and order used for the returned entities
+     */
     private final OrderBy orderBy;
 
+    /**
+     * While searching for entities, you are able to specify fields being returned.
+     * Projections must only contain valid field names defined in the schema.
+     */
     @Singular
     private final List<String> projections;
 
     @RequiredArgsConstructor
     @Getter
     public static class TimeRange {
+        /**
+         * StartTime of the entity in the timeunit of seconds. Inclusive.
+         */
         private final long startTime;
+
+        /**
+         * EndTime of the entity in the timeunit of seconds. Inclusive.
+         */
         private final long endTime;
     }
 
     @RequiredArgsConstructor
     @Getter
     public static class OrderBy {
+        /**
+         * Sorted field name
+         */
         private final String fieldName;
+
+        /**
+         * Sort order
+         */
         private final SortOrder sort;
     }
 

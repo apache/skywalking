@@ -24,17 +24,34 @@ import lombok.Singular;
 
 import java.util.List;
 
+/**
+ * Entity Write Request for BanyanBD
+ */
 @Builder
 @Data
 public class TraceWriteRequest {
+    /**
+     * the list contains all indexed fields to be written.
+     * The order of this list must be strictly kept in order to comply with the fields defined in the schema.
+     */
     @Singular
     private final List<WriteValue<?>> fields;
 
+    /**
+     * binary part of the entity
+     */
     private byte[] dataBinary;
 
+    /**
+     * timestamp represents
+     * 1) either the start time of a Span/Segment,
+     * 2) or the timestamp of a log
+     */
     private final long timestampSeconds;
-
     private int timestampNanos;
 
+    /**
+     * entityId could be spanId of a Span or segmentId of a Segment in the context of Trace
+     */
     private final String entityId;
 }

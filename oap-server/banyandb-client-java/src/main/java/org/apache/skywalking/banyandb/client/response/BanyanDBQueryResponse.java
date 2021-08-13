@@ -16,7 +16,29 @@
  *
  */
 
-package org.apache.skywalking.banyandb.client;
+package org.apache.skywalking.banyandb.client.response;
 
-public interface BanyanDBService extends BanyanDBTraceService {
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * QueryResponse returned from BanyanBD query APIs
+ */
+public class BanyanDBQueryResponse {
+    /**
+     * number of entities being returned
+     */
+    @Setter
+    @Getter
+    private int total;
+
+    @Getter
+    private final List<BanyanDBEntity> entities;
+
+    public BanyanDBQueryResponse() {
+        entities = new ArrayList<>();
+    }
 }

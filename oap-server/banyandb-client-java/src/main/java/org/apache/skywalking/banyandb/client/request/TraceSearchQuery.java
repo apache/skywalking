@@ -29,6 +29,9 @@ public class TraceSearchQuery {
     private final Object value;
     private final Query.TypedPair.TypedCase typedCase;
 
+    /**
+     * @return the underlying protobuf representation of query condition
+     */
     public Query.PairQuery toPairQuery() {
         switch (this.typedCase) {
             case STR_PAIR:
@@ -46,37 +49,91 @@ public class TraceSearchQuery {
         }
     }
 
-    // String
+    /**
+     * Construct a query condition with equal relation and string value, i.e. key == value
+     *
+     * @param key name of the field
+     * @param val string value of the field
+     * @return typed query condition
+     */
     public static TraceSearchQuery eq(String key, String val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.EQ, val, Query.TypedPair.TypedCase.STR_PAIR);
     }
 
+    /**
+     * Construct a query condition with non-equal relation and string value, i.e. key != value
+     *
+     * @param key name of the field
+     * @param val string value of the field
+     * @return typed query condition
+     */
     public static TraceSearchQuery ne(String key, String val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.NE, val, Query.TypedPair.TypedCase.STR_PAIR);
     }
 
-    // long
+    /**
+     * Construct a query condition with equal relation and numeric value, i.e. key == value
+     *
+     * @param key name of the field
+     * @param val numeric value of the field
+     * @return typed query condition
+     */
     public static TraceSearchQuery eq(String key, long val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.EQ, val, Query.TypedPair.TypedCase.INT_PAIR);
     }
 
+    /**
+     * Construct a query condition with non-equal relation and numeric value, i.e. key != value
+     *
+     * @param key name of the field
+     * @param val numeric value of the field
+     * @return typed query condition
+     */
     public static TraceSearchQuery ne(String key, long val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.NE, val, Query.TypedPair.TypedCase.INT_PAIR);
     }
 
+    /**
+     * Construct a query condition with less-than-and-equal relation and numeric value, i.e. key <= value
+     *
+     * @param key name of the field
+     * @param val numeric value of the field
+     * @return typed query condition
+     */
     public static TraceSearchQuery le(String key, long val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.LE, val, Query.TypedPair.TypedCase.INT_PAIR);
     }
 
-    public static TraceSearchQuery Lt(String key, long val) {
+    /**
+     * Construct a query condition with less-than relation and numeric value, i.e. key < value
+     *
+     * @param key name of the field
+     * @param val numeric value of the field
+     * @return typed query condition
+     */
+    public static TraceSearchQuery lt(String key, long val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.LT, val, Query.TypedPair.TypedCase.INT_PAIR);
     }
 
+    /**
+     * Construct a query condition with greater-than-and-equal relation and numeric value, i.e. key >= value
+     *
+     * @param key name of the field
+     * @param val numeric value of the field
+     * @return typed query condition
+     */
     public static TraceSearchQuery ge(String key, long val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.GE, val, Query.TypedPair.TypedCase.INT_PAIR);
     }
 
-    public static TraceSearchQuery Gt(String key, long val) {
+    /**
+     * Construct a query condition with greater-than relation and numeric value, i.e. key > value
+     *
+     * @param key name of the field
+     * @param val numeric value of the field
+     * @return typed query condition
+     */
+    public static TraceSearchQuery gt(String key, long val) {
         return new TraceSearchQuery(key, TraceSearchRequest.BinaryOperator.GT, val, Query.TypedPair.TypedCase.INT_PAIR);
     }
 }

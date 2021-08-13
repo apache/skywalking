@@ -21,12 +21,27 @@ package org.apache.skywalking.banyandb.client.request;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.Write;
 
+/**
+ * Abstract class of a Value linked to an entity to be written.
+ * Provide typed API for writing.
+ *
+ * @param <T> the type of the field. It will be {@link Long} or {@link String}
+ */
 @RequiredArgsConstructor
 public abstract class WriteValue<T> {
+    /**
+     * underlying storage field for Long/String/Null
+     */
     protected final T value;
 
+    /**
+     * @return the protobuf representation of the WriteField
+     */
     public abstract Write.Field toWriteField();
 
+    /**
+     * A Wrapper for {@link Write.Int}
+     */
     public static class IntValue extends WriteValue<Long> {
         private IntValue(long value) {
             super(value);
@@ -38,6 +53,9 @@ public abstract class WriteValue<T> {
         }
     }
 
+    /**
+     * A Wrapper for {@link Write.Str}
+     */
     private static class StrValue extends WriteValue<String> {
         private StrValue(String value) {
             super(value);
@@ -49,7 +67,12 @@ public abstract class WriteValue<T> {
         }
     }
 
+    /**
+     * A Null Wrapper for {@link Write.Field}
+     */
     private static class NullValue extends WriteValue<Object> {
+        private static final WriteValue<?> INSTANCE = new NullValue();
+
         private NullValue() {
             super(null);
         }
@@ -69,6 +92,6 @@ public abstract class WriteValue<T> {
     }
 
     public static WriteValue<?> nullValue() {
-        return new NullValue();
+        return NullValue.INSTANCE;
     }
 }

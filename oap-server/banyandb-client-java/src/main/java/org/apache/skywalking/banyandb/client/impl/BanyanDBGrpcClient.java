@@ -40,7 +40,6 @@ import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class BanyanDBGrpcClient implements BanyanDBService {

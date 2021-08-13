@@ -24,14 +24,33 @@ import lombok.Singular;
 
 import java.util.Map;
 
+/**
+ * BanyanDBEntity represents an entity returned from BanyanDB
+ */
 @Builder
 @Getter
 public class BanyanDBEntity {
+    /**
+     * fields are all indexed fields
+     */
     @Singular
     private Map<String, Object> fields;
 
+    /**
+     * EntityId could be spanId of a Span or SegmentId of a Segment in the context of Trace
+     */
     private final String entityId;
+
+    /**
+     * binaryData normally contains un-indexed fields
+     */
     private byte[] binaryData;
+
+    /**
+     * timestamp represents
+     * 1) either the start time of a Span/Segment,
+     * 2) or the timestamp of a log
+     */
     private final long timestampSeconds;
     private final int timestampNanoSeconds;
 }

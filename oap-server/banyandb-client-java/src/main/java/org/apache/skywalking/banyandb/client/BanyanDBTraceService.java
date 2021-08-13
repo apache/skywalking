@@ -25,10 +25,30 @@ import org.apache.skywalking.banyandb.client.response.BanyanDBQueryResponse;
 
 import java.util.List;
 
+/**
+ * BanyanDBTraceService exposes trace APIs provided by the BanyanDB.
+ */
 public interface BanyanDBTraceService {
+    /**
+     * API for searching for traces with given conditions
+     *
+     * @param request BanyanDB search request to do complex search
+     * @return query response containing entities which satisfy the given query condtions
+     */
     BanyanDBQueryResponse queryBasicTraces(TraceSearchRequest request);
 
+    /**
+     * API for fetching given TraceId
+     *
+     * @param traceFetchRequest request with traceId
+     * @return query response with entities belonging to the given traceId
+     */
     BanyanDBQueryResponse queryByTraceId(TraceFetchRequest traceFetchRequest);
 
+    /**
+     * Batch Trace Write API for BanyanBD
+     *
+     * @param data list of write requsts
+     */
     void writeEntity(List<TraceWriteRequest> data);
 }

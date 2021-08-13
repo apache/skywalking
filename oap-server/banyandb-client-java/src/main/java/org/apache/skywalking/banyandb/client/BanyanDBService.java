@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.banyandb.client;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
-public class Metadata {
-    private final String group;
-    private final String name;
+/**
+ * BanyanDBService is a full-featured BanyanDB Service,
+ * which only includes BanyanDBTraceService.
+ * <p>
+ * In the future, BanyanDBMetricsService, BanyanDBLogService will be added.
+ */
+public interface BanyanDBService extends BanyanDBTraceService {
 }

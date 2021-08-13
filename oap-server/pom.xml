@@ -32,6 +32,7 @@
         <module>analyzer</module>
         <module>server-receiver-plugin</module>
         <module>server-cluster-plugin</module>
+        <module>banyandb-client-java</module>
         <module>server-storage-plugin</module>
         <module>server-library</module>
         <module>server-starter</module>

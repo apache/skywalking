@@ -16,23 +16,18 @@
  *
  */
 
-package org.apache.skywalking.banyandb.client.response;
+package org.apache.skywalking.banyandb.client;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class BanyanDBQueryResponse {
-    @Setter
-    @Getter
-    private int total;
-
-    @Getter
-    private final List<BanyanDBEntity> entities;
-
-    public BanyanDBQueryResponse() {
-        entities = new ArrayList<>();
-    }
+/**
+ * Metadata of an entity.
+ * BanyanDB supports multi-tenant. The schema of any kind of entity can be distinguished by group and name
+ */
+@Getter
+@AllArgsConstructor
+public class Metadata {
+    private final String group;
+    private final String name;
 }

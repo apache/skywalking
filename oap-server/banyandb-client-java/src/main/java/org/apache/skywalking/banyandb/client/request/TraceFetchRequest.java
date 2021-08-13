@@ -18,17 +18,29 @@
 
 package org.apache.skywalking.banyandb.client.request;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
-import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-@SuperBuilder
+/**
+ * TraceFetchRequest can be used for fetching trace entities with the given traceId
+ */
+@Builder
 @Getter
 public class TraceFetchRequest {
+    /**
+     * traceId you want to search which is required
+     */
     private final String traceId;
 
+    /**
+     * While searching for entities, you are able to specify fields being returned.
+     * Projections must only contain valid field names defined in the schema.
+     * Normally, for a complete entity fetch, user can also give a hint (i.e. add project "data_binary")
+     * to ask BanyanBD to return binary part of the entity.
+     */
     @Singular
     private final List<String> projections;
 }
