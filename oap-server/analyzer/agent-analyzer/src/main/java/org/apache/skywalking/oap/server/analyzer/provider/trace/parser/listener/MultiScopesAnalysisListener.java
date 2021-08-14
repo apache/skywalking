@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
+import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
@@ -48,8 +50,6 @@ import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-
-import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
 
 /**
  * MultiScopesSpanListener includes the most segment to source(s) logic.
@@ -239,15 +239,17 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         sourceBuilder.setTimeBucket(TimeBucket.getMinuteTimeBucket(span.getStartTime()));
         sourceBuilder.setLatency((int) latency);
         sourceBuilder.setResponseCode(Const.NONE);
+        sourceBuilder.setHttpResponseStatusCode(Const.NONE);
         span.getTagsList().forEach(tag -> {
-            if (SpanTags.HTTP_RESPONSE_STATUS_CODE.equals(tag.getKey())) {
+            final String tagKey = tag.getKey();
+            if (SpanTags.STATUS_CODE.equals(tagKey) || SpanTags.HTTP_RESPONSE_STATUS_CODE.equals(tagKey)) {
                 try {
                     sourceBuilder.setResponseCode(Integer.parseInt(tag.getValue()));
                     sourceBuilder.setHttpResponseStatusCode(Integer.parseInt(tag.getValue()));
                 } catch (NumberFormatException e) {
                     log.warn("span {} has illegal status code {}", span, tag.getValue());
                 }
-            } else if (SpanTags.RPC_RESPONSE_STATUS_CODE.equals(tag.getKey())) {
+            } else if (SpanTags.RPC_RESPONSE_STATUS_CODE.equals(tagKey)) {
                 sourceBuilder.setRpcStatusCode(tag.getValue());
             }
             sourceBuilder.setTag(tag);
