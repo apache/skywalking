@@ -47,9 +47,8 @@ public abstract class PairQueryCondition {
                                      .setOp(BINARY_OP_EQ)
                                      .setCondition(
                                          Banyandb.TypedPair.newBuilder()
-                                                           .setIntPair(
-                                                               Banyandb.IntPair.newBuilder()
-                                                                               .setKey(fieldName)
+                                             .setKey(fieldName).setIntPair(
+                                                               Banyandb.Int.newBuilder()
                                                                                .setValue(value)))
                                      .build();
         }

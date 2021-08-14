@@ -34,32 +34,32 @@ public interface FieldAndValue extends Field {
 
     static FieldAndValue build(Banyandb.TypedPair typedPair) {
         if (typedPair.hasIntPair()) {
-            final Banyandb.IntPair intPair = typedPair.getIntPair();
-            if (intPair.getIsNull()) {
-                return new LongFieldPair(intPair.getKey(), null);
+            final Banyandb.Int intPair = typedPair.getIntPair();
+            if (typedPair.getIsNull()) {
+                return new LongFieldPair(typedPair.getKey(), null);
             } else {
-                return new LongFieldPair(intPair.getKey(), intPair.getValue());
+                return new LongFieldPair(typedPair.getKey(), intPair.getValue());
             }
         } else if (typedPair.hasStrPair()) {
-            final Banyandb.StrPair strPair = typedPair.getStrPair();
-            if (strPair.getIsNull()) {
-                return new StringFieldPair(strPair.getKey(), null);
+            final Banyandb.Str strPair = typedPair.getStrPair();
+            if (typedPair.getIsNull()) {
+                return new StringFieldPair(typedPair.getKey(), null);
             } else {
-                return new StringFieldPair(strPair.getKey(), strPair.getValue());
+                return new StringFieldPair(typedPair.getKey(), strPair.getValue());
             }
         } else if (typedPair.hasIntArrayPair()) {
-            final Banyandb.IntArrayPair intArrayPair = typedPair.getIntArrayPair();
-            if (intArrayPair.getIsNull()) {
-                return new LongArrayFieldPair(intArrayPair.getKey(), null);
+            final Banyandb.IntArray intArrayPair = typedPair.getIntArrayPair();
+            if (typedPair.getIsNull()) {
+                return new LongArrayFieldPair(typedPair.getKey(), null);
             } else {
-                return new LongArrayFieldPair(intArrayPair.getKey(), intArrayPair.getValueList());
+                return new LongArrayFieldPair(typedPair.getKey(), intArrayPair.getValueList());
             }
         } else if (typedPair.hasStrArrayPair()) {
-            final Banyandb.StrArrayPair strArrayPair = typedPair.getStrArrayPair();
-            if (strArrayPair.getIsNull()) {
-                return new StringArrayFieldPair(strArrayPair.getKey(), null);
+            final Banyandb.StrArray strArrayPair = typedPair.getStrArrayPair();
+            if (typedPair.getIsNull()) {
+                return new StringArrayFieldPair(typedPair.getKey(), null);
             } else {
-                return new StringArrayFieldPair(strArrayPair.getKey(), strArrayPair.getValueList());
+                return new StringArrayFieldPair(typedPair.getKey(), strArrayPair.getValueList());
             }
         }
         throw new IllegalArgumentException("Unrecognized TypedPair, " + typedPair);
