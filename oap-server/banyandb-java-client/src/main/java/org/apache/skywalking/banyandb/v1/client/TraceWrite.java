@@ -43,7 +43,8 @@ public class TraceWrite {
      */
     private final String entityId;
     /**
-     * Timestamp represents the time of current trace or trace segment.
+     * Timestamp represents the time of current trace or trace segment
+     * in the timeunit of milliseconds.
      */
     private final long timestamp;
     /**
@@ -56,7 +57,7 @@ public class TraceWrite {
      * The values of fields, which are defined by the schema. In the bulk write process, BanyanDB client doesn't require
      * field names anymore.
      */
-    private final List<Field> fields;
+    private final List<SerializableField> fields;
 
     /**
      * @param group of the BanyanDB client connected.
@@ -69,7 +70,7 @@ public class TraceWrite {
         entityBuilder.setEntityId(entityId);
         entityBuilder.setTimestamp(Timestamp.newBuilder()
                                             .setSeconds(timestamp / 1000)
-                                            .setNanos((int) (timestamp % 1000 * 1000)));
+                                            .setNanos((int) (timestamp % 1000 * 1000 * 1000)));
         entityBuilder.setDataBinary(ByteString.copyFrom(binary));
         fields.forEach(writeField -> entityBuilder.addFields(writeField.toField()));
         builder.setEntity(entityBuilder.build());

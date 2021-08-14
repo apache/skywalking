@@ -28,14 +28,30 @@ import org.apache.skywalking.banyandb.v1.trace.BanyandbTrace;
  */
 @Getter
 public class RowEntity {
+    /**
+     * identity of the entity.
+     * For a trace entity, it is the spanID of a Span or the segmentId of a segment in Skywalking.
+     */
     private final String id;
+
+    /**
+     * timestamp of the entity in the timeunit of milliseconds.
+     */
     private final long timestamp;
+
+    /**
+     * binary part of the entity
+     */
     private final byte[] binary;
-    private final List<FieldAndValue> fields;
+
+    /**
+     * fields are indexed-fields that are searchable in BanyanBD
+     */
+    private final List<FieldAndValue<?>> fields;
 
     RowEntity(BanyandbTrace.Entity entity) {
         id = entity.getEntityId();
-        timestamp = entity.getTimestamp().getSeconds() * 1000 + entity.getTimestamp().getNanos() / 1000;
+        timestamp = entity.getTimestamp().getSeconds() * 1000 + entity.getTimestamp().getNanos() / 1000 / 1000;
         binary = entity.getDataBinary().toByteArray();
         fields = new ArrayList<>(entity.getFieldsCount());
         entity.getFieldsList().forEach(field -> fields.add(FieldAndValue.build(field)));

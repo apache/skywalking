@@ -45,7 +45,7 @@ public class TraceQuery {
     /**
      * Query conditions.
      */
-    private final List<PairQueryCondition> conditions;
+    private final List<PairQueryCondition<?>> conditions;
     /**
      * The starting row id of the query. Default value is 0.
      */
@@ -75,9 +75,9 @@ public class TraceQuery {
     BanyandbTrace.QueryRequest build(String group) {
         final BanyandbTrace.QueryRequest.Builder builder = BanyandbTrace.QueryRequest.newBuilder();
         builder.setMetadata(Banyandb.Metadata.newBuilder()
-                                             .setGroup(group)
-                                             .setName(name)
-                                             .build());
+                .setGroup(group)
+                .setName(name)
+                .build());
         builder.setTimeRange(timestampRange.build());
         builder.setProjection(Banyandb.Projection.newBuilder().addAllKeyNames(projections).build());
         conditions.forEach(pairQueryCondition -> builder.addFields(pairQueryCondition.build()));
@@ -104,7 +104,7 @@ public class TraceQuery {
             final Banyandb.QueryOrder.Builder builder = Banyandb.QueryOrder.newBuilder();
             builder.setKeyName(fieldName);
             builder.setSort(
-                Type.DESC.equals(type) ? Banyandb.QueryOrder.Sort.SORT_DESC : Banyandb.QueryOrder.Sort.SORT_ASC);
+                    Type.DESC.equals(type) ? Banyandb.QueryOrder.Sort.SORT_DESC : Banyandb.QueryOrder.Sort.SORT_ASC);
             return builder.build();
         }
 

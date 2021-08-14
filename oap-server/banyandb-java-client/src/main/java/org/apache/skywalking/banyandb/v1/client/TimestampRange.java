@@ -27,7 +27,14 @@ import org.apache.skywalking.banyandb.v1.Banyandb;
 @RequiredArgsConstructor
 @Getter(AccessLevel.PROTECTED)
 public class TimestampRange {
+    /**
+     * start timestamp in timeunit of milliseconds. inclusive.
+     */
     private final long begin;
+
+    /**
+     * end timestamp in timeunit of milliseconds. inclusive.
+     */
     private final long end;
 
     /**
@@ -37,10 +44,10 @@ public class TimestampRange {
         final Banyandb.TimeRange.Builder builder = Banyandb.TimeRange.newBuilder();
         builder.setBegin(Timestamp.newBuilder()
                                   .setSeconds(begin / 1000)
-                                  .setNanos((int) (begin % 1000 * 1000)));
+                                  .setNanos((int) (begin % 1000 * 1000 * 1000)));
         builder.setBegin(Timestamp.newBuilder()
                                   .setSeconds(end / 1000)
-                                  .setNanos((int) (end % 1000 * 1000)));
+                                  .setNanos((int) (end % 1000 * 1000 * 1000)));
         return builder.build();
     }
 }

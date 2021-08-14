@@ -20,18 +20,31 @@ package org.apache.skywalking.banyandb.v1.client;
 
 import java.util.List;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.v1.Banyandb;
 
 import static com.google.protobuf.NullValue.NULL_VALUE;
 
 /**
- * WriteField represents a value of column/field in the write-op or response.
+ * Field represents a value of column/field in the write-op or response.
  */
-public interface Field {
-    Banyandb.Field toField();
+public abstract class Field<T> {
+    @Getter
+    protected final T value;
 
-    class NullField implements Field {
+    protected Field(T value) {
+        this.value = value;
+    }
+
+    /**
+     * NullField is a value which can be converted to {@link com.google.protobuf.NullValue}.
+     * Users should use the singleton instead of create a new instance everytime.
+     */
+    public static class NullField extends Field<Object> implements SerializableField {
+        public static final NullField INSTANCE = new NullField();
+
+        private NullField() {
+            super(null);
+        }
 
         @Override
         public Banyandb.Field toField() {
@@ -42,10 +55,10 @@ public interface Field {
     /**
      * The value of a String type field.
      */
-    @RequiredArgsConstructor
-    @Getter
-    class StringField implements Field {
-        protected final String value;
+    public static class StringField extends Field<String> implements SerializableField {
+        public StringField(String value) {
+            super(value);
+        }
 
         @Override
         public Banyandb.Field toField() {
@@ -56,10 +69,10 @@ public interface Field {
     /**
      * The value of a String array type field.
      */
-    @RequiredArgsConstructor
-    @Getter
-    class StringArrayField implements Field {
-        protected final List<String> value;
+    public static class StringArrayField extends Field<List<String>> implements SerializableField {
+        public StringArrayField(List<String> value) {
+            super(value);
+        }
 
         @Override
         public Banyandb.Field toField() {
@@ -70,10 +83,10 @@ public interface Field {
     /**
      * The value of an int64(Long) type field.
      */
-    @RequiredArgsConstructor
-    @Getter
-    class LongField implements Field {
-        protected final Long value;
+    public static class LongField extends Field<Long> implements SerializableField {
+        public LongField(Long value) {
+            super(value);
+        }
 
         @Override
         public Banyandb.Field toField() {
@@ -84,10 +97,10 @@ public interface Field {
     /**
      * The value of an int64(Long) array type field.
      */
-    @RequiredArgsConstructor
-    @Getter
-    class LongArrayField implements Field {
-        protected final List<Long> value;
+    public static class LongArrayField extends Field<List<Long>> implements SerializableField {
+        public LongArrayField(List<Long> value) {
+            super(value);
+        }
 
         @Override
         public Banyandb.Field toField() {

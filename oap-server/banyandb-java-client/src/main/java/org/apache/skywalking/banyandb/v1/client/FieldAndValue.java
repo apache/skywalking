@@ -21,18 +21,32 @@ package org.apache.skywalking.banyandb.v1.client;
 import java.util.List;
 import org.apache.skywalking.banyandb.v1.Banyandb;
 
-public interface FieldAndValue extends Field {
+/**
+ * FieldAndValue represents a value of column in the response
+ */
+public abstract class FieldAndValue<T> extends Field<T> {
+    protected final String fieldName;
+
+    protected FieldAndValue(String fieldName, T value) {
+        super(value);
+        this.fieldName = fieldName;
+    }
+
     /**
      * @return field name
      */
-    String getFieldName();
+    public String getFieldName() {
+        return this.fieldName;
+    }
 
     /**
      * @return true if value is null;
      */
-    boolean isNull();
+    public boolean isNull() {
+        return this.value == null;
+    }
 
-    static FieldAndValue build(Banyandb.TypedPair typedPair) {
+    static FieldAndValue<?> build(Banyandb.TypedPair typedPair) {
         if (typedPair.hasNullPair()) {
             switch (typedPair.getNullPair().getType()) {
                 case FIELD_TYPE_INT:
@@ -58,79 +72,27 @@ public interface FieldAndValue extends Field {
         throw new IllegalArgumentException("Unrecognized TypedPair, " + typedPair);
     }
 
-    class StringFieldPair extends StringField implements FieldAndValue {
-        private final String fieldName;
-
+    public static class StringFieldPair extends FieldAndValue<String> {
         StringFieldPair(final String fieldName, final String value) {
-            super(value);
-            this.fieldName = fieldName;
-        }
-
-        @Override
-        public String getFieldName() {
-            return fieldName;
-        }
-
-        @Override
-        public boolean isNull() {
-            return value == null;
+            super(fieldName, value);
         }
     }
 
-    class StringArrayFieldPair extends StringArrayField implements FieldAndValue {
-        private final String fieldName;
-
+    public static class StringArrayFieldPair extends FieldAndValue<List<String>> {
         StringArrayFieldPair(final String fieldName, final List<String> value) {
-            super(value);
-            this.fieldName = fieldName;
-        }
-
-        @Override
-        public String getFieldName() {
-            return fieldName;
-        }
-
-        @Override
-        public boolean isNull() {
-            return value == null;
+            super(fieldName, value);
         }
     }
 
-    class LongFieldPair extends LongField implements FieldAndValue {
-        private final String fieldName;
-
+    public static class LongFieldPair extends FieldAndValue<Long> {
         LongFieldPair(final String fieldName, final Long value) {
-            super(value);
-            this.fieldName = fieldName;
-        }
-
-        @Override
-        public String getFieldName() {
-            return null;
-        }
-
-        @Override
-        public boolean isNull() {
-            return value == null;
+            super(fieldName, value);
         }
     }
 
-    class LongArrayFieldPair extends LongArrayField implements FieldAndValue {
-        private final String fieldName;
-
+    public static class LongArrayFieldPair extends FieldAndValue<List<Long>> {
         LongArrayFieldPair(final String fieldName, final List<Long> value) {
-            super(value);
-            this.fieldName = fieldName;
-        }
-
-        @Override
-        public String getFieldName() {
-            return fieldName;
-        }
-
-        @Override
-        public boolean isNull() {
-            return value == null;
+            super(fieldName, value);
         }
     }
 }
