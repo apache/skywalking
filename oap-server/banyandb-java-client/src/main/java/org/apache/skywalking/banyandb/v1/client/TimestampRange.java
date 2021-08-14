@@ -45,7 +45,7 @@ public class TimestampRange {
         builder.setBegin(Timestamp.newBuilder()
                                   .setSeconds(begin / 1000)
                                   .setNanos((int) (begin % 1000 * 1000 * 1000)));
-        builder.setBegin(Timestamp.newBuilder()
+        builder.setEnd(Timestamp.newBuilder()
                                   .setSeconds(end / 1000)
                                   .setNanos((int) (end % 1000 * 1000 * 1000)));
         return builder.build();

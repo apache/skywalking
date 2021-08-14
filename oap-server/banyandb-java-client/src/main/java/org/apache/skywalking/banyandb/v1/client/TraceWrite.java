@@ -24,6 +24,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Singular;
 import org.apache.skywalking.banyandb.v1.Banyandb;
 import org.apache.skywalking.banyandb.v1.trace.BanyandbTrace;
 
@@ -57,6 +58,7 @@ public class TraceWrite {
      * The values of fields, which are defined by the schema. In the bulk write process, BanyanDB client doesn't require
      * field names anymore.
      */
+    @Singular
     private final List<SerializableField> fields;
 
     /**

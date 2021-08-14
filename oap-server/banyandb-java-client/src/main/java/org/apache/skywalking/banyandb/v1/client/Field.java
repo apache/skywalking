@@ -19,6 +19,7 @@
 package org.apache.skywalking.banyandb.v1.client;
 
 import java.util.List;
+
 import lombok.Getter;
 import org.apache.skywalking.banyandb.v1.Banyandb;
 
@@ -40,7 +41,7 @@ public abstract class Field<T> {
      * Users should use the singleton instead of create a new instance everytime.
      */
     public static class NullField extends Field<Object> implements SerializableField {
-        public static final NullField INSTANCE = new NullField();
+        private static final NullField INSTANCE = new NullField();
 
         private NullField() {
             super(null);
@@ -56,7 +57,7 @@ public abstract class Field<T> {
      * The value of a String type field.
      */
     public static class StringField extends Field<String> implements SerializableField {
-        public StringField(String value) {
+        private StringField(String value) {
             super(value);
         }
 
@@ -70,7 +71,7 @@ public abstract class Field<T> {
      * The value of a String array type field.
      */
     public static class StringArrayField extends Field<List<String>> implements SerializableField {
-        public StringArrayField(List<String> value) {
+        private StringArrayField(List<String> value) {
             super(value);
         }
 
@@ -84,7 +85,7 @@ public abstract class Field<T> {
      * The value of an int64(Long) type field.
      */
     public static class LongField extends Field<Long> implements SerializableField {
-        public LongField(Long value) {
+        private LongField(Long value) {
             super(value);
         }
 
@@ -98,7 +99,7 @@ public abstract class Field<T> {
      * The value of an int64(Long) array type field.
      */
     public static class LongArrayField extends Field<List<Long>> implements SerializableField {
-        public LongArrayField(List<Long> value) {
+        private LongArrayField(List<Long> value) {
             super(value);
         }
 
@@ -106,5 +107,49 @@ public abstract class Field<T> {
         public Banyandb.Field toField() {
             return Banyandb.Field.newBuilder().setIntArray(Banyandb.IntArray.newBuilder().addAllValue(value)).build();
         }
+    }
+
+    /**
+     * Construct a string field
+     *
+     * @param val payload
+     * @return Anonymous field with String payload
+     */
+    public static SerializableField stringField(String val) {
+        return new StringField(val);
+    }
+
+    /**
+     * Construct a numeric field
+     *
+     * @param val payload
+     * @return Anonymous field with numeric payload
+     */
+    public static SerializableField longField(long val) {
+        return new LongField(val);
+    }
+
+    /**
+     * Construct a string array field
+     *
+     * @param val payload
+     * @return Anonymous field with string array payload
+     */
+    public static SerializableField stringArrayField(List<String> val) {
+        return new StringArrayField(val);
+    }
+
+    /**
+     * Construct a long array field
+     *
+     * @param val payload
+     * @return Anonymous field with numeric array payload
+     */
+    public static SerializableField longArrayField(List<Long> val) {
+        return new LongArrayField(val);
+    }
+
+    public static SerializableField nullField() {
+        return NullField.INSTANCE;
     }
 }

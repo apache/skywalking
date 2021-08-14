@@ -20,6 +20,7 @@ package org.apache.skywalking.banyandb.v1.client;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.banyandb.v1.Banyandb;
@@ -68,6 +69,20 @@ public class TraceQuery {
         this.limit = 20;
     }
 
+    public TraceQuery(final String name, final List<String> projections) {
+        this(name, null, projections);
+    }
+
+    /**
+     * Fluent API for appending query condition
+     *
+     * @param condition the query condition to be appended
+     */
+    public TraceQuery appendCondition(PairQueryCondition<?> condition) {
+        this.conditions.add(condition);
+        return this;
+    }
+
     /**
      * @param group The instance name.
      * @return QueryRequest for gRPC level query.
@@ -78,7 +93,9 @@ public class TraceQuery {
                 .setGroup(group)
                 .setName(name)
                 .build());
-        builder.setTimeRange(timestampRange.build());
+        if (timestampRange != null) {
+            builder.setTimeRange(timestampRange.build());
+        }
         builder.setProjection(Banyandb.Projection.newBuilder().addAllKeyNames(projections).build());
         conditions.forEach(pairQueryCondition -> builder.addFields(pairQueryCondition.build()));
         builder.setOffset(offset);
