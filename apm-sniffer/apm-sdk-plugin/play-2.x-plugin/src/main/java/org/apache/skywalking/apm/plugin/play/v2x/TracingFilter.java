@@ -80,7 +80,7 @@ public class TracingFilter extends Filter {
             CompletionStage<Result> stage = next.apply(request).thenApply(result -> {
                 if (result.status() >= 400) {
                     span.errorOccurred();
-                    Tags.STATUS_CODE.set(span, Integer.toString(result.status()));
+                    Tags.HTTP_RESPONSE_STATUS_CODE.set(span, result.status());
                 }
                 try {
                     span.asyncFinish();

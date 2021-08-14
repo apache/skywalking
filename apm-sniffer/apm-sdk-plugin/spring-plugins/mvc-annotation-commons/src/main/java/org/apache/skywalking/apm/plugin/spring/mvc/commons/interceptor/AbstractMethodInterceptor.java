@@ -229,7 +229,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
                 if (statusCode != null && statusCode >= 400) {
                     span.errorOccurred();
-                    Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+                    Tags.HTTP_RESPONSE_STATUS_CODE.set(span, statusCode);
                 }
 
                 runtimeContext.remove(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
