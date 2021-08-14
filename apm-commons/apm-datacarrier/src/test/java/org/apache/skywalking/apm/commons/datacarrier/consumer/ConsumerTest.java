@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.commons.datacarrier.consumer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.SampleData;
@@ -104,7 +105,7 @@ public class ConsumerTest {
         public boolean onError = false;
 
         @Override
-        public void init() {
+        public void init(final Properties properties) {
 
         }
 
