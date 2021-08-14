@@ -27,7 +27,11 @@ import io.grpc.util.MutableHandlerRegistry;
 import org.apache.skywalking.banyandb.v1.Banyandb;
 import org.apache.skywalking.banyandb.v1.trace.BanyandbTrace;
 import org.apache.skywalking.banyandb.v1.trace.TraceServiceGrpc;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -96,7 +100,6 @@ public class BanyanDBClientWriteTest {
                     }
                 };
         serviceRegistry.addService(serviceImpl);
-
 
         String segmentId = "1231.dfd.123123ssf";
         String traceId = "trace_id-xxfff.111323";
