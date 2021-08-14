@@ -115,6 +115,9 @@ The rule file should be in YAML format, defined by the scheme described in [prom
 Note: `receiver-otel` only supports the `group`, `defaultMetricLevel`, and `metricsRules` nodes of the scheme due to its push mode.
 
 To activate the `oc` handler and relevant rules of `istio`:
+
+> **Attention:**  If  `receiver-otel. selector=${SW_OTEL_RECEIVER:-}`, please modify it to `receiver-otel. selector=${SW_OTEL_RECEIVER:default}`,Otherwise, the receiver-otel will not be loaded.
+
 ```yaml
 receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
@@ -149,6 +152,9 @@ receiver-meter:
 ```
 
 To activate the meter rule files:
+
+> Must put your customized meter file xxx.yaml ( [mal](../../concepts-and-designs/mal.md) format) in the `config/meter-analyzer-config` directory and configure meteranalyzer activefiles=${SW_ METER_ ANALYZER_ ACTIVE_ FILES:xxx}
+
 ```yaml
 agent-analyzer:
   selector: ${SW_AGENT_ANALYZER:default}
