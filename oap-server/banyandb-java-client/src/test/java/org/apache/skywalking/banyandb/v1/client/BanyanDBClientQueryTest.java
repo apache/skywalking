@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import io.grpc.ManagedChannel;
+import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -71,15 +72,18 @@ public class BanyanDBClientQueryTest {
 
     @Before
     public void setUp() throws IOException {
-        client = new BanyanDBClient("127.0.0.1", 17912, "default");
-
+        // Generate a unique in-process server name.
         String serverName = InProcessServerBuilder.generateName();
 
-        grpcCleanup.register(InProcessServerBuilder
-                .forName(serverName).directExecutor().addService(serviceImpl).build().start());
+        // Create a server, add service, start, and register for automatic graceful shutdown.
+        Server server = InProcessServerBuilder
+                .forName(serverName).directExecutor().addService(serviceImpl).build();
+        grpcCleanup.register(server.start());
 
+        // Create a client channel and register for automatic graceful shutdown.
         ManagedChannel channel = grpcCleanup.register(
                 InProcessChannelBuilder.forName(serverName).directExecutor().build());
+        client = new BanyanDBClient("127.0.0.1", server.getPort(), "default");
 
         client.connect(channel);
     }
