@@ -34,7 +34,6 @@ public interface ITraceQueryDAO extends Service {
                                 long endSecondTB,
                                 long minDuration,
                                 long maxDuration,
-                                String endpointName,
                                 String serviceId,
                                 String serviceInstanceId,
                                 String endpointId,

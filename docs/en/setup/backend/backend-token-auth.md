@@ -2,12 +2,12 @@
 ## Supported version
 7.0.0+
 
-## Why need token authentication after we have TLS?
-TLS is about transport security, which makes sure the network can be trusted. 
-The token authentication is about monitoring application data **can be trusted**.
+## Why do we need token authentication after TLS?
+TLS is about transport security, which makes sure that a network can be trusted. 
+On the other hand, token authentication is about monitoring **whether application data can be trusted**.
 
 ## Token 
-In current version, Token is considered as a simple string.
+In the current version, token is considered a simple string.
 
 ### Set Token
 1. Set token in agent.config file
@@ -25,19 +25,18 @@ receiver-sharing-server:
 ······
 ```
 
-## Authentication fails
-The Skywalking OAP verifies every request from agent, only allows requests whose token matches the one configured in `application.yml`.
+## Authentication failure
+The Skywalking OAP verifies every request from the agent, and only allows requests whose token matches the one configured in `application.yml` to pass through.
 
-If the token is not right, you will see the following log in agent
+If the token does not match, you will see the following log in the agent:
 ```
 org.apache.skywalking.apm.dependencies.io.grpc.StatusRuntimeException: PERMISSION_DENIED
 ```
 
 ## FAQ
 ### Can I use token authentication instead of TLS?
-No, you shouldn't. In tech way, you can of course, but token and TLS are used for untrusted network env. In that circumstance,
-TLS has higher priority than this. Token can be trusted only under TLS protection.Token can be stolen easily if you 
-send it through a non-TLS network.
+No, you shouldn't. Of course it's technically possible, but token and TLS are used for untrusted network environments. In these circumstances,
+TLS has a higher priority. Tokens can be trusted only under TLS protection, and they can be easily stolen if sent through a non-TLS network.
 
-### Do you support other authentication mechanisms? Such as ak/sk?
-For now, no. But we appreciate someone contributes this feature. 
+### Do you support other authentication mechanisms, such as ak/sk?
+Not for now. But we welcome contributions on this feature. 

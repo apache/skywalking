@@ -29,7 +29,6 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
 
     private String serviceId;
     private String endpointId = "";
-    private String endpointName = "";
     private String pageNum = "1";
     private String pageSize = "15";
     private String needTotal = "true";
@@ -52,15 +51,6 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
 
     public LogsQuery endpointId(String endpointId) {
         this.endpointId = endpointId;
-        return this;
-    }
-
-    public String endpointName() {
-        return endpointName;
-    }
-
-    public LogsQuery endpointName(String endpointName) {
-        this.endpointName = endpointName;
         return this;
     }
 

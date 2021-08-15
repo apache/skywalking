@@ -53,9 +53,6 @@ public class Segment extends Source {
     private String serviceInstanceId;
     @Setter
     @Getter
-    private String endpointName;
-    @Setter
-    @Getter
     private String endpointId;
     @Setter
     @Getter

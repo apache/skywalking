@@ -29,6 +29,7 @@ import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -48,7 +49,6 @@ import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_NAME;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SPAN_ID;
@@ -78,7 +78,6 @@ public class H2LogQueryDAO implements ILogQueryDAO {
     public Logs queryLogs(String serviceId,
                           String serviceInstanceId,
                           String endpointId,
-                          String endpointName,
                           TraceScopeCondition relatedTrace,
                           Order queryOrder,
                           int from,
@@ -120,10 +119,6 @@ public class H2LogQueryDAO implements ILogQueryDAO {
         if (StringUtil.isNotEmpty(endpointId)) {
             sql.append(" and ").append(AbstractLogRecord.ENDPOINT_ID).append(" = ?");
             parameters.add(endpointId);
-        }
-        if (StringUtil.isNotEmpty(endpointName)) {
-            sql.append(" and ").append(ENDPOINT_NAME).append(" like concat('%',?,'%')");
-            parameters.add(endpointName);
         }
         if (nonNull(relatedTrace)) {
             if (StringUtil.isNotEmpty(relatedTrace.getTraceId())) {
@@ -184,7 +179,9 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                     log.setServiceId(resultSet.getString(SERVICE_ID));
                     log.setServiceInstanceId(resultSet.getString(SERVICE_INSTANCE_ID));
                     log.setEndpointId(resultSet.getString(ENDPOINT_ID));
-                    log.setEndpointName(resultSet.getString(ENDPOINT_NAME));
+                    if (log.getEndpointId() != null) {
+                        log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+                    }
                     log.setTraceId(resultSet.getString(TRACE_ID));
                     log.setTimestamp(resultSet.getLong(TIMESTAMP));
                     log.setContentType(ContentType.instanceOf(resultSet.getInt(CONTENT_TYPE)));

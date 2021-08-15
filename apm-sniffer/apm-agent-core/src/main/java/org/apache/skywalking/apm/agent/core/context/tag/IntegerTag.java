@@ -16,19 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao;
+package org.apache.skywalking.apm.agent.core.context.tag;
 
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2BrowserLogQueryDAO;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
-public class PostgreSQLBrowserLogQueryDAO extends H2BrowserLogQueryDAO {
+/**
+ * A subclass of {@link AbstractTag}, represent a tag with a {@link Integer} value.
+ */
+public class IntegerTag extends AbstractTag<Integer> {
 
-    public PostgreSQLBrowserLogQueryDAO(JDBCHikariCPClient h2Client) {
-        super(h2Client);
+    public IntegerTag(int id, String tagKey, boolean canOverwrite) {
+        super(id, tagKey, canOverwrite);
+    }
+
+    public IntegerTag(String key) {
+        super(key);
+    }
+
+    public IntegerTag(int id, String tagKey) {
+        super(id, tagKey, false);
     }
 
     @Override
-    protected String buildCountStatement(String sql) {
-        return "select count(*) total from (select 1 " + sql + " ) tempTable ";
+    public void set(AbstractSpan span, Integer tagValue) {
+        span.tag(this, Integer.toString(tagValue));
     }
 }

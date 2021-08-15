@@ -107,7 +107,7 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
             AbstractSpan span = ContextManager.activeSpan();
             if (statusCode >= 400) {
                 span.errorOccurred();
-                Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+                Tags.HTTP_RESPONSE_STATUS_CODE.set(span, statusCode);
             }
         }
 
