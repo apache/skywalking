@@ -33,10 +33,11 @@ message Metadata {
 }
 
 enum FieldType {
-  FIELD_TYPE_STRING = 0;
-  FIELD_TYPE_INT = 1;
-  FIELD_TYPE_STRING_ARRAY = 2;
-  FIELD_TYPE_INT_ARRAY = 3;
+  FIELD_TYPE_UNSPECIFIED=0;
+  FIELD_TYPE_STRING = 1;
+  FIELD_TYPE_INT = 2;
+  FIELD_TYPE_STRING_ARRAY = 3;
+  FIELD_TYPE_INT_ARRAY = 4;
 }
 
 // Pair is the building block of a record which is equivalent to a key-value pair.
