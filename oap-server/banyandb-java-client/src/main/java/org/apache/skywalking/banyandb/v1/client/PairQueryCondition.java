@@ -26,7 +26,7 @@ import java.util.List;
  * PairQuery represents a query condition, including field name, operator, and value(s);
  */
 public abstract class PairQueryCondition<T> extends FieldAndValue<T> {
-    protected final org.apache.skywalking.banyandb.v1.Banyandb.PairQuery.BinaryOp op;
+    protected final Banyandb.PairQuery.BinaryOp op;
 
     private PairQueryCondition(String fieldName, Banyandb.PairQuery.BinaryOp op, T value) {
         super(fieldName, value);
@@ -50,7 +50,7 @@ public abstract class PairQueryCondition<T> extends FieldAndValue<T> {
      * LongQueryCondition represents `Field(Long) $op value` condition.
      */
     public static class LongQueryCondition extends PairQueryCondition<Long> {
-        private LongQueryCondition(String fieldName, org.apache.skywalking.banyandb.v1.Banyandb.PairQuery.BinaryOp op, Long value) {
+        private LongQueryCondition(String fieldName, Banyandb.PairQuery.BinaryOp op, Long value) {
             super(fieldName, op, value);
         }
 
@@ -139,7 +139,7 @@ public abstract class PairQueryCondition<T> extends FieldAndValue<T> {
      * StringQueryCondition represents `Field(String) $op value` condition.
      */
     public static class StringQueryCondition extends PairQueryCondition<String> {
-        private StringQueryCondition(String fieldName, org.apache.skywalking.banyandb.v1.Banyandb.PairQuery.BinaryOp op, String value) {
+        private StringQueryCondition(String fieldName, Banyandb.PairQuery.BinaryOp op, String value) {
             super(fieldName, op, value);
         }
 
@@ -179,7 +179,7 @@ public abstract class PairQueryCondition<T> extends FieldAndValue<T> {
      * StringArrayQueryCondition represents `Field(List of String) $op value` condition.
      */
     public static class StringArrayQueryCondition extends PairQueryCondition<List<String>> {
-        private StringArrayQueryCondition(String fieldName, org.apache.skywalking.banyandb.v1.Banyandb.PairQuery.BinaryOp op, List<String> value) {
+        private StringArrayQueryCondition(String fieldName, Banyandb.PairQuery.BinaryOp op, List<String> value) {
             super(fieldName, op, value);
         }
 
@@ -244,7 +244,7 @@ public abstract class PairQueryCondition<T> extends FieldAndValue<T> {
      * LongArrayQueryCondition represents `Field(List of Long) $op value` condition.
      */
     public static class LongArrayQueryCondition extends PairQueryCondition<List<Long>> {
-        private LongArrayQueryCondition(String fieldName, org.apache.skywalking.banyandb.v1.Banyandb.PairQuery.BinaryOp op, List<Long> value) {
+        private LongArrayQueryCondition(String fieldName, Banyandb.PairQuery.BinaryOp op, List<Long> value) {
             super(fieldName, op, value);
         }
 
