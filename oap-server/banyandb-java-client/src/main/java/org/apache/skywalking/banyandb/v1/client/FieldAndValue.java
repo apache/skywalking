@@ -19,11 +19,14 @@
 package org.apache.skywalking.banyandb.v1.client;
 
 import java.util.List;
+
+import lombok.EqualsAndHashCode;
 import org.apache.skywalking.banyandb.v1.Banyandb;
 
 /**
  * FieldAndValue represents a value of column in the response
  */
+@EqualsAndHashCode(callSuper = true)
 public abstract class FieldAndValue<T> extends Field<T> {
     protected final String fieldName;
 
@@ -61,13 +64,13 @@ public abstract class FieldAndValue<T> extends Field<T> {
                     throw new IllegalArgumentException("Unrecognized NullType, " + typedPair.getNullPair().getType());
             }
         } else if (typedPair.hasIntPair()) {
-           return new LongFieldPair(typedPair.getKey(), typedPair.getIntPair().getValue());
+            return new LongFieldPair(typedPair.getKey(), typedPair.getIntPair().getValue());
         } else if (typedPair.hasStrPair()) {
-           return new StringFieldPair(typedPair.getKey(), typedPair.getStrPair().getValue());
+            return new StringFieldPair(typedPair.getKey(), typedPair.getStrPair().getValue());
         } else if (typedPair.hasIntArrayPair()) {
-           return new LongArrayFieldPair(typedPair.getKey(), typedPair.getIntArrayPair().getValueList());
+            return new LongArrayFieldPair(typedPair.getKey(), typedPair.getIntArrayPair().getValueList());
         } else if (typedPair.hasStrArrayPair()) {
-           return new StringArrayFieldPair(typedPair.getKey(), typedPair.getStrArrayPair().getValueList());
+            return new StringArrayFieldPair(typedPair.getKey(), typedPair.getStrArrayPair().getValueList());
         }
         throw new IllegalArgumentException("Unrecognized TypedPair, " + typedPair);
     }

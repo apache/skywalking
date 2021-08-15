@@ -20,6 +20,7 @@ package org.apache.skywalking.banyandb.v1.client;
 
 import java.util.List;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.skywalking.banyandb.v1.Banyandb;
 
@@ -28,6 +29,7 @@ import static com.google.protobuf.NullValue.NULL_VALUE;
 /**
  * Field represents a value of column/field in the write-op or response.
  */
+@EqualsAndHashCode
 public abstract class Field<T> {
     @Getter
     protected final T value;

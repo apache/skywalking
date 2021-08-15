@@ -20,6 +20,8 @@ package org.apache.skywalking.banyandb.v1.client;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.Timestamp;
 import io.grpc.ManagedChannel;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -195,6 +197,42 @@ public class BanyanDBClientQueryTest {
         assertCollectionEqual(request.getFieldsList(), ImmutableList.of(
                 PairQueryCondition.StringQueryCondition.eq("trace_id", traceId).build()
         ));
+    }
+
+    @Test
+    public void testQuery_responseConversion() {
+        final byte[] binaryData = new byte[]{13};
+        final String segmentId = "1231.dfd.123123ssf";
+        final String traceId = "trace_id-xxfff.111323";
+        final long duration = 200L;
+        final Instant now = Instant.now();
+        final BanyandbTrace.QueryResponse responseObj = BanyandbTrace.QueryResponse.newBuilder()
+                .addEntities(BanyandbTrace.Entity.newBuilder()
+                        .setDataBinary(ByteString.copyFrom(binaryData))
+                        .setEntityId(segmentId)
+                        .setTimestamp(Timestamp.newBuilder()
+                                .setSeconds(now.toEpochMilli() / 1000)
+                                .setNanos((int) TimeUnit.MILLISECONDS.toNanos(now.toEpochMilli() % 1000))
+                                .build())
+                        .addFields(Banyandb.TypedPair.newBuilder()
+                                .setKey("trace_id")
+                                .setStrPair(Banyandb.Str.newBuilder().setValue(traceId).build()).build())
+                        .addFields(Banyandb.TypedPair.newBuilder()
+                                .setKey("duration")
+                                .setIntPair(Banyandb.Int.newBuilder().setValue(duration).build()).build())
+                        .addFields(Banyandb.TypedPair.newBuilder()
+                                .setKey("mq.broker")
+                                .setNullPair(Banyandb.TypedPair.NullWithType.newBuilder().setType(Banyandb.FieldType.FIELD_TYPE_STRING).build()).build())
+                        .build())
+                .build();
+        TraceQueryResponse resp = new TraceQueryResponse(responseObj);
+        Assert.assertNotNull(resp);
+        Assert.assertEquals(1, resp.getEntities().size());
+        Assert.assertEquals(3, resp.getEntities().get(0).getFields().size());
+        Assert.assertEquals(3, resp.getEntities().get(0).getFields().size());
+        Assert.assertEquals(new FieldAndValue.StringFieldPair("trace_id", traceId), resp.getEntities().get(0).getFields().get(0));
+        Assert.assertEquals(new FieldAndValue.LongFieldPair("duration", duration), resp.getEntities().get(0).getFields().get(1));
+        Assert.assertEquals(new FieldAndValue.StringFieldPair("mq.broker", null), resp.getEntities().get(0).getFields().get(2));
     }
 
     static <T> void assertCollectionEqual(Collection<T> c1, Collection<T> c2) {
