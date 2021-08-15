@@ -72,7 +72,7 @@ public class TraceWrite {
         entityBuilder.setEntityId(entityId);
         entityBuilder.setTimestamp(Timestamp.newBuilder()
                                             .setSeconds(timestamp / 1000)
-                                            .setNanos((int) (timestamp % 1000 * 1000 * 1000)));
+                                            .setNanos((int) (timestamp % 1000 * 1_000_000)));
         entityBuilder.setDataBinary(ByteString.copyFrom(binary));
         fields.forEach(writeField -> entityBuilder.addFields(writeField.toField()));
         builder.setEntity(entityBuilder.build());

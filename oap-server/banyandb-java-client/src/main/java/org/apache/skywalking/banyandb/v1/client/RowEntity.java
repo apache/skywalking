@@ -51,7 +51,7 @@ public class RowEntity {
 
     RowEntity(BanyandbTrace.Entity entity) {
         id = entity.getEntityId();
-        timestamp = entity.getTimestamp().getSeconds() * 1000 + entity.getTimestamp().getNanos() / 1000 / 1000;
+        timestamp = entity.getTimestamp().getSeconds() * 1000 + entity.getTimestamp().getNanos() / 1_000_000;
         binary = entity.getDataBinary().toByteArray();
         fields = new ArrayList<>(entity.getFieldsCount());
         entity.getFieldsList().forEach(field -> fields.add(FieldAndValue.build(field)));
