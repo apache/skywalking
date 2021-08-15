@@ -19,38 +19,38 @@ syntax = "proto3";
 
 option java_package = "org.apache.skywalking.banyandb.v1.trace";
 
-package banyandb.v1.trace;
+package banyandb.trace.v1;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "banyandb/v1/banyandb.proto";
 
 service TraceService {
-  rpc Query(banyandb.v1.trace.QueryRequest) returns (banyandb.v1.trace.QueryResponse);
-  rpc Write(stream banyandb.v1.trace.WriteRequest) returns (stream banyandb.v1.trace.WriteResponse);
+  rpc Query(banyandb.trace.v1.QueryRequest) returns (banyandb.trace.v1.QueryResponse);
+  rpc Write(stream banyandb.trace.v1.WriteRequest) returns (stream banyandb.trace.v1.WriteResponse);
 }
 
 // QueryRequest is the request contract for query.
 message QueryRequest {
   // metadata is required
-  Metadata metadata = 1;
+  banyandb.v1.Metadata metadata = 1;
   // time_range is a range query with begin/end time of entities in the timeunit of nanoseconds.
   // In the context of Trace, it represents the range of the `startTime` for spans/segments,
   // while in the context of Log, it means the range of the timestamp(s) for logs.
   // it is always recommended to specify time range for performance reason
-  TimeRange time_range = 2;
+  banyandb.v1.TimeRange time_range = 2;
   // offset is used to support pagination, together with the following limit
   uint32 offset = 3;
   // limit is used to impose a boundary on the number of records being returned
   uint32 limit = 4;
   // order_by is given to specify the sort for a field. So far, only fields in the type of Integer are supported
-  QueryOrder order_by = 5;
+  banyandb.v1.QueryOrder order_by = 5;
   // fields are indexed. Some typical fields are listed below,
   // - trace_id: if given, it takes precedence over other fields and will be used to retrieve entities before other conditions are imposed
   // - duration: typical for trace context
-  repeated PairQuery fields = 6;
+  repeated banyandb.v1.PairQuery fields = 6;
   // projection can be used to select the key names of the entities in the response
-  Projection projection = 7;
+  banyandb.v1.Projection projection = 7;
 }
 
 // QueryResponse is the response for a query to the Query module.
@@ -77,13 +77,13 @@ message Entity {
   // - service_name
   // - service_instance_id
   // - end_time_nanoseconds
-  repeated TypedPair fields = 4;
+  repeated banyandb.v1.TypedPair fields = 4;
 }
 
 
 message WriteRequest {
   // the metadata is only required in the first write.
-  Metadata metadata = 1;
+  banyandb.v1.Metadata metadata = 1;
   // the entity is required.
   EntityValue entity = 2;
 }
@@ -103,5 +103,5 @@ message EntityValue {
   // Pair only has value, as the value of PairValue match with the key
   // by the index rules and index rule bindings of Metadata group.
   // indexed fields of multiple entities are compression in the fields.
-  repeated Field fields = 4;
+  repeated banyandb.v1.Field fields = 4;
 }

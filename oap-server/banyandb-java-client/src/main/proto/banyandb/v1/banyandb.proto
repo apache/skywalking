@@ -32,32 +32,11 @@ message Metadata {
   string name = 2;
 }
 
-// IntPair in a typed pair with an int64 as values
-message IntPair {
-  string key = 1;
-  int64 value = 2;
-  bool isNull = 3;
-}
-
-// StrPair in a typed pair with a string as values
-message StrPair {
-  string key = 1;
-  string value = 2;
-  bool isNull = 3;
-}
-
-// IntPair in a typed pair with an array of int64 as values
-message IntArrayPair {
-  string key = 1;
-  repeated int64 value = 2;
-  bool isNull = 3;
-}
-
-// StrPair in a typed pair with an array of string as values
-message StrArrayPair {
-  string key = 1;
-  repeated string value = 2;
-  bool isNull = 3;
+enum FieldType {
+  FIELD_TYPE_STRING = 0;
+  FIELD_TYPE_INT = 1;
+  FIELD_TYPE_STRING_ARRAY = 2;
+  FIELD_TYPE_INT_ARRAY = 3;
 }
 
 // Pair is the building block of a record which is equivalent to a key-value pair.
@@ -65,11 +44,17 @@ message StrArrayPair {
 // Besides, other fields/tags are organized in key-value pair in the underlying storage layer.
 // One should notice that the values can be a multi-value.
 message TypedPair {
+  string key = 1;
   oneof typed {
-    IntPair int_pair = 1;
-    StrPair str_pair = 2;
-    IntArrayPair int_array_pair = 3;
-    StrArrayPair str_array_pair = 4;
+    NullWithType null_pair = 2;
+    Int int_pair = 3;
+    Str str_pair = 4;
+    IntArray int_array_pair = 5;
+    StrArray str_array_pair = 6;
+  }
+
+  message NullWithType {
+      FieldType type = 1;
   }
 }
 
