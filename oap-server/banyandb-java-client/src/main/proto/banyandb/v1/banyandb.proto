@@ -32,18 +32,29 @@ message Metadata {
   string name = 2;
 }
 
+enum FieldType {
+  FIELD_TYPE_STRING = 0;
+  FIELD_TYPE_INT = 1;
+  FIELD_TYPE_STRING_ARRAY = 2;
+  FIELD_TYPE_INT_ARRAY = 3;
+}
+
 // Pair is the building block of a record which is equivalent to a key-value pair.
 // In the context of Trace, it could be metadata of a trace such as service_name, service_instance, etc.
 // Besides, other fields/tags are organized in key-value pair in the underlying storage layer.
 // One should notice that the values can be a multi-value.
 message TypedPair {
   string key = 1;
-  bool  is_null =  2;
   oneof typed {
+    NullWithType null_pair = 2;
     Int int_pair = 3;
     Str str_pair = 4;
     IntArray int_array_pair = 5;
     StrArray str_array_pair = 6;
+  }
+
+  message NullWithType {
+      FieldType type = 1;
   }
 }
 
