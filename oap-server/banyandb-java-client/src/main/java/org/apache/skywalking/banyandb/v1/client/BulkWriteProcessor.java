@@ -63,7 +63,7 @@ public abstract class BulkWriteProcessor implements Closeable {
     /**
      * The internal queue consumer for build process.
      */
-    public static class QueueWatcher implements IConsumer {
+    private static class QueueWatcher implements IConsumer {
         private long lastFlushTimestamp;
         private int maxBulkSize;
         private int flushInterval;

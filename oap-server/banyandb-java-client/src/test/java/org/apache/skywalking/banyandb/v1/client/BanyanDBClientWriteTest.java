@@ -19,6 +19,7 @@
 package org.apache.skywalking.banyandb.v1.client;
 
 import io.grpc.ManagedChannel;
+import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -51,16 +52,16 @@ public class BanyanDBClientWriteTest {
 
     @Before
     public void setUp() throws IOException {
-        client = new BanyanDBClient("127.0.0.1", 17912, "default");
-
         String serverName = InProcessServerBuilder.generateName();
 
-        grpcCleanup.register(InProcessServerBuilder
-                .forName(serverName).fallbackHandlerRegistry(serviceRegistry).directExecutor().build().start());
+        Server server = InProcessServerBuilder
+                .forName(serverName).fallbackHandlerRegistry(serviceRegistry).directExecutor().build();
+        grpcCleanup.register(server.start());
 
         ManagedChannel channel = grpcCleanup.register(
                 InProcessChannelBuilder.forName(serverName).directExecutor().build());
 
+        client = new BanyanDBClient("127.0.0.1", server.getPort(), "default");
         client.connect(channel);
         traceBulkWriteProcessor = client.buildTraceWriteProcessor(1000, 1, 1);
     }
