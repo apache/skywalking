@@ -18,19 +18,22 @@
 
 package org.apache.skywalking.banyandb.v1.client;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 
 /**
  * BulkWriteProcessor is a timeline and size dual driven processor.
- *
+ * <p>
  * It includes an internal queue and timer, and accept the data sequentially. With the given thresholds of time and
  * size, it could activate flush to continue the process to the next step.
  */
-public abstract class BulkWriteProcessor {
+public abstract class BulkWriteProcessor implements Closeable {
     protected final int flushInterval;
     protected DataCarrier buffer;
 
@@ -52,15 +55,23 @@ public abstract class BulkWriteProcessor {
         buffer.consume(QueueWatcher.class, concurrency, 20, properties);
     }
 
+    @Override
+    public void close() throws IOException {
+        this.buffer.shutdownConsumers();
+    }
+
     /**
      * The internal queue consumer for build process.
      */
-    private static class QueueWatcher implements IConsumer {
+    public static class QueueWatcher implements IConsumer {
         private long lastFlushTimestamp;
         private int maxBulkSize;
         private int flushInterval;
         private List cachedData;
         private BulkWriteProcessor bulkWriteProcessor;
+
+        public QueueWatcher() {
+        }
 
         @Override
         public void init(Properties properties) {

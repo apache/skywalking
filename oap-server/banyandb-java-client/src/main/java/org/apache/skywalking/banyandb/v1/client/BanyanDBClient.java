@@ -23,8 +23,10 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.NameResolverRegistry;
 import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.trace.BanyandbTrace;
 import org.apache.skywalking.banyandb.v1.trace.TraceServiceGrpc;
@@ -119,7 +121,28 @@ public class BanyanDBClient {
                 managedChannel = nettyChannelBuilder.build();
                 traceServiceStub = TraceServiceGrpc.newStub(managedChannel);
                 traceServiceBlockingStub = TraceServiceGrpc.newBlockingStub(
-                    managedChannel);
+                        managedChannel);
+                isConnected = true;
+            }
+        } finally {
+            connectionEstablishLock.unlock();
+        }
+    }
+
+    /**
+     * Connect to the mock server.
+     * Created for testing purpose.
+     *
+     * @param channel the channel used for communication.
+     *                For tests, it is normally an in-process channel.
+     */
+    void connect(ManagedChannel channel) {
+        connectionEstablishLock.lock();
+        try {
+            if (!isConnected) {
+                traceServiceStub = TraceServiceGrpc.newStub(channel);
+                traceServiceBlockingStub = TraceServiceGrpc.newBlockingStub(
+                        channel);
                 isConnected = true;
             }
         } finally {
@@ -148,8 +171,8 @@ public class BanyanDBClient {
      */
     public TraceQueryResponse queryTraces(TraceQuery traceQuery) {
         final BanyandbTrace.QueryResponse response = traceServiceBlockingStub
-            .withDeadlineAfter(options.getDeadline(), TimeUnit.SECONDS)
-            .query(traceQuery.build(group));
+                .withDeadlineAfter(options.getDeadline(), TimeUnit.SECONDS)
+                .query(traceQuery.build(group));
         return new TraceQueryResponse(response);
     }
 }

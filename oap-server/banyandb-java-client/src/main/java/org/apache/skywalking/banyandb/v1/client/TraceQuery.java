@@ -20,6 +20,7 @@ package org.apache.skywalking.banyandb.v1.client;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.banyandb.v1.Banyandb;
@@ -45,7 +46,7 @@ public class TraceQuery {
     /**
      * Query conditions.
      */
-    private final List<PairQueryCondition> conditions;
+    private final List<PairQueryCondition<?>> conditions;
     /**
      * The starting row id of the query. Default value is 0.
      */
@@ -68,6 +69,20 @@ public class TraceQuery {
         this.limit = 20;
     }
 
+    public TraceQuery(final String name, final List<String> projections) {
+        this(name, null, projections);
+    }
+
+    /**
+     * Fluent API for appending query condition
+     *
+     * @param condition the query condition to be appended
+     */
+    public TraceQuery appendCondition(PairQueryCondition<?> condition) {
+        this.conditions.add(condition);
+        return this;
+    }
+
     /**
      * @param group The instance name.
      * @return QueryRequest for gRPC level query.
@@ -75,10 +90,12 @@ public class TraceQuery {
     BanyandbTrace.QueryRequest build(String group) {
         final BanyandbTrace.QueryRequest.Builder builder = BanyandbTrace.QueryRequest.newBuilder();
         builder.setMetadata(Banyandb.Metadata.newBuilder()
-                                             .setGroup(group)
-                                             .setName(name)
-                                             .build());
-        builder.setTimeRange(timestampRange.build());
+                .setGroup(group)
+                .setName(name)
+                .build());
+        if (timestampRange != null) {
+            builder.setTimeRange(timestampRange.build());
+        }
         builder.setProjection(Banyandb.Projection.newBuilder().addAllKeyNames(projections).build());
         conditions.forEach(pairQueryCondition -> builder.addFields(pairQueryCondition.build()));
         builder.setOffset(offset);
@@ -104,7 +121,7 @@ public class TraceQuery {
             final Banyandb.QueryOrder.Builder builder = Banyandb.QueryOrder.newBuilder();
             builder.setKeyName(fieldName);
             builder.setSort(
-                Type.DESC.equals(type) ? Banyandb.QueryOrder.Sort.SORT_DESC : Banyandb.QueryOrder.Sort.SORT_ASC);
+                    Type.DESC.equals(type) ? Banyandb.QueryOrder.Sort.SORT_DESC : Banyandb.QueryOrder.Sort.SORT_ASC);
             return builder.build();
         }
 

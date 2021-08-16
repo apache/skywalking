@@ -18,28 +18,12 @@
 
 package org.apache.skywalking.banyandb.v1.client;
 
-import java.util.ArrayList;
-import java.util.List;
-import lombok.Getter;
-import org.apache.skywalking.banyandb.v1.trace.BanyandbTrace;
+import org.apache.skywalking.banyandb.v1.Banyandb;
 
 /**
- * TraceQueryResponse represents the trace query result.
+ * An interface that represents an object which can be converted to the protobuf representation
+ * of BanyanDB.Field. BanyanDB.Field is used for writing entities to the database.
  */
-public class TraceQueryResponse {
-    @Getter
-    private final List<RowEntity> entities;
-
-    TraceQueryResponse(BanyandbTrace.QueryResponse response) {
-        final List<BanyandbTrace.Entity> entitiesList = response.getEntitiesList();
-        entities = new ArrayList<>(entitiesList.size());
-        entitiesList.forEach(entity -> entities.add(new RowEntity(entity)));
-    }
-
-    /**
-     * @return size of the response set.
-     */
-    public int size() {
-        return entities.size();
-    }
+public interface SerializableField {
+    Banyandb.Field toField();
 }
