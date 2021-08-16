@@ -92,7 +92,7 @@ public abstract class PairQueryCondition<T> extends FieldAndValue<T> {
          *
          * @param fieldName name of the field
          * @param val       value of the field
-         * @return a query that `Long > value`
+         * @return a query that `Long &gt; value`
          */
         public static PairQueryCondition<Long> gt(String fieldName, Long val) {
             return new LongQueryCondition(fieldName, Banyandb.PairQuery.BinaryOp.BINARY_OP_GT, val);
@@ -104,7 +104,7 @@ public abstract class PairQueryCondition<T> extends FieldAndValue<T> {
          *
          * @param fieldName name of the field
          * @param val       value of the field
-         * @return a query that `Long >= value`
+         * @return a query that `Long &ge; value`
          */
         public static PairQueryCondition<Long> ge(String fieldName, Long val) {
             return new LongQueryCondition(fieldName, Banyandb.PairQuery.BinaryOp.BINARY_OP_GE, val);
@@ -116,7 +116,7 @@ public abstract class PairQueryCondition<T> extends FieldAndValue<T> {
          *
          * @param fieldName name of the field
          * @param val       value of the field
-         * @return a query that `Long < value`
+         * @return a query that `Long &lt; value`
          */
         public static PairQueryCondition<Long> lt(String fieldName, Long val) {
             return new LongQueryCondition(fieldName, Banyandb.PairQuery.BinaryOp.BINARY_OP_LT, val);
@@ -128,7 +128,7 @@ public abstract class PairQueryCondition<T> extends FieldAndValue<T> {
          *
          * @param fieldName name of the field
          * @param val       value of the field
-         * @return a query that `Long <= value`
+         * @return a query that `Long &le; value`
          */
         public static PairQueryCondition<Long> le(String fieldName, Long val) {
             return new LongQueryCondition(fieldName, Banyandb.PairQuery.BinaryOp.BINARY_OP_LE, val);
