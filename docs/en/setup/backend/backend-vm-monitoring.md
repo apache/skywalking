@@ -8,9 +8,11 @@ We define the VM entity as a `Service` in OAP, and use `vm::` as a prefix to ide
 2. The OpenTelemetry Collector fetches metrics from node-exporter via Prometheus Receiver and pushes metrics to the SkyWalking OAP Server via the OpenCensus gRPC Exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results. 
 
-## Setup 
-1. Set up [Prometheus node-exporter](https://prometheus.io/docs/guides/node-exporter/).
-2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/). This is an example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../../../../test/e2e/e2e-test/docker/promOtelVM/otel-collector-config.yaml).
+
+## Setup
+
+1. Setup [Prometheus node-exporter](https://prometheus.io/docs/guides/node-exporter/).
+2. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/). This is an example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../../../../test/e2e/e2e-test/docker/promOtelVM/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver).
    
 ## Supported Metrics
