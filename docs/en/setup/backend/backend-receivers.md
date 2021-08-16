@@ -109,17 +109,19 @@ If the new configuration is not well-formed, the OAP may fail to start up. The f
 E.g. The `oc` handler loads rules from `$CLASSPATH/otel-oc-rules`.
 
 Supported handlers:
-    * `oc`: [OpenCensus](https://github.com/open-telemetry/opentelemetry-collector/blob/master/exporter/opencensusexporter/README.md) gRPC service handler.
+
+* `oc`: [OpenCensus](https://github.com/open-telemetry/opentelemetry-collector/blob/master/exporter/opencensusexporter/README.md) gRPC service handler.
+
+**Notice:**  Set `SW_OTEL_RECEIVER=default` through system environment or change `receiver-otel/selector=${SW_OTEL_RECEIVER:default}` to activate the OpenTelemetry receiver.
 
 The rule file should be in YAML format, defined by the scheme described in [prometheus-fetcher](./backend-fetcher.md).
 Note: `receiver-otel` only supports the `group`, `defaultMetricLevel`, and `metricsRules` nodes of the scheme due to its push mode.
 
 To activate the `oc` handler and relevant rules of `istio`:
 
-> **Attention:**  If  `receiver-otel. selector=${SW_OTEL_RECEIVER:-}`, please modify it to `receiver-otel. selector=${SW_OTEL_RECEIVER:default}`,Otherwise, the receiver-otel will not be loaded.
-
 ```yaml
 receiver-otel:
+  // Change selector value to default, for activating the otel receiver.
   selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
@@ -153,7 +155,7 @@ receiver-meter:
 
 To activate the meter rule files:
 
-> Must put your customized meter file xxx.yaml ( [mal](../../concepts-and-designs/mal.md) format) in the `config/meter-analyzer-config` directory and configure meteranalyzer activefiles=${SW_ METER_ ANALYZER_ ACTIVE_ FILES:xxx}
+Put your customized meter file xxx.yaml ( [mal](../../concepts-and-designs/mal.md) format) in the `config/meter-analyzer-config` directory and configure meteranalyzer `activefiles=${SW_ METER_ ANALYZER_ ACTIVE_ FILES:xxx}`
 
 ```yaml
 agent-analyzer:
