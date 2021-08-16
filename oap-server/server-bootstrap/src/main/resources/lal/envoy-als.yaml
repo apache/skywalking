@@ -33,13 +33,13 @@ rules:
               // use service:errorCode as sampler id so that each service:errorCode has its own sampler,
               // e.g. checkoutservice:[upstreamConnectionFailure], checkoutservice:[upstreamRetryLimitExceeded]
               rateLimit("${log.service}:${parsed?.commonProperties?.responseFlags?.toString()}") {
-                qps 100
+                rpm 6000
               }
             } else {
               // use service:responseCode as sampler id so that each service:responseCode has its own sampler,
               // e.g. checkoutservice:500, checkoutservice:404.
               rateLimit("${log.service}:${parsed?.response?.responseCode}") {
-                qps 100
+                rpm 6000
               }
             }
           }

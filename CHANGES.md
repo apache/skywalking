@@ -2,124 +2,56 @@ Changes by Version
 ==================
 Release Notes.
 
-8.7.0
+8.8.0
 ------------------
 
 #### Project
 
-* Extract dependency management to a bom.
-* Add JDK 16 to test matrix.
-* DataCarrier consumer add a new event notification, call `nothingToConsume` method if the queue has no element to
-  consume.
+* Upgrade jdk 11 in dockerfile and remove unused java_opts.
+* DataCarrier changes a `#consume` API to add properties as a parameter to initialize consumer when
+  use `Class<? extends IConsumer<T>> consumerClass`.
 
 #### Java Agent
 
-* Supports modifying span attributes in async mode.
-* Agent supports the collection of JVM arguments and jar dependency information.
-* [Temporary] Support authentication for log report channel. This feature and grpc channel is going to be removed after
-  Satellite 0.2.0 release.
-* Remove deprecated gRPC method, `io.grpc.ManagedChannelBuilder#nameResolverFactory`.
-  See [gRPC-java 7133](https://github.com/grpc/grpc-java/issues/7133) for more details.
-* Add `Neo4j-4.x` plugin.
-* Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
-* Fix the response time of gRPC.
-* Support parameter collection for SqlServer.
-* Add `ShardingSphere-5.0.0-beta` plugin.
-* Fix some method exception error.
-* Fix async finish repeatedly in `spring-webflux-5.x-webclient` plugin.
-* Add agent plugin to support Sentinel.
-* Move `ehcache-2.x` plugin as an optional plugin.
-* Support `guava-cache` plugin.
-* Enhance the compatibility of `mysql-8.x-plugin` plugin.
-* Support Kafka SASL login module.
-* Chore: polish methods naming for `Spring-Kafka` plugins.
+* Support Multiple DNS period resolving mechanism
+* Modify `Tags.STATUS_CODE` field name to `Tags.HTTP_RESPONSE_STATUS_CODE` and type from `StringTag` to `IntegerTag`, add `Tags.RPC_RESPONSE_STATUS_CODE` field to hold rpc response code value.
+* Fix kafka-reporter-plugin shade package conflict
 
 #### OAP-Backend
 
-* Disable Spring sleuth meter analyzer by default.
-* Only count 5xx as error in Envoy ALS receiver.
-* Upgrade apollo core caused by CVE-2020-15170.
-* Upgrade kubernetes client caused by CVE-2020-28052.
-* Upgrade Elasticsearch 7 client caused by CVE-2020-7014.
-* Upgrade jackson related libs caused by CVE-2018-11307, CVE-2018-14718 ~ CVE-2018-14721, CVE-2018-19360 ~
-  CVE-2018-19362, CVE-2019-14379, CVE-2019-14540, CVE-2019-14892, CVE-2019-14893, CVE-2019-16335, CVE-2019-16942,
-  CVE-2019-16943, CVE-2019-17267, CVE-2019-17531, CVE-2019-20330, CVE-2020-8840, CVE-2020-9546, CVE-2020-9547,
-  CVE-2020-9548, CVE-2018-12022, CVE-2018-12023, CVE-2019-12086, CVE-2019-14439, CVE-2020-10672, CVE-2020-10673,
-  CVE-2020-10968, CVE-2020-10969, CVE-2020-11111, CVE-2020-11112, CVE-2020-11113, CVE-2020-11619, CVE-2020-11620,
-  CVE-2020-14060, CVE-2020-14061, CVE-2020-14062, CVE-2020-14195, CVE-2020-24616, CVE-2020-24750, CVE-2020-25649,
-  CVE-2020-35490, CVE-2020-35491, CVE-2020-35728 and CVE-2020-36179 ~ CVE-2020-36190.
-* Exclude log4j 1.x caused by CVE-2019-17571.
-* Upgrade log4j 2.x caused by CVE-2020-9488.
-* Upgrade nacos libs caused by CVE-2021-29441 and CVE-2021-29442.
-* Upgrade netty caused by CVE-2019-20444, CVE-2019-20445, CVE-2019-16869, CVE-2020-11612, CVE-2021-21290, CVE-2021-21295
-  and CVE-2021-21409.
-* Upgrade consul client caused by CVE-2018-1000844, CVE-2018-1000850.
-* Upgrade zookeeper caused by CVE-2019-0201, zookeeper cluster coordinator plugin now requires zookeeper server 3.5+.
-* Upgrade snake yaml caused by CVE-2017-18640.
-* Upgrade embed tomcat caused by CVE-2020-13935.
-* Upgrade commons-lang3 to avoid potential NPE in some JDK versions.
-* OAL supports generating metrics from events.
-* Support endpoint name grouping by OpenAPI definitions.
-* Concurrent create PrepareRequest when persist Metrics
-* Fix CounterWindow increase computing issue.
-* Performance: optimize Envoy ALS analyzer performance in high traffic load scenario (reduce ~1cpu in ~10k RPS).
-* Performance: trim useless metadata fields in Envoy ALS metadata to improve performance.
-* Fix: slowDBAccessThreshold dynamic config error when not configured.
-* Performance: cache regex pattern and result, optimize string concatenation in Envy ALS analyzer.
-* Performance: cache metrics id and entity id in `Metrics` and `ISource`.
-* Performance: enhance persistent session mechanism, about differentiating cache timeout for different dimensionality
-  metrics. The timeout of the cache for minute and hour level metrics has been prolonged to ~5 min.
-* Performance: Add L1 aggregation flush period, which reduce the CPU load and help young GC.
-* Support connectTimeout and socketTimeout settings for ElasticSearch6 and ElasticSearch7 storages.
-* Re-implement storage session mechanism, cached metrics are removed only according to their last access timestamp,
-  rather than first time. This makes sure hot data never gets removed unexpectedly.
-* Support session expired threshold configurable.
-* Fix InfluxDB storage-plugin Metrics#multiGet issue.
-* Replace zuul proxy with spring cloud gateway 2.x. in webapp module.
-* Upgrade etcd cluster coordinator and dynamic configuration to v3.x.
-* Configuration: Allow configuring server maximum request header size.
-* Add thread state metric and class loaded info metric to JVMMetric.
-* Performance: compile LAL DSL statically and run with type checked.
-* Add pagination to event query protocol.
-* Performance: optimize Envoy error logs persistence performance.
-* Support envoy `cluster manager` metrics.
-* Performance: remove the synchronous persistence mechanism from batch ElasticSearch DAO. Because the current enhanced
-  persistent session mechanism, don't require the data queryable immediately after the insert and update anymore.
-* Performance: share `flushInterval` setting for both metrics and record data, due
-  to `synchronous persistence mechanism` removed. Record flush interval used to be hardcoded as 10s.
-* Remove `syncBulkActions` in ElasticSearch storage option.
-* Increase the default bulkActions(env, SW_STORAGE_ES_BULK_ACTIONS) to 5000(from 1000).
-* Increase the flush interval of ElasticSearch indices to 15s(from 10s)
-* Provide distinct for elements of metadata lists. Due to the more aggressive asynchronous flush, metadata lists have
-  more chances including duplicate elements. Don't need this as indicate anymore.
-* Reduce the flush period of hour and day level metrics, only run in 4 times of regular persistent period. This means
-  default flush period of hour and day level metrics are 25s * 4.
-* Performance: optimize IDs read of ElasticSearch storage options(6 and 7). Use the physical index rather than template
-  alias name.
-* Adjust index refresh period as INT(flushInterval * 2/3), it used to be as same as bulk flush period. At the edge case,
-  in low traffic(traffic < bulkActions in the whole period), there is a possible case, 2 period bulks are included in
-  one index refresh rebuild operation, which could cause version conflicts. And this case can't be fixed
-  through `core/persistentPeriod` as the bulk fresh is not controlled by the persistent timer anymore.
-* The `core/maxSyncOperationNum` setting(added in 8.5.0) is removed due to metrics persistence is fully asynchronous.
-* The `core/syncThreads` setting(added in 8.5.0) is removed due to metrics persistence is fully asynchronous.
-* Optimization: Concurrency mode of execution stage for metrics is removed(added in 8.5.0). Only concurrency of prepare
-  stage is meaningful and kept.
+* Fix CVE-2021-35515, CVE-2021-35516, CVE-2021-35517, CVE-2021-36090. Upgrade org.apache.commons:commons-compress to
+  1.21.
+* kubernetes java client upgrade from 12.0.1 to 13.0.0
+* Add `event` http receiver
+* Support Metric level function `serviceRelation` in `MAL`.
+* Support envoy metrics binding into the topology.
+* Fix openapi-definitions folder not being read correctly.
+* Trace segment wouldn't be recognized as a TopN sample service. Add through #4694 experimentally, but it caused
+  performance impact.
+* Remove `version` and `endTime` in the segment entity. Reduce indexing payload.
+* Fix `mapper_parsing_exception` in ElasticSearch 7.14.
+* Support component IDs for Go-Kratos framework.
+* [Break Change] Remove endpoint name in the trace query condition. Only support `query by endpoint id`.
+* Fix `ProfileSnapshotExporterTest` case on `OpenJDK Runtime Environment AdoptOpenJDK-11.0.11+9 (build 11.0.11+9)`,
+  MacOS.
+* [Break Change] Remove page path in the browser log query condition. Only support `query by page path id`.
+* [Break Change] Remove endpoint name in the backend log query condition. Only support `query by endpoint id`.
+* [Break Change] Fix typo for a column `page_path_id`(was `pate_path_id`) of storage entity `browser_error_log`.
+* Add component id for Python falcon plugin.
+* Add `rpcStatusCode` for `rpc.status_code` tag. The `responseCode` field is marked as deprecated and replaced by `httpResponseStatusCode` field. 
 
 #### UI
 
-* Fix the date component for log conditions.
-* Fix selector keys for duplicate options.
-* Add Python celery plugin.
-* Fix default config for metrics.
-* Fix trace table for profile ui.
-* Fix the error of server response time in the topology.
-* Fix chart types for setting metrics configure.
+* Fix not found error when refresh UI.
+* Update endpointName to endpointId in the query trace condition.
+* Add Python falcon icon on the UI.
 
 #### Documentation
 
-* Add FAQ about `Elasticsearch exception type=version_conflict_engine_exception since 8.7.0`
+* Add a section in `Log Collecting And Analysis` doc, introducing the new Python agent log reporter.
+* Add one missing step in `otel-receiver` doc about how to activate the default receiver.
 
-All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/90?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/96?closed=1)
 
 ------------------
 Find change logs of all versions [here](changes).

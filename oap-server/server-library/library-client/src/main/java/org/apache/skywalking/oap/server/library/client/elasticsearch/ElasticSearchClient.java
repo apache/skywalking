@@ -398,7 +398,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     }
 
     public boolean createOrUpdateTemplate(String indexName, Map<String, Object> settings,
-                                          Map<String, Object> mapping) throws IOException {
+                                          Map<String, Object> mapping, int order) throws IOException {
         indexName = formatIndexName(indexName);
 
         String[] patterns = new String[] {indexName + "-*"};
@@ -411,6 +411,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         template.put("aliases", aliases);
         template.put("settings", settings);
         template.put("mappings", mapping);
+        template.put("order", order);
 
         HttpEntity entity = new NStringEntity(new Gson().toJson(template), ContentType.APPLICATION_JSON);
 

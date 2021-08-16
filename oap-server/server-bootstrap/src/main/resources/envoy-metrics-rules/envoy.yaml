@@ -61,17 +61,17 @@ metricsRules:
     # envoy_cluster_metrics
   - name: cluster_membership_healthy
     exp: envoy_cluster_metrics.tagMatch('metrics_name' , '.+membership_healthy').tagMatch('metrics_name' , 'cluster.outbound.+|cluster.inbound.+').tagNotMatch('cluster_name' , '.+kube-system').sum(['app', 'instance' , 'cluster_name'])
-  - name: cluster_upstream_cx_active
+  - name: cluster_up_cx_active
     exp: envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_cx_active').tagMatch('metrics_name' , 'cluster.outbound.+|cluster.inbound.+').sum(['app', 'instance' , 'cluster_name'])
-  - name: cluster_upstream_cx_increase
+  - name: cluster_up_cx_incr
     exp:  envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_cx_total').tagMatch('metrics_name' , 'cluster.outbound.+|cluster.inbound.+').sum(['app', 'instance' , 'cluster_name']).increase('PT1M')
-  - name: cluster_upstream_rq_active
+  - name: cluster_up_rq_active
     exp: envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_rq_active').tagMatch('metrics_name' , 'cluster.outbound.+|cluster.inbound.+').sum(['app', 'instance' , 'cluster_name'])
-  - name: cluster_upstream_rq_increase
+  - name: cluster_up_rq_incr
     exp:  envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_rq_total').tagMatch('metrics_name' , 'cluster.outbound.+|cluster.inbound.+').sum(['app', 'instance' , 'cluster_name']).increase('PT1M')
-  - name: cluster_upstream_rq_pending_active
+  - name: cluster_up_rq_pending_active
     exp: envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_rq_pending_active').tagMatch('metrics_name' , 'cluster.outbound.+|cluster.inbound.+').sum(['app', 'instance' , 'cluster_name'])
-  - name: cluster_lb_healthy_panic_increase
-    exp:  envoy_cluster_metrics.tagMatch('metrics_name' , '.+lb_healthy_panic').tagMatch('metrics_name' , 'cluster.outbound.+|cluster.inbound.+').sum(['app', 'instance' , 'cluster_name'])
-  - name: cluster_upstream_cx_none_healthy_increase
+  - name: cluster_lb_healthy_panic_incr
+    exp:  envoy_cluster_metrics.tagMatch('metrics_name' , '.+lb_healthy_panic').tagMatch('metrics_name' , 'cluster.outbound.+|cluster.inbound.+').sum(['app', 'instance' , 'cluster_name']).increase('PT1M')
+  - name: cluster_up_cx_none_healthy_incr
     exp: envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_cx_none_healthy').tagMatch('metrics_name' , 'cluster.outbound.+|cluster.inbound.+').sum(['app', 'instance' , 'cluster_name']).increase('PT1M')

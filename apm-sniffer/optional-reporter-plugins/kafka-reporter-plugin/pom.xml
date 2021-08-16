@@ -21,7 +21,7 @@
     <parent>
         <artifactId>optional-reporter-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.7.0-SNAPSHOT</version>
+        <version>8.8.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -52,6 +52,13 @@
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.xerial.snappy:snappy-java</exclude>
+                                    <exclude>org.lz4:lz4-java</exclude>
+                                    <exclude>com.github.luben:zstd-jni</exclude>
+                                </excludes>
+                            </artifactSet>
                             <relocations>
                                 <relocation>
                                     <pattern>org.apache.kafka</pattern>
@@ -68,38 +75,6 @@
                                 <relocation>
                                     <pattern>org.slf4j</pattern>
                                     <shadedPattern>${shade.package}/org.slf4j</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.xerial</pattern>
-                                    <shadedPattern>${shade.package}/org.xerial</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>net.jpountz</pattern>
-                                    <shadedPattern>${shade.package}/net.jpountz</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>aix.ppc64</pattern>
-                                    <shadedPattern>${shade.package}/aix.ppc64</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.github.luben</pattern>
-                                    <shadedPattern>${shade.package}/com.github.luben</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>darwin</pattern>
-                                    <shadedPattern>${shade.package}/darwin</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>include</pattern>
-                                    <shadedPattern>${shade.package}/include</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>linux</pattern>
-                                    <shadedPattern>${shade.package}/linux</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>win</pattern>
-                                    <shadedPattern>${shade.package}/win</shadedPattern>
                                 </relocation>
                             </relocations>
                             <transformers>
@@ -149,6 +124,42 @@
                         <version>${ant-nodeps.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.xerial.snappy</groupId>
+                                    <artifactId>snappy-java</artifactId>
+                                    <version>1.1.7.3</version>
+                                    <outputDirectory>${optional.reporter.plugins.dest.dir}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.lz4</groupId>
+                                    <artifactId>lz4-java</artifactId>
+                                    <version>1.6.0</version>
+                                    <outputDirectory>${optional.reporter.plugins.dest.dir}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.github.luben</groupId>
+                                    <artifactId>zstd-jni</artifactId>
+                                    <version>1.4.3-1</version>
+                                    <outputDirectory>${optional.reporter.plugins.dest.dir}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

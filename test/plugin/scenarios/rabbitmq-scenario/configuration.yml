@@ -20,7 +20,7 @@ environment:
   - RABBITMQ_HOST=rabbitmq-server
 dependencies:
   rabbitmq-server:
-    image: rabbitmq:latest
+    image: rabbitmq:3.8.18
     hostname: rabbitmq-server
     expose:
       - 5672

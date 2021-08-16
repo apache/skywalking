@@ -53,9 +53,6 @@ public class BrowserErrorLog extends Source {
     private String pagePathId;
     @Getter
     @Setter
-    private String pagePath;
-    @Getter
-    @Setter
     private long timestamp;
     @Getter
     @Setter

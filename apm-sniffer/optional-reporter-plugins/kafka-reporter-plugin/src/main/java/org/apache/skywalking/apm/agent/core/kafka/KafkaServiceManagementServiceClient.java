@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.agent.core.kafka;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +41,6 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.management.v3.InstancePingPkg;
 import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * A service management data(Instance registering properties and Instance pinging) reporter.
@@ -74,10 +72,6 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
                                                               .setValue(Config.Agent.INSTANCE_PROPERTIES.get(key))
                                                               .build());
         }
-
-        Config.Agent.INSTANCE_NAME = StringUtil.isEmpty(Config.Agent.INSTANCE_NAME)
-            ? UUID.randomUUID().toString().replaceAll("-", "") + "@" + OSUtil.getIPV4()
-            : Config.Agent.INSTANCE_NAME;
     }
 
     @Override

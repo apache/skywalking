@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.configuration.configmap;
 
 import io.kubernetes.client.openapi.models.V1ConfigMap;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -46,9 +45,7 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
             if (log.isDebugEnabled()) {
                 log.debug("read config: name:{} ,value:{}", name, value);
             }
-            if (Objects.nonNull(value)) {
-                configTable.add(new ConfigTable.ConfigItem(name, value));
-            }
+            configTable.add(new ConfigTable.ConfigItem(name, value));
         }
         return Optional.of(configTable);
     }

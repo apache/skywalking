@@ -10,7 +10,9 @@ Using the Aggregation Function, the requests will be grouped by time and **Group
 | endpoint  | The endpoint path of each request.  |   | string |
 | latency  | The time taken by each request. |   |  int(in ms)  |
 | status  | The success or failure of the request.  |   | bool(true for success)  |
-| responseCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
 
@@ -26,7 +28,9 @@ This calculates the metrics data from each request of the service.
 | endpointName | The name of the endpoint, such as a full path of HTTP URI. | | string |
 | latency | The time taken by each request. | | int |
 | status | Indicates the success or failure of the request. | | bool(true for success)  |
-| responseCode | The response code of the HTTP response, if this request is an HTTP call. | | int|
+| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
@@ -45,7 +49,9 @@ This calculates the metrics data from each request of the service instance.
 | endpointName | The name of the endpoint, such as a full path of the HTTP URI. | | string|
 | latency | The time taken by each request. | | int |
 | status | Indicates the success or failure of the request. | | bool(true for success) |
-| responseCode | The response code of HTTP response, if this request is an HTTP call. | | int |
+| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
@@ -134,7 +140,9 @@ This calculates the metrics data from each request of the endpoint in the servic
 | serviceInstanceName | The name of the service instance ID. | | string |
 | latency | The time taken by each request. | | int |
 | status | Indicates the success or failure of the request.| | bool(true for success) |
-| responseCode | The response code of HTTP response, if this request is an HTTP call. | | int |
+| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
@@ -157,7 +165,9 @@ This calculates the metrics data from each request between services.
 | componentId | The ID of component used in this call. | yes | string
 | latency | The time taken by each request. | | int |
 | status | Indicates the success or failure of the request.| | bool(true for success) |
-| responseCode | The response code of HTTP response, if this request is an HTTP call. | | int |
+| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
 | detectPoint | Where the relation is detected. The value may be client, server, or proxy. | yes | enum|
 | tlsMode | The TLS mode between source and destination services, such as `service_relation_mtls_cpm = from(ServiceRelation.*).filter(tlsMode == "mTLS").cpm()` || string|
@@ -181,7 +191,9 @@ This calculates the metrics data from each request between service instances.
 | componentId | The ID of the component used in this call. | yes | string
 | latency | The time taken by each request. | | int |
 | status | Indicates the success or failure of the request.| | bool(true for success) |
-| responseCode | The response code of the HTTP response, if this request is an HTTP call. | | int |
+| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
 | detectPoint | Where the relation is detected. The value may be client, server, or proxy. | yes | enum|
 | tlsMode | The TLS mode between source and destination service instances, such as `service_instance_relation_mtls_cpm = from(ServiceInstanceRelation.*).filter(tlsMode == "mTLS").cpm()` || string|
@@ -208,7 +220,9 @@ including auto instrument agents (like Java and .NET), OpenCensus SkyWalking exp
 | rpcLatency | The latency of the RPC between the parent endpoint and childEndpoint, excluding the latency caused by the parent endpoint itself.
 | componentId | The ID of the component used in this call. | yes | string
 | status | Indicates the success or failure of the request.| | bool(true for success) |
-| responseCode | The response code of the HTTP response, if this request is an HTTP call. | | int |
+| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
+| rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
 | detectPoint | Indicates where the relation is detected. The value may be client, server, or proxy. | yes | enum|
 

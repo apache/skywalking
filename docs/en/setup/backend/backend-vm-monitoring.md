@@ -1,14 +1,16 @@
 # VMs monitoring 
-SkyWalking leverages Prometheus node-exporter for collecting metrics data from the VMs, and leverages OpenTelemetry Collector to transfer the metrics to
+SkyWalking leverages Prometheus node-exporter to collect metrics data from the VMs, and leverages OpenTelemetry Collector to transfer the metrics to
 [OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver) and into the [Meter System](./../../concepts-and-designs/meter.md).  
 We define the VM entity as a `Service` in OAP, and use `vm::` as a prefix to identify it.  
 
 ## Data flow
 1. The Prometheus node-exporter collects metrics data from the VMs.
-2. The OpenTelemetry Collector fetches metrics from the node-exporter via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via the OpenCensus gRPC Exporter.
+2. The OpenTelemetry Collector fetches metrics from node-exporter via Prometheus Receiver and pushes metrics to the SkyWalking OAP Server via the OpenCensus gRPC Exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results. 
 
-## Setup 
+
+## Setup
+
 1. Setup [Prometheus node-exporter](https://prometheus.io/docs/guides/node-exporter/).
 2. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/). This is an example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../../../../test/e2e/e2e-test/docker/promOtelVM/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver).
@@ -23,7 +25,7 @@ We define the VM entity as a `Service` in OAP, and use `vm::` as a prefix to ide
 | CPU Average Used | % | meter_vm_cpu_average_used | The percentage usage of the CPU core in each mode | Prometheus node-exporter |
 | CPU Load |  | meter_vm_cpu_load1<br />meter_vm_cpu_load5<br />meter_vm_cpu_load15 | The CPU 1m / 5m / 15m average load | Prometheus node-exporter |
 | Memory RAM | MB | meter_vm_memory_total<br />meter_vm_memory_available<br />meter_vm_memory_used | The RAM statistics, including Total / Available / Used | Prometheus node-exporter |
-| Memory Swap | MB | meter_vm_memory_swap_free<br />meter_vm_memory_swap_total | The swap memory statistics, including Free / Total | Prometheus node-exporter |
+| Memory Swap | MB | meter_vm_memory_swap_free<br />meter_vm_memory_swap_total | Swap memory statistics, including Free / Total | Prometheus node-exporter |
 | File System Mountpoint Usage | % | meter_vm_filesystem_percentage | The percentage usage of the file system at each mount point | Prometheus node-exporter |
 | Disk R/W | KB/s | meter_vm_disk_read,meter_vm_disk_written | The disk read and written | Prometheus node-exporter |
 | Network Bandwidth Usage | KB/s | meter_vm_network_receive<br />meter_vm_network_transmit | The network receive and transmit | Prometheus node-exporter |

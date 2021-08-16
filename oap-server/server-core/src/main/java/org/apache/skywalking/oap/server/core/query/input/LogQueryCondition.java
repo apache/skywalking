@@ -31,7 +31,6 @@ public class LogQueryCondition {
     private String serviceId;
     private String serviceInstanceId;
     private String endpointId;
-    private String endpointName;
     private TraceScopeCondition relatedTrace;
     private Duration queryDuration;
     private Pagination paging;

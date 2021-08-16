@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core.remote;
 import io.grpc.Channel;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
@@ -80,7 +81,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     }
 
     @Override
-    public void init() {
+    public void init(final Properties properties) {
 
     }
 

@@ -30,7 +30,6 @@ public interface IBrowserLogQueryDAO extends Service {
     BrowserErrorLogs queryBrowserErrorLogs(String serviceId,
                                            String serviceVersionId,
                                            String pagePathId,
-                                           String pagePath,
                                            BrowserErrorCategory category,
                                            long startSecondTB,
                                            long endSecondTB,

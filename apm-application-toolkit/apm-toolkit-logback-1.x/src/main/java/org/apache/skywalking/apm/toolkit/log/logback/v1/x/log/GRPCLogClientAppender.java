@@ -19,17 +19,22 @@
 package org.apache.skywalking.apm.toolkit.log.logback.v1.x.log;
 
 import ch.qos.logback.core.OutputStreamAppender;
-import java.io.IOException;
 import java.io.OutputStream;
 
 public class GRPCLogClientAppender<E> extends OutputStreamAppender<E> {
+    
     public GRPCLogClientAppender() {
+    }
+
+    @Override
+    public void start() {
         setOutputStream(new OutputStream() {
             @Override
-            public void write(final int b) throws IOException {
+            public void write(final int b) {
                 // discarded
             }
         });
+        super.start();
     }
 
     @Override

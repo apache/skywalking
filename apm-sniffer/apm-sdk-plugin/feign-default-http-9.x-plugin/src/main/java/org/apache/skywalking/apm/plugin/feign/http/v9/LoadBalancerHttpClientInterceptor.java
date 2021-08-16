@@ -83,7 +83,7 @@ public class LoadBalancerHttpClientInterceptor implements InstanceMethodsAroundI
             AbstractSpan span = ContextManager.activeSpan();
             if (statusCode >= 400) {
                 span.errorOccurred();
-                Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+                Tags.HTTP_RESPONSE_STATUS_CODE.set(span, statusCode);
             }
         }
 

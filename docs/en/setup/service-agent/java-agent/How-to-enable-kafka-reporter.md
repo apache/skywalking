@@ -2,6 +2,8 @@
 
 The Kafka reporter plugin support report traces, JVM metrics, Instance Properties, and profiled snapshots to Kafka cluster, which is disabled in default. Move the jar of the plugin, `kafka-reporter-plugin-x.y.z.jar`, from `agent/optional-reporter-plugins` to `agent/plugins` for activating.
 
+If you configure to use `compression.type` such as `lz4`, `zstd`, `snappy`, etc., you also need to move the jar of the plugin, `lz4-java-x.y.z.jar` or `zstd-jni-x.y.z.jar` or `snappy-java.x.y.z.jar`, from `agent/optional-reporter-plugins` to `agent/plugins`.
+
 Notice, currently, the agent still needs to configure GRPC receiver for delivering the task of profiling. In other words, the following configure cannot be omitted.
 
 ```properties

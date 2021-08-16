@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   es:
-    image: opensearchproject/opensearch:1.0.0-beta1
+    image: opensearchproject/opensearch:1.0.0
     expose:
       - 9200
     networks:
@@ -25,7 +25,7 @@ services:
     environment:
       - discovery.type=single-node
       - cluster.routing.allocation.disk.threshold_enabled=false
-      - opendistro_security.ssl.http.enabled=false
+      - plugins.security.ssl.http.enabled=false
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
       interval: 5s

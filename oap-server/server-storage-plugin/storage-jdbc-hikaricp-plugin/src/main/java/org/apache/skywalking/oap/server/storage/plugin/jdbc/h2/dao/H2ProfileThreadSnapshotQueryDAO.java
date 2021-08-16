@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
@@ -94,7 +95,10 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
 
                     basicTrace.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
                     basicTrace.setStart(resultSet.getString(SegmentRecord.START_TIME));
-                    basicTrace.getEndpointNames().add(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
+                    basicTrace.getEndpointNames().add(
+                        IDManager.EndpointID.analysisId(
+                            resultSet.getString(SegmentRecord.ENDPOINT_ID)).getEndpointName()
+                    );
                     basicTrace.setDuration(resultSet.getInt(SegmentRecord.LATENCY));
                     basicTrace.setError(BooleanUtils.valueToBoolean(resultSet.getInt(SegmentRecord.IS_ERROR)));
                     String traceIds = resultSet.getString(SegmentRecord.TRACE_ID);
@@ -176,16 +180,13 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
                     segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
                     segmentRecord.setServiceId(resultSet.getString(SegmentRecord.SERVICE_ID));
                     segmentRecord.setServiceInstanceId(resultSet.getString(SegmentRecord.SERVICE_INSTANCE_ID));
-                    segmentRecord.setEndpointName(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
                     segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
-                    segmentRecord.setEndTime(resultSet.getLong(SegmentRecord.END_TIME));
                     segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
                     segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
                     String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
                     if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                         segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
                     }
-                    segmentRecord.setVersion(resultSet.getInt(SegmentRecord.VERSION));
                     return segmentRecord;
                 }
             }

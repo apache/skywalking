@@ -32,7 +32,6 @@ public class TraceQueryCondition {
     private String serviceId;
     private String serviceInstanceId;
     private String traceId;
-    private String endpointName;
     private String endpointId;
     private Duration queryDuration;
     private int minTraceDuration;

@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
@@ -78,11 +79,15 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      * every {@link #persistentMod} periods. And minute level workers execute every time.
      */
     private int persistentMod;
+    /**
+     * @since 8.7.0 TTL settings from {@link org.apache.skywalking.oap.server.core.CoreModuleConfig#getMetricsDataTTL()}
+     */
+    private int metricsDataTTL;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
                             MetricsTransWorker transWorker, boolean enableDatabaseSession, boolean supportUpdate,
-                            long storageSessionTimeout) {
+                            long storageSessionTimeout, int metricsDataTTL) {
         super(moduleDefineHolder, new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData()));
         this.model = model;
         this.context = new HashMap<>(100);
@@ -95,6 +100,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         this.sessionTimeout = storageSessionTimeout;
         this.persistentCounter = 0;
         this.persistentMod = 1;
+        this.metricsDataTTL = metricsDataTTL;
 
         String name = "METRICS_L2_AGGREGATION";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -125,11 +131,16 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     /**
      * Create the leaf and down-sampling MetricsPersistentWorker, no next step.
      */
-    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
-                            boolean enableDatabaseSession, boolean supportUpdate, long storageSessionTimeout) {
+    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder,
+                            Model model,
+                            IMetricsDAO metricsDAO,
+                            boolean enableDatabaseSession,
+                            boolean supportUpdate,
+                            long storageSessionTimeout,
+                            int metricsDataTTL) {
         this(moduleDefineHolder, model, metricsDAO,
              null, null, null,
-             enableDatabaseSession, supportUpdate, storageSessionTimeout
+             enableDatabaseSession, supportUpdate, storageSessionTimeout, metricsDataTTL
         );
         // For a down-sampling metrics, we prolong the session timeout for 4 times, nearly 5 minutes.
         // And add offset according to worker creation sequence, to avoid context clear overlap,
@@ -246,10 +257,34 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      * Load data from the storage, if {@link #enableDatabaseSession} == true, only load data when the id doesn't exist.
      */
     private void loadFromStorage(List<Metrics> metrics) {
+        final long currentTimeMillis = System.currentTimeMillis();
         try {
-            List<Metrics> notInCacheMetrics = metrics.stream()
-                                                     .filter(m -> !context.containsKey(m) || !enableDatabaseSession)
-                                                     .collect(Collectors.toList());
+            List<Metrics> notInCacheMetrics =
+                metrics.stream()
+                       .filter(m -> {
+                           final Metrics cachedValue = context.get(m);
+                           // Not cached or session disabled, the metric could be tagged `not in cache`.
+                           if (cachedValue == null || !enableDatabaseSession) {
+                               return true;
+                           }
+                           // The metric is in the cache, but still we have to check
+                           // whether the cache is expired due to TTL.
+                           // This is a cache-DB inconsistent case:
+                           // Metrics keep coming due to traffic, but the entity in the
+                           // database has been removed due to TTL.
+                           if (!model.isTimeRelativeID() && supportUpdate) {
+                               // Mostly all updatable metadata level metrics are required to do this check.
+
+                               if (metricsDAO.isExpiredCache(model, cachedValue, currentTimeMillis, metricsDataTTL)) {
+                                   // The expired metrics should be removed from the context and tagged `not in cache` directly.
+                                   context.remove(m);
+                                   return true;
+                               }
+                           }
+
+                           return false;
+                       })
+                       .collect(Collectors.toList());
             if (notInCacheMetrics.isEmpty()) {
                 return;
             }
@@ -287,7 +322,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      */
     private class PersistentConsumer implements IConsumer<Metrics> {
         @Override
-        public void init() {
+        public void init(final Properties properties) {
 
         }
 

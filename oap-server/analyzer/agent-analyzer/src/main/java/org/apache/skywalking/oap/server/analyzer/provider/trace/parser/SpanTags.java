@@ -22,7 +22,16 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser;
  * Reserved keys of the span. The backend analysis the metrics according the existed tags.
  */
 public class SpanTags {
+    public static final String HTTP_RESPONSE_STATUS_CODE = "http.status_code";
+    /**
+     * Deprecated. The old status_code tag, in order to be compatible with the old version of agent.
+     * It should be replaced by {@link #HTTP_RESPONSE_STATUS_CODE} or using
+     * {@link #RPC_RESPONSE_STATUS_CODE} if status code is related to a rpc call.
+     */
+    @Deprecated
     public static final String STATUS_CODE = "status_code";
+
+    public static final String RPC_RESPONSE_STATUS_CODE = "rpc.status_code";
 
     public static final String DB_STATEMENT = "db.statement";
 

@@ -25,6 +25,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
@@ -38,7 +39,6 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameMaker;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -63,7 +63,6 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                                        long endSecondTB,
                                        long minDuration,
                                        long maxDuration,
-                                       String endpointName,
                                        String serviceId,
                                        String serviceInstanceId,
                                        String endpointId,
@@ -92,10 +91,6 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 rangeQueryBuilder.lte(maxDuration);
             }
             boolQueryBuilder.must().add(rangeQueryBuilder);
-        }
-        if (!Strings.isNullOrEmpty(endpointName)) {
-            String matchCName = MatchCNameBuilder.INSTANCE.build(SegmentRecord.ENDPOINT_NAME);
-            mustQueryList.add(QueryBuilders.matchPhraseQuery(matchCName, endpointName));
         }
         if (StringUtil.isNotEmpty(serviceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_ID, serviceId));
@@ -145,7 +140,10 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
             basicTrace.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
             basicTrace.setStart(String.valueOf(searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)));
-            basicTrace.getEndpointNames().add((String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
+            basicTrace.getEndpointNames().add(
+                IDManager.EndpointID.analysisId(
+                    (String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_ID)
+                ).getEndpointName());
             basicTrace.setDuration(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
             basicTrace.setError(
                 BooleanUtils.valueToBoolean(
@@ -174,16 +172,13 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             segmentRecord.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
             segmentRecord.setTraceId((String) searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
             segmentRecord.setServiceId((String) searchHit.getSourceAsMap().get(SegmentRecord.SERVICE_ID));
-            segmentRecord.setEndpointName((String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
             segmentRecord.setStartTime(((Number) searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)).longValue());
-            segmentRecord.setEndTime(((Number) searchHit.getSourceAsMap().get(SegmentRecord.END_TIME)).longValue());
             segmentRecord.setLatency(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
             segmentRecord.setIsError(((Number) searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue());
             String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(SegmentRecord.DATA_BINARY);
             if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                 segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
             }
-            segmentRecord.setVersion(((Number) searchHit.getSourceAsMap().get(SegmentRecord.VERSION)).intValue());
             segmentRecords.add(segmentRecord);
         }
         return segmentRecords;

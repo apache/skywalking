@@ -10,8 +10,8 @@ metrics based on the tracing data.
   * Spring MVC 3.x, 4.x 5.x with servlet 3.x
   * [Nutz Web Framework](https://github.com/nutzam/nutz)  1.x
   * [Struts2 MVC](http://struts.apache.org/)  2.3.x -> 2.5.x
-  * [Resin](http://www.caucho.com/resin-4.0/) 3 (Optional¹)
-  * [Resin](http://www.caucho.com/resin-4.0/) 4 (Optional¹)
+  * [Resin](https://www.caucho.com/resin-4.0/) 3 (Optional¹)
+  * [Resin](https://www.caucho.com/resin-4.0/) 4 (Optional¹)
   * [Jetty Server](http://www.eclipse.org/jetty/) 9
   * [Spring WebFlux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) 5.x (Optional¹)
   * [Undertow](http://undertow.io/)  1.3.0.Final -> 2.0.27.Final
@@ -35,8 +35,7 @@ metrics based on the tracing data.
   * Mysql Driver 5.x, 6.x, 8.x
   * Oracle Driver (Optional¹)
   * H2 Driver 1.3.x -> 1.4.x
-  * [Sharding-JDBC](https://github.com/shardingjdbc/sharding-jdbc) 1.5.x
-  * [ShardingSphere](https://github.com/apache/shardingsphere) 3.0.0, 4.0.0-RC1, 4.0.0, 4.0.1, 4.1.0, 4.1.1, 5.0.0-beta
+  * [ShardingSphere](https://github.com/apache/shardingsphere) 3.0.0, 4.0.0, 4.0.1, 4.1.0, 4.1.1, 5.0.0-beta
   * PostgreSQL Driver 8.x, 9.x, 42.x
   * Mariadb Driver 2.x, 1.8
   * [InfluxDB](https://github.com/influxdata/influxdb-java) 2.5 -> 2.17
@@ -99,7 +98,7 @@ metrics based on the tracing data.
 * [Sentinel: The Sentinel of Your Microservices](https://github.com/alibaba/Sentinel) 1.7.0 -> 1.8.1
 * Scheduler
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
-  * [Apache ShardingSphere-Elasticjob](https://github.com/apache/shardingsphere-elasticjob) 3.0.0-alpha
+  * [Apache ShardingSphere-Elasticjob](https://github.com/apache/shardingsphere-elasticjob) 3.x
   * [Spring @Scheduled](https://github.com/spring-projects/spring-framework) 3.1+
   * [Quartz Scheduler](https://github.com/quartz-scheduler/quartz) 2.x (Optional²)
   * [XXL Job](https://github.com/xuxueli/xxl-job) 2.x

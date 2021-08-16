@@ -37,10 +37,6 @@ do
     CLASSPATH="$i:$CLASSPATH"
 done
 
-if java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -version; then
-  JAVA_OPTS="${JAVA_OPTS} -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
-fi
-
 set -ex
 
 exec java ${JAVA_OPTS} -classpath ${CLASSPATH} org.apache.skywalking.oap.server.starter.OAPServerStartUp "$@"
