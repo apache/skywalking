@@ -16,35 +16,29 @@
  *
  */
 
-package org.apache.skywalking.apm.commons.datacarrier.consumer;
+package org.apache.skywalking.apm.agent.core.context.tag;
 
-import java.util.List;
-import java.util.Properties;
-import org.apache.skywalking.apm.commons.datacarrier.SampleData;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
-public class SampleConsumer implements IConsumer<SampleData> {
-    public int i = 1;
+/**
+ * A subclass of {@link AbstractTag}, represent a tag with a {@link Integer} value.
+ */
+public class IntegerTag extends AbstractTag<Integer> {
 
-    @Override
-    public void init(final Properties properties) {
+    public IntegerTag(int id, String tagKey, boolean canOverwrite) {
+        super(id, tagKey, canOverwrite);
+    }
 
+    public IntegerTag(String key) {
+        super(key);
+    }
+
+    public IntegerTag(int id, String tagKey) {
+        super(id, tagKey, false);
     }
 
     @Override
-    public void consume(List<SampleData> data) {
-        for (SampleData one : data) {
-            one.setIntValue(this.hashCode());
-            ConsumerTest.BUFFER.offer(one);
-        }
-    }
-
-    @Override
-    public void onError(List<SampleData> data, Throwable t) {
-
-    }
-
-    @Override
-    public void onExit() {
-
+    public void set(AbstractSpan span, Integer tagValue) {
+        span.tag(this, Integer.toString(tagValue));
     }
 }

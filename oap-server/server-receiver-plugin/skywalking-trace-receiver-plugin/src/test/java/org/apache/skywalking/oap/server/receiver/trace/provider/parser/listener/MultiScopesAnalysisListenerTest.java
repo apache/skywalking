@@ -134,10 +134,15 @@ public class MultiScopesAnalysisListenerTest {
                                           .setSpanType(SpanType.Entry)
                                           .addTags(
                                               KeyStringValuePair.newBuilder()
-                                                                .setKey(SpanTags.STATUS_CODE)
+                                                                .setKey(SpanTags.HTTP_RESPONSE_STATUS_CODE)
                                                                 .setValue("500")
                                                                 .build()
                                           )
+                                          .addTags(
+                                              KeyStringValuePair.newBuilder()
+                                                                .setKey(SpanTags.RPC_RESPONSE_STATUS_CODE)
+                                                                .setValue("OK")
+                                                                .build())
                                           .build();
         final SegmentObject segment = SegmentObject.newBuilder()
                                                    .setService("mock-service")
@@ -158,6 +163,8 @@ public class MultiScopesAnalysisListenerTest {
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(6);
         Assert.assertEquals("mock-service", service.getName());
         Assert.assertEquals(500, service.getResponseCode());
+        Assert.assertEquals(500, service.getHttpResponseStatusCode());
+        Assert.assertEquals("OK", service.getRpcStatusCode());
         Assert.assertFalse(service.isStatus());
         Assert.assertEquals("mock-instance", serviceInstance.getName());
         Assert.assertEquals("/springMVC", endpoint.getName());

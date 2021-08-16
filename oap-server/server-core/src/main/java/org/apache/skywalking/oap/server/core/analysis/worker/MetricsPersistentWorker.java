@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
@@ -321,7 +322,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      */
     private class PersistentConsumer implements IConsumer<Metrics> {
         @Override
-        public void init() {
+        public void init(final Properties properties) {
 
         }
 
