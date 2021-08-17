@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -153,17 +152,14 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     }
 
     private void appendSearchableTags(SpanObject span) {
-        HashSet<Tag> segmentTags = new HashSet<>();
         span.getTagsList().forEach(tag -> {
             if (searchableTagKeys.contains(tag.getKey())) {
                 final Tag spanTag = new Tag(tag.getKey(), tag.getValue());
-                if (!segmentTags.contains(spanTag)) {
-                    segmentTags.add(spanTag);
+                if (!segment.getTags().contains(spanTag)) {
+                    segment.getTags().add(spanTag);
                 }
-
             }
         });
-        segment.getTags().addAll(segmentTags);
     }
 
     @Override
