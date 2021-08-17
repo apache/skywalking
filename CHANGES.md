@@ -16,6 +16,7 @@ Release Notes.
 * Support Multiple DNS period resolving mechanism
 * Modify `Tags.STATUS_CODE` field name to `Tags.HTTP_RESPONSE_STATUS_CODE` and type from `StringTag` to `IntegerTag`, add `Tags.RPC_RESPONSE_STATUS_CODE` field to hold rpc response code value.
 * Fix kafka-reporter-plugin shade package conflict
+* Add all config items to `agent.conf` file for convenient containerization use cases.
 
 #### OAP-Backend
 
