@@ -43,6 +43,7 @@ Release Notes.
 * Remove the duplicated tags to reduce the storage payload.
 * Add a new API to test log analysis language.
 * Harden the security of Groovy-based DSL, MAL and LAL.
+* Fix distinct in Service/Instance/Endpoint query is not working.
 
 #### UI
 
