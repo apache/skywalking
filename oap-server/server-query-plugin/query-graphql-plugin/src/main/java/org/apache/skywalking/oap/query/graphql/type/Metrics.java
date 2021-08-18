@@ -16,18 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql;
+package org.apache.skywalking.oap.query.graphql.type;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import java.util.List;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 
-/**
- * The config of {@code query.graphql}.
- */
-@Getter
-@Setter
-public class GraphQLQueryConfig extends ModuleConfig {
-    private String path;
-    private boolean enableLogTestTool;
+@Data
+@RequiredArgsConstructor
+public class Metrics {
+    private final String name;
+
+    private final List<KeyValue> tags;
+
+    private final long value;
+
+    private final long timestamp;
 }
