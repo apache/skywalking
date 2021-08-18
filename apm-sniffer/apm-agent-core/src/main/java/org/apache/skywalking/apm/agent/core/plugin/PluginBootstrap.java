@@ -64,7 +64,7 @@ public class PluginBootstrap {
         for (PluginDefine pluginDefine : pluginClassList) {
             try {
                 LOGGER.debug("loading plugin class {}.", pluginDefine.getDefineClass());
-                plugins.add(PluginInitializer.initialize(pluginDefine));
+                plugins.add(PluginCreator.create(pluginDefine));
             } catch (Throwable t) {
                 LOGGER.error(t, "load plugin [{}] failure.", pluginDefine.getDefineClass());
             }
