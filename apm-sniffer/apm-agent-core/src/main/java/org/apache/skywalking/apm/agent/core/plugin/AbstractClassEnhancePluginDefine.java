@@ -50,7 +50,6 @@ public abstract class AbstractClassEnhancePluginDefine {
 
     private boolean isExtClassLoaderLoaded = false;
 
-
     /**
      * Main entrance of enhancing the class.
      *
@@ -61,7 +60,7 @@ public abstract class AbstractClassEnhancePluginDefine {
      * @throws PluginException when set builder failure.
      */
     public DynamicType.Builder<?> define(TypeDescription typeDescription, DynamicType.Builder<?> builder,
-        ClassLoader classLoader, EnhanceContext context) throws PluginException {
+                                         ClassLoader classLoader, EnhanceContext context) throws PluginException {
         String interceptorDefineClassName = this.getClass().getName();
         String transformClassName = typeDescription.getTypeName();
         if (StringUtil.isEmpty(transformClassName)) {
@@ -78,7 +77,10 @@ public abstract class AbstractClassEnhancePluginDefine {
         if (witnessClasses != null) {
             for (String witnessClass : witnessClasses) {
                 if (!finder.exist(witnessClass, classLoader)) {
-                    LOGGER.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", transformClassName, interceptorDefineClassName, witnessClass);
+                    LOGGER.warn(
+                        "enhance class {} by plugin {} is not working. Because witness class {} is not existed.",
+                        transformClassName, interceptorDefineClassName, witnessClass
+                    );
                     return null;
                 }
             }
@@ -87,7 +89,10 @@ public abstract class AbstractClassEnhancePluginDefine {
         if (!CollectionUtil.isEmpty(witnessMethods)) {
             for (WitnessMethod witnessMethod : witnessMethods) {
                 if (!finder.exist(witnessMethod, classLoader)) {
-                    LOGGER.warn("enhance class {} by plugin {} is not working. Because witness method {} is not existed.", transformClassName, interceptorDefineClassName, witnessMethod);
+                    LOGGER.warn(
+                        "enhance class {} by plugin {} is not working. Because witness method {} is not existed.",
+                        transformClassName, interceptorDefineClassName, witnessMethod
+                    );
                     return null;
                 }
             }
@@ -103,7 +108,6 @@ public abstract class AbstractClassEnhancePluginDefine {
 
         return newClassBuilder;
     }
-
 
     /**
      * Begin to define how to enhance class. After invoke this method, only means definition is finished.
@@ -129,8 +133,9 @@ public abstract class AbstractClassEnhancePluginDefine {
      * @return new byte-buddy's builder for further manipulation.
      */
     protected abstract DynamicType.Builder<?> enhanceInstance(TypeDescription typeDescription,
-                                                     DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader,
-                                                     EnhanceContext context) throws PluginException;
+                                                              DynamicType.Builder<?> newClassBuilder,
+                                                              ClassLoader classLoader,
+                                                              EnhanceContext context) throws PluginException;
 
     /**
      * Enhance a class to intercept class static methods.
@@ -139,8 +144,9 @@ public abstract class AbstractClassEnhancePluginDefine {
      * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
      */
-    protected abstract DynamicType.Builder<?> enhanceClass(TypeDescription typeDescription, DynamicType.Builder<?> newClassBuilder,
-                                                  ClassLoader classLoader) throws PluginException;
+    protected abstract DynamicType.Builder<?> enhanceClass(TypeDescription typeDescription,
+                                                           DynamicType.Builder<?> newClassBuilder,
+                                                           ClassLoader classLoader) throws PluginException;
 
     /**
      * Define the {@link ClassMatch} for filtering class.
@@ -168,7 +174,6 @@ public abstract class AbstractClassEnhancePluginDefine {
     public boolean isBootstrapInstrumentation() {
         return false;
     }
-
 
     public boolean isExtClassLoaderLoaded() {
         return isExtClassLoaderLoaded;
