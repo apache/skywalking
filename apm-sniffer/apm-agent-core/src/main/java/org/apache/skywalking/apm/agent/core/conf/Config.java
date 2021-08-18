@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
@@ -29,6 +25,11 @@ import org.apache.skywalking.apm.agent.core.logging.core.ResolverType;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
 import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ClassCacheMode;
 import org.apache.skywalking.apm.util.Length;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is the core config in sniffer agent.
@@ -320,6 +321,12 @@ public class Config {
          * Mount the folders of the plugins. The folder path is relative to agent.jar.
          */
         public static List<String> MOUNT = Arrays.asList("plugins", "activations");
+
+        /**
+         * Multiple values should be separated by `,`.
+         * Support wildcard "*",like "ehcache*"
+         */
+        public static String PLUGINS_IN_EXT_CLASS_LOADER = "";
     }
 
     public static class Correlation {

@@ -18,11 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.plugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -31,6 +26,8 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.ProtectiveShieldMatcher;
+
+import java.util.*;
 
 import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.not;
@@ -42,7 +39,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 public class PluginFinder {
     private final Map<String, LinkedList<AbstractClassEnhancePluginDefine>> nameMatchDefine = new HashMap<String, LinkedList<AbstractClassEnhancePluginDefine>>();
     private final List<AbstractClassEnhancePluginDefine> signatureMatchDefine = new ArrayList<AbstractClassEnhancePluginDefine>();
-    private final List<AbstractClassEnhancePluginDefine> bootstrapClassMatchDefine = new ArrayList<AbstractClassEnhancePluginDefine>();
+    private final List<AbstractClassEnhancePluginDefine> bootstrapClassAndExtClassMatchDefine = new ArrayList<AbstractClassEnhancePluginDefine>();
 
     public PluginFinder(List<AbstractClassEnhancePluginDefine> plugins) {
         for (AbstractClassEnhancePluginDefine plugin : plugins) {
@@ -64,8 +61,8 @@ public class PluginFinder {
                 signatureMatchDefine.add(plugin);
             }
 
-            if (plugin.isBootstrapInstrumentation()) {
-                bootstrapClassMatchDefine.add(plugin);
+            if (plugin.isBootstrapInstrumentation() || plugin.isExtClassLoaderLoaded()) {
+                bootstrapClassAndExtClassMatchDefine.add(plugin);
             }
         }
     }
@@ -104,7 +101,7 @@ public class PluginFinder {
         return new ProtectiveShieldMatcher(judge);
     }
 
-    public List<AbstractClassEnhancePluginDefine> getBootstrapClassMatchDefine() {
-        return bootstrapClassMatchDefine;
+    public List<AbstractClassEnhancePluginDefine> getBootstrapClassAndExtClassMatchDefine() {
+        return bootstrapClassAndExtClassMatchDefine;
     }
 }
