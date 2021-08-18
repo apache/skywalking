@@ -27,4 +27,18 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class BanyanDBStorageConfig extends ModuleConfig {
     private String host = "127.0.0.1";
     private int port = 17912;
+
+    /**
+     * ¬
+     * The maximum size of write entities in a single batch write call.
+     */
+    private int maxBulkSize;
+    /**
+     * Period of flush interval. In the timeunit of seconds.
+     */
+    private int flushInterval = 15;
+    /**
+     * Concurrent consumer threads for batch writing.
+     */
+    private int concurrency = 2;
 }

@@ -97,7 +97,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
 
         this.client = new BanyanDBStorageClient(config.getHost(), config.getPort());
 
-        this.registerServiceImplementation(IBatchDAO.class, new BanyanDBBatchDAO(client));
+        this.registerServiceImplementation(IBatchDAO.class, new BanyanDBBatchDAO(client, config.getMaxBulkSize(), config.getFlushInterval(), config.getConcurrency()));
         this.registerServiceImplementation(StorageDAO.class, new BanyanDBStorageDAO());
 
         this.registerServiceImplementation(INetworkAddressAliasDAO.class, new BanyanDBNetworkAddressAliasDAO());

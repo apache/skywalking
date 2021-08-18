@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.dao;
 
-import org.apache.skywalking.banyandb.client.request.WriteValue;
+import org.apache.skywalking.banyandb.v1.client.Field;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -41,16 +41,16 @@ public class BanyanDBSegmentRecordBuilder implements StorageHashMapBuilder<Recor
     public Map<String, Object> entity2Storage(Record record) {
         final SegmentRecord segmentRecord = (SegmentRecord) record;
         Map<String, Object> map = new HashMap<>();
-        map.put(SegmentRecord.TRACE_ID, WriteValue.strValue(segmentRecord.getTraceId()));
-        map.put(SegmentRecord.SERVICE_ID, WriteValue.strValue(segmentRecord.getServiceId()));
-        map.put(SegmentRecord.SERVICE_INSTANCE_ID, WriteValue.strValue(segmentRecord.getServiceInstanceId()));
-        map.put(SegmentRecord.ENDPOINT_ID, WriteValue.strValue(segmentRecord.getEndpointId()));
-        map.put(SegmentRecord.START_TIME, WriteValue.intValue(segmentRecord.getStartTime()));
-        map.put("duration", WriteValue.intValue(segmentRecord.getLatency()));
-        map.put("state", WriteValue.intValue(segmentRecord.getIsError()));
+        map.put(SegmentRecord.TRACE_ID, Field.stringField(segmentRecord.getTraceId()));
+        map.put(SegmentRecord.SERVICE_ID, Field.stringField(segmentRecord.getServiceId()));
+        map.put(SegmentRecord.SERVICE_INSTANCE_ID, Field.stringField(segmentRecord.getServiceInstanceId()));
+        map.put(SegmentRecord.ENDPOINT_ID, Field.stringField(segmentRecord.getEndpointId()));
+        map.put(SegmentRecord.START_TIME, Field.longField(segmentRecord.getStartTime()));
+        map.put("duration", Field.longField(segmentRecord.getLatency()));
+        map.put("state", Field.longField(segmentRecord.getIsError()));
         if (segmentRecord.getTagsRawData() != null) {
             for (final Tag tag : segmentRecord.getTagsRawData()) {
-                map.put(tag.getKey().toLowerCase(), WriteValue.strValue(tag.getValue()));
+                map.put(tag.getKey().toLowerCase(), Field.stringField(tag.getValue()));
             }
         }
         return map;

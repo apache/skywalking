@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TraceQuery;
+import org.apache.skywalking.banyandb.v1.client.TraceQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
@@ -37,12 +38,20 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> implements ITraceQueryDAO {
-    private static final List<String> DEFAULT_PROJECTION = ImmutableList.of("duration", "state", "start_time", "trace_id");
+    private static final List<String> BASIC_QUERY_PROJ = ImmutableList.of("duration", "state", "start_time", "trace_id", "endpoint_id");
+    private static final List<String> TRACE_ID_QUERY_PROJ;
+
+    static {
+        List<String> fields = new ArrayList<>(BanyanDBSchema.FIELD_NAMES);
+        fields.add("data_binary");
+        TRACE_ID_QUERY_PROJ = ImmutableList.copyOf(fields);
+    }
 
     public BanyanDBTraceQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -52,9 +61,9 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
         TraceQuery query;
         if (startSecondTB != 0 && endSecondTB != 0) {
-            query = new TraceQuery(BanyanDBSchema.NAME, new TimestampRange(startSecondTB, endSecondTB), DEFAULT_PROJECTION);
+            query = new TraceQuery(BanyanDBSchema.NAME, new TimestampRange(startSecondTB, endSecondTB), BASIC_QUERY_PROJ);
         } else {
-            query = new TraceQuery(BanyanDBSchema.NAME, DEFAULT_PROJECTION);
+            query = new TraceQuery(BanyanDBSchema.NAME, BASIC_QUERY_PROJ);
         }
         if (minDuration != 0) {
             // duration >= minDuration
@@ -102,18 +111,18 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
         query.setOffset(from);
 
         // build request
-        BanyanDBQueryResponse response = this.getClient().queryBasicTraces(query);
+        TraceQueryResponse response = this.getClient().query(query);
         TraceBrief brief = new TraceBrief();
-        brief.setTotal(response.getTotal());
+        brief.setTotal(response.size());
         brief.getTraces().addAll(response.getEntities().stream().map(entity -> {
             BasicTrace trace = new BasicTrace();
-            trace.setDuration(((Long) entity.getFields().get("duration")).intValue());
-            trace.setStart(String.valueOf(entity.getFields().get(SegmentRecord.START_TIME)));
-            trace.setSegmentId(entity.getEntityId());
-            trace.setError(((Long) entity.getFields().get("state")).intValue() == 1);
-            trace.getTraceIds().add((String) entity.getFields().get(SegmentRecord.TRACE_ID));
+            trace.setDuration(((Long) entity.getFields().get(3).getValue()).intValue());
+            trace.setStart(String.valueOf(entity.getFields().get(4).getValue()));
+            trace.setSegmentId(entity.getId());
+            trace.setError(((Long) entity.getFields().get(1).getValue()).intValue() == 1);
+            trace.getTraceIds().add((String) entity.getFields().get(0).getValue());
             trace.getEndpointNames().add(IDManager.EndpointID.analysisId(
-                    (String) entity.getFields().get(SegmentRecord.ENDPOINT_ID)
+                    (String) entity.getFields().get(2).getValue()
             ).getEndpointName());
             return trace;
         }).collect(Collectors.toList()));
@@ -122,22 +131,20 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        TraceFetchRequest request = TraceFetchRequest.builder()
-                .traceId(traceId)
-                .projections(BanyanDBSchema.FIELD_NAMES)
-                .projection("data_binary").build();
-        BanyanDBQueryResponse response = this.getClient().queryByTraceId(request);
+        TraceQuery query = new TraceQuery(BanyanDBSchema.NAME, TRACE_ID_QUERY_PROJ);
+        query.appendCondition(PairQueryCondition.StringQueryCondition.eq("trace_id", traceId));
+        TraceQueryResponse response = this.getClient().query(query);
         return response.getEntities().stream().map(entity -> {
             SegmentRecord record = new SegmentRecord();
-            record.setSegmentId(entity.getEntityId());
-            record.setTraceId((String) entity.getFields().get(SegmentRecord.TRACE_ID));
-            record.setServiceId((String) entity.getFields().get(SegmentRecord.SERVICE_ID));
-            record.setServiceInstanceId((String) entity.getFields().get(SegmentRecord.SERVICE_INSTANCE_ID));
-            record.setEndpointId((String) entity.getFields().get(SegmentRecord.ENDPOINT_ID));
-            record.setStartTime(((Number) entity.getFields().get(SegmentRecord.START_TIME)).longValue());
-            record.setLatency(((Number) entity.getFields().get("duration")).intValue());
-            record.setIsError(((Number) entity.getFields().get("state")).intValue());
-            record.setDataBinary(entity.getBinaryData());
+            record.setSegmentId(entity.getId());
+            record.setTraceId((String) entity.getFields().get(0).getValue());
+            record.setIsError(((Number) entity.getFields().get(1).getValue()).intValue());
+            record.setServiceId((String) entity.getFields().get(2).getValue());
+            record.setServiceInstanceId((String) entity.getFields().get(3).getValue());
+            record.setEndpointId((String) entity.getFields().get(4).getValue());
+            record.setLatency(((Number) entity.getFields().get(5).getValue()).intValue());
+            record.setStartTime(((Number) entity.getFields().get(6).getValue()).longValue());
+            record.setDataBinary(entity.getBinary());
             return record;
         }).collect(Collectors.toList());
     }

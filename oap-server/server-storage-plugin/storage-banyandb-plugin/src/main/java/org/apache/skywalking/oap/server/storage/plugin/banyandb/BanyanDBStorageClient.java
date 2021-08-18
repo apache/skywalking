@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
-import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
+import org.apache.skywalking.banyandb.v1.client.*;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
@@ -41,6 +41,21 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     @Override
     public void shutdown() throws IOException {
+    }
+
+    public TraceQueryResponse query(TraceQuery traceQuery) {
+        try {
+            TraceQueryResponse response = this.client.queryTraces(traceQuery);
+            this.healthChecker.health();
+            return response;
+        } catch (Throwable t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
+    }
+
+    public TraceBulkWriteProcessor createBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
+        return this.client.buildTraceWriteProcessor(maxBulkSize, flushInterval, concurrency);
     }
 
     @Override

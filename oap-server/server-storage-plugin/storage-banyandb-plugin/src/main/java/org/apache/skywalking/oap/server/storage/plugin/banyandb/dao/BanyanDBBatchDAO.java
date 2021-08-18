@@ -18,30 +18,51 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.dao;
 
-import org.apache.skywalking.banyandb.client.request.TraceWriteRequest;
+import org.apache.skywalking.banyandb.v1.client.TraceBulkWriteProcessor;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> implements IBatchDAO {
-    public BanyanDBBatchDAO(BanyanDBStorageClient client) {
+    private TraceBulkWriteProcessor bulkProcessor;
+
+    private final int maxBulkSize;
+    private final int flushInterval;
+    private final int concurrency;
+
+    public BanyanDBBatchDAO(BanyanDBStorageClient client, int maxBulkSize, int flushInterval, int concurrency) {
         super(client);
+        this.maxBulkSize = maxBulkSize;
+        this.flushInterval = flushInterval;
+        this.concurrency = concurrency;
     }
 
     @Override
     public void insert(InsertRequest insertRequest) {
-        getClient().writeEntity(Collections.singletonList(((BanyanDBTraceInsertRequest) insertRequest).getTraceWriteRequest()));
+        if (bulkProcessor == null) {
+            this.bulkProcessor = getClient().createBulkProcessor(maxBulkSize, flushInterval, concurrency);
+        }
+
+        this.bulkProcessor.add(((BanyanDBTraceInsertRequest) insertRequest).getTraceWrite());
     }
 
     @Override
     public void flush(List<PrepareRequest> prepareRequests) {
-        List<TraceWriteRequest> requests = prepareRequests.stream().map(prepareRequest -> (TraceWriteRequest) prepareRequest).collect(Collectors.toList());
-        getClient().writeEntity(requests);
+        if (bulkProcessor == null) {
+            this.bulkProcessor = getClient().createBulkProcessor(maxBulkSize, flushInterval, concurrency);
+        }
+
+        if (CollectionUtils.isNotEmpty(prepareRequests)) {
+            for (PrepareRequest prepareRequest : prepareRequests) {
+                if (prepareRequest instanceof InsertRequest) {
+                    this.bulkProcessor.add(((BanyanDBTraceInsertRequest) prepareRequest).getTraceWrite());
+                }
+            }
+        }
     }
 }

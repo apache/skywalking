@@ -19,9 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.dao;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.banyandb.client.request.WriteValue;
+import org.apache.skywalking.banyandb.v1.client.Field;
+import org.apache.skywalking.banyandb.v1.client.SerializableField;
+import org.apache.skywalking.banyandb.v1.client.TraceWrite;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
-import org.apache.skywalking.banyandb.client.request.TraceWriteRequest;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
@@ -42,13 +43,13 @@ public class BanyanDBRecordDAO implements IRecordDAO {
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
         if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
             SegmentRecord segmentRecord = (SegmentRecord) record;
-            TraceWriteRequest request = TraceWriteRequest.builder()
-                    .dataBinary(segmentRecord.getDataBinary())
-                    .timestampSeconds(segmentRecord.getStartTime())
+            TraceWrite traceWrite = TraceWrite.builder()
+                    .binary(segmentRecord.getDataBinary())
+                    .timestamp(segmentRecord.getStartTime())
                     .entityId(segmentRecord.getSegmentId())
                     .fields(buildFieldObjects(this.storageBuilder.entity2Storage(segmentRecord)))
                     .build();
-            return new BanyanDBTraceInsertRequest(request);
+            return new BanyanDBTraceInsertRequest(traceWrite);
         }
         return new InsertRequest() {
         };
@@ -58,16 +59,16 @@ public class BanyanDBRecordDAO implements IRecordDAO {
      * Convert storageEntity in Map to a ordered list of Objects
      *
      * @param segmentRecordMap which comes from {@link SegmentRecord}
-     * @return an ordered list of {@link Object}s which is accepted by BanyanDB Client
+     * @return an ordered list of {@link SerializableField}s which is accepted by BanyanDB Client
      */
-    static List<WriteValue<?>> buildFieldObjects(Map<String, Object> segmentRecordMap) {
-        List<WriteValue<?>> objectList = new ArrayList<>(BanyanDBSchema.FIELD_NAMES.size());
+    static List<SerializableField> buildFieldObjects(Map<String, Object> segmentRecordMap) {
+        List<SerializableField> objectList = new ArrayList<>(BanyanDBSchema.FIELD_NAMES.size());
         for (String fieldName : BanyanDBSchema.FIELD_NAMES) {
             Object val = segmentRecordMap.get(fieldName);
             if (val == null) {
-                objectList.add(WriteValue.nullValue());
+                objectList.add(Field.nullField());
             } else {
-                objectList.add((WriteValue<?>) val);
+                objectList.add((SerializableField) val);
             }
         }
         return objectList;
