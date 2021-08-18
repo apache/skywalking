@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.experimental.Delegate;
 import org.apache.commons.lang3.StringUtils;
@@ -188,12 +189,19 @@ public class ExtractorSpec extends AbstractSpec {
         cl.call();
 
         final Sample sample = builder.build();
+        final SampleFamily sampleFamily = SampleFamilyBuilder.newBuilder(sample).build();
 
-        metricConverts.forEach(it -> it.toMeter(
-            ImmutableMap.<String, SampleFamily>builder()
-                        .put(sample.getName(), SampleFamilyBuilder.newBuilder(sample).build())
-                        .build()
-        ));
+        final Optional<List<SampleFamily>> possibleMetricsContainer = BINDING.get().metricsContainer();
+
+        if (possibleMetricsContainer.isPresent()) {
+            possibleMetricsContainer.get().add(sampleFamily);
+        } else {
+            metricConverts.forEach(it -> it.toMeter(
+                    ImmutableMap.<String, SampleFamily>builder()
+                            .put(sample.getName(), sampleFamily)
+                            .build()
+            ));
+        }
     }
 
     public static class SampleBuilder {
