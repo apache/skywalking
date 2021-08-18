@@ -26,6 +26,8 @@ import groovy.lang.DelegatesTo;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
@@ -38,6 +40,7 @@ import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListenerFactory;
 import org.apache.skywalking.oap.log.analyzer.provider.log.listener.RecordAnalysisListener;
 import org.apache.skywalking.oap.log.analyzer.provider.log.listener.TrafficAnalysisListener;
+import org.apache.skywalking.oap.server.core.source.Log;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.slf4j.Logger;
@@ -163,9 +166,21 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
 
-        factories.stream()
-                 .map(LogAnalysisListenerFactory::create)
-                 .forEach(it -> it.parse(logData, extraLog).build());
+        final Optional<AtomicReference<Log>> container = BINDING.get().logContainer();
+        if (container.isPresent()) {
+            factories.stream()
+                     .map(LogAnalysisListenerFactory::create)
+                     .filter(it -> it instanceof RecordAnalysisListener)
+                     .map(it -> it.parse(logData, extraLog))
+                     .map(it -> (RecordAnalysisListener) it)
+                     .map(RecordAnalysisListener::getLog)
+                     .findFirst()
+                     .ifPresent(log -> container.get().set(log));
+        } else {
+            factories.stream()
+                     .map(LogAnalysisListenerFactory::create)
+                     .forEach(it -> it.parse(logData, extraLog).build());
+        }
     }
 
     @SuppressWarnings("unused")

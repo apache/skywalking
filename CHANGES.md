@@ -41,6 +41,7 @@ Release Notes.
 * Add component id for Python falcon plugin.
 * Add `rpcStatusCode` for `rpc.status_code` tag. The `responseCode` field is marked as deprecated and replaced by `httpResponseStatusCode` field. 
 * Remove the duplicated tags to reduce the storage payload.
+* Add a new API to test log analysis language.
 
 #### UI
 
