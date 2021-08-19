@@ -49,14 +49,6 @@ jobs:
           submodules: true
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
-      - name: Cache local Maven repository
-        if: env.SKIP_CI != 'true'
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/e2e-test
@@ -85,14 +77,6 @@ jobs:
           submodules: true
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
-      - name: Cache local Maven repository
-        if: env.SKIP_CI != 'true'
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/e2e-test

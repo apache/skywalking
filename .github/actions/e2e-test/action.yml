@@ -25,6 +25,13 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
     - name: Check Unintended Changes
       shell: bash
       run: |
@@ -41,7 +48,7 @@ runs:
       run: |
         echo "::group::Build License-Eye Binary"
         git clone https://github.com/apache/skywalking-eyes.git
-        git -C skywalking-eyes reset --hard 9bd5feb86b5817aa6072b008f9866a2c3bbc8587
+        git -C skywalking-eyes reset --hard a63f4afcc287dfb3727ecc45a4afc55a5e69c15f
         make -C skywalking-eyes docker || make -C skywalking-eyes docker  # Retry if fail
         rm -rf skywalking-eyes
         docker run --rm -v $(pwd):/github/workspace license-eye:latest header check
