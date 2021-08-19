@@ -18,36 +18,46 @@
 
 package org.apache.skywalking.apm.agent.core.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- * create a AbstractClassEnhancePluginDefine instance according to {@link PluginDefine} and agent.config
+ * creator of AbstractClassEnhancePluginDefine instance according to {@link PluginDefine} and agent.config
  */
 public class PluginCreator {
 
-    private static Pattern extLoadPluginMatchPattern;
+    private static final ILog LOGGER = LogManager.getLogger(PluginCreator.class);
 
-    static {
+    public static List<AbstractClassEnhancePluginDefine> create(List<PluginDefine> pluginDefines) {
         String pluginMatchRule = Config.Plugin.PLUGINS_IN_EXT_CLASS_LOADER;
+        Pattern extLoadPluginMatchPattern = null;
         if (StringUtil.isNotEmpty(pluginMatchRule)) {
             extLoadPluginMatchPattern = Pattern.compile(pluginMatchRule.replace(",", "|")
                                                                        .replace("*", ".*"));
         }
-    }
-
-    public static AbstractClassEnhancePluginDefine create(PluginDefine pluginDefine)
-        throws ReflectiveOperationException {
-
-        AbstractClassEnhancePluginDefine pluginDefineInstance =
-            (AbstractClassEnhancePluginDefine) Class.forName(
-                pluginDefine.getDefineClass(), true, AgentClassLoader.getDefault()).newInstance();
-
-        if (extLoadPluginMatchPattern != null && extLoadPluginMatchPattern.matcher(pluginDefine.getName()).matches()) {
-            pluginDefineInstance.setExtClassLoaderLoaded(true);
+        List<AbstractClassEnhancePluginDefine> plugins = new ArrayList<>();
+        for (PluginDefine pluginDefine : pluginDefines) {
+            LOGGER.debug("loading plugin class {}.", pluginDefine.getDefineClass());
+            try {
+                AbstractClassEnhancePluginDefine pluginDefineInstance =
+                    (AbstractClassEnhancePluginDefine) Class.forName(
+                        pluginDefine.getDefineClass(), true, AgentClassLoader.getDefault()).newInstance();
+                if (extLoadPluginMatchPattern != null && extLoadPluginMatchPattern.matcher(pluginDefine.getName())
+                                                                                  .matches()) {
+                    pluginDefineInstance.setExtClassLoaderLoaded(true);
+                }
+                plugins.add(pluginDefineInstance);
+            } catch (Throwable t) {
+                LOGGER.error(t, "load plugin [{}] failure.", pluginDefine.getDefineClass());
+            }
         }
-        return pluginDefineInstance;
+
+        return plugins;
     }
 }

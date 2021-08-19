@@ -60,15 +60,7 @@ public class PluginBootstrap {
 
         List<PluginDefine> pluginClassList = PluginCfg.INSTANCE.getPluginClassList();
 
-        List<AbstractClassEnhancePluginDefine> plugins = new ArrayList<AbstractClassEnhancePluginDefine>();
-        for (PluginDefine pluginDefine : pluginClassList) {
-            try {
-                LOGGER.debug("loading plugin class {}.", pluginDefine.getDefineClass());
-                plugins.add(PluginCreator.create(pluginDefine));
-            } catch (Throwable t) {
-                LOGGER.error(t, "load plugin [{}] failure.", pluginDefine.getDefineClass());
-            }
-        }
+        List<AbstractClassEnhancePluginDefine> plugins = PluginCreator.create(pluginClassList);
 
         plugins.addAll(DynamicPluginLoader.INSTANCE.load(AgentClassLoader.getDefault()));
 
