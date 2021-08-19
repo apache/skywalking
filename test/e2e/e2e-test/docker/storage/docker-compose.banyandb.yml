@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.3'
+version: '2.1'
 
 services:
   banyandb:
@@ -28,7 +28,6 @@ services:
       interval: 5s
       timeout: 60s
       retries: 120
-      start_period: 15s
 
   oap:
     extends:
