@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
+version: '2.3'
 
 services:
   banyandb:
@@ -24,10 +24,11 @@ services:
     networks:
       - e2e
     healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/17912"]
+      test: ["CMD", "sh", "-c", "nc -zn 127.0.0.1 17912"]
       interval: 5s
       timeout: 60s
       retries: 120
+      start_period: 15s
 
   oap:
     extends:
