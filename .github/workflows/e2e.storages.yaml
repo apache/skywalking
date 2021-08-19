@@ -36,7 +36,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['mysql', 'es6', 'es7.0', 'es7.10', 'es7.14', 'opensearch', 'influxdb', 'tidb', 'postgresql']
+        storage: ['mysql', 'es6', 'es7.0', 'es7.10', 'es7.14', 'opensearch', 'influxdb', 'tidb', 'postgresql', 'banyandb']
     env:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
