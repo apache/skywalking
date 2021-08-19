@@ -59,7 +59,7 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
 
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
             for (PrepareRequest prepareRequest : prepareRequests) {
-                if (prepareRequest instanceof InsertRequest) {
+                if (prepareRequest instanceof BanyanDBTraceInsertRequest) {
                     this.bulkProcessor.add(((BanyanDBTraceInsertRequest) prepareRequest).getTraceWrite());
                 }
             }
