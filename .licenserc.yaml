@@ -27,7 +27,7 @@ header:
     - '**/.gitignore'
     - '.gitmodules'
     - '.muse'
-    - '.mvn'
+    - '.mvn/wrapper/maven-wrapper.properties'
     - 'apm-checkstyle/CHECKSTYLE_HEAD'
     - 'apm-protocol/apm-network/src/main/proto/.gitignore'
     - 'codeStyle.xml'
