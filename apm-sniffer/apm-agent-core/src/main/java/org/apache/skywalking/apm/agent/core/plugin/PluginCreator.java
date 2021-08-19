@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- * creator of AbstractClassEnhancePluginDefine instance according to {@link PluginDefine} and agent.config
+ * The creator of AbstractClassEnhancePluginDefine instance according to {@link PluginDefine} and agent.config
  */
 public class PluginCreator {
 
