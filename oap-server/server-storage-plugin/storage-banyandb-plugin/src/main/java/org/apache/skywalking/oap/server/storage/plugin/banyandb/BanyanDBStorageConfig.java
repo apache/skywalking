@@ -29,10 +29,9 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private int port = 17912;
 
     /**
-     * ¬
      * The maximum size of write entities in a single batch write call.
      */
-    private int maxBulkSize;
+    private int maxBulkSize = 5000;
     /**
      * Period of flush interval. In the timeunit of seconds.
      */
@@ -40,5 +39,5 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     /**
      * Concurrent consumer threads for batch writing.
      */
-    private int concurrency = 2;
+    private int concurrentWriteThreads = 2;
 }

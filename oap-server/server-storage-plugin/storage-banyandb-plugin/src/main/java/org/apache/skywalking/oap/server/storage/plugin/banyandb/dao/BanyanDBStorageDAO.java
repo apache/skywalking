@@ -79,19 +79,13 @@ public class BanyanDBStorageDAO implements StorageDAO {
 
     @Override
     public INoneStreamDAO newNoneStreamDao(StorageBuilder storageBuilder) {
-        return new INoneStreamDAO() {
-            @Override
-            public void insert(Model model, NoneStream noneStream) throws IOException {
-            }
+        return (model, noneStream) -> {
         };
     }
 
     @Override
     public IManagementDAO newManagementDao(StorageBuilder storageBuilder) {
-        return new IManagementDAO() {
-            @Override
-            public void insert(Model model, ManagementData storageData) throws IOException {
-            }
+        return (model, storageData) -> {
         };
     }
 }

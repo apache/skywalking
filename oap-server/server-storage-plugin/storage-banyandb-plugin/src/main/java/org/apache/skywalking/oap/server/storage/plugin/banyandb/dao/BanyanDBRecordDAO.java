@@ -56,10 +56,10 @@ public class BanyanDBRecordDAO implements IRecordDAO {
     }
 
     /**
-     * Convert storageEntity in Map to a ordered list of Objects
+     * Convert storageEntity in Map to an ordered list of {@link SerializableField}
      *
      * @param segmentRecordMap which comes from {@link SegmentRecord}
-     * @return an ordered list of {@link SerializableField}s which is accepted by BanyanDB Client
+     * @return an ordered list of {@link SerializableField} which is accepted by BanyanDB Client
      */
     static List<SerializableField> buildFieldObjects(Map<String, Object> segmentRecordMap) {
         List<SerializableField> objectList = new ArrayList<>(BanyanDBSchema.FIELD_NAMES.size());

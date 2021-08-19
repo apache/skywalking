@@ -24,6 +24,8 @@ import io.grpc.NameResolverRegistry;
 import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -36,7 +38,7 @@ import org.apache.skywalking.banyandb.v1.trace.TraceServiceGrpc;
  * gRPC APIs.
  */
 @Slf4j
-public class BanyanDBClient {
+public class BanyanDBClient implements Closeable {
     /**
      * The hostname of BanyanDB server.
      */
@@ -174,5 +176,22 @@ public class BanyanDBClient {
                 .withDeadlineAfter(options.getDeadline(), TimeUnit.SECONDS)
                 .query(traceQuery.build(group));
         return new TraceQueryResponse(response);
+    }
+
+    @Override
+    public void close() throws IOException {
+        connectionEstablishLock.lock();
+        try {
+            if (isConnected) {
+                this.managedChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+                isConnected = false;
+            }
+        } catch (InterruptedException interruptedException) {
+            log.warn("fail to wait for channel termination, shutdown now!", interruptedException);
+            this.managedChannel.shutdownNow();
+            isConnected = false;
+        } finally {
+            connectionEstablishLock.unlock();
+        }
     }
 }
