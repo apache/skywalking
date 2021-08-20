@@ -45,6 +45,9 @@ services:
     extends:
       file: ../../base-compose.yml
       service: provider
+    build:
+      args:
+        - SW_AGENT_JDK_VERSION=8
     depends_on:
       oap:
         condition: service_healthy
