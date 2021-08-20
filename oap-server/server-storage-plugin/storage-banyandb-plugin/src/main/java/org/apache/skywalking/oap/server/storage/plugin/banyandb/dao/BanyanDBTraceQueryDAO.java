@@ -61,7 +61,7 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
         TraceQuery query;
         if (startSecondTB != 0 && endSecondTB != 0) {
-            query = new TraceQuery(BanyanDBSchema.NAME, new TimestampRange(startSecondTB, endSecondTB), BASIC_QUERY_PROJ);
+            query = new TraceQuery(BanyanDBSchema.NAME, new TimestampRange(startSecondTB * 1000, endSecondTB * 1000), BASIC_QUERY_PROJ);
         } else {
             query = new TraceQuery(BanyanDBSchema.NAME, BASIC_QUERY_PROJ);
         }
