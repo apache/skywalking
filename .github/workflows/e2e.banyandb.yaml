@@ -60,6 +60,6 @@ jobs:
           SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
           ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} package
           echo "::endgroup::"
-      - uses: apache/skywalking-infra-e2e@de5be41596f27867a15ab75dbad97ea538d863b8
+      - uses: apache/skywalking-infra-e2e@c4c91cfc254b45a9dfd546561273a10c73cc22c3
         with:
           e2e-file: test/e2e/e2e-test/docker/storage/banyandb/e2e.yaml
