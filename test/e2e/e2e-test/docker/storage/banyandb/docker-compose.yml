@@ -33,6 +33,8 @@ services:
     extends:
       file: ../../base-compose.yml
       service: oap
+    ports:
+      - 12800
     environment:
       SW_STORAGE: banyandb
       SW_PROMETHEUS_FETCHER: "default"
@@ -48,6 +50,8 @@ services:
     build:
       args:
         - SW_AGENT_JDK_VERSION=8
+    ports:
+      - 9090
     depends_on:
       oap:
         condition: service_healthy
