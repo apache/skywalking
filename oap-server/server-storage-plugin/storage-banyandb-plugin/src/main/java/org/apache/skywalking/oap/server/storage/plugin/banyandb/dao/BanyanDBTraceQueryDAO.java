@@ -116,14 +116,14 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
         brief.setTotal(response.size());
         brief.getTraces().addAll(response.getEntities().stream().map(entity -> {
             BasicTrace trace = new BasicTrace();
-            trace.setDuration(((Long) entity.getFields().get(3).getValue()).intValue());
-            trace.setStart(String.valueOf(entity.getFields().get(4).getValue()));
             trace.setSegmentId(entity.getId());
-            trace.setError(((Long) entity.getFields().get(1).getValue()).intValue() == 1);
             trace.getTraceIds().add((String) entity.getFields().get(0).getValue());
+            trace.setError(((Long) entity.getFields().get(1).getValue()).intValue() == 1);
             trace.getEndpointNames().add(IDManager.EndpointID.analysisId(
                     (String) entity.getFields().get(2).getValue()
             ).getEndpointName());
+            trace.setDuration(((Long) entity.getFields().get(3).getValue()).intValue());
+            trace.setStart(String.valueOf(entity.getFields().get(4).getValue()));
             return trace;
         }).collect(Collectors.toList()));
         return brief;
