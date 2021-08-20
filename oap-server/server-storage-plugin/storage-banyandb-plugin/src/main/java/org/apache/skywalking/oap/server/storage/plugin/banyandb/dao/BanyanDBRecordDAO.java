@@ -44,6 +44,7 @@ public class BanyanDBRecordDAO implements IRecordDAO {
         if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
             SegmentRecord segmentRecord = (SegmentRecord) record;
             TraceWrite traceWrite = TraceWrite.builder()
+                    .name(BanyanDBSchema.NAME)
                     .binary(segmentRecord.getDataBinary())
                     .timestamp(segmentRecord.getStartTime())
                     .entityId(segmentRecord.getSegmentId())
