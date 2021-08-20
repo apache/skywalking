@@ -31,8 +31,15 @@ import lombok.ToString;
  */
 @ToString
 public class ConfigTable {
+    /**
+     * for WatchType.SIMPLE
+     */
     @Getter
     private List<ConfigItem> items = new ArrayList<>();
+
+    /**
+     * for WatchType.GROUP
+     */
     @Getter
     private List<GroupConfigItems> groupItems = new ArrayList<>();
 
@@ -59,7 +66,7 @@ public class ConfigTable {
 
     @Getter
     @Setter
-    //@ToString
+    @ToString
     public static class GroupConfigItems {
         private String name;
         private Map<String, ConfigItem> items = new ConcurrentHashMap<>();
