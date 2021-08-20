@@ -110,6 +110,67 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
 
             LOGGER.trace("Current configurations after the sync." + LINE_SEPARATOR + register.toString());
         });
+
+        GroupConfigsSync(configTable);
+    }
+
+    private void GroupConfigsSync(Optional<ConfigTable> configTable) {
+        configTable.ifPresent(config -> {
+            config.getGroupItems().forEach(groupConfigItems -> {
+                String groupConfigItemName = groupConfigItems.getName();
+                WatcherHolder holder = register.get(groupConfigItemName);
+                if (holder != null) {
+                    if (holder.getWatcher().watchType == ConfigChangeWatcher.WatchType.GROUP) {
+                        GroupConfigChangeWatcher watcher = (GroupConfigChangeWatcher) holder.getWatcher();
+                        Map<String, ConfigTable.ConfigItem> groupItems = groupConfigItems.getItems();
+                        groupItems.forEach((groupItemName, groupItem) -> {
+                            String newItemValue = groupItem.getValue();
+                            if (newItemValue == null) {
+                                if (watcher.groupItems().get(groupItemName) != null) {
+                                    // Notify watcher, the new value is null with delete event type.
+                                    watcher.notify(
+                                        new ConfigChangeWatcher.ConfigChangeEvent(groupItemName,
+                                                                                  null,
+                                                                                  ConfigChangeWatcher.EventType.DELETE
+                                        ));
+                                } else {
+                                    // Don't need to notify, stay in null.
+                                }
+                            } else { //add and modify
+                                if (!newItemValue.equals(watcher.groupItems().get(groupItemName))) {
+                                    watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
+                                        groupItemName,
+                                        newItemValue,
+                                        ConfigChangeWatcher.EventType.MODIFY
+                                    ));
+                                } else {
+                                    // Don't need to notify, stay in the same config value.
+                                }
+                            }
+                        });
+
+                        watcher.groupItems().forEach((oldGroupItemName, oldGroupItemValue) -> {
+                            //delete item
+                            if (null == groupItems.get(oldGroupItemName)) {
+                                // Notify watcher, the item is deleted with delete event type.
+                                watcher.notify(
+                                    new ConfigChangeWatcher.ConfigChangeEvent(oldGroupItemName,
+                                                                              null, ConfigChangeWatcher.EventType.DELETE
+                                    ));
+                            }
+                        });
+
+                    } else {
+                        LOGGER.warn(
+                            "Config {} from configuration center, doesn't match any watcher, ignore.",
+                            groupConfigItemName
+                        );
+                    }
+                }
+            });
+
+            LOGGER.trace("Current configurations after the sync." + LINE_SEPARATOR + register.toString());
+        });
     }
 
     public abstract Optional<ConfigTable> readConfig(Set<String> keys);
@@ -145,10 +206,17 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
                                         .append("    module:")
                                         .append(watcher.getModule())
                                         .append("    provider:")
-                                        .append(watcher.getProvider().name())
-                                        .append("    value(current):")
-                                        .append(watcher.value())
-                                        .append(LINE_SEPARATOR);
+                                        .append(watcher.getProvider().name());
+                if (watcher.watchType == ConfigChangeWatcher.WatchType.GROUP) {
+                    GroupConfigChangeWatcher groupWatcher = (GroupConfigChangeWatcher) watcher;
+                    registerTableDescription.append("    groupItems(current):")
+                                            .append(groupWatcher.groupItems());
+                } else {
+                    registerTableDescription.append("    value(current):")
+                                            .append(watcher.value());
+
+                }
+                registerTableDescription.append(LINE_SEPARATOR);
             });
             return registerTableDescription.toString();
         }
@@ -161,7 +229,17 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
 
         public WatcherHolder(ConfigChangeWatcher watcher) {
             this.watcher = watcher;
-            this.key = String.join(".", watcher.getModule(), watcher.getProvider().name(), watcher.getItemName());
+            if (watcher.getWatchType() == ConfigChangeWatcher.WatchType.GROUP) {
+                this.key = String.join(
+                    ".", watcher.watchType.name(), watcher.getModule(), watcher.getProvider().name(),
+                    watcher.getItemName()
+                );
+            } else {
+                this.key = String.join(
+                    ".", watcher.getModule(), watcher.getProvider().name(),
+                    watcher.getItemName()
+                );
+            }
         }
     }
 }

@@ -26,10 +26,15 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperConfigWatcherRegister.class);
+    private final CuratorFramework client;
     private final PathChildrenCache childrenCache;
     private final String prefix;
 
@@ -37,7 +42,7 @@ public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
         super(settings.getPeriod());
         prefix = settings.getNameSpace() + "/";
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(settings.getBaseSleepTimeMs(), settings.getMaxRetries());
-        CuratorFramework client = CuratorFrameworkFactory.newClient(settings.getHostPort(), retryPolicy);
+        this.client = CuratorFrameworkFactory.newClient(settings.getHostPort(), retryPolicy);
         client.start();
         this.childrenCache = new PathChildrenCache(client, settings.getNameSpace(), true);
         this.childrenCache.start();
@@ -46,9 +51,28 @@ public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
     @Override
     public Optional<ConfigTable> readConfig(Set<String> keys) {
         ConfigTable table = new ConfigTable();
-        keys.forEach(s -> {
-            ChildData data = this.childrenCache.getCurrentData(this.prefix + s);
-            table.add(new ConfigTable.ConfigItem(s, data == null ? null : new String(data.getData())));
+        keys.forEach(key -> {
+            if (key.startsWith(ConfigChangeWatcher.WatchType.GROUP.name())) {
+                ConfigTable.GroupConfigItems groupConfigItems = new ConfigTable.GroupConfigItems(key);
+                try {
+                    client.getChildren().forPath(this.prefix + key).forEach(itemName -> {
+                        byte[] data = null;
+                        try {
+                            data = client.getData().forPath(this.prefix + key + "/" + itemName);
+                        } catch (Exception e) {
+                            LOGGER.error(e.getMessage(), e);
+                        }
+                        groupConfigItems.add(
+                            new ConfigTable.ConfigItem(itemName, data == null ? null : new String(data)));
+                    });
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
+                }
+                table.addGroupConfigItems(groupConfigItems);
+            } else {
+                ChildData data = this.childrenCache.getCurrentData(this.prefix + key);
+                table.add(new ConfigTable.ConfigItem(key, data == null ? null : new String(data.getData())));
+            }
         });
         return Optional.of(table);
     }

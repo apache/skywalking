@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.configuration.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -31,9 +33,15 @@ import lombok.ToString;
 public class ConfigTable {
     @Getter
     private List<ConfigItem> items = new ArrayList<>();
+    @Getter
+    private List<GroupConfigItems> groupItems = new ArrayList<>();
 
     public void add(ConfigItem item) {
         items.add(item);
+    }
+
+    public void addGroupConfigItems(GroupConfigItems items) {
+        groupItems.add(items);
     }
 
     @Getter
@@ -46,6 +54,22 @@ public class ConfigTable {
         public ConfigItem(String name, String value) {
             this.name = name;
             this.value = value;
+        }
+    }
+
+    @Getter
+    @Setter
+    //@ToString
+    public static class GroupConfigItems {
+        private String name;
+        private Map<String, ConfigItem> items = new ConcurrentHashMap<>();
+
+        public GroupConfigItems(final String name) {
+            this.name = name;
+        }
+
+        public void add(ConfigItem item) {
+            items.put(item.getName(), item);
         }
     }
 }

@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.configuration.api;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -33,10 +35,12 @@ import org.powermock.reflect.Whitebox;
 
 public class ConfigWatcherRegisterTest {
     private ConfigWatcherRegister register;
+    private ConfigWatcherRegister groupConfRegister;
 
     @Before
     public void setup() {
         register = new MockConfigWatcherRegister();
+        groupConfRegister = new MockGroupConfigWatcherRegister();
     }
 
     @After
@@ -66,6 +70,28 @@ public class ConfigWatcherRegisterTest {
     }
 
     @Test
+    public void testGroupConfInit() {
+        final Map<String, String> config = new ConcurrentHashMap<>();
+
+        groupConfRegister.registerConfigChangeWatcher(new GroupConfigChangeWatcher("MockModule", new MockProvider(), "groupItems1") {
+            @Override
+            public void notify(ConfigChangeEvent value) {
+                config.put(value.getGroupItemName(), value.getNewValue());
+            }
+
+            @Override
+            public Map<String, String> groupItems() {
+                return config;
+            }
+        });
+
+        groupConfRegister.configSync();
+
+        Assert.assertEquals("abc", config.get("item1"));
+        Assert.assertEquals("abc2", config.get("item2"));
+    }
+
+    @Test
     public void testRegisterTableLog() {
         register.registerConfigChangeWatcher(new ConfigChangeWatcher("MockModule", new MockProvider(), "prop2") {
             @Override
@@ -90,12 +116,32 @@ public class ConfigWatcherRegisterTest {
 
         @Override
         public Optional<ConfigTable> readConfig(Set<String> keys) {
-            ConfigTable.ConfigItem item1 = new ConfigTable.ConfigItem("module.provider.prop1", "abc");
+            ConfigTable.ConfigItem item1 = new ConfigTable.ConfigItem("MockModule.provider.prop1", "abc");
             ConfigTable.ConfigItem item2 = new ConfigTable.ConfigItem("MockModule.provider.prop2", "abc2");
 
             ConfigTable table = new ConfigTable();
             table.add(item1);
             table.add(item2);
+            return Optional.of(table);
+        }
+    }
+
+    public static class MockGroupConfigWatcherRegister extends ConfigWatcherRegister {
+
+        @Override
+        public Optional<ConfigTable> readConfig(Set<String> keys) {
+            ConfigTable.ConfigItem item1 = new ConfigTable.ConfigItem("item1", "abc");
+            ConfigTable.ConfigItem item2 = new ConfigTable.ConfigItem("item2", "abc2");
+            ConfigTable.ConfigItem item3 = new ConfigTable.ConfigItem("item3", "abc3");
+            ConfigTable.GroupConfigItems groupConfigItems1 = new ConfigTable.GroupConfigItems("GROUP.MockModule.provider.groupItems1");
+            ConfigTable.GroupConfigItems groupConfigItems2 = new ConfigTable.GroupConfigItems("GROUP.MockModule.provider.groupItems2");
+            groupConfigItems1.add(item1);
+            groupConfigItems1.add(item2);
+            groupConfigItems2.add(item3);
+
+            ConfigTable table = new ConfigTable();
+            table.addGroupConfigItems(groupConfigItems1);
+            table.addGroupConfigItems(groupConfigItems2);
             return Optional.of(table);
         }
     }

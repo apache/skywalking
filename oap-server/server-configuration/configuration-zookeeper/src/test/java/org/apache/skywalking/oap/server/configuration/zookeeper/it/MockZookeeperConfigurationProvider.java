@@ -18,9 +18,12 @@
 
 package org.apache.skywalking.oap.server.configuration.zookeeper.it;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -32,6 +35,7 @@ public class MockZookeeperConfigurationProvider extends ModuleProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(MockZookeeperConfigurationProvider.class);
 
     ConfigChangeWatcher watcher;
+    GroupConfigChangeWatcher groupWatcher;
 
     @Override
     public String name() {
@@ -69,6 +73,25 @@ public class MockZookeeperConfigurationProvider extends ModuleProvider {
                 return testValue;
             }
         };
+
+        groupWatcher = new GroupConfigChangeWatcher(MockZookeeperConfigurationModule.NAME, this, "testKeyGroup") {
+            private Map<String, String> config = new ConcurrentHashMap<>();
+
+            @Override
+            public void notify(final ConfigChangeEvent value) {
+                LOGGER.info("ConfigChangeWatcher.ConfigChangeEvent: {}", value);
+                if (EventType.DELETE.equals(value.getEventType())) {
+                    config.remove(value.getGroupItemName());
+                } else {
+                    config.put(value.getGroupItemName(), value.getNewValue());
+                }
+            }
+
+            @Override
+            public Map<String, String> groupItems() {
+                return config;
+            }
+        };
     }
 
     @Override
@@ -77,6 +100,11 @@ public class MockZookeeperConfigurationProvider extends ModuleProvider {
                     .provider()
                     .getService(DynamicConfigurationService.class)
                     .registerConfigChangeWatcher(watcher);
+
+        getManager().find(ConfigurationModule.NAME)
+                    .provider()
+                    .getService(DynamicConfigurationService.class)
+                    .registerConfigChangeWatcher(groupWatcher);
     }
 
     @Override
