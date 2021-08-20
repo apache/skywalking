@@ -117,7 +117,7 @@ public class BanyanDBClient implements Closeable {
         connectionEstablishLock.lock();
         try {
             if (!isConnected) {
-                final ManagedChannelBuilder nettyChannelBuilder = NettyChannelBuilder.forAddress(host, port);
+                final ManagedChannelBuilder<?> nettyChannelBuilder = NettyChannelBuilder.forAddress(host, port).usePlaintext();
                 nettyChannelBuilder.maxInboundMessageSize(options.getMaxInboundMessageSize());
 
                 managedChannel = nettyChannelBuilder.build();
