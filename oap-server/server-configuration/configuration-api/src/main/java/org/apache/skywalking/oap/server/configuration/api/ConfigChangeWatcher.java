@@ -37,7 +37,7 @@ public abstract class ConfigChangeWatcher {
         this.module = module;
         this.provider = provider;
         this.itemName = itemName;
-        this.watchType = WatchType.SIMPLE;
+        this.watchType = WatchType.SINGLE;
     }
 
     /**
@@ -81,6 +81,6 @@ public abstract class ConfigChangeWatcher {
     }
 
     public enum WatchType {
-        SIMPLE, GROUP
+        SINGLE, GROUP
     }
 }

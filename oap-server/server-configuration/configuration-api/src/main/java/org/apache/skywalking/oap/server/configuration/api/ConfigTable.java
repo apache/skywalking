@@ -32,7 +32,7 @@ import lombok.ToString;
 @ToString
 public class ConfigTable {
     /**
-     * for WatchType.SIMPLE
+     * for WatchType.SINGLE
      */
     @Getter
     private List<ConfigItem> items = new ArrayList<>();

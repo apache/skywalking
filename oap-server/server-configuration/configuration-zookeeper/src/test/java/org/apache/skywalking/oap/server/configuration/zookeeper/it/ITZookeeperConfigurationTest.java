@@ -96,7 +96,7 @@ public class ITZookeeperConfigurationTest {
     @Test(timeout = 20000)
     public void shouldReadUpdated4GroupConfig() throws Exception {
         String nameSpace = "/default";
-        String key = "GROUP.test-module.default.testKeyGroup";
+        String key = "test-module.default.testKeyGroup";
         assertEquals("{}", provider.groupWatcher.groupItems().toString());
 
         String zkAddress = System.getProperty("zk.address");
@@ -105,7 +105,6 @@ public class ITZookeeperConfigurationTest {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
         client.start();
-
         LOGGER.info("per path: " + nameSpace + "/" + key);
 
         assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key + "/item1", "100".getBytes()) != null);

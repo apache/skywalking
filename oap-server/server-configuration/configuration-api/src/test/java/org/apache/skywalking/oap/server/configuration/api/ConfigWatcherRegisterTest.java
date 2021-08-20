@@ -133,8 +133,8 @@ public class ConfigWatcherRegisterTest {
             ConfigTable.ConfigItem item1 = new ConfigTable.ConfigItem("item1", "abc");
             ConfigTable.ConfigItem item2 = new ConfigTable.ConfigItem("item2", "abc2");
             ConfigTable.ConfigItem item3 = new ConfigTable.ConfigItem("item3", "abc3");
-            ConfigTable.GroupConfigItems groupConfigItems1 = new ConfigTable.GroupConfigItems("GROUP.MockModule.provider.groupItems1");
-            ConfigTable.GroupConfigItems groupConfigItems2 = new ConfigTable.GroupConfigItems("GROUP.MockModule.provider.groupItems2");
+            ConfigTable.GroupConfigItems groupConfigItems1 = new ConfigTable.GroupConfigItems("MockModule.provider.groupItems1");
+            ConfigTable.GroupConfigItems groupConfigItems2 = new ConfigTable.GroupConfigItems("MockModule.provider.groupItems2");
             groupConfigItems1.add(item1);
             groupConfigItems1.add(item2);
             groupConfigItems2.add(item3);

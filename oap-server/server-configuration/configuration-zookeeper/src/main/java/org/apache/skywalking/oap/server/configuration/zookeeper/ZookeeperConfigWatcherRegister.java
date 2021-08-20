@@ -52,7 +52,7 @@ public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
     public Optional<ConfigTable> readConfig(Set<String> keys) {
         ConfigTable table = new ConfigTable();
         keys.forEach(key -> {
-            if (key.startsWith(ConfigChangeWatcher.WatchType.GROUP.name())) {
+            if (this.getRegister().get(key).getWatcher().getWatchType() == ConfigChangeWatcher.WatchType.GROUP) {
                 ConfigTable.GroupConfigItems groupConfigItems = new ConfigTable.GroupConfigItems(key);
                 try {
                     client.getChildren().forPath(this.prefix + key).forEach(itemName -> {

@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public abstract class ConfigWatcherRegister implements DynamicConfigurationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigWatcherRegister.class);
     public static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
-
+    @Getter
     private Register register = new Register();
     private volatile boolean isStarted = false;
     private final long syncPeriod;
@@ -82,95 +82,96 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
             config.getItems().forEach(item -> {
                 String itemName = item.getName();
                 WatcherHolder holder = register.get(itemName);
-                if (holder != null) {
-                    ConfigChangeWatcher watcher = holder.getWatcher();
-                    String newItemValue = item.getValue();
-                    if (newItemValue == null) {
-                        if (watcher.value() != null) {
-                            // Notify watcher, the new value is null with delete event type.
-                            watcher.notify(
-                                new ConfigChangeWatcher.ConfigChangeEvent(null, ConfigChangeWatcher.EventType.DELETE));
-                        } else {
-                            // Don't need to notify, stay in null.
-                        }
+                if (holder == null) {
+                    LOGGER.warn(
+                        "Config {} from configuration center, doesn't match any WatchType.SINGLE watcher, ignore.",
+                        itemName
+                    );
+                    return;
+                }
+                ConfigChangeWatcher watcher = holder.getWatcher();
+                String newItemValue = item.getValue();
+                if (newItemValue == null) {
+                    if (watcher.value() != null) {
+                        // Notify watcher, the new value is null with delete event type.
+                        watcher.notify(
+                            new ConfigChangeWatcher.ConfigChangeEvent(null, ConfigChangeWatcher.EventType.DELETE));
                     } else {
-                        if (!newItemValue.equals(watcher.value())) {
-                            watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
-                                newItemValue,
-                                ConfigChangeWatcher.EventType.MODIFY
-                            ));
-                        } else {
-                            // Don't need to notify, stay in the same config value.
-                        }
+                        // Don't need to notify, stay in null.
                     }
                 } else {
-                    LOGGER.warn("Config {} from configuration center, doesn't match any watcher, ignore.", itemName);
-                }
-            });
-
-            LOGGER.trace("Current configurations after the sync." + LINE_SEPARATOR + register.toString());
-        });
-
-        GroupConfigsSync(configTable);
-    }
-
-    private void GroupConfigsSync(Optional<ConfigTable> configTable) {
-        configTable.ifPresent(config -> {
-            config.getGroupItems().forEach(groupConfigItems -> {
-                String groupConfigItemName = groupConfigItems.getName();
-                WatcherHolder holder = register.get(groupConfigItemName);
-                if (holder != null) {
-                    if (holder.getWatcher().watchType == ConfigChangeWatcher.WatchType.GROUP) {
-                        GroupConfigChangeWatcher watcher = (GroupConfigChangeWatcher) holder.getWatcher();
-                        Map<String, ConfigTable.ConfigItem> groupItems = groupConfigItems.getItems();
-                        groupItems.forEach((groupItemName, groupItem) -> {
-                            String newItemValue = groupItem.getValue();
-                            if (newItemValue == null) {
-                                if (watcher.groupItems().get(groupItemName) != null) {
-                                    // Notify watcher, the new value is null with delete event type.
-                                    watcher.notify(
-                                        new ConfigChangeWatcher.ConfigChangeEvent(groupItemName,
-                                                                                  null,
-                                                                                  ConfigChangeWatcher.EventType.DELETE
-                                        ));
-                                } else {
-                                    // Don't need to notify, stay in null.
-                                }
-                            } else { //add and modify
-                                if (!newItemValue.equals(watcher.groupItems().get(groupItemName))) {
-                                    watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
-                                        groupItemName,
-                                        newItemValue,
-                                        ConfigChangeWatcher.EventType.MODIFY
-                                    ));
-                                } else {
-                                    // Don't need to notify, stay in the same config value.
-                                }
-                            }
-                        });
-
-                        watcher.groupItems().forEach((oldGroupItemName, oldGroupItemValue) -> {
-                            //delete item
-                            if (null == groupItems.get(oldGroupItemName)) {
-                                // Notify watcher, the item is deleted with delete event type.
-                                watcher.notify(
-                                    new ConfigChangeWatcher.ConfigChangeEvent(oldGroupItemName,
-                                                                              null, ConfigChangeWatcher.EventType.DELETE
-                                    ));
-                            }
-                        });
-
+                    if (!newItemValue.equals(watcher.value())) {
+                        watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
+                            newItemValue,
+                            ConfigChangeWatcher.EventType.MODIFY
+                        ));
                     } else {
-                        LOGGER.warn(
-                            "Config {} from configuration center, doesn't match any watcher, ignore.",
-                            groupConfigItemName
-                        );
+                        // Don't need to notify, stay in the same config value.
                     }
                 }
             });
 
             LOGGER.trace("Current configurations after the sync." + LINE_SEPARATOR + register.toString());
         });
+
+        configTable.ifPresent(this::groupConfigsSync);
+    }
+
+    private void groupConfigsSync(ConfigTable config) {
+        config.getGroupItems().forEach(groupConfigItems -> {
+            String groupConfigItemName = groupConfigItems.getName();
+            WatcherHolder holder = register.get(groupConfigItemName);
+
+            if (holder == null || holder.getWatcher().watchType != ConfigChangeWatcher.WatchType.GROUP) {
+                LOGGER.warn(
+                    "Config {} from configuration center, doesn't match any WatchType.GROUP watcher, ignore.",
+                    groupConfigItemName
+                );
+                return;
+            }
+
+            GroupConfigChangeWatcher watcher = (GroupConfigChangeWatcher) holder.getWatcher();
+            Map<String, ConfigTable.ConfigItem> groupItems = groupConfigItems.getItems();
+            groupItems.forEach((groupItemName, groupItem) -> {
+                String newItemValue = groupItem.getValue();
+                if (newItemValue == null) {
+                    if (watcher.groupItems().get(groupItemName) != null) {
+                        // Notify watcher, the new value is null with delete event type.
+                        watcher.notify(
+                            new ConfigChangeWatcher.ConfigChangeEvent(
+                                groupItemName,
+                                null,
+                                ConfigChangeWatcher.EventType.DELETE
+                            ));
+                    } else {
+                        // Don't need to notify, stay in null.
+                    }
+                } else { //add and modify
+                    if (!newItemValue.equals(watcher.groupItems().get(groupItemName))) {
+                        watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
+                            groupItemName,
+                            newItemValue,
+                            ConfigChangeWatcher.EventType.MODIFY
+                        ));
+                    } else {
+                        // Don't need to notify, stay in the same config value.
+                    }
+                }
+            });
+
+            watcher.groupItems().forEach((oldGroupItemName, oldGroupItemValue) -> {
+                //delete item
+                if (null == groupItems.get(oldGroupItemName)) {
+                    // Notify watcher, the item is deleted with delete event type.
+                    watcher.notify(
+                        new ConfigChangeWatcher.ConfigChangeEvent(oldGroupItemName,
+                                                                  null, ConfigChangeWatcher.EventType.DELETE
+                        ));
+                }
+            });
+        });
+
+        LOGGER.trace("Current configurations after the sync." + LINE_SEPARATOR + register.toString());
     }
 
     public abstract Optional<ConfigTable> readConfig(Set<String> keys);
@@ -223,23 +224,16 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
     }
 
     @Getter
-    private class WatcherHolder {
+    protected class WatcherHolder {
         private ConfigChangeWatcher watcher;
         private final String key;
 
         public WatcherHolder(ConfigChangeWatcher watcher) {
             this.watcher = watcher;
-            if (watcher.getWatchType() == ConfigChangeWatcher.WatchType.GROUP) {
-                this.key = String.join(
-                    ".", watcher.watchType.name(), watcher.getModule(), watcher.getProvider().name(),
-                    watcher.getItemName()
-                );
-            } else {
-                this.key = String.join(
-                    ".", watcher.getModule(), watcher.getProvider().name(),
-                    watcher.getItemName()
-                );
-            }
+            this.key = String.join(
+                ".", watcher.getModule(), watcher.getProvider().name(),
+                watcher.getItemName()
+            );
         }
     }
 }
