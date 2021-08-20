@@ -23,11 +23,11 @@ cleanup:
   on: always
 
 trigger:
-  action: cmd
+  action: http
   interval: 3s
   times: 1
-  cmd: |
-    curl -XPOST '{"name": "skywalking"}' http://${provider_host}:${provider_9090}/info
+  url: http://${provider_host}:${provider_9090}/info
+  method: POST
 
 verify:
   # verify with retry strategy
