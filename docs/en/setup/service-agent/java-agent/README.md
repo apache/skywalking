@@ -123,7 +123,7 @@ property key | Description | Default |
 `plugin.mount` | Mount the specific folders of the plugins. Plugins in mounted folders would work. | `plugins,activations` |
 `plugin.peer_max_length `|Peer maximum description limit.|`200`|
 `plugin.exclude_plugins `|Exclude some plugins define in plugins dir.Plugin names is defined in [Agent plugin list](Plugin-list.md)|`""`|
-`plugin.plugins_in_ext_class_loader `|Declare which plugins are for excClassloader.Multiple values should be separated by ",". Support wildcard "\*",like "ehcache\*".Plugin names is defined in [Agent plugin list](Plugin-list.md)|`""`|
+`plugin.plugins_in_ext_class_loader `|Declare which plugins are for excClassloader. Multiple values should be separated by ",". Support wildcard `\*`,like `ehcache\*`. The plugin names are defined in [Agent plugin list](Plugin-list.md)|`""`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
 `plugin.mongodb.filter_length_limit`|If set to positive number, the `WriteRequest.params` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`256`|
 `plugin.elasticsearch.trace_dsl`|If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.|`false`|
@@ -198,7 +198,15 @@ Now, we have the following known optional plugins.
 * Plugin of ehcache-2.x in the optional plugin folder. The reason for being an optional plugin is, this plugin enhanced cache framework, generates large number of local spans, which have a potential performance impact.
 * Plugin of guava-cache in the optional plugin folder. The reason for being an optional plugin is, this plugin enhanced cache framework, generates large number of local spans, which have a potential performance impact.
 
-## Bootstrap class plugins
+## Extension ClassLoader
+**Extension ClassLoader**: The Extension ClassLoader is a child of Bootstrap ClassLoader and loads the extensions of core java classes from the respective JDK Extension library. 
+It loads files from jre/lib/ext directory or any other directory pointed by the system property java.ext.dirs.
+User decides which parts of the service should be loaded by the extension classloader, so, we open `plugin.plugins_in_ext_class_loader=${SW_PLUGINS_IN_EXT_CLASS_LOADER:}` in the `agent.config` file. 
+
+Through this setting, users declare plugins are for excClassloader. Multiple values should be separated by ",". 
+Also support wildcard(`\*`),like `ehcache\*`. All plugin names are defined in [Agent plugin list](Plugin-list.md)
+
+## Bootstrap ClassLoader Plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
 For using these plugins, you need to put the target plugin jar file into `/plugins`.
 
