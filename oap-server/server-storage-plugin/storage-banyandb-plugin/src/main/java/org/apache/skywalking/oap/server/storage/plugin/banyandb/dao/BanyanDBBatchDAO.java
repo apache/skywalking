@@ -48,7 +48,9 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
             this.bulkProcessor = getClient().createBulkProcessor(maxBulkSize, flushInterval, concurrency);
         }
 
-        this.bulkProcessor.add(((BanyanDBTraceInsertRequest) insertRequest).getTraceWrite());
+        if (insertRequest instanceof BanyanDBTraceInsertRequest) {
+            this.bulkProcessor.add(((BanyanDBTraceInsertRequest) insertRequest).getTraceWrite());
+        }
     }
 
     @Override
