@@ -44,6 +44,7 @@ import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.kafka.KafkaReporterPluginConfig.Plugin.Kafka;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
@@ -81,8 +82,8 @@ public class KafkaProducerManager implements BootService, Runnable {
     }
 
     String formatTopicNameThenRegister(String topic) {
-        String topicName = StringUtil.isBlank(KafkaReporterPluginConfig.Plugin.Kafka.NAMESPACE) ? topic
-                : KafkaReporterPluginConfig.Plugin.Kafka.NAMESPACE + "-" + topic;
+        String topicName = StringUtil.isBlank(Kafka.NAMESPACE) ? topic
+                : Kafka.NAMESPACE + "-" + topic;
         topics.add(topicName);
         return topicName;
     }
@@ -102,13 +103,14 @@ public class KafkaProducerManager implements BootService, Runnable {
         Thread.currentThread().setContextClassLoader(AgentClassLoader.getDefault());
 
         Properties properties = new Properties();
-        properties.setProperty(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaReporterPluginConfig.Plugin.Kafka.BOOTSTRAP_SERVERS);
+        properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Kafka.BOOTSTRAP_SERVERS);
 
-        Map<String, String> producerConfig = (Map<String, String>) new Gson()
-            .fromJson(KafkaReporterPluginConfig.Plugin.Kafka.PRODUCER_CONFIG_JSON, Map.class);
-        producerConfig.forEach(properties::setProperty);
-        KafkaReporterPluginConfig.Plugin.Kafka.PRODUCER_CONFIG.forEach(properties::setProperty);
+        if (StringUtil.isNotEmpty(Kafka.PRODUCER_CONFIG_JSON)) {
+            Gson gson = new Gson();
+            Map<String, String> config = (Map<String, String>) gson.fromJson(Kafka.PRODUCER_CONFIG_JSON, Map.class);
+            config.forEach(properties::setProperty);
+        }
+        Kafka.PRODUCER_CONFIG.forEach(properties::setProperty);
 
         try (AdminClient adminClient = AdminClient.create(properties)) {
             DescribeTopicsResult topicsResult = adminClient.describeTopics(topics);
@@ -116,7 +118,7 @@ public class KafkaProducerManager implements BootService, Runnable {
                     .map(entry -> {
                         try {
                             entry.getValue().get(
-                                    KafkaReporterPluginConfig.Plugin.Kafka.GET_TOPIC_TIMEOUT,
+                                    Kafka.GET_TOPIC_TIMEOUT,
                                     TimeUnit.SECONDS
                             );
                             return null;
@@ -136,7 +138,7 @@ public class KafkaProducerManager implements BootService, Runnable {
             try {
                 producer = new KafkaProducer<>(properties, new StringSerializer(), new BytesSerializer());
             } catch (Exception e) {
-                LOGGER.error(e, "connect to kafka cluster '{}' failed", KafkaReporterPluginConfig.Plugin.Kafka.BOOTSTRAP_SERVERS);
+                LOGGER.error(e, "connect to kafka cluster '{}' failed", Kafka.BOOTSTRAP_SERVERS);
                 return;
             }
             //notify listeners to send data if no exception been throw

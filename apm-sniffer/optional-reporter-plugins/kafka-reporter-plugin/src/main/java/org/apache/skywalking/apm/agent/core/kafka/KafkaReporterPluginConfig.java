@@ -51,10 +51,11 @@ public class KafkaReporterPluginConfig {
             public static Map<String, String> PRODUCER_CONFIG = new HashMap<>();
 
             /**
-             * Set configuration of Kafka Producer in JSON format. For example:
+             * Configure Kafka Producer configuration in JSON format. Notice it will be overridden by
+             * `plugin.kafka.producer_config[key]`, if the key duplication. For example:
              * <code>plugin.kafka.producer_config_json={"batch.size":32768}</code>
              */
-            public static String PRODUCER_CONFIG_JSON = "{}";
+            public static String PRODUCER_CONFIG_JSON = "";
 
             /**
              * Timeout period of reading topics from the Kafka server, the unit is second.
