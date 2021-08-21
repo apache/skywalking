@@ -44,15 +44,7 @@ runs:
         fi
         echo "::endgroup::"
     - name: Check License
-      shell: bash
-      run: |
-        echo "::group::Build License-Eye Binary"
-        git clone https://github.com/apache/skywalking-eyes.git
-        git -C skywalking-eyes reset --hard a63f4afcc287dfb3727ecc45a4afc55a5e69c15f
-        make -C skywalking-eyes docker || make -C skywalking-eyes docker  # Retry if fail
-        rm -rf skywalking-eyes
-        docker run --rm -v $(pwd):/github/workspace license-eye:latest header check
-        echo "::endgroup::"
+      uses: apache/skywalking-eyes@a63f4afcc287dfb3727ecc45a4afc55a5e69c15f
     - name: Build Docker Image
       shell: bash
       env:
