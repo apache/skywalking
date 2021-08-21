@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -65,7 +66,7 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
         TraceQuery query;
         if (startSecondTB != 0 && endSecondTB != 0) {
-            query = new TraceQuery(BanyanDBSchema.NAME, new TimestampRange(parseMilliSecondsFromTimeBucket(startSecondTB), parseMilliSecondsFromTimeBucket(endSecondTB)), BASIC_QUERY_PROJ);
+            query = new TraceQuery(BanyanDBSchema.NAME, new TimestampRange(parseMillisFromStartSecondTB(startSecondTB), parseMillisFromEndSecondTB(endSecondTB)), BASIC_QUERY_PROJ);
         } else {
             query = new TraceQuery(BanyanDBSchema.NAME, BASIC_QUERY_PROJ);
         }
@@ -158,7 +159,28 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
         return Collections.emptyList();
     }
 
-    static long parseMilliSecondsFromTimeBucket(long secondTB) {
-        return YYYYMMDDHHMMSS.parseMillis(String.valueOf(secondTB));
+    static long parseMillisFromStartSecondTB(long startSecondTB) {
+        return YYYYMMDDHHMMSS.withZone(DateTimeZone.UTC).parseMillis(String.valueOf(startSecondTB));
+    }
+
+    static long parseMillisFromEndSecondTB(long endSecondTB) {
+        long t = endSecondTB;
+        long second = t % 100;
+        if (second > 59) {
+            second = 0;
+        }
+        t = t / 100;
+        long minute = t % 100;
+        if (minute > 59) {
+            minute = 0;
+        }
+        t = t / 100;
+        long hour = t % 100;
+        if (hour > 23) {
+            hour = 0;
+        }
+        t = t / 100;
+        return YYYYMMDDHHMMSS.withZone(DateTimeZone.UTC)
+                .parseMillis(String.valueOf(((t * 100 + hour) * 100 + minute) * 100 + second));
     }
 }
