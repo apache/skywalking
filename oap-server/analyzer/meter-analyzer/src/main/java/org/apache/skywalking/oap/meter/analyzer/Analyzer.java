@@ -23,10 +23,15 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DownsamplingType;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Expression;
@@ -50,12 +55,6 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedVal
 import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.elasticsearch.common.Strings;
-
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
@@ -232,7 +231,7 @@ public class Analyzer {
                               final String dataType,
                               final DownsamplingType downsamplingType) {
         String functionName = String.format(
-            FUNCTION_NAME_TEMP, downsamplingType.toString().toLowerCase(), Strings.capitalize(dataType));
+            FUNCTION_NAME_TEMP, downsamplingType.toString().toLowerCase(), StringUtils.capitalize(dataType));
         meterSystem.create(metricName, functionName, scopeType);
     }
 

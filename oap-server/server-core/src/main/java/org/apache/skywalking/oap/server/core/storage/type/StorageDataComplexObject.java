@@ -18,9 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.storage.type;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.IOException;
+
 /**
  * StorageDataComplexObject implementation supports String-Object interconversion.
  */
+@JsonSerialize(using = StorageDataComplexObject.Serializer.class)
 public interface StorageDataComplexObject<T> {
     /**
      * @return string representing this object.
@@ -36,4 +43,15 @@ public interface StorageDataComplexObject<T> {
      * Initialize the object based on the given source.
      */
     void copyFrom(T source);
+
+    final class Serializer extends JsonSerializer<StorageDataComplexObject<?>> {
+        @Override
+        public void serialize(
+            final StorageDataComplexObject value,
+            final JsonGenerator gen,
+            final SerializerProvider provider)
+            throws IOException {
+            gen.writeString(value.toStorageData());
+        }
+    }
 }

@@ -20,14 +20,14 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.elasticsearch.bulk.BulkProcessor;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexRequestWrapper;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.UpdateRequestWrapper;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.update.UpdateRequest;
 
 @Slf4j
 public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
@@ -52,7 +52,7 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
             this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
         }
 
-        this.bulkProcessor.add((IndexRequest) insertRequest);
+        this.bulkProcessor.add(((IndexRequestWrapper) insertRequest).getRequest());
     }
 
     @Override
@@ -64,9 +64,9 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
             for (PrepareRequest prepareRequest : prepareRequests) {
                 if (prepareRequest instanceof InsertRequest) {
-                    this.bulkProcessor.add((IndexRequest) prepareRequest);
+                    this.bulkProcessor.add(((IndexRequestWrapper) prepareRequest).getRequest());
                 } else {
-                    this.bulkProcessor.add((UpdateRequest) prepareRequest);
+                    this.bulkProcessor.add(((UpdateRequestWrapper) prepareRequest).getRequest());
                 }
             }
         }

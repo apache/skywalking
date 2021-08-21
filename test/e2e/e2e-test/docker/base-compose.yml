@@ -25,29 +25,6 @@ services:
       - 5005
     networks:
       - e2e
-    restart: on-failure
-    volumes:
-      - ./download-mysql.sh:/download-mysql.sh
-    environment:
-      SW_CLUSTER_ZK_HOST_PORT: zk:2181
-      SW_STORAGE_ES_CLUSTER_NODES: es:9200
-      SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
-      SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -zn 127.0.0.1 11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
-
-  oap-es7:
-    image: skywalking/oap:latest-es7
-    expose:
-      - 11800
-      - 12800
-      - 5005
-    networks:
-      - e2e
-    restart: on-failure
     volumes:
       - ./download-mysql.sh:/download-mysql.sh
     environment:

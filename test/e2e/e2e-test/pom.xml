@@ -34,7 +34,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>e2e-base</artifactId>
+            <artifactId>e2e-data</artifactId>
             <version>${project.version}</version>
         </dependency>
 

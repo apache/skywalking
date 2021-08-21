@@ -21,6 +21,7 @@ export SW_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 export SW_OUT:=${SW_ROOT}/dist
 
 SKIP_TEST?=false
+DIST_NAME := apache-skywalking-apm-bin
 
 init:
 	cd $(SW_ROOT) && git submodule update --init --recursive
@@ -42,8 +43,6 @@ HUB?=skywalking
 
 TAG?=latest
 
-ES_VERSION?=es6
-
 .SECONDEXPANSION: #allow $@ to be used in dependency list
 
 .PHONY: docker docker.all docker.oap
@@ -53,12 +52,6 @@ docker: init build.all docker.all
 DOCKER_TARGETS:=docker.oap docker.ui
 
 docker.all: $(DOCKER_TARGETS)
-
-ifeq ($(ES_VERSION),es7)
-  DIST_NAME := apache-skywalking-apm-bin-es7
-else
-  DIST_NAME := apache-skywalking-apm-bin
-endif
 
 ifneq ($(SW_OAP_BASE_IMAGE),)
   BUILD_ARGS := $(BUILD_ARGS) --build-arg BASE_IMAGE=$(SW_OAP_BASE_IMAGE)

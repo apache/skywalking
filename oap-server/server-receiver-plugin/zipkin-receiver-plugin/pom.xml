@@ -31,7 +31,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-zipkin-elasticsearch7-plugin</artifactId>
+            <artifactId>storage-zipkin-elasticsearch-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

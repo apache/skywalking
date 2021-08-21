@@ -118,4 +118,10 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      */
     private String oapLogAnalyzer = "{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}";
     private String advanced;
+
+    /**
+     * The number of threads for the underlying HTTP client to perform socket I/O.
+     * If the value is <= 0, the number of available processors will be used.
+     */
+    private int numHttpClientThread;
 }

@@ -45,7 +45,6 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.elasticsearch.search.sort.SortOrder;
 
 public class H2TraceQueryDAO implements ITraceQueryDAO {
     private ModuleManager manager;
@@ -153,10 +152,10 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         }
         switch (queryOrder) {
             case BY_START_TIME:
-                sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append(SortOrder.DESC);
+                sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append("desc");
                 break;
             case BY_DURATION:
-                sql.append(" order by ").append(SegmentRecord.LATENCY).append(" ").append(SortOrder.DESC);
+                sql.append(" order by ").append(SegmentRecord.LATENCY).append(" ").append("desc");
                 break;
         }
 

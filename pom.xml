@@ -83,7 +83,6 @@
             <modules>
                 <module>oap-server</module>
                 <module>oap-server-bom</module>
-                <module>oap-server-bom-es7</module>
             </modules>
         </profile>
         <profile>
@@ -102,7 +101,6 @@
             </activation>
             <modules>
                 <module>apm-dist</module>
-                <module>apm-dist-es7</module>
             </modules>
         </profile>
         <profile>
@@ -113,10 +111,8 @@
             <modules>
                 <module>oap-server</module>
                 <module>oap-server-bom</module>
-                <module>oap-server-bom-es7</module>
                 <module>apm-webapp</module>
                 <module>apm-dist</module>
-                <module>apm-dist-es7</module>
             </modules>
             <build>
                 <plugins>

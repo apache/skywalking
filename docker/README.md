@@ -29,27 +29,6 @@ The hub of docker image. The default value is `skywalking`.
 
 The tag of docker image. The default value is `latest`.
 
-### ES_VERSION
-
-The elasticsearch version this image supports. The default value is `es6`, available values are `es6` and `es7`.
-
-
-For example, if we want to build images with a hub `foo.io` and a tag `bar`, and it supports elasticsearch 7 at the same time.
-We can issue the following commands.
-
-```
-export HUB=foo.io && export TAG=bar && export ES_VERSION=es7 && make docker
-```
-
-Let's check out the result:
-```
-docker image ls | grep foo.io
-foo.io/ui                                       bar                 a14db4e1d70d        9 minutes ago       800MB
-foo.io/oap                                      bar                 2a6084450b44        9 minutes ago       862MB
-```
-
-From the output, we can find out the building tool adopts the files stored in `oap-es7`.
-
 ## Running containers with docker-compose
 
 We can start up backend cluster by docker-compose

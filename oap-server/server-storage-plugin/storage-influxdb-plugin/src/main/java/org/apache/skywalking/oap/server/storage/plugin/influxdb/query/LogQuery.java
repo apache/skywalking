@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.List;
@@ -37,7 +38,6 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObje
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
-import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;

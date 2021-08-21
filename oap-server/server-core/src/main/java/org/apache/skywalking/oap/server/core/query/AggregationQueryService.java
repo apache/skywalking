@@ -70,7 +70,7 @@ public class AggregationQueryService implements Service {
                 case ServiceInstance:
                     final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition
                         = IDManager.ServiceInstanceID.analysisId(selectedRecord.getId());
-                    /**
+                    /*
                      * Add the service name into the name if this is global top N.
                      */
                     if (StringUtil.isEmpty(condition.getParentService())) {
@@ -84,7 +84,7 @@ public class AggregationQueryService implements Service {
                 case Endpoint:
                     final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition
                         = IDManager.EndpointID.analysisId(selectedRecord.getId());
-                    /**
+                    /*
                      * Add the service name into the name if this is global top N.
                      */
                     if (StringUtil.isEmpty(condition.getParentService())) {

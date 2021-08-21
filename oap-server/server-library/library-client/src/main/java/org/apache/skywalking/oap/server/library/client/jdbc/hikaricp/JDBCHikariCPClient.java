@@ -56,6 +56,7 @@ public class JDBCHikariCPClient implements Client, HealthCheckable {
 
     @Override
     public void shutdown() {
+        dataSource.close();
     }
 
     /**
@@ -63,10 +64,6 @@ public class JDBCHikariCPClient implements Client, HealthCheckable {
      */
     public Connection getConnection() throws JDBCClientException {
         return getConnection(true);
-    }
-
-    public Connection getTransactionConnection() throws JDBCClientException {
-        return getConnection(false);
     }
 
     public Connection getConnection(boolean autoCommit) throws JDBCClientException {

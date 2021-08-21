@@ -43,7 +43,6 @@ import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.elasticsearch.search.sort.SortOrder;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
@@ -158,7 +157,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
         sql.append(" order by ")
            .append(TIMESTAMP)
            .append(" ")
-           .append(Order.DES.equals(queryOrder) ? SortOrder.DESC : SortOrder.ASC);
+           .append(Order.DES.equals(queryOrder) ? "desc" : "asc");
 
         Logs logs = new Logs();
         try (Connection connection = h2Client.getConnection()) {

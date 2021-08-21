@@ -233,19 +233,6 @@ The text of each license is the standard Apache 2.0 license.
     Google: proto-google-common-protos 1.17.0: https://github.com/googleapis/googleapis , Apache 2.0
     Google: jsr305 3.0.2: http://central.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.0/jsr305-3.0.0.pom , Apache 2.0
     Google: flatbuffers-java 1.12.0: https://github.com/google/flatbuffers/ , Apache 2.0
-    Elasticsearch BV (Elasticsearch) 6.3.2: https://www.elastic.co/products/elasticsearch , Apache 2.0
-    Elasticsearch BV (Elasticsearch) 7.5.0: https://www.elastic.co/products/elasticsearch , Apache 2.0
-    aggs-matrix-stats-client 6.3.2, 7.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/aggs-matrix-stats Apache 2.0
-    lang-mustache-client 7.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/lang-mustache Apache 2.0
-    mapper-extras-client 7.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/mapper-extras Apache 2.0
-    parent-join-client 6.3.2, 7.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/parent-join , Apache 2.0
-    rank-eval-client 6.3.2, 7.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/rank-eval , Apache 2.0
-    reindex-client 5.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/reindex , Apache 2.0
-    percolator-client 5.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/percolator , Apache 2.0
-    rest 5.5.0: https://github.com/elastic/elasticsearch/tree/master/client/rest , Apache 2.0
-    transport 5.5.0: https://github.com/elastic/elasticsearch/tree/master/client/transport , Apache 2.0
-    securesm 1.1: https://github.com/elastic/securesm/blob/master/pom.xml , Apache 2.0
-    LMAX Ltd.(disruptor) 3.3.6: https://github.com/LMAX-Exchange/disruptor , Apache 2.0
     Eclipse (Jetty) 9.4.40.v20210413: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
     SnakeYAML 1.28: http://www.snakeyaml.org , Apache 2.0
     Joda-Time 2.10.5: http://www.joda.org/joda-time/ , Apache 2.0
@@ -256,15 +243,13 @@ The text of each license is the standard Apache 2.0 license.
     Spring Cloud Load Balancer 3.0.3: https://spring.io/projects/spring-cloud, Apache-2.0
     Spring Cloud Config 1.4.1: https://github.com/spring-cloud/spring-cloud-config, Apache-2.0
     Spring Cloud Netflix Zuul 1.3.0: https://github.com/spring-cloud/spring-cloud-netflix, Apache 2.0
-    Apache: commons-logging 1.1.3: https://github.com/apache/commons-logging, Apache 2.0
+    Apache: commons-logging 1.2: https://github.com/apache/commons-logging, Apache 2.0
     Apache: commons-codec 1.10: https://github.com/apache/commons-codec, Apache 2.0
     Apache: commons-dbcp 1.4: https://github.com/apache/commons-dbcp, Apache 2.0
     Apache: commons-pool 2.4.2: https://github.com/apache/commons-pool, Apache 2.0
     Apache: commons-lang 3.6: https://github.com/apache/commons-lang, Apache 2.0
     Apache: commons-text 1.8: https://github.com/apache/commons-text, Apache 2.0
     Apache: commons-beanutils 1.9.4: https://github.com/apache/commons-beanutils, Apache 2.0
-    Apache: lucene 7.3.1, 8.3.0: https://github.com/apache/lucene-solr/tree/master/lucene, Apache 2.0
-    Apache: httpasyncclient 4.1.2, 4.1.4: https://github.com/apache/httpasyncclient/tree/4.1.2, Apache 2.0
     Apache: log4j2 2.14.1: https://github.com/apache/logging-log4j2, Apache 2.0
     Apache: zookeeper 3.5.7: https://github.com/apache/zookeeper, Apache 2.0
     Apache: commons-collections 3.2.2: https://github.com/apache/commons-collections, Apache 2.0
@@ -277,20 +262,16 @@ The text of each license is the standard Apache 2.0 license.
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.6: https://github.com/spullara/mustache.java, Apache 2.0
     error_prone_annotations 2.3.2: https://github.com/google/error-prone, Apache 2.0
-    hppc 0.7.1, 0.8.1: https://github.com/carrotsearch/hppc, Apache 2.0
     instrumentation-api 0.4.3: https://github.com/google/instrumentation-java, Apache 2.0
     jackson-annotations 2.8.0: https://github.com/FasterXML/jackson-annotations, Apache 2.0
     jackson-core 2.12.2: https://github.com/FasterXML/jackson-core, Apache 2.0
     jackson-databind 2.12.2: https://github.com/FasterXML/jackson-databind, Apache 2.0
-    jackson-dataformat 2.8.10, 2.8.11: https://github.com/FasterXML/jackson-dataformats-binary, Apache 2.0
     jackson-datatype-jdk8 2.9.5: https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.8.8, Apache 2.0
     jackson-module-kotlin 2.8.8: http://kotlinlang.org, Apache 2.0
     jackson-module-afterburner 2.12.2: https://github.com/FasterXML/jackson-modules-base, Apache 2.0
     java-dataloader 2.0.1: https://github.com/graphql-java/java-dataloader, Apache 2.0
-    jna 4.4.0: https://github.com/java-native-access/jna, Apache 2.0
     kotlin-reflect 1.1.1: http://kotlinlang.org, Apache 2.0
     kotlin-stdlib 1.1.60: http://kotlinlang.org, Apache 2.0
-    t-digest 3.2: https://github.com/tdunning/t-digest, Apache 2.0
     archaius-core 0.7.4: https://github.com/Netflix/archaius, Apache 2.0
     classmate 1.3.1: https://github.com/FasterXML/java-classmate, Apache 2.0
     hibernate-validator 5.3.6.Final: https://github.com/hibernate/hibernate-validator, Apache 2.0
@@ -343,6 +324,9 @@ The text of each license is the standard Apache 2.0 license.
     simpleclient_httpserver 0.11 from prometheus https://github.com/prometheus/client_java Apache 2.0
     jetcd 0.5.3, https://github.com/etcd-io/jetcd, Apache 2.0
     failasfe 2.3.4, https://github.com/jhalterman/failsafe, Apache 2.0
+    Armeria 1.11.0, http://github.com/line/armeria, Apache 2.0
+    Brotli4j 1.6.0, https://github.com/hyperxpro/Brotli4j, Apache 2.0
+    micrometer 1.7.3, https://github.com/micrometer-metrics/micrometer, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -355,7 +339,6 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Jedis 2.9.0: https://github.com/xetorthio/jedis , MIT
     GraphQL java 8.0: https://github.com/graphql-java/graphql-java , MIT
     GraphQL Java Tools 5.2.3: https://github.com/graphql-java/graphql-java-tools , MIT
-    jopt-simple 5.0.2: https://github.com/jopt-simple/jopt-simple , MIT
     bcpkix-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
     bcprov-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
     bcprov-ext-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
@@ -390,6 +373,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     proto files from grpc-gateway, https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-swagger/options BSD-3
     zstd-jni 1.4.3-1: https://github.com/luben/zstd-jni, BSD-3-Clause
     postgresql 42.2.18: https://jdbc.postgresql.org/about/license.html, BSD-2-Clause
+    LatencyUtils 2.0.3: https://github.com/LatencyUtils/LatencyUtils, BSD-2-Clause
 
 ========================================================================
 MPL 2.0 licenses
@@ -404,7 +388,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 CC0-1.0 licenses
 ========================================
 
-HdrHistogram 2.1.9:	https://github.com/HdrHistogram/HdrHistogram , CC0-1.0 and BSD 2-Clause
+HdrHistogram 2.1.12:	https://github.com/HdrHistogram/HdrHistogram , CC0-1.0 and BSD 2-Clause
 reactive-streams 1.0.2:	https://github.com/reactive-streams/reactive-streams-jvm , CC0-1.0
 
 ========================================================================

@@ -21,7 +21,7 @@ are located at `$CLASSPATH/fetcher-prom-rules`.
 
 The file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
 
-A full example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/fetcher-prom-rules/self.yaml)
+A full example can be found [here](../../../../oap-server/server-starter/src/main/resources/fetcher-prom-rules/self.yaml)
 
 Generic placeholders are defined as follows:
 

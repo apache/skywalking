@@ -120,7 +120,7 @@ Set this up following these steps:
                --set ui.image.tag=$TAG \
                --set oap.image.tag=$TAG \
                --set oap.image.repository=$HUB/skywalking-oap \
-               --set oap.storageType=elasticsearch7 \
+               --set oap.storageType=elasticsearch \
                --set oap.ports.prometheus-port=1234 \ # <<< Expose self observability metrics port
                --set oap.env.SW_TELEMETRY=prometheus \
                --set oap.env.SW_OTEL_RECEIVER=default \ # <<< Enable Otel receiver

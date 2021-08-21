@@ -18,34 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import java.io.IOException;
-import java.util.Map;
-
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
-import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 
 public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
 
     public EsDAO(ElasticSearchClient client) {
         super(client);
-    }
-
-    protected XContentBuilder map2builder(Map<String, Object> objectMap) throws IOException {
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        for (Map.Entry<String, Object> entries: objectMap.entrySet()) {
-            Object value = entries.getValue();
-            String key = entries.getKey();
-            if (value instanceof StorageDataComplexObject) {
-                builder.field(key, ((StorageDataComplexObject) value).toStorageData());
-            } else {
-                builder.field(key, value);
-            }
-        }
-        builder.endObject();
-
-        return builder;
     }
 }

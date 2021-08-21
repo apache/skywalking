@@ -32,6 +32,7 @@
         <module>library-server</module>
         <module>library-util</module>
         <module>library-client</module>
+        <module>library-elasticsearch-client</module>
     </modules>
 
     <dependencies>
