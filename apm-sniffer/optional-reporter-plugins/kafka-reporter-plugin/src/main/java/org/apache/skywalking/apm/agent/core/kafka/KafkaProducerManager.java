@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.apm.agent.core.kafka;
 
+import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -57,8 +59,8 @@ public class KafkaProducerManager implements BootService, Runnable {
 
     private static final ILog LOGGER = LogManager.getLogger(KafkaProducerManager.class);
 
-    private Set<String> topics = new HashSet<>();
-    private List<KafkaConnectionStatusListener> listeners = new ArrayList<>();
+    private final Set<String> topics = new HashSet<>();
+    private final List<KafkaConnectionStatusListener> listeners = new ArrayList<>();
 
     private volatile KafkaProducer<String, Bytes> producer;
 
@@ -102,6 +104,10 @@ public class KafkaProducerManager implements BootService, Runnable {
         Properties properties = new Properties();
         properties.setProperty(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaReporterPluginConfig.Plugin.Kafka.BOOTSTRAP_SERVERS);
+
+        Map<String, String> producerConfig = (Map<String, String>) new Gson()
+            .fromJson(KafkaReporterPluginConfig.Plugin.Kafka.PRODUCER_CONFIG_JSON, Map.class);
+        producerConfig.forEach(properties::setProperty);
         KafkaReporterPluginConfig.Plugin.Kafka.PRODUCER_CONFIG.forEach(properties::setProperty);
 
         try (AdminClient adminClient = AdminClient.create(properties)) {

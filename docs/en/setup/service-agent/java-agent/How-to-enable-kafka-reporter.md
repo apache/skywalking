@@ -12,8 +12,10 @@ collector.backend_service=${SW_AGENT_COLLECTOR_BACKEND_SERVICES:127.0.0.1:11800}
 
 # Kafka producer configuration
 plugin.kafka.bootstrap_servers=${SW_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-plugin.kafka.producer_config[delivery.timeout.ms]=12000
 plugin.kafka.get_topic_timeout=${SW_GET_TOPIC_TIMEOUT:10}
+
+# Configure extra Kafka Producer configuration
+plugin.kafka.producer_config[delivery.timeout.ms]=12000
 ```
 
 Kafka reporter plugin support to customize all configurations of listed in [here](http://kafka.apache.org/24/documentation.html#producerconfigs).
