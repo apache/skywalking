@@ -62,7 +62,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         }
 
         AbstractSpan span = ContextManager.createEntrySpan(exchange.getRequest().getURI().getPath(), carrier);
-        
+
         if (instance != null && instance.getSkyWalkingDynamicField() != null) {
             ContextManager.continued((ContextSnapshot) instance.getSkyWalkingDynamicField());
         }
@@ -76,7 +76,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
 
         exchange.getAttributes().put("SKYWALING_SPAN", span);
     }
-    
+
     private void maybeSetPattern(AbstractSpan span, ServerWebExchange exchange) {
         if (span != null) {
             PathPattern pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
@@ -95,17 +95,17 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
 
         AbstractSpan span = (AbstractSpan) exchange.getAttributes().get("SKYWALING_SPAN");
-        
+
                 return ((Mono) ret).doFinally(s -> {
 
                     if (span != null) {
                         maybeSetPattern(span, exchange);
                         try {
-            
+
                             HttpStatus httpStatus = exchange.getResponse().getStatusCode();
                             // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
                             if (httpStatus != null) {
-                                Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
+                                Tags.HTTP_RESPONSE_STATUS_CODE.set(span, httpStatus.value());
                                 if (httpStatus.isError()) {
                                     span.errorOccurred();
                                 }

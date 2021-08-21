@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- *
- **/
 @Getter
 @Setter
+@EqualsAndHashCode
 public class Database {
     private String id;
     private String name;
