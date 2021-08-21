@@ -18,29 +18,25 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.profile;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.iotdb.rpc.IoTDBConnectionException;
-import org.apache.iotdb.rpc.StatementExecutionException;
-import org.apache.iotdb.session.pool.SessionDataSetWrapper;
-import org.apache.iotdb.session.pool.SessionPool;
-import org.apache.iotdb.tsfile.read.common.Field;
-import org.apache.iotdb.tsfile.read.common.RowRecord;
-import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
-import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
+import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
 public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     private final IoTDBClient client;
+    private final ProfileTaskRecord.Builder storageBuilder = new ProfileTaskRecord.Builder();
 
     public IoTDBProfileTaskQueryDAO(IoTDBClient client) {
         this.client = client;
@@ -49,104 +45,65 @@ public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     @Override
     public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket,
                                          Long endTimeBucket, Integer limit) throws IOException {
-        StringBuilder devicePath = new StringBuilder();
-        devicePath.append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileTaskRecord.INDEX_NAME);
-
-        final StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(devicePath).append(" where 1=1");
+        StringBuilder query = new StringBuilder();
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileTaskRecord.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
-            query.append(ProfileTaskRecord.SERVICE_ID).append(" = '").append(serviceId).append("'");
+            indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
         }
+        query = client.addQueryIndexValue(ProfileTaskRecord.INDEX_NAME, query, indexAndValueMap);
+
+        query.append(" where 1=1");
         if (StringUtil.isNotEmpty(endpointName)) {
-            query.append(" and ").append(ProfileTaskRecord.ENDPOINT_NAME).append(" = ").append(endpointName);
+            query.append(" and ").append(ProfileTaskRecord.ENDPOINT_NAME).append(" = \"").append(endpointName).append("\"");
         }
         if (Objects.nonNull(startTimeBucket)) {
-            query.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" >= ").append(startTimeBucket);
+            query.append(" and ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTimeBucket));
         }
         if (Objects.nonNull(endTimeBucket)) {
-            query.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" <= ").append(endTimeBucket);
+            query.append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTimeBucket));
         }
         if (Objects.nonNull(limit)) {
             query.append(" limit ").append(limit);
         }
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+        // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
+        String queryString = query.toString();
+        queryString = queryString.replace("1=1 and ", "");
 
-        SessionPool pool = client.getSessionPool();
-        SessionDataSetWrapper wrapper;
-        final List<ProfileTask> profileTaskList = new ArrayList<>();
-        try {
-            if (!pool.checkTimeseriesExists(devicePath.toString())) {
-                return profileTaskList;
-            }
-            wrapper = pool.executeQueryStatement(query.toString());
-            if (log.isDebugEnabled()) {
-                log.debug("SQL: {} result: {}", query, wrapper);
-            }
-            List<String> columnNames = wrapper.getColumnNames();
-            while (wrapper.hasNext()) {
-                RowRecord rowRecord = wrapper.next();
-                Map<String, Field> map = new HashMap<>();
-                for (int i = 0; i < columnNames.size(); i++) {
-                    map.put(columnNames.get(i), rowRecord.getFields().get(i));
-                }
-                profileTaskList.add(profileTaskBuilder(map));
-            }
-            pool.closeResultSet(wrapper);
-            return profileTaskList;
-        } catch (IoTDBConnectionException | StatementExecutionException e) {
-            e.printStackTrace();
-            throw new IOException(e);
-        }
+        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskRecord.INDEX_NAME, queryString, storageBuilder);
+        List<ProfileTask> profileTaskList = new ArrayList<>(storageDataList.size());
+        storageDataList.forEach(storageData -> profileTaskList.add(record2ProfileTask((ProfileTaskRecord) storageData)));
+        return profileTaskList;
     }
 
     @Override
     public ProfileTask getById(String id) throws IOException {
-        StringBuilder devicePath = new StringBuilder();
-        devicePath.append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileTaskRecord.INDEX_NAME);
-
-        final StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(ProfileTaskRecord.INDEX_NAME).append(" where id = '")
-                .append(id).append("' limit 1");
-
-        SessionPool pool = client.getSessionPool();
-        SessionDataSetWrapper wrapper;
-        try {
-            if (!pool.checkTimeseriesExists(devicePath.toString())) {
-                return null;
-            }
-            wrapper = pool.executeQueryStatement(query.toString());
-            if (log.isDebugEnabled()) {
-                log.debug("SQL: {} result: {}", query, wrapper);
-            }
-            List<String> columnNames = wrapper.getColumnNames();
-            if (wrapper.hasNext()) {
-                RowRecord rowRecord = wrapper.next();
-                Map<String, Field> map = new HashMap<>();
-                for (int i = 0; i < rowRecord.getFields().size(); i++) {
-                    map.put(columnNames.get(i), rowRecord.getFields().get(i));
-                }
-                pool.closeResultSet(wrapper);
-                return profileTaskBuilder(map);
-            }
+        if (StringUtil.isEmpty(id)) {
             return null;
-        } catch (IoTDBConnectionException | StatementExecutionException e) {
-            e.printStackTrace();
-            throw new IOException(e);
         }
+        StringBuilder query = new StringBuilder();
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileTaskRecord.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBClient.ID_IDX, id);
+        query = client.addQueryIndexValue(ProfileTaskRecord.INDEX_NAME, query, indexAndValueMap);
+        query.append(" limit 1").append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskRecord.INDEX_NAME, query.toString(), storageBuilder);
+        return record2ProfileTask((ProfileTaskRecord) storageDataList.get(0));
     }
 
-    // TODO why ProfileTask don't implement StorageData and create a StorageHashMapBuilder?
-    // TODO could use ProfileTaskRecord to reduce code size
-    private static ProfileTask profileTaskBuilder(Map<String, Field> map) {
+    private static ProfileTask record2ProfileTask(ProfileTaskRecord record) {
         return ProfileTask.builder()
-                .id(map.get("id").getStringValue())
-                .serviceId(map.get("serviceId").getStringValue())
-                .endpointName(map.get("endpointName").getStringValue())
-                .startTime(map.get("startTime").getLongV())
-                .createTime(map.get("createTime").getLongV())
-                .duration(map.get("duration").getIntV())
-                .minDurationThreshold(map.get("minDurationThreshold").getIntV())
-                .dumpPeriod(map.get("dumpPeriod").getIntV())
-                .maxSamplingCount(map.get("maxSamplingCount").getIntV())
+                .id(record.id())
+                .serviceId(record.getServiceId())
+                .endpointName(record.getEndpointName())
+                .startTime(record.getStartTime())
+                .createTime(record.getCreateTime())
+                .duration(record.getDuration())
+                .minDurationThreshold(record.getMinDurationThreshold())
+                .dumpPeriod(record.getDumpPeriod())
+                .maxSamplingCount(record.getMaxSamplingCount())
                 .build();
     }
 }

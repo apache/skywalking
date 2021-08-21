@@ -18,8 +18,15 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
+import java.util.List;
+import java.util.Objects;
+import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
@@ -38,8 +45,40 @@ public class IoTDBRecordDAO implements IRecordDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) {
-        final long timestamp = TimeBucket.getTimestamp(record.getTimeBucket(), model.getDownsampling())
-                * PADDING_SIZE + SUFFIX.getAndIncrement();
-        return new IoTDBInsertRequest(model.getName(), timestamp, record, storageBuilder);
+        final long timestamp = TimeBucket.getTimestamp(record.getTimeBucket(), model.getDownsampling());
+        IoTDBInsertRequest request = new IoTDBInsertRequest(model.getName(), timestamp, record, storageBuilder);
+
+        // transform tags of SegmentRecord, LogRecord, AlarmRecord to tag1, tag2, ...
+        List<String> timeseriesList = request.getTimeseriesList();
+        List<TSDataType> timeseriesTypes = request.getTimeseriesTypes();
+        List<Object> timeseriesValues = request.getTimeseriesValues();
+        List<Tag> rawTags = null;
+        if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
+            rawTags = ((SegmentRecord) record).getTagsRawData();
+            timeseriesTypes.remove(timeseriesList.indexOf(SegmentRecord.TAGS));
+            timeseriesValues.remove(timeseriesList.indexOf(SegmentRecord.TAGS));
+            timeseriesList.remove(SegmentRecord.TAGS);
+        } else if (LogRecord.INDEX_NAME.equals(model.getName())) {
+            rawTags = ((LogRecord) record).getTags();
+            timeseriesTypes.remove(timeseriesList.indexOf(LogRecord.TAGS));
+            timeseriesValues.remove(timeseriesList.indexOf(LogRecord.TAGS));
+            timeseriesList.remove(LogRecord.TAGS);
+        } else if (AlarmRecord.INDEX_NAME.equals(model.getName())) {
+            rawTags = ((AlarmRecord) record).getTags();
+            timeseriesTypes.remove(timeseriesList.indexOf(AlarmRecord.TAGS));
+            timeseriesValues.remove(timeseriesList.indexOf(AlarmRecord.TAGS));
+            timeseriesList.remove(AlarmRecord.TAGS);
+        }
+        if (Objects.nonNull(rawTags)) {
+            rawTags.forEach(rawTag -> {
+                timeseriesList.add(rawTag.getKey());
+                timeseriesTypes.add(TSDataType.TEXT);
+                timeseriesValues.add(rawTag.getValue());
+            });
+        }
+        request.setTimeseriesList(timeseriesList);
+        request.setTimeseriesTypes(timeseriesTypes);
+        request.setTimeseriesValues(timeseriesValues);
+        return request;
     }
 }

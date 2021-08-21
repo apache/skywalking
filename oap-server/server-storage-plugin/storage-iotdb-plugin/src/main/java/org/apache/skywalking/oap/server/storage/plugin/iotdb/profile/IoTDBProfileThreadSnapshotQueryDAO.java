@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.profile;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
@@ -28,15 +32,10 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<ProfileThreadSnapshotRecord> storageBuilder = new ProfileThreadSnapshotRecord.Builder();
+    private final StorageHashMapBuilder<ProfileThreadSnapshotRecord> profileThreadSnapshotRecordBuilder = new ProfileThreadSnapshotRecord.Builder();
+    private final StorageHashMapBuilder<SegmentRecord> segmentRecordBuilder = new SegmentRecord.Builder();
 
     public IoTDBProfileThreadSnapshotQueryDAO(IoTDBClient client) {
         this.client = client;
@@ -45,84 +44,78 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
     @Override
     public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" from ")
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileThreadSnapshotRecord.INDEX_NAME)
-                .append(" where ").append(ProfileThreadSnapshotRecord.TASK_ID).append(" = '").append(taskId).append("'")
-                .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" = 0");
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
+                .append(ProfileThreadSnapshotRecord.INDEX_NAME);
+        query = client.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
+        query.append(" where ").append(ProfileThreadSnapshotRecord.TASK_ID).append(" = \"").append(taskId).append("\"")
+                .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" = 0")
+                .append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        // TODO why LinkedList
-        List<String> segments = new LinkedList<>();
-        List<? super StorageData> storageDataList = client.queryForList(ProfileThreadSnapshotRecord.INDEX_NAME,
-                query.toString(), storageBuilder);
-        storageDataList.forEach(storageData -> segments.add((String) storageData));
-        if (segments.isEmpty()) {
+        List<? super StorageData> storageDataList = client.filterQuery(ProfileThreadSnapshotRecord.INDEX_NAME,
+                query.toString(), profileThreadSnapshotRecordBuilder);
+        // We can insure the size of List, so use ArrayList to improve visit speed. (Other storage plugin use LinkedList)
+        final List<String> segmentIds = new ArrayList<>(storageDataList.size());
+        storageDataList.forEach(storageData -> segmentIds.add(((ProfileThreadSnapshotRecord) storageData).getSegmentId()));
+        if (segmentIds.isEmpty()) {
             return Collections.emptyList();
         }
 
+        // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
+        // https://github.com/apache/iotdb/discussions/3888
         query = new StringBuilder();
-        query.append("select bottom_k(").append(SegmentRecord.START_TIME).append(", 'k'='")
-                .append(segments.size()).append("') from ")
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(SegmentRecord.INDEX_NAME)
-                .append(" where ");
-        for (int i = 0; i < segments.size(); i++) {
-            query.append(i > 0 ? " or " : "").append(SegmentRecord.SEGMENT_ID).append(" = '").append(segments.get(i)).append("'");
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(SegmentRecord.INDEX_NAME);
+        query = client.addQueryAsterisk(SegmentRecord.INDEX_NAME, query);
+        query.append(" where ").append(SegmentRecord.SEGMENT_ID).append(" in (");
+        for (String segmentId : segmentIds) {
+            query.append("\"").append(segmentId).append("\"").append(", ");
         }
-        final List<Long> startTimeList = client.queryWithSelect(SegmentRecord.INDEX_NAME, query.toString());
+        String queryString = query.substring(0, query.length() - 2);
+        queryString = queryString + ")" + IoTDBClient.ALIGN_BY_DEVICE;
 
-        query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(SegmentRecord.INDEX_NAME)
-                .append(" where ").append(SegmentRecord.START_TIME).append(" in (");
-        for (int i = 0; i < startTimeList.size(); i++) {
-            if (i == 0) {
-                query.append(startTimeList.get(i));
-            } else {
-                query.append(", ").append(startTimeList.get(i));
-            }
-        }
-        query.append(")");
+        storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME, queryString, segmentRecordBuilder);
+        List<SegmentRecord> segmentRecordList = new ArrayList<>(storageDataList.size());
+        storageDataList.forEach(storageData -> segmentRecordList.add((SegmentRecord) storageData));
+        // resort by self, because of the select query result order by time.
+        segmentRecordList.sort((SegmentRecord r1, SegmentRecord r2) -> Long.compare(r2.getStartTime(), r1.getStartTime()));
 
-        List<BasicTrace> result = new ArrayList<>(segments.size());
-        storageDataList = client.queryForList(ProfileThreadSnapshotRecord.INDEX_NAME, query.toString(), storageBuilder);
-        storageDataList.forEach(storageData -> {
+        List<BasicTrace> result = new ArrayList<>(segmentRecordList.size());
+        segmentRecordList.forEach(segmentRecord -> {
             BasicTrace basicTrace = new BasicTrace();
-            SegmentRecord segmentRecord = (SegmentRecord) storageData;
-
             basicTrace.setSegmentId(segmentRecord.getSegmentId());
             basicTrace.setStart(String.valueOf(segmentRecord.getStartTime()));
-            basicTrace.getEndpointNames().add(IDManager.EndpointID.analysisId(segmentRecord.getEndpointId()).getEndpointName());
+            basicTrace.getEndpointNames().add(String.valueOf(IDManager.EndpointID.analysisId(segmentRecord.getEndpointId())));
             basicTrace.setDuration(segmentRecord.getLatency());
             basicTrace.setError(BooleanUtils.valueToBoolean(segmentRecord.getIsError()));
-            basicTrace.getTraceIds().add(segmentRecord.getSegmentId());
-
+            basicTrace.getTraceIds().add(segmentRecord.getTraceId());
             result.add(basicTrace);
         });
-        // resort by self, because of the select query result order by time.
-        result.sort((a, b) -> Long.compare(Long.parseLong(b.getStart()), Long.parseLong(a.getStart())));
         return result;
     }
 
     @Override
     public int queryMinSequence(String segmentId, long start, long end) throws IOException {
-        return querySequenceWithAgg("max_value", segmentId, start, end);
+        return querySequenceWithAgg("min_value", segmentId, start, end);
     }
 
     @Override
     public int queryMaxSequence(String segmentId, long start, long end) throws IOException {
-        return querySequenceWithAgg("min_value", segmentId, start, end);
+        return querySequenceWithAgg("max_value", segmentId, start, end);
     }
 
     @Override
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(ProfileThreadSnapshotRecord.INDEX_NAME).append(" where 1=1")
-                .append(" and ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = '").append(segmentId).append("'")
+                .append(ProfileThreadSnapshotRecord.INDEX_NAME);
+        query = client.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
+        query.append(" where ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
                 .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ").append(minSequence)
-                .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" <= ").append(maxSequence);
+                .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" <= ").append(maxSequence)
+                .append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<ProfileThreadSnapshotRecord> profileThreadSnapshotRecordList = new ArrayList<>();
-        List<? super StorageData> storageDataList = client.queryForList(ProfileThreadSnapshotRecord.INDEX_NAME,
-                query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(ProfileThreadSnapshotRecord.INDEX_NAME,
+                query.toString(), profileThreadSnapshotRecordBuilder);
+        List<ProfileThreadSnapshotRecord> profileThreadSnapshotRecordList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> profileThreadSnapshotRecordList.add((ProfileThreadSnapshotRecord) storageData));
         return profileThreadSnapshotRecordList;
     }
@@ -131,11 +124,13 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(ProfileThreadSnapshotRecord.INDEX_NAME).append(" where ")
-                .append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = '").append(segmentId).append("'");
+                .append(SegmentRecord.INDEX_NAME);
+        query = client.addQueryAsterisk(SegmentRecord.INDEX_NAME, query);
+        query.append(" where ").append(SegmentRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
+                .append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.queryForList(SegmentRecord.INDEX_NAME,
-                query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME,
+                query.toString(), segmentRecordBuilder);
         if (storageDataList.isEmpty()) {
             return null;
         }
@@ -143,19 +138,37 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
     }
 
     private int querySequenceWithAgg(String aggType, String segmentId, long start, long end) throws IOException {
+        // This method has poor efficiency. It queries all data which meets a condition without aggregation function
+        // See https://github.com/apache/iotdb/discussions/3907
         StringBuilder query = new StringBuilder();
-        query.append("select ")
-                .append(aggType)
-                .append("(")
-                .append(ProfileThreadSnapshotRecord.SEQUENCE)
-                .append(") from ")
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileThreadSnapshotRecord.INDEX_NAME)
-                .append(" where ");
-        query.append(" 1=1 ");
-        query.append(" and ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = '").append(segmentId).append("'");
-        query.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ").append(start);
-        query.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ").append(end);
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
+                .append(ProfileThreadSnapshotRecord.INDEX_NAME);
+        query = client.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
+        query.append(" where ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
+                .append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ").append(start)
+                .append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ").append(end)
+                .append(IoTDBClient.ALIGN_BY_DEVICE);
+        List<? super StorageData> storageDataList = client.filterQuery(ProfileThreadSnapshotRecord.INDEX_NAME,
+                query.toString(), profileThreadSnapshotRecordBuilder);
 
-        return client.queryWithAgg(ProfileThreadSnapshotRecord.INDEX_NAME, query.toString());
+        if (aggType.equals("min_value")) {
+            int minValue = Integer.MAX_VALUE;
+            for (Object storageData : storageDataList) {
+                ProfileThreadSnapshotRecord profileThreadSnapshotRecord = (ProfileThreadSnapshotRecord) storageData;
+                int sequence = profileThreadSnapshotRecord.getSequence();
+                minValue = Math.min(minValue, sequence);
+            }
+            return minValue;
+        } else if (aggType.equals("max_value")) {
+            int maxValue = Integer.MIN_VALUE;
+            for (Object storageData : storageDataList) {
+                ProfileThreadSnapshotRecord profileThreadSnapshotRecord = (ProfileThreadSnapshotRecord) storageData;
+                int sequence = profileThreadSnapshotRecord.getSequence();
+                maxValue = Math.max(maxValue, sequence);
+            }
+            return maxValue;
+        } else {
+            throw new IOException("Wrong aggregation function");
+        }
     }
 }

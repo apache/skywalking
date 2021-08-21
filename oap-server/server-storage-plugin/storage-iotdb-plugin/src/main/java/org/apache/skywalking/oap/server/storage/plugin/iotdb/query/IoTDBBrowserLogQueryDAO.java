@@ -18,28 +18,31 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.iotdb.rpc.IoTDBConnectionException;
-import org.apache.iotdb.rpc.StatementExecutionException;
-import org.apache.iotdb.session.pool.SessionDataSetWrapper;
-import org.apache.iotdb.session.pool.SessionPool;
-import org.apache.iotdb.tsfile.read.common.Field;
-import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
+import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 public class IoTDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
     private final IoTDBClient client;
+    private final StorageHashMapBuilder<BrowserErrorLogRecord> storageBuilder = new BrowserErrorLogRecord.Builder();
 
     public IoTDBBrowserLogQueryDAO(IoTDBClient client) {
         this.client = client;
@@ -49,75 +52,76 @@ public class IoTDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
     public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId,
                                                   BrowserErrorCategory category, long startSecondTB,
                                                   long endSecondTB, int limit, int from) throws IOException {
-        // TODO re-implement
-        // IoTDB doesn't support using "string_contains" and "count" together
-        // IoTDB string_contains return the same size of all data with true or false
-        // select all BrowserErrorLogRecord.DATA_BINARY with string_contains, then count its size and return its limit
         StringBuilder query = new StringBuilder();
-        query.append("select");
-        query.append(" ").append(BrowserErrorLogRecord.DATA_BINARY);
-        query.append(" from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(BrowserErrorLogRecord.INDEX_NAME)
-                .append(" where 1=1 ");
-        if (startSecondTB != 0 && endSecondTB != 0) {
-            query.append(" and ").append(BrowserErrorLogRecord.TIME_BUCKET).append(" >= ").append(startSecondTB);
-            query.append(" and ").append(BrowserErrorLogRecord.TIME_BUCKET).append(" <= ").append(endSecondTB);
-        }
+        // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
+        // https://github.com/apache/iotdb/discussions/3888
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(BrowserErrorLogRecord.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
-            query.append(" and ").append(BrowserErrorLogRecord.SERVICE_ID).append(" = '").append(serviceId).append("'");
+            indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
+        }
+        query = client.addQueryIndexValue(BrowserErrorLogRecord.INDEX_NAME, query, indexAndValueMap);
+        query.append(" where 1=1");
+        if (startSecondTB != 0 && endSecondTB != 0) {
+            query.append(" and ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startSecondTB));
+            query.append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endSecondTB));
         }
         if (StringUtil.isNotEmpty(serviceVersionId)) {
-            query.append(" and ").append(BrowserErrorLogRecord.SERVICE_VERSION_ID).append(" = '").append(serviceVersionId).append("'");
+            query.append(" and ").append(BrowserErrorLogRecord.SERVICE_VERSION_ID).append(" = \"").append(serviceVersionId).append("\"");
         }
         if (StringUtil.isNotEmpty(pagePathId)) {
-            query.append(" and ").append(BrowserErrorLogRecord.PAGE_PATH_ID).append(" = '").append(pagePathId).append("'");
+            query.append(" and ").append(BrowserErrorLogRecord.PAGE_PATH_ID).append(" = \"").append(pagePathId).append("\"");
         }
         if (Objects.nonNull(category)) {
             query.append(" and ").append(BrowserErrorLogRecord.ERROR_CATEGORY).append(" = ").append(category.getValue());
         }
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+        // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
+        String queryString = query.toString();
+        queryString = queryString.replace("1=1 and ", "");
 
+        List<? super StorageData> storageDataList = client.filterQuery(BrowserErrorLogRecord.INDEX_NAME, queryString, storageBuilder);
+        List<BrowserErrorLogRecord> browserErrorLogRecordList = new ArrayList<>(storageDataList.size());
+        storageDataList.forEach(storageData -> browserErrorLogRecordList.add((BrowserErrorLogRecord) storageData));
+        // resort by self, because of the select query result order by time.
+        browserErrorLogRecordList.sort((BrowserErrorLogRecord b1, BrowserErrorLogRecord b2) -> Long.compare(b2.getTimestamp(), b1.getTimestamp()));
         BrowserErrorLogs logs = new BrowserErrorLogs();
-        StringBuilder devicePath = new StringBuilder();
-        devicePath.append(client.getStorageGroup()).append(IoTDBClient.DOT).append(BrowserErrorLogRecord.INDEX_NAME);
-        SessionPool sessionPool = client.getSessionPool();
-        SessionDataSetWrapper wrapper;
+        int limitCount = 0;
+        for (int i = 0; i < browserErrorLogRecordList.size(); i++) {
+            if (i >= from && limitCount < limit) {
+                limitCount++;
+                BrowserErrorLogRecord record = browserErrorLogRecordList.get(i);
+                if (CollectionUtils.isNotEmpty(record.getDataBinary())) {
+                    BrowserErrorLog log = iotdbParserDataBinary(record.getDataBinary());
+                    logs.getLogs().add(log);
+                }
+            }
+        }
+        logs.setTotal(storageDataList.size());
+        return logs;
+    }
+
+    private BrowserErrorLog iotdbParserDataBinary(byte[] dataBinaryBase64) {
         try {
-            if (!sessionPool.checkTimeseriesExists(devicePath.toString())) {
-                return logs;
-            }
-            wrapper = sessionPool.executeQueryStatement(query.toString());
-            if (log.isDebugEnabled()) {
-                log.debug("SQL: {} result: {}", query, wrapper);
-            }
-            int count = 0;
-            List<String> iotDBColumnNames = wrapper.getColumnNames();
-            if (iotDBColumnNames.get(1).startsWith("string_contains")) {
-                while (wrapper.hasNext()) {
-                    RowRecord rowRecord = wrapper.next();
-                    List<Field> fieldList = rowRecord.getFields();
-                    if (fieldList.get(1).getBoolV()) {
-                        if (count >= from && logs.getLogs().size() <= limit) {
-                            BrowserErrorLog log = parserDataBinary(fieldList.get(2).getStringValue());
-                            logs.getLogs().add(log);
-                        }
-                        count++;
-                    }
-                }
-            } else {
-                while (wrapper.hasNext()) {
-                    RowRecord rowRecord = wrapper.next();
-                    List<Field> fieldList = rowRecord.getFields();
-                    if (count >= from && logs.getLogs().size() <= limit) {
-                        BrowserErrorLog log = parserDataBinary(fieldList.get(1).getStringValue());
-                        logs.getLogs().add(log);
-                    }
-                    count++;
-                }
-            }
-            logs.setTotal(count);
-            return logs;
-        } catch (IoTDBConnectionException |
-                StatementExecutionException e) {
-            throw new IOException(e);
+            BrowserErrorLog log = new BrowserErrorLog();
+            org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog browserErrorLog = org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog
+                    .parseFrom(dataBinaryBase64);
+            log.setService(browserErrorLog.getService());
+            log.setServiceVersion(browserErrorLog.getServiceVersion());
+            log.setTime(browserErrorLog.getTime());
+            log.setPagePath(browserErrorLog.getPagePath());
+            log.setCategory(ErrorCategory.valueOf(browserErrorLog.getCategory().name().toUpperCase()));
+            log.setGrade(browserErrorLog.getGrade());
+            log.setMessage(browserErrorLog.getMessage());
+            log.setLine(browserErrorLog.getLine());
+            log.setCol(browserErrorLog.getCol());
+            log.setStack(browserErrorLog.getStack());
+            log.setErrorUrl(browserErrorLog.getErrorUrl());
+            log.setFirstReportedError(browserErrorLog.getFirstReportedError());
+
+            return log;
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException(e);
         }
     }
 }

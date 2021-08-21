@@ -19,22 +19,25 @@
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
 import com.google.common.base.Strings;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.event.EventType;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.core.query.type.event.Source;
 import org.apache.skywalking.oap.server.core.source.Event;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
-import java.util.List;
-
 public class IoTDBEventQueryDAO implements IEventQueryDAO {
     private final IoTDBClient client;
+    private final StorageHashMapBuilder<Event> storageBuilder = new Event.Builder();
 
     public IoTDBEventQueryDAO(IoTDBClient client) {
         this.client = client;
@@ -42,73 +45,101 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
 
     @Override
     public Events queryEvents(EventQueryCondition condition) throws Exception {
-        final Events events = new Events();
+        // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
+        // https://github.com/apache/iotdb/discussions/3888
         StringBuilder query = new StringBuilder();
-        query.append(String.format("select count(%s) from %s", Event.UUID,
-                client.getStorageGroup() + IoTDBClient.DOT + Event.INDEX_NAME));
-        query.append(whereSQL(condition, query));
-        int total = client.queryWithAgg(Event.INDEX_NAME, query.toString());
-        events.setTotal(total);
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(Event.INDEX_NAME);
+        query = client.addQueryAsterisk(Event.INDEX_NAME, query);
+        query = whereSQL(condition, query);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
+        List<? super StorageData> storageDataList = client.filterQuery(Event.INDEX_NAME, query.toString(), storageBuilder);
+        final Events events = new Events();
+        int limitCount = 0;
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-        query = new StringBuilder();
-        query.append(String.format("select * from %s", client.getStorageGroup() + IoTDBClient.DOT + Event.INDEX_NAME));
-        query.append(whereSQL(condition, query))
-                .append(" limit ").append(page.getLimit()).append(" offset ").append(page.getFrom());
-        List<? super StorageData> storageDataList = client.queryForList(Event.INDEX_NAME, query.toString(), new Event.Builder());
-        storageDataList.forEach(storageData -> {
-            Event event = (Event) storageData;
-            events.getEvents().add(parseEvent(event));
-        });
+        for (int i = 0; i < storageDataList.size(); i++) {
+            if (i >= page.getFrom() && limitCount < page.getLimit()) {
+                limitCount++;
+                Event event = (Event) storageDataList.get(i);
+                org.apache.skywalking.oap.server.core.query.type.event.Event resultEvent = parseEvent(event);
+                events.getEvents().add(resultEvent);
+            }
+        }
+        events.setTotal(storageDataList.size());
+        // resort by self, because of the select query result order by time.
+        final Order order = Objects.isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+        if (Order.DES.equals(order)) {
+            events.getEvents().sort(
+                    (org.apache.skywalking.oap.server.core.query.type.event.Event e1,
+                     org.apache.skywalking.oap.server.core.query.type.event.Event e2)
+                            -> Long.compare(e2.getStartTime(), e1.getStartTime()));
+        } else {
+            events.getEvents().sort(
+                    Comparator.comparingLong(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime));
+        }
         return events;
     }
 
     @Override
     public Events queryEvents(List<EventQueryCondition> conditionList) throws Exception {
-        final Events events = new Events();
+        // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
+        // https://github.com/apache/iotdb/discussions/3888
         StringBuilder query = new StringBuilder();
-        query.append(String.format("select count(%s) from %s", Event.UUID,
-                client.getStorageGroup() + IoTDBClient.DOT + Event.INDEX_NAME));
-        query.append(whereSQL(conditionList, query));
-        int total = client.queryWithAgg(Event.INDEX_NAME, query.toString());
-        events.setTotal(total);
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(Event.INDEX_NAME);
+        query = client.addQueryAsterisk(Event.INDEX_NAME, query);
+        query = whereSQL(conditionList, query);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        final int size = conditionList.stream().map(EventQueryCondition::getPaging)
-                .mapToInt(Pagination::getPageSize).sum();
-        query = new StringBuilder();
-        query.append(String.format("select * from %s", client.getStorageGroup() + IoTDBClient.DOT + Event.INDEX_NAME));
-        query.append(whereSQL(conditionList, query))
-                .append(" limit ").append(size);
-        List<? super StorageData> storageDataList = client.queryForList(Event.INDEX_NAME, query.toString(), new Event.Builder());
-        storageDataList.forEach(storageData -> {
-            Event event = (Event) storageData;
-            events.getEvents().add(parseEvent(event));
-        });
+        List<? super StorageData> storageDataList = client.filterQuery(Event.INDEX_NAME, query.toString(), storageBuilder);
+        final Events events = new Events();
+        EventQueryCondition condition = conditionList.get(0);
+        int limitCount = 0;
+        PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        for (int i = 0; i < storageDataList.size(); i++) {
+            if (i >= page.getFrom() && limitCount < page.getLimit()) {
+                limitCount++;
+                Event event = (Event) storageDataList.get(i);
+                org.apache.skywalking.oap.server.core.query.type.event.Event resultEvent = parseEvent(event);
+                events.getEvents().add(resultEvent);
+            }
+        }
+        events.setTotal(storageDataList.size());
+        // resort by self, because of the select query result order by time.
+        final Order order = Objects.isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+        if (Order.DES.equals(order)) {
+            events.getEvents().sort(
+                    (org.apache.skywalking.oap.server.core.query.type.event.Event e1,
+                     org.apache.skywalking.oap.server.core.query.type.event.Event e2)
+                            -> Long.compare(e2.getStartTime(), e1.getStartTime()));
+        } else {
+            events.getEvents().sort(
+                    Comparator.comparingLong(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime));
+        }
         return events;
     }
 
     private StringBuilder whereSQL(final EventQueryCondition condition, StringBuilder query) {
-        query.append(" where 1=1 ");
+        query.append(" where 1=1");
         if (!Strings.isNullOrEmpty(condition.getUuid())) {
-            query.append(" and ").append(Event.UUID).append(" = '").append(condition.getUuid()).append("'");
+            query.append(" and ").append(Event.UUID).append(" = \"").append(condition.getUuid()).append("\"");
         }
         final Source source = condition.getSource();
         if (source != null) {
             if (!Strings.isNullOrEmpty(source.getService())) {
-                query.append(" and ").append(Event.SERVICE).append(" = '").append(source.getService()).append("'");
+                query.append(" and ").append(Event.SERVICE).append(" = \"").append(source.getService()).append("\"");
             }
             if (!Strings.isNullOrEmpty(source.getServiceInstance())) {
-                query.append(" and ").append(Event.SERVICE_INSTANCE).append(" = '").append(source.getServiceInstance()).append("'");
+                query.append(" and ").append(Event.SERVICE_INSTANCE).append(" = \"").append(source.getServiceInstance()).append("\"");
             }
             if (!Strings.isNullOrEmpty(source.getService())) {
-                query.append(" and ").append(Event.ENDPOINT).append(" = '").append(source.getEndpoint()).append("'");
+                query.append(" and ").append(Event.ENDPOINT).append(" = \"").append(source.getEndpoint()).append("\"");
             }
         }
         if (!Strings.isNullOrEmpty(condition.getName())) {
-            query.append(" and ").append(Event.NAME).append(" = '").append(condition.getName()).append("'");
+            query.append(" and ").append(Event.NAME).append(" = \"").append(condition.getName()).append("\"");
         }
         if (condition.getType() != null) {
-            query.append(" and ").append(Event.TYPE).append(" = '").append(condition.getType().name()).append("'");
+            query.append(" and ").append(Event.TYPE).append(" = \"").append(condition.getType().name()).append("\"");
         }
         final Duration time = condition.getTime();
         if (time != null) {
@@ -119,58 +150,35 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
                 query.append(" and ").append(Event.END_TIME).append(" < ").append(time.getEndTimestamp());
             }
         }
-        return query;
+        // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
+        String queryString = query.toString();
+        queryString = queryString.replace("1=1 and ", "");
+        return new StringBuilder(queryString);
     }
 
     private StringBuilder whereSQL(final List<EventQueryCondition> conditions, StringBuilder query) {
         query.append(" where 1=1");
-        conditions.forEach(condition -> {
-            query.append("or (1=1 ");
-            if (!Strings.isNullOrEmpty(condition.getUuid())) {
-                query.append(" and ").append(Event.UUID).append(" = '").append(condition.getUuid()).append("'");
-            }
-            final Source source = condition.getSource();
-            if (source != null) {
-                if (!Strings.isNullOrEmpty(source.getService())) {
-                    query.append(" and ").append(Event.SERVICE).append(" = '").append(source.getService()).append("'");
-                }
-                if (!Strings.isNullOrEmpty(source.getServiceInstance())) {
-                    query.append(" and ").append(Event.SERVICE_INSTANCE).append(" = '").append(source.getServiceInstance()).append("'");
-                }
-                if (!Strings.isNullOrEmpty(source.getService())) {
-                    query.append(" and ").append(Event.ENDPOINT).append(" = '").append(source.getEndpoint()).append("'");
-                }
-            }
-            if (!Strings.isNullOrEmpty(condition.getName())) {
-                query.append(" and ").append(Event.NAME).append(" = '").append(condition.getName()).append("'");
-            }
-            if (condition.getType() != null) {
-                query.append(" and ").append(Event.TYPE).append(" = '").append(condition.getType().name()).append("'");
-            }
-            final Duration time = condition.getTime();
-            if (time != null) {
-                if (time.getStartTimestamp() > 0) {
-                    query.append(" and ").append(Event.START_TIME).append(" > ").append(time.getStartTimestamp());
-                }
-                if (time.getEndTimestamp() > 0) {
-                    query.append(" and ").append(Event.END_TIME).append(" < ").append(time.getEndTimestamp());
-                }
-            }
+        for (EventQueryCondition condition : conditions) {
+            query.append(" or (");
+            query = whereSQL(condition, query);
             query.append(")");
-        });
-        return query;
+        }
+        String queryString = query.toString();
+        queryString = queryString.replace("( where ", "(");
+        queryString = queryString.replace("1=1 or ", "");
+        return new StringBuilder(queryString);
     }
 
     private org.apache.skywalking.oap.server.core.query.type.event.Event parseEvent(final Event event) {
-        final org.apache.skywalking.oap.server.core.query.type.event.Event eventQuery = new org.apache.skywalking.oap.server.core.query.type.event.Event();
-        eventQuery.setUuid(event.getUuid());
-        eventQuery.setSource(new Source(event.getService(), event.getServiceInstance(), event.getEndpoint()));
-        eventQuery.setName(event.getName());
-        eventQuery.setType(EventType.parse(event.getType()));
-        eventQuery.setMessage(event.getMessage());
-        eventQuery.setParameters(event.getParameters());
-        eventQuery.setStartTime(event.getStartTime());
-        eventQuery.setEndTime(event.getEndTime());
-        return eventQuery;
+        final org.apache.skywalking.oap.server.core.query.type.event.Event resultEvent = new org.apache.skywalking.oap.server.core.query.type.event.Event();
+        resultEvent.setUuid(event.getUuid());
+        resultEvent.setSource(new Source(event.getService(), event.getServiceInstance(), event.getEndpoint()));
+        resultEvent.setName(event.getName());
+        resultEvent.setType(EventType.parse(event.getType()));
+        resultEvent.setMessage(event.getMessage());
+        resultEvent.setParameters(event.getParameters());
+        resultEvent.setStartTime(event.getStartTime());
+        resultEvent.setEndTime(event.getEndTime());
+        return resultEvent;
     }
 }

@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.management;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
@@ -29,31 +32,33 @@ import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
     private final IoTDBClient client;
     private final StorageHashMapBuilder<UITemplate> storageBuilder = new UITemplate.Builder();
+    private static final long UI_TEMPLATE_TIMESTAMP = 1L;
 
     @Override
     public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException {
+        final List<String> indexes = IoTDBTableMetaInfo.get(UITemplate.INDEX_NAME).getIndexes();
         StringBuilder query = new StringBuilder();
         query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(UITemplate.INDEX_NAME).append(" where 1=1");
+                .append(UITemplate.INDEX_NAME);
+        query = client.addQueryAsterisk(UITemplate.INDEX_NAME, query);
         if (!includingDisabled) {
-            query.append(" and ").append(UITemplate.DISABLED).append(" = ").append(BooleanUtils.FALSE);
+            query.append(" where ").append(UITemplate.DISABLED).append(" = ").append(BooleanUtils.FALSE);
         }
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<DashboardConfiguration> dashboardConfigurationList = new ArrayList<>();
-        List<? super StorageData> storageDataList = client.queryForList(UITemplate.INDEX_NAME, query.toString(),
+        List<? super StorageData> storageDataList = client.filterQuery(UITemplate.INDEX_NAME, query.toString(),
                 storageBuilder);
-        storageDataList.forEach(storageData -> dashboardConfigurationList.add((DashboardConfiguration) storageData));
+        List<DashboardConfiguration> dashboardConfigurationList = new ArrayList<>(storageDataList.size());
+        storageDataList.forEach(storageData ->
+                dashboardConfigurationList.add(new DashboardConfiguration().fromEntity((UITemplate) storageData)));
         return dashboardConfigurationList;
     }
 
@@ -61,7 +66,7 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
     public TemplateChangeStatus addTemplate(DashboardSetting setting) throws IOException {
         final UITemplate uiTemplate = setting.toEntity();
 
-        IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, 1L,
+        IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
                 uiTemplate, storageBuilder);
         client.write(request);
         return TemplateChangeStatus.builder().status(true).build();
@@ -73,13 +78,14 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
 
         StringBuilder query = new StringBuilder();
         query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(UITemplate.INDEX_NAME).append(" where ").append(IoTDBClient.ID_COLUMN).append(" = '")
-                .append(uiTemplate.id()).append("'");
-        List<? super StorageData> queryResult = client.queryForList(UITemplate.INDEX_NAME, query.toString(), storageBuilder);
+                .append(UITemplate.INDEX_NAME).append(IoTDBClient.DOT)
+                .append(client.indexValue2LayerName(uiTemplate.id()))
+                .append(IoTDBClient.ALIGN_BY_DEVICE);
+        List<? super StorageData> queryResult = client.filterQuery(UITemplate.INDEX_NAME, query.toString(), storageBuilder);
         if (queryResult.size() == 0) {
             return TemplateChangeStatus.builder().status(false).message("Can't find the template").build();
         } else {
-            IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, 1L,
+            IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
                     uiTemplate, storageBuilder);
             client.write(request);
             return TemplateChangeStatus.builder().status(true).build();
@@ -90,16 +96,17 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
     public TemplateChangeStatus disableTemplate(String name) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(UITemplate.INDEX_NAME).append(" where ").append(IoTDBClient.ID_COLUMN).append(" = '")
-                .append(name).append("'");
+                .append(UITemplate.INDEX_NAME).append(IoTDBClient.DOT)
+                .append(client.indexValue2LayerName(name))
+                .append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> queryResult = client.queryForList(UITemplate.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> queryResult = client.filterQuery(UITemplate.INDEX_NAME, query.toString(), storageBuilder);
         if (queryResult.size() == 0) {
             return TemplateChangeStatus.builder().status(false).message("Can't find the template").build();
         } else {
             final UITemplate uiTemplate = (UITemplate) queryResult.get(0);
             uiTemplate.setDisabled(BooleanUtils.TRUE);
-            IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, 1L,
+            IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
                     uiTemplate, storageBuilder);
             client.write(request);
             return TemplateChangeStatus.builder().status(true).build();

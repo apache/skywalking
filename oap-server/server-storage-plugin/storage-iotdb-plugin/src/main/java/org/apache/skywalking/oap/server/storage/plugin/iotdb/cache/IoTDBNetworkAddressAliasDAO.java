@@ -41,17 +41,20 @@ public class IoTDBNetworkAddressAliasDAO implements INetworkAddressAliasDAO {
     public List<NetworkAddressAlias> loadLastUpdate(long timeBucket) {
         StringBuilder query = new StringBuilder();
         query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(NetworkAddressAlias.INDEX_NAME).append(" where ")
-                .append(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET).append(" >= ").append(timeBucket);
+                .append(NetworkAddressAlias.INDEX_NAME);
+        query = client.addQueryAsterisk(NetworkAddressAlias.INDEX_NAME, query);
+        query.append(" where ").append(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET).append(" >= ").append(timeBucket)
+                .append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>();
         try {
-            List<? super StorageData> storageDataList = client.queryForList(NetworkAddressAlias.INDEX_NAME,
+            List<? super StorageData> storageDataList = client.filterQuery(NetworkAddressAlias.INDEX_NAME,
                     query.toString(), storageBuilder);
+            List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>(storageDataList.size());
             storageDataList.forEach(storageData -> networkAddressAliases.add((NetworkAddressAlias) storageData));
+            return networkAddressAliases;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
-        return networkAddressAliases;
+        return new ArrayList<>();
     }
 }

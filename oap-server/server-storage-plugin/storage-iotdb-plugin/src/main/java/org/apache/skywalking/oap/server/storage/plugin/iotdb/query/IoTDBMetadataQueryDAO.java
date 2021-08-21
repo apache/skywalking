@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
@@ -60,13 +61,17 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public List<Service> getAllServices(String group) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME)
-                .append(" where ").append(ServiceTraffic.NODE_TYPE).append(" = ").append(NodeType.Normal.value());
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Normal.value()));
         if (StringUtil.isNotEmpty(group)) {
-            query.append(" and ").append(ServiceTraffic.GROUP).append(" = ").append(group);
+            indexAndValueMap.put(IoTDBClient.GROUP_IDX, group);
         }
-        List<Service> serviceList = new ArrayList<>();
-        List<? super StorageData> storageDataList = client.queryForList(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        List<Service> serviceList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> serviceList.add(buildService((ServiceTraffic) storageData)));
         return serviceList;
     }
@@ -74,10 +79,14 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public List<Service> getAllBrowserServices() throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME)
-                .append(" where ").append(ServiceTraffic.NODE_TYPE).append(" = ").append(NodeType.Browser.value());
-        List<Service> serviceList = new ArrayList<>();
-        List<? super StorageData> storageDataList = client.queryForList(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Browser.value()));
+        query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        List<Service> serviceList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> serviceList.add(buildService((ServiceTraffic) storageData)));
         return serviceList;
     }
@@ -85,30 +94,36 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public List<Database> getAllDatabases() throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME)
-                .append(" where ").append(ServiceTraffic.NODE_TYPE).append(" = ").append(NodeType.Database.value());
-        List<Database> databaseList = new ArrayList<>();
-        List<? super StorageData> storageDataList = client.queryForList(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
-        storageDataList.forEach(storageData -> databaseList.add(buildDatabase((ServiceTraffic) storageData)));
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Database.value()));
+        query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        List<Database> databaseList = new ArrayList<>(storageDataList.size());
+        storageDataList.forEach(storageData -> {
+            ServiceTraffic serviceTraffic = (ServiceTraffic) storageData;
+            Database database = new Database();
+            database.setId(serviceTraffic.id());
+            database.setName(serviceTraffic.getName());
+            databaseList.add(database);
+        });
         return databaseList;
     }
 
     @Override
     public List<Service> searchServices(String keyword) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select");
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Normal.value()));
+        query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         if (!Strings.isNullOrEmpty(keyword)) {
-            query.append(" string_contains(").append(ServiceTraffic.NAME).append(", 's'='").append(keyword).append("'),");
+            query.append(" where ").append(ServiceTraffic.NAME).append(" like '%").append(keyword).append("%'");
         }
-        query.append(" * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME)
-                .append(" where ").append(ServiceTraffic.NODE_TYPE).append(" = ").append(NodeType.Normal.value());
-
-        List<? super StorageData> storageDataList;
-        if (!Strings.isNullOrEmpty(keyword)) {
-            storageDataList = client.queryForListWithContains(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
-        } else {
-            storageDataList = client.queryForList(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
-        }
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
         List<Service> serviceList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> serviceList.add(buildService((ServiceTraffic) storageData)));
         return serviceList;
@@ -117,47 +132,76 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public Service searchService(String serviceCode) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME)
-                .append(" where ").append(ServiceTraffic.NODE_TYPE).append(" = ").append(NodeType.Normal.value());
-        query.append(" and ").append(ServiceTraffic.NAME).append(" = '").append(serviceCode).append("'");
-        List<? super StorageData> storageDataList = client.queryForList(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Normal.value()));
+        query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
+        query.append(" where ").append(ServiceTraffic.NAME).append(" = \"").append(serviceCode).append("\"")
+                .append(IoTDBClient.ALIGN_BY_DEVICE);
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
         return buildService((ServiceTraffic) storageDataList.get(0));
     }
 
     @Override
     public List<Endpoint> searchEndpoint(String keyword, String serviceId, int limit) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select");
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(EndpointTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
+        query = client.addQueryIndexValue(EndpointTraffic.INDEX_NAME, query, indexAndValueMap);
         if (!Strings.isNullOrEmpty(keyword)) {
-            query.append(" string_contains(").append(EndpointTraffic.NAME).append(", 's'='").append(keyword).append("'),");
+            query.append(" where ").append(EndpointTraffic.NAME).append(" like '%").append(keyword).append("%'");
         }
-        query.append(" * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(EndpointTraffic.INDEX_NAME)
-                .append(" where ").append(EndpointTraffic.SERVICE_ID).append(" = '").append(serviceId).append("'")
-                .append(" limit ").append(limit);
+        query.append(" limit ").append(limit).append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList;
-        if (!Strings.isNullOrEmpty(keyword)) {
-            storageDataList = client.queryForListWithContains(EndpointTraffic.INDEX_NAME, query.toString(), endpointBuilder);
-        } else {
-            storageDataList = client.queryForList(EndpointTraffic.INDEX_NAME, query.toString(), endpointBuilder);
-        }
+        List<? super StorageData> storageDataList = client.filterQuery(EndpointTraffic.INDEX_NAME, query.toString(), endpointBuilder);
         List<Endpoint> endpointList = new ArrayList<>(storageDataList.size());
-        storageDataList.forEach(storageData -> endpointList.add(buildEndpoint((EndpointTraffic) storageData)));
+        storageDataList.forEach(storageData -> {
+            EndpointTraffic endpointTraffic = (EndpointTraffic) storageData;
+            Endpoint endpoint = new Endpoint();
+            endpoint.setId(endpointTraffic.id());
+            endpoint.setName(endpointTraffic.getName());
+            endpointList.add(endpoint);
+        });
         return endpointList;
     }
 
     @Override
     public List<ServiceInstance> getServiceInstances(long startTimestamp, long endTimestamp, String serviceId) throws IOException {
-        // TODO test and verify the structure of the table. Dose it need sub query?
         final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(InstanceTraffic.INDEX_NAME)
-                .append(" where ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ").append(minuteTimeBucket)
-                .append(" and ").append(InstanceTraffic.SERVICE_ID).append(" = '").append(serviceId).append("'");
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(InstanceTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
+        query = client.addQueryIndexValue(InstanceTraffic.INDEX_NAME, query, indexAndValueMap);
+        query.append(" where ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ").append(minuteTimeBucket)
+                .append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<ServiceInstance> serviceInstanceList = new ArrayList<>();
-        List<? super StorageData> storageDataList = client.queryForList(InstanceTraffic.INDEX_NAME, query.toString(), instanceBuilder);
-        storageDataList.forEach(storageData -> serviceInstanceList.add(buildServiceInstance((InstanceTraffic) storageData)));
+        List<? super StorageData> storageDataList = client.filterQuery(InstanceTraffic.INDEX_NAME, query.toString(), instanceBuilder);
+        List<ServiceInstance> serviceInstanceList = new ArrayList<>(storageDataList.size());
+        storageDataList.forEach(storageData -> {
+            InstanceTraffic instanceTraffic = (InstanceTraffic) storageData;
+            ServiceInstance serviceInstance = new ServiceInstance();
+            serviceInstance.setId(instanceTraffic.id());
+            serviceInstance.setName(instanceTraffic.getName());
+            serviceInstance.setInstanceUUID(serviceInstance.getId());
+
+            JsonObject properties = instanceTraffic.getProperties();
+            if (!properties.isJsonNull()) {
+                for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
+                    String key = property.getKey();
+                    String value = property.getValue().getAsString();
+                    if (key.equals(InstanceTraffic.PropertyUtil.LANGUAGE)) {
+                        serviceInstance.setLanguage(Language.value(value));
+                    } else {
+                        serviceInstance.getAttributes().add(new Attribute(key, value));
+                    }
+                }
+            } else {
+                serviceInstance.setLanguage(Language.UNKNOWN);
+            }
+            serviceInstanceList.add(serviceInstance);
+        });
         return serviceInstanceList;
     }
 
@@ -167,42 +211,5 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         service.setName(serviceTraffic.getName());
         service.setGroup(serviceTraffic.getGroup());
         return service;
-    }
-
-    private Database buildDatabase(ServiceTraffic serviceTraffic) {
-        Database database = new Database();
-        database.setId(serviceTraffic.id());
-        database.setName(serviceTraffic.getName());
-        return database;
-    }
-
-    private Endpoint buildEndpoint(EndpointTraffic endpointTraffic) {
-        Endpoint endpoint = new Endpoint();
-        endpoint.setId(endpointTraffic.id());
-        endpoint.setName(endpointTraffic.getName());
-        return endpoint;
-    }
-
-    private ServiceInstance buildServiceInstance(InstanceTraffic instanceTraffic) {
-        ServiceInstance serviceInstance = new ServiceInstance();
-        serviceInstance.setId(instanceTraffic.id());
-        serviceInstance.setName(instanceTraffic.getName());
-        serviceInstance.setInstanceUUID(serviceInstance.getId());
-        JsonObject properties = instanceTraffic.getProperties();
-        // TODO test and verify the structure and content of properties
-        if (!properties.isJsonNull()) {
-            for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
-                String key = property.getKey();
-                String value = property.getValue().getAsString();
-                if (key.equals(InstanceTraffic.PropertyUtil.LANGUAGE)) {
-                    serviceInstance.setLanguage(Language.value(value));
-                } else {
-                    serviceInstance.getAttributes().add(new Attribute(key, value));
-                }
-            }
-        } else {
-            serviceInstance.setLanguage(Language.UNKNOWN);
-        }
-        return serviceInstance;
     }
 }

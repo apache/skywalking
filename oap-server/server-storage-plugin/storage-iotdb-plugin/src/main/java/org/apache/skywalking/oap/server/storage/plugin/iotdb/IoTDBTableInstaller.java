@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb;
 
-import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
@@ -30,13 +29,13 @@ public class IoTDBTableInstaller extends ModelInstaller {
     }
 
     @Override
-    protected boolean isExists(Model model) throws StorageException {
-        IoTDBTableMateInfo.addModel(model);
+    protected boolean isExists(Model model) {
+        IoTDBTableMetaInfo.addModel(model);
         return true;
     }
 
     @Override
-    protected void createTable(Model model) throws StorageException {
-        // TODO
+    protected void createTable(Model model) {
+        // Automatically create table when insert data
     }
 }

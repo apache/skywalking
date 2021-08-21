@@ -243,7 +243,7 @@ storage:
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
   iotdb:
-    host: ${SW_STORAGE_IOTDB_HOST:localhost}
+    host: ${SW_STORAGE_IOTDB_HOST:127.0.0.1}
     rpcPort: ${SW_STORAGE_IOTDB_RPCPORT:6667}
     username: ${SW_STORAGE_IOTDB_USERNAME:root}
     password: ${SW_STORAGE_IOTDB_PASSWORD:root}

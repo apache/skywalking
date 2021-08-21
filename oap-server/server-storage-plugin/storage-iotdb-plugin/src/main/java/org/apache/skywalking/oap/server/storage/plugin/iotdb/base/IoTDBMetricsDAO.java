@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -29,13 +32,8 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
 public class IoTDBMetricsDAO implements IMetricsDAO {
-
     private final IoTDBClient client;
     private final StorageHashMapBuilder<Metrics> storageBuilder;
 
@@ -47,16 +45,18 @@ public class IoTDBMetricsDAO implements IMetricsDAO {
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(model.getName()).append(" where ");
-        for (int i = 0; i < metrics.size(); i++) {
-            query.append(i > 0 ? " or " : "").append("_id = '").append(metrics.get(i).id()).append("'");
+        query.append("select * from ");
+        for (Metrics metric : metrics) {
+            query.append(", ");
+            query.append(client.getStorageGroup()).append(IoTDBClient.DOT).append(model.getName())
+                    .append(IoTDBClient.DOT).append(client.indexValue2LayerName(metric.id()));
         }
-
-        List<Metrics> metricsList = new ArrayList<>();
-        List<? super StorageData> storageDataList = client.queryForList(model.getName(), query.toString(), storageBuilder);
-        storageDataList.forEach(storageData -> metrics.add((Metrics) storageData));
-        return metricsList;
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+        String queryString = query.toString().replaceFirst(", ", "");
+        List<? super StorageData> storageDataList = client.filterQuery(model.getName(), queryString, storageBuilder);
+        List<Metrics> newMetrics = new ArrayList<>(storageDataList.size());
+        storageDataList.forEach(storageData -> newMetrics.add((Metrics) storageData));
+        return newMetrics;
     }
 
     @Override

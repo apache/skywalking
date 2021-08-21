@@ -18,20 +18,25 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
-import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
-import org.apache.skywalking.oap.server.core.query.type.Alarms;
-import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
-import org.elasticsearch.common.Strings;
-
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
+import org.apache.skywalking.oap.server.core.query.type.Alarms;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 public class IoTDBAlarmQueryDAO implements IAlarmQueryDAO {
     private final IoTDBClient client;
+    private final StorageHashMapBuilder<AlarmRecord> storageBuilder = new AlarmRecord.Builder();
 
     public IoTDBAlarmQueryDAO(IoTDBClient client) {
         this.client = client;
@@ -40,28 +45,57 @@ public class IoTDBAlarmQueryDAO implements IAlarmQueryDAO {
     @Override
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB, long endTB, List<Tag> tags) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select top_k(").append(AlarmRecord.START_TIME).append(", 'k'='")
-                .append(limit + from).append("') from ")
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(AlarmRecord.INDEX_NAME);
-
-        query.append("select *, ");
-        if (!Strings.isNullOrEmpty(keyword)) {
-            query.append(", string_contains(").append(AlarmRecord.ALARM_MESSAGE).append(", 's'='").append(keyword).append("')");
-        }
-        query.append(" from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(AlarmRecord.INDEX_NAME)
-                .append(" where 1=1 ");
+        // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
+        // https://github.com/apache/iotdb/discussions/3888
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(AlarmRecord.INDEX_NAME);
+        query = client.addQueryAsterisk(AlarmRecord.INDEX_NAME, query);
+        query.append(" where 1=1");
         if (Objects.nonNull(scopeId)) {
-            query.append(" and ").append(AlarmRecord.SCOPE).append(" = '").append(scopeId).append("'");
+            query.append(" and ").append(AlarmRecord.SCOPE).append(" = ").append(scopeId);
         }
         if (startTB != 0 && endTB != 0) {
-            query.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" >= ").append(startTB);
-            query.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" <= ").append(endTB);
+            query.append(" and ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB));
+            query.append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
         }
-
+        if (!Strings.isNullOrEmpty(keyword)) {
+            query.append(" and ").append(AlarmRecord.ALARM_MESSAGE).append(" like '%").append(keyword).append("%'");
+        }
         if (CollectionUtils.isNotEmpty(tags)) {
-            //TODO How to deal with tags
+            for (final Tag tag : tags) {
+                query.append(" and ").append(tag.getKey()).append(" = \"").append(tag.getValue()).append("\"");
+            }
         }
+        // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
+        String queryString = query.toString().replace("1=1 and ", "");
+        queryString = queryString + IoTDBClient.ALIGN_BY_DEVICE;
 
-        return null;
+        Alarms alarms = new Alarms();
+        List<? super StorageData> storageDataList = client.filterQuery(AlarmRecord.INDEX_NAME, queryString, storageBuilder);
+        int limitCount = 0;
+        for (int i = 0; i < storageDataList.size(); i++) {
+            if (i >= from && limitCount < limit) {
+                limitCount++;
+                AlarmRecord alarmRecord = (AlarmRecord) storageDataList.get(i);
+                alarms.getMsgs().add(parseMessage(alarmRecord));
+            }
+        }
+        alarms.setTotal(storageDataList.size());
+        // resort by self, because of the select query result order by time.
+        alarms.getMsgs().sort((AlarmMessage m1, AlarmMessage m2) -> Long.compare(m2.getStartTime(), m1.getStartTime()));
+        return alarms;
+    }
+
+    private AlarmMessage parseMessage(AlarmRecord alarmRecord) {
+        AlarmMessage message = new AlarmMessage();
+        message.setId(alarmRecord.getId0());
+        message.setId1(alarmRecord.getId1());
+        message.setMessage(alarmRecord.getAlarmMessage());
+        message.setStartTime(alarmRecord.getStartTime());
+        message.setScope(Scope.Finder.valueOf(alarmRecord.getScope()));
+        message.setScopeId(alarmRecord.getScope());
+        if (!CollectionUtils.isEmpty(alarmRecord.getTagsRawData())) {
+            parserDataBinary(alarmRecord.getTagsRawData(), message.getTags());
+        }
+        return message;
     }
 }

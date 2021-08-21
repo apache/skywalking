@@ -18,21 +18,22 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.profile;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class IoTDBProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
     private final IoTDBClient client;
+    private final StorageHashMapBuilder<ProfileTaskLogRecord> storageBuilder = new ProfileTaskLogRecord.Builder();
     private final int fetchTaskLogMaxSize;
 
     public IoTDBProfileTaskLogQueryDAO(IoTDBClient client, int fetchTaskLogMaxSize) {
@@ -43,29 +44,18 @@ public class IoTDBProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
     @Override
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select top_k(").append(ProfileTaskLogRecord.OPERATION_TIME).append(", 'k'='")
-                .append(fetchTaskLogMaxSize).append("') from ")
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileTaskLogRecord.INDEX_NAME);
-        final List<Long> operationTimeList = client.queryWithSelect(ProfileTaskLogRecord.INDEX_NAME, query.toString());
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileTaskLogRecord.INDEX_NAME);
+        query = client.addQueryAsterisk(ProfileTaskLogRecord.INDEX_NAME, query);
+        query.append(" limit ").append(fetchTaskLogMaxSize).append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileTaskLogRecord.INDEX_NAME)
-                .append(" where ").append(ProfileTaskLogRecord.OPERATION_TIME).append(" in (");
-        for (int i = 0; i < operationTimeList.size(); i++) {
-            if (i == 0) {
-                query.append(operationTimeList.get(i));
-            } else {
-                query.append(", ").append(operationTimeList.get(i));
-            }
-        }
-        query.append(")");
-        List<? super StorageData> storageDataList = client.queryForList(ProfileTaskLogRecord.INDEX_NAME,
-                query.toString(), new ProfileTaskLogRecord.Builder());
-        final List<ProfileTaskLog> profileTaskLogList = new ArrayList<>(storageDataList.size());
-        storageDataList.forEach(storageData -> profileTaskLogList.add(parseLog((ProfileTaskLogRecord) storageData)));
-
+        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskLogRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<ProfileTaskLogRecord> profileTaskLogRecordList = new ArrayList<>(storageDataList.size());
+        storageDataList.forEach(storageData -> profileTaskLogRecordList.add((ProfileTaskLogRecord) storageData));
         // resort by self, because of the select query result order by time.
-        profileTaskLogList.sort((a, b) -> Long.compare(b.getOperationTime(), a.getOperationTime()));
+        profileTaskLogRecordList.sort((ProfileTaskLogRecord r1, ProfileTaskLogRecord r2) -> Long.compare(r2.getOperationTime(), r1.getOperationTime()));
+
+        List<ProfileTaskLog> profileTaskLogList = new ArrayList<>(profileTaskLogRecordList.size());
+        profileTaskLogRecordList.forEach(profileTaskLogRecord -> profileTaskLogList.add(parseLog(profileTaskLogRecord)));
         return profileTaskLogList;
     }
 

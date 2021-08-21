@@ -18,27 +18,28 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.pool.SessionDataSetWrapper;
 import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+@Slf4j
 public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
     private final IoTDBClient client;
 
@@ -49,30 +50,38 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB, long endTB,
                                                                           List<String> serviceIds) throws IOException {
-        return loadServiceCalls(ServiceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
-                ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
+        return loadServiceCalls(
+                ServiceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+                ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+                ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
                 serviceIds, DetectPoint.SERVER);
     }
 
     @Override
     public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(long startTB, long endTB,
                                                                          List<String> serviceIds) throws IOException {
-        return loadServiceCalls(ServiceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
-                ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID, ServiceRelationClientSideMetrics.DEST_SERVICE_ID,
+        return loadServiceCalls(
+                ServiceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
+                ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
+                ServiceRelationClientSideMetrics.DEST_SERVICE_ID,
                 serviceIds, DetectPoint.CLIENT);
     }
 
     @Override
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB, long endTB) throws IOException {
-        return loadServiceCalls(ServiceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
-                ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
+        return loadServiceCalls(
+                ServiceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+                ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+                ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
                 new ArrayList<>(0), DetectPoint.SERVER);
     }
 
     @Override
     public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(long startTB, long endTB) throws IOException {
-        return loadServiceCalls(ServiceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
-                ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID, ServiceRelationClientSideMetrics.DEST_SERVICE_ID,
+        return loadServiceCalls(
+                ServiceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
+                ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
+                ServiceRelationClientSideMetrics.DEST_SERVICE_ID,
                 new ArrayList<>(0), DetectPoint.CLIENT);
     }
 
@@ -80,8 +89,10 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId,
                                                                           String serverServiceId,
                                                                           long startTB, long endTB) throws IOException {
-        return loadServiceInstanceCalls(ServiceInstanceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
-                ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID,
+        return loadServiceInstanceCalls(
+                ServiceInstanceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+                ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+                ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID,
                 clientServiceId, serverServiceId, DetectPoint.SERVER);
     }
 
@@ -89,139 +100,163 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId,
                                                                           String serverServiceId,
                                                                           long startTB, long endTB) throws IOException {
-        return loadServiceInstanceCalls(ServiceInstanceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
-                ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID, ServiceInstanceRelationClientSideMetrics.DEST_SERVICE_ID,
+        return loadServiceInstanceCalls(
+                ServiceInstanceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
+                ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID,
+                ServiceInstanceRelationClientSideMetrics.DEST_SERVICE_ID,
                 clientServiceId, serverServiceId, DetectPoint.CLIENT);
     }
 
     @Override
     public List<Call.CallDetail> loadEndpointRelation(long startTB, long endTB, String destEndpointId) throws IOException {
-        List<Call.CallDetail> calls = loadEndpointFromSide(EndpointRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
-                EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, EndpointRelationServerSideMetrics.DEST_ENDPOINT,
+        List<Call.CallDetail> calls = loadEndpointFromSide(
+                EndpointRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+                EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
+                EndpointRelationServerSideMetrics.DEST_ENDPOINT,
                 destEndpointId, false);
-        calls.addAll(loadEndpointFromSide(EndpointRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
-                EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, EndpointRelationServerSideMetrics.DEST_ENDPOINT,
+        calls.addAll(loadEndpointFromSide(
+                EndpointRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+                EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
+                EndpointRelationServerSideMetrics.DEST_ENDPOINT,
                 destEndpointId, true));
         return calls;
     }
 
     private List<Call.CallDetail> loadServiceCalls(String tableName, long startTB, long endTB,
-                                                   String sourceCName, String destName,
+                                                   String sourceCName, String destCName,
                                                    List<String> serviceIds, DetectPoint detectPoint) throws IOException {
-        //TODO adopt entity_id index, and use "group by level"
+        // This method don't use "group by" like other storage plugin.
         StringBuilder query = new StringBuilder();
-        query.append("select ").append(Metrics.ENTITY_ID).append(", ").append(ServiceRelationServerSideMetrics.COMPONENT_ID)
+        query.append("select ").append(ServiceRelationServerSideMetrics.COMPONENT_ID)
                 .append(" from ")
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(tableName)
-                .append(" where ")
-                .append(Metrics.TIME_BUCKET).append(" >= ").append(startTB).append(" and ")
-                .append(Metrics.TIME_BUCKET).append(" <= ").append(endTB);
+                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(tableName);
+        query = client.addQueryAsterisk(tableName, query);
+        query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB))
+                .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
         if (serviceIds.size() > 0) {
-            query.append("and (");
+            query.append(" and (");
             for (int i = 0; i < serviceIds.size(); i++) {
-                query.append(sourceCName).append(" = '").append(serviceIds.get(i))
-                        .append("' or ")
-                        .append(destName).append(" = '").append(serviceIds.get(i)).append("'");
+                query.append(sourceCName).append(" = \"").append(serviceIds.get(i))
+                        .append("\" or ")
+                        .append(destCName).append(" = \"").append(serviceIds.get(i)).append("\"");
                 if (i != serviceIds.size() - 1) {
                     query.append(" or ");
                 }
             }
             query.append(")");
         }
-        SessionPool sessionPool = client.getSessionPool();
-        SessionDataSetWrapper wrapper = null;
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
         List<Call.CallDetail> calls = new ArrayList<>();
         try {
-            if (sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + tableName)) {
+            SessionPool sessionPool = client.getSessionPool();
+            if (!sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + tableName)) {
                 return calls;
             }
-            wrapper = sessionPool.executeQueryStatement(query.toString());
+            SessionDataSetWrapper wrapper = sessionPool.executeQueryStatement(query.toString());
+            if (log.isDebugEnabled()) {
+                log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
+            }
+
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 Call.CallDetail call = new Call.CallDetail();
-                String entityId = fields.get(1).getStringValue();
-                final int componentId = fields.get(2).getIntV();
+                String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
+                String entityId = client.layerName2IndexValue(layerNames[2]);
+                final int componentId = fields.get(1).getIntV();
                 call.buildFromServiceRelation(entityId, componentId, detectPoint);
                 calls.add(call);
             }
+            sessionPool.closeResultSet(wrapper);
+            return calls;
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
-        } finally {
-            sessionPool.closeResultSet(wrapper);
         }
-        return calls;
     }
 
     private List<Call.CallDetail> loadServiceInstanceCalls(String tableName, long startTB, long endTB,
                                                            String sourceCName, String descCName,
                                                            String sourceServiceId, String destServiceId,
                                                            DetectPoint detectPoint) throws IOException {
-        //TODO adopt entity_id index, and use "group by level"
+        // This method don't use "group by" like other storage plugin.
         StringBuilder query = new StringBuilder();
-        query.append(String.format("select %s, %s", Metrics.ENTITY_ID, ServiceInstanceRelationServerSideMetrics.COMPONENT_ID))
-                .append(" from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(tableName)
-                .append(" where ").append(String.format("%s >= %d and %s <= %d", Metrics.TIME_BUCKET, startTB, Metrics.TIME_BUCKET, endTB))
-                .append(" and (").append(String.format("(%s = '%s' and %s = '%s')", sourceCName, sourceServiceId, descCName, destServiceId))
-                .append(" or ").append(String.format("(%s = '%s' and %s = '%s')", sourceCName, destServiceId, descCName, sourceServiceId))
-                .append(")");
+        query.append("select ").append(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID).append(" from ")
+                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(tableName);
+        query = client.addQueryAsterisk(tableName, query);
+        query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB))
+                .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
+        query.append(" and ((").append(sourceCName).append(" = \"").append(sourceServiceId).append("\"")
+                .append(" and ").append(descCName).append(" = \"").append(destServiceId).append("\"")
+                .append(") or (").append(sourceCName).append(" = \"").append(destServiceId).append("\"")
+                .append(" and ").append(descCName).append(" = \"").append(sourceServiceId).append(" \"))")
+                .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         SessionPool sessionPool = client.getSessionPool();
-        SessionDataSetWrapper wrapper = null;
+        SessionDataSetWrapper wrapper;
         List<Call.CallDetail> calls = new ArrayList<>();
         try {
-            if (sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + tableName)) {
+            if (!sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + tableName)) {
                 return calls;
             }
             wrapper = sessionPool.executeQueryStatement(query.toString());
+            if (log.isDebugEnabled()) {
+                log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
+            }
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 Call.CallDetail call = new Call.CallDetail();
-                String entityId = fields.get(1).getStringValue();
-                final int componentId = fields.get(2).getIntV();
+                String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
+                String entityId = client.layerName2IndexValue(layerNames[2]);
+                final int componentId = fields.get(1).getIntV();
                 call.buildFromInstanceRelation(entityId, componentId, detectPoint);
                 calls.add(call);
             }
+            sessionPool.closeResultSet(wrapper);
             return calls;
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
-        } finally {
-            sessionPool.closeResultSet(wrapper);
         }
     }
 
     private List<Call.CallDetail> loadEndpointFromSide(String tableName, long startTB, long endTB,
                                                        String sourceCName, String destCName,
                                                        String id, boolean isSourceId) throws IOException {
-        //TODO adopt entity_id index, and use "group by level"
+        // This method don't use "group by" like other storage plugin.
         StringBuilder query = new StringBuilder();
-        query.append("select ").append(Metrics.ENTITY_ID).append(" from ")
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(tableName).append(" where ")
-                .append(String.format("%s >= %d and %s <= %d", Metrics.TIME_BUCKET, startTB, Metrics.TIME_BUCKET, endTB))
-                .append(" and ").append(isSourceId ? sourceCName : destCName).append(" = '").append(id).append("'");
+        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(tableName);
+        query = client.addQueryAsterisk(tableName, query);
+        query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB))
+                .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
+        query.append(" and ").append(isSourceId ? sourceCName : destCName).append(" = \"").append(id).append("\"")
+                .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         SessionPool sessionPool = client.getSessionPool();
-        SessionDataSetWrapper wrapper = null;
+        SessionDataSetWrapper wrapper;
         List<Call.CallDetail> calls = new ArrayList<>();
         try {
-            if (sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + tableName)) {
+            if (!sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + tableName)) {
                 return calls;
             }
             wrapper = sessionPool.executeQueryStatement(query.toString());
+            if (log.isDebugEnabled()) {
+                log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
+            }
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 Call.CallDetail call = new Call.CallDetail();
-                String entityId = fields.get(1).getStringValue();
+                String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
+                String entityId = client.layerName2IndexValue(layerNames[2]);
+                // TODO check DetectPoint
                 call.buildFromEndpointRelation(entityId, DetectPoint.SERVER);
                 calls.add(call);
             }
+            sessionPool.closeResultSet(wrapper);
             return calls;
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
-        } finally {
-            sessionPool.closeResultSet(wrapper);
         }
     }
 }
