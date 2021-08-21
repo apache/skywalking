@@ -14,11 +14,28 @@
 # limitations under the License.
 
 traces:
-  - key: not null
-    endpointNames:
-      - /users
-    duration: ge 0
-    start: gt 0
-    isError: false
-    traceIds:
-      - not null
+  {{- range .traces }}
+- segmentid: {{ notEmpty .segmentid }}
+  endpointnames:
+  {{- if eq (index .endpointnames 0) "H2/JDBI/Statement/execute" }}
+  - H2/JDBI/Statement/execute
+  {{- end}}
+  {{- if eq (index .endpointnames 0) "H2/JDBI/Statement/executeQuery" }}
+  - H2/JDBI/Statement/executeQuery
+  {{- end}}
+  {{- if eq (index .endpointnames 0) "H2/JDBI/PreparedStatement/executeQuery" }}
+  - H2/JDBI/PreparedStatement/executeQuery
+  {{- end }}
+  {{- if eq (index .endpointnames 0) "/info" }}
+  - /info
+  {{- end }}
+  {{- if eq (index .endpointnames 0) "/users" }}
+  - /users
+  {{- end }}
+  duration: {{ ge .duration 0 }}
+  start: "{{ notEmpty .start}}"
+  iserror: false
+  traceids:
+    - {{ (index .traceids 0) }}
+  {{- end }}
+total: {{ gt .total 0 }}

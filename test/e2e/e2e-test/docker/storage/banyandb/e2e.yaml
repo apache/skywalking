@@ -39,7 +39,7 @@ verify:
   cases:
     # native tracing: trace segment list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
-      expected: expected/traces.yml
+      expected: expected/traces-list.yml
     # native tracing: trace detail
-    # - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls|grep -A 5 '/info'|tail -n1|awk -F ' ' '{print $2}')
-    #   expected: expected/trace-info-detail.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls|grep -A 5 '/info'|tail -n1|awk -F ' ' '{print $2}')
+      expected: expected/trace-info-detail.yml

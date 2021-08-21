@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import lombok.Getter;
 
 import java.util.LinkedHashSet;
@@ -29,6 +30,9 @@ public class BanyanDBSchema {
     public static final String NAME = "sw";
     public static final String GROUP = "default";
     public static final List<String> FIELD_NAMES;
+
+    public static final Set<String> INDEX_FIELDS = ImmutableSet.of("http.method", "status_code", "db.type",
+            "db.instance", "mq.queue", "mq.topic", "mq.broker");
 
     static {
         Set<String> fields = new LinkedHashSet<>();

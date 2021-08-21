@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
 import org.joda.time.DateTimeZone;
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
 public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> implements ITraceQueryDAO {
     private static final DateTimeFormatter YYYYMMDDHHMMSS = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
-    private static final List<String> BASIC_QUERY_PROJ = ImmutableList.of("duration", "state", "start_time", "trace_id", "endpoint_id");
+    private static final List<String> BASIC_QUERY_PROJ = ImmutableList.of("trace_id", "state", "endpoint_id", "duration", "start_time");
     private static final List<String> TRACE_ID_QUERY_PROJ;
 
     static {
@@ -110,6 +111,14 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
             case BY_DURATION:
                 query.setOrderBy(new TraceQuery.OrderBy("duration", TraceQuery.OrderBy.Type.DESC));
                 break;
+        }
+
+        if (CollectionUtils.isNotEmpty(tags)) {
+            for (final Tag tag : tags) {
+                if (BanyanDBSchema.INDEX_FIELDS.contains(tag.getKey())) {
+                    query.appendCondition(PairQueryCondition.StringQueryCondition.eq(tag.getKey(), tag.getValue()));
+                }
+            }
         }
 
         query.setLimit(limit);
