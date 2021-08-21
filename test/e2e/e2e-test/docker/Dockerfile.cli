@@ -21,6 +21,7 @@ ARG CLI_CODE_URL=https://github.com/apache/skywalking-cli/archive/${CLI_CODE}
 
 ENV CGO_ENABLED=0
 ENV GO111MODULE=on
+ENV VERSION=latest
 
 WORKDIR /cli
 
