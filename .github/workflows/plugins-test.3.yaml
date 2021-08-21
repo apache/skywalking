@@ -104,14 +104,14 @@ jobs:
       - name: Add checkstyle-plugin
         run: sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/oracle-scenario<\/sourceDirectory>' test/plugin/pom.xml
       - name: Build SkyWalking Agent
-        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
+        run: ./mvnw -q --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
+        run: ./mvnw -q --batch-mode -f test/plugin/pom.xml clean package -DskipTests
       - name: Oracle 10.2.0.4.0 (1)
         run: |
           curl -O https://skyapm.github.io/ci-assist/jars/ojdbc14-10.2.0.4.0.jar
           curl -L -o ./skywalking-agent/plugins/apm-oracle-10.x-plugin-2.0.0.jar https://github.com/SkyAPM/java-plugin-extensions/releases/download/2.0.0/apm-oracle-10.x-plugin-2.0.0.jar
-          ./mvnw --batch-mode install:install-file -Dfile=ojdbc14-10.2.0.4.0.jar -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.4.0 -Dpackaging=jar
+          ./mvnw -q --batch-mode install:install-file -Dfile=ojdbc14-10.2.0.4.0.jar -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.4.0 -Dpackaging=jar
           bash test/plugin/run.sh oracle-scenario
       - name: Report Coverage
         run: bash -x tools/coverage/report.sh
