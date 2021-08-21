@@ -36,6 +36,8 @@ import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,6 +46,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> implements ITraceQueryDAO {
+    private static final DateTimeFormatter YYYYMMDDHHMMSS = DateTimeFormat.forPattern("yyyyMMddHHmmss");
+
     private static final List<String> BASIC_QUERY_PROJ = ImmutableList.of("duration", "state", "start_time", "trace_id", "endpoint_id");
     private static final List<String> TRACE_ID_QUERY_PROJ;
 
@@ -61,7 +65,7 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
         TraceQuery query;
         if (startSecondTB != 0 && endSecondTB != 0) {
-            query = new TraceQuery(BanyanDBSchema.NAME, new TimestampRange(startSecondTB * 1000, endSecondTB * 1000), BASIC_QUERY_PROJ);
+            query = new TraceQuery(BanyanDBSchema.NAME, new TimestampRange(parseMilliSecondsFromTimeBucket(startSecondTB), parseMilliSecondsFromTimeBucket(endSecondTB)), BASIC_QUERY_PROJ);
         } else {
             query = new TraceQuery(BanyanDBSchema.NAME, BASIC_QUERY_PROJ);
         }
@@ -152,5 +156,9 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
         return Collections.emptyList();
+    }
+
+    static long parseMilliSecondsFromTimeBucket(long secondTB) {
+        return YYYYMMDDHHMMSS.parseMillis(String.valueOf(secondTB));
     }
 }
