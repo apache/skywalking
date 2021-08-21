@@ -1,0 +1,33 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+name: "Setup Apache/Skywalking-Cli"
+description: "Action to install swctl binary in Github Actions environment for E2E tests"
+inputs:
+  commit-hash:
+    description: 'Which commit to be build'
+    required: true
+    default: 'ae085deb32434a0859e49c45819fed7a5c4010b5'
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        docker build --build-arg COMMIT_HASH=${{ inputs.commit-hash }} -f ./test/e2e/e2e-test/docker/Dockerfile.cli -t swctl:latest .
+        docker run -v $(pwd):/tmp -w /tmp --entrypoint=sh swctl:latest -c "cp /swctl /tmp/swctl"
+        install ./swctl /usr/local/bin
