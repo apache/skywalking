@@ -49,7 +49,7 @@ SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis
 for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
 
 # Documentation
-- [Official documentation](https://skywalking.apache.org/docs/)
+- [Official documentation](https://skywalking.apache.org/docs/#SkyWalking)
 - [The paper of STAM](https://wu-sheng.github.io/STAM/), Streaming Topology Analysis Method.
 - [Blog](https://skywalking.apache.org/blog/2020-04-13-apache-skywalking-profiling/) about Use Profiling to Fix the Blind Spot of Distributed Tracing
 - [Blog](https://skywalking.apache.org/blog/2020-12-03-obs-service-mesh-with-sw-and-als/) about observing Istio + Envoy service mesh with ALS solution.
