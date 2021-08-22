@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   banyandb:
-    image: ghcr.io/apache/skywalking-banyandb:3a99667e04b66f4a03c3b7f6b8b1f0bfa998a191
+    image: ghcr.io/apache/skywalking-banyandb:2a2c05bbd8e6a18400009fe0d25b096f3f5efc63
     command: ["standalone", "--tls=false"]
     expose:
       - 17912
