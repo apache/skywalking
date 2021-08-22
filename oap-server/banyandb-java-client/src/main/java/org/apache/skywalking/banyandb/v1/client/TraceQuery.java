@@ -59,6 +59,10 @@ public class TraceQuery {
      * One order condition is supported and optional.
      */
     private OrderBy orderBy;
+    /**
+     * Whether to fetch data_binary for the query
+     */
+    private boolean dataBinary;
 
     public TraceQuery(final String name, final TimestampRange timestampRange, final List<String> projections) {
         this.name = name;
@@ -67,6 +71,7 @@ public class TraceQuery {
         this.conditions = new ArrayList<>(10);
         this.offset = 0;
         this.limit = 20;
+        this.dataBinary = false;
     }
 
     public TraceQuery(final String name, final List<String> projections) {
@@ -96,7 +101,7 @@ public class TraceQuery {
         if (timestampRange != null) {
             builder.setTimeRange(timestampRange.build());
         }
-        builder.setProjection(Banyandb.Projection.newBuilder().addAllKeyNames(projections).build());
+        builder.setProjection(Banyandb.Projection.newBuilder().setDataBinary(this.dataBinary).addAllKeyNames(projections).build());
         conditions.forEach(pairQueryCondition -> builder.addFields(pairQueryCondition.build()));
         builder.setOffset(offset);
         builder.setLimit(limit);

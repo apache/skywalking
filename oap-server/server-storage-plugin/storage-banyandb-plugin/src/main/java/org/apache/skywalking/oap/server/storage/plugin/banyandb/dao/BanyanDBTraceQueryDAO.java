@@ -140,6 +140,7 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         TraceQuery query = new TraceQuery(BanyanDBSchema.NAME, TRACE_ID_QUERY_PROJ);
         query.appendCondition(PairQueryCondition.StringQueryCondition.eq("trace_id", traceId));
+        query.setDataBinary(true);
         TraceQueryResponse response = this.getClient().query(query);
         return response.getEntities().stream().map(entity -> {
             SegmentRecord record = new SegmentRecord();

@@ -96,8 +96,10 @@ message QueryOrder {
 
 // Projection is used to select the names of keys to be returned.
 message Projection {
+  // whether binary part is needed
+  bool data_binary = 1;
   // The key_name refers to the key(s) of Pair(s).
-  repeated string key_names = 1;
+  repeated string key_names = 2;
 }
 
 // TimeRange is a range query for uint64,
