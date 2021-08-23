@@ -17,13 +17,12 @@
 name: CI AND IT
 
 on:
+  push:
+    branches:
+      - test/ci/*
   pull_request:
   schedule:
     - cron: '0 18 * * *'  # TimeZone: UTC 0
-
-env:
-  MAVEN_OPTS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit
-  CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
 
 concurrency:
   group: ci-it-${{ github.event.pull_request.number || github.ref }}
@@ -32,8 +31,18 @@ concurrency:
 jobs:
   CI:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
+    runs-on: ${{ matrix.os }}-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ ubuntu, macos, windows ]
+        jdk: [ 8, 11 ]
+        profile: [ agent, backend, ui ]
+        include:
+          - os: ubuntu
+            jdk: 8
+            profile: 'IT'
     steps:
       - uses: actions/checkout@v2
         with:
@@ -41,10 +50,8 @@ jobs:
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
       - name: Check License Header
-        if: env.SKIP_CI != 'true'
-        uses: apache/skywalking-eyes@9bd5feb86b5817aa6072b008f9866a2c3bbc8587
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: env.SKIP_CI != 'true' && matrix.os == 'ubuntu'
+        uses: apache/skywalking-eyes@13c159dded1b55cd70abfff39a7b4a983bd64801
       - name: Cache local Maven repository
         if: env.SKIP_CI != 'true'
         uses: actions/cache@v2
@@ -56,93 +63,22 @@ jobs:
       - uses: actions/setup-java@v1
         if: env.SKIP_CI != 'true'
         with:
-          java-version: 8
-      - name: 'Check Javaagent Plugin List'
-        if: env.SKIP_CI != 'true'
+          java-version: ${{ matrix.jdk }}
+      - name: Check Javaagent Plugin List
+        if: env.SKIP_CI != 'true' && matrix.os == 'ubuntu'
         run: tools/plugin/check-javaagent-plugin-list.sh
-      - name: 'Install & Test'
-        if: env.SKIP_CI != 'true'
+      - name: Integration Test
+        if: env.SKIP_CI != 'true' && matrix.profile == 'IT'
         run: |
-          ./mvnw -q --batch-mode -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
-          bash <(curl -s https://codecov.io/bash)
-      - name: 'Check Dependencies Licenses'
-        if: env.SKIP_CI != 'true'
-        run: tools/dependencies/check-LICENSE.sh
-
-  CI-on-JDK11:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-      - name: Check License Header
-        if: env.SKIP_CI != 'true'
-        uses: apache/skywalking-eyes@9bd5feb86b5817aa6072b008f9866a2c3bbc8587
-      - name: Cache local Maven repository
-        if: env.SKIP_CI != 'true'
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v1
-        if: env.SKIP_CI != 'true'
-        with:
-          java-version: 11
-      - name: 'Install & Test'
-        if: env.SKIP_CI != 'true'
-        run: ./mvnw -q --batch-mode -P"agent,backend,ui,dist" clean verify install
-
-  CI-on-Windows:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    runs-on: windows-latest
-    timeout-minutes: 90
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-      - uses: actions/setup-java@v1
-        if: env.SKIP_CI != 'true'
-        with:
-          java-version: 8
-      - name: 'Install & Test'
-        if: env.SKIP_CI != 'true'
+          ./mvnw -q --batch-mode -P"${{ matrix.profile }}" clean verify install -DskipTests || \
+          ./mvnw -q --batch-mode -P"${{ matrix.profile }}" clean verify install -DskipTests
+      - name: Install & Test
+        if: env.SKIP_CI != 'true' && matrix.profile != 'IT' && matrix.jdk == '8'
         run: |
-          ./mvnw -q --batch-mode -P"agent,backend,ui,dist" clean verify install
-
-
-  CI-on-MacOS:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    runs-on: macos-latest
-    timeout-minutes: 90
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-      - name: Cache local Maven repository
-        if: env.SKIP_CI != 'true'
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v1
-        if: env.SKIP_CI != 'true'
-        with:
-          java-version: 8
-      - name: 'Install & Test'
-        if: env.SKIP_CI != 'true'
+          ./mvnw -q --batch-mode -P"${{ matrix.profile }}" clean verify install javadoc:javadoc || \
+          ./mvnw -q --batch-mode -P"${{ matrix.profile }}" clean verify install javadoc:javadoc
+      - name: Install & Test
+        if: env.SKIP_CI != 'true' && matrix.profile != 'IT' && matrix.jdk != '8'
         run: |
-          # Given packaging on Mac has a high possibility to fail, we retry one more time here
-          ./mvnw -q --batch-mode -P"agent,backend,ui,dist" clean verify install || \
-          ./mvnw -q --batch-mode -P"agent,backend,ui,dist" clean verify install
+          ./mvnw -q --batch-mode -P"CI-with-IT" clean verify install || \
+          ./mvnw -q --batch-mode -P"CI-with-IT" clean verify install
