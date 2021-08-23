@@ -27,7 +27,7 @@ public class KafkaReporterPluginConfig {
         @PluginConfig(root = KafkaReporterPluginConfig.class)
         public static class Kafka {
             /**
-             * <B>bootstrap.servers</B>: A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
+             * <B>bootstrap_servers</B>: A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
              * This list should be in the form host1:port1,host2:port2,...
              */
             public static String BOOTSTRAP_SERVERS = "localhost:9092";
@@ -44,7 +44,18 @@ public class KafkaReporterPluginConfig {
 
             public static String NAMESPACE = "";
 
+            /**
+             * <B>producer_config</B>: the configuration of Kafka Producer. The format is:
+             * <code>plugin.kafka.producer_config[key] = value</code>
+             */
             public static Map<String, String> PRODUCER_CONFIG = new HashMap<>();
+
+            /**
+             * Configure Kafka Producer configuration in JSON format. Notice it will be overridden by
+             * `plugin.kafka.producer_config[key]`, if the key duplication. For example:
+             * <code>plugin.kafka.producer_config_json = {"batch.size":32768}</code>
+             */
+            public static String PRODUCER_CONFIG_JSON = "";
 
             /**
              * Timeout period of reading topics from the Kafka server, the unit is second.
