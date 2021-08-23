@@ -25,15 +25,14 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The default implementor of Config Watcher register.
  */
+@Slf4j
 public abstract class ConfigWatcherRegister implements DynamicConfigurationService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigWatcherRegister.class);
     public static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
     private Register singleConfigChangeWatcherRegister = new Register();
     @Getter
@@ -77,13 +76,13 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
     public void start() {
         isStarted = true;
 
-        LOGGER.info("Current configurations after the bootstrap sync." + LINE_SEPARATOR + singleConfigChangeWatcherRegister.toString());
+        log.info("Current configurations after the bootstrap sync." + LINE_SEPARATOR + singleConfigChangeWatcherRegister.toString());
 
         Executors.newSingleThreadScheduledExecutor()
                  .scheduleAtFixedRate(
                      new RunnableWithExceptionProtection(
                          this::configSync,
-                         t -> LOGGER.error("Sync config center error.", t)
+                         t -> log.error("Sync config center error.", t)
                      ), 0, syncPeriod, TimeUnit.SECONDS);
     }
 
@@ -101,7 +100,7 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
                 String itemName = item.getName();
                 WatcherHolder holder = singleConfigChangeWatcherRegister.get(itemName);
                 if (holder == null) {
-                    LOGGER.warn(
+                    log.warn(
                         "Config {} from configuration center, doesn't match any WatchType.SINGLE watcher, ignore.",
                         itemName
                     );
@@ -128,8 +127,8 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
                     }
                 }
             });
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace(
+            if (log.isTraceEnabled()) {
+                log.trace(
                     "Current configurations after the sync." + LINE_SEPARATOR + singleConfigChangeWatcherRegister.toString());
             }
         });
@@ -144,7 +143,7 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
                 WatcherHolder holder = groupConfigChangeWatcherRegister.get(groupConfigItemName);
 
                 if (holder == null) {
-                    LOGGER.warn(
+                    log.warn(
                         "Config {} from configuration center, doesn't match any WatchType.GROUP watcher, ignore.",
                         groupConfigItemName
                     );
@@ -198,8 +197,8 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
                     watcher.notifyGroup(changedGroupItems);
                 }
             });
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace(
+            if (log.isTraceEnabled()) {
+                log.trace(
                     "Current configurations after the sync." + LINE_SEPARATOR + groupConfigChangeWatcherRegister.toString());
             }
         });

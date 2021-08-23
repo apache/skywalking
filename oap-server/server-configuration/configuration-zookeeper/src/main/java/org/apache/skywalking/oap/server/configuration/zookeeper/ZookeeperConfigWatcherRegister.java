@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.configuration.zookeeper;
 
 import java.util.Optional;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -29,11 +30,9 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperConfigWatcherRegister.class);
     private final CuratorFramework client;
     private final PathChildrenCache childrenCache;
     private final String prefix;
@@ -69,13 +68,13 @@ public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
                         try {
                             data = client.getData().forPath(this.prefix + key + "/" + itemName);
                         } catch (Exception e) {
-                            LOGGER.error(e.getMessage(), e);
+                            log.error(e.getMessage(), e);
                         }
                         groupConfigItems.add(
                             new ConfigTable.ConfigItem(itemName, data == null ? null : new String(data)));
                     });
                 } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                 }
                 table.addGroupConfigItems(groupConfigItems);
         });

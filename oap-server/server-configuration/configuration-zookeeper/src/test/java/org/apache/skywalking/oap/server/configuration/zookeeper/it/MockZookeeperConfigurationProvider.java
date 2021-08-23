@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.configuration.zookeeper.it;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
@@ -28,12 +29,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class MockZookeeperConfigurationProvider extends ModuleProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MockZookeeperConfigurationProvider.class);
-
     ConfigChangeWatcher watcher;
     GroupConfigChangeWatcher groupWatcher;
 
@@ -60,7 +58,7 @@ public class MockZookeeperConfigurationProvider extends ModuleProvider {
 
             @Override
             public void notify(ConfigChangeEvent value) {
-                LOGGER.info("ConfigChangeWatcher.ConfigChangeEvent: {}", value);
+                log.info("ConfigChangeWatcher.ConfigChangeEvent: {}", value);
                 if (EventType.DELETE.equals(value.getEventType())) {
                     testValue = null;
                 } else {
@@ -79,7 +77,7 @@ public class MockZookeeperConfigurationProvider extends ModuleProvider {
 
             @Override
             public void notifyGroup(Map<String , ConfigChangeEvent> groupItems) {
-                LOGGER.info("GroupConfigChangeWatcher.ConfigChangeEvents: {}", groupItems);
+                log.info("GroupConfigChangeWatcher.ConfigChangeEvents: {}", groupItems);
                 groupItems.forEach((groupItemName , event) -> {
                     if (EventType.DELETE.equals(event.getEventType())) {
                         config.remove(groupItemName);
