@@ -34,8 +34,15 @@ public abstract class GroupConfigChangeWatcher extends ConfigChangeWatcher {
         throw new UnsupportedOperationException("Unsupported method value() in GroupConfigChangeWatcher");
     }
 
+    @Override
+    public void notify(ConfigChangeEvent value) {
+        throw new UnsupportedOperationException("Unsupported method notify() in GroupConfigChangeWatcher");
+    }
+
     /**
      * @return current groupConfigs.
      */
     public abstract Map<String, String> groupItems();
+
+    public abstract void notifyGroup(Map<String , ConfigChangeEvent> groupItems);
 }

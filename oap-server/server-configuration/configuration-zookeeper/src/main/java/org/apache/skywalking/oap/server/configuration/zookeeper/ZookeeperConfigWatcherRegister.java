@@ -26,9 +26,9 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,9 +51,18 @@ public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
     @Override
     public Optional<ConfigTable> readConfig(Set<String> keys) {
         ConfigTable table = new ConfigTable();
+        keys.forEach(s -> {
+            ChildData data = this.childrenCache.getCurrentData(this.prefix + s);
+            table.add(new ConfigTable.ConfigItem(s, data == null ? null : new String(data.getData())));
+        });
+        return Optional.of(table);
+    }
+
+    @Override
+    public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
+        GroupConfigTable table = new GroupConfigTable();
         keys.forEach(key -> {
-            if (this.getRegister().get(key).getWatcher().getWatchType() == ConfigChangeWatcher.WatchType.GROUP) {
-                ConfigTable.GroupConfigItems groupConfigItems = new ConfigTable.GroupConfigItems(key);
+            GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
                 try {
                     client.getChildren().forPath(this.prefix + key).forEach(itemName -> {
                         byte[] data = null;
@@ -69,10 +78,6 @@ public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
                     LOGGER.error(e.getMessage(), e);
                 }
                 table.addGroupConfigItems(groupConfigItems);
-            } else {
-                ChildData data = this.childrenCache.getCurrentData(this.prefix + key);
-                table.add(new ConfigTable.ConfigItem(key, data == null ? null : new String(data.getData())));
-            }
         });
         return Optional.of(table);
     }

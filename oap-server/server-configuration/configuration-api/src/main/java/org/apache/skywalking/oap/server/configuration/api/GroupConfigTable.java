@@ -20,32 +20,37 @@ package org.apache.skywalking.oap.server.configuration.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 /**
- * ConfigTable contains all WatchType.SINGLE config.
+ * ConfigTable contains all WatchType.GROUP config.
  */
 @ToString
-public class ConfigTable {
+public class GroupConfigTable {
     @Getter
-    private List<ConfigItem> items = new ArrayList<>();
+    private List<GroupConfigItems> groupItems = new ArrayList<>();
 
-    public void add(ConfigItem item) {
-        items.add(item);
+    public void addGroupConfigItems(GroupConfigItems items) {
+        groupItems.add(items);
     }
 
     @Getter
     @Setter
     @ToString
-    public static class ConfigItem {
+    public static class GroupConfigItems {
         private String name;
-        private String value;
+        private Map<String, ConfigTable.ConfigItem> items = new ConcurrentHashMap<>();
 
-        public ConfigItem(String name, String value) {
+        public GroupConfigItems(final String name) {
             this.name = name;
-            this.value = value;
+        }
+
+        public void add(ConfigTable.ConfigItem item) {
+            items.put(item.getName(), item);
         }
     }
 }

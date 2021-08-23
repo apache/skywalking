@@ -44,7 +44,7 @@ Release Notes.
 * Add a new API to test log analysis language.
 * Harden the security of Groovy-based DSL, MAL and LAL.
 * Fix distinct in Service/Instance/Endpoint query is not working.
-* Support grouped dynamic configurations in DCS.
+* Support collection type in dynamic configuration core.
 * Support zookeeper grouped dynamic configurations.
 
 #### UI

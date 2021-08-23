@@ -62,15 +62,8 @@ public abstract class ConfigChangeWatcher {
     public static class ConfigChangeEvent {
         private String newValue;
         private EventType eventType;
-        private String groupItemName;
 
         public ConfigChangeEvent(String newValue, EventType eventType) {
-            this.newValue = newValue;
-            this.eventType = eventType;
-        }
-
-        public ConfigChangeEvent(String groupItemName, String newValue, EventType eventType) {
-            this.groupItemName = groupItemName;
             this.newValue = newValue;
             this.eventType = eventType;
         }

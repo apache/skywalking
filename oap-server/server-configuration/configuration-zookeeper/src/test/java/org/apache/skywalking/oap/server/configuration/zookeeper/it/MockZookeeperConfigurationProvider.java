@@ -78,13 +78,15 @@ public class MockZookeeperConfigurationProvider extends ModuleProvider {
             private Map<String, String> config = new ConcurrentHashMap<>();
 
             @Override
-            public void notify(final ConfigChangeEvent value) {
-                LOGGER.info("ConfigChangeWatcher.ConfigChangeEvent: {}", value);
-                if (EventType.DELETE.equals(value.getEventType())) {
-                    config.remove(value.getGroupItemName());
-                } else {
-                    config.put(value.getGroupItemName(), value.getNewValue());
-                }
+            public void notifyGroup(Map<String , ConfigChangeEvent> groupItems) {
+                LOGGER.info("GroupConfigChangeWatcher.ConfigChangeEvents: {}", groupItems);
+                groupItems.forEach((groupItemName , event) -> {
+                    if (EventType.DELETE.equals(event.getEventType())) {
+                        config.remove(groupItemName);
+                    } else {
+                        config.put(groupItemName, event.getNewValue());
+                    }
+                });
             }
 
             @Override
