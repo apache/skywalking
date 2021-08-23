@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,5 +64,11 @@ public class ApolloConfigWatcherRegister extends ConfigWatcherRegister {
         }
 
         return Optional.of(configTable);
+    }
+
+    @Override
+    public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
+        // TODO: implement readGroupConfig
+        return Optional.empty();
     }
 }

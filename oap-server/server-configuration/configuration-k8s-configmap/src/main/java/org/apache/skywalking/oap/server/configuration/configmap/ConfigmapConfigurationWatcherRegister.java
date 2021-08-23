@@ -24,6 +24,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 
 @Slf4j
 public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister {
@@ -48,6 +49,12 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
             configTable.add(new ConfigTable.ConfigItem(name, value));
         }
         return Optional.of(configTable);
+    }
+
+    @Override
+    public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
+        // TODO: implement readGroupConfig
+        return Optional.empty();
     }
 
 }
