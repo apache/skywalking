@@ -1,20 +1,20 @@
 # Dynamic Configuration
-SkyWalking Configurations mostly are set through `application.yml` and OS system environment variables.
-At the same time, some of them are supporting dynamic settings from upstream management system.
+SkyWalking Configurations are mostly set through `application.yml` and OS system environment variables.
+At the same time, some of them support dynamic settings from upstream management system.
 
-Right now, SkyWalking supports following dynamic configurations.
+Currently, SkyWalking supports the following dynamic configurations.
 
 | Config Key | Value Description | Value Format Example |
 |:----:|:----:|:----:|
-|agent-analyzer.default.slowDBAccessThreshold| Thresholds of slow Database statement, override `receiver-trace/default/slowDBAccessThreshold` of `application.yml`. | default:200,mongodb:50|
-|agent-analyzer.default.uninstrumentedGateways| The uninstrumented gateways, override `gateways.yml`. | same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format) |
-|alarm.default.alarm-settings| The alarm settings, will override `alarm-settings.yml`. | same as [`alarm-settings.yml`](backend-alarm.md) |
-|core.default.apdexThreshold| The apdex threshold settings, will override `service-apdex-threshold.yml`. | same as [`service-apdex-threshold.yml`](apdex-threshold.md) |
-|core.default.endpoint-name-grouping| The endpoint name grouping setting, will override `endpoint-name-grouping.yml`. | same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md) |
-|core.default.log4j-xml| The log4j xml configuration, will override `log4j2.xml`. | same as [`log4j2.xml`](dynamical-logging.md) |
-|agent-analyzer.default.sampleRate| Trace sampling , override `receiver-trace/default/sampleRate` of `application.yml`. | 10000 |
-|agent-analyzer.default.slowTraceSegmentThreshold| Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond. override `receiver-trace/default/slowTraceSegmentThreshold` of `application.yml`. | -1 |
-|configuration-discovery.default.agentConfigurations| The ConfigurationDiscovery settings | look at [`configuration-discovery.md`](../service-agent/java-agent/configuration-discovery.md) |
+|agent-analyzer.default.slowDBAccessThreshold| Thresholds of slow Database statement. Overrides `receiver-trace/default/slowDBAccessThreshold` of `application.yml`. | default:200,mongodb:50|
+|agent-analyzer.default.uninstrumentedGateways| The uninstrumented gateways. Overrides `gateways.yml`. | Same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format). |
+|alarm.default.alarm-settings| The alarm settings. Overrides `alarm-settings.yml`. | Same as [`alarm-settings.yml`](backend-alarm.md). |
+|core.default.apdexThreshold| The apdex threshold settings. Overrides `service-apdex-threshold.yml`. | Same as [`service-apdex-threshold.yml`](apdex-threshold.md). |
+|core.default.endpoint-name-grouping| The endpoint name grouping setting. Overrides `endpoint-name-grouping.yml`. | Same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md). |
+|core.default.log4j-xml| The log4j xml configuration. Overrides `log4j2.xml`. | Same as [`log4j2.xml`](dynamical-logging.md). |
+|agent-analyzer.default.sampleRate| Trace sampling. Overrides `receiver-trace/default/sampleRate` of `application.yml`. | 10000 |
+|agent-analyzer.default.slowTraceSegmentThreshold| Setting this threshold on latency (in milliseconds) would cause slow trace segments to be sampled if they use up more time, even if the sampling mechanism is activated. The default value is `-1`, which means slow traces will not be sampled. Overrides `receiver-trace/default/slowTraceSegmentThreshold` of `application.yml`. | -1 |
+|configuration-discovery.default.agentConfigurations| The ConfigurationDiscovery settings. | See [`configuration-discovery.md`](../service-agent/java-agent/configuration-discovery.md). |
 
 This feature depends on upstream service, so it is **DISABLED** by default.
 
@@ -32,8 +32,8 @@ configuration:
 
 ## Dynamic Configuration Service, DCS
 [Dynamic Configuration Service](../../../../oap-server/server-configuration/grpc-configuration-sync/src/main/proto/configuration-service.proto) 
-is a gRPC service, which requires the upstream system implemented.
-The SkyWalking OAP fetches the configuration from the implementation(any system), after you open this implementation like this.
+is a gRPC service which requires implementation of the upstream system.
+The SkyWalking OAP fetches the configuration from the implementation (any system), after you open the implementation like this:
 
 ```yaml
 configuration:
@@ -46,7 +46,7 @@ configuration:
 ```
 
 ## Dynamic Configuration Zookeeper Implementation
-[Zookeeper](https://github.com/apache/zookeeper) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
+[Zookeeper](https://github.com/apache/zookeeper) is also supported as Dynamic Configuration Center (DCC). To use it, please configure as follows:
 
 ```yaml
 configuration:
@@ -64,7 +64,7 @@ The **nameSpace** is the ZooKeeper path. The config key and value are the proper
 
 ## Dynamic Configuration Etcd Implementation
 
-[Etcd](https://github.com/etcd-io/etcd) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
+[Etcd](https://github.com/etcd-io/etcd) is also supported as Dynamic Configuration Center (DCC). To use it, please configure as follows:
 
 ```yaml
 configuration:
@@ -78,11 +78,11 @@ configuration:
     password: ${SW_CONFIG_ETCD_password:}
 ```
 
-**NOTICE**, only the v3 protocol is supported since 8.7.0. 
+**NOTE**: Only the v3 protocol is supported since 8.7.0. 
 
 ## Dynamic Configuration Consul Implementation
 
-[Consul](https://github.com/rickfast/consul-client) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
+[Consul](https://github.com/rickfast/consul-client) is also supported as Dynamic Configuration Center (DCC). To use it, please configure as follows:
 
 ```yaml
 configuration:
@@ -98,7 +98,7 @@ configuration:
 
 ## Dynamic Configuration Apollo Implementation
 
-[Apollo](https://github.com/ctripcorp/apollo/) is also supported as DCC(Dynamic Configuration Center), to use it, just configured as follows:
+[Apollo](https://github.com/ctripcorp/apollo/) is also supported as Dynamic Configuration Center (DCC). To use it, please configure as follows:
 
 ```yaml
 configuration:
@@ -113,7 +113,7 @@ configuration:
 
 ## Dynamic Configuration Kuberbetes Configmap Implementation
 
-[configmap](https://kubernetes.io/docs/concepts/configuration/configmap/) is also supported as DCC(Dynamic Configuration Center), to use it, just configured as follows:
+[configmap](https://kubernetes.io/docs/concepts/configuration/configmap/) is also supported as Dynamic Configuration Center (DCC). To use it, please configure as follows:
 
 ```yaml
 configuration:
@@ -129,7 +129,7 @@ configuration:
 ```
 ## Dynamic Configuration Nacos Implementation
 
-[Nacos](https://github.com/alibaba/nacos) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
+[Nacos](https://github.com/alibaba/nacos) is also supported as Dynamic Configuration Center (DCC). To use it, please configure as follows:
 
 ```yaml
 configuration:

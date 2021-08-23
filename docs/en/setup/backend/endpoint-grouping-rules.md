@@ -1,33 +1,35 @@
 # Group Parameterized Endpoints
-In most cases, the endpoint should be detected automatically through the language agents, service mesh observability solution,
-or configuration of meter system.
+In most cases, endpoints are detected automatically through language agents, service mesh observability solutions,
+or meter system configurations.
 
-There are some special cases, especially when people use REST style URI, the application codes put the parameter in the endpoint name,
-such as putting order id in the URI, like `/prod/ORDER123` and `/prod/ORDER123`. But logically, people expect they could
-have an endpoint name like `prod/{order-id}`. This is the feature of parameterized endpoint grouping designed for.
+There are some special cases, especially when REST style URI is used, where the application codes include the parameter in the endpoint name,
+such as putting order ID in the URI. Examples are `/prod/ORDER123` and `/prod/ORDER123`. But logically, most would expect to
+have an endpoint name like `prod/{order-id}`. This is a specially designed feature in parameterized endpoint grouping.
 
-If the incoming endpoint name hit the rules, SkyWalking will grouping the endpoint by rules.
+If the incoming endpoint name accords with the rules, SkyWalking will group the endpoint by rules.
 
-SkyWalking provides 2 ways to support endpoint grouping:
+There are two approaches in which SkyWalking supports endpoint grouping:
 1. Endpoint name grouping by OpenAPI definitions.
-2. Endpoint name grouping by custom configuration.
+2. Endpoint name grouping by custom configurations.
 
-The 2 grouping features can work together in sequence.
+Both grouping approaches can work together in sequence.
+
 ## Endpoint name grouping by OpenAPI definitions
-The OpenAPI definitions are the documents based on The [OpenAPI Specification (OAS)](https://www.openapis.org/) which used to define a standard, language-agnostic interface for HTTP APIs.
-SkyWalking now support `OAS v2.0+`, could parse the documents `(yaml)` and build the grouping rules from them automatically.
+The OpenAPI definitions are documents based on the [OpenAPI Specification (OAS)](https://www.openapis.org/), which is used to define a standard, language-agnostic interface for HTTP APIs.
+
+SkyWalking now supports `OAS v2.0+`. It could parse the documents `(yaml)` and build grouping rules from them automatically.
 
 
 ### How to use
-1. Add some `Specification Extensions` for SkyWalking config in the OpenAPI definition documents, otherwise, all configs are default:<br />
-   `${METHOD}` is a reserved placeholder which represents the HTTP method eg. `POST/GET...` <br />
-   `${PATH}` is a reserved placeholder which represents the path eg. `/products/{id}`.
+1. Add `Specification Extensions` for SkyWalking config in the OpenAPI definition documents; otherwise, all configs are default:<br />
+   `${METHOD}` is a reserved placeholder which represents the HTTP method, e.g. `POST/GET...` <br />.
+   `${PATH}` is a reserved placeholder which represents the path, e.g. `/products/{id}`.
 
    | Extension Name | Required | Description | Default Value |
    |-----|-----|-----|-----|
-   | x-sw-service-name | false | The service name which these endpoints belong to | The directory name which the OpenAPI definition documents belong to |
-   | x-sw-endpoint-name-match-rule | false | The rule used to match the endpoint.| `${METHOD}:${PATH}` |
-   | x-sw-endpoint-name-format | false | The endpoint name after grouping.| `${METHOD}:${PATH}` |
+   | x-sw-service-name | false | The service name to which these endpoints belong. | The directory name to which the OpenAPI definition documents belong. |
+   | x-sw-endpoint-name-match-rule | false | The rule used to match the endpoint. | `${METHOD}:${PATH}` |
+   | x-sw-endpoint-name-format | false | The endpoint name after grouping. | `${METHOD}:${PATH}` |
 
    These extensions are under `OpenAPI Object`. For example, the document below has a full custom config:
 
@@ -44,10 +46,10 @@ info:
   ...
 ```
 
-   We highly recommend using the default config, the custom config (`x-sw-endpoint-name-match-rule/x-sw-endpoint-name-format`) would be considered as part of the match rules (regex pattern).
-   We provide some cases in `org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4OpenapiTest`, you could validate your custom config as well.
+   We highly recommend using the default config. The custom config (`x-sw-endpoint-name-match-rule/x-sw-endpoint-name-format`) is considered part of the match rules (regex pattern).
+   We have provided some use cases in `org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4OpenapiTest`. You may validate your custom config as well.
 
-2. All OpenAPI definition documents should be located in the `openapi-definitions` directory, with at most two levels directories. Recommend using the service name as the subDirectory name then you are not required to set `x-sw-service-name`. For example:
+2. All OpenAPI definition documents are located in the `openapi-definitions` directory, with directories having at most two levels. We recommend using the service name as the subDirectory name, as you will then not be required to set `x-sw-service-name`. For example:
   ```
 ├── openapi-definitions
 │   ├── serviceA
@@ -56,18 +58,18 @@ info:
 │   └── serviceB
 │       └── productAPI-v2.yaml
 ```
-3. The feature is enabled by default, you can disable it by setting the `Core Module` configuration `${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:false}`
+3. The feature is enabled by default. You can disable it by setting the `Core Module` configuration `${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:false}`.
 
 ### Rules match priority 
-We recommend designing the API path as clear as possible. If the API path is fuzzy and an endpoint name might match multiple paths, SkyWalking would follow the match priority to select one as below orders:
-1. The exact path matched first. 
-   Eg. `/products or /products/inventory`
-2. The path which has the less variables.
-   Eg. `/products/{var1}/{var2} and /products/{var1}/abc`, endpoint name `/products/123/abc` will match the second one.
-3. If the paths have the same number of variables, match the longest path, and the vars are considered to be `1`.
-   Eg. `/products/abc/{var1} and products/{var12345}/ef`, endpoint name `/products/abc/ef` will match the first one, because `length("abc") = 3` is larger than `length("ef") = 2`.
+We recommend designing the API path as clearly as possible. If the API path is fuzzy and an endpoint name matches multiple paths, SkyWalking would select a path according to the match priority set out below:
+1. The exact path being matched. 
+   E.g. `/products or /products/inventory`
+2. The path which has less variables.
+   E.g. In the case of `/products/{var1}/{var2} and /products/{var1}/abc`, endpoint name `/products/123/abc` will match the second one.
+3. If the paths have the same number of variables, the longest path is matched, and the vars are considered to be `1`.
+   E.g. In the case of `/products/abc/{var1} and products/{var12345}/ef`, endpoint name `/products/abc/ef` will match the first one, because `length("abc") = 3` is larger than `length("ef") = 2`.
 ### Examples
-If we have an OpenAPI definition doc `productAPI-v2.yaml` in directory `serviceB` like this:
+If we have an OpenAPI definition doc `productAPI-v2.yaml` in directory `serviceB`, it will look like this:
 ```yaml
 
 openapi: 3.0.0
@@ -268,7 +270,7 @@ components:
 
 ```
 
-Here are some cases:
+Here are some use cases:
 
    | Incoming Endpiont | Incoming Service | x-sw-service-name | x-sw-endpoint-name-match-rule | x-sw-endpoint-name-format | Matched | Grouping Result |
    |-----|-----|-----|-----|-----|-----|-----|
@@ -285,11 +287,11 @@ Here are some cases:
 
 
 ## Endpoint name grouping by custom configuration
-Current, user could set up grouping rules through the static YAML file, named `endpoint-name-grouping.yml`,
-or use [Dynamic Configuration](dynamic-config.md) to initial and update the endpoint grouping rule.
+Currently, a user could set up grouping rules through the static YAML file named `endpoint-name-grouping.yml`,
+or use [Dynamic Configuration](dynamic-config.md) to initialize and update endpoint grouping rules.
 
 ### Configuration Format
-No matter in static local file or dynamic configuration value, they are sharing the same YAML format.
+Both the static local file and dynamic configuration value share the same YAML format.
 
 ```yaml
 grouping:
