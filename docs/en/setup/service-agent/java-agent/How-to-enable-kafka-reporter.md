@@ -13,11 +13,20 @@ collector.backend_service=${SW_AGENT_COLLECTOR_BACKEND_SERVICES:127.0.0.1:11800}
 # Kafka producer configuration
 plugin.kafka.bootstrap_servers=${SW_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 plugin.kafka.get_topic_timeout=${SW_GET_TOPIC_TIMEOUT:10}
+```
 
-# Configure extra Kafka Producer configuration
+Before you activated the Kafka reporter, you have to make sure that [Kafka fetcher](../../backend/backend-fetcher.md#kafka-fetcher) has been opened in service.
+
+### Advanced Kafka Producer Configurations
+
+Kafka reporter plugin support to customize all configurations of listed in [here](http://kafka.apache.org/24/documentation.html#producerconfigs). For example:
+```properties
 plugin.kafka.producer_config[delivery.timeout.ms]=12000
 ```
 
-Kafka reporter plugin support to customize all configurations of listed in [here](http://kafka.apache.org/24/documentation.html#producerconfigs).
+Since SkyWalking 8.8.0, support to configure advanced Producer configurations in JSON format, like this:
+```properties
+plugin.kafka.producer_config_json={"delivery.timeout.ms": 12000, "compression.type": "snappy"}
+```
 
-Before you activated the Kafka reporter, you have to make sure that [Kafka fetcher](../../backend/backend-fetcher.md#kafka-fetcher) has been opened in service.
+Currently, there are 2 ways to configure advanced configurations below. Notice that, the new way, configured in JSON format, will be overridden by `plugin.kafka.producer_config[key]=value` when they have the duplication keys.
