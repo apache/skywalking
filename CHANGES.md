@@ -46,6 +46,7 @@ Release Notes.
 * Fix distinct in Service/Instance/Endpoint query is not working.
 * Support collection type in dynamic configuration core.
 * Support zookeeper grouped dynamic configurations.
+* Fix NPE when OAP nodes synchronize events with each other in cluster mode.
 
 #### UI
 

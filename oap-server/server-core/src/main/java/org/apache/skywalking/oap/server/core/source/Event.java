@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.common.base.Strings;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -186,7 +187,7 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
         builder.addDataStrings(getName());
         builder.addDataStrings(getType());
         builder.addDataStrings(getMessage());
-        builder.addDataStrings(getParameters());
+        builder.addDataStrings(Strings.nullToEmpty(getParameters()));
 
         builder.addDataLongs(getStartTime());
         builder.addDataLongs(getEndTime());
