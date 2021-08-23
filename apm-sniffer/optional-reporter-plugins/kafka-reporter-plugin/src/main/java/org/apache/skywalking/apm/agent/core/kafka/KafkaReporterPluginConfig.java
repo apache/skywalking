@@ -45,7 +45,7 @@ public class KafkaReporterPluginConfig {
             public static String NAMESPACE = "";
 
             /**
-             * <B>producer_config</B>: the configuration of Kafka Producer. The format is:<br/>
+             * <B>producer_config</B>: the configuration of Kafka Producer. The format is:
              * <code>plugin.kafka.producer_config[key] = value</code>
              */
             public static Map<String, String> PRODUCER_CONFIG = new HashMap<>();
@@ -53,7 +53,7 @@ public class KafkaReporterPluginConfig {
             /**
              * Configure Kafka Producer configuration in JSON format. Notice it will be overridden by
              * `plugin.kafka.producer_config[key]`, if the key duplication. For example:
-             * <code>plugin.kafka.producer_config_json={"batch.size":32768}</code>
+             * <code>plugin.kafka.producer_config_json = {"batch.size":32768}</code>
              */
             public static String PRODUCER_CONFIG_JSON = "";
 
