@@ -44,6 +44,7 @@ Release Notes.
 * Add a new API to test log analysis language.
 * Harden the security of Groovy-based DSL, MAL and LAL.
 * Fix distinct in Service/Instance/Endpoint query is not working.
+* Fix NPE when OAP nodes synchronize events with each other in cluster mode.
 
 #### UI
 
