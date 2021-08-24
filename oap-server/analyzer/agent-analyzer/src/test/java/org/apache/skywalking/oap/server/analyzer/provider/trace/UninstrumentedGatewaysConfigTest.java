@@ -25,9 +25,12 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.powermock.reflect.Whitebox;
 
 public class UninstrumentedGatewaysConfigTest {
+
     @Test
     public void testParseGatewayYAML() throws Exception {
         final UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig

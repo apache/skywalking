@@ -18,20 +18,41 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateSettingWatcher;
 
 /**
  * The sampler makes the sampling mechanism works at backend side. Sample result: [0,sampleRate) sampled, (sampleRate,~)
  * ignored
  */
 public class TraceSegmentSampler {
-    private TraceSampleRateWatcher traceSampleRateWatcher;
+    private TraceSampleRateSettingWatcher traceSampleRateSettingWatcher;
 
-    public TraceSegmentSampler(TraceSampleRateWatcher traceSampleRateWatcher) {
-        this.traceSampleRateWatcher = traceSampleRateWatcher;
+    public TraceSegmentSampler(TraceSampleRateSettingWatcher traceSampleRateSettingWatcher) {
+        this.traceSampleRateSettingWatcher = traceSampleRateSettingWatcher;
     }
 
-    public boolean shouldSample(String traceId) {
-        return Math.abs(traceId.hashCode()) % 10000 < traceSampleRateWatcher.getSampleRate();
+    public boolean shouldSample(SegmentObject segmentObject, int duration) {
+        int sample = Math.abs(segmentObject.getTraceId().hashCode()) % 10000;
+        String serviceName = segmentObject.getService();
+        TraceSampleRateSettingWatcher.ServiceSampleConfig sampleConfig = traceSampleRateSettingWatcher.getSample(serviceName);
+        if (sampleConfig != null) {
+            if (service(sampleConfig, sample, duration)) {
+                return true;
+            }
+        }
+        return sample < traceSampleRateSettingWatcher.getSampleRate();
+    }
+
+    private boolean service(TraceSampleRateSettingWatcher.ServiceSampleConfig sampleConfig, int sample, int duration) {
+        // trace latency
+        if (sampleConfig.getDuration() != null && duration > sampleConfig.getDuration().get()) {
+            return true;
+        }
+        // sampling rate
+        if (sampleConfig.getSampleRate() != null && sample < sampleConfig.getSampleRate().get()) {
+            return true;
+        }
+        return false;
     }
 }

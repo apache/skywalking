@@ -27,7 +27,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
 import java.util.Set;
@@ -46,56 +46,63 @@ public class TraceSampleRateWatcherTest {
 
     @Test
     public void testInit() {
-        TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(provider);
+        TraceSampleRateSettingWatcher traceSampleRateWatcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 10000);
-        Assert.assertEquals(traceSampleRateWatcher.value(), "10000");
     }
 
     @Test(timeout = 20000)
     public void testDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new MockConfigWatcherRegister(3);
 
-        TraceSampleRateWatcher watcher = new TraceSampleRateWatcher(provider);
+        TraceSampleRateSettingWatcher watcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
 
         while (watcher.getSampleRate() == 10000) {
             Thread.sleep(2000);
         }
+
         assertThat(watcher.getSampleRate(), is(9000));
         assertThat(provider.getModuleConfig().getSampleRate(), is(10000));
     }
 
     @Test
     public void testNotify() {
-        TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(provider);
+        TraceSampleRateSettingWatcher traceSampleRateWatcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
-            "8000", ConfigChangeWatcher.EventType.MODIFY);
+                "default:\n" +
+                        "  sampleRate: 8000", ConfigChangeWatcher.EventType.MODIFY);
 
         traceSampleRateWatcher.notify(value1);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 8000);
-        Assert.assertEquals(traceSampleRateWatcher.value(), "8000");
+        Assert.assertEquals(traceSampleRateWatcher.value(), "default:\n" +
+                "  sampleRate: 8000");
 
         ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent(
-            "8000", ConfigChangeWatcher.EventType.DELETE);
+                "default:\n" +
+                        "  sampleRate: 1000", ConfigChangeWatcher.EventType.DELETE);
 
         traceSampleRateWatcher.notify(value2);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 10000);
-        Assert.assertEquals(traceSampleRateWatcher.value(), "10000");
+        Assert.assertEquals(traceSampleRateWatcher.value(), "");
 
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
-            "500", ConfigChangeWatcher.EventType.ADD);
+                "default:\n" +
+                        "  sampleRate: 500", ConfigChangeWatcher.EventType.ADD);
 
         traceSampleRateWatcher.notify(value3);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 500);
-        Assert.assertEquals(traceSampleRateWatcher.value(), "500");
+        Assert.assertEquals(traceSampleRateWatcher.value(), "default:\n" +
+                "  sampleRate: 500");
 
         ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent(
-            "abc", ConfigChangeWatcher.EventType.MODIFY);
+                "default:\n" +
+                        "  sampleRate: abc", ConfigChangeWatcher.EventType.MODIFY);
 
         traceSampleRateWatcher.notify(value4);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 500);
-        Assert.assertEquals(traceSampleRateWatcher.value(), "500");
+        Assert.assertEquals(traceSampleRateWatcher.value(), "default:\n" +
+                "  sampleRate: 500");
     }
 
     public static class MockConfigWatcherRegister extends ConfigWatcherRegister {
@@ -107,7 +114,8 @@ public class TraceSampleRateWatcherTest {
         @Override
         public Optional<ConfigTable> readConfig(Set<String> keys) {
             ConfigTable table = new ConfigTable();
-            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.sampleRate", "9000"));
+            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.traceSampleRateSetting", "default:\n" +
+                    "  sampleRate: 9000"));
             return Optional.of(table);
         }
 
