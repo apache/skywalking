@@ -23,6 +23,7 @@ import io.grpc.stub.StreamObserver;
 import io.netty.handler.ssl.SslContext;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
@@ -153,7 +154,7 @@ public class GRPCRemoteClient implements RemoteClient {
 
     class RemoteMessageConsumer implements IConsumer<RemoteMessage> {
         @Override
-        public void init() {
+        public void init(final Properties properties) {
         }
 
         @Override

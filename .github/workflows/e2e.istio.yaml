@@ -158,10 +158,10 @@ jobs:
 
           export SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
 
-          ./mvnw -DskipTests -N install
-          ./mvnw -f apm-application-toolkit -DskipTests -am install
+          ./mvnw -q -DskipTests -N install
+          ./mvnw -q -f apm-application-toolkit -DskipTests -am install
 
-          ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=org.apache.skywalking.e2e.mesh.ALSE2E
+          ./mvnw -q --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=org.apache.skywalking.e2e.mesh.ALSE2E
 
       - name: Logs
         if: ${{ failure() }}
@@ -301,10 +301,10 @@ jobs:
 
           export SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
 
-          ./mvnw -DskipTests -N install
-          ./mvnw -f apm-application-toolkit -DskipTests -am install
+          ./mvnw -q -DskipTests -N install
+          ./mvnw -q -f apm-application-toolkit -DskipTests -am install
 
-          ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=org.apache.skywalking.e2e.mesh.MetricsServiceE2E
+          ./mvnw -q --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=org.apache.skywalking.e2e.mesh.MetricsServiceE2E
 
       - name: Logs
         if: ${{ failure() }}

@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -33,17 +34,15 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+@Slf4j
 public class ITZookeeperConfigurationTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ITZookeeperConfigurationTest.class);
-
     private final Yaml yaml = new Yaml();
 
     private MockZookeeperConfigurationProvider provider;
@@ -70,17 +69,16 @@ public class ITZookeeperConfigurationTest {
         assertNull(provider.watcher.value());
 
         String zkAddress = System.getProperty("zk.address");
-        LOGGER.info("zkAddress: " + zkAddress);
+        log.info("zkAddress: " + zkAddress);
 
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
         client.start();
-
-        LOGGER.info("per path: " + nameSpace + "/" + key);
+        log.info("per path: " + nameSpace + "/" + key);
 
         assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key, "500".getBytes()) != null);
 
-        LOGGER.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key)));
+        log.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key)));
 
         for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
         }
@@ -91,6 +89,43 @@ public class ITZookeeperConfigurationTest {
         }
 
         assertNull(provider.watcher.value());
+    }
+
+    @Test(timeout = 20000)
+    public void shouldReadUpdated4GroupConfig() throws Exception {
+        String nameSpace = "/default";
+        String key = "test-module.default.testKeyGroup";
+        assertEquals("{}", provider.groupWatcher.groupItems().toString());
+
+        String zkAddress = System.getProperty("zk.address");
+        log.info("zkAddress: " + zkAddress);
+
+        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+        CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
+        client.start();
+        log.info("per path: " + nameSpace + "/" + key);
+
+        assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key + "/item1", "100".getBytes()) != null);
+        assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key + "/item2", "200".getBytes()) != null);
+
+        log.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key + "/item1")));
+        log.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key + "/item2")));
+
+        for (String v = provider.groupWatcher.groupItems().get("item1"); v == null; v = provider.groupWatcher.groupItems().get("item1")) {
+        }
+        for (String v = provider.groupWatcher.groupItems().get("item2"); v == null; v = provider.groupWatcher.groupItems().get("item2")) {
+        }
+
+        assertTrue(client.delete().forPath(nameSpace + "/" + key + "/item1") == null);
+        assertTrue(client.delete().forPath(nameSpace + "/" + key + "/item2") == null);
+
+        for (String v = provider.groupWatcher.groupItems().get("item1"); v != null; v = provider.groupWatcher.groupItems().get("item1")) {
+        }
+        for (String v = provider.groupWatcher.groupItems().get("item2"); v != null; v = provider.groupWatcher.groupItems().get("item2")) {
+        }
+
+        assertNull(provider.groupWatcher.groupItems().get("item1"));
+        assertNull(provider.groupWatcher.groupItems().get("item2"));
     }
 
     @SuppressWarnings("unchecked")
@@ -115,7 +150,7 @@ public class ITZookeeperConfigurationTest {
                         moduleConfiguration.addProviderConfiguration(name, properties);
                     });
                 }
-            });
+             });
         }
     }
 }

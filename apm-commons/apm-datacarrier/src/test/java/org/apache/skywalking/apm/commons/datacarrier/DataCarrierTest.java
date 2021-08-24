@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.commons.datacarrier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.QueueBuffer;
@@ -120,7 +121,7 @@ public class DataCarrierTest {
                 int i = 0;
 
                 @Override
-                public void init() {
+                public void init(final Properties properties) {
 
                 }
 

@@ -46,7 +46,7 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
         if (responseCode >= 400) {
             AbstractSpan span = ContextManager.activeSpan();
             span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(responseCode));
+            Tags.HTTP_RESPONSE_STATUS_CODE.set(span, responseCode);
         }
         ContextManager.stopSpan();
         return ret;

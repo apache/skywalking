@@ -77,7 +77,7 @@ segmentItems:
                 value: 'http://localhost:8080/jsonrpc4j-1.x-scenario/path/to/demo-service',
               }
               - { key: jsonrpc.method, value: sayHello }
-              - { key: status_code, value: '200' }
+              - { key: http.status_code, value: '200' }
             refs:
               - {
                 parentEndpoint: /jsonrpc4j-1.x-scenario/case/json-rpc,

@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 
 @Slf4j
 public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
@@ -72,6 +73,12 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
             }
         });
         return Optional.of(table);
+    }
+
+    @Override
+    public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
+        // TODO: implement readGroupConfig
+        return Optional.empty();
     }
 
 }

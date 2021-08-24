@@ -59,7 +59,7 @@ public class ProducerOperationHandlerInterceptor implements InstanceMethodsAroun
         int statusCode = invocation.getStatus().getStatusCode();
         if (statusCode >= 400) {
             span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+            Tags.HTTP_RESPONSE_STATUS_CODE.set(span, statusCode);
         }
         ContextManager.stopSpan();
         return ret;

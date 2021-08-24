@@ -43,7 +43,7 @@ public class HttpClientFinalizerResponseConnectionInterceptor implements Instanc
                     if (response.status().code() >= 400) {
                         cache.getSpan().errorOccurred();
                     }
-                    Tags.STATUS_CODE.set(cache.getSpan(), String.valueOf(response.status().code()));
+                    Tags.HTTP_RESPONSE_STATUS_CODE.set(cache.getSpan(), response.status().code());
                     cache.getSpan().asyncFinish();
                 }
 

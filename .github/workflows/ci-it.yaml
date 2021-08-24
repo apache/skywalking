@@ -63,7 +63,7 @@ jobs:
       - name: 'Install & Test'
         if: env.SKIP_CI != 'true'
         run: |
-          ./mvnw --batch-mode -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
+          ./mvnw -q --batch-mode -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
           bash <(curl -s https://codecov.io/bash)
       - name: 'Check Dependencies Licenses'
         if: env.SKIP_CI != 'true'
@@ -96,7 +96,7 @@ jobs:
           java-version: 11
       - name: 'Install & Test'
         if: env.SKIP_CI != 'true'
-        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+        run: ./mvnw -q --batch-mode -P"agent,backend,ui,dist" clean verify install
 
   CI-on-Windows:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -115,7 +115,7 @@ jobs:
       - name: 'Install & Test'
         if: env.SKIP_CI != 'true'
         run: |
-          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+          ./mvnw -q --batch-mode -P"agent,backend,ui,dist" clean verify install
 
 
   CI-on-MacOS:
@@ -144,5 +144,5 @@ jobs:
         if: env.SKIP_CI != 'true'
         run: |
           # Given packaging on Mac has a high possibility to fail, we retry one more time here
-          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install || \
-          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+          ./mvnw -q --batch-mode -P"agent,backend,ui,dist" clean verify install || \
+          ./mvnw -q --batch-mode -P"agent,backend,ui,dist" clean verify install
