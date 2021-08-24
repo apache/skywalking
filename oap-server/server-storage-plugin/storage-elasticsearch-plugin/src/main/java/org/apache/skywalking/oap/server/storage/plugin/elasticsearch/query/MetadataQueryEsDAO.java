@@ -63,7 +63,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceTraffic.NODE_TYPE, NodeType.Normal.value()));
+        boolQueryBuilder.should().add(QueryBuilders.termQuery(ServiceTraffic.NODE_TYPE, NodeType.Normal.value()));
+        boolQueryBuilder.should().add(QueryBuilders.termQuery(ServiceTraffic.NODE_TYPE, NodeType.Browser.value()));
         if (StringUtil.isNotEmpty(group)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceTraffic.GROUP, group));
         }
