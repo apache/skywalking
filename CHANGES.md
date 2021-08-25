@@ -18,6 +18,7 @@ Release Notes.
 * Fix kafka-reporter-plugin shade package conflict
 * Add all config items to `agent.conf` file for convenient containerization use cases.
 * Advanced Kafka Producer configuration enhancement.
+* Enable mTLS for gRPC channel.
 
 #### OAP-Backend
 
@@ -48,6 +49,7 @@ Release Notes.
 * Support collection type in dynamic configuration core.
 * Support zookeeper grouped dynamic configurations.
 * Fix NPE when OAP nodes synchronize events with each other in cluster mode.
+* Enable mTLS for gRPC channel.
 
 #### UI
 
