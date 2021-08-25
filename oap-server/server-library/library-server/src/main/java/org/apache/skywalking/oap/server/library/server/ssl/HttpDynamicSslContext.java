@@ -36,7 +36,7 @@ public class HttpDynamicSslContext extends AbstractSslContext {
     }
 
     protected HttpDynamicSslContext(String privateKeyFile, String certChainFile) {
-        super(privateKeyFile, certChainFile);
+        super(privateKeyFile, certChainFile, null);
     }
 
     protected HttpDynamicSslContext(String caFile) {
@@ -53,12 +53,12 @@ public class HttpDynamicSslContext extends AbstractSslContext {
     }
 
     @Override
-    protected void updateContext(final String privateKeyFile, final String certChainFile) {
+    protected void updateContext(final String privateKeyFile, final String certChainFile, final String trustedCAsFile) {
         try {
             setCtx(SslContextBuilder
-                .forServer(
-                    new FileInputStream(Paths.get(certChainFile).toFile()),
-                    PrivateKeyUtil.loadDecryptionKey(privateKeyFile)).build());
+                       .forServer(
+                           new FileInputStream(Paths.get(certChainFile).toFile()),
+                           PrivateKeyUtil.loadDecryptionKey(privateKeyFile)).build());
         } catch (GeneralSecurityException | IOException e) {
             throw new IllegalArgumentException(e);
         }

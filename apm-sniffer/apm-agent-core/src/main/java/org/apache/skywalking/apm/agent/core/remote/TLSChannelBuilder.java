@@ -27,26 +27,57 @@ import javax.net.ssl.SSLException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.Constants;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- * Detect the `/ca` folder in agent package, if `ca.crt` exists, start TLS (no mutual auth).
+ * If only ca.crt exists, start TLS. If cert, key and ca files exist, enable mTLS.
  */
 public class TLSChannelBuilder implements ChannelBuilder<NettyChannelBuilder> {
-    private static String CA_FILE_NAME = "ca" + Constants.PATH_SEPARATOR + "ca.crt";
+    private static final ILog LOGGER = LogManager.getLogger(TLSChannelBuilder.class);
 
     @Override
     public NettyChannelBuilder build(
         NettyChannelBuilder managedChannelBuilder) throws AgentPackageNotFoundException, SSLException {
-        File caFile = new File(AgentPackagePath.getPath(), CA_FILE_NAME);
-        boolean isCAFileExist = caFile.exists() && caFile.isFile();
-        if (Config.Agent.FORCE_TLS || isCAFileExist) {
-            SslContextBuilder builder = GrpcSslContexts.forClient();
-            if (isCAFileExist) {
-                builder.trustManager(caFile);
+
+        if (Config.Agent.FORCE_TLS) {
+            String caPath = Config.Agent.SSL_TRUSTED_CA_PATH;
+            if (caPath.startsWith("./")) {
+                caPath = AgentPackagePath.getPath() + caPath.substring(2);
             }
-            managedChannelBuilder = managedChannelBuilder.negotiationType(NegotiationType.TLS)
-                                                         .sslContext(builder.build());
+            File caFile = new File(caPath);
+
+            if (caFile.exists()) {
+                SslContextBuilder builder = GrpcSslContexts.forClient();
+
+                String certPath = Config.Agent.SSL_CERT_CHAIN_PATH;
+                String keyPath = Config.Agent.SSL_KEY_PATH;
+                if (StringUtil.isNotBlank(certPath) && StringUtil.isNotBlank(keyPath)) {
+                    if (certPath.startsWith("./")) {
+                        certPath = AgentPackagePath.getPath() + certPath.substring(2);
+                    }
+                    File certFile = new File(certPath);
+
+                    if (keyPath.startsWith("./")) {
+                        keyPath = AgentPackagePath.getPath() + keyPath.substring(2);
+                    }
+                    File keyFile = new File(keyPath);
+
+                    if (certFile.exists() && keyFile.exists()) {
+                        builder.keyManager(certFile, keyFile);
+                    }
+                    if (certFile.exists() || keyFile.exists()) {
+                        LOGGER.warn("Failed to enable mTLS caused by cert or key cannot be found.");
+                    }
+                }
+
+                builder.trustManager(caFile);
+                managedChannelBuilder = managedChannelBuilder.negotiationType(NegotiationType.TLS)
+                                                             .sslContext(builder.build());
+            } else {
+                LOGGER.warn("Failed to enable TLS because CA file not found.");
+            }
         }
         return managedChannelBuilder;
     }

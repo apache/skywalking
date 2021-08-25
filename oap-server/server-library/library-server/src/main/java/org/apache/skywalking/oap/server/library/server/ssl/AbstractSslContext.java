@@ -34,13 +34,14 @@ public abstract class AbstractSslContext extends SslContext {
     @Setter(AccessLevel.PROTECTED)
     private volatile SslContext ctx;
 
-    protected AbstractSslContext(final String privateKeyFile, final String certChainFile) {
-        updateContext(privateKeyFile, certChainFile);
+    protected AbstractSslContext(final String privateKeyFile, final String certChainFile, final String trustedCAsFile) {
+        updateContext(privateKeyFile, certChainFile, trustedCAsFile);
         monitor = new MultipleFilesChangeMonitor(
             10,
-            readableContents -> updateContext(privateKeyFile, certChainFile),
+            readableContents -> updateContext(privateKeyFile, certChainFile, trustedCAsFile),
             certChainFile,
-            privateKeyFile);
+            privateKeyFile,
+            trustedCAsFile);
     }
 
     protected AbstractSslContext(final String caFile) {
@@ -53,7 +54,7 @@ public abstract class AbstractSslContext extends SslContext {
 
     protected abstract void updateContext(String caFile);
 
-    protected abstract void updateContext(final String privateKeyFile, final String certChainFile);
+    protected abstract void updateContext(final String privateKeyFile, final String certChainFile, final String trustedCAsFile);
 
     public void start() {
         monitor.start();

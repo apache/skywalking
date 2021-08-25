@@ -193,7 +193,8 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.isGRPCSslEnabled()) {
             grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(),
                                         moduleConfig.getGRPCSslCertChainPath(),
-                                        moduleConfig.getGRPCSslKeyPath()
+                                        moduleConfig.getGRPCSslKeyPath(),
+                                        null
             );
         } else {
             grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort());

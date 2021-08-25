@@ -135,6 +135,21 @@ public class Config {
          * Force open TLS for gRPC channel if true.
          */
         public static boolean FORCE_TLS = false;
+
+        /**
+         *
+         */
+        public static String SSL_TRUSTED_CA_PATH = "ca" + Constants.PATH_SEPARATOR + "ca.crt";
+
+        /**
+         *
+         */
+        public static String SSL_CERT_CHAIN_PATH;
+
+        /**
+         *
+         */
+        public static String SSL_KEY_PATH;
     }
 
     public static class OsInfo {

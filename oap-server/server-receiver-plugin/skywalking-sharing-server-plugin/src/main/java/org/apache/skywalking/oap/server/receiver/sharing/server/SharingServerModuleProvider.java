@@ -103,7 +103,8 @@ public class SharingServerModuleProvider extends ModuleProvider {
                     Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
                     config.getGRPCPort(),
                     config.getGRPCSslCertChainPath(),
-                    config.getGRPCSslKeyPath()
+                    config.getGRPCSslKeyPath(),
+                    config.getGRPCSslTrustedCAsPath()
                 );
             } else {
                 grpcServer = new GRPCServer(
