@@ -1,15 +1,15 @@
 # Metrics Exporter
-SkyWalking provides basic and most important metrics aggregation, alarm and analysis. 
-In real world, people may want to forward the data to their 3rd party system, for deeper analysis or anything else.
-**Metrics Exporter** makes that possible.
+SkyWalking provides the essential functions of metrics aggregation, alarm, and analysis. 
+In the real world, many may want to forward their data to a 3rd party system for an in-depth analysis or otherwise.
+**Metrics Exporter** has made that possible.
 
-Metrics exporter is an independent module, you need manually active it.
+Metrics exporter is an independent module that has to be manually activated.
 
-Right now, we provide the following exporters
+Right now, we provide the following exporters:
 1. gRPC exporter
 
 ## gRPC exporter
-gRPC exporter uses SkyWalking native exporter service definition. Here is proto definition.
+gRPC exporter uses SkyWalking's native exporter service definition. Here is the proto definition.
 ```proto
 service MetricExportService {
     rpc export (stream ExportMetricValue) returns (ExportResponse) {
@@ -60,7 +60,7 @@ message ExportResponse {
 }
 ```
 
-To active the exporter, you should add this into your `application.yml`
+To activate the exporter, you should add this into your `application.yml`
 ```yaml
 exporter:
   grpc:
@@ -69,13 +69,13 @@ exporter:
 ```
 
 - `targetHost`:`targetPort` is the expected target service address. You could set any gRPC server to receive the data.
-- Target gRPC service needs to be standby, otherwise, the OAP starts up failure.
+- Target gRPC service needs to go on standby; otherwise, the OAP startup may fail.
 
-## For target exporter service 
-### subscription implementation
-Return the expected metrics name list with event type(increment or total), all the names must match the OAL/MAL script definition. 
-Return empty list, if you want to export all metrics in increment event type.
+## Target exporter service 
+### Subscription implementation
+Return the expected metrics name list with event type (incremental or total). All names must match the OAL/MAL script definition. 
+Return empty list, if you want to export all metrics in the incremental event type.
 
-### export implementation
-Stream service, all subscribed metrics will be sent to here, based on OAP core schedule. Also, if the OAP deployed as cluster, 
-then this method will be called concurrently. For metrics value, you need follow `#type` to choose `#longValue` or `#doubleValue`.
+### Export implementation
+Stream service. All subscribed metrics will be sent here based on the OAP core schedule. Also, if the OAP is deployed as cluster, 
+this method will be called concurrently. For metrics value, you need to follow `#type` to choose `#longValue` or `#doubleValue`.
