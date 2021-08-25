@@ -24,7 +24,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateSettingWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSamplingPolicyWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
 import org.apache.skywalking.oap.server.core.Const;
@@ -77,7 +77,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
     @Setter
     @Getter
-    private TraceSampleRateSettingWatcher traceSampleRateSettingWatcher;
+    private TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
     /**
      * Analysis trace status.
      * <p>

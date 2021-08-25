@@ -45,20 +45,20 @@ import java.util.stream.StreamSupport;
 import static java.util.Objects.isNull;
 
 @Slf4j
-public class TraceSampleRateSettingWatcher extends ConfigChangeWatcher {
+public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
     private final AtomicReference<String> settingsString;
     private AtomicReference<Integer> sampleRate;
     private AtomicReference<Integer> slowTraceSegmentThreshold;
 
     private volatile Map<String, ServiceSampleConfig> serviceSampleRates = Collections.emptyMap();
 
-    public TraceSampleRateSettingWatcher(String settingFile, ModuleProvider provider) {
-        super(AnalyzerModule.NAME, provider, "traceSampleRateSetting");
+    public TraceSamplingPolicyWatcher(String settingFile, ModuleProvider provider) {
+        super(AnalyzerModule.NAME, provider, "traceSamplingPolicy");
         this.settingsString = new AtomicReference<>(Const.EMPTY_STRING);
         slowTraceSegmentThreshold = new AtomicReference<Integer>();
         sampleRate = new AtomicReference<Integer>();
         final SampleRateSetting defaultConfigs = parseFromFile(settingFile);
-        log.info("Default configured trace-sample-rate-setting: {}", defaultConfigs);
+        log.info("Default configured trace-sample-policy: {}", defaultConfigs);
         setDefaultConfig(defaultConfigs);
         onUpdatedDefaultConfig(defaultConfigs);
     }
@@ -91,7 +91,7 @@ public class TraceSampleRateSettingWatcher extends ConfigChangeWatcher {
 
     private void activeSetting(String config) {
         if (log.isDebugEnabled()) {
-            log.debug("[trace-sample-rate-setting] Updating using new config: {}", config);
+            log.debug("[trace-sample-policy] Updating using new config: {}", config);
         }
         // if parse failed, retain last configuration
         onUpdated(parseFromYml(config));
@@ -119,7 +119,7 @@ public class TraceSampleRateSettingWatcher extends ConfigChangeWatcher {
     }
 
     private void onUpdated(final SampleRateSetting sampleRateSetting) {
-        log.info("Updating trace-sample-rate-setting with: {}", sampleRateSetting);
+        log.info("Updating trace-sample-policy with: {}", sampleRateSetting);
         if (!isNull(sampleRateSetting)) {
             serviceSampleRates = StreamSupport.stream(sampleRateSetting.spliterator(), false)
                     .collect(Collectors.toMap(ServiceSampleConfig::getName, Function.identity()));
@@ -175,7 +175,7 @@ public class TraceSampleRateSettingWatcher extends ConfigChangeWatcher {
                     Map.class})).loadAs(reader, Map.class);
             return mapToSettingObject(map);
         } catch (Exception e) {
-            log.error("[trace-sample-rate-setting] Cannot load configs from: {}", file, e);
+            log.error("[trace-sample-policy] Cannot load configs from: {}", file, e);
         }
         return null;
     }
@@ -188,7 +188,7 @@ public class TraceSampleRateSettingWatcher extends ConfigChangeWatcher {
             this.settingsString.set(ymlContent);
             return setting;
         } catch (Exception e) {
-            log.error("[trace-sample-rate-setting] Failed to parse yml content: \n{}", ymlContent, e);
+            log.error("[trace-sample-policy] Failed to parse yml content: \n{}", ymlContent, e);
         }
         return null;
     }
@@ -215,7 +215,7 @@ public class TraceSampleRateSettingWatcher extends ConfigChangeWatcher {
             serviceList.forEach(service -> {
                 ServiceSampleConfig serviceSampleConfig = new ServiceSampleConfig();
                 serviceSampleConfig.setName((String) service.get("name"));
-                serviceSampleConfig.setSampleRate(service.get("sampleRate") == null ? null : new AtomicReference<Integer>((Integer) service.get("sampleRate")));
+                serviceSampleConfig.setSampleRate(service.get("rate") == null ? null : new AtomicReference<Integer>((Integer) service.get("rate")));
                 serviceSampleConfig.setDuration(service.get("duration") == null ? null : new AtomicReference<Integer>((Integer) service.get("duration")));
                 services.add(serviceSampleConfig);
             });

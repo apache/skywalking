@@ -46,7 +46,7 @@ public class TraceLatencyThresholdsAndWatcherTest {
 
     @Test
     public void testInit() {
-        TraceSampleRateSettingWatcher traceLatencyThresholdsAndWatcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
+        TraceSamplingPolicyWatcher traceLatencyThresholdsAndWatcher = new TraceSamplingPolicyWatcher("trace-sample-rate-setting.yml", provider);
         Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), -1);
     }
 
@@ -54,7 +54,7 @@ public class TraceLatencyThresholdsAndWatcherTest {
     public void testDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new MockConfigWatcherRegister(3);
 
-        TraceSampleRateSettingWatcher watcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher("trace-sample-rate-setting.yml", provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
 
@@ -68,7 +68,7 @@ public class TraceLatencyThresholdsAndWatcherTest {
 
     @Test
     public void testNotify() {
-        TraceSampleRateSettingWatcher traceLatencyThresholdsAndWatcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
+        TraceSamplingPolicyWatcher traceLatencyThresholdsAndWatcher = new TraceSamplingPolicyWatcher("trace-sample-rate-setting.yml", provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "default:\n" +
                         "  duration: 8000", ConfigChangeWatcher.EventType.MODIFY);
@@ -114,7 +114,7 @@ public class TraceLatencyThresholdsAndWatcherTest {
         @Override
         public Optional<ConfigTable> readConfig(Set<String> keys) {
             ConfigTable table = new ConfigTable();
-            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.traceSampleRateSetting", "default:\n" +
+            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.traceSamplingPolicy", "default:\n" +
                     "  duration: 3000"));
             return Optional.of(table);
         }

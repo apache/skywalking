@@ -46,7 +46,7 @@ public class TraceSampleRateWatcherTest {
 
     @Test
     public void testInit() {
-        TraceSampleRateSettingWatcher traceSampleRateWatcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
+        TraceSamplingPolicyWatcher traceSampleRateWatcher = new TraceSamplingPolicyWatcher("trace-sample-rate-setting.yml", provider);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 10000);
     }
 
@@ -54,7 +54,7 @@ public class TraceSampleRateWatcherTest {
     public void testDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new MockConfigWatcherRegister(3);
 
-        TraceSampleRateSettingWatcher watcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher("trace-sample-rate-setting.yml", provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
 
@@ -68,7 +68,7 @@ public class TraceSampleRateWatcherTest {
 
     @Test
     public void testNotify() {
-        TraceSampleRateSettingWatcher traceSampleRateWatcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
+        TraceSamplingPolicyWatcher traceSampleRateWatcher = new TraceSamplingPolicyWatcher("trace-sample-rate-setting.yml", provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "default:\n" +
                         "  sampleRate: 8000", ConfigChangeWatcher.EventType.MODIFY);
@@ -114,7 +114,7 @@ public class TraceSampleRateWatcherTest {
         @Override
         public Optional<ConfigTable> readConfig(Set<String> keys) {
             ConfigTable table = new ConfigTable();
-            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.traceSampleRateSetting", "default:\n" +
+            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.traceSamplingPolicy", "default:\n" +
                     "  sampleRate: 9000"));
             return Optional.of(table);
         }

@@ -19,19 +19,19 @@ agent-analyzer:
     forceSampleErrorSegment: ${SW_FORCE_SAMPLE_ERROR_SEGMENT:true} # When sampling mechanism activated, this config would make the error status segment sampled, ignoring the sampling rate.
 ```
 
-We can configure sampling rate dynamically not only default globally but for the specified services in `trace-sample-rate-setting.yml`
+The default `trace-sample-rate-setting.yml` uses the following format. Could use [dynamic configuration](dynamic-config.md) to update the settings in the runtime.
 ```yaml
 default:
-  # Default sampling rate that replaces the 'agent-analyzer.default.sampleRate' since version 8.7.0
+  # Default sampling rate that replaces the 'agent-analyzer.default.sampleRate'
   # The sample rate precision is 1/10000. 10000 means 100% sample in default.
   sampleRate: 10000
-  # Default trace latency time that replaces the 'agent-analyzer.default.slowTraceSegmentThreshold' since version 8.7.0
+  # Default trace latency time that replaces the 'agent-analyzer.default.slowTraceSegmentThreshold'
   # Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
   duration: -1
 services:
   - name: serverName
-    sampleRate: 1000 # sampling rate of this service which named {name}
-    duration: 10000 # trace latency time of this service which named {name}
+    rate: 1000 # Sampling rate of this specific service
+    duration: 10000 # Trace latency threshold for trace sampling for this specific service
 ```
 
 `sampleRate` is for you to set sample rate to this backend.

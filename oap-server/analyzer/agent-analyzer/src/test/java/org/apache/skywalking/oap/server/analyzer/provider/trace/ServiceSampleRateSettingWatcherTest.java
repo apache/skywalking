@@ -46,8 +46,8 @@ public class ServiceSampleRateSettingWatcherTest {
     public void testDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new MockConfigWatcherRegister(3);
 
-        TraceSampleRateSettingWatcher watcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
-        provider.getModuleConfig().setTraceSampleRateSettingWatcher(watcher);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher("trace-sample-rate-setting.yml", provider);
+        provider.getModuleConfig().setTraceSamplingPolicyWatcher(watcher);
         register.registerConfigChangeWatcher(watcher);
         register.start();
 
@@ -55,19 +55,19 @@ public class ServiceSampleRateSettingWatcherTest {
             Thread.sleep(1000);
         }
 
-        TraceSampleRateSettingWatcher.ServiceSampleConfig serviceInfo = watcher.getSample("serverName1");
+        TraceSamplingPolicyWatcher.ServiceSampleConfig serviceInfo = watcher.getSample("serverName1");
         Assert.assertEquals(serviceInfo.getSampleRate().get().intValue(), 2000);
         Assert.assertEquals(serviceInfo.getDuration().get().intValue(), 30000);
-        Assert.assertEquals(provider.getModuleConfig().getTraceSampleRateSettingWatcher().getSample("serverName1").getSampleRate().get().intValue(), 2000);
+        Assert.assertEquals(provider.getModuleConfig().getTraceSamplingPolicyWatcher().getSample("serverName1").getSampleRate().get().intValue(), 2000);
     }
 
     @Test
     public void testNotify() {
-        TraceSampleRateSettingWatcher watcher = new TraceSampleRateSettingWatcher("trace-sample-rate-setting.yml", provider);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher("trace-sample-rate-setting.yml", provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "services:\n" +
                         "  - name: serverName1\n" +
-                        "    sampleRate: 8000\n" +
+                        "    rate: 8000\n" +
                         "    duration: 20000", ConfigChangeWatcher.EventType.MODIFY);
 
         watcher.notify(value1);
@@ -75,7 +75,7 @@ public class ServiceSampleRateSettingWatcherTest {
         Assert.assertEquals(watcher.getSample("serverName1").getDuration().get().intValue(), 20000);
         Assert.assertEquals(watcher.value(), "services:\n" +
                 "  - name: serverName1\n" +
-                "    sampleRate: 8000\n" +
+                "    rate: 8000\n" +
                 "    duration: 20000");
 
         ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent(
@@ -89,7 +89,7 @@ public class ServiceSampleRateSettingWatcherTest {
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "services:\n" +
                         "  - name: serverName1\n" +
-                        "    sampleRate: 8000\n" +
+                        "    rate: 8000\n" +
                         "    duration: 20000", ConfigChangeWatcher.EventType.ADD);
 
         watcher.notify(value3);
@@ -97,13 +97,13 @@ public class ServiceSampleRateSettingWatcherTest {
         Assert.assertEquals(watcher.getSample("serverName1").getDuration().get().intValue(), 20000);
         Assert.assertEquals(watcher.value(), "services:\n" +
                 "  - name: serverName1\n" +
-                "    sampleRate: 8000\n" +
+                "    rate: 8000\n" +
                 "    duration: 20000");
 
         ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "services:\n" +
                         "  - name: serverName1\n" +
-                        "    sampleRate: 9000\n" +
+                        "    rate: 9000\n" +
                         "    duration: 30000", ConfigChangeWatcher.EventType.MODIFY);
 
         watcher.notify(value4);
@@ -111,7 +111,7 @@ public class ServiceSampleRateSettingWatcherTest {
         Assert.assertEquals(watcher.getSample("serverName1").getDuration().get().intValue(), 30000);
         Assert.assertEquals(watcher.value(), "services:\n" +
                 "  - name: serverName1\n" +
-                "    sampleRate: 9000\n" +
+                "    rate: 9000\n" +
                 "    duration: 30000");
 
     }
@@ -125,9 +125,9 @@ public class ServiceSampleRateSettingWatcherTest {
         @Override
         public Optional<ConfigTable> readConfig(Set<String> keys) {
             ConfigTable table = new ConfigTable();
-            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.traceSampleRateSetting", "services:\n" +
+            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.traceSamplingPolicy", "services:\n" +
                     "  - name: serverName1\n" +
-                    "    sampleRate: 2000\n" +
+                    "    rate: 2000\n" +
                     "    duration: 30000"));
             return Optional.of(table);
         }

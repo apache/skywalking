@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateSettingWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSamplingPolicyWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusAnalyzer;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
 import org.apache.skywalking.oap.server.core.Const;
@@ -54,7 +54,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     private final NamingControl namingControl;
     private final List<String> searchableTagKeys;
     private final SegmentStatusAnalyzer segmentStatusAnalyzer;
-    private final TraceSampleRateSettingWatcher traceSampleRateSettingWatcher;
+    private final TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
 
     private final Segment segment = new Segment();
     private SAMPLE_STATUS sampleStatus = SAMPLE_STATUS.UNKNOWN;
@@ -143,7 +143,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                 sampleStatus = SAMPLE_STATUS.SAMPLED;
             } else if (isError && forceSampleErrorSegment) {
                 sampleStatus = SAMPLE_STATUS.SAMPLED;
-            } else if (traceSampleRateSettingWatcher.shouldSample(duration)) {
+            } else if (traceSamplingPolicyWatcher.shouldSample(duration)) {
                 sampleStatus = SAMPLE_STATUS.SAMPLED;
             } else {
                 sampleStatus = SAMPLE_STATUS.IGNORE;
@@ -191,7 +191,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         private final NamingControl namingControl;
         private final List<String> searchTagKeys;
         private final SegmentStatusAnalyzer segmentStatusAnalyzer;
-        private final TraceSampleRateSettingWatcher traceSampleRateSettingWatcher;
+        private final TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
 
         public Factory(ModuleManager moduleManager, AnalyzerModuleConfig config) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
@@ -199,14 +199,14 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                                                              .provider()
                                                              .getService(ConfigService.class);
             this.searchTagKeys = Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA));
-            this.sampler = new TraceSegmentSampler(config.getTraceSampleRateSettingWatcher());
+            this.sampler = new TraceSegmentSampler(config.getTraceSamplingPolicyWatcher());
             this.forceSampleErrorSegment = config.isForceSampleErrorSegment();
             this.namingControl = moduleManager.find(CoreModule.NAME)
                                               .provider()
                                               .getService(NamingControl.class);
             this.segmentStatusAnalyzer = SegmentStatusStrategy.findByName(config.getSegmentStatusAnalysisStrategy())
                                                               .getExceptionAnalyzer();
-            this.traceSampleRateSettingWatcher = config.getTraceSampleRateSettingWatcher();
+            this.traceSamplingPolicyWatcher = config.getTraceSamplingPolicyWatcher();
         }
 
         @Override
@@ -218,7 +218,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                 namingControl,
                 searchTagKeys,
                 segmentStatusAnalyzer,
-                traceSampleRateSettingWatcher
+                    traceSamplingPolicyWatcher
             );
         }
     }

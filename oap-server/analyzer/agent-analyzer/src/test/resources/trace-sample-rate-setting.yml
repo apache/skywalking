@@ -18,8 +18,8 @@ defaults:
   duration: -1
 services:
   - name: name1
-    sampleRate: 1000
+    rate: 1000
     duration: 20000
   - name: name2
-    sampleRate: 2000
+    rate: 2000
     duration: 30000

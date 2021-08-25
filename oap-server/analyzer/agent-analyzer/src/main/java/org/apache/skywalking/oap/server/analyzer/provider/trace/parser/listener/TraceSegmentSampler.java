@@ -19,32 +19,32 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateSettingWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSamplingPolicyWatcher;
 
 /**
  * The sampler makes the sampling mechanism works at backend side. Sample result: [0,sampleRate) sampled, (sampleRate,~)
  * ignored
  */
 public class TraceSegmentSampler {
-    private TraceSampleRateSettingWatcher traceSampleRateSettingWatcher;
+    private TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
 
-    public TraceSegmentSampler(TraceSampleRateSettingWatcher traceSampleRateSettingWatcher) {
-        this.traceSampleRateSettingWatcher = traceSampleRateSettingWatcher;
+    public TraceSegmentSampler(TraceSamplingPolicyWatcher traceSamplingPolicyWatcher) {
+        this.traceSamplingPolicyWatcher = traceSamplingPolicyWatcher;
     }
 
     public boolean shouldSample(SegmentObject segmentObject, int duration) {
         int sample = Math.abs(segmentObject.getTraceId().hashCode()) % 10000;
         String serviceName = segmentObject.getService();
-        TraceSampleRateSettingWatcher.ServiceSampleConfig sampleConfig = traceSampleRateSettingWatcher.getSample(serviceName);
+        TraceSamplingPolicyWatcher.ServiceSampleConfig sampleConfig = traceSamplingPolicyWatcher.getSample(serviceName);
         if (sampleConfig != null) {
             if (service(sampleConfig, sample, duration)) {
                 return true;
             }
         }
-        return sample < traceSampleRateSettingWatcher.getSampleRate();
+        return sample < traceSamplingPolicyWatcher.getSampleRate();
     }
 
-    private boolean service(TraceSampleRateSettingWatcher.ServiceSampleConfig sampleConfig, int sample, int duration) {
+    private boolean service(TraceSamplingPolicyWatcher.ServiceSampleConfig sampleConfig, int sample, int duration) {
         // trace latency
         if (sampleConfig.getDuration() != null && duration > sampleConfig.getDuration().get()) {
             return true;
