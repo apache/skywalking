@@ -12,8 +12,7 @@ Currently, SkyWalking supports the following dynamic configurations.
 |core.default.apdexThreshold| The apdex threshold settings. Overrides `service-apdex-threshold.yml`. | Same as [`service-apdex-threshold.yml`](apdex-threshold.md). |
 |core.default.endpoint-name-grouping| The endpoint name grouping setting. Overrides `endpoint-name-grouping.yml`. | Same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md). |
 |core.default.log4j-xml| The log4j xml configuration. Overrides `log4j2.xml`. | Same as [`log4j2.xml`](dynamical-logging.md). |
-|agent-analyzer.default.sampleRate| Trace sampling. Overrides `receiver-trace/default/sampleRate` of `application.yml`. | 10000 |
-|agent-analyzer.default.slowTraceSegmentThreshold| Setting this threshold on latency (in milliseconds) would cause slow trace segments to be sampled if they use up more time, even if the sampling mechanism is activated. The default value is `-1`, which means slow traces will not be sampled. Overrides `receiver-trace/default/slowTraceSegmentThreshold` of `application.yml`. | -1 |
+|agent-analyzer.default.traceSampleRateSetting| The sampling rate for default and service dimension, override `trace-sample-rate-setting.yml`. | same as [`trace-sample-rate-setting.yml`](trace-sampling.md) | 
 |configuration-discovery.default.agentConfigurations| The ConfigurationDiscovery settings. | See [`configuration-discovery.md`](../service-agent/java-agent/configuration-discovery.md). |
 
 This feature depends on upstream service, so it is **DISABLED** by default.

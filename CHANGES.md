@@ -48,6 +48,7 @@ Release Notes.
 * Support collection type in dynamic configuration core.
 * Support zookeeper grouped dynamic configurations.
 * Fix NPE when OAP nodes synchronize events with each other in cluster mode.
+* Support configure sampling rate dynamically for service dimension on the backend side.
 
 #### UI
 
