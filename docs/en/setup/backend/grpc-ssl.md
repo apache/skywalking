@@ -44,3 +44,25 @@ gRPCSslCertChainPath: /path/to/server.crt
 Because `sharding-server` only receives data from external, so it doesn't need CA at all.
 
 If you port to java agent, refer to [TLS.md](../service-agent/java-agent/TLS.md) to config java agent to enable TLS.
+
+
+## mutual TLS mode
+
+Configure Sharing gRPC Server, `receiver-sharing-server` module, and enable mTLS as following configuration first.
+```properties
+receiver-sharing-server:
+  selector: ${SW_RECEIVER_SHARING_SERVER:default}
+  default:
+    # For gRPC server
+    gRPCHost: ${SW_RECEIVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_RECEIVER_GRPC_PORT:11801}
+    maxConcurrentCallsPerConnection: ${SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL:0}
+    maxMessageSize: ${SW_RECEIVER_GRPC_MAX_MESSAGE_SIZE:0}
+    gRPCThreadPoolQueueSize: ${SW_RECEIVER_GRPC_POOL_QUEUE_SIZE:0}
+    gRPCThreadPoolSize: ${SW_RECEIVER_GRPC_THREAD_POOL_SIZE:0}
+    gRPCSslEnabled: ${SW_RECEIVER_GRPC_SSL_ENABLED:true}
+    gRPCSslKeyPath: ${SW_RECEIVER_GRPC_SSL_KEY_PATH:"/path/to/server.pem"}
+    gRPCSslCertChainPath: ${SW_RECEIVER_GRPC_SSL_CERT_CHAIN_PATH:"/path/to/server.crt"}
+    gRPCSslTrustedCAsPath: ${SW_RECEIVER_GRPC_SSL_TRUSTED_CAS_PATH:"/path/to/ca.crt"}
+    authentication: ${SW_AUTHENTICATION:""}
+```

@@ -312,6 +312,7 @@ receiver-sharing-server:
     gRPCSslEnabled: ${SW_RECEIVER_GRPC_SSL_ENABLED:false}
     gRPCSslKeyPath: ${SW_RECEIVER_GRPC_SSL_KEY_PATH:""}
     gRPCSslCertChainPath: ${SW_RECEIVER_GRPC_SSL_CERT_CHAIN_PATH:""}
+    gRPCSslTrustedCAsPath: ${SW_RECEIVER_GRPC_SSL_TRUSTED_CAS_PATH:""}
     authentication: ${SW_AUTHENTICATION:""}
 receiver-register:
   selector: ${SW_RECEIVER_REGISTER:default}

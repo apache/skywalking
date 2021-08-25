@@ -137,17 +137,17 @@ public class Config {
         public static boolean FORCE_TLS = false;
 
         /**
-         *
+         * SSL trusted ca file. If it exists, will enable TLS for gRPC channel.
          */
         public static String SSL_TRUSTED_CA_PATH = "ca" + Constants.PATH_SEPARATOR + "ca.crt";
 
         /**
-         *
+         * Key cert chain file. If ssl_cert_chain and ssl_key exist, will enable mTLS for gRPC channel.
          */
         public static String SSL_CERT_CHAIN_PATH;
 
         /**
-         *
+         * Private key file. If ssl_cert_chain and ssl_key exist, will enable mTLS for gRPC channel.
          */
         public static String SSL_KEY_PATH;
     }
