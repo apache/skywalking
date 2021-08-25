@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
 public class UninstrumentedGatewaysConfigTest {
-
     @Test
     public void testParseGatewayYAML() throws Exception {
         final UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig

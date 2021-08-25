@@ -20,7 +20,7 @@ default:
   # Default trace latency time that replaces the 'agent-analyzer.default.slowTraceSegmentThreshold'
   # Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
   duration: -1
-services:
-  - name: serverName
-    rate: 1000 # Sampling rate of this specific service
-    duration: 10000 # Trace latency threshold for trace sampling for this specific service
+#services:
+#  - name: serverName
+#    rate: 1000 # Sampling rate of this specific service
+#    duration: 10000 # Trace latency threshold for trace sampling for this specific service
