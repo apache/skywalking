@@ -21,8 +21,8 @@ package org.apache.skywalking.oap.server.library.server.ssl;
 import io.netty.handler.ssl.SslContextBuilder;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
 import javax.net.ssl.SSLException;
 
 public class HttpDynamicSslContext extends AbstractSslContext {
@@ -54,12 +54,11 @@ public class HttpDynamicSslContext extends AbstractSslContext {
 
     @Override
     protected void updateContext(final String privateKeyFile, final String certChainFile, final String trustedCAsFile) {
-        try {
-            setCtx(SslContextBuilder
-                       .forServer(
-                           new FileInputStream(Paths.get(certChainFile).toFile()),
-                           PrivateKeyUtil.loadDecryptionKey(privateKeyFile)).build());
-        } catch (GeneralSecurityException | IOException e) {
+        try (InputStream cert = new FileInputStream(Paths.get(certChainFile).toFile());
+             InputStream key = PrivateKeyUtil.loadDecryptionKey(privateKeyFile)) {
+
+            setCtx(SslContextBuilder.forServer(cert, key).build());
+        } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
     }
