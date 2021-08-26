@@ -49,6 +49,7 @@ Release Notes.
 * Support zookeeper grouped dynamic configurations.
 * Fix NPE when OAP nodes synchronize events with each other in cluster mode.
 * Support k8s configmap grouped dynamic configurations.
+* Add desc sort function in IBrowserLogQueryDAO of H2 and ES
 
 #### UI
 
