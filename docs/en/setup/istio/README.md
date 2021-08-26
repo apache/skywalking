@@ -24,7 +24,7 @@ are several components available in the collector, and they could be combined fo
  then send them to SkyWalking by OpenCensus exporter.
 
 #### Prometheus receiver
-Refer to [Prometheus Receiver](https://github.com/open-telemetry/opentelemetry-collector/blob/master/receiver/prometheusreceiver/README.md)
+Refer to [Prometheus Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/150692dbbceb3ff0df75c912e835f1feaac0be93/receiver/prometheusreceiver/README.md)
  to set up this receiver. you could find more configuration details in [Prometheus Integration of Istio](https://istio.io/latest/docs/ops/integrations/prometheus/#configuration)
  to figure out how to direct Prometheus receiver to query Istio metrics.
  
@@ -39,7 +39,7 @@ relabel_configs:
   replacement: <cluster name>
 ```
 
-or opt to [Resource Processor](https://github.com/open-telemetry/opentelemetry-collector/blob/master/processor/resourceprocessor/README.md):
+or opt to [Resource Processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/a08903f05d3a544f548535c222b1c205b9f5a154/processor/resourceprocessor/README.md):
 
 ```
 processors:
@@ -55,7 +55,7 @@ the issues described [here](https://github.com/open-telemetry/opentelemetry-coll
 Try to use the solution indicated in this issue if it's not fixed.
 
 #### OpenCensus exporter
-Follow [OpenCensus exporter configuration](https://github.com/open-telemetry/opentelemetry-collector/blob/master/exporter/opencensusexporter/README.md)
+Follow [OpenCensus exporter configuration](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/a08903f05d3a544f548535c222b1c205b9f5a154/exporter/opencensusexporter/README.md)
 to set up a connection between OpenTelemetry collector and OAP cluster. `endpoint` is the address of OAP gRPC service.
 
 ## Observe Istio
