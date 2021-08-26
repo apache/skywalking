@@ -18,9 +18,8 @@
 
 package org.apache.skywalking.oap.server.configuration.configmap;
 
-import io.kubernetes.client.openapi.models.V1ConfigMap;
+import java.io.FileNotFoundException;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,8 +61,8 @@ public class ConfigmapConfigWatcherRegisterTest {
 
     @Test
     public void readConfigWhenConfigMapDataIsNull() throws Exception {
-        V1ConfigMap v1ConfigMap = new V1ConfigMap();
-        PowerMockito.doReturn(Optional.of(v1ConfigMap)).when(informer).configMap();
+        Map<String, String> configMapData = new HashMap<>();
+        PowerMockito.doReturn(configMapData).when(informer).configMapData();
         Optional<ConfigTable> optionalConfigTable = register.readConfig(new HashSet<String>() {{
             add("key1");
         }});
@@ -77,7 +76,7 @@ public class ConfigmapConfigWatcherRegisterTest {
 
     @Test
     public void readConfigWhenInformerNotwork() throws Exception {
-        PowerMockito.doReturn(Optional.empty()).when(informer).configMap();
+        PowerMockito.doReturn(new HashMap<>()).when(informer).configMapData();
         Optional<ConfigTable> optionalConfigTable = register.readConfig(new HashSet<String>() {{
             add("key1");
         }});
@@ -91,17 +90,15 @@ public class ConfigmapConfigWatcherRegisterTest {
 
     @Test
     public void readConfigWhenInformerWork() throws Exception {
-        Reader configmapReader = ResourceUtils.read("skywalking-dynamic-configmap.example.yaml");
-        Map<String, Map<String, String>> configmapMap = yaml.loadAs(configmapReader, Map.class);
-        V1ConfigMap v1ConfigMap = new V1ConfigMap();
-        v1ConfigMap.data(configmapMap.get("data"));
-        PowerMockito.doReturn(Optional.of(v1ConfigMap)).when(informer).configMap();
+        Map<String, String> configMapData = this.readMockConfigMapData();
+        PowerMockito.doReturn(configMapData).when(informer).configMapData();
         Optional<ConfigTable> optionalConfigTable = register.readConfig(new HashSet<String>() {{
             add("receiver-trace.default.slowDBAccessThreshold");
             add("alarm.default.alarm-settings");
             add("core.default.apdexThreshold");
             add("receiver-trace.default.uninstrumentedGateways");
         }});
+
         Assert.assertTrue(optionalConfigTable.isPresent());
         ConfigTable configTable = optionalConfigTable.get();
 
@@ -114,8 +111,8 @@ public class ConfigmapConfigWatcherRegisterTest {
 
     @Test
     public void readGroupConfigWhenConfigMapDataIsNull() throws Exception {
-        Map<String, List<V1ConfigMap>> groupConfigMap = new HashMap<>();
-        PowerMockito.doReturn(groupConfigMap).when(informer).groupConfigMap();
+        Map<String, String> configMapData = new HashMap<>();
+        PowerMockito.doReturn(configMapData).when(informer).configMapData();
         Optional<GroupConfigTable> optionalGroupConfigTable = register.readGroupConfig(new HashSet<String>() {{
             add("key1");
         }});
@@ -129,7 +126,7 @@ public class ConfigmapConfigWatcherRegisterTest {
 
     @Test
     public void readGroupConfigWhenInformerNotwork() throws Exception {
-        PowerMockito.doReturn(Optional.empty()).when(informer).configMap();
+        PowerMockito.doReturn(new HashMap<>()).when(informer).configMapData();
         Optional<GroupConfigTable> optionalGroupConfigTable = register.readGroupConfig(new HashSet<String>() {{
             add("key1");
         }});
@@ -143,28 +140,33 @@ public class ConfigmapConfigWatcherRegisterTest {
 
     @Test
     public void readGroupConfigWhenInformerWork() throws Exception {
-        Reader configmapReaderServiceA = ResourceUtils.read("skywalking-group-dynamic-configmap.example-serviceA.yaml");
-        Reader configmapReaderServiceB = ResourceUtils.read("skywalking-group-dynamic-configmap.example-serviceB.yaml");
-
-        Map<String, Map<String, String>> configmapMapA = yaml.loadAs(configmapReaderServiceA, Map.class);
-        Map<String, Map<String, String>> configmapMapB = yaml.loadAs(configmapReaderServiceB, Map.class);
-
-        List<V1ConfigMap> configMapList = new ArrayList<>();
-        configMapList.add(new V1ConfigMap().data(configmapMapA.get("data")));
-        configMapList.add(new V1ConfigMap().data(configmapMapB.get("data")));
-
-        Map<String, List<V1ConfigMap>> groupConfigMap = new HashMap<>();
-        groupConfigMap.put("core.default.endpoint-name-grouping", configMapList);
-        PowerMockito.doReturn(groupConfigMap).when(informer).groupConfigMap();
-
+        Map<String, String> configMapData = this.readMockConfigMapData();
+        PowerMockito.doReturn(configMapData).when(informer).configMapData();
         Optional<GroupConfigTable> optionalGroupConfigTable = register.readGroupConfig(new HashSet<String>() {{
-            add("core.default.endpoint-name-grouping");
+            add("core.default.endpoint-name-grouping-openapi");
         }});
+
         Assert.assertTrue(optionalGroupConfigTable.isPresent());
         GroupConfigTable groupConfigTable = optionalGroupConfigTable.get();
 
         Assert.assertEquals(groupConfigTable.getGroupItems().size(), 1);
-        Assert.assertEquals(groupConfigTable.getGroupItems().get(0).getName(), "core.default.endpoint-name-grouping");
+        Assert.assertEquals(groupConfigTable.getGroupItems().get(0).getName(), "core.default.endpoint-name-grouping-openapi");
         Assert.assertEquals(groupConfigTable.getGroupItems().get(0).getItems().size(), 3);
+    }
+
+    private Map<String, String> readMockConfigMapData() throws FileNotFoundException {
+        Reader configmapReader1 = ResourceUtils.read("skywalking-dynamic-configmap.example.yaml");
+        Reader configmapReader2 = ResourceUtils.read("skywalking-group-dynamic-configmap.example-serviceA.yaml");
+        Reader configmapReader3 = ResourceUtils.read("skywalking-group-dynamic-configmap.example-serviceB.yaml");
+        Map<String, Map<String, String>> configmapMap1 = yaml.loadAs(configmapReader1, Map.class);
+        Map<String, Map<String, String>> configmapMap2 = yaml.loadAs(configmapReader2, Map.class);
+        Map<String, Map<String, String>> configmapMap3 = yaml.loadAs(configmapReader3, Map.class);
+
+        Map<String, String> configMapData = new HashMap<>();
+        configMapData.putAll(configmapMap1.get("data"));
+        configMapData.putAll(configmapMap2.get("data"));
+        configMapData.putAll(configmapMap3.get("data"));
+
+        return configMapData;
     }
 }

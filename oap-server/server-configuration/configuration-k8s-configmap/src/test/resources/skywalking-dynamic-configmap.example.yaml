@@ -21,7 +21,7 @@ kind: ConfigMap
 metadata:
   name: skywalking-dynamic-config
   labels:
-    app: skywalking-alarm
+    app: collector
     release: skywalking
 data:
   receiver-trace.default.slowDBAccessThreshold: default:200,mongodb:50

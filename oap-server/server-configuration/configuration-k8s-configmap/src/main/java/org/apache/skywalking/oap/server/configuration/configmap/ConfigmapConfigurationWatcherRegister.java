@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.configuration.configmap;
 
-import io.kubernetes.client.openapi.models.V1ConfigMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -42,9 +40,9 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
     @Override
     public Optional<ConfigTable> readConfig(Set<String> keys) {
         final ConfigTable configTable = new ConfigTable();
-        Optional<V1ConfigMap> v1ConfigMap = informer.configMap();
+        Map<String, String> configMapData = informer.configMapData();
         for (final String name : keys) {
-            final String value = v1ConfigMap.map(V1ConfigMap::getData).map(data -> data.get(name)).orElse(null);
+            final String value = configMapData.get(name);
             if (log.isDebugEnabled()) {
                 log.debug("read config: name:{} ,value:{}", name, value);
             }
@@ -56,21 +54,15 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
     @Override
     public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
         GroupConfigTable groupConfigTable = new GroupConfigTable();
+        Map<String, String> configMapData = informer.configMapData();
         keys.forEach(key -> {
             GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
             groupConfigTable.addGroupConfigItems(groupConfigItems);
-            List<V1ConfigMap> configMapList = informer.groupConfigMap().get(key);
-            if (configMapList == null) {
-                return;
-            }
-            configMapList.forEach(v1ConfigMap -> {
-                Map<String, String> data = v1ConfigMap.getData();
-                if (data == null) {
-                    return;
+            configMapData.forEach((groupItemKey, itemValue) -> {
+                if (groupItemKey.startsWith(key)) {
+                    String itemName = groupItemKey.replaceFirst(key + ".", "");
+                    groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
                 }
-                v1ConfigMap.getData().forEach((itemName, itemVaule) -> {
-                    groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemVaule));
-                });
             });
         });
 

@@ -19,13 +19,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: skywalking-dynamic-config
+  name: skywalking-dynamic-config2
   labels:
-    app: skywalking-config
+    app: collector
     release: skywalking
-    sw-group-config-key: core.default.endpoint-name-grouping
 data:
-  customerAPI-v1.yaml: |-
+  core.default.endpoint-name-grouping-openapi.customerAPI-v1.yaml: |-
     openapi: 3.0.0
     x-sw-service-name: serviceA
     info:
@@ -181,7 +180,7 @@ data:
           required:
             - id
             - name
-  productAPI-v1.yaml: |-
+  core.default.endpoint-name-grouping-openapi.productAPI-v1.yaml: |-
     openapi: 3.0.0
     x-sw-service-name: serviceA
     info:
