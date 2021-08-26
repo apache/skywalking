@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.configuration.configmap;
 
 import io.kubernetes.client.openapi.models.V1ConfigMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -53,8 +55,25 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
 
     @Override
     public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
-        // TODO: implement readGroupConfig
-        return Optional.empty();
-    }
+        GroupConfigTable groupConfigTable = new GroupConfigTable();
+        keys.forEach(key -> {
+            GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
+            groupConfigTable.addGroupConfigItems(groupConfigItems);
+            List<V1ConfigMap> configMapList = informer.groupConfigMap().get(key);
+            if (configMapList == null) {
+                return;
+            }
+            configMapList.forEach(v1ConfigMap -> {
+                Map<String, String> data = v1ConfigMap.getData();
+                if (data == null) {
+                    return;
+                }
+                v1ConfigMap.getData().forEach((itemName, itemVaule) -> {
+                    groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemVaule));
+                });
+            });
+        });
 
+        return Optional.of(groupConfigTable);
+    }
 }

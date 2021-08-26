@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.configuration.configmap;
 
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -107,5 +110,61 @@ public class ConfigmapConfigWatcherRegisterTest {
                                        .filter(Objects::nonNull)
                                        .collect(Collectors.toList());
         Assert.assertEquals(list.size(), 4);
+    }
+
+    @Test
+    public void readGroupConfigWhenConfigMapDataIsNull() throws Exception {
+        Map<String, List<V1ConfigMap>> groupConfigMap = new HashMap<>();
+        PowerMockito.doReturn(groupConfigMap).when(informer).groupConfigMap();
+        Optional<GroupConfigTable> optionalGroupConfigTable = register.readGroupConfig(new HashSet<String>() {{
+            add("key1");
+        }});
+
+        Assert.assertTrue(optionalGroupConfigTable.isPresent());
+        GroupConfigTable groupConfigTable = optionalGroupConfigTable.get();
+        Assert.assertEquals(groupConfigTable.getGroupItems().size(), 1);
+        Assert.assertEquals(groupConfigTable.getGroupItems().get(0).getName(), "key1");
+        Assert.assertEquals(groupConfigTable.getGroupItems().get(0).getItems().size(), 0);
+    }
+
+    @Test
+    public void readGroupConfigWhenInformerNotwork() throws Exception {
+        PowerMockito.doReturn(Optional.empty()).when(informer).configMap();
+        Optional<GroupConfigTable> optionalGroupConfigTable = register.readGroupConfig(new HashSet<String>() {{
+            add("key1");
+        }});
+
+        Assert.assertTrue(optionalGroupConfigTable.isPresent());
+        GroupConfigTable groupConfigTable = optionalGroupConfigTable.get();
+        Assert.assertEquals(groupConfigTable.getGroupItems().size(), 1);
+        Assert.assertEquals(groupConfigTable.getGroupItems().get(0).getName(), "key1");
+        Assert.assertEquals(groupConfigTable.getGroupItems().get(0).getItems().size(), 0);
+    }
+
+    @Test
+    public void readGroupConfigWhenInformerWork() throws Exception {
+        Reader configmapReaderServiceA = ResourceUtils.read("skywalking-group-dynamic-configmap.example-serviceA.yaml");
+        Reader configmapReaderServiceB = ResourceUtils.read("skywalking-group-dynamic-configmap.example-serviceB.yaml");
+
+        Map<String, Map<String, String>> configmapMapA = yaml.loadAs(configmapReaderServiceA, Map.class);
+        Map<String, Map<String, String>> configmapMapB = yaml.loadAs(configmapReaderServiceB, Map.class);
+
+        List<V1ConfigMap> configMapList = new ArrayList<>();
+        configMapList.add(new V1ConfigMap().data(configmapMapA.get("data")));
+        configMapList.add(new V1ConfigMap().data(configmapMapB.get("data")));
+
+        Map<String, List<V1ConfigMap>> groupConfigMap = new HashMap<>();
+        groupConfigMap.put("core.default.endpoint-name-grouping", configMapList);
+        PowerMockito.doReturn(groupConfigMap).when(informer).groupConfigMap();
+
+        Optional<GroupConfigTable> optionalGroupConfigTable = register.readGroupConfig(new HashSet<String>() {{
+            add("core.default.endpoint-name-grouping");
+        }});
+        Assert.assertTrue(optionalGroupConfigTable.isPresent());
+        GroupConfigTable groupConfigTable = optionalGroupConfigTable.get();
+
+        Assert.assertEquals(groupConfigTable.getGroupItems().size(), 1);
+        Assert.assertEquals(groupConfigTable.getGroupItems().get(0).getName(), "core.default.endpoint-name-grouping");
+        Assert.assertEquals(groupConfigTable.getGroupItems().get(0).getItems().size(), 3);
     }
 }

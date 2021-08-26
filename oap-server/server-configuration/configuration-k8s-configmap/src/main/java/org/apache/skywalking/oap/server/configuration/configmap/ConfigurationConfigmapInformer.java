@@ -26,8 +26,13 @@ import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ConfigMapList;
+import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.util.Config;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -37,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConfigurationConfigmapInformer {
-
+    private final static String LABEL_SW_GROUP_CONFIG_KEY = "sw-group-config-key";
     private Lister<V1ConfigMap> configMapLister;
 
     private SharedInformerFactory factory;
@@ -85,7 +90,40 @@ public class ConfigurationConfigmapInformer {
     }
 
     public Optional<V1ConfigMap> configMap() {
-        return Optional.ofNullable(configMapLister.list().size() == 1 ? configMapLister.list().get(0) : null);
+        List<V1ConfigMap> singleConfigMapList = new ArrayList<>();
+        configMapLister.list().forEach(cf -> {
+            V1ObjectMeta meta = cf.getMetadata();
+            if (meta == null) {
+                return;
+            }
+
+            if (meta.getLabels() == null) {
+                return;
+            }
+
+            if (meta.getLabels().get(LABEL_SW_GROUP_CONFIG_KEY) == null) {
+                singleConfigMapList.add(cf);
+            }
+        });
+        return Optional.ofNullable(singleConfigMapList.size() == 1 ? singleConfigMapList.get(0) : null);
     }
 
+    public Map<String, List<V1ConfigMap>> groupConfigMap() {
+        Map<String, List<V1ConfigMap>> groupConfigMap = new HashMap<>();
+        configMapLister.list().forEach(cf -> {
+            V1ObjectMeta meta = cf.getMetadata();
+            if (meta == null) {
+                return;
+            }
+
+            if (meta.getLabels() == null) {
+                return;
+            }
+            String groupConfigKey = meta.getLabels().get(LABEL_SW_GROUP_CONFIG_KEY);
+            if (groupConfigKey != null) {
+                groupConfigMap.computeIfAbsent(groupConfigKey, list -> new ArrayList<>()).add(cf);
+            }
+        });
+        return groupConfigMap;
+    }
 }
