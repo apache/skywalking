@@ -42,6 +42,8 @@ ENV JAVA_OPTS=" -Xms256M " \
 
 ARG DIST_NAME
 
+RUN apk add --no-cache openssl-dev
+
 COPY "$DIST_NAME.tar.gz" /
 
 RUN set -ex; \
