@@ -40,7 +40,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        case: [auth, ssl]
+        case: [auth, ssl, mtls]
     env:
       SW_SIMPLE_CASE: ${{ matrix.case }}
     steps:
