@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.elasticsearch.search.sort.SortOrder;
 
 import static java.util.Objects.nonNull;
 
@@ -77,6 +78,8 @@ public class H2BrowserLogQueryDAO implements IBrowserLogQueryDAO {
             sql.append(" and ").append(BrowserErrorLogRecord.ERROR_CATEGORY).append(" = ?");
             parameters.add(category.getValue());
         }
+
+        sql.append(" order by ").append(BrowserErrorLogRecord.TIMESTAMP).append(" ").append(SortOrder.DESC);
 
         BrowserErrorLogs logs = new BrowserErrorLogs();
         try (Connection connection = h2Client.getConnection()) {
