@@ -16,23 +16,24 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm-sdk-plugin</artifactId>
+        <artifactId>shardingsphere-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>8.8.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-sharding-sphere-3.x-plugin</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>apm-shardingsphere-4.0.x-plugin</artifactId>
 
-    <name>sharding-sphere-3.x-plugin</name>
+
+    <packaging>jar</packaging>
+    <name>sharding-sphere-4.0.x-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <shardingsphere.version>4.0.0</shardingsphere.version>
     </properties>
 
     <dependencies>
@@ -43,30 +44,22 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.shardingsphere</groupId>
-            <artifactId>sharding-core</artifactId>
-            <version>[3.0.0,4.0.0)</version>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>sharding-core-execute</artifactId>
+            <version>${shardingsphere.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.shardingsphere</groupId>
+            <groupId>org.apache.shardingsphere</groupId>
             <artifactId>sharding-jdbc-core</artifactId>
-            <version>[3.0.0,4.0.0)</version>
+            <version>${shardingsphere.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.shardingsphere</groupId>
-            <artifactId>sharding-proxy</artifactId>
-            <version>[3.0.0,4.0.0)</version>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-sql-parser-engine</artifactId>
+            <version>${shardingsphere.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>
