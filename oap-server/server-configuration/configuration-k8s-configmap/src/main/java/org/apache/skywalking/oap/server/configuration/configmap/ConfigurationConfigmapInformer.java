@@ -29,6 +29,7 @@ import io.kubernetes.client.openapi.models.V1ConfigMapList;
 import io.kubernetes.client.util.Config;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -86,14 +87,17 @@ public class ConfigurationConfigmapInformer {
 
     public Map<String, String> configMapData() {
         Map<String, String> configMapData = new HashMap<>();
-        if (configMapLister != null && configMapLister.list() != null) {
-            configMapLister.list().forEach(cf -> {
-                Map<String, String> data = cf.getData();
-                if (data == null) {
-                    return;
-                }
-                configMapData.putAll(data);
-            });
+        if (configMapLister != null) {
+            final List<V1ConfigMap> list = configMapLister.list();
+            if (list != null) {
+                list.forEach(cf -> {
+                    Map<String, String> data = cf.getData();
+                    if (data == null) {
+                        return;
+                    }
+                    configMapData.putAll(data);
+                });
+            }
         }
 
         return configMapData;

@@ -59,8 +59,8 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
             GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
             groupConfigTable.addGroupConfigItems(groupConfigItems);
             configMapData.forEach((groupItemKey, itemValue) -> {
-                if (groupItemKey.startsWith(key)) {
-                    String itemName = groupItemKey.replaceFirst(key + ".", "");
+                if (groupItemKey.startsWith(key + ".")) {
+                    String itemName = groupItemKey.substring(key.length() + 1);
                     groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
                 }
             });
