@@ -31,6 +31,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 import static java.util.Objects.nonNull;
 
@@ -71,6 +72,7 @@ public class BrowserLogQueryEs7DAO extends BrowserLogQueryEsDAO {
             boolQueryBuilder.must()
                             .add(QueryBuilders.termQuery(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
         }
+        sourceBuilder.sort(BrowserErrorLogRecord.TIMESTAMP, SortOrder.DESC);
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
         SearchResponse response = getClient()
