@@ -189,8 +189,8 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
         Object defaultMapObject = map.get("default");
         if (defaultMapObject != null) {
             Map<String, Object> defaultMap = (Map<String, Object>) defaultMapObject;
-            defaultSampleRateConfig.setRate(new AtomicInteger((Integer) defaultMap.getOrDefault("rate", null)));
-            defaultSampleRateConfig.setDuration(new AtomicInteger((Integer) defaultMap.getOrDefault("duration", null)));
+            defaultSampleRateConfig.setRate(defaultMap.get("rate") == null ? null : new AtomicInteger((Integer) defaultMap.get("rate")));
+            defaultSampleRateConfig.setDuration(defaultMap.get("duration") == null ? null : new AtomicInteger((Integer) defaultMap.get("duration")));
         }
         setting.setDefaults(defaultSampleRateConfig);
         // services
