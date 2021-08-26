@@ -48,6 +48,7 @@ Release Notes.
 * Support collection type in dynamic configuration core.
 * Support zookeeper grouped dynamic configurations.
 * Fix NPE when OAP nodes synchronize events with each other in cluster mode.
+* Support k8s configmap grouped dynamic configurations.
 
 #### UI
 
