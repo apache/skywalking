@@ -49,7 +49,8 @@ Release Notes.
 * Support collection type in dynamic configuration core.
 * Support zookeeper grouped dynamic configurations.
 * Fix NPE when OAP nodes synchronize events with each other in cluster mode.
-* Enable mTLS for gRPC channel.
+* Support k8s configmap grouped dynamic configurations.
+* Support mTLS for gRPC channel.
 
 #### UI
 

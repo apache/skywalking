@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.configuration.configmap;
 
-import io.kubernetes.client.openapi.models.V1ConfigMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +40,9 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
     @Override
     public Optional<ConfigTable> readConfig(Set<String> keys) {
         final ConfigTable configTable = new ConfigTable();
-        Optional<V1ConfigMap> v1ConfigMap = informer.configMap();
+        Map<String, String> configMapData = informer.configMapData();
         for (final String name : keys) {
-            final String value = v1ConfigMap.map(V1ConfigMap::getData).map(data -> data.get(name)).orElse(null);
+            final String value = configMapData.get(name);
             if (log.isDebugEnabled()) {
                 log.debug("read config: name:{} ,value:{}", name, value);
             }
@@ -53,8 +53,19 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
 
     @Override
     public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
-        // TODO: implement readGroupConfig
-        return Optional.empty();
-    }
+        GroupConfigTable groupConfigTable = new GroupConfigTable();
+        Map<String, String> configMapData = informer.configMapData();
+        keys.forEach(key -> {
+            GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
+            groupConfigTable.addGroupConfigItems(groupConfigItems);
+            configMapData.forEach((groupItemKey, itemValue) -> {
+                if (groupItemKey.startsWith(key + ".")) {
+                    String itemName = groupItemKey.substring(key.length() + 1);
+                    groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
+                }
+            });
+        });
 
+        return Optional.of(groupConfigTable);
+    }
 }
