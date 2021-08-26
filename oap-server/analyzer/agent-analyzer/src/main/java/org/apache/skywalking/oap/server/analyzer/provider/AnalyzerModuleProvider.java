@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.analyzer.provider;
 
 import java.util.List;
+
 import lombok.Getter;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
@@ -87,7 +88,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
         uninstrumentedGatewaysConfig = new UninstrumentedGatewaysConfig(this);
 
-        traceSamplingPolicyWatcher = new TraceSamplingPolicyWatcher(moduleConfig.getTraceSampleRateSettingFile(), this);
+        traceSamplingPolicyWatcher = new TraceSamplingPolicyWatcher(moduleConfig, this);
 
         moduleConfig.setDbLatencyThresholdsAndWatcher(thresholds);
         moduleConfig.setUninstrumentedGatewaysConfig(uninstrumentedGatewaysConfig);
@@ -97,7 +98,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(ISegmentParserService.class, segmentParserService);
 
         meterConfigs = MeterConfigs.loadConfig(
-            moduleConfig.getConfigPath(), moduleConfig.meterAnalyzerActiveFileNames());
+                moduleConfig.getConfigPath(), moduleConfig.meterAnalyzerActiveFileNames());
         processService = new MeterProcessService(getManager());
         this.registerServiceImplementation(IMeterProcessService.class, processService);
     }
@@ -106,14 +107,14 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     public void start() throws ModuleStartException {
         // load official analysis
         getManager().find(CoreModule.NAME)
-                    .provider()
-                    .getService(OALEngineLoaderService.class)
-                    .load(CoreOALDefine.INSTANCE);
+                .provider()
+                .getService(OALEngineLoaderService.class)
+                .load(CoreOALDefine.INSTANCE);
 
         DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME)
-                                                                              .provider()
-                                                                              .getService(
-                                                                                  DynamicConfigurationService.class);
+                .provider()
+                .getService(
+                        DynamicConfigurationService.class);
         dynamicConfigurationService.registerConfigChangeWatcher(thresholds);
         dynamicConfigurationService.registerConfigChangeWatcher(uninstrumentedGatewaysConfig);
         dynamicConfigurationService.registerConfigChangeWatcher(traceSamplingPolicyWatcher);
@@ -130,10 +131,10 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {
-            TelemetryModule.NAME,
-            CoreModule.NAME,
-            ConfigurationModule.NAME
+        return new String[]{
+                TelemetryModule.NAME,
+                CoreModule.NAME,
+                ConfigurationModule.NAME
         };
     }
 

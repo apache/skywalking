@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
@@ -31,45 +32,36 @@ import org.apache.skywalking.oap.server.library.util.yaml.ClassFilterConstructor
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static java.util.Objects.isNull;
 
 @Slf4j
 public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
+
     private final AtomicReference<String> settingsString;
-    private AtomicInteger sampleRate;
-    private AtomicInteger slowTraceSegmentThreshold;
+    private final AtomicReference<SampleRateSetting> sampleRateSetting;
+    private final AnalyzerModuleConfig moduleConfig;
 
-    private volatile Map<String, ServiceSampleConfig> serviceSampleRates = Collections.emptyMap();
-
-    public TraceSamplingPolicyWatcher(String settingFile, ModuleProvider provider) {
+    public TraceSamplingPolicyWatcher(AnalyzerModuleConfig moduleConfig, ModuleProvider provider) {
         super(AnalyzerModule.NAME, provider, "traceSamplingPolicy");
         this.settingsString = new AtomicReference<>(Const.EMPTY_STRING);
-        slowTraceSegmentThreshold = new AtomicInteger();
-        sampleRate = new AtomicInteger();
-        final SampleRateSetting defaultConfigs = parseFromFile(settingFile);
-        log.info("Default configured trace-sample-policy: {}", defaultConfigs);
-        onUpdatedDefaultConfig(defaultConfigs);
+        this.moduleConfig = moduleConfig;
+        SampleRateSetting rateSetting = parseFromFile(moduleConfig.getTraceSampleRateSettingFile());
+        // If settingFile has a empty config, use the default settings in AnalyzerModuleConfig
+        this.sampleRateSetting = new AtomicReference<>(rateSetting == null ? defaultSampleConfigSetting() : rateSetting);
+        log.info("[trace-sample-policy] Default configured trace-sample-policy: {}", this.sampleRateSetting);
     }
 
     @Override
     public void notify(ConfigChangeEvent value) {
         if (EventType.DELETE.equals(value.getEventType())) {
             this.settingsString.set("");
-            slowTraceSegmentThreshold.set(getDefaultSlowTraceSegmentThreshold());
-            sampleRate.set(getDefaultSampleRate());
-            serviceSampleRates = Collections.emptyMap();
+            this.sampleRateSetting.set(defaultSampleConfigSetting());
+            log.info("[trace-sample-policy] Delete trace-sample-policy,use default config: {}", this.sampleRateSetting);
         } else {
             activeSetting(value.getNewValue());
         }
@@ -77,81 +69,50 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
 
     @Override
     public String value() {
-        return settingsString.get();
+        return this.settingsString.get();
     }
 
-    public ServiceSampleConfig getSample(String serviceName) {
-        return serviceSampleRates.get(serviceName);
+    public SampleConfig getSample(String service) {
+        return this.sampleRateSetting.get().get(service);
     }
 
     public int getSampleRate() {
-        return sampleRate.get();
+        return this.sampleRateSetting.get().defaultRate;
     }
 
     public int getSlowTraceSegmentThreshold() {
-        return slowTraceSegmentThreshold.get();
+        return this.sampleRateSetting.get().defaultDuration;
     }
 
     public boolean shouldSample(int duration) {
-        return (slowTraceSegmentThreshold.get() > -1) && (duration >= slowTraceSegmentThreshold.get());
-    }
-
-    /**
-     * Been updated when this object been init
-     */
-    private void onUpdatedDefaultConfig(SampleRateSetting defaultConfigs) {
-        if (isNull(defaultConfigs)) {
-            slowTraceSegmentThreshold.set(getDefaultSlowTraceSegmentThreshold());
-            sampleRate.set(getDefaultSampleRate());
-        } else {
-            onUpdated(defaultConfigs);
-        }
+        return (this.sampleRateSetting.get().defaultDuration > -1) && (duration >= this.sampleRateSetting.get().defaultDuration);
     }
 
     private void activeSetting(String config) {
         if (log.isDebugEnabled()) {
             log.debug("[trace-sample-policy] Updating using new config: {}", config);
         }
-        // if parse failed, retain last configuration
         onUpdated(parseFromYml(config));
     }
 
     private void onUpdated(final SampleRateSetting sampleRateSetting) {
-        log.info("Updating trace-sample-policy with: {}", sampleRateSetting);
         if (!isNull(sampleRateSetting)) {
-            serviceSampleRates = StreamSupport.stream(sampleRateSetting.spliterator(), false)
-                    .collect(Collectors.toMap(ServiceSampleConfig::getName, Function.identity()));
-
-            if (sampleRateIsNotNull(sampleRateSetting)) {
-                sampleRate.set(sampleRateSetting.defaults.rate.get());
-            } else {
-                sampleRate.set(getDefaultSampleRate());
-            }
-
-            if (slowTraceSegmentThresholdIsNotNull(sampleRateSetting)) {
-                slowTraceSegmentThreshold.set(sampleRateSetting.defaults.duration.get());
-            } else {
-                slowTraceSegmentThreshold.set(getDefaultSlowTraceSegmentThreshold());
-            }
+            this.sampleRateSetting.set(sampleRateSetting);
+            log.info("[trace-sample-policy] Updating trace-sample-policy with: {}", sampleRateSetting);
+        } else if (StringUtil.isBlank(this.settingsString.get())) {
+            this.sampleRateSetting.set(defaultSampleConfigSetting());
+            log.info("[trace-sample-policy] Trace-sample-policy been set empty string,use default config: {}", this.sampleRateSetting);
         } else {
-            // if null, retain last configuration
+            log.info("[trace-sample-policy] Parse yaml fail, retain last configuration: {}", this.sampleRateSetting);
         }
     }
 
-    private boolean sampleRateIsNotNull(SampleRateSetting sampleRateSetting) {
-        return sampleRateSetting.defaults != null && sampleRateSetting.defaults.rate != null;
-    }
-
-    private boolean slowTraceSegmentThresholdIsNotNull(SampleRateSetting sampleRateSetting) {
-        return sampleRateSetting.defaults != null && sampleRateSetting.defaults.duration != null;
-    }
-
     private int getDefaultSampleRate() {
-        return ((AnalyzerModuleConfig) this.getProvider().createConfigBeanIfAbsent()).getSampleRate();
+        return this.moduleConfig.getSampleRate();
     }
 
     private int getDefaultSlowTraceSegmentThreshold() {
-        return ((AnalyzerModuleConfig) this.getProvider().createConfigBeanIfAbsent()).getSlowTraceSegmentThreshold();
+        return this.moduleConfig.getSlowTraceSegmentThreshold();
     }
 
     private SampleRateSetting parseFromFile(final String file) {
@@ -163,7 +124,8 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
         } catch (Exception e) {
             log.error("[trace-sample-policy] Cannot load configs from: {}", file, e);
         }
-        return null;
+        // It must have a default config on init
+        return defaultSampleConfigSetting();
     }
 
     private SampleRateSetting parseFromYml(final String ymlContent) {
@@ -176,74 +138,80 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
         } catch (Exception e) {
             log.error("[trace-sample-policy] Failed to parse yml content: \n{}", ymlContent, e);
         }
+        // Config update maybe parse fail
         return null;
     }
 
     private SampleRateSetting mapToSettingObject(Map<String, Object> map) {
+        // YmlContent maybe empty
         if (map == null) {
             return null;
         }
-        SampleRateSetting setting = new SampleRateSetting();
-        DefaultSampleRateConfig defaultSampleRateConfig = new DefaultSampleRateConfig();
-        // default
+        SampleRateSetting setting;
+        // default config
         Object defaultMapObject = map.get("default");
         if (defaultMapObject != null) {
             Map<String, Object> defaultMap = (Map<String, Object>) defaultMapObject;
-            defaultSampleRateConfig.setRate(defaultMap.get("rate") == null ? null : new AtomicInteger((Integer) defaultMap.get("rate")));
-            defaultSampleRateConfig.setDuration(defaultMap.get("duration") == null ? null : new AtomicInteger((Integer) defaultMap.get("duration")));
+            setting = new SampleRateSetting(defaultMap.get("rate") == null ? getDefaultSampleRate() : (Integer) defaultMap.get("rate"),
+                    defaultMap.get("duration") == null ? getDefaultSlowTraceSegmentThreshold() : (Integer) defaultMap.get("duration"));
+        } else {
+            setting = defaultSampleConfigSetting();
         }
-        setting.setDefaults(defaultSampleRateConfig);
-        // services
-        List<ServiceSampleConfig> services = new ArrayList<>();
+        // services config
         Object servicesObject = map.get("services");
         if (servicesObject != null) {
             List<Map<String, Object>> serviceList = (List<Map<String, Object>>) servicesObject;
             serviceList.forEach(service -> {
-                ServiceSampleConfig serviceSampleConfig = new ServiceSampleConfig();
-                serviceSampleConfig.setName((String) service.get("name"));
-                serviceSampleConfig.setRate(service.get("rate") == null ? null : new AtomicInteger((Integer) service.get("rate")));
-                serviceSampleConfig.setDuration(service.get("duration") == null ? null : new AtomicInteger((Integer) service.get("duration")));
-                services.add(serviceSampleConfig);
+                String name = (String) service.get("name");
+                if (StringUtil.isBlank(name)) {
+                    return;
+                }
+                SampleConfig serviceSampleConfig = new SampleConfig();
+                serviceSampleConfig.setRate(service.get("rate") == null ? null : (Integer) service.get("rate"));
+                serviceSampleConfig.setDuration(service.get("duration") == null ? null : (Integer) service.get("duration"));
+                setting.add(name, serviceSampleConfig);
             });
         }
-        setting.setServices(services);
         return setting;
     }
 
-    @Getter
-    @Setter
-    @ToString
-    public static class ServiceSampleConfig {
-        private String name;
-        private AtomicInteger rate;
-        private AtomicInteger duration;
-    }
-
-    @ToString
-    public static class SampleRateSetting implements Iterable<ServiceSampleConfig> {
-        @Getter
-        @Setter
-        private DefaultSampleRateConfig defaults;
-        @Getter
-        @Setter
-        private Collection<ServiceSampleConfig> services;
-
-        SampleRateSetting() {
-            services = new ArrayList<>();
-        }
-
-        @Override
-        public Iterator<ServiceSampleConfig> iterator() {
-            return services.iterator();
-        }
+    private SampleRateSetting defaultSampleConfigSetting() {
+        return new SampleRateSetting(getDefaultSampleRate(), getDefaultSlowTraceSegmentThreshold());
     }
 
     @Getter
     @Setter
     @ToString
-    public static class DefaultSampleRateConfig {
-        private AtomicInteger rate;
-        private AtomicInteger duration;
+    public static class SampleConfig {
+        private Integer rate;
+        private Integer duration;
+    }
+
+    @ToString
+    public static class SampleRateSetting {
+        @Getter
+        @Setter
+        private int defaultRate;
+        @Getter
+        @Setter
+        private int defaultDuration;
+
+        @Getter
+        private Map<String, SampleConfig> services;
+
+        SampleRateSetting(Integer defaultRate, Integer defaultDuration) {
+            this.defaultRate = defaultRate;
+            this.defaultDuration = defaultDuration;
+            this.services = new ConcurrentHashMap<>();
+        }
+
+        public void add(String service, SampleConfig sampleConfig) {
+            this.services.put(service, sampleConfig);
+        }
+
+        public SampleConfig get(String service) {
+            return this.services.get(service);
+        }
     }
 
 }
