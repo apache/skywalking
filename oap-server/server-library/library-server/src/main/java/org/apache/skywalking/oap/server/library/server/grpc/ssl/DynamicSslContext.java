@@ -24,8 +24,8 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
 import javax.net.ssl.SSLException;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.library.server.ssl.AbstractSslContext;
@@ -64,22 +64,21 @@ public class DynamicSslContext extends AbstractSslContext {
     }
 
     protected void updateContext(final String privateKeyFile, final String certChainFile, final String trustedCAsFile) {
-        try {
+        try (InputStream cert = new FileInputStream(Paths.get(certChainFile).toFile());
+             InputStream key = PrivateKeyUtil.loadDecryptionKey(privateKeyFile)) {
+
             SslContextBuilder builder = GrpcSslContexts.configure(
-                SslContextBuilder.forServer(
-                    new FileInputStream(Paths.get(certChainFile).toFile()),
-                    PrivateKeyUtil.loadDecryptionKey(privateKeyFile)
-                ),
+                SslContextBuilder.forServer(cert, key),
                 SslProvider.OPENSSL
             );
 
             if (StringUtil.isNotEmpty(trustedCAsFile)) {
-                builder.trustManager(new FileInputStream(Paths.get(trustedCAsFile).toFile()))
+                builder.trustManager(Paths.get(trustedCAsFile).toFile())
                        .clientAuth(ClientAuth.REQUIRE);
             }
 
             setCtx(builder.build());
-        } catch (GeneralSecurityException | IOException e) {
+        } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
     }

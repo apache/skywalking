@@ -25,6 +25,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -53,8 +54,12 @@ public class TLSChannelBuilder implements ChannelBuilder<NettyChannelBuilder> {
                 if (StringUtil.isNotBlank(certPath) && StringUtil.isNotBlank(keyPath)) {
                     File keyFile = new File(toAbsolutePath(keyPath));
                     File certFile = new File(toAbsolutePath(certPath));
+
                     if (certFile.isFile() && keyFile.isFile()) {
-                        builder.keyManager(new FileInputStream(certFile), PrivateKeyUtil.loadDecryptionKey(keyPath));
+                        try (InputStream cert = new FileInputStream(certFile);
+                             InputStream key = PrivateKeyUtil.loadDecryptionKey(keyPath)) {
+                            builder.keyManager(cert, key);
+                        }
                     }
                     else if (!certFile.isFile() || !keyFile.isFile()) {
                         LOGGER.warn("Failed to enable mTLS caused by cert or key cannot be found.");

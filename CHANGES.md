@@ -18,7 +18,7 @@ Release Notes.
 * Fix kafka-reporter-plugin shade package conflict
 * Add all config items to `agent.conf` file for convenient containerization use cases.
 * Advanced Kafka Producer configuration enhancement.
-* Enable mTLS for gRPC channel.
+* Support mTLS for gRPC channel.
 
 #### OAP-Backend
 

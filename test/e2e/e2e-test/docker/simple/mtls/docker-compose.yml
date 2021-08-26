@@ -22,6 +22,8 @@ services:
       service: oap
     volumes:
       - ./server:/skywalking/certs
+    expose:
+      - 11811
     environment:
       SW_RECEIVER_GRPC_PORT: 11811
       SW_RECEIVER_GRPC_SSL_ENABLED: "true"
@@ -47,9 +49,9 @@ services:
       - ./client:/skywalking/agent/certs
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11811
-      SW_AGENT_SSL_KEY_PATH: certs/client.pem
-      SW_AGENT_SSL_CERT_CHAIN_PATH: certs/client.crt
-      SW_AGENT_SSL_TRUSTED_CA_PATH: certs/ca.crt
+      SW_AGENT_SSL_KEY_PATH: /skywalking/agent/certs/client.pem
+      SW_AGENT_SSL_CERT_CHAIN_PATH: /skywalking/agent/certs/client.crt
+      SW_AGENT_SSL_TRUSTED_CA_PATH: /skywalking/agent/certs/ca.crt
     depends_on:
       oap:
         condition: service_healthy

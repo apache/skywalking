@@ -47,7 +47,8 @@ If you port to java agent, refer to [TLS.md](../service-agent/java-agent/TLS.md)
 
 ## mutual TLS mode
 
-Configure Sharing gRPC Server, `receiver-sharing-server` module, and enable mTLS as following configuration first.
+Configure Sharing gRPC Server, `receiver-sharing-server` module, and enable mTLS as following configuration first. You still use this [script](../../../../tools/TLS/tls_key_generate.sh) to generate CA certificate and the private keys of server side(for OAP Server) and Client side(for Agent/Satellite).
+You have to notice the private keys, included server and client side, are from the same CA certification.
 ```properties
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
