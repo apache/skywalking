@@ -35,4 +35,9 @@
         <module>sharding-sphere-4.1.0-plugin</module>
         <module>shardingsphere-5.0.0-beta-plugin</module>
     </modules>
+  
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sdk.plugin.related.dir>/..</sdk.plugin.related.dir>
+    </properties>
 </project>
