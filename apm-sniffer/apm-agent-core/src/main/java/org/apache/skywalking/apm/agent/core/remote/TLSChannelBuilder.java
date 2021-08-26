@@ -43,27 +43,16 @@ public class TLSChannelBuilder implements ChannelBuilder<NettyChannelBuilder> {
     public NettyChannelBuilder build(
         NettyChannelBuilder managedChannelBuilder) throws AgentPackageNotFoundException, IOException {
 
-        String caPath = Config.Agent.SSL_TRUSTED_CA_PATH;
-        if (caPath.startsWith("./")) {
-            caPath = AgentPackagePath.getPath() + caPath.substring(2);
-        }
-        File caFile = new File(caPath);
-
+        File caFile = new File(toAbsolutePath(Config.Agent.SSL_TRUSTED_CA_PATH));
         if (Config.Agent.FORCE_TLS || caFile.isFile()) {
             SslContextBuilder builder = GrpcSslContexts.forClient();
-            if (caFile.exists()) {
+
+            if (caFile.isFile()) {
                 String certPath = Config.Agent.SSL_CERT_CHAIN_PATH;
                 String keyPath = Config.Agent.SSL_KEY_PATH;
                 if (StringUtil.isNotBlank(certPath) && StringUtil.isNotBlank(keyPath)) {
-                    if (certPath.startsWith("./")) {
-                        certPath = AgentPackagePath.getPath() + certPath.substring(2);
-                    }
-                    if (keyPath.startsWith("./")) {
-                        keyPath = AgentPackagePath.getPath() + keyPath.substring(2);
-                    }
-
-                    File keyFile = new File(keyPath);
-                    File certFile = new File(certPath);
+                    File keyFile = new File(toAbsolutePath(keyPath));
+                    File certFile = new File(toAbsolutePath(certPath));
                     if (certFile.isFile() && keyFile.isFile()) {
                         builder.keyManager(new FileInputStream(certFile), PrivateKeyUtil.loadDecryptionKey(keyPath));
                     }
@@ -74,9 +63,19 @@ public class TLSChannelBuilder implements ChannelBuilder<NettyChannelBuilder> {
 
                 builder.trustManager(caFile);
             }
-            managedChannelBuilder = managedChannelBuilder.negotiationType(NegotiationType.TLS)
-                                                         .sslContext(builder.build());
+            managedChannelBuilder.negotiationType(NegotiationType.TLS).sslContext(builder.build());
         }
         return managedChannelBuilder;
     }
+
+    private static String toAbsolutePath(final String path) throws AgentPackageNotFoundException {
+        if (path.startsWith("/")) {
+            return path;
+        } else if (path.startsWith("./")) {
+            return AgentPackagePath.getPath() + path.substring(1);
+        } else {
+            return AgentPackagePath.getPath() + "/" + path;
+        }
+    }
+
 }
