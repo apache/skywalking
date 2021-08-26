@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,54 +48,19 @@ import static java.util.Objects.isNull;
 @Slf4j
 public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
     private final AtomicReference<String> settingsString;
-    private AtomicReference<Integer> sampleRate;
-    private AtomicReference<Integer> slowTraceSegmentThreshold;
+    private AtomicInteger sampleRate;
+    private AtomicInteger slowTraceSegmentThreshold;
 
     private volatile Map<String, ServiceSampleConfig> serviceSampleRates = Collections.emptyMap();
 
     public TraceSamplingPolicyWatcher(String settingFile, ModuleProvider provider) {
         super(AnalyzerModule.NAME, provider, "traceSamplingPolicy");
         this.settingsString = new AtomicReference<>(Const.EMPTY_STRING);
-        slowTraceSegmentThreshold = new AtomicReference<Integer>();
-        sampleRate = new AtomicReference<Integer>();
+        slowTraceSegmentThreshold = new AtomicInteger();
+        sampleRate = new AtomicInteger();
         final SampleRateSetting defaultConfigs = parseFromFile(settingFile);
         log.info("Default configured trace-sample-policy: {}", defaultConfigs);
-        setDefaultConfig(defaultConfigs);
         onUpdatedDefaultConfig(defaultConfigs);
-    }
-
-    /**
-     * Been updated when this object been init
-     */
-    private void onUpdatedDefaultConfig(SampleRateSetting defaultConfigs) {
-        if (isNull(defaultConfigs)) {
-            slowTraceSegmentThreshold.set(getDefaultSlowTraceSegmentThreshold());
-            sampleRate.set(getDefaultSampleRate());
-        } else {
-            onUpdated(defaultConfigs);
-        }
-    }
-
-    private void setDefaultConfig(SampleRateSetting defaultConfigs) {
-        if (isNull(defaultConfigs)) {
-            return;
-        }
-        // setting default value
-        if (sampleRateIsNotNull(defaultConfigs)) {
-            ((AnalyzerModuleConfig) this.getProvider().createConfigBeanIfAbsent()).setSampleRate(defaultConfigs.defaults.sampleRate.get());
-        }
-
-        if (slowTraceSegmentThresholdIsNotNull(defaultConfigs)) {
-            ((AnalyzerModuleConfig) this.getProvider().createConfigBeanIfAbsent()).setSlowTraceSegmentThreshold(defaultConfigs.defaults.duration.get());
-        }
-    }
-
-    private void activeSetting(String config) {
-        if (log.isDebugEnabled()) {
-            log.debug("[trace-sample-policy] Updating using new config: {}", config);
-        }
-        // if parse failed, retain last configuration
-        onUpdated(parseFromYml(config));
     }
 
     @Override
@@ -118,6 +84,38 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
         return serviceSampleRates.get(serviceName);
     }
 
+    public int getSampleRate() {
+        return sampleRate.get();
+    }
+
+    public int getSlowTraceSegmentThreshold() {
+        return slowTraceSegmentThreshold.get();
+    }
+
+    public boolean shouldSample(int duration) {
+        return (slowTraceSegmentThreshold.get() > -1) && (duration >= slowTraceSegmentThreshold.get());
+    }
+
+    /**
+     * Been updated when this object been init
+     */
+    private void onUpdatedDefaultConfig(SampleRateSetting defaultConfigs) {
+        if (isNull(defaultConfigs)) {
+            slowTraceSegmentThreshold.set(getDefaultSlowTraceSegmentThreshold());
+            sampleRate.set(getDefaultSampleRate());
+        } else {
+            onUpdated(defaultConfigs);
+        }
+    }
+
+    private void activeSetting(String config) {
+        if (log.isDebugEnabled()) {
+            log.debug("[trace-sample-policy] Updating using new config: {}", config);
+        }
+        // if parse failed, retain last configuration
+        onUpdated(parseFromYml(config));
+    }
+
     private void onUpdated(final SampleRateSetting sampleRateSetting) {
         log.info("Updating trace-sample-policy with: {}", sampleRateSetting);
         if (!isNull(sampleRateSetting)) {
@@ -125,7 +123,7 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
                     .collect(Collectors.toMap(ServiceSampleConfig::getName, Function.identity()));
 
             if (sampleRateIsNotNull(sampleRateSetting)) {
-                sampleRate.set(sampleRateSetting.defaults.sampleRate.get());
+                sampleRate.set(sampleRateSetting.defaults.rate.get());
             } else {
                 sampleRate.set(getDefaultSampleRate());
             }
@@ -141,27 +139,15 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
     }
 
     private boolean sampleRateIsNotNull(SampleRateSetting sampleRateSetting) {
-        return sampleRateSetting.defaults != null && sampleRateSetting.defaults.sampleRate != null;
+        return sampleRateSetting.defaults != null && sampleRateSetting.defaults.rate != null;
     }
 
     private boolean slowTraceSegmentThresholdIsNotNull(SampleRateSetting sampleRateSetting) {
         return sampleRateSetting.defaults != null && sampleRateSetting.defaults.duration != null;
     }
 
-    public int getSampleRate() {
-        return sampleRate.get();
-    }
-
-    public int getSlowTraceSegmentThreshold() {
-        return slowTraceSegmentThreshold.get();
-    }
-
     private int getDefaultSampleRate() {
         return ((AnalyzerModuleConfig) this.getProvider().createConfigBeanIfAbsent()).getSampleRate();
-    }
-
-    public boolean shouldSample(int duration) {
-        return (slowTraceSegmentThreshold.get() > -1) && (duration >= slowTraceSegmentThreshold.get());
     }
 
     private int getDefaultSlowTraceSegmentThreshold() {
@@ -203,8 +189,8 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
         Object defaultMapObject = map.get("default");
         if (defaultMapObject != null) {
             Map<String, Object> defaultMap = (Map<String, Object>) defaultMapObject;
-            defaultSampleRateConfig.setSampleRate(new AtomicReference<Integer>((Integer) defaultMap.getOrDefault("sampleRate", null)));
-            defaultSampleRateConfig.setDuration(new AtomicReference<Integer>((Integer) defaultMap.getOrDefault("duration", null)));
+            defaultSampleRateConfig.setRate(new AtomicInteger((Integer) defaultMap.getOrDefault("rate", null)));
+            defaultSampleRateConfig.setDuration(new AtomicInteger((Integer) defaultMap.getOrDefault("duration", null)));
         }
         setting.setDefaults(defaultSampleRateConfig);
         // services
@@ -215,8 +201,8 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
             serviceList.forEach(service -> {
                 ServiceSampleConfig serviceSampleConfig = new ServiceSampleConfig();
                 serviceSampleConfig.setName((String) service.get("name"));
-                serviceSampleConfig.setSampleRate(service.get("rate") == null ? null : new AtomicReference<Integer>((Integer) service.get("rate")));
-                serviceSampleConfig.setDuration(service.get("duration") == null ? null : new AtomicReference<Integer>((Integer) service.get("duration")));
+                serviceSampleConfig.setRate(service.get("rate") == null ? null : new AtomicInteger((Integer) service.get("rate")));
+                serviceSampleConfig.setDuration(service.get("duration") == null ? null : new AtomicInteger((Integer) service.get("duration")));
                 services.add(serviceSampleConfig);
             });
         }
@@ -229,8 +215,8 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
     @ToString
     public static class ServiceSampleConfig {
         private String name;
-        private AtomicReference<Integer> sampleRate;
-        private AtomicReference<Integer> duration;
+        private AtomicInteger rate;
+        private AtomicInteger duration;
     }
 
     @ToString
@@ -256,8 +242,8 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
     @Setter
     @ToString
     public static class DefaultSampleRateConfig {
-        private AtomicReference<Integer> sampleRate;
-        private AtomicReference<Integer> duration;
+        private AtomicInteger rate;
+        private AtomicInteger duration;
     }
 
 }

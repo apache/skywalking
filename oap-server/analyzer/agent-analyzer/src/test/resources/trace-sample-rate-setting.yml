@@ -14,7 +14,7 @@
 # limitations under the License.
 
 default:
-  sampleRate: 10000
+  rate: 10000
   duration: -1
 services:
   - name: name1

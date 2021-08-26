@@ -50,7 +50,7 @@ public class TraceSegmentSampler {
             return true;
         }
         // sampling rate
-        if (sampleConfig.getSampleRate() != null && sample < sampleConfig.getSampleRate().get()) {
+        if (sampleConfig.getRate() != null && sample < sampleConfig.getRate().get()) {
             return true;
         }
         return false;

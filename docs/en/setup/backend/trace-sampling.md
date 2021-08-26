@@ -24,7 +24,7 @@ The default `trace-sample-rate-setting.yml` uses the following format. Could use
 default:
   # Default sampling rate that replaces the 'agent-analyzer.default.sampleRate'
   # The sample rate precision is 1/10000. 10000 means 100% sample in default.
-  sampleRate: 10000
+  rate: 10000
   # Default trace latency time that replaces the 'agent-analyzer.default.slowTraceSegmentThreshold'
   # Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
   duration: -1

@@ -218,7 +218,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                 namingControl,
                 searchTagKeys,
                 segmentStatusAnalyzer,
-                    traceSamplingPolicyWatcher
+                traceSamplingPolicyWatcher
             );
         }
     }
