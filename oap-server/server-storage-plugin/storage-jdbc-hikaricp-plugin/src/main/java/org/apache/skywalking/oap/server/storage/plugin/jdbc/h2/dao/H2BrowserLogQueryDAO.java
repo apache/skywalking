@@ -78,6 +78,8 @@ public class H2BrowserLogQueryDAO implements IBrowserLogQueryDAO {
             parameters.add(category.getValue());
         }
 
+        sql.append(" order by ").append(BrowserErrorLogRecord.TIMESTAMP).append(" DESC ");
+
         BrowserErrorLogs logs = new BrowserErrorLogs();
         try (Connection connection = h2Client.getConnection()) {
 
