@@ -15,7 +15,7 @@ When using a thread pool, `TraceSegment` data in a thread cannot be reported and
 ### Resolution
 
 * When using `Thread Schedule Framework`:
-See SkyWalking Thread Schedule Framework at [SkyWalking Java agent supported list](../setup/service-agent/java-agent/Supported-list.md), such as Spring FrameWork @Async, which can implement tracing without any modification. 
+See SkyWalking Thread Schedule Framework at [SkyWalking Java agent supported list](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Supported-list.md), such as Spring FrameWork @Async, which can implement tracing without any modification. 
 
 * When using `Custom Thread Pool`:
 Enhance the task thread with the following code.
@@ -28,5 +28,5 @@ Enhance the task thread with the following code.
         }
     }));
 ```
-See [across thread solution APIs](../setup/service-agent/java-agent/Application-toolkit-trace-cross-thread.md) for more use cases.
+See [across thread solution APIs](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-trace-cross-thread.md) for more use cases.
 
