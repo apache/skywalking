@@ -38,17 +38,11 @@ import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.li
 @Slf4j
 public class AnalyzerModuleConfig extends ModuleConfig {
     /**
-     * The sample rate precision is 1/10000. 10000 means 100% sample in default.
+     * The sample policy setting file
      */
     @Setter
     @Getter
-    private int sampleRate = 10000;
-    /**
-     * The sample rate setting file
-     */
-    @Setter
-    @Getter
-    private String traceSampleRateSettingFile;
+    private String traceSamplingPolicySettingsFile;
     /**
      * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
      * service instance mapping and service instance client side relation are ignored.
@@ -63,12 +57,6 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String slowDBAccessThreshold = "default:200";
-    /**
-     * Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
-     */
-    @Setter
-    @Getter
-    private int slowTraceSegmentThreshold = -1;
     @Setter
     @Getter
     private DBLatencyThresholdsAndWatcher dbLatencyThresholdsAndWatcher;

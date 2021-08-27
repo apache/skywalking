@@ -14,8 +14,8 @@ In **agent-analyzer** module, you will find `sampleRate` setting by the configur
 agent-analyzer:
   default:
     ...
-    # The default sampling rate and the default trace latency time configured by the 'traceSampleRateSettingFile' file.
-    traceSampleRateSettingFile: ${SW_TRACE_SAMPLE_RATE_SETTING_FILE:trace-sample-rate-setting.yml}
+    # The default sampling rate and the default trace latency time configured by the 'traceSamplingPolicySettingsFile' file.
+    traceSamplingPolicySettingsFile: ${SW_TRACE_SAMPLING_POLICY_SETTINGS_FILE:trace-sampling-policy-settings.yml}
     forceSampleErrorSegment: ${SW_FORCE_SAMPLE_ERROR_SEGMENT:true} # When sampling mechanism activated, this config would make the error status segment sampled, ignoring the sampling rate.
 ```
 

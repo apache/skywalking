@@ -46,7 +46,7 @@ public class TraceSamplingPolicyWatcherTest {
     public void init() {
         provider = new AnalyzerModuleProvider();
         moduleConfig = new AnalyzerModuleConfig();
-        moduleConfig.setTraceSampleRateSettingFile("trace-sample-rate-setting.yml");
+        moduleConfig.setTraceSamplingPolicySettingsFile("trace-sampling-policy-settings.yml");
     }
 
     @Test
@@ -68,7 +68,6 @@ public class TraceSamplingPolicyWatcherTest {
         }
 
         assertThat(watcher.getSlowTraceSegmentThreshold(), is(3000));
-        assertThat(provider.getModuleConfig().getSlowTraceSegmentThreshold(), is(-1));
     }
 
     @Test
@@ -143,7 +142,6 @@ public class TraceSamplingPolicyWatcherTest {
         }
 
         assertThat(watcher.getSampleRate(), is(9000));
-        assertThat(provider.getModuleConfig().getSampleRate(), is(10000));
     }
 
     @Test
@@ -214,14 +212,14 @@ public class TraceSamplingPolicyWatcherTest {
         register.registerConfigChangeWatcher(watcher);
         register.start();
 
-        while (watcher.getSample("serverName1") == null) {
+        while (watcher.getSamplePolicy("serverName1") == null) {
             Thread.sleep(1000);
         }
 
-        TraceSamplingPolicyWatcher.SampleConfig serviceInfo = watcher.getSample("serverName1");
+        TraceSamplingPolicyWatcher.SamplePolicy serviceInfo = watcher.getSamplePolicy("serverName1");
         Assert.assertEquals(serviceInfo.getRate().intValue(), 2000);
         Assert.assertEquals(serviceInfo.getDuration().intValue(), 30000);
-        Assert.assertEquals(provider.getModuleConfig().getTraceSamplingPolicyWatcher().getSample("serverName1").getRate().intValue(), 2000);
+        Assert.assertEquals(provider.getModuleConfig().getTraceSamplingPolicyWatcher().getSamplePolicy("serverName1").getRate().intValue(), 2000);
     }
 
     @Test
@@ -234,8 +232,8 @@ public class TraceSamplingPolicyWatcherTest {
                         "    duration: 20000", ConfigChangeWatcher.EventType.MODIFY);
 
         watcher.notify(value1);
-        Assert.assertEquals(watcher.getSample("serverName1").getRate().intValue(), 8000);
-        Assert.assertEquals(watcher.getSample("serverName1").getDuration().intValue(), 20000);
+        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getRate().intValue(), 8000);
+        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getDuration().intValue(), 20000);
         Assert.assertEquals(watcher.value(), "services:\n" +
                 "  - name: serverName1\n" +
                 "    rate: 8000\n" +
@@ -246,7 +244,7 @@ public class TraceSamplingPolicyWatcherTest {
 
         watcher.notify(value2);
 
-        Assert.assertNull(watcher.getSample("serverName1"));
+        Assert.assertNull(watcher.getSamplePolicy("serverName1"));
         Assert.assertEquals(watcher.value(), "");
 
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
@@ -256,8 +254,8 @@ public class TraceSamplingPolicyWatcherTest {
                         "    duration: 20000", ConfigChangeWatcher.EventType.ADD);
 
         watcher.notify(value3);
-        Assert.assertEquals(watcher.getSample("serverName1").getRate().intValue(), 8000);
-        Assert.assertEquals(watcher.getSample("serverName1").getDuration().intValue(), 20000);
+        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getRate().intValue(), 8000);
+        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getDuration().intValue(), 20000);
         Assert.assertEquals(watcher.value(), "services:\n" +
                 "  - name: serverName1\n" +
                 "    rate: 8000\n" +
@@ -270,8 +268,8 @@ public class TraceSamplingPolicyWatcherTest {
                         "    duration: 30000", ConfigChangeWatcher.EventType.MODIFY);
 
         watcher.notify(value4);
-        Assert.assertEquals(watcher.getSample("serverName1").getRate().intValue(), 9000);
-        Assert.assertEquals(watcher.getSample("serverName1").getDuration().intValue(), 30000);
+        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getRate().intValue(), 9000);
+        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getDuration().intValue(), 30000);
         Assert.assertEquals(watcher.value(), "services:\n" +
                 "  - name: serverName1\n" +
                 "    rate: 9000\n" +

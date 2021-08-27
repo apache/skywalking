@@ -35,7 +35,7 @@ public class TraceSegmentSampler {
     public boolean shouldSample(SegmentObject segmentObject, int duration) {
         int sample = Math.abs(segmentObject.getTraceId().hashCode()) % 10000;
         String serviceName = segmentObject.getService();
-        TraceSamplingPolicyWatcher.SampleConfig sampleConfig = traceSamplingPolicyWatcher.getSample(serviceName);
+        TraceSamplingPolicyWatcher.SamplePolicy sampleConfig = traceSamplingPolicyWatcher.getSamplePolicy(serviceName);
         if (sampleConfig != null) {
             if (shouldSampleService(sampleConfig, sample, duration)) {
                 return true;
@@ -44,7 +44,7 @@ public class TraceSegmentSampler {
         return sample < traceSamplingPolicyWatcher.getSampleRate();
     }
 
-    private boolean shouldSampleService(TraceSamplingPolicyWatcher.SampleConfig sampleConfig, int sample, int duration) {
+    private boolean shouldSampleService(TraceSamplingPolicyWatcher.SamplePolicy sampleConfig, int sample, int duration) {
         // trace latency
         if (sampleConfig.getDuration() != null && duration > sampleConfig.getDuration()) {
             return true;
