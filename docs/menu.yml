@@ -157,8 +157,6 @@ catalog:
     catalog:
       - name: "Contribute"
         path: "/en/guides/readme"
-      - name: "Agent Plugin Development Guide"
-        path: "/en/guides/Java-Plugin-Development-Guide"
       - name: "Become A Committer"
         path: "/en/guides/asf/committer"
       - name: "Release Guide"
