@@ -19,7 +19,7 @@ The **nameSpace** is the ZooKeeper path. The config key and value are the proper
 ### Single Config
 ```
 znode.path = {nameSpace}/configKey
-configVaule = znode.data
+configValue = znode.data
 ```
 e.g. The config is: 
 ```
@@ -34,8 +34,8 @@ znode.data = default:200,mongodb:50
 ### Group Config
 ```
 znode.path = {nameSpace}/configKey
-znode.child1.path = znode.path/subItemkey1
-znode.child2.path = znode.path/subItemkey2
+znode.child1.path = {znode.path}/subItemkey1
+znode.child2.path = {znode.path}/subItemkey2
 ...
 subItemValue1 = znode.child1.data
 subItemValue2 = znode.child2.data
