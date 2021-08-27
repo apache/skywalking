@@ -3,7 +3,7 @@ Spring Sleuth provides Spring Boot auto-configuration for distributed tracing. S
 
 ## Set up agent
 
-1. Add micrometer and Skywalking meter registry dependency into the project's `pom.xml` file. You can find more details at [Toolkit micrometer](./../service-agent/java-agent/Application-toolkit-micrometer.md).
+1. Add micrometer and Skywalking meter registry dependency into the project's `pom.xml` file. You can find more details at [Toolkit micrometer](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-micrometer.md).
 ```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>

@@ -53,11 +53,6 @@ Since version 6.3.0, we have introduced more automatic tests to perform software
 The E2E test involves some/all of the OAP server, storage, coordinator, webapp, and the instrumented services, all of which are orchestrated by `docker-compose`. Besides, there is a test controller (JUnit test) running outside of the container that sends traffic to the instrumented service,
 and then verifies the corresponding results after those requests have been made through GraphQL API of the SkyWalking Web App.
 
-Before you take the following steps, please set the SkyWalking version `sw.version` in the [pom.xml](../../../test/e2e/pom.xml)
-so that you can build it in your local IDE. Make sure not to check this change into the codebase. However, if
-you prefer to build it in the command line interface with `./mvnw`, you can simply use property `-Dsw.version=x.y.z` without
-modifying `pom.xml`.
-
 #### Writing E2E Cases
 
 - Set up the environment in IntelliJ IDEA
@@ -95,14 +90,10 @@ We expose all logs from all containers to the stdout in the non-CI (local) mode,
 **NOTE:** Please verify the newly-added E2E test case locally first. However, if you find that it has passed locally but failed in the PR check status, make sure that all the updated/newly-added files (especially those in the submodules)
 are committed and included in the PR, or reset the git HEAD to the remote and verify locally again.
 
-#### E2E local remote debugging
-When the E2E test is executed locally, if any test case fails, the [E2E local remote debugging function](E2E-local-remote-debug.md) can be used to quickly troubleshoot the bug.
-
 ### Project Extensions
 The SkyWalking project supports various extensions of existing features. If you are interesting in writing extensions,
 read the following guides.
 
-- [Java agent plugin development guide](Java-Plugin-Development-Guide.md).
 This guides you in developing SkyWalking agent plugins to support more frameworks. Developers for both open source and private plugins should read this. 
 - If you would like to build a new probe or plugin in any language, please read the [Component library definition and extension](Component-library-settings.md) document.
 - [Storage extension development guide](storage-extention.md). Potential contributors can learn how to build a new 
