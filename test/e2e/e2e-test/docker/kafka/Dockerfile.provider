@@ -14,16 +14,10 @@
 # limitations under the License.
 
 ARG SW_AGENT_JDK_VERSION=8
-ARG AGENT_JDK_BASE=adoptopenjdk/openjdk${SW_AGENT_JDK_VERSION}:alpine
 
-FROM ${AGENT_JDK_BASE}
+FROM ghcr.io/apache/skywalking-java/jdk-${SW_AGENT_JDK_VERSION}
 
 WORKDIR /skywalking
-
-ARG DIST_PACKAGE=dist/apache-skywalking-apm-bin.tar.gz
-ADD ${DIST_PACKAGE} .
-RUN tar -zxf apache-skywalking-apm*.gz --strip=1 || true
-RUN mv apache-skywalking-apm-bin/* . || true
 
 RUN  echo 'plugin.kafka.producer_config[compression.type]=snappy' >> agent/config/agent.config
 
@@ -35,6 +29,4 @@ VOLUME /services
 
 ADD e2e-service-provider/target/e2e-service-provider-1.0.0.jar /services/
 
-ENV JAVA_OPTS=""
-
-CMD ["sh", "-c", "java $JAVA_OPTS -jar /services/e2e-service-provider-1.0.0.jar"]
+CMD ["sh", "-c", "java -jar /services/e2e-service-provider-1.0.0.jar"]

@@ -6,10 +6,11 @@ SkyWalking v6 is widely used in many production environments. Follow the steps i
 ## Use Canary Release
 Like all applications, you may upgrade SkyWalking using the `canary release` method through the following steps.
 1. Deploy a new cluster by using the latest version of SkyWalking OAP cluster with the new database cluster.
-1. Once the target service (i.e. the service being monitored) has upgraded the agent.jar (or simply by rebooting), have `collector.backend_service`
-pointing to the new OAP backend, and use/add a new namespace(`agent.namespace` in [Table of Agent Configuration Properties](../setup/service-agent/java-agent/README.md#table-of-agent-configuration-properties)).
+2. Once the target service (i.e. the service being monitored) has upgraded the agent.jar (or simply by rebooting), have `collector.backend_service`
+pointing to the new OAP backend, and use/add a new namespace(`agent.namespace` in
+[Table of Agent Configuration Properties](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/README.md#table-of-agent-configuration-properties)).
 The namespace will prevent conflicts from arising between different versions.
-1. When all target services have been rebooted, the old OAP clusters could be discarded.
+3. When all target services have been rebooted, the old OAP clusters could be discarded.
 
 The `Canary Release` method works for any version upgrades.
 

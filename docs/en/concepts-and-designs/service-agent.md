@@ -20,7 +20,7 @@ Auto instrument is very helpful, as you may perform auto instrument during compi
 
 - **Only works in certain frameworks or libraries**. Since the agents are responsible for modifying the codes during runtime, the codes are already known 
 to the agent plugin developers. There is usually a list of frameworks or libraries supported by this kind of probes.
-For example, see the [SkyWalking Java agent supported list](../setup/service-agent/java-agent/Supported-list.md).
+For example, see the [SkyWalking Java agent supported list](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Supported-list.md).
 
 - **Cross-thread operations are not always supported**. Like what is mentioned above regarding in-process propagation, most codes (especially business codes)
 run in a single thread per request. But in some other cases, they operate across different threads, such as assigning tasks to other threads, task pools or batch processes. Some languages may even provide coroutine or similar components like `Goroutine`, which allows developers to run async process with low payload. In such cases, auto instrument will face problems. 

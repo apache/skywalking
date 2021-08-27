@@ -25,13 +25,10 @@ SKIP_TEST?=false
 init:
 	cd $(SW_ROOT) && git submodule update --init --recursive
 
-.PHONY: build.all build.agent build.backend build.ui build.docker
+.PHONY: build.all build.backend build.ui build.docker
 
 build.all:
 	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST)
-
-build.agent:
-	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pagent,dist
 
 build.backend:
 	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pbackend,dist
@@ -53,7 +50,7 @@ ES_VERSION?=es6
 
 docker: init build.all docker.all
 
-DOCKER_TARGETS:=docker.oap docker.ui docker.agent
+DOCKER_TARGETS:=docker.oap docker.ui
 
 docker.all: $(DOCKER_TARGETS)
 
@@ -80,11 +77,6 @@ docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
 docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
 		$(DOCKER_RULE)
-
-docker.agent: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
-docker.agent: $(SW_ROOT)/docker/agent/Dockerfile.agent
-		$(DOCKER_RULE)
-
 
 # $@ is the name of the target
 # $^ the name of the dependencies for the target

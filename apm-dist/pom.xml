@@ -30,19 +30,6 @@
 
     <profiles>
         <profile>
-            <id>agent</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.apache.skywalking</groupId>
-                    <artifactId>apm-agent</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
             <id>backend</id>
             <activation>
                 <activeByDefault>true</activeByDefault>

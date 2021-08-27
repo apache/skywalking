@@ -77,12 +77,6 @@
             <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
 
-        <!-- Agent repackage into the dist -->
-        <fileSet>
-            <directory>${project.basedir}/../skywalking-agent</directory>
-            <outputDirectory>agent</outputDirectory>
-        </fileSet>
-
         <!-- Profile exporter tools -->
         <fileSet>
             <directory>${project.basedir}/../tools/profile-exporter</directory>
