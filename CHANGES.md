@@ -63,6 +63,7 @@ Release Notes.
 
 * Add a section in `Log Collecting And Analysis` doc, introducing the new Python agent log reporter.
 * Add one missing step in `otel-receiver` doc about how to activate the default receiver.
+* Reorganize dynamic configuration doc.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/96?closed=1)
 
