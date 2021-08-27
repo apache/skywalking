@@ -57,6 +57,7 @@ Release Notes.
 * Update endpointName to endpointId in the query trace condition.
 * Add Python falcon icon on the UI.
 * Fix searching endpoints with keywords.
+* Support clicking the service name in the chart to link to the trace or log page.
 
 #### Documentation
 
