@@ -48,22 +48,15 @@ For each official Apache release, there is a complete and independent source cod
 ### Advanced compiling
 SkyWalking is a complex maven project that has many modules. Therefore, the time to compile may be a bit longer than usual.
 If you just want to recompile part of the project, you have the following options:
-- Compile agent and package
->  ./mvnw package -Pagent,dist
-
-or
-
-> make build.agent
-
-If you intend to compile a single plugin, such as one in the dev stage, you could
->  cd plugin_module_dir & mvn clean package
-
 - Compile backend and package
 >  ./mvnw package -Pbackend,dist
 
 or
 
 > make build.backend
+
+If you intend to compile a single plugin, such as one in the dev stage, you could
+>  cd plugin_module_dir & mvn clean package
 
 - Compile UI and package
 >  ./mvnw package -Pui,dist
