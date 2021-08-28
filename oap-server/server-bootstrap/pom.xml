@@ -276,7 +276,7 @@
                         <exclude>service-apdex-threshold.yml</exclude>
                         <exclude>endpoint-name-grouping.yml</exclude>
                         <exclude>metadata-service-mapping.yaml</exclude>
-                        <exclude>trace-sample-rate-setting.yml</exclude>
+                        <exclude>trace-sampling-policy-settings.yml</exclude>
                         <exclude>oal/</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
                         <exclude>envoy-metrics-rules/</exclude>

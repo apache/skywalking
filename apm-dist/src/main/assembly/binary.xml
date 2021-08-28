@@ -58,7 +58,7 @@
                 <include>service-apdex-threshold.yml</include>
                 <include>endpoint-name-grouping.yml</include>
                 <include>metadata-service-mapping.yaml</include>
-                <include>trace-sample-rate-setting.yml</include>
+                <include>trace-sampling-policy-settings.yml</include>
                 <include>oal/*.oal</include>
                 <include>fetcher-prom-rules/*.yaml</include>
                 <include>envoy-metrics-rules/*.yaml</include>
