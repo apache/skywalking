@@ -32,17 +32,6 @@ runs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-    - name: Check Unintended Changes
-      shell: bash
-      run: |
-        echo "::group::Check sw.version"
-        sudo apt install -y -q xmlstarlet
-        SW_VERSION=$(xmlstarlet sel -N pom=http://maven.apache.org/POM/4.0.0 -t -v "/pom:project/pom:properties/pom:sw.version" test/e2e/pom.xml)
-        if [[ "$(echo $(echo $SW_VERSION))" != "" ]]; then
-          echo "Please don't submit the change of sw.version in test/e2e/pom.xml"
-          exit 1
-        fi
-        echo "::endgroup::"
     - name: Check License
       uses: apache/skywalking-eyes@a63f4afcc287dfb3727ecc45a4afc55a5e69c15f
     - name: Build Docker Image
@@ -54,29 +43,9 @@ runs:
         # Retry one more time due to frequent "maven connection reset"
         (make docker || make docker) && (ES_VERSION=es7 TAG=latest-es7 make docker.oap || ES_VERSION=es7 TAG=latest-es7 make docker.oap)
         echo "::endgroup::"
-    - name: Copy Dist Package
-      shell: bash
-      run: |
-        echo "::group::Copy Dist Package to test/e2e"
-        cp -R dist test/e2e/
-        echo "::endgroup::"
     - name: Run E2E Test
       shell: bash
       run: |
-        echo "::group::Install SNAPSHOT apm-application-toolkit"
-        ./mvnw -DskipTests -N install
-        ./mvnw -f apm-application-toolkit -DskipTests -am install
-        echo "::endgroup::"
-
         echo "::group::Run E2E Test ${{ inputs.test_class }}"
-        SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
-        ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=${{ inputs.test_class }}
-        echo "::endgroup::"
-    - name: Report Coverage
-      shell: bash
-      env:
-        CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
-      run: |
-        echo "::group::Uploading Code Coverage"
-        bash -x tools/coverage/report.sh || true
+        ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=${{ inputs.test_class }}
         echo "::endgroup::"

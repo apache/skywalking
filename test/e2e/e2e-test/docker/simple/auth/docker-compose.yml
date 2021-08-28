@@ -38,10 +38,7 @@ services:
       file: ../../base-compose.yml
       service: provider
     environment:
-      JAVA_OPTS: >-
-        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider,destfile=/jacoco/provider.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
-        -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.authentication=test-token
-        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+      SW_AGENT_AUTHENTICATION: test-token
     depends_on:
       oap:
         condition: service_healthy

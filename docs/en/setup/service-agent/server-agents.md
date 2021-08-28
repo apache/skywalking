@@ -1,6 +1,6 @@
 ## Language agents in Service
 
-- [Java agent](java-agent/README.md). Introduces how to install java agent to your service, without any impact in your code.
+- [Java agent](http://github.com/apache/skywalking-java). Introduces how to install java agent to your service, without any impact in your code.
 
 - [LUA agent](https://github.com/apache/skywalking-nginx-lua). Introduce how to install the lua agent in Nginx + LUA module or OpenResty.
 

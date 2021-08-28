@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-protocol</artifactId>
+    <artifactId>oap-protocol</artifactId>
     <packaging>pom</packaging>
 
     <modules>
