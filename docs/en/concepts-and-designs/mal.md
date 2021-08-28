@@ -238,7 +238,7 @@ last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog').downsam
 
 They extract level relevant labels from metric labels, then informs the meter-system the level to which this metric belongs.
 
- - `servcie([svc_label1, svc_label2...])` extracts service level labels from the array argument.
+ - `service([svc_label1, svc_label2...])` extracts service level labels from the array argument.
  - `instance([svc_label1, svc_label2...], [ins_label1, ins_label2...])` extracts service level labels from the first array argument, 
                                                                         extracts instance level labels from the second array argument.
  - `endpoint([svc_label1, svc_label2...], [ep_label1, ep_label2...])` extracts service level labels from the first array argument, 
