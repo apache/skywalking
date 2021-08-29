@@ -17,26 +17,19 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicy;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicySettings;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicySettingsReader;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.apache.skywalking.oap.server.library.util.yaml.ClassFilterConstructor;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.Reader;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.StringReader;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Objects.isNull;
@@ -45,21 +38,22 @@ import static java.util.Objects.isNull;
 public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
 
     private final AtomicReference<String> settingsString = new AtomicReference<>(Const.EMPTY_STRING);
-    private final AtomicReference<SamplePolicySettings> samplePolicySettings = new AtomicReference<>(null);
-    private final AnalyzerModuleConfig moduleConfig;
+    private final AtomicReference<SamplingPolicySettings> samplingPolicySettings = new AtomicReference<>(null);
+    private final SamplingPolicySettings defaultSamplingPolicySettings;
 
     public TraceSamplingPolicyWatcher(AnalyzerModuleConfig moduleConfig, ModuleProvider provider) {
         super(AnalyzerModule.NAME, provider, "traceSamplingPolicy");
-        this.moduleConfig = moduleConfig;
-        loadDefaultPolicy();
+        SamplingPolicySettings samplingPolicySettings = parseFromFile(moduleConfig.getTraceSamplingPolicySettingsFile());
+        this.defaultSamplingPolicySettings = samplingPolicySettings;
+        loadDefaultPolicySettings();
     }
 
     @Override
     public void notify(ConfigChangeEvent value) {
-        if (EventType.DELETE.equals(value.getEventType())) {
+        if (EventType.DELETE.equals(value.getEventType()) || StringUtil.isBlank(value.getNewValue())) {
             this.settingsString.set("");
-            log.info("[trace-sampling-policy] Delete trace-sample-policy,use default config");
-            loadDefaultPolicy();
+            log.info("[trace-sampling-policy] Delete trace-sampling-policy,use default config");
+            loadDefaultPolicySettings();
         } else {
             activeSetting(value.getNewValue());
         }
@@ -70,27 +64,49 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
         return this.settingsString.get();
     }
 
-    public SamplePolicy getSamplePolicy(String service) {
-        return this.samplePolicySettings.get().getPolicy(service);
+    public boolean shouldSample(String service, int sample, int duration) {
+        SamplingPolicy samplingPolicy = this.samplingPolicySettings.get().get(service);
+        if (samplingPolicy == null) {
+            return shouldSampleGlobal(sample, duration);
+        }
+        return shouldSampleService(samplingPolicy, sample, duration);
     }
 
-    public int getSampleRate() {
-        return this.samplePolicySettings.get().global.rate;
+    public SamplingPolicy getSamplingPolicy(String service) {
+        return this.samplingPolicySettings.get().get(service);
     }
 
-    public int getSlowTraceSegmentThreshold() {
-        return this.samplePolicySettings.get().global.duration;
+    private boolean shouldSampleGlobal(int sample, int duration) {
+        return isOverSlowThresholdGlobal(duration) || withinRateRangeGlobal(sample);
     }
 
-    public boolean shouldSample(int duration) {
-        return (this.samplePolicySettings.get().global.duration > -1) && (duration >= this.samplePolicySettings.get().global.duration);
+    private boolean shouldSampleService(SamplingPolicy samplingPolicy, int sample, int duration) {
+        return (samplingPolicy.getDuration() != null && isOverSlowThreshold(duration, samplingPolicy.getDuration()))
+                || (samplingPolicy.getRate() != null && withinRateRange(sample, samplingPolicy.getRate()))
+                // global policy
+                || (samplingPolicy.getDuration() == null && isOverSlowThresholdGlobal(duration))
+                || (samplingPolicy.getRate() == null && withinRateRangeGlobal(sample));
     }
 
-    private void loadDefaultPolicy() {
-        SamplePolicySettings rateSetting = parseFromFile(moduleConfig.getTraceSamplingPolicySettingsFile());
-        // If settingFile has a empty config, use the default settings
-        this.samplePolicySettings.set(rateSetting == null ? defaultSampleConfigSettings() : rateSetting);
-        log.info("[trace-sampling-policy] Default configured trace-sample-policy: {}", this.samplePolicySettings);
+    private boolean withinRateRangeGlobal(int sample) {
+        return withinRateRange(sample, this.samplingPolicySettings.get().getGlobal().getRate());
+    }
+
+    private boolean isOverSlowThresholdGlobal(int duration) {
+        return isOverSlowThreshold(duration, this.samplingPolicySettings.get().getGlobal().getDuration());
+    }
+
+    private boolean isOverSlowThreshold(int currentDuration, int policyDuration) {
+        return (policyDuration > -1) && (currentDuration >= policyDuration);
+    }
+
+    private boolean withinRateRange(int currentSample, int policySample) {
+        return currentSample < policySample;
+    }
+
+    private void loadDefaultPolicySettings() {
+        this.samplingPolicySettings.set(defaultSamplingPolicySettings);
+        log.info("[trace-sampling-policy] use trace-sample-policy in static file : {}", this.samplingPolicySettings);
     }
 
     private void activeSetting(String config) {
@@ -100,24 +116,19 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
         onUpdated(parseFromYml(config));
     }
 
-    private void onUpdated(final SamplePolicySettings samplePolicySettings) {
-        if (!isNull(samplePolicySettings)) {
-            this.samplePolicySettings.set(samplePolicySettings);
-            log.info("[trace-sampling-policy] Updating trace-sample-policy with: {}", samplePolicySettings);
-        } else if (StringUtil.isBlank(this.settingsString.get())) {
-            log.info("[trace-sampling-policy] Trace-sample-policy been set empty string,use default config");
-            loadDefaultPolicy();
+    private void onUpdated(final SamplingPolicySettings samplingPolicySettings) {
+        if (!isNull(samplingPolicySettings)) {
+            this.samplingPolicySettings.set(samplingPolicySettings);
+            log.info("[trace-sampling-policy] Updating trace-sample-policy with: {}", samplingPolicySettings);
         } else {
-            log.info("[trace-sampling-policy] Parse yaml fail, retain last configuration: {}", this.samplePolicySettings);
+            log.info("[trace-sampling-policy] Parse yaml fail, retain last configuration: {}", this.samplingPolicySettings);
         }
     }
 
-    private SamplePolicySettings parseFromFile(final String file) {
+    private SamplingPolicySettings parseFromFile(final String file) {
         try {
-            final Reader reader = ResourceUtils.read(file);
-            Map<String, Object> map = new Yaml(new ClassFilterConstructor(new Class[]{
-                    Map.class})).loadAs(reader, Map.class);
-            return mapToSettingObject(map);
+            SamplingPolicySettingsReader reader = new SamplingPolicySettingsReader(ResourceUtils.read(file));
+            return reader.readSettings();
         } catch (Exception e) {
             log.error("[trace-sampling-policy] Cannot load configs from: {}", file, e);
         }
@@ -125,13 +136,12 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
         return defaultSampleConfigSettings();
     }
 
-    private SamplePolicySettings parseFromYml(final String ymlContent) {
+    private SamplingPolicySettings parseFromYml(final String ymlContent) {
         try {
-            Map<String, Object> map = new Yaml(new ClassFilterConstructor(new Class[]{
-                    Map.class})).loadAs(ymlContent, Map.class);
-            SamplePolicySettings setting = mapToSettingObject(map);
+            SamplingPolicySettingsReader reader = new SamplingPolicySettingsReader(new StringReader(ymlContent));
+            SamplingPolicySettings settings = reader.readSettings();
             this.settingsString.set(ymlContent);
-            return setting;
+            return settings;
         } catch (Exception e) {
             log.error("[trace-sampling-policy] Failed to parse yml content: \n{}", ymlContent, e);
         }
@@ -139,79 +149,8 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
         return null;
     }
 
-    private SamplePolicySettings mapToSettingObject(Map<String, Object> map) {
-        // YmlContent maybe empty
-        if (map == null) {
-            return null;
-        }
-        SamplePolicySettings settings;
-        // default config
-        Object defaultMapObject = map.get("default");
-        if (defaultMapObject != null) {
-            Map<String, Object> defaultMap = (Map<String, Object>) defaultMapObject;
-            settings = new SamplePolicySettings(defaultMap.get("rate") == null ? null : (Integer) defaultMap.get("rate"),
-                    defaultMap.get("duration") == null ? null : (Integer) defaultMap.get("duration"));
-        } else {
-            settings = defaultSampleConfigSettings();
-        }
-        // services config
-        Object servicesObject = map.get("services");
-        if (servicesObject != null) {
-            List<Map<String, Object>> serviceList = (List<Map<String, Object>>) servicesObject;
-            serviceList.forEach(service -> {
-                String name = (String) service.get("name");
-                if (StringUtil.isBlank(name)) {
-                    return;
-                }
-                SamplePolicy samplePolicy = new SamplePolicy();
-                samplePolicy.setRate(service.get("rate") == null ? null : (Integer) service.get("rate"));
-                samplePolicy.setDuration(service.get("duration") == null ? null : (Integer) service.get("duration"));
-                settings.addPolicy(name, samplePolicy);
-            });
-        }
-        return settings;
-    }
-
-    private SamplePolicySettings defaultSampleConfigSettings() {
-        return new SamplePolicySettings(null, null);
-    }
-
-    @Getter
-    @Setter
-    @ToString
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class SamplePolicy {
-        private Integer rate;
-        private Integer duration;
-    }
-
-    @ToString
-    public static class SamplePolicySettings {
-
-        @Getter
-        // `default` is the keyword ,so named `global`
-        private SamplePolicy global;
-        @Getter
-        private Map<String, SamplePolicy> services;
-
-        /**
-         * @param defaultRate     The sample rate precision is 1/10000. 10000 means 100% sample in default.
-         * @param defaultDuration Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
-         */
-        SamplePolicySettings(Integer defaultRate, Integer defaultDuration) {
-            SamplePolicy samplePolicy = new SamplePolicy(defaultRate == null ? 10000 : defaultRate, defaultDuration == null ? -1 : defaultDuration);
-            this.global = samplePolicy;
-            this.services = new ConcurrentHashMap<>();
-        }
-
-        public void addPolicy(String service, SamplePolicy samplePolicy) {
-            this.services.put(service, samplePolicy);
-        }
-
-        public SamplePolicy getPolicy(String service) {
-            return this.services.get(service);
-        }
+    private SamplingPolicySettings defaultSampleConfigSettings() {
+        return new SamplingPolicySettings(null, null);
     }
 
 }

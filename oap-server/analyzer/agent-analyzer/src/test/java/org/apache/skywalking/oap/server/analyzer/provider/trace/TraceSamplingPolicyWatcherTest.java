@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleProvider;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicy;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
@@ -32,9 +33,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
 import java.util.Set;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TraceSamplingPolicyWatcherTest {
@@ -51,8 +49,9 @@ public class TraceSamplingPolicyWatcherTest {
 
     @Test
     public void testStaticConfigInit() {
-        TraceSamplingPolicyWatcher traceSampleRateWatcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
-        Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 10000);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
+        // default sample = 10000
+        globalDefaultSamplingRateEquals(watcher, 9999);
     }
 
     @Test(timeout = 20000)
@@ -62,50 +61,48 @@ public class TraceSamplingPolicyWatcherTest {
         TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
-
-        while (watcher.getSlowTraceSegmentThreshold() == -1) {
+        // default duration is -1, so 3000 must not be shouldSample,until updated to 3000
+        while (!watcher.shouldSample("", 10000, 3000)) {
             Thread.sleep(2000);
         }
-
-        assertThat(watcher.getSlowTraceSegmentThreshold(), is(3000));
+        Assert.assertTrue(watcher.shouldSample("", 10000, 3001));
     }
 
     @Test
     public void testTraceLatencyThresholdNotify() {
-        TraceSamplingPolicyWatcher traceLatencyThresholdsAndWatcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "default:\n" +
                         "  duration: 8000", ConfigChangeWatcher.EventType.MODIFY);
 
-        traceLatencyThresholdsAndWatcher.notify(value1);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), 8000);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "default:\n" +
+        watcher.notify(value1);
+        globalDefaultDurationEquals(watcher, 8000);
+        Assert.assertEquals(watcher.value(), "default:\n" +
                 "  duration: 8000");
 
         ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "default:\n" +
                         "  duration: 8000", ConfigChangeWatcher.EventType.DELETE);
 
-        traceLatencyThresholdsAndWatcher.notify(value2);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), -1);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "");
+        watcher.notify(value2);
+        Assert.assertEquals(watcher.value(), "");
 
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "default:\n" +
                         "  duration: 800", ConfigChangeWatcher.EventType.ADD);
 
-        traceLatencyThresholdsAndWatcher.notify(value3);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), 800);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "default:\n" +
+        watcher.notify(value3);
+        globalDefaultDurationEquals(watcher, 800);
+        Assert.assertEquals(watcher.value(), "default:\n" +
                 "  duration: 800");
 
         ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "default:\n" +
                         "  duration: abc", ConfigChangeWatcher.EventType.MODIFY);
 
-        traceLatencyThresholdsAndWatcher.notify(value4);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), 800);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "default:\n" +
+        watcher.notify(value4);
+        globalDefaultDurationEquals(watcher, 800);
+        Assert.assertEquals(watcher.value(), "default:\n" +
                 "  duration: 800");
     }
 
@@ -136,50 +133,49 @@ public class TraceSamplingPolicyWatcherTest {
         TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
-
-        while (watcher.getSampleRate() == 10000) {
+        // default is 10000, so 9000 must be shouldSample,until updated to 9000
+        while (watcher.shouldSample("", 9000, -1)) {
             Thread.sleep(2000);
         }
-
-        assertThat(watcher.getSampleRate(), is(9000));
+        globalDefaultSamplingRateEquals(watcher, 8999);
     }
 
     @Test
     public void testDefaultSampleRateNotify() {
-        TraceSamplingPolicyWatcher traceSampleRateWatcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "default:\n" +
                         "  rate: 8000", ConfigChangeWatcher.EventType.MODIFY);
 
-        traceSampleRateWatcher.notify(value1);
-        Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 8000);
-        Assert.assertEquals(traceSampleRateWatcher.value(), "default:\n" +
+        watcher.notify(value1);
+        globalDefaultSamplingRateEquals(watcher, 7999);
+        Assert.assertEquals(watcher.value(), "default:\n" +
                 "  rate: 8000");
 
         ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "default:\n" +
                         "  rate: 1000", ConfigChangeWatcher.EventType.DELETE);
 
-        traceSampleRateWatcher.notify(value2);
-        Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 10000);
-        Assert.assertEquals(traceSampleRateWatcher.value(), "");
+        watcher.notify(value2);
+        globalDefaultSamplingRateEquals(watcher, 9999);
+        Assert.assertEquals(watcher.value(), "");
 
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "default:\n" +
                         "  rate: 500", ConfigChangeWatcher.EventType.ADD);
 
-        traceSampleRateWatcher.notify(value3);
-        Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 500);
-        Assert.assertEquals(traceSampleRateWatcher.value(), "default:\n" +
+        watcher.notify(value3);
+        globalDefaultSamplingRateEquals(watcher, 499);
+        Assert.assertEquals(watcher.value(), "default:\n" +
                 "  rate: 500");
 
         ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "default:\n" +
                         "  rate: abc", ConfigChangeWatcher.EventType.MODIFY);
 
-        traceSampleRateWatcher.notify(value4);
-        Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 500);
-        Assert.assertEquals(traceSampleRateWatcher.value(), "default:\n" +
+        watcher.notify(value4);
+        globalDefaultSamplingRateEquals(watcher, 499);
+        Assert.assertEquals(watcher.value(), "default:\n" +
                 "  rate: 500");
     }
 
@@ -212,14 +208,14 @@ public class TraceSamplingPolicyWatcherTest {
         register.registerConfigChangeWatcher(watcher);
         register.start();
 
-        while (watcher.getSamplePolicy("serverName1") == null) {
+        while (watcher.getSamplingPolicy("serverName1") == null) {
             Thread.sleep(1000);
         }
 
-        TraceSamplingPolicyWatcher.SamplePolicy serviceInfo = watcher.getSamplePolicy("serverName1");
-        Assert.assertEquals(serviceInfo.getRate().intValue(), 2000);
-        Assert.assertEquals(serviceInfo.getDuration().intValue(), 30000);
-        Assert.assertEquals(provider.getModuleConfig().getTraceSamplingPolicyWatcher().getSamplePolicy("serverName1").getRate().intValue(), 2000);
+        SamplingPolicy samplingPolicy = watcher.getSamplingPolicy("serverName1");
+        Assert.assertEquals(samplingPolicy.getRate().intValue(), 2000);
+        Assert.assertEquals(samplingPolicy.getDuration().intValue(), 30000);
+        Assert.assertEquals(provider.getModuleConfig().getTraceSamplingPolicyWatcher().getSamplingPolicy("serverName1").getRate().intValue(), 2000);
     }
 
     @Test
@@ -232,19 +228,27 @@ public class TraceSamplingPolicyWatcherTest {
                         "    duration: 20000", ConfigChangeWatcher.EventType.MODIFY);
 
         watcher.notify(value1);
-        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getRate().intValue(), 8000);
-        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getDuration().intValue(), 20000);
+        Assert.assertEquals(watcher.getSamplingPolicy("serverName1").getRate().intValue(), 8000);
+        Assert.assertEquals(watcher.getSamplingPolicy("serverName1").getDuration().intValue(), 20000);
         Assert.assertEquals(watcher.value(), "services:\n" +
                 "  - name: serverName1\n" +
                 "    rate: 8000\n" +
                 "    duration: 20000");
+
+        // use serverName1's sampling rate
+        Assert.assertTrue(watcher.shouldSample("serverName1", 7999, -1));
+        Assert.assertTrue(watcher.shouldSample("serverName1", 10000, 20000));
 
         ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent(
                 "", ConfigChangeWatcher.EventType.DELETE);
 
         watcher.notify(value2);
 
-        Assert.assertNull(watcher.getSamplePolicy("serverName1"));
+        Assert.assertNull(watcher.getSamplingPolicy("serverName1"));
+        // use global sampling rate
+        Assert.assertTrue(watcher.shouldSample("serverName1", 9999, -1));
+        Assert.assertFalse(watcher.shouldSample("serverName1", 10000, 1));
+
         Assert.assertEquals(watcher.value(), "");
 
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
@@ -254,8 +258,11 @@ public class TraceSamplingPolicyWatcherTest {
                         "    duration: 20000", ConfigChangeWatcher.EventType.ADD);
 
         watcher.notify(value3);
-        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getRate().intValue(), 8000);
-        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getDuration().intValue(), 20000);
+        Assert.assertEquals(watcher.getSamplingPolicy("serverName1").getRate().intValue(), 8000);
+        Assert.assertEquals(watcher.getSamplingPolicy("serverName1").getDuration().intValue(), 20000);
+        Assert.assertTrue(watcher.shouldSample("serverName1", 7999, -1));
+        Assert.assertTrue(watcher.shouldSample("serverName1", 10000, 20000));
+
         Assert.assertEquals(watcher.value(), "services:\n" +
                 "  - name: serverName1\n" +
                 "    rate: 8000\n" +
@@ -268,8 +275,11 @@ public class TraceSamplingPolicyWatcherTest {
                         "    duration: 30000", ConfigChangeWatcher.EventType.MODIFY);
 
         watcher.notify(value4);
-        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getRate().intValue(), 9000);
-        Assert.assertEquals(watcher.getSamplePolicy("serverName1").getDuration().intValue(), 30000);
+        Assert.assertEquals(watcher.getSamplingPolicy("serverName1").getRate().intValue(), 9000);
+        Assert.assertEquals(watcher.getSamplingPolicy("serverName1").getDuration().intValue(), 30000);
+        Assert.assertTrue(watcher.shouldSample("serverName1", 8999, -1));
+        Assert.assertTrue(watcher.shouldSample("serverName1", 10000, 30000));
+
         Assert.assertEquals(watcher.value(), "services:\n" +
                 "  - name: serverName1\n" +
                 "    rate: 9000\n" +
@@ -297,5 +307,15 @@ public class TraceSamplingPolicyWatcherTest {
         public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
             return Optional.empty();
         }
+    }
+
+    private void globalDefaultSamplingRateEquals(TraceSamplingPolicyWatcher watcher, int sample) {
+        Assert.assertTrue(watcher.shouldSample("", sample, -1));
+        Assert.assertFalse(watcher.shouldSample("", sample + 1, -1));
+    }
+
+    private void globalDefaultDurationEquals(TraceSamplingPolicyWatcher watcher, int duration) {
+        Assert.assertTrue(watcher.shouldSample("", 10000, duration));
+        Assert.assertFalse(watcher.shouldSample("", 10000, duration - 1));
     }
 }

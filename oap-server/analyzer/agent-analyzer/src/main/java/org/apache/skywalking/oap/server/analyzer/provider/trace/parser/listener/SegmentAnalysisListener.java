@@ -26,7 +26,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSamplingPolicyWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusAnalyzer;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
 import org.apache.skywalking.oap.server.core.Const;
@@ -54,7 +53,6 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     private final NamingControl namingControl;
     private final List<String> searchableTagKeys;
     private final SegmentStatusAnalyzer segmentStatusAnalyzer;
-    private final TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
 
     private final Segment segment = new Segment();
     private SAMPLE_STATUS sampleStatus = SAMPLE_STATUS.UNKNOWN;
@@ -143,8 +141,6 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                 sampleStatus = SAMPLE_STATUS.SAMPLED;
             } else if (isError && forceSampleErrorSegment) {
                 sampleStatus = SAMPLE_STATUS.SAMPLED;
-            } else if (traceSamplingPolicyWatcher.shouldSample(duration)) {
-                sampleStatus = SAMPLE_STATUS.SAMPLED;
             } else {
                 sampleStatus = SAMPLE_STATUS.IGNORE;
             }
@@ -191,7 +187,6 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         private final NamingControl namingControl;
         private final List<String> searchTagKeys;
         private final SegmentStatusAnalyzer segmentStatusAnalyzer;
-        private final TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
 
         public Factory(ModuleManager moduleManager, AnalyzerModuleConfig config) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
@@ -206,7 +201,6 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                                               .getService(NamingControl.class);
             this.segmentStatusAnalyzer = SegmentStatusStrategy.findByName(config.getSegmentStatusAnalysisStrategy())
                                                               .getExceptionAnalyzer();
-            this.traceSamplingPolicyWatcher = config.getTraceSamplingPolicyWatcher();
         }
 
         @Override
@@ -217,8 +211,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                 forceSampleErrorSegment,
                 namingControl,
                 searchTagKeys,
-                segmentStatusAnalyzer,
-                traceSamplingPolicyWatcher
+                segmentStatusAnalyzer
             );
         }
     }
