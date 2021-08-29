@@ -64,36 +64,71 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
         return this.settingsString.get();
     }
 
+    /**
+     * Determine whether need to be sampled
+     *
+     * @param service  service's name
+     * @param sample   sample rate of trace segment
+     * @param duration duration of trace segment
+     * @return
+     */
     public boolean shouldSample(String service, int sample, int duration) {
         SamplingPolicy samplingPolicy = this.samplingPolicySettings.get().get(service);
         if (samplingPolicy == null) {
-            return shouldSampleGlobal(sample, duration);
+            return shouldSampleByDefault(sample, duration);
         }
         return shouldSampleService(samplingPolicy, sample, duration);
     }
 
+    /**
+     * Get sampling policy for specific service
+     *
+     * @param service serviceName
+     * @return
+     */
     public SamplingPolicy getSamplingPolicy(String service) {
         return this.samplingPolicySettings.get().get(service);
     }
 
-    private boolean shouldSampleGlobal(int sample, int duration) {
-        return isOverSlowThresholdGlobal(duration) || withinRateRangeGlobal(sample);
+    /**
+     * When 'duration' is over 'default trace segment's slow threshold' that should be sampled.
+     * Or when 'sample' is with in [0,defaultSamplingRate) that also should be sampled.
+     *
+     * @param sample sample rate of trace segment
+     * @param duration duration of trace segment
+     * @return
+     */
+    private boolean shouldSampleByDefault(int sample, int duration) {
+        return isOverDefaultSlowThreshold(duration) || withinDefaultRateRange(sample);
     }
 
+    /**
+     * On the basis of service's If the specific service's 'trace segment's slow threshold' is not null.
+     * The same as 'samplingRate', if the specific service's 'samplingRate' is not null. Otherwise,Using the default sampling policy.
+     *
+     * The priority of sampling policy: 'trace segment's slow threshold' > 'samplingRate',no matter the service's or global.
+     *     When 'duration' is over 'default trace segment's slow threshold' that should be sampled.
+     *     Or when 'sample' is with in [0,defaultSamplingRate) that also should be sampled.
+     *
+     * @param samplingPolicy the sampling policy of the specific service
+     * @param sample sample rate of trace segment
+     * @param duration duration of trace segment
+     * @return
+     */
     private boolean shouldSampleService(SamplingPolicy samplingPolicy, int sample, int duration) {
         return (samplingPolicy.getDuration() != null && isOverSlowThreshold(duration, samplingPolicy.getDuration()))
                 || (samplingPolicy.getRate() != null && withinRateRange(sample, samplingPolicy.getRate()))
                 // global policy
-                || (samplingPolicy.getDuration() == null && isOverSlowThresholdGlobal(duration))
-                || (samplingPolicy.getRate() == null && withinRateRangeGlobal(sample));
+                || (samplingPolicy.getDuration() == null && isOverDefaultSlowThreshold(duration))
+                || (samplingPolicy.getRate() == null && withinDefaultRateRange(sample));
     }
 
-    private boolean withinRateRangeGlobal(int sample) {
-        return withinRateRange(sample, this.samplingPolicySettings.get().getGlobal().getRate());
+    private boolean withinDefaultRateRange(int sample) {
+        return withinRateRange(sample, this.samplingPolicySettings.get().getDefaultPolicy().getRate());
     }
 
-    private boolean isOverSlowThresholdGlobal(int duration) {
-        return isOverSlowThreshold(duration, this.samplingPolicySettings.get().getGlobal().getDuration());
+    private boolean isOverDefaultSlowThreshold(int duration) {
+        return isOverSlowThreshold(duration, this.samplingPolicySettings.get().getDefaultPolicy().getDuration());
     }
 
     private boolean isOverSlowThreshold(int currentDuration, int policyDuration) {

@@ -61,10 +61,10 @@ public class SamplingPolicySettingsReader {
             return;
         }
         if (objectMap.get("rate") != null) {
-            samplingPolicySettings.getGlobal().setRate((Integer) objectMap.get("rate"));
+            samplingPolicySettings.getDefaultPolicy().setRate((Integer) objectMap.get("rate"));
         }
         if (objectMap.get("duration") != null) {
-            samplingPolicySettings.getGlobal().setDuration((Integer) objectMap.get("duration"));
+            samplingPolicySettings.getDefaultPolicy().setDuration((Integer) objectMap.get("duration"));
         }
     }
 

@@ -27,8 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SamplingPolicySettings {
 
     @Getter
-    // `default` is the keyword ,so named `global`
-    private SamplingPolicy global;
+    private SamplingPolicy defaultPolicy;
     private Map<String, SamplingPolicy> services;
 
     /**
@@ -37,7 +36,7 @@ public class SamplingPolicySettings {
      */
     public SamplingPolicySettings(Integer defaultRate, Integer defaultDuration) {
         SamplingPolicy samplingPolicy = new SamplingPolicy(defaultRate == null ? 10000 : defaultRate, defaultDuration == null ? -1 : defaultDuration);
-        this.global = samplingPolicy;
+        this.defaultPolicy = samplingPolicy;
         this.services = new ConcurrentHashMap<>();
     }
 
