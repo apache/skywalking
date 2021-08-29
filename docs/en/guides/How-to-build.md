@@ -33,7 +33,7 @@ If you need to execute build behind the proxy, edit the *.mvn/jvm.config* and se
     git submodule update
     ```
    
-1. Run `./mvnw clean package -DskipTests`
+1. Run `./mvnw clean package -Dmaven.test.skip`
 1. All packages are in `/dist` (.tar.gz for Linux and .zip for Windows).
 
 ### Building from Apache source code release
@@ -42,28 +42,21 @@ If you need to execute build behind the proxy, edit the *.mvn/jvm.config* and se
 For each official Apache release, there is a complete and independent source code tar, which includes all source codes. You could download it from [SkyWalking Apache download page](http://skywalking.apache.org/downloads/). There is no requirement related to git when compiling this. Just follow these steps.
 
 1. Prepare JDK8+ and Maven 3.6+.
-1. Run `./mvnw clean package -DskipTests`.
+1. Run `./mvnw clean package -Dmaven.test.skip`.
 1. All packages are in `/dist`.(.tar.gz for Linux and .zip for Windows).
 
 ### Advanced compiling
 SkyWalking is a complex maven project that has many modules. Therefore, the time to compile may be a bit longer than usual.
 If you just want to recompile part of the project, you have the following options:
-- Compile agent and package
->  ./mvnw package -Pagent,dist
-
-or
-
-> make build.agent
-
-If you intend to compile a single plugin, such as one in the dev stage, you could
->  cd plugin_module_dir & mvn clean package
-
 - Compile backend and package
 >  ./mvnw package -Pbackend,dist
 
 or
 
 > make build.backend
+
+If you intend to compile a single plugin, such as one in the dev stage, you could
+>  cd plugin_module_dir & mvn clean package
 
 - Compile UI and package
 >  ./mvnw package -Pui,dist

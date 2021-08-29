@@ -43,7 +43,7 @@ gRPCSslCertChainPath: /path/to/server.crt
 
 Since `sharding-server` only receives data from an external source, it doesn't need a CA at all.
 
-If you port to java agent, refer to [TLS.md](../service-agent/java-agent/TLS.md) to config java agent to enable TLS.
+If you port to Java agent, refer to [the Java agent repo](http://github.com/apache/skywalking-java) to config java agent and enable TLS.
 
 ## mutual TLS mode
 

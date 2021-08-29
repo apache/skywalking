@@ -35,10 +35,7 @@ services:
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap1:11800
       SW_AGENT_NAME: e2e-service-provider
-      JAVA_OPTS: >-
-        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider1,destfile=/jacoco/provider1.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
-        -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.instance_name=provider1
-        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+      SW_AGENT_INSTANCE_NAME: provider1
     depends_on:
       oap1:
         condition: service_healthy
@@ -50,10 +47,7 @@ services:
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap2:11800
       SW_AGENT_NAME: e2e-service-provider
-      JAVA_OPTS: >-
-        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider2,destfile=/jacoco/provider2.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
-        -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.instance_name=provider2
-        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+      SW_AGENT_INSTANCE_NAME: provider2
     depends_on:
       oap2:
         condition: service_healthy
@@ -65,11 +59,8 @@ services:
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap1:11800
       SW_AGENT_NAME: e2e-service-consumer
+      SW_AGENT_INSTANCE_NAME: consumer
       PROVIDER_URL: http://provider1:9090,http://provider2:9090
-      JAVA_OPTS: >-
-        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/consumer,destfile=/jacoco/consumer.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
-        -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.instance_name=consumer
-        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     depends_on:
       oap1:
         condition: service_healthy

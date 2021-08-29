@@ -31,9 +31,9 @@ Take the following fluent-bit config files as an example to set up Fluent-bit:
 
 ### Java agent's toolkits
 Java agent provides toolkits for 
-[log4j](../service-agent/java-agent/Application-toolkit-log4j-1.x.md),
-[log4j2](../service-agent/java-agent/Application-toolkit-log4j-2.x.md), and
-[logback](../service-agent/java-agent/Application-toolkit-logback-1.x.md) 
+[log4j](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-1.x.md),
+[log4j2](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-2.x.md), and
+[logback](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-logback-1.x.md) 
 to report logs through gRPC with automatically injected trace context.
 
 [SkyWalking Satellite sidecar](https://github.com/apache/skywalking-satellite) is a recommended proxy/side that
@@ -41,9 +41,9 @@ forwards logs (including the use of Kafka MQ to transport logs). When using this
 and enable configs `enableNativeProtoLog`.
 
 Java agent provides toolkits for
-[log4j](../service-agent/java-agent/Application-toolkit-log4j-1.x.md#print-skywalking-context-in-your-logs),
-[log4j2](../service-agent/java-agent/Application-toolkit-log4j-2.x.md#print-skywalking-context-in-your-logs), and
-[logback](../service-agent/java-agent/Application-toolkit-logback-1.x.md#print-skywalking-context-in-your-logs)
+[log4j](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-1.x.md#print-skywalking-context-in-your-logs),
+[log4j2](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-2.x.md#print-skywalking-context-in-your-logs), and
+[logback](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-logback-1.x.md#print-skywalking-context-in-your-logs)
 to report logs through files with automatically injected trace context.
 
 Log framework config examples:
@@ -52,6 +52,7 @@ Log framework config examples:
 - [logback fileAppender](../../../../test/e2e/e2e-service-provider/src/main/resources/logback.xml)
 
 ### Python agent log reporter
+
 [SkyWalking Python Agent](https://github.com/apache/skywalking-python) implements a log reporter for the [logging 
 module](https://docs.python.org/3/library/logging.html) with functionalities aligning with the Java toolkits. 
 

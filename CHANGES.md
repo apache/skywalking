@@ -7,20 +7,9 @@ Release Notes.
 
 #### Project
 
-* Upgrade jdk 11 in dockerfile and remove unused java_opts.
-* DataCarrier changes a `#consume` API to add properties as a parameter to initialize consumer when
-  use `Class<? extends IConsumer<T>> consumerClass`.
+* Split javaagent into skywalking-java repository. https://github.com/apache/skywalking-java
 
-#### Java Agent
-
-* Support Multiple DNS period resolving mechanism
-* Modify `Tags.STATUS_CODE` field name to `Tags.HTTP_RESPONSE_STATUS_CODE` and type from `StringTag` to `IntegerTag`, add `Tags.RPC_RESPONSE_STATUS_CODE` field to hold rpc response code value.
-* Fix kafka-reporter-plugin shade package conflict
-* Add all config items to `agent.conf` file for convenient containerization use cases.
-* Advanced Kafka Producer configuration enhancement.
-* Support mTLS for gRPC channel.
-
-#### OAP-Backend
+#### OAP Server
 
 * Fix CVE-2021-35515, CVE-2021-35516, CVE-2021-35517, CVE-2021-36090. Upgrade org.apache.commons:commons-compress to
   1.21.
@@ -59,11 +48,13 @@ Release Notes.
 * Update endpointName to endpointId in the query trace condition.
 * Add Python falcon icon on the UI.
 * Fix searching endpoints with keywords.
+* Support clicking the service name in the chart to link to the trace or log page.
 
 #### Documentation
 
 * Add a section in `Log Collecting And Analysis` doc, introducing the new Python agent log reporter.
 * Add one missing step in `otel-receiver` doc about how to activate the default receiver.
+* Reorganize dynamic configuration doc.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/96?closed=1)
 

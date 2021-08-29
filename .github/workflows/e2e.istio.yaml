@@ -54,17 +54,6 @@ jobs:
         with:
           submodules: true
 
-      - name: Check Unintended Changes
-        run: |
-          echo "::group::Check sw.version"
-          sudo apt install -y -q xmlstarlet
-          SW_VERSION=$(xmlstarlet sel -N pom=http://maven.apache.org/POM/4.0.0 -t -v "/pom:project/pom:properties/pom:sw.version" test/e2e/pom.xml)
-          if [[ "$(echo $(echo $SW_VERSION))" != "" ]]; then
-            echo "::error Please don't submit the change of sw.version in test/e2e/pom.xml"
-            exit 1
-          fi
-          echo "::endgroup::"
-
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
 
@@ -156,12 +145,7 @@ jobs:
           export WEBAPP_HOST=127.0.0.1
           export WEBAPP_PORT=8080
 
-          export SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
-
-          ./mvnw -q -DskipTests -N install
-          ./mvnw -q -f apm-application-toolkit -DskipTests -am install
-
-          ./mvnw -q --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=org.apache.skywalking.e2e.mesh.ALSE2E
+          ./mvnw -q --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.mesh.ALSE2E
 
       - name: Logs
         if: ${{ failure() }}
@@ -191,17 +175,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-
-      - name: Check Unintended Changes
-        run: |
-          echo "::group::Check sw.version"
-          sudo apt install -y -q xmlstarlet
-          SW_VERSION=$(xmlstarlet sel -N pom=http://maven.apache.org/POM/4.0.0 -t -v "/pom:project/pom:properties/pom:sw.version" test/e2e/pom.xml)
-          if [[ "$(echo $(echo $SW_VERSION))" != "" ]]; then
-            echo "Please don't submit the change of sw.version in test/e2e/pom.xml"
-            exit 1
-          fi
-          echo "::endgroup::"
 
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
@@ -299,12 +272,7 @@ jobs:
           export WEBAPP_HOST=127.0.0.1
           export WEBAPP_PORT=8080
 
-          export SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
-
-          ./mvnw -q -DskipTests -N install
-          ./mvnw -q -f apm-application-toolkit -DskipTests -am install
-
-          ./mvnw -q --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=org.apache.skywalking.e2e.mesh.MetricsServiceE2E
+          ./mvnw -q --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.mesh.MetricsServiceE2E
 
       - name: Logs
         if: ${{ failure() }}
