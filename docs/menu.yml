@@ -91,6 +91,8 @@ catalog:
               path: "/en/setup/backend/ttl"
             - name: "Dynamical Logging"
               path: "/en/setup/backend/dynamical-logging"
+            - name: "gRPC SSL transportation support for OAP serve"
+              path: "/en/setup/backend/grpc-ssl"
           - name: "Deploy In Kubernetes"
             path: "/en/setup/backend/backend-k8s"
           - name: "Tracing"
