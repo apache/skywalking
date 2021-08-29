@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -32,8 +34,8 @@ public interface IMetricsDAO extends DAO {
     /**
      * Read data from the storage by given IDs.
      *
-     * @param model     target entity of this query.
-     * @param metrics   metrics list.
+     * @param model   target entity of this query.
+     * @param metrics metrics list.
      * @return the data of all given IDs. Only include existing data. Don't require to keep the same order of ids list.
      * @throws IOException when error occurs in data query.
      */
@@ -54,4 +56,20 @@ public interface IMetricsDAO extends DAO {
      * executed ASAP.
      */
     UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException;
+
+    /**
+     * Calculate the expired status of the metric by given current timestamp, metric and TTL.
+     *
+     * @param model             of the given cached value
+     * @param cachedValue       is a metric instance
+     * @param currentTimeMillis current system time of OAP.
+     * @param ttl               from core setting.
+     * @return true if the metric is expired.
+     */
+    default boolean isExpiredCache(Model model, Metrics cachedValue, long currentTimeMillis, int ttl) {
+        final long metricTimestamp = TimeBucket.getTimestamp(
+            cachedValue.getTimeBucket(), model.getDownsampling());
+        // If the cached metric is older than the TTL indicated.
+        return currentTimeMillis - metricTimestamp > TimeUnit.DAYS.toMillis(ttl);
+    }
 }

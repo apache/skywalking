@@ -58,6 +58,16 @@ public class ServiceNameFormatterTest {
                 "${pod.metadata.labels.(service.istio.io/canonical-name)}",
                 ImmutableMap.of("service", service("Clash"), "pod", pod(of("service.istio.io/canonical-name", "ClashX-alpha"))),
                 "ClashX-alpha"
+            ),
+            new Case(
+                "${pod.metadata.labels.NOT_EXISTS}",
+                ImmutableMap.of("service", service("Clash"), "pod", pod(of("service.istio.io/canonical-name", "ClashX-alpha"))),
+                "-"
+            ),
+            new Case(
+                "${pod.metadata.labels.NOT_EXISTS,pod.metadata.labels.(service.istio.io/canonical-name),pod.metadata.labels.app}",
+                ImmutableMap.of("service", service("Clash"), "pod", pod(of("app", "ClashX-alpha"))),
+                "ClashX-alpha"
             )
         };
     }

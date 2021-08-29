@@ -48,6 +48,8 @@ import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogServ
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
+import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4Openapi;
+import org.apache.skywalking.oap.server.core.logging.LoggingConfigWatcher;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateInitializer;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.DisableOALDefine;
@@ -120,6 +122,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private ApdexThresholdConfig apdexThresholdConfig;
     private EndpointNameGroupingRuleWatcher endpointNameGroupingRuleWatcher;
     private OALEngineLoaderService oalEngineLoaderService;
+    private LoggingConfigWatcher loggingConfigWatcher;
 
     public CoreModuleProvider() {
         super();
@@ -159,6 +162,11 @@ public class CoreModuleProvider extends ModuleProvider {
         try {
             endpointNameGroupingRuleWatcher = new EndpointNameGroupingRuleWatcher(
                 this, endpointNameGrouping);
+
+            if (moduleConfig.isEnableEndpointNameGroupingByOpenapi()) {
+                endpointNameGrouping.setEndpointGroupingRule4Openapi(
+                    new EndpointGroupingRuleReader4Openapi("openapi-definitions").read());
+            }
         } catch (FileNotFoundException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
@@ -215,6 +223,8 @@ public class CoreModuleProvider extends ModuleProvider {
                                                                .jettyMaxThreads(moduleConfig.getRestMaxThreads())
                                                                .jettyAcceptQueueSize(
                                                                    moduleConfig.getRestAcceptQueueSize())
+                                                               .jettyHttpMaxRequestHeaderSize(
+                                                                   moduleConfig.getHttpMaxRequestHeaderSize())
                                                                .build();
         jettyServer = new JettyServer(jettyServerConfig);
         jettyServer.initialize();
@@ -282,10 +292,24 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(
             UITemplateManagementService.class, new UITemplateManagementService(getManager()));
 
-        MetricsStreamProcessor.getInstance().setEnableDatabaseSession(moduleConfig.isEnableDatabaseSession());
+        if (moduleConfig.getMetricsDataTTL() < 2) {
+            throw new ModuleStartException(
+                "Metric TTL should be at least 2 days, current value is " + moduleConfig.getMetricsDataTTL());
+        }
+        if (moduleConfig.getRecordDataTTL() < 2) {
+            throw new ModuleStartException(
+                "Record TTL should be at least 2 days, current value is " + moduleConfig.getRecordDataTTL());
+        }
+
+        final MetricsStreamProcessor metricsStreamProcessor = MetricsStreamProcessor.getInstance();
+        metricsStreamProcessor.setEnableDatabaseSession(moduleConfig.isEnableDatabaseSession());
+        metricsStreamProcessor.setL1FlushPeriod(moduleConfig.getL1FlushPeriod());
+        metricsStreamProcessor.setStorageSessionTimeout(moduleConfig.getStorageSessionTimeout());
+        metricsStreamProcessor.setMetricsDataTTL(moduleConfig.getMetricsDataTTL());
         TopNStreamProcessor.getInstance().setTopNWorkerReportCycle(moduleConfig.getTopNReportPeriod());
         apdexThresholdConfig = new ApdexThresholdConfig(this);
         ApdexMetrics.setDICT(apdexThresholdConfig);
+        loggingConfigWatcher = new LoggingConfigWatcher(this);
     }
 
     @Override
@@ -328,6 +352,7 @@ public class CoreModuleProvider extends ModuleProvider {
                                                                                   DynamicConfigurationService.class);
         dynamicConfigurationService.registerConfigChangeWatcher(apdexThresholdConfig);
         dynamicConfigurationService.registerConfigChangeWatcher(endpointNameGroupingRuleWatcher);
+        dynamicConfigurationService.registerConfigChangeWatcher(loggingConfigWatcher);
     }
 
     @Override

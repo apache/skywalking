@@ -25,5 +25,6 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 @RequiredArgsConstructor
 public class Storage {
     private final String modelName;
+    private final boolean timeRelativeID;
     private final DownSampling downsampling;
 }

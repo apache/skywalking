@@ -18,14 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
@@ -52,6 +53,11 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  */
 @Slf4j
 public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
+    /**
+     * The counter of MetricsPersistentWorker instance, to calculate session timeout offset.
+     */
+    private static long SESSION_TIMEOUT_OFFSITE_COUNTER = 0;
+
     private final Model model;
     private final Map<Metrics, Metrics> context;
     private final IMetricsDAO metricsDAO;
@@ -61,11 +67,27 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     private final Optional<MetricsTransWorker> transWorker;
     private final boolean enableDatabaseSession;
     private final boolean supportUpdate;
+    private long sessionTimeout;
     private CounterMetrics aggregationCounter;
+    /**
+     * The counter for the round of persistent.
+     */
+    private int persistentCounter;
+    /**
+     * The mod value to control persistent. The MetricsPersistentWorker is driven by the {@link
+     * org.apache.skywalking.oap.server.core.storage.PersistenceTimer}. The down sampling level workers only execute in
+     * every {@link #persistentMod} periods. And minute level workers execute every time.
+     */
+    private int persistentMod;
+    /**
+     * @since 8.7.0 TTL settings from {@link org.apache.skywalking.oap.server.core.CoreModuleConfig#getMetricsDataTTL()}
+     */
+    private int metricsDataTTL;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
-                            MetricsTransWorker transWorker, boolean enableDatabaseSession, boolean supportUpdate) {
+                            MetricsTransWorker transWorker, boolean enableDatabaseSession, boolean supportUpdate,
+                            long storageSessionTimeout, int metricsDataTTL) {
         super(moduleDefineHolder, new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData()));
         this.model = model;
         this.context = new HashMap<>(100);
@@ -75,6 +97,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         this.nextExportWorker = Optional.ofNullable(nextExportWorker);
         this.transWorker = Optional.ofNullable(transWorker);
         this.supportUpdate = supportUpdate;
+        this.sessionTimeout = storageSessionTimeout;
+        this.persistentCounter = 0;
+        this.persistentMod = 1;
+        this.metricsDataTTL = metricsDataTTL;
 
         String name = "METRICS_L2_AGGREGATION";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -99,17 +125,29 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             new MetricsTag.Keys("metricName", "level", "dimensionality"),
             new MetricsTag.Values(model.getName(), "2", model.getDownsampling().getName())
         );
+        SESSION_TIMEOUT_OFFSITE_COUNTER++;
     }
 
     /**
-     * Create the leaf MetricsPersistentWorker, no next step.
+     * Create the leaf and down-sampling MetricsPersistentWorker, no next step.
      */
-    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
-                            boolean enableDatabaseSession, boolean supportUpdate) {
+    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder,
+                            Model model,
+                            IMetricsDAO metricsDAO,
+                            boolean enableDatabaseSession,
+                            boolean supportUpdate,
+                            long storageSessionTimeout,
+                            int metricsDataTTL) {
         this(moduleDefineHolder, model, metricsDAO,
              null, null, null,
-             enableDatabaseSession, supportUpdate
+             enableDatabaseSession, supportUpdate, storageSessionTimeout, metricsDataTTL
         );
+        // For a down-sampling metrics, we prolong the session timeout for 4 times, nearly 5 minutes.
+        // And add offset according to worker creation sequence, to avoid context clear overlap,
+        // eventually optimize load of IDs reading.
+        this.sessionTimeout = this.sessionTimeout * 4 + SESSION_TIMEOUT_OFFSITE_COUNTER * 200;
+        // The down sampling level worker executes every 4 periods.
+        this.persistentMod = 4;
     }
 
     /**
@@ -122,18 +160,23 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     }
 
     @Override
-    public void prepareBatch(Collection<Metrics> lastCollection, List<PrepareRequest> prepareRequests) {
+    public List<PrepareRequest> prepareBatch(Collection<Metrics> lastCollection) {
+        if (persistentCounter++ % persistentMod != 0) {
+            return Collections.EMPTY_LIST;
+        }
+
         long start = System.currentTimeMillis();
         if (lastCollection.size() == 0) {
-            return;
+            return Collections.EMPTY_LIST;
         }
 
         /*
-         * Hard coded the max size. This is only the batch size of one metrics, too large number is meaningless.
+         * Hard coded the max size. This only affect the multiIDRead if the data doesn't hit the cache.
          */
         int maxBatchGetSize = 2000;
         final int batchSize = Math.min(maxBatchGetSize, lastCollection.size());
         List<Metrics> metricsList = new ArrayList<>();
+        List<PrepareRequest> prepareRequests = new ArrayList<>(lastCollection.size());
         for (Metrics data : lastCollection) {
             transWorker.ifPresent(metricsTransWorker -> metricsTransWorker.in(data));
 
@@ -154,6 +197,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                 System.currentTimeMillis() - start, prepareRequests.size()
             );
         }
+        return prepareRequests;
     }
 
     private void flushDataToStorage(List<Metrics> metricsList,
@@ -161,6 +205,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         try {
             loadFromStorage(metricsList);
 
+            long timestamp = System.currentTimeMillis();
             for (Metrics metrics : metricsList) {
                 Metrics cachedMetrics = context.get(metrics);
                 if (cachedMetrics != null) {
@@ -181,10 +226,12 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                     cachedMetrics.calculate();
                     prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cachedMetrics));
                     nextWorker(cachedMetrics);
+                    cachedMetrics.setLastUpdateTimestamp(timestamp);
                 } else {
                     metrics.calculate();
                     prepareRequests.add(metricsDAO.prepareBatchInsert(model, metrics));
                     nextWorker(metrics);
+                    metrics.setLastUpdateTimestamp(timestamp);
                 }
 
                 /*
@@ -209,28 +256,59 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     /**
      * Load data from the storage, if {@link #enableDatabaseSession} == true, only load data when the id doesn't exist.
      */
-    private void loadFromStorage(List<Metrics> metrics) throws IOException {
-        if (!enableDatabaseSession) {
-            context.clear();
-        }
+    private void loadFromStorage(List<Metrics> metrics) {
+        final long currentTimeMillis = System.currentTimeMillis();
+        try {
+            List<Metrics> notInCacheMetrics =
+                metrics.stream()
+                       .filter(m -> {
+                           final Metrics cachedValue = context.get(m);
+                           // Not cached or session disabled, the metric could be tagged `not in cache`.
+                           if (cachedValue == null || !enableDatabaseSession) {
+                               return true;
+                           }
+                           // The metric is in the cache, but still we have to check
+                           // whether the cache is expired due to TTL.
+                           // This is a cache-DB inconsistent case:
+                           // Metrics keep coming due to traffic, but the entity in the
+                           // database has been removed due to TTL.
+                           if (!model.isTimeRelativeID() && supportUpdate) {
+                               // Mostly all updatable metadata level metrics are required to do this check.
 
-        List<Metrics> noInCacheMetrics = metrics.stream()
-                                                .filter(m -> !context.containsKey(m))
-                                                .collect(Collectors.toList());
-        if (!noInCacheMetrics.isEmpty()) {
-            metricsDAO.multiGet(model, noInCacheMetrics).forEach(m -> context.put(m, m));
+                               if (metricsDAO.isExpiredCache(model, cachedValue, currentTimeMillis, metricsDataTTL)) {
+                                   // The expired metrics should be removed from the context and tagged `not in cache` directly.
+                                   context.remove(m);
+                                   return true;
+                               }
+                           }
+
+                           return false;
+                       })
+                       .collect(Collectors.toList());
+            if (notInCacheMetrics.isEmpty()) {
+                return;
+            }
+
+            final List<Metrics> dbMetrics = metricsDAO.multiGet(model, notInCacheMetrics);
+            if (!enableDatabaseSession) {
+                // Clear the cache only after results from DB are returned successfully.
+                context.clear();
+            }
+            dbMetrics.forEach(m -> context.put(m, m));
+        } catch (final Exception e) {
+            log.error("Failed to load metrics for merging", e);
         }
     }
 
     @Override
-    public void endOfRound(long tookTime) {
+    public void endOfRound() {
         if (enableDatabaseSession) {
             Iterator<Metrics> iterator = context.values().iterator();
+            long timestamp = System.currentTimeMillis();
             while (iterator.hasNext()) {
                 Metrics metrics = iterator.next();
-                metrics.extendSurvivalTime(tookTime);
-                // 70,000ms means more than one minute.
-                if (metrics.getSurvivalTime() > 70000) {
+
+                if (metrics.isExpired(timestamp, sessionTimeout)) {
                     iterator.remove();
                 }
             }
@@ -244,7 +322,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      */
     private class PersistentConsumer implements IConsumer<Metrics> {
         @Override
-        public void init() {
+        public void init(final Properties properties) {
 
         }
 

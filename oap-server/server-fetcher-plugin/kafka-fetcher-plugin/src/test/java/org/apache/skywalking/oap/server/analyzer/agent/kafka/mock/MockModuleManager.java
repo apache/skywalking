@@ -37,10 +37,12 @@ public abstract class MockModuleManager extends ModuleManager {
         moduleProviderHolderMap.put(name, provider);
     }
 
+    @Override
     public boolean has(String moduleName) {
         return moduleProviderHolderMap.containsKey(moduleName);
     }
 
+    @Override
     public ModuleProviderHolder find(String moduleName) throws ModuleNotFoundRuntimeException {
         if (!moduleProviderHolderMap.containsKey(moduleName)) {
             throw new ModuleNotFoundRuntimeException("ModuleProviderHolder[" + moduleName + "] cannot found in MOCK.");

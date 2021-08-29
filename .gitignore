@@ -9,7 +9,6 @@ target/
 *~
 packages/
 **/dependency-reduced-pom.xml
-/skywalking-agent/
 **/dist/
 /docker/snapshot/*.gz
 .mvn/wrapper/*.jar
@@ -18,9 +17,4 @@ OALLexer.tokens
 .vscode
 .checkstyle
 .externalToolBuilders
-/test/plugin/dist
-/test/plugin/workspace
-/test/jacoco/classes
-/test/jacoco/*.exec
 oap-server/oal-grammar/**/gen/
-test/jacoco

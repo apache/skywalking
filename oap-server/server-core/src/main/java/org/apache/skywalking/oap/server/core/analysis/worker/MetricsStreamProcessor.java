@@ -71,11 +71,27 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
     private List<MetricsPersistentWorker> persistentWorkers = new ArrayList<>();
 
     /**
+     * The period of L1 aggregation flush. Unit is ms.
+     */
+    @Setter
+    @Getter
+    private long l1FlushPeriod = 500;
+    /**
      * Hold and forward CoreModuleConfig#enableDatabaseSession to the persistent worker.
      */
     @Setter
     @Getter
     private boolean enableDatabaseSession;
+    /**
+     * The threshold of session time. Unit is ms. Default value is 70s.
+     */
+    @Setter
+    private long storageSessionTimeout = 70_000;
+    /**
+     * @since 8.7.0 TTL settings from {@link org.apache.skywalking.oap.server.core.CoreModuleConfig#getMetricsDataTTL()}
+     */
+    @Setter
+    private int metricsDataTTL = 3;
 
     public static MetricsStreamProcessor getInstance() {
         return PROCESSOR;
@@ -97,7 +113,9 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
      * @param metricsClass       data type of the streaming calculation.
      */
     @Override
-    public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Metrics> metricsClass) throws StorageException {
+    public void create(ModuleDefineHolder moduleDefineHolder,
+                       Stream stream,
+                       Class<? extends Metrics> metricsClass) throws StorageException {
         this.create(moduleDefineHolder, StreamDefinition.from(stream), metricsClass);
     }
 
@@ -108,7 +126,8 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         final StorageBuilderFactory storageBuilderFactory = moduleDefineHolder.find(StorageModule.NAME)
                                                                               .provider()
                                                                               .getService(StorageBuilderFactory.class);
-        final Class<? extends StorageBuilder> builder = storageBuilderFactory.builderOf(metricsClass, stream.getBuilder());
+        final Class<? extends StorageBuilder> builder = storageBuilderFactory.builderOf(
+            metricsClass, stream.getBuilder());
 
         StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IMetricsDAO metricsDAO;
@@ -134,19 +153,25 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
          */
         boolean supportDownSampling = true;
         boolean supportUpdate = true;
+        boolean timeRelativeID = true;
         if (metricsExtension != null) {
             supportDownSampling = metricsExtension.supportDownSampling();
             supportUpdate = metricsExtension.supportUpdate();
+            timeRelativeID = metricsExtension.timeRelativeID();
         }
         if (supportDownSampling) {
             if (configService.shouldToHour()) {
                 Model model = modelSetter.add(
-                    metricsClass, stream.getScopeId(), new Storage(stream.getName(), DownSampling.Hour), false);
+                    metricsClass, stream.getScopeId(), new Storage(stream.getName(), timeRelativeID, DownSampling.Hour),
+                    false
+                );
                 hourPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
             }
             if (configService.shouldToDay()) {
                 Model model = modelSetter.add(
-                    metricsClass, stream.getScopeId(), new Storage(stream.getName(), DownSampling.Day), false);
+                    metricsClass, stream.getScopeId(), new Storage(stream.getName(), timeRelativeID, DownSampling.Day),
+                    false
+                );
                 dayPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
             }
 
@@ -155,7 +180,9 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         }
 
         Model model = modelSetter.add(
-            metricsClass, stream.getScopeId(), new Storage(stream.getName(), DownSampling.Minute), false);
+            metricsClass, stream.getScopeId(), new Storage(stream.getName(), timeRelativeID, DownSampling.Minute),
+            false
+        );
         MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(
             moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate);
 
@@ -167,7 +194,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
         MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, remoteReceiverWorkerName);
         MetricsAggregateWorker aggregateWorker = new MetricsAggregateWorker(
-            moduleDefineHolder, remoteWorker, stream.getName());
+            moduleDefineHolder, remoteWorker, stream.getName(), l1FlushPeriod);
 
         entryWorkers.put(metricsClass, aggregateWorker);
     }
@@ -181,8 +208,8 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         ExportWorker exportWorker = new ExportWorker(moduleDefineHolder);
 
         MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(
-            moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker, enableDatabaseSession,
-            supportUpdate
+            moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker,
+            enableDatabaseSession, supportUpdate, storageSessionTimeout, metricsDataTTL
         );
         persistentWorkers.add(minutePersistentWorker);
 
@@ -194,7 +221,9 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                                                        Model model,
                                                        boolean supportUpdate) {
         MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(
-            moduleDefineHolder, model, metricsDAO, enableDatabaseSession, supportUpdate);
+            moduleDefineHolder, model, metricsDAO,
+            enableDatabaseSession, supportUpdate, storageSessionTimeout, metricsDataTTL
+        );
         persistentWorkers.add(persistentWorker);
 
         return persistentWorker;

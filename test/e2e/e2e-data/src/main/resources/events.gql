@@ -33,7 +33,12 @@
     }",
     "variables": {
         "condition": {
-            "uuid": "{uuid}"
+            "uuid": "{uuid}",
+            "paging": {
+                "pageNum": {pageNum},
+                "pageSize": {pageSize},
+                "needTotal": {needTotal}
+            }
         }
     }
 }

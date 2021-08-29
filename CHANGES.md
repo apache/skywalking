@@ -2,59 +2,60 @@ Changes by Version
 ==================
 Release Notes.
 
-8.6.0
+8.8.0
 ------------------
+
 #### Project
 
+* Split javaagent into skywalking-java repository. https://github.com/apache/skywalking-java
 
-#### Java Agent
-* Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
-* Improve `GlobalIdGenerator` performance.
-* Add an agent plugin to support elasticsearch7.
-* Add `jsonrpc4j` agent plugin.
-* new options to support multi skywalking cluster use same kafka cluster(plugin.kafka.namespace)
-* resolve agent has no retries if connect kafka cluster failed when bootstrap
-* Add Seata in the component definition. Seata plugin hosts on Seata project.
-* Extended Kafka plugin to properly trace consumers that have topic partitions directly assigned.
-* Support Kafka consumer 2.8.0.
-* Support print SkyWalking context to logs.
-* Add `MessageListener` enhancement in pulsar plugin.
-* fix a bug that spring-mvc set an error endpoint name if the controller class annotation implements an interface.
-* Add an optional agent plugin to support mybatis.
-* Add `spring-cloud-gateway-3.x` optional plugin.
-* Add `okhttp-4.x` plugin.
-* Fix NPE when thrift field is nested in plugin `thrift`
-* Fix possible NullPointerException in agent's ES plugin.
+#### OAP Server
 
-#### OAP-Backend
-* BugFix: filter invalid Envoy access logs whose socket address is empty.
-* Fix K8s monitoring the incorrect metrics calculate. 
-* Loop alarm into event system.
-* Support alarm tags.
-* Support WeLink as a channel of alarm notification.
-* Fix: Some defensive codes didn't work in `PercentileFunction combine`.
-* CVE: fix Jetty vulnerability. https://nvd.nist.gov/vuln/detail/CVE-2019-17638
-* Fix: MAL function would miss samples name after creating new samples.
-* perf: use iterator.remove() to remove modulesWithoutProvider
-* Support analyzing Envoy TCP access logs.
+* Fix CVE-2021-35515, CVE-2021-35516, CVE-2021-35517, CVE-2021-36090. Upgrade org.apache.commons:commons-compress to
+  1.21.
+* kubernetes java client upgrade from 12.0.1 to 13.0.0
+* Add `event` http receiver
+* Support Metric level function `serviceRelation` in `MAL`.
+* Support envoy metrics binding into the topology.
+* Fix openapi-definitions folder not being read correctly.
+* Trace segment wouldn't be recognized as a TopN sample service. Add through #4694 experimentally, but it caused
+  performance impact.
+* Remove `version` and `endTime` in the segment entity. Reduce indexing payload.
+* Fix `mapper_parsing_exception` in ElasticSearch 7.14.
+* Support component IDs for Go-Kratos framework.
+* [Break Change] Remove endpoint name in the trace query condition. Only support `query by endpoint id`.
+* Fix `ProfileSnapshotExporterTest` case on `OpenJDK Runtime Environment AdoptOpenJDK-11.0.11+9 (build 11.0.11+9)`,
+  MacOS.
+* [Break Change] Remove page path in the browser log query condition. Only support `query by page path id`.
+* [Break Change] Remove endpoint name in the backend log query condition. Only support `query by endpoint id`.
+* [Break Change] Fix typo for a column `page_path_id`(was `pate_path_id`) of storage entity `browser_error_log`.
+* Add component id for Python falcon plugin.
+* Add `rpcStatusCode` for `rpc.status_code` tag. The `responseCode` field is marked as deprecated and replaced by `httpResponseStatusCode` field. 
+* Remove the duplicated tags to reduce the storage payload.
+* Add a new API to test log analysis language.
+* Harden the security of Groovy-based DSL, MAL and LAL.
+* Fix distinct in Service/Instance/Endpoint query is not working.
+* Support collection type in dynamic configuration core.
+* Support zookeeper grouped dynamic configurations.
+* Fix NPE when OAP nodes synchronize events with each other in cluster mode.
+* Support k8s configmap grouped dynamic configurations.
+* Add desc sort function in H2 and ElasticSearch implementations of IBrowserLogQueryDAO
 
 #### UI
-* Add logo for kong plugin.
-* Add apisix logo.
-* Refactor js to ts for browser logs and style change.
-* When creating service groups in the topology, it is better if the service names are sorted.
-* Add tooltip for dashboard component.
-* Fix style of endpoint dependency.
-* Support search and visualize alarms with tags.
-* Fix configurations on dashboard.
-* Support to configure the maximum number of displayed items.
-* After changing the durationTime, the topology shows the originally selected group or service.
+
+* Fix not found error when refresh UI.
+* Update endpointName to endpointId in the query trace condition.
+* Add Python falcon icon on the UI.
+* Fix searching endpoints with keywords.
+* Support clicking the service name in the chart to link to the trace or log page.
 
 #### Documentation
-* Polish k8s monitoring otel-collector configuration example.
-* Print SkyWalking context to logs configuration example.
 
-All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/84?closed=1)
+* Add a section in `Log Collecting And Analysis` doc, introducing the new Python agent log reporter.
+* Add one missing step in `otel-receiver` doc about how to activate the default receiver.
+* Reorganize dynamic configuration doc.
+
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/96?closed=1)
 
 ------------------
 Find change logs of all versions [here](changes).

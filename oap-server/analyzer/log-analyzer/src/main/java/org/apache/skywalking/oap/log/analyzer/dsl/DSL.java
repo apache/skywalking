@@ -18,15 +18,30 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl;
 
+import com.google.common.collect.ImmutableList;
 import groovy.lang.GroovyShell;
+import groovy.transform.CompileStatic;
 import groovy.util.DelegatingScript;
+import java.lang.reflect.Array;
+import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.log.analyzer.dsl.spec.LALDelegatingScript;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.filter.FilterSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.codehaus.groovy.ast.stmt.DoWhileStatement;
+import org.codehaus.groovy.ast.stmt.ForStatement;
+import org.codehaus.groovy.ast.stmt.Statement;
+import org.codehaus.groovy.ast.stmt.WhileStatement;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
+import org.codehaus.groovy.control.customizers.SecureASTCustomizer;
+
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class DSL {
@@ -38,7 +53,32 @@ public class DSL {
                          final LogAnalyzerModuleConfig config,
                          final String dsl) throws ModuleStartException {
         final CompilerConfiguration cc = new CompilerConfiguration();
-        cc.setScriptBaseClass(DelegatingScript.class.getName());
+        final ASTTransformationCustomizer customizer =
+            new ASTTransformationCustomizer(
+                singletonMap(
+                    "extensions",
+                    singletonList(LALPrecompiledExtension.class.getName())
+                ),
+                CompileStatic.class
+            );
+        cc.addCompilationCustomizers(customizer);
+        final SecureASTCustomizer secureASTCustomizer = new SecureASTCustomizer();
+        secureASTCustomizer.setDisallowedStatements(
+            ImmutableList.<Class<? extends Statement>>builder()
+                         .add(WhileStatement.class)
+                         .add(DoWhileStatement.class)
+                         .add(ForStatement.class)
+                         .build());
+        // noinspection rawtypes
+        secureASTCustomizer.setAllowedReceiversClasses(
+            ImmutableList.<Class>builder()
+                         .add(Object.class)
+                         .add(Map.class)
+                         .add(List.class)
+                         .add(Array.class)
+                         .build());
+        cc.addCompilationCustomizers(secureASTCustomizer);
+        cc.setScriptBaseClass(LALDelegatingScript.class.getName());
 
         final GroovyShell sh = new GroovyShell(cc);
         final DelegatingScript script = (DelegatingScript) sh.parse(dsl);

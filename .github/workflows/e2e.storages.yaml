@@ -24,14 +24,19 @@ on:
 env:
   SW_AGENT_JDK_VERSION: 8
 
+concurrency:
+  group: e2e-storages-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   StoragePlugins:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Storage
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['mysql', 'es6', 'es7.0', 'es7.10', 'influxdb', 'tidb', 'postgresql']
+        storage: ['mysql', 'es6', 'es7.0', 'es7.10', 'es7.14', 'opensearch', 'influxdb', 'tidb', 'postgresql']
     env:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
@@ -40,14 +45,6 @@ jobs:
           submodules: true
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
-      - name: Cache local Maven repository
-        if: env.SKIP_CI != 'true'
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/e2e-test
@@ -55,6 +52,7 @@ jobs:
           test_class: org.apache.skywalking.e2e.storage.StorageE2E
 
   Storage:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     needs: [StoragePlugins]

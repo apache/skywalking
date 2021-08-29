@@ -29,7 +29,6 @@ public class BrowserErrorLogRecordDispatcher implements SourceDispatcher<Browser
         record.setServiceId(source.getServiceId());
         record.setServiceVersionId(source.getServiceVersionId());
         record.setPagePathId(source.getPagePathId());
-        record.setPagePath(source.getPagePath());
         record.setTimestamp(source.getTimestamp());
         record.setTimeBucket(source.getTimeBucket());
         record.setErrorCategory(source.getErrorCategory().getValue());

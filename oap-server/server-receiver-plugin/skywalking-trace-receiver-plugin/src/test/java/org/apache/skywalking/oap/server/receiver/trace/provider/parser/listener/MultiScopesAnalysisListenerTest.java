@@ -43,12 +43,12 @@ import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
+import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
-import org.apache.skywalking.oap.server.core.source.Source;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -134,10 +134,15 @@ public class MultiScopesAnalysisListenerTest {
                                           .setSpanType(SpanType.Entry)
                                           .addTags(
                                               KeyStringValuePair.newBuilder()
-                                                                .setKey(SpanTags.STATUS_CODE)
+                                                                .setKey(SpanTags.HTTP_RESPONSE_STATUS_CODE)
                                                                 .setValue("500")
                                                                 .build()
                                           )
+                                          .addTags(
+                                              KeyStringValuePair.newBuilder()
+                                                                .setKey(SpanTags.RPC_RESPONSE_STATUS_CODE)
+                                                                .setValue("OK")
+                                                                .build())
                                           .build();
         final SegmentObject segment = SegmentObject.newBuilder()
                                                    .setService("mock-service")
@@ -147,7 +152,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseEntry(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(7, receivedSources.size());
         final All all = (All) receivedSources.get(0);
         final Service service = (Service) receivedSources.get(1);
@@ -158,6 +163,8 @@ public class MultiScopesAnalysisListenerTest {
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(6);
         Assert.assertEquals("mock-service", service.getName());
         Assert.assertEquals(500, service.getResponseCode());
+        Assert.assertEquals(500, service.getHttpResponseStatusCode());
+        Assert.assertEquals("OK", service.getRpcStatusCode());
         Assert.assertFalse(service.isStatus());
         Assert.assertEquals("mock-instance", serviceInstance.getName());
         Assert.assertEquals("/springMVC", endpoint.getName());
@@ -212,7 +219,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseEntry(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(7, receivedSources.size());
         final All all = (All) receivedSources.get(0);
         final Service service = (Service) receivedSources.get(1);
@@ -276,7 +283,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseEntry(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(7, receivedSources.size());
         final All all = (All) receivedSources.get(0);
         final Service service = (Service) receivedSources.get(1);
@@ -332,7 +339,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseLocal(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(1, receivedSources.size());
         final Endpoint source = (Endpoint) receivedSources.get(0);
         Assert.assertEquals("/logic-call", source.getName());
@@ -377,7 +384,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseLocal(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(1, receivedSources.size());
         final Endpoint source = (Endpoint) receivedSources.get(0);
         Assert.assertEquals("/GraphQL-service", source.getName());
@@ -416,7 +423,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseExit(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(4, receivedSources.size());
         final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(0);
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(1);
@@ -462,7 +469,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseExit(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(2, receivedSources.size());
         final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(0);
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(1);

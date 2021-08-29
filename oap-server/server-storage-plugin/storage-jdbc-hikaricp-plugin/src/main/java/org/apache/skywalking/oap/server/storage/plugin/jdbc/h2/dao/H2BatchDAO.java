@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
@@ -56,7 +57,7 @@ public class H2BatchDAO implements IBatchDAO {
     }
 
     @Override
-    public void synchronous(List<PrepareRequest> prepareRequests) {
+    public void flush(List<PrepareRequest> prepareRequests) {
         if (CollectionUtils.isEmpty(prepareRequests)) {
             return;
         }
@@ -81,7 +82,7 @@ public class H2BatchDAO implements IBatchDAO {
     }
 
     @Override
-    public void asynchronous(InsertRequest insertRequest) {
+    public void insert(InsertRequest insertRequest) {
         this.dataCarrier.produce(insertRequest);
     }
 
@@ -94,13 +95,13 @@ public class H2BatchDAO implements IBatchDAO {
         }
 
         @Override
-        public void init() {
+        public void init(final Properties properties) {
 
         }
 
         @Override
         public void consume(List<PrepareRequest> prepareRequests) {
-            h2BatchDAO.synchronous(prepareRequests);
+            h2BatchDAO.flush(prepareRequests);
         }
 
         @Override

@@ -50,7 +50,7 @@ static_resources:
 
 A more complete static configuration, can be observed [here](config.yaml).
 
-Note that Envoy can also be configured dynamically through [xDS Protocol](https://github.com/envoyproxy/data-plane-api/blob/main/xds_protocol.rst).
+Note that Envoy can also be configured dynamically through [xDS Protocol](https://github.com/envoyproxy/envoy/blob/v1.18.2/api/xds_protocol.rst).
 
 As mentioned above, SkyWalking also builds the topology of services from the metrics, this is because Envoy also carries the service metadata along with the metrics, to feed the Envoy such metadata, another configuration part is as follows:
 
@@ -65,23 +65,44 @@ node:
 
 ## Configure Envoy to send metrics to SkyWalking with Istio
 
-Typically, Envoy can be also used under Istio's control, where the configurations are much more simple because Istio composes the configurations for you and sends them to Envoy via [xDS Protocol](https://github.com/envoyproxy/data-plane-api/blob/master/xds_protocol.rst).
+Typically, Envoy can be also used under Istio's control, where the configurations are much more simple because Istio composes the configurations for you and sends them to Envoy via [xDS Protocol](https://github.com/envoyproxy/envoy/blob/v1.18.2/api/xds_protocol.rst).
 Istio also automatically injects the metadata such as service name and instance name into the bootstrap configurations.
 
 Under this circumstance, emitting the metrics to SyWalking is as simple as adding the option `--set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800>` to Istio install command, for example:
 
 ```shell
 istioctl install -y \
-  --set profile=demo `# replace the profile as per your need` \
-  --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
+  --set profile=demo # replace the profile as per your need \
+  --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> \ # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*'
 ```
 
 If you already have Istio installed, you can use the following command to apply the config without re-installing Istio:
 
 ```shell
 istioctl manifest install -y \
-  --set profile=demo `# replace the profile as per your need` \
-  --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
+  --set profile=demo # replace the profile as per your need \
+  --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> \ # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*'
+```
+
+Note:
+`proxyStatsMatcher` only supported by `Istio 1.8+`.
+We recommend using `inclusionRegexps` to reserve the specific metrics which need to analyze that can reduce Memory and CPU overhead.
+For example, OAP used these metrics:
+
+```shell
+istioctl manifest install -y \
+  --set profile=demo # replace the profile as per your need \
+  --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> \ # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*membership_healthy.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[1]=.*upstream_cx_active.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[2]=.*upstream_cx_total.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[3]=.*upstream_rq_active.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[4]=.*upstream_rq_total.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[5]=.*upstream_rq_pending_active.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[6]=.*lb_healthy_panic.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[7]=.*upstream_cx_none_healthy.*'
 ```
 
 # Metrics data

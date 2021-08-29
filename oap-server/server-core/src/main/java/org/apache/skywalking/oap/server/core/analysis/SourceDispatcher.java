@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import org.apache.skywalking.oap.server.core.source.Source;
+import org.apache.skywalking.oap.server.core.source.ISource;
 
 /**
  * SourceDispatcher implementation processes different types of the source. There are two kinds of the source
@@ -29,6 +29,6 @@ import org.apache.skywalking.oap.server.core.source.Source;
  *
  * @param <SOURCE> the data type of this dispatcher processes.
  */
-public interface SourceDispatcher<SOURCE extends Source> {
+public interface SourceDispatcher<SOURCE extends ISource> {
     void dispatch(SOURCE source);
 }

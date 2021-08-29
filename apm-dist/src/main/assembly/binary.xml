@@ -63,6 +63,7 @@
                 <include>envoy-metrics-rules/*.yaml</include>
                 <include>meter-analyzer-config/*.yaml</include>
                 <include>zabbix-rules/*.yaml</include>
+                <include>openapi-definitions/*</include>
                 <include>otel-oc-rules/*</include>
                 <include>ui-initialized-templates/*</include>
                 <include>lal/*</include>
@@ -73,12 +74,6 @@
         <fileSet>
             <directory>${project.basedir}/../oap-server/server-starter/target/skywalking-oap-assembly/skywalking-oap/libs</directory>
             <outputDirectory>oap-libs</outputDirectory>
-        </fileSet>
-
-        <!-- Agent repackage into the dist -->
-        <fileSet>
-            <directory>${project.basedir}/../skywalking-agent</directory>
-            <outputDirectory>agent</outputDirectory>
         </fileSet>
 
         <!-- Profile exporter tools -->

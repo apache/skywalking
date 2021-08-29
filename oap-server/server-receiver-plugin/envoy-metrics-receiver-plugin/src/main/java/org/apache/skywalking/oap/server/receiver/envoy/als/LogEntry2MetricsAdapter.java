@@ -91,12 +91,12 @@ public class LogEntry2MetricsAdapter {
             .setDetectPoint(DetectPoint.client);
     }
 
-    protected ServiceMeshMetric.Builder adaptCommonPart() {
+    public ServiceMeshMetric.Builder adaptCommonPart() {
         final AccessLogCommon properties = entry.getCommonProperties();
         final String endpoint = endpoint();
         int responseCode = entry.getResponse().getResponseCode().getValue();
         responseCode = responseCode > 0 ? responseCode : 200;
-        final boolean status = responseCode >= 200 && responseCode < 400;
+        final boolean status = responseCode < 500;
         final Protocol protocol = requestProtocol(entry.getRequest());
         final String tlsMode = parseTLS(properties.getTlsProperties());
         final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());

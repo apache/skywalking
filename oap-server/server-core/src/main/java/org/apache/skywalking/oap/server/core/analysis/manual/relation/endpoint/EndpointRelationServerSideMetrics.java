@@ -62,7 +62,7 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     private String entityId;
 
     @Override
-    public String id() {
+    protected String id0() {
         String splitJointId = String.valueOf(getTimeBucket());
         splitJointId += Const.ID_CONNECTOR + entityId;
         return splitJointId;
@@ -102,10 +102,9 @@ public class EndpointRelationServerSideMetrics extends Metrics {
 
     @Override
     public int remoteHashCode() {
-        int result = 17;
-        result = 31 * result + entityId.hashCode();
-        result = (int) (31 * result + getTimeBucket());
-        return result;
+        int n = 17;
+        n = 31 * n + this.entityId.hashCode();
+        return n;
     }
 
     @Override

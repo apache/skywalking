@@ -38,6 +38,7 @@ public class Model {
     private final boolean superDataset;
     private final boolean isTimeSeries;
     private final String aggregationFunctionName;
+    private final boolean timeRelativeID;
 
     public Model(final String name,
                  final List<ModelColumn> columns,
@@ -46,7 +47,8 @@ public class Model {
                  final DownSampling downsampling,
                  final boolean record,
                  final boolean superDataset,
-                 final String aggregationFunctionName) {
+                 final String aggregationFunctionName,
+                 boolean timeRelativeID) {
         this.name = name;
         this.columns = columns;
         this.extraQueryIndices = extraQueryIndices;
@@ -56,5 +58,6 @@ public class Model {
         this.record = record;
         this.superDataset = superDataset;
         this.aggregationFunctionName = aggregationFunctionName;
+        this.timeRelativeID = timeRelativeID;
     }
 }

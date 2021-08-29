@@ -23,8 +23,8 @@ import com.google.protobuf.TextFormat;
 import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,7 +41,6 @@ import org.apache.skywalking.oap.server.receiver.envoy.als.tcp.AbstractTCPAccess
 
 import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.NON_TLS;
-import static org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo.UNKNOWN;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.mx.MetaExchangeALSHTTPAnalyzer.DOWNSTREAM_KEY;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.mx.MetaExchangeALSHTTPAnalyzer.UPSTREAM_KEY;
 
@@ -67,31 +66,32 @@ public class MetaExchangeTCPAccessLogAnalyzer extends AbstractTCPAccessLogAnalyz
     }
 
     @Override
-    public List<ServiceMeshMetric.Builder> analysis(
-        final List<ServiceMeshMetric.Builder> result,
+    public Result analysis(
+        final Result previousResult,
         final StreamAccessLogsMessage.Identifier identifier,
         final TCPAccessLogEntry entry,
         final Role role
     ) {
-        if (isNotEmpty(result)) {
-            return result;
+        if (isNotEmpty(previousResult.getMetrics())) {
+            return previousResult;
         }
         if (!entry.hasCommonProperties()) {
-            return Collections.emptyList();
-        }
-        final AccessLogCommon properties = entry.getCommonProperties();
-        final Map<String, Any> stateMap = properties.getFilterStateObjectsMap();
-        if (stateMap.isEmpty()) {
-            return Collections.emptyList();
+            return previousResult;
         }
         final ServiceMetaInfo currSvc;
         try {
             currSvc = adaptToServiceMetaInfo(identifier);
         } catch (Exception e) {
             log.error("Failed to inflate the ServiceMetaInfo from identifier.node.metadata. ", e);
-            return Collections.emptyList();
+            return previousResult;
+        }
+        final AccessLogCommon properties = entry.getCommonProperties();
+        final Map<String, Any> stateMap = properties.getFilterStateObjectsMap();
+        if (stateMap.isEmpty()) {
+            return Result.builder().service(currSvc).build();
         }
 
+        final List<ServiceMeshMetric.Builder> result = new ArrayList<>();
         final AtomicBoolean downstreamExists = new AtomicBoolean();
         stateMap.forEach((key, value) -> {
             if (!key.equals(UPSTREAM_KEY) && !key.equals(DOWNSTREAM_KEY)) {
@@ -124,13 +124,13 @@ public class MetaExchangeTCPAccessLogAnalyzer extends AbstractTCPAccessLogAnalyz
             }
         });
         if (role.equals(Role.PROXY) && !downstreamExists.get()) {
-            final ServiceMeshMetric.Builder metric = newAdapter(entry, UNKNOWN, currSvc).adaptToDownstreamMetrics();
+            final ServiceMeshMetric.Builder metric = newAdapter(entry, config.serviceMetaInfoFactory().unknown(), currSvc).adaptToDownstreamMetrics();
             if (log.isDebugEnabled()) {
                 log.debug("Transformed a {} inbound mesh metric {}", role, TextFormat.shortDebugString(metric));
             }
             result.add(metric);
         }
-        return result;
+        return Result.builder().metrics(result).service(currSvc).build();
     }
 
     protected ServiceMetaInfo adaptToServiceMetaInfo(final Any value) throws Exception {

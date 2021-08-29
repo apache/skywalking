@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +93,12 @@ public class ConsulConfigurationWatcherRegister extends ConfigWatcherRegister {
         });
 
         return Optional.of(table);
+    }
+
+    @Override
+    public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
+        // TODO: implement readGroupConfig
+        return Optional.empty();
     }
 
     private void registerKeyListeners(final Set<String> keys) {

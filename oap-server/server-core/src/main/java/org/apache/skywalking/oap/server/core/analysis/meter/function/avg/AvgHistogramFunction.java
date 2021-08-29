@@ -167,7 +167,7 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 

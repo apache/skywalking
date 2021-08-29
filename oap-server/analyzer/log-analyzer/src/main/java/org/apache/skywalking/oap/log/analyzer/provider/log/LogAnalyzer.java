@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.provider.log;
 
+import com.google.protobuf.Message;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class LogAnalyzer {
 
     private final List<LogAnalysisListener> listeners = new ArrayList<>();
 
-    public void doAnalysis(LogData.Builder builder) {
+    public void doAnalysis(LogData.Builder builder, Message extraLog) {
         if (StringUtil.isEmpty(builder.getService())) {
             // If the service name is empty, the log will be ignored.
             log.debug("The log is ignored because the Service name is empty");
@@ -51,12 +52,12 @@ public class LogAnalyzer {
             builder.setTimestamp(System.currentTimeMillis());
         }
 
-        notifyListener(builder);
+        notifyListener(builder, extraLog);
         notifyListenerToBuild();
     }
 
-    private void notifyListener(LogData.Builder builder) {
-        listeners.forEach(listener -> listener.parse(builder));
+    private void notifyListener(LogData.Builder builder, final Message extraLog) {
+        listeners.forEach(listener -> listener.parse(builder, extraLog));
     }
 
     private void notifyListenerToBuild() {

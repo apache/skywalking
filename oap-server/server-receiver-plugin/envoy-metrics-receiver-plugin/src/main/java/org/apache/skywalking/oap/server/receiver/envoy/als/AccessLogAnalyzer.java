@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.receiver.envoy.als;
 import io.envoyproxy.envoy.config.core.v3.Node;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import java.util.List;
+import lombok.Builder;
+import lombok.Data;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -42,8 +44,8 @@ public interface AccessLogAnalyzer<E> {
      * @param role       the role of the Envoy node where the logs are emitted.
      * @return the analysis results.
      */
-    List<ServiceMeshMetric.Builder> analysis(
-        final List<ServiceMeshMetric.Builder> result,
+    Result analysis(
+        final Result result,
         final StreamAccessLogsMessage.Identifier identifier,
         final E entry,
         final Role role
@@ -64,5 +66,19 @@ public interface AccessLogAnalyzer<E> {
             return Role.SIDECAR;
         }
         return defaultRole;
+    }
+
+    @Data
+    @Builder
+    class Result {
+        /**
+         * The service representing the Envoy node.
+         */
+        private ServiceMetaInfo service;
+
+        /**
+         * The analyzed metrics result.
+         */
+        private List<ServiceMeshMetric.Builder> metrics;
     }
 }

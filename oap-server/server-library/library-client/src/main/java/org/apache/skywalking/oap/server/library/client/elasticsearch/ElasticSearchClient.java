@@ -119,6 +119,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     protected volatile RestHighLevelClient client;
     protected DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     protected final ReentrantLock connectLock = new ReentrantLock();
+    private final int connectTimeout;
+    private final int socketTimeout;
 
     public ElasticSearchClient(String clusterNodes,
                                String protocol,
@@ -126,7 +128,9 @@ public class ElasticSearchClient implements Client, HealthCheckable {
                                String trustStorePass,
                                String user,
                                String password,
-                               List<IndexNameConverter> indexNameConverters) {
+                               List<IndexNameConverter> indexNameConverters,
+                               int connectTimeout,
+                               int socketTimeout) {
         this.clusterNodes = clusterNodes;
         this.protocol = protocol;
         this.user = user;
@@ -134,6 +138,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         this.indexNameConverters = indexNameConverters;
         this.trustStorePath = trustStorePath;
         this.trustStorePass = trustStorePass;
+        this.connectTimeout = connectTimeout;
+        this.socketTimeout = socketTimeout;
     }
 
     @Override
@@ -183,6 +189,11 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         } else {
             builder = RestClient.builder(pairsList.toArray(new HttpHost[0]));
         }
+        builder.setRequestConfigCallback(
+            requestConfigBuilder -> requestConfigBuilder
+                .setConnectTimeout(connectTimeout)
+                .setSocketTimeout(socketTimeout)
+        );
 
         return new RestHighLevelClient(builder);
     }
@@ -387,7 +398,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     }
 
     public boolean createOrUpdateTemplate(String indexName, Map<String, Object> settings,
-                                          Map<String, Object> mapping) throws IOException {
+                                          Map<String, Object> mapping, int order) throws IOException {
         indexName = formatIndexName(indexName);
 
         String[] patterns = new String[] {indexName + "-*"};
@@ -400,6 +411,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         template.put("aliases", aliases);
         template.put("settings", settings);
         template.put("mappings", mapping);
+        template.put("order", order);
 
         HttpEntity entity = new NStringEntity(new Gson().toJson(template), ContentType.APPLICATION_JSON);
 
@@ -536,6 +548,10 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return response.getStatusLine().getStatusCode();
     }
 
+    /**
+     * @since 8.7.0 SkyWalking don't use sync bulk anymore. This method is just kept for unexpected case in the future.
+     */
+    @Deprecated
     public void synchronousBulk(BulkRequest request) {
         request.timeout(TimeValue.timeValueMinutes(2));
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);

@@ -18,16 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 
-import com.google.protobuf.TextFormat;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
-import java.io.IOException;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.common.v3.DetectPoint;
-import org.apache.skywalking.apm.network.logging.v3.JSONLog;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
@@ -35,9 +29,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
+import org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
-
-import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.toJSON;
+import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
 /**
  * {@code LogsPersistence} analyzes the error logs and persists them to the log system.
@@ -59,27 +53,19 @@ public class LogsPersistence implements ALSHTTPAnalysis {
     }
 
     @Override
-    public List<ServiceMeshMetric.Builder> analysis(
-        final List<ServiceMeshMetric.Builder> result,
+    public Result analysis(
+        final Result result,
         final StreamAccessLogsMessage.Identifier identifier,
         final HTTPAccessLogEntry entry,
         final Role role
     ) {
         try {
-            result.stream()
-                  .findFirst()
-                  .ifPresent(metrics -> {
-                      try {
-                          final LogData logData = convertToLogData(entry, metrics);
-                          logAnalyzerService.doAnalysis(logData);
-                      } catch (IOException e) {
-                          log.error(
-                              "Failed to parse error log entry to log data: {}",
-                              TextFormat.shortDebugString(entry),
-                              e
-                          );
-                      }
-                  });
+            if (result.getService() == null) {
+                return result;
+            }
+
+            final LogData logData = convertToLogData(entry, result);
+            logAnalyzerService.doAnalysis(logData, entry);
         } catch (final Exception e) {
             log.error("Failed to persist Envoy access log", e);
         }
@@ -91,27 +77,17 @@ public class LogsPersistence implements ALSHTTPAnalysis {
         return prev;
     }
 
-    public LogData convertToLogData(final HTTPAccessLogEntry logEntry,
-                                    final ServiceMeshMetric.Builder metrics) throws IOException {
-        final boolean isServerSide = metrics.getDetectPoint() == DetectPoint.server;
-        final String svc = isServerSide ? metrics.getDestServiceName() : metrics.getSourceServiceName();
-        final String svcInst = isServerSide ? metrics.getDestServiceInstance() : metrics.getSourceServiceInstance();
+    public LogData convertToLogData(final HTTPAccessLogEntry logEntry, final Result result) {
+        final ServiceMetaInfo service = result.getService();
+
+        final ServiceMeshMetric.Builder metrics =
+            new LogEntry2MetricsAdapter(logEntry, null, null).adaptCommonPart();
 
         return LogData
             .newBuilder()
-            .setService(svc)
-            .setServiceInstance(svcInst)
-            .setEndpoint(metrics.getEndpoint())
+            .setService(service.getServiceName())
+            .setServiceInstance(service.getServiceInstanceName())
             .setTimestamp(metrics.getEndTime())
-            .setBody(
-                LogDataBody
-                    .newBuilder()
-                    .setJson(
-                        JSONLog
-                            .newBuilder()
-                            .setJson(toJSON(logEntry))
-                    )
-            )
             .build();
     }
 }

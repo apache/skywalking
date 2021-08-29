@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.apache.skywalking.oap.server.configuration.service.ConfigurationRequest;
 import org.apache.skywalking.oap.server.configuration.service.ConfigurationResponse;
 import org.apache.skywalking.oap.server.configuration.service.ConfigurationServiceGrpc;
@@ -72,5 +73,11 @@ public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
             LOGGER.error("Remote config center [" + settings + "] is not available.", e);
         }
         return Optional.of(table);
+    }
+
+    @Override
+    public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
+        // TODO: implement readGroupConfig
+        return Optional.empty();
     }
 }

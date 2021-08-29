@@ -21,14 +21,19 @@ on:
   schedule:
     - cron: '0 18 * * *'
 
+concurrency:
+  group: e2e-jdk-versions-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   JavaVersions:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Agent Java Versions
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       matrix:
-        jdk: [8, 9, 10, 11, 12, 13, 14, 15]
+        jdk: [ 8, 9, 10, 11, 12, 13, 14, 15 ]
     env:
       SW_SIMPLE_CASE: jdk
       SW_AGENT_JDK_VERSION: ${{ matrix.jdk }}
@@ -40,18 +45,11 @@ jobs:
           depth: 0
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
-      - name: Cache local Maven repository
-        if: env.SKIP_CI != 'true'
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
       - name: Set Up Java
         if: env.SKIP_CI != 'true'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
+          distribution: adopt
           java-version: ${{ matrix.jdk }}
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
@@ -60,9 +58,10 @@ jobs:
           test_class: org.apache.skywalking.e2e.simple.SimpleE2E
 
   Single:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    needs: [JavaVersions]
+    needs: [ JavaVersions ]
     steps:
       - name: Singles Bar
         run: echo "Singles Bar - Miyuki Nakajima"

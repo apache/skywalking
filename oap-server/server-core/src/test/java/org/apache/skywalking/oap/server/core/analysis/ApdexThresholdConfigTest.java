@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,6 +74,11 @@ public class ApdexThresholdConfigTest {
             ConfigTable table = new ConfigTable();
             table.add(new ConfigTable.ConfigItem("core.default.apdexThreshold", "default: 1000 \nfoo: 200"));
             return Optional.of(table);
+        }
+
+        @Override
+        public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
+            return Optional.empty();
         }
     }
 }

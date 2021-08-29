@@ -69,6 +69,16 @@ public class FieldsHelperTest {
                 "serviceName: fixed-${LABELS.\"service.istio.io/canonical-name\"}\nserviceInstanceName: yeah_${NAME}",
                 "fixed-productpage",
                 "yeah_productpage-v1-65576bb7bf-4mzsp"
+            },
+            {
+                "serviceName: fixed-${LABELS.\"service.istio.io/not-exist\",LABELS.\"service.istio.io/canonical-name\"}\nserviceInstanceName: yeah_${NAME}",
+                "fixed-productpage",
+                "yeah_productpage-v1-65576bb7bf-4mzsp"
+            },
+            {
+                "serviceName: fixed-${LABELS.\"service.istio.io/not-exist\",LABELS.\"service.istio.io/not-exist-2\"}\nserviceInstanceName: yeah_${NAME}",
+                "fixed--",
+                "yeah_productpage-v1-65576bb7bf-4mzsp"
             }
         });
     }

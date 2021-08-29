@@ -49,7 +49,7 @@ public class RecordPersistentWorker extends AbstractWorker<Record> {
     public void in(Record record) {
         try {
             InsertRequest insertRequest = recordDAO.prepareBatchInsert(model, record);
-            batchDAO.asynchronous(insertRequest);
+            batchDAO.insert(insertRequest);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }

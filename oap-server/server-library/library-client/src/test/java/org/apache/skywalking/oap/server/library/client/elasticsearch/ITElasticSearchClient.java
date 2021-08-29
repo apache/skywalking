@@ -69,7 +69,7 @@ public class ITElasticSearchClient {
         final String esAddress = System.getProperty("elastic.search.address");
         final String esProtocol = System.getProperty("elastic.search.protocol");
         client = new ElasticSearchClient(esAddress, esProtocol, "", "", "test", "test",
-                                         indexNameConverters(namespace)
+                                         indexNameConverters(namespace), 500, 6000
         );
         client.connect();
     }
@@ -176,7 +176,7 @@ public class ITElasticSearchClient {
 
         String indexName = "template_operate";
 
-        client.createOrUpdateTemplate(indexName, settings, mapping);
+        client.createOrUpdateTemplate(indexName, settings, mapping, 0);
 
         Assert.assertTrue(client.isExistsTemplate(indexName));
 
@@ -233,7 +233,7 @@ public class ITElasticSearchClient {
         column.addProperty("type", "text");
         properties.add("name", column);
 
-        client.createOrUpdateTemplate(indexName, new HashMap<>(), mapping);
+        client.createOrUpdateTemplate(indexName, new HashMap<>(), mapping, 0);
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject().field("name", "pengys").endObject();
         client.forceInsert(timeSeriesIndexName, "testid", builder);

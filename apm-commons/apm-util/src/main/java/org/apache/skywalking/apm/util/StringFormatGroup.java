@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.util;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 import lombok.Getter;
@@ -68,6 +69,10 @@ public class StringFormatGroup {
         return new FormatResult(false, string, string);
     }
 
+    public void sortRules(Comparator<? super PatternRule> comparator) {
+        rules.sort(comparator);
+    }
+
     @Getter
     @RequiredArgsConstructor
     public static class FormatResult {
@@ -78,7 +83,7 @@ public class StringFormatGroup {
 
     @Getter
     @ToString
-    private static class PatternRule {
+    public static class PatternRule {
         private final String name;
         private final Pattern pattern;
 

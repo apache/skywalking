@@ -22,9 +22,12 @@ import org.apache.skywalking.oap.server.core.query.type.event.EventQueryConditio
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
+import java.util.List;
+
 public interface IEventQueryDAO extends DAO {
-    int DEFAULT_SIZE = 20;
     int MAX_SIZE = 100;
 
     Events queryEvents(final EventQueryCondition condition) throws Exception;
+
+    Events queryEvents(final List<EventQueryCondition> conditionList) throws Exception;
 }

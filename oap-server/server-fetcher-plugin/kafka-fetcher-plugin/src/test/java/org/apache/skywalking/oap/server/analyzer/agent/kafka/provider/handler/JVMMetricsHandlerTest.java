@@ -31,16 +31,19 @@ import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
+import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMCPU;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMGC;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemory;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemoryPool;
-import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.mock.MockModuleManager;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.mock.MockModuleProvider;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -59,7 +62,7 @@ public class JVMMetricsHandlerTest {
     public static SourceReceiverRule SOURCE_RECEIVER = new SourceReceiverRule() {
 
         @Override
-        protected void verify(final List<Source> sourceList) throws Throwable {
+        protected void verify(final List<ISource> sourceList) throws Throwable {
             Assert.assertTrue(sourceList.get(0) instanceof ServiceInstanceJVMCPU);
             ServiceInstanceJVMCPU serviceInstanceJVMCPU = (ServiceInstanceJVMCPU) sourceList.get(0);
             Assert.assertThat(serviceInstanceJVMCPU.getUsePercent(), is(1.0));
@@ -80,6 +83,12 @@ public class JVMMetricsHandlerTest {
                         registerServiceImplementation(NamingControl.class, new NamingControl(
                             512, 512, 512, new EndpointNameGrouping()));
                         registerServiceImplementation(SourceReceiver.class, SOURCE_RECEIVER);
+                    }
+                });
+                register(TelemetryModule.NAME, () -> new MockModuleProvider() {
+                    @Override
+                    protected void register() {
+                        registerServiceImplementation(MetricsCreator.class, new MetricsCreatorNoop());
                     }
                 });
             }

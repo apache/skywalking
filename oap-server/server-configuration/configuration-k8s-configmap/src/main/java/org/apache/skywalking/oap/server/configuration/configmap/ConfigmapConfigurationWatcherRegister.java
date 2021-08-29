@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.oap.server.configuration.configmap;
 
-import io.kubernetes.client.openapi.models.V1ConfigMap;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 
 @Slf4j
 public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister {
@@ -40,17 +40,32 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
     @Override
     public Optional<ConfigTable> readConfig(Set<String> keys) {
         final ConfigTable configTable = new ConfigTable();
-        Optional<V1ConfigMap> v1ConfigMap = informer.configMap();
+        Map<String, String> configMapData = informer.configMapData();
         for (final String name : keys) {
-            final String value = v1ConfigMap.map(configMap -> configMap.getData().get(name)).orElse(null);
+            final String value = configMapData.get(name);
             if (log.isDebugEnabled()) {
                 log.debug("read config: name:{} ,value:{}", name, value);
             }
-            if (Objects.nonNull(value)) {
-                configTable.add(new ConfigTable.ConfigItem(name, value));
-            }
+            configTable.add(new ConfigTable.ConfigItem(name, value));
         }
         return Optional.of(configTable);
     }
 
+    @Override
+    public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
+        GroupConfigTable groupConfigTable = new GroupConfigTable();
+        Map<String, String> configMapData = informer.configMapData();
+        keys.forEach(key -> {
+            GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
+            groupConfigTable.addGroupConfigItems(groupConfigItems);
+            configMapData.forEach((groupItemKey, itemValue) -> {
+                if (groupItemKey.startsWith(key + ".")) {
+                    String itemName = groupItemKey.substring(key.length() + 1);
+                    groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
+                }
+            });
+        });
+
+        return Optional.of(groupConfigTable);
+    }
 }

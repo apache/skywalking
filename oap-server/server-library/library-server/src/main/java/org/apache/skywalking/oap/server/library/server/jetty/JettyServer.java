@@ -23,6 +23,8 @@ import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
@@ -60,7 +62,10 @@ public class JettyServer implements Server {
 
         server = new org.eclipse.jetty.server.Server(threadPool);
 
-        ServerConnector connector = new ServerConnector(server);
+        HttpConfiguration httpConfiguration = new HttpConfiguration();
+        httpConfiguration.setRequestHeaderSize(jettyServerConfig.getJettyHttpMaxRequestHeaderSize());
+
+        ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration));
         connector.setHost(jettyServerConfig.getHost());
         connector.setPort(jettyServerConfig.getPort());
         connector.setIdleTimeout(jettyServerConfig.getJettyIdleTimeOut());
@@ -73,6 +78,12 @@ public class JettyServer implements Server {
         LOGGER.info("http server root context path: {}", jettyServerConfig.getContextPath());
 
         server.setHandler(servletContextHandler);
+
+        JettyDefaultHandler defaultHandler = new JettyDefaultHandler();
+        ServletHolder defaultHolder = new ServletHolder();
+        defaultHolder.setServlet(defaultHandler);
+
+        servletContextHandler.addServlet(defaultHolder, defaultHandler.pathSpec());
     }
 
     public void addHandler(JettyHandler handler) {
@@ -133,4 +144,5 @@ public class JettyServer implements Server {
     public int hashCode() {
         return Objects.hash(jettyServerConfig.getHost(), jettyServerConfig.getPort());
     }
+
 }

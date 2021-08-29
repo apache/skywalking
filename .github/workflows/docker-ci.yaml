@@ -24,13 +24,18 @@ on:
   schedule:
     - cron: '0 18 * * *'
 
+concurrency:
+  group: docker-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   SKIP_TEST: true
   DOCKER_DIR: ./docker
   LOG_DIR: /tmp/skywalking
 jobs:
   build:
-    runs-on: ubuntu-16.04
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       fail-fast: true

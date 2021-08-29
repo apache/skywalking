@@ -85,7 +85,7 @@ public class TCPLogEntry2MetricsAdapter {
             .setDetectPoint(DetectPoint.client);
     }
 
-    protected ServiceMeshMetric.Builder adaptCommonPart() {
+    public ServiceMeshMetric.Builder adaptCommonPart() {
         final AccessLogCommon properties = entry.getCommonProperties();
         final ConnectionProperties connectionProperties = entry.getConnectionProperties();
         final String tlsMode = parseTLS(properties.getTlsProperties());

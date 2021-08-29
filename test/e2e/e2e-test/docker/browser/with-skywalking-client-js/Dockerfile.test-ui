@@ -16,19 +16,19 @@
 FROM node:10.23 AS builder
 
 ## download and build skywalking client js
-ARG CLIENT_JS_COMMIT_HASH=7ae0775b0c41327718041eae321d3c97e5e90edf
+ARG CLIENT_JS_COMMIT_HASH=b8f9ba35acc3f9ee746710577adbbb645680b16e
 ARG CLIENT_JS_CODE=${CLIENT_JS_COMMIT_HASH}.tar.gz
 ARG CLIENT_JS_CODE_URL=https://github.com/apache/skywalking-client-js/archive/${CLIENT_JS_CODE}
 
 WORKDIR /skywalking-client-js
 ADD ${CLIENT_JS_CODE_URL} .
 RUN tar -xf ${CLIENT_JS_CODE} --strip 1 && rm ${CLIENT_JS_CODE}
-RUN sed -in-place -e 's/300000/3000/g' src/trace/segment.ts \
+RUN sed -in-place -e 's/60000/3000/g' src/trace/segment.ts \
     && npm run rebuild \
     && npm link
 
 # download and build skywalking client test
-ARG CLIENT_JS_TEST_COMMIT_HASH=6cf76ed83f21b78e5fd25b81341dd13f52df6413
+ARG CLIENT_JS_TEST_COMMIT_HASH=4f1eb1dcdbde3ec4a38534bf01dded4ab5d2f016
 ARG CLIENT_JS_TEST_CODE=${CLIENT_JS_TEST_COMMIT_HASH}.tar.gz
 ARG CLIENT_JS_TEST_CODE_URL=https://github.com/SkyAPMTest/skywalking-client-test/archive/${CLIENT_JS_TEST_CODE}
 

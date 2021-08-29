@@ -246,7 +246,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 

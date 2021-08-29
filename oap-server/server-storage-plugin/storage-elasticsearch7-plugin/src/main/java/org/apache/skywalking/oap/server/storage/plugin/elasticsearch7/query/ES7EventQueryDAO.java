@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.skywalking.oap.server.core.event.Event;
+import org.apache.skywalking.oap.server.core.source.Event;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -37,16 +39,24 @@ public class ES7EventQueryDAO extends ESEventQueryDAO {
     @Override
     public Events queryEvents(final EventQueryCondition condition) throws Exception {
         final SearchSourceBuilder sourceBuilder = buildQuery(condition);
+        return getEventsResultByCurrentBuilder(sourceBuilder);
+    }
 
+    @Override
+    public Events queryEvents(List<EventQueryCondition> conditionList) throws Exception {
+        final SearchSourceBuilder sourceBuilder = buildQuery(conditionList);
+        return getEventsResultByCurrentBuilder(sourceBuilder);
+    }
+
+    private Events getEventsResultByCurrentBuilder(final SearchSourceBuilder sourceBuilder) throws IOException {
         final SearchResponse response = getClient()
-            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(Event.INDEX_NAME), sourceBuilder);
+                .search(IndexController.LogicIndicesRegister.getPhysicalTableName(Event.INDEX_NAME), sourceBuilder);
 
         final Events events = new Events();
         events.setTotal(response.getHits().getTotalHits().value);
         events.setEvents(Stream.of(response.getHits().getHits())
-                               .map(this::parseSearchHit)
-                               .collect(Collectors.toList()));
-
+                .map(this::parseSearchHit)
+                .collect(Collectors.toList()));
         return events;
     }
 }

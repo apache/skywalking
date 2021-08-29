@@ -362,6 +362,18 @@ MyBatis:
 tcp:
   id: 110
   languages: Java
+AzureHttpTrigger:
+  id: 111
+  languages: Java,C#,Node.js,Python
+Neo4j:
+  id: 112
+  languages: Java
+Sentinel:
+  id: 113
+  languages: Java
+GuavaCache:
+  id: 114
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -464,6 +476,12 @@ GoMicroClient:
 GoMicroServer:
   id: 5009
   languages: Golang
+Kratos:
+  id: 5010
+  languages: Golang
+GoMysql:
+  id: 5012
+  languages: Golang
 
 # Lua components
 # [6000, 7000) for Lua agent
@@ -507,6 +525,15 @@ AioHttp:
   languages: Python
 Pyramid:
   id: 7009
+  languages: Python
+Psychopg:
+  id: 7010
+  languages: Python
+Celery:
+  id: 7011
+  languages: Python
+Falcon:
+  id: 7012
   languages: Python
 
 # PHP components
@@ -589,3 +616,5 @@ Component-Server-Mappings:
   PyMysql: Mysql
   spring-kafka-consumer: kafka-consumer
   mssql-jdbc-driver: SqlServer
+  Psychopg: PostgreSQL
+  GoMysql: Mysql

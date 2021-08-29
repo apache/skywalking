@@ -25,13 +25,10 @@ SKIP_TEST?=false
 init:
 	cd $(SW_ROOT) && git submodule update --init --recursive
 
-.PHONY: build.all build.agent build.backend build.ui build.docker
+.PHONY: build.all build.backend build.ui build.docker
 
 build.all:
 	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST)
-
-build.agent:
-	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pagent,dist
 
 build.backend:
 	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pbackend,dist
@@ -53,7 +50,7 @@ ES_VERSION?=es6
 
 docker: init build.all docker.all
 
-DOCKER_TARGETS:=docker.oap docker.ui docker.agent
+DOCKER_TARGETS:=docker.oap docker.ui
 
 docker.all: $(DOCKER_TARGETS)
 
@@ -81,11 +78,6 @@ docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
 		$(DOCKER_RULE)
 
-docker.agent: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
-docker.agent: $(SW_ROOT)/docker/agent/Dockerfile.agent
-		$(DOCKER_RULE)
-
-
 # $@ is the name of the target
 # $^ the name of the dependencies for the target
 # Rule Steps #
@@ -96,7 +88,7 @@ docker.agent: $(SW_ROOT)/docker/agent/Dockerfile.agent
 # 4. This rule runs $(BUILD_PRE) prior to any docker build and only if specified as a dependency variable
 # 5. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
 
-DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker build $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .)
+DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .)
 
 # for each docker.XXX target create a push.docker.XXX target that pushes
 # the local docker image to another hub

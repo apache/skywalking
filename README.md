@@ -49,7 +49,7 @@ SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis
 for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
 
 # Documentation
-- [Official documentation](https://skywalking.apache.org/docs/)
+- [Official documentation](https://skywalking.apache.org/docs/#SkyWalking)
 - [The paper of STAM](https://wu-sheng.github.io/STAM/), Streaming Topology Analysis Method.
 - [Blog](https://skywalking.apache.org/blog/2020-04-13-apache-skywalking-profiling/) about Use Profiling to Fix the Blind Spot of Distributed Tracing
 - [Blog](https://skywalking.apache.org/blog/2020-12-03-obs-service-mesh-with-sw-and-als/) about observing Istio + Envoy service mesh with ALS solution.
@@ -64,8 +64,8 @@ Please head to the [releases page](https://skywalking.apache.org/downloads/) to 
 Follow this [document](docs/en/guides/How-to-build.md).
 
 # Code of conduct
-This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
-Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines) to report unacceptable behavior.
+This project adheres to the Contributor Covenant [code of conduct](https://www.apache.org/foundation/policies/conduct). By participating, you are expected to uphold this code.
+Please follow the [REPORTING GUIDELINES](https://www.apache.org/foundation/policies/conduct#reporting-guidelines) to report unacceptable behavior.
 
 # Live Demo
 Find the [demo](https://skywalking.apache.org/#demo) and [screenshots](https://skywalking.apache.org/#arch) on our website.
@@ -76,7 +76,7 @@ Find the [demo](https://skywalking.apache.org/#demo) and [screenshots](https://s
 
 # Contact Us
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
-* Join `skywalking` channel at [Apache Slack](http://s.apache.org/slack-invite). If the link is not working, find the latest one at [Apache INFRA WIKI](https://cwiki.apache.org/confluence/display/INFRA/Slack+Guest+Invites).
+* Send `Request to join SkyWalking slack` mail to the mail list(`dev@skywalking.apache.org`), we will invite you in.
 * Twitter, [ASFSkyWalking](https://twitter.com/ASFSkyWalking)
 * QQ Group: 901167865(Recommended), 392443393
 * [bilibili B站 视频](https://space.bilibili.com/390683219)

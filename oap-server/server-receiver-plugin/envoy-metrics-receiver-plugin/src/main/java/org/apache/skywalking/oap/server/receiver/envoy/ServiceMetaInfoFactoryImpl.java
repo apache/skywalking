@@ -23,6 +23,8 @@ import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 import org.apache.skywalking.oap.server.receiver.envoy.als.mx.ServiceMetaInfoAdapter;
 
 public class ServiceMetaInfoFactoryImpl implements ServiceMetaInfoFactory {
+    private static final ServiceMetaInfo UNKNOWN = new ServiceMetaInfo("UNKNOWN", "UNKNOWN");
+
     @Override
     public Class<? extends ServiceMetaInfo> clazz() {
         return ServiceMetaInfo.class;
@@ -30,11 +32,11 @@ public class ServiceMetaInfoFactoryImpl implements ServiceMetaInfoFactory {
 
     @Override
     public ServiceMetaInfo unknown() {
-        return new ServiceMetaInfo("UNKNOWN", "UNKNOWN");
+        return UNKNOWN;
     }
 
     @Override
-    public ServiceMetaInfo fromStruct(final Struct struct) throws Exception {
+    public ServiceMetaInfo fromStruct(final Struct struct) {
         return new ServiceMetaInfoAdapter(struct);
     }
 }

@@ -62,7 +62,7 @@ public class ServiceRelationServerSideMetrics extends Metrics {
     private String entityId;
 
     @Override
-    public String id() {
+    protected String id0() {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 
@@ -100,7 +100,9 @@ public class ServiceRelationServerSideMetrics extends Metrics {
 
     @Override
     public int remoteHashCode() {
-        return this.hashCode();
+        int n = 17;
+        n = 31 * n + this.entityId.hashCode();
+        return n;
     }
 
     @Override

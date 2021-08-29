@@ -28,15 +28,21 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Getter
 public class PrometheusFetcherConfig extends ModuleConfig {
+
+    private int maxConvertWorker;
+
     private String enabledRules;
 
     private final String rulePath = "fetcher-prom-rules";
 
     List<String> getEnabledRules() {
-        return Arrays.stream(Optional.ofNullable(enabledRules).orElse("").toString()
-                                     .split(","))
+        return Arrays.stream(Optional.ofNullable(enabledRules).orElse("").split(","))
                      .map(String::trim)
                      .filter(StringUtil::isNotEmpty)
                      .collect(Collectors.toList());
+    }
+
+    public int getMaxConvertWorker() {
+        return maxConvertWorker <= 0 ? Math.max(1, Runtime.getRuntime().availableProcessors() / 2) : maxConvertWorker;
     }
 }

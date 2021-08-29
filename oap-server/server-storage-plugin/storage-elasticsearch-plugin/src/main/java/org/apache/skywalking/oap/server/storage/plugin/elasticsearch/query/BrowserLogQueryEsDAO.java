@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import com.google.common.base.Strings;
 import java.io.IOException;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
@@ -28,12 +27,12 @@ import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 import static java.util.Objects.nonNull;
 
@@ -46,7 +45,6 @@ public class BrowserLogQueryEsDAO extends EsDAO implements IBrowserLogQueryDAO {
     public BrowserErrorLogs queryBrowserErrorLogs(final String serviceId,
                                                   final String serviceVersionId,
                                                   final String pagePathId,
-                                                  final String pagePath,
                                                   final BrowserErrorCategory category,
                                                   final long startSecondTB,
                                                   final long endSecondTB,
@@ -60,11 +58,6 @@ public class BrowserLogQueryEsDAO extends EsDAO implements IBrowserLogQueryDAO {
         if (startSecondTB != 0 && endSecondTB != 0) {
             boolQueryBuilder.must().add(
                 QueryBuilders.rangeQuery(BrowserErrorLogRecord.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
-        }
-
-        if (!Strings.isNullOrEmpty(pagePath)) {
-            String matchCName = MatchCNameBuilder.INSTANCE.build(BrowserErrorLogRecord.PAGE_PATH);
-            boolQueryBuilder.must().add(QueryBuilders.matchPhraseQuery(matchCName, pagePath));
         }
         if (StringUtil.isNotEmpty(serviceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(BrowserErrorLogRecord.SERVICE_ID, serviceId));
@@ -80,10 +73,14 @@ public class BrowserLogQueryEsDAO extends EsDAO implements IBrowserLogQueryDAO {
             boolQueryBuilder.must()
                             .add(QueryBuilders.termQuery(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
         }
+        sourceBuilder.sort(BrowserErrorLogRecord.TIMESTAMP, SortOrder.DESC);
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
         SearchResponse response = getClient()
-            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(BrowserErrorLogRecord.INDEX_NAME), sourceBuilder);
+            .search(
+                IndexController.LogicIndicesRegister.getPhysicalTableName(BrowserErrorLogRecord.INDEX_NAME),
+                sourceBuilder
+            );
 
         BrowserErrorLogs logs = new BrowserErrorLogs();
         logs.setTotal((int) response.getHits().totalHits);

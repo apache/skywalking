@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
@@ -68,7 +69,6 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                                        long endSecondTB,
                                        long minDuration,
                                        long maxDuration,
-                                       String endpointName,
                                        String serviceId,
                                        String serviceInstanceId,
                                        String endpointId,
@@ -106,10 +106,6 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         if (maxDuration != 0) {
             sql.append(" and ").append(SegmentRecord.LATENCY).append(" <= ?");
             parameters.add(maxDuration);
-        }
-        if (!Strings.isNullOrEmpty(endpointName)) {
-            sql.append(" and ").append(SegmentRecord.ENDPOINT_NAME).append(" like concat('%',?,'%')");
-            parameters.add(endpointName);
         }
         if (StringUtil.isNotEmpty(serviceId)) {
             sql.append(" and ").append(SegmentRecord.SERVICE_ID).append(" = ?");
@@ -177,13 +173,22 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             buildLimit(sql, from, limit);
 
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
+                connection, "select " +
+                    SegmentRecord.SEGMENT_ID + ", " +
+                    SegmentRecord.START_TIME + ", " +
+                    SegmentRecord.ENDPOINT_ID + ", " +
+                    SegmentRecord.LATENCY + ", " +
+                    SegmentRecord.IS_ERROR + ", " +
+                    SegmentRecord.TRACE_ID + " " + sql, parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 
                     basicTrace.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
                     basicTrace.setStart(resultSet.getString(SegmentRecord.START_TIME));
-                    basicTrace.getEndpointNames().add(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
+                    basicTrace.getEndpointNames().add(
+                        IDManager.EndpointID.analysisId(resultSet.getString(SegmentRecord.ENDPOINT_ID))
+                                            .getEndpointName()
+                    );
                     basicTrace.setDuration(resultSet.getInt(SegmentRecord.LATENCY));
                     basicTrace.setError(BooleanUtils.valueToBoolean(resultSet.getInt(SegmentRecord.IS_ERROR)));
                     String traceIds = resultSet.getString(SegmentRecord.TRACE_ID);
@@ -213,8 +218,15 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?",
-                traceId
+                connection, "select " + SegmentRecord.SEGMENT_ID + ", " +
+                    SegmentRecord.TRACE_ID + ", " +
+                    SegmentRecord.SERVICE_ID + ", " +
+                    SegmentRecord.SERVICE_INSTANCE_ID + ", " +
+                    SegmentRecord.START_TIME + ", " +
+                    SegmentRecord.LATENCY + ", " +
+                    SegmentRecord.IS_ERROR + ", " +
+                    SegmentRecord.DATA_BINARY + " from " +
+                    SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?", traceId
             )) {
                 while (resultSet.next()) {
                     SegmentRecord segmentRecord = new SegmentRecord();
@@ -222,16 +234,13 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                     segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
                     segmentRecord.setServiceId(resultSet.getString(SegmentRecord.SERVICE_ID));
                     segmentRecord.setServiceInstanceId(resultSet.getString(SegmentRecord.SERVICE_INSTANCE_ID));
-                    segmentRecord.setEndpointName(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
                     segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
-                    segmentRecord.setEndTime(resultSet.getLong(SegmentRecord.END_TIME));
                     segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
                     segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
                     String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
                     if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                         segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
                     }
-                    segmentRecord.setVersion(resultSet.getInt(SegmentRecord.VERSION));
                     segmentRecords.add(segmentRecord);
                 }
             }

@@ -21,11 +21,11 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.6.0-SNAPSHOT</version>
+        <version>8.8.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-protocol</artifactId>
+    <artifactId>oap-protocol</artifactId>
     <packaging>pom</packaging>
 
     <modules>

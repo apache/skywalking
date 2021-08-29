@@ -54,7 +54,7 @@ _You could do a GPG signature before preparing for the release. If you need to i
 
 ## Stage the release 
 ```
-./mvnw release:perform -DskipTests -Pall
+./mvnw release:perform -Dmaven.test.skip -Pall
 ```
 
 - The release will be automatically inserted into a temporary staging repository.

@@ -31,13 +31,13 @@ public class TextParserSpec extends AbstractParserSpec {
     }
 
     @SuppressWarnings("unused")
-    public boolean regexp(final String regexp) {
-        return regexp(Pattern.compile(regexp));
+    public void regexp(final String regexp) {
+        regexp(Pattern.compile(regexp));
     }
 
-    public boolean regexp(final Pattern pattern) {
+    public void regexp(final Pattern pattern) {
         if (BINDING.get().shouldAbort()) {
-            return false;
+            return;
         }
         final LogData.Builder log = BINDING.get().log();
         final Matcher matcher = pattern.matcher(log.getBody().getText().getText());
@@ -47,7 +47,6 @@ public class TextParserSpec extends AbstractParserSpec {
         } else if (abortOnFailure()) {
             BINDING.get().abort();
         }
-        return matched;
     }
 
     public boolean grok(final String grok) {

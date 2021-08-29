@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
+import com.google.gson.JsonObject;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -129,6 +130,12 @@ public class MySQLTableInstaller extends H2TableInstaller {
         if (StorageDataComplexObject.class.isAssignableFrom(type)) {
             return storageName + " MEDIUMTEXT";
         } else if (String.class.equals(type)) {
+            if (column.getLength() > 16383) {
+                return storageName + " MEDIUMTEXT";
+            } else {
+                return storageName + " VARCHAR(" + column.getLength() + ")";
+            }
+        } else if (JsonObject.class.equals(type)) {
             if (column.getLength() > 16383) {
                 return storageName + " MEDIUMTEXT";
             } else {

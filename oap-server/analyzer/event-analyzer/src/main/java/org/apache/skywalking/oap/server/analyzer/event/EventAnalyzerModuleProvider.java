@@ -20,9 +20,11 @@ package org.apache.skywalking.oap.server.analyzer.event;
 
 import org.apache.skywalking.oap.server.analyzer.event.listener.EventRecordAnalyzerListener;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
 public class EventAnalyzerModuleProvider extends ModuleProvider {
@@ -51,7 +53,12 @@ public class EventAnalyzerModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public void start() {
+    public void start() throws ModuleStartException {
+        getManager().find(CoreModule.NAME)
+                    .provider()
+                    .getService(OALEngineLoaderService.class)
+                    .load(EventOALDefine.INSTANCE);
+
         analysisService.add(new EventRecordAnalyzerListener.Factory(getManager()));
     }
 

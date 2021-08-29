@@ -410,7 +410,6 @@ public class SimpleQueryClient {
                                             .collect(Collectors.joining())
                                             .replace("{serviceId}", query.serviceId())
                                             .replace("{endpointId}", query.endpointId())
-                                            .replace("{endpointName}", query.endpointName())
                                             .replace("{start}", query.start())
                                             .replace("{end}", query.end())
                                             .replace("{step}", query.step())
@@ -456,7 +455,10 @@ public class SimpleQueryClient {
         final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
                                             .stream().filter(it -> !it.startsWith("#"))
                                             .collect(Collectors.joining())
-                                            .replace("{uuid}", query.uuid());
+                                            .replace("{uuid}", query.uuid())
+                                            .replace("{pageNum}", query.pageNum())
+                                            .replace("{pageSize}", query.pageSize())
+                                            .replace("{needTotal}", query.needTotal());
         LOGGER.info("Query: {}", queryString);
         final ResponseEntity<GQLResponse<EventData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),

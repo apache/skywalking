@@ -78,7 +78,8 @@ public class SharingServerModuleProvider extends ModuleProvider {
                                  .jettyAcceptQueueSize(config.getRestAcceptQueueSize())
                                  .jettyAcceptorPriorityDelta(
                                      config.getRestAcceptorPriorityDelta())
-                                 .jettyIdleTimeOut(config.getRestIdleTimeOut()).build();
+                                 .jettyIdleTimeOut(config.getRestIdleTimeOut())
+                                 .jettyHttpMaxRequestHeaderSize(config.getHttpMaxRequestHeaderSize()).build();
             jettyServerConfig.setHost(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost());
             jettyServerConfig.setPort(config.getRestPort());
             jettyServerConfig.setContextPath(config.getRestContextPath());

@@ -50,12 +50,16 @@ public class LogHandler implements KafkaHandler {
                                                      .provider()
                                                      .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "log_in_latency", "The process latency of log",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("kafka-fetcher")
+            "log_in_latency",
+            "The process latency of log",
+            new MetricsTag.Keys("protocol", "data_format"),
+            new MetricsTag.Values("kafka", getDataFormat())
         );
-        errorCounter = metricsCreator.createCounter("log_analysis_error_count", "The error number of log analysis",
-                                                    new MetricsTag.Keys("protocol"),
-                                                    new MetricsTag.Values("kafka-fetcher")
+        errorCounter = metricsCreator.createCounter(
+            "log_analysis_error_count",
+            "The error number of log analysis",
+            new MetricsTag.Keys("protocol", "data_format"),
+            new MetricsTag.Values("kafka", getDataFormat())
         );
     }
 
@@ -71,15 +75,20 @@ public class LogHandler implements KafkaHandler {
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        HistogramMetrics.Timer timer = histogram.createTimer();
-        try {
-            LogData logData = LogData.parseFrom(record.value().get());
-            logAnalyzerService.doAnalysis(logData);
+        try (HistogramMetrics.Timer ignore = histogram.createTimer()) {
+            LogData logData = parseConsumerRecord(record);
+            logAnalyzerService.doAnalysis(logData, null);
         } catch (Exception e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);
-        } finally {
-            timer.finish();
         }
+    }
+
+    protected String getDataFormat() {
+        return "protobuf";
+    }
+
+    protected LogData parseConsumerRecord(ConsumerRecord<String, Bytes> record) throws Exception {
+        return LogData.parseFrom(record.value().get());
     }
 }

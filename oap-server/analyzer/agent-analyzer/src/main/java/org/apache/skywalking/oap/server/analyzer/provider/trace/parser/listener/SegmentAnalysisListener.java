@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -98,10 +97,8 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         segment.setLatency(duration);
         segment.setStartTime(startTimestamp);
         segment.setTimeBucket(timeBucket);
-        segment.setEndTime(endTimestamp);
         segment.setIsError(BooleanUtils.booleanToValue(isError));
         segment.setDataBinary(segmentObject.toByteArray());
-        segment.setVersion(3);
 
         endpointName = namingControl.formatEndpointName(serviceName, span.getOperationName());
         endpointId = IDManager.EndpointID.buildId(
@@ -155,31 +152,30 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     }
 
     private void appendSearchableTags(SpanObject span) {
-        HashSet<Tag> segmentTags = new HashSet<>();
         span.getTagsList().forEach(tag -> {
             if (searchableTagKeys.contains(tag.getKey())) {
                 final Tag spanTag = new Tag(tag.getKey(), tag.getValue());
-                if (!segmentTags.contains(spanTag)) {
-                    segmentTags.add(spanTag);
+                if (!segment.getTags().contains(spanTag)) {
+                    segment.getTags().add(spanTag);
                 }
-
             }
         });
-        segment.getTags().addAll(segmentTags);
     }
 
     @Override
     public void build() {
+        if (sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
+            if (log.isDebugEnabled()) {
+                log.debug("segment ignored, trace id: {}", segment.getTraceId());
+            }
+            return;
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("segment listener build, segment id: {}", segment.getSegmentId());
         }
 
-        if (sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
-            return;
-        }
-
         segment.setEndpointId(endpointId);
-        segment.setEndpointName(endpointName);
 
         sourceReceiver.receive(segment);
     }

@@ -30,7 +30,19 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private String clusterNodes;
     String protocol = "http";
     /**
-     * Since 6.4.0, the index of metrics and traces data in minute/hour/month precision are organized in days. ES
+     * Connect timeout of ElasticSearch client.
+     *
+     * @since 8.7.0
+     */
+    private int connectTimeout = 500;
+    /**
+     * Socket timeout of ElasticSearch client.
+     *
+     * @since 8.7.0
+     */
+    private int socketTimeout = 30000;
+    /**
+     * @since 6.4.0, the index of metrics and traces data in minute/hour/month precision are organized in days. ES
      * storage creates new indexes in every day.
      *
      * @since 7.0.0 dayStep represents how many days a single one index represents. Default is 1, meaning no difference
@@ -52,8 +64,25 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int superDatasetIndexReplicasNumber = 0;
     private int superDatasetIndexShardsFactor = 5;
     private int indexRefreshInterval = 2;
-    private int bulkActions = 2000;
-    private int flushInterval = 10;
+
+    /**
+     * @since 8.7.0 The order of index template.
+     */
+    private int indexTemplateOrder = 0;
+
+    /**
+     * @since 8.7.0 This setting affects all traces/logs/metrics/metadata flush policy.
+     */
+    private int bulkActions = 5000;
+    /**
+     * Period of flesh, no matter `bulkActions` reached or not.
+     * INT(flushInterval * 2/3) would be used for index refresh period.
+     * Unit is second.
+     *
+     * @since 8.7.0 increase to 15s from 10s
+     * @since 8.7.0 use INT(flushInterval * 2/3) as ElasticSearch index refresh interval. Default is 10s.
+     */
+    private int flushInterval = 15;
     private int concurrentRequests = 2;
     /**
      * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}

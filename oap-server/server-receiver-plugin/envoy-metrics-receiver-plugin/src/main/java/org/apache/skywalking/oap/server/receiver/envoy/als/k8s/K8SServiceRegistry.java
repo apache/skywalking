@@ -64,7 +64,11 @@ public class K8SServiceRegistry {
 
     protected final ServiceNameFormatter serviceNameFormatter;
 
+    private final EnvoyMetricReceiverConfig config;
+
     public K8SServiceRegistry(final EnvoyMetricReceiverConfig config) {
+        this.config = config;
+
         serviceNameFormatter = new ServiceNameFormatter(config.getK8sServiceNameRule());
         ipServiceMetaInfoMap = new ConcurrentHashMap<>();
         idServiceMap = new ConcurrentHashMap<>();
@@ -107,7 +111,8 @@ public class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                300,
+                null,
+                params.timeoutSeconds,
                 params.watch,
                 null
             ),
@@ -141,7 +146,8 @@ public class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                300,
+                null,
+                params.timeoutSeconds,
                 params.watch,
                 null
             ),
@@ -175,7 +181,8 @@ public class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                300,
+                null,
+                params.timeoutSeconds,
                 params.watch,
                 null
             ),
@@ -264,7 +271,7 @@ public class K8SServiceRegistry {
         final ServiceMetaInfo service = ipServiceMetaInfoMap.get(ip);
         if (isNull(service)) {
             log.debug("Unknown ip {}, ip -> service is null", ip);
-            return ServiceMetaInfo.UNKNOWN;
+            return config.serviceMetaInfoFactory().unknown();
         }
         return service;
     }
@@ -294,7 +301,7 @@ public class K8SServiceRegistry {
                     final V1ObjectMeta serviceMetadata = service.getMetadata();
                     if (isNull(serviceMetadata)) {
                         log.warn("Service metadata is null, {}", service);
-                        return ServiceMetaInfo.UNKNOWN;
+                        return config.serviceMetaInfoFactory().unknown();
                     }
                     serviceMetaInfo.setServiceName(serviceMetadata.getName());
                 }

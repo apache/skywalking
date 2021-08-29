@@ -22,6 +22,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleProvider
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,6 +109,11 @@ public class TraceSampleRateWatcherTest {
             ConfigTable table = new ConfigTable();
             table.add(new ConfigTable.ConfigItem("agent-analyzer.default.sampleRate", "9000"));
             return Optional.of(table);
+        }
+
+        @Override
+        public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
+            return Optional.empty();
         }
     }
 

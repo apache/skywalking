@@ -28,8 +28,10 @@ import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ConfigMapList;
 import io.kubernetes.client.util.Config;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +39,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConfigurationConfigmapInformer {
-
     private Lister<V1ConfigMap> configMapLister;
 
     private SharedInformerFactory factory;
@@ -75,7 +76,7 @@ public class ConfigurationConfigmapInformer {
         SharedIndexInformer<V1ConfigMap> configMapSharedIndexInformer = factory.sharedIndexInformerFor(
             params -> coreV1Api.listNamespacedConfigMapCall(
                 settings.getNamespace(), null, null, null, null, settings.getLabelSelector()
-                , 1, params.resourceVersion, 300, params.watch, null
+                , 1, params.resourceVersion, null, params.timeoutSeconds, params.watch, null
             ),
             V1ConfigMap.class, V1ConfigMapList.class
         );
@@ -84,8 +85,21 @@ public class ConfigurationConfigmapInformer {
         configMapLister = new Lister<>(configMapSharedIndexInformer.getIndexer());
     }
 
-    public Optional<V1ConfigMap> configMap() {
-        return Optional.ofNullable(configMapLister.list().size() == 1 ? configMapLister.list().get(0) : null);
-    }
+    public Map<String, String> configMapData() {
+        Map<String, String> configMapData = new HashMap<>();
+        if (configMapLister != null) {
+            final List<V1ConfigMap> list = configMapLister.list();
+            if (list != null) {
+                list.forEach(cf -> {
+                    Map<String, String> data = cf.getData();
+                    if (data == null) {
+                        return;
+                    }
+                    configMapData.putAll(data);
+                });
+            }
+        }
 
+        return configMapData;
+    }
 }

@@ -69,7 +69,7 @@ public class InstanceTraffic extends Metrics {
     private long lastPingTimestamp;
     @Setter
     @Getter
-    @Column(columnName = PROPERTIES, storageOnly = true)
+    @Column(columnName = PROPERTIES, storageOnly = true, length = 50000)
     private JsonObject properties;
 
     @Override
@@ -121,7 +121,7 @@ public class InstanceTraffic extends Metrics {
     }
 
     @Override
-    public String id() {
+    protected String id0() {
         return IDManager.ServiceInstanceID.buildId(serviceId, name);
     }
 

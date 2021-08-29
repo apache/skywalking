@@ -97,7 +97,8 @@ public class K8sInfoRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                300,
+                null,
+                params.timeoutSeconds,
                 params.watch,
                 null
             ),
@@ -131,7 +132,8 @@ public class K8sInfoRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                300,
+                null,
+                params.timeoutSeconds,
                 params.watch,
                 null
             ),

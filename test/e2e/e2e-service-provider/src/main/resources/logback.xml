@@ -33,8 +33,20 @@
         </encoder>
     </appender>
 
+    <appender name="fileAppender" class="ch.qos.logback.core.FileAppender">
+        <file>/tmp/skywalking-logs/logback/e2e-service-provider.log</file>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>[%sw_ctx] [%level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %logger:%line - %msg%n</Pattern>
+            </layout>
+        </encoder>
+    </appender>
+
     <root level="INFO">
         <appender-ref ref="grpc-log"/>
         <appender-ref ref="stdout"/>
     </root>
+    <logger name="fileLogger" level="INFO">
+        <appender-ref ref="fileAppender"/>
+    </logger>
 </configuration>
