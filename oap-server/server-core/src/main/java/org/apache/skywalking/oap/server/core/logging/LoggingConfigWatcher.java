@@ -50,8 +50,8 @@ public class LoggingConfigWatcher extends ConfigChangeWatcher {
     public void notify(final ConfigChangeEvent value) {
         String newValue;
         if (EventType.DELETE.equals(value.getEventType())) {
-            this.content = "";
-            newValue = "";
+            this.content = null;
+            newValue = null;
         } else {
             newValue = value.getNewValue();
         }
