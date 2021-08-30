@@ -28,19 +28,20 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * SamplePolicySettingsReader parses the given `trace-sampling-policy-settings.yml` config file, to the target {@link SamplingPolicySettings}.
+ * SamplePolicySettingsReader parses the given `trace-sampling-policy-settings.yml` config file, to the target {@link
+ * SamplingPolicySettings}.
  */
 public class SamplingPolicySettingsReader {
     private Map yamlData;
 
     public SamplingPolicySettingsReader(InputStream inputStream) {
         Yaml yaml = new Yaml(new SafeConstructor());
-        yamlData = (Map) yaml.load(inputStream);
+        yamlData = yaml.load(inputStream);
     }
 
     public SamplingPolicySettingsReader(Reader io) {
         Yaml yaml = new Yaml(new SafeConstructor());
-        yamlData = (Map) yaml.load(io);
+        yamlData = yaml.load(io);
     }
 
     /**

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSamplingPolicyWatcher;
 
@@ -25,12 +26,9 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSamplingPol
  * The sampler makes the sampling mechanism works at backend side. Sample result: [0,sampleRate) sampled, (sampleRate,~)
  * ignored
  */
+@RequiredArgsConstructor
 public class TraceSegmentSampler {
-    private TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
-
-    public TraceSegmentSampler(TraceSamplingPolicyWatcher traceSamplingPolicyWatcher) {
-        this.traceSamplingPolicyWatcher = traceSamplingPolicyWatcher;
-    }
+    private final TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
 
     public boolean shouldSample(SegmentObject segmentObject, int duration) {
         int sample = Math.abs(segmentObject.getTraceId().hashCode()) % 10000;

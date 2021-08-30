@@ -26,8 +26,9 @@ public class SamplingPolicySettingsReaderTest {
     @Test
     public void testReadPolicySettings() {
         SamplingPolicySettingsReader reader = new SamplingPolicySettingsReader(this.getClass()
-                .getClassLoader()
-                .getResourceAsStream("trace-sampling-policy-settings.yml"));
+                                                                                   .getClassLoader()
+                                                                                   .getResourceAsStream(
+                                                                                       "trace-sampling-policy-settings.yml"));
         SamplingPolicySettings settings = reader.readSettings();
         Assert.assertEquals(settings.getDefaultPolicy().getRate().intValue(), 10000);
         Assert.assertEquals(settings.getDefaultPolicy().getDuration().intValue(), -1);

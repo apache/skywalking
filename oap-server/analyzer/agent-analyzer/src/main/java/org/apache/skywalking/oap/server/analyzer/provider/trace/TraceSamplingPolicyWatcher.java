@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.Samplin
 import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicySettings;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicySettingsReader;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
@@ -37,21 +36,20 @@ import static java.util.Objects.isNull;
 @Slf4j
 public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
 
-    private final AtomicReference<String> settingsString = new AtomicReference<>(Const.EMPTY_STRING);
+    private final AtomicReference<String> settingsString = new AtomicReference<>(null);
     private final AtomicReference<SamplingPolicySettings> samplingPolicySettings = new AtomicReference<>(null);
     private final SamplingPolicySettings defaultSamplingPolicySettings;
 
     public TraceSamplingPolicyWatcher(AnalyzerModuleConfig moduleConfig, ModuleProvider provider) {
         super(AnalyzerModule.NAME, provider, "traceSamplingPolicy");
-        SamplingPolicySettings samplingPolicySettings = parseFromFile(moduleConfig.getTraceSamplingPolicySettingsFile());
-        this.defaultSamplingPolicySettings = samplingPolicySettings;
+        this.defaultSamplingPolicySettings = parseFromFile(moduleConfig.getTraceSamplingPolicySettingsFile());
         loadDefaultPolicySettings();
     }
 
     @Override
     public void notify(ConfigChangeEvent value) {
         if (EventType.DELETE.equals(value.getEventType()) || StringUtil.isBlank(value.getNewValue())) {
-            this.settingsString.set("");
+            this.settingsString.set(null);
             log.info("[trace-sampling-policy] Delete trace-sampling-policy,use default config");
             loadDefaultPolicySettings();
         } else {
@@ -81,20 +79,10 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
     }
 
     /**
-     * Get sampling policy for specific service
+     * When 'duration' is over 'default trace segment's slow threshold' that should be sampled. Or when 'sample' is with
+     * in [0,defaultSamplingRate) that also should be sampled.
      *
-     * @param service serviceName
-     * @return
-     */
-    public SamplingPolicy getSamplingPolicy(String service) {
-        return this.samplingPolicySettings.get().get(service);
-    }
-
-    /**
-     * When 'duration' is over 'default trace segment's slow threshold' that should be sampled.
-     * Or when 'sample' is with in [0,defaultSamplingRate) that also should be sampled.
-     *
-     * @param sample sample rate of trace segment
+     * @param sample   sample rate of trace segment
      * @param duration duration of trace segment
      * @return
      */
@@ -103,24 +91,25 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
     }
 
     /**
-     * On the basis of service's If the specific service's 'trace segment's slow threshold' is not null.
-     * The same as 'samplingRate', if the specific service's 'samplingRate' is not null. Otherwise,Using the default sampling policy.
-     *
-     * The priority of sampling policy: 'trace segment's slow threshold' > 'samplingRate',no matter the service's or global.
-     *     When 'duration' is over 'default trace segment's slow threshold' that should be sampled.
-     *     Or when 'sample' is with in [0,defaultSamplingRate) that also should be sampled.
+     * On the basis of service's If the specific service's 'trace segment's slow threshold' is not null. The same as
+     * 'samplingRate', if the specific service's 'samplingRate' is not null. Otherwise,Using the default sampling
+     * policy.
+     * <p>
+     * The priority of sampling policy: 'trace segment's slow threshold' > 'samplingRate',no matter the service's or
+     * global. When 'duration' is over 'default trace segment's slow threshold' that should be sampled. Or when 'sample'
+     * is with in [0,defaultSamplingRate) that also should be sampled.
      *
      * @param samplingPolicy the sampling policy of the specific service
-     * @param sample sample rate of trace segment
-     * @param duration duration of trace segment
+     * @param sample         sample rate of trace segment
+     * @param duration       duration of trace segment
      * @return
      */
     private boolean shouldSampleService(SamplingPolicy samplingPolicy, int sample, int duration) {
         return (samplingPolicy.getDuration() != null && isOverSlowThreshold(duration, samplingPolicy.getDuration()))
-                || (samplingPolicy.getRate() != null && withinRateRange(sample, samplingPolicy.getRate()))
-                // global policy
-                || (samplingPolicy.getDuration() == null && isOverDefaultSlowThreshold(duration))
-                || (samplingPolicy.getRate() == null && withinDefaultRateRange(sample));
+            || (samplingPolicy.getRate() != null && withinRateRange(sample, samplingPolicy.getRate()))
+            // global policy
+            || (samplingPolicy.getDuration() == null && isOverDefaultSlowThreshold(duration))
+            || (samplingPolicy.getRate() == null && withinDefaultRateRange(sample));
     }
 
     private boolean withinDefaultRateRange(int sample) {
@@ -156,7 +145,8 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
             this.samplingPolicySettings.set(samplingPolicySettings);
             log.info("[trace-sampling-policy] Updating trace-sample-policy with: {}", samplingPolicySettings);
         } else {
-            log.info("[trace-sampling-policy] Parse yaml fail, retain last configuration: {}", this.samplingPolicySettings);
+            log.info(
+                "[trace-sampling-policy] Parse yaml fail, retain last configuration: {}", this.samplingPolicySettings);
         }
     }
 

@@ -31,12 +31,12 @@ public class SamplingPolicySettings {
     private Map<String, SamplingPolicy> services;
 
     /**
-     * The sample rate precision is 1/10000. 10000 means 100% sample in default.
-     * Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
+     * The sample rate precision is 1/10000. 10000 means 100% sample in default. Setting this threshold about the
+     * latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated.
+     * The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
      */
     public SamplingPolicySettings() {
-        SamplingPolicy samplingPolicy = new SamplingPolicy(10000, -1);
-        this.defaultPolicy = samplingPolicy;
+        this.defaultPolicy = new SamplingPolicy(10000, -1);
         this.services = new ConcurrentHashMap<>();
     }
 
