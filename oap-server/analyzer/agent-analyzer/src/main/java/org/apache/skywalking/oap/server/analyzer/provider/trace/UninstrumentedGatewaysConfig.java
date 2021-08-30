@@ -61,11 +61,7 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
             log.debug("Updating using new static config: {}", config);
         }
         this.settingsString.set(config);
-        if (config != null) {
-            onGatewaysUpdated(parseGatewaysFromYml(config));
-        } else {
-            onGatewaysUpdated(parseGatewaysFromYml(""));
-        }
+        onGatewaysUpdated(parseGatewaysFromYml(Strings.nullToEmpty(config)));
     }
 
     @Override
