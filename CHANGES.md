@@ -40,6 +40,7 @@ Release Notes.
 * Fix NPE when OAP nodes synchronize events with each other in cluster mode.
 * Support k8s configmap grouped dynamic configurations.
 * Add desc sort function in H2 and ElasticSearch implementations of IBrowserLogQueryDAO
+* Support configure sampling policy by `configuration module` dynamically and static configuration file `trace-sampling-policy-settings.yml` for service dimension on the backend side. Dynamic configurations `agent-analyzer.default.sampleRate` and `agent-analyzer.default.slowTraceSegmentThreshold` are replaced by `agent-analyzer.default.traceSamplingPolicy`. Static configurations `agent-analyzer.default.sampleRate` and `agent-analyzer.default.slowTraceSegmentThreshold` are replaced by `agent-analyzer.default.traceSamplingPolicySettingsFile`.
 
 #### UI
 
