@@ -90,6 +90,8 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
         }
         rawConfig = config;
         if (config != null) {
+            updateConfig(new StringReader(config));
+        }else {
             updateConfig(new StringReader(""));
         }
     }

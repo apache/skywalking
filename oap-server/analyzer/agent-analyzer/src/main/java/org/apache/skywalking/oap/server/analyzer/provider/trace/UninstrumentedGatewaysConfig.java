@@ -62,6 +62,8 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
         }
         this.settingsString.set(config);
         if (config != null) {
+            onGatewaysUpdated(parseGatewaysFromYml(config));
+        } else {
             onGatewaysUpdated(parseGatewaysFromYml(""));
         }
     }
