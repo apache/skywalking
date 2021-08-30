@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 import java.io.StringReader;
@@ -36,7 +35,7 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
 
     public AgentConfigurationsWatcher(ModuleProvider provider) {
         super(ConfigurationDiscoveryModule.NAME, provider, "agentConfigurations");
-        this.settingsString = Const.EMPTY_STRING;
+        this.settingsString = null;
         this.agentConfigurationsTable = new AgentConfigurationsTable();
         this.emptyAgentConfigurations = new AgentConfigurations(
             null, new HashMap<>(), DigestUtils.sha512Hex("EMPTY")
@@ -46,7 +45,7 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
     @Override
     public void notify(ConfigChangeEvent value) {
         if (value.getEventType().equals(EventType.DELETE)) {
-            settingsString = Const.EMPTY_STRING;
+            settingsString = null;
             this.agentConfigurationsTable = new AgentConfigurationsTable();
         } else {
             settingsString = value.getNewValue();

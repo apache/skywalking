@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
+import com.google.common.base.Strings;
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -35,7 +36,6 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.library.util.yaml.ClassFilterConstructor;
@@ -51,7 +51,7 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
 
     public UninstrumentedGatewaysConfig(ModuleProvider provider) {
         super(AnalyzerModule.NAME, provider, "uninstrumentedGateways");
-        this.settingsString = new AtomicReference<>(Const.EMPTY_STRING);
+        this.settingsString = new AtomicReference<>(null);
         final GatewayInfos defaultGateways = parseGatewaysFromFile("gateways.yml");
         log.info("Default configured gateways: {}", defaultGateways);
         onGatewaysUpdated(defaultGateways);
@@ -62,13 +62,13 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
             log.debug("Updating using new static config: {}", config);
         }
         this.settingsString.set(config);
-        onGatewaysUpdated(parseGatewaysFromYml(config));
+        onGatewaysUpdated(parseGatewaysFromYml(Strings.nullToEmpty(config)));
     }
 
     @Override
     public void notify(ConfigChangeEvent value) {
         if (EventType.DELETE.equals(value.getEventType())) {
-            activeSetting("");
+            activeSetting(null);
         } else {
             activeSetting(value.getNewValue());
         }
