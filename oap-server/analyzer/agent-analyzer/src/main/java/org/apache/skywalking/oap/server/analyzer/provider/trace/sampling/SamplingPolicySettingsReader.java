@@ -47,7 +47,7 @@ public class SamplingPolicySettingsReader {
      * Read policy config file to {@link SamplingPolicySettings}
      */
     public SamplingPolicySettings readSettings() {
-        SamplingPolicySettings samplingPolicySettings = new SamplingPolicySettings(null, null);
+        SamplingPolicySettings samplingPolicySettings = new SamplingPolicySettings();
         if (Objects.nonNull(yamlData)) {
             readDefaultSamplingPolicy(samplingPolicySettings);
             readServicesSamplingPolicy(samplingPolicySettings);

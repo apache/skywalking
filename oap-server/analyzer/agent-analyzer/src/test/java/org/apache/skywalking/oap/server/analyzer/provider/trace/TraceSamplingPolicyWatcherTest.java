@@ -61,7 +61,7 @@ public class TraceSamplingPolicyWatcherTest {
         TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
-        // default duration is -1, so 3000 must not be shouldSample,until updated to 3000
+        // Default duration is -1, so 3000 must not be sampled,until updating to 3000
         while (!watcher.shouldSample("", 10000, 3000)) {
             Thread.sleep(2000);
         }
@@ -133,7 +133,7 @@ public class TraceSamplingPolicyWatcherTest {
         TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
-        // default is 10000, so 9000 must be shouldSample,until updated to 9000
+        // Default is 10000, so 9000 must be sampled,until updating to 9000
         while (watcher.shouldSample("", 9000, -1)) {
             Thread.sleep(2000);
         }

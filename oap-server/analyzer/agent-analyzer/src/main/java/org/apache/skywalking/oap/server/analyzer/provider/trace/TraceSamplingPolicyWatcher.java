@@ -168,7 +168,7 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
             log.error("[trace-sampling-policy] Cannot load configs from: {}", file, e);
         }
         // It must have a default config on init
-        return defaultSampleConfigSettings();
+        return new SamplingPolicySettings();
     }
 
     private SamplingPolicySettings parseFromYml(final String ymlContent) {
@@ -182,10 +182,6 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
         }
         // Config update maybe parse fail
         return null;
-    }
-
-    private SamplingPolicySettings defaultSampleConfigSettings() {
-        return new SamplingPolicySettings(null, null);
     }
 
 }
