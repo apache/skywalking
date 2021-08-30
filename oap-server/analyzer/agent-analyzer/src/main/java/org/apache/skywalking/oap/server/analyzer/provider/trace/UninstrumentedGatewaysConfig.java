@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
+import com.google.common.base.Strings;
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.ArrayList;

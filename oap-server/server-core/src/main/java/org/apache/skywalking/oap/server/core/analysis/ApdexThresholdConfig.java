@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
+import com.google.common.base.Strings;
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -89,11 +90,7 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
             log.debug("Updating using new static config: {}", config);
         }
         rawConfig = config;
-        if (config != null) {
-            updateConfig(new StringReader(config));
-        } else {
-            updateConfig(new StringReader(""));
-        }
+        updateConfig(new StringReader(Strings.nullToEmpty(config)));
     }
 
     @SuppressWarnings("unchecked")
