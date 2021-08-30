@@ -36,8 +36,7 @@ Supported configurations are as follows:
 |core.default.apdexThreshold| The apdex threshold settings. Overrides `service-apdex-threshold.yml`. | Same as [`service-apdex-threshold.yml`](apdex-threshold.md). |
 |core.default.endpoint-name-grouping| The endpoint name grouping setting. Overrides `endpoint-name-grouping.yml`. | Same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md). |
 |core.default.log4j-xml| The log4j xml configuration. Overrides `log4j2.xml`. | Same as [`log4j2.xml`](dynamical-logging.md). |
-|agent-analyzer.default.sampleRate| Trace sampling. Overrides `receiver-trace/default/sampleRate` of `application.yml`. | 10000 |
-|agent-analyzer.default.slowTraceSegmentThreshold| Setting this threshold on latency (in milliseconds) would cause slow trace segments to be sampled if they use up more time, even if the sampling mechanism is activated. The default value is `-1`, which means slow traces will not be sampled. Overrides `receiver-trace/default/slowTraceSegmentThreshold` of `application.yml`. | -1 |
+|agent-analyzer.default.traceSamplingPolicy| The sampling policy for default and service dimension, override `trace-sampling-policy-settings.yml`. | same as [`trace-sampling-policy-settings.yml`](trace-sampling.md) | 
 |configuration-discovery.default.agentConfigurations| The ConfigurationDiscovery settings. | See [`configuration-discovery.md`](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/configuration-discovery.md). |
 
 ## Group Configuration
