@@ -47,6 +47,7 @@ Release Notes.
   and `agent-analyzer.default.slowTraceSegmentThreshold` are replaced
   by `agent-analyzer.default.traceSamplingPolicySettingsFile`.
 * Fix dynamic configuration watch implementation current value not null when the config is deleted.
+* Fix `LoggingConfigWatcher` return `watch.value` would not consistent with the real configuration content.
 
 #### UI
 
