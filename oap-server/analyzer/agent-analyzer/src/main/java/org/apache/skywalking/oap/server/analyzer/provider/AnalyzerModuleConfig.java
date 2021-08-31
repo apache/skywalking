@@ -24,8 +24,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceLatencyThresholdsAndWatcher;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSamplingPolicyWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
 import org.apache.skywalking.oap.server.core.Const;
@@ -39,11 +38,11 @@ import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.li
 @Slf4j
 public class AnalyzerModuleConfig extends ModuleConfig {
     /**
-     * The sample rate precision is 1/10000. 10000 means 100% sample in default.
+     * The sample policy setting file
      */
     @Setter
     @Getter
-    private int sampleRate = 10000;
+    private String traceSamplingPolicySettingsFile;
     /**
      * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
      * service instance mapping and service instance client side relation are ignored.
@@ -58,12 +57,6 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String slowDBAccessThreshold = "default:200";
-    /**
-     * Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
-     */
-    @Setter
-    @Getter
-    private int slowTraceSegmentThreshold = -1;
     @Setter
     @Getter
     private DBLatencyThresholdsAndWatcher dbLatencyThresholdsAndWatcher;
@@ -72,10 +65,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
     @Setter
     @Getter
-    private TraceSampleRateWatcher traceSampleRateWatcher;
-    @Setter
-    @Getter
-    private TraceLatencyThresholdsAndWatcher traceLatencyThresholdsAndWatcher;
+    private TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
     /**
      * Analysis trace status.
      * <p>

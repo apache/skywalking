@@ -47,7 +47,7 @@ public class EndpointNameGroupingRuleWatcher extends ConfigChangeWatcher {
     @Override
     public void notify(final ConfigChangeEvent value) {
         if (value.getEventType().equals(EventType.DELETE)) {
-            ruleSetting = "";
+            ruleSetting = null;
             grouping.setEndpointGroupingRule(new EndpointGroupingRule());
         } else {
             ruleSetting = value.getNewValue();
