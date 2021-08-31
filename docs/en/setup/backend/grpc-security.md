@@ -47,8 +47,8 @@ If you port to Java agent, refer to [the Java agent repo](http://github.com/apac
 
 ## mutual TLS mode
 
-Configure Sharing gRPC Server, `receiver-sharing-server` module, and enable mTLS as following configuration first. You still use this [script](../../../../tools/TLS/tls_key_generate.sh) to generate CA certificate and the private keys of server side(for OAP Server) and Client side(for Agent/Satellite).
-You have to notice the private keys, included server and client side, are from the same CA certification.
+To enable `mTLS` mode for gRPC channel requires [Sharing gRPC Server](./backend-receivers#grpchttp-server-for-receiver) enabled, as following configuration. 
+
 ```properties
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
@@ -66,3 +66,6 @@ receiver-sharing-server:
     gRPCSslTrustedCAsPath: ${SW_RECEIVER_GRPC_SSL_TRUSTED_CAS_PATH:"/path/to/ca.crt"}
     authentication: ${SW_AUTHENTICATION:""}
 ```
+
+You still use this [script](../../../../tools/TLS/tls_key_generate.sh) to generate CA certificate and the private keys of server side(for OAP Server) and Client side(for Agent/Satellite).
+You have to notice the private keys, including server and client-side, are from the same CA certification.
