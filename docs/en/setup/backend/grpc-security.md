@@ -47,7 +47,7 @@ If you port to Java agent, refer to [the Java agent repo](http://github.com/apac
 
 ## mutual TLS mode
 
-To enable `mTLS` mode for gRPC channel requires [Sharing gRPC Server](./backend-receivers#grpchttp-server-for-receiver) enabled, as following configuration. 
+To enable `mTLS` mode for gRPC channel requires [Sharing gRPC Server](./backend-receivers.md/#grpchttp-server-for-receiver) enabled, as following configuration. 
 
 ```properties
 receiver-sharing-server:
