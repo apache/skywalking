@@ -51,6 +51,7 @@ Notice: If you add/remove a subItem, you need to add/remove the subItemKey from 
 | Data Id | Group | Config Value | Config Type |
 |-----|-----|-----|-----|
 | configKey | {group} | subItemkey1</br>subItemkey2</br>... | TEXT |
+
 We separate subItemkeys by `\n` or `\r\n`, trim leading and trailing whitespace, if you set the config by `Nacos UI` each subItemkey should in a new line:
 ```
 subItemValue1
