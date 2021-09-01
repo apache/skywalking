@@ -15,7 +15,7 @@
 
 ARG SW_AGENT_JDK_VERSION=8
 
-FROM ghcr.io/apache/skywalking-java/jdk-${SW_AGENT_JDK_VERSION}
+FROM ghcr.io/apache/skywalking-java/jdk-${SW_AGENT_JDK_VERSION}:2b519320559ba94131b098e1258bd5fe41d487e4
 
 WORKDIR /skywalking
 
