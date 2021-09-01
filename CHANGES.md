@@ -49,6 +49,7 @@ Release Notes.
 * Fix dynamic configuration watch implementation current value not null when the config is deleted.
 * Fix `LoggingConfigWatcher` return `watch.value` would not consistent with the real configuration content.
 * Fix `ZookeeperConfigWatcherRegister.readConfig()` could cause `NPE` when `data.getData()` is null.
+* Support nacos grouped dynamic configurations.
 
 #### UI
 
