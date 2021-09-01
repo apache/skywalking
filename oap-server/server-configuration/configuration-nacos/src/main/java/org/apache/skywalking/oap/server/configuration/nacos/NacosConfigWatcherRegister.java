@@ -91,11 +91,8 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
 
     @Override
     public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
-        Set<String> keys1 = new HashSet<>();
-        keys1.add("test-module.default.testKeyGroup");
-
         GroupConfigTable groupConfigTable = new GroupConfigTable();
-        keys1.forEach(key -> {
+        keys.forEach(key -> {
             GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
             groupConfigTable.addGroupConfigItems(groupConfigItems);
             String config = null;
