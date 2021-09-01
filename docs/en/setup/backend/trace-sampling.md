@@ -7,25 +7,43 @@ segments have been collected and reported by agents, the backend would do their 
 to understand why you should keep the traces as consistent as possible and try not to split them.
 
 ## Set the sample rate
-In the **agent-analyzer** module, you will find the `sampleRate` setting.
+In the **agent-analyzer** module, you will find the `sampleRate` setting by the configuration `traceSamplingPolicySettingsFile`.
 
 ```yaml
 agent-analyzer:
   default:
     ...
-    sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    # The default sampling rate and the default trace latency time configured by the 'traceSamplingPolicySettingsFile' file.
+    traceSamplingPolicySettingsFile: ${SW_TRACE_SAMPLING_POLICY_SETTINGS_FILE:trace-sampling-policy-settings.yml}
     forceSampleErrorSegment: ${SW_FORCE_SAMPLE_ERROR_SEGMENT:true} # When sampling mechanism activated, this config would make the error status segment sampled, ignoring the sampling rate.
-    slowTraceSegmentThreshold: ${SW_SLOW_TRACE_SEGMENT_THRESHOLD:-1} # Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
 ```
 
-`sampleRate` allows you to set the sample rate to this backend.
+The default `trace-sampling-policy-settings.yml` uses the following format. Could use [dynamic configuration](dynamic-config.md) to update the settings in the runtime.
+```yaml
+default:
+  # Default sampling rate that replaces the 'agent-analyzer.default.sampleRate'
+  # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+  rate: 10000
+  # Default trace latency time that replaces the 'agent-analyzer.default.slowTraceSegmentThreshold'
+  # Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
+  duration: -1
+#services:
+#  - name: serverName
+#    rate: 1000 # Sampling rate of this specific service
+#    duration: 10000 # Trace latency threshold for trace sampling for this specific service
+```
+
+`duration.rate` allows you to set the sample rate to this backend.
 The sample rate precision is 1/10000. 10000 means 100% sample by default.
 
 `forceSampleErrorSegment` allows you to save all error segments when sampling mechanism is activated.
 When sampling mechanism is activated, this config would cause the error status segment to be sampled, ignoring the sampling rate.
 
-`slowTraceSegmentThreshold` allows you to save all slow trace segments when sampling mechanism is activated.
+`default.duration` allows you to save all slow trace segments when sampling mechanism is activated.
 Setting this threshold on latency (in milliseconds) would cause slow trace segments to be sampled if they use up more time, even if the sampling mechanism is activated. The default value is `-1`, which means that slow traces would not be sampled.
+
+**Note:**
+`services.[].rate` and `services.[].duration` has a higher priority than `default.rare` and `default.duration`.
 
 # Recommendation
 You may choose to set different backend instances with different `sampleRate` values, although we recommend that you set the values to be the same.

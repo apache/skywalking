@@ -26,7 +26,6 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.Expression;
@@ -58,7 +57,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         super(AlarmModule.NAME, provider, "alarm-settings");
         this.runningContext = new HashMap<>();
         this.alarmRuleRunningRuleMap = new HashMap<>();
-        this.settingsString = Const.EMPTY_STRING;
+        this.settingsString = null;
         Expression expression = new Expression(new ExpressionContext());
         this.compositeRuleEvaluator = new CompositeRuleEvaluator(expression);
         notify(defaultRules);
@@ -67,7 +66,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
     @Override
     public void notify(ConfigChangeEvent value) {
         if (value.getEventType().equals(EventType.DELETE)) {
-            settingsString = Const.EMPTY_STRING;
+            settingsString = null;
             notify(new Rules());
         } else {
             settingsString = value.getNewValue();

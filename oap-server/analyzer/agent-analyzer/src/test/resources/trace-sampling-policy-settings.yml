@@ -13,14 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG SW_AGENT_JDK_VERSION=8
-
-FROM ghcr.io/apache/skywalking-java/jdk-${SW_AGENT_JDK_VERSION}:2b519320559ba94131b098e1258bd5fe41d487e4
-
-VOLUME /services
-
-ENV SW_LOGGING_OUTPUT=CONSOLE
-
-ADD e2e-service-provider/target/e2e-service-provider-1.0.0.jar /services/
-
-CMD ["sh", "-c", "java -jar /services/e2e-service-provider-1.0.0.jar"]
+default:
+  rate: 10000
+  duration: -1
+services:
+  - name: name1
+    rate: 1000
+    duration: 20000
+  - name: name2
+    rate: 2000
+    duration: 30000

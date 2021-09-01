@@ -13,14 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG SW_AGENT_JDK_VERSION=8
-
-FROM ghcr.io/apache/skywalking-java/jdk-${SW_AGENT_JDK_VERSION}:2b519320559ba94131b098e1258bd5fe41d487e4
-
-VOLUME /services
-
-ENV SW_LOGGING_OUTPUT=CONSOLE
-
-ADD e2e-service-provider/target/e2e-service-provider-1.0.0.jar /services/
-
-CMD ["sh", "-c", "java -jar /services/e2e-service-provider-1.0.0.jar"]
+default:
+  # Default sampling rate that replaces the 'agent-analyzer.default.sampleRate'
+  # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+  rate: 10000
+  # Default trace latency time that replaces the 'agent-analyzer.default.slowTraceSegmentThreshold'
+  # Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
+  duration: -1
+#services:
+#  - name: serverName
+#    rate: 1000 # Sampling rate of this specific service
+#    duration: 10000 # Trace latency threshold for trace sampling for this specific service
