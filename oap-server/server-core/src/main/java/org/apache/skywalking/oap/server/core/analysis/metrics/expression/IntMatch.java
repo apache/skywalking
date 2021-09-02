@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
@@ -21,11 +22,11 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterM
 @FilterMatcher
 public class IntMatch {
 
-	public boolean match(int left, int right) {
-		return left == right;
-	}
+    public boolean match(int left, int right) {
+        return left == right;
+    }
 
-	public boolean match(Integer left, Integer right) {
-		return left.equals(right);
-	}
+    public boolean match(Integer left, Integer right) {
+        return left.equals(right);
+    }
 }

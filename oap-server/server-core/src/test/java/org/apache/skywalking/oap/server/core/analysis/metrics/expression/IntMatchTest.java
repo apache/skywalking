@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
 import org.junit.Test;
@@ -22,30 +23,27 @@ import static org.junit.Assert.*;
 
 public class IntMatchTest {
 
-	@Test
-	public void integerShouldEqual() {
-		Integer a = 334;
-		Integer b = 334;
-		boolean match = new IntMatch().match(a, b);
-		assertTrue(match);
+    @Test
+    public void integerShouldEqual() {
+        Integer a = 334;
+        Integer b = 334;
+        boolean match = new IntMatch().match(a, b);
+        assertTrue(match);
 
-		a = -123;
-		b = -123;
-		match = new IntMatch().match(a, b);
-		assertTrue(match);
+        a = -123;
+        b = -123;
+        match = new IntMatch().match(a, b);
+        assertTrue(match);
 
+        a = -122;
+        b = -123;
+        match = new IntMatch().match(a, b);
+        assertFalse(match);
 
-		a = -122;
-		b = -123;
-		match = new IntMatch().match(a, b);
-		assertFalse(match);
-
-		a = -123;
-		b = -122;
-		match = new IntMatch().match(a, b);
-		assertFalse(match);
-	}
-
-
+        a = -123;
+        b = -122;
+        match = new IntMatch().match(a, b);
+        assertFalse(match);
+    }
 
 }
