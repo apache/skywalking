@@ -58,8 +58,4 @@ public class OAPServerBootstrap {
             System.exit(1);
         }
     }
-
-    public static void main(String[] args) {
-        OAPServerBootstrap.start();
-    }
 }
