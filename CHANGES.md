@@ -49,6 +49,7 @@ Release Notes.
 * Fix dynamic configuration watch implementation current value not null when the config is deleted.
 * Fix `LoggingConfigWatcher` return `watch.value` would not consistent with the real configuration content.
 * Fix `ZookeeperConfigWatcherRegister.readConfig()` could cause `NPE` when `data.getData()` is null.
+* Support nacos grouped dynamic configurations.
 * Support mTLS for gRPC channel.
 
 #### UI
@@ -64,6 +65,7 @@ Release Notes.
 * Add a section in `Log Collecting And Analysis` doc, introducing the new Python agent log reporter.
 * Add one missing step in `otel-receiver` doc about how to activate the default receiver.
 * Reorganize dynamic configuration doc.
+* Add more description about meter configurations in `backend-meter` doc.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/96?closed=1)
 
