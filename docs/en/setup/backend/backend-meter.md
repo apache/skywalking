@@ -37,7 +37,7 @@ New meter-analyzer-config files is **NOT** enabled by default, you should make m
    selector: ${SW_AGENT_ANALYZER:default}
    default:
      # ... take care of other analyzers
-     meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:your-custom-meter-conf-without-ext-name} # files could be meter analyzed, files split by ","
+     meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:your-custom-meter-conf-without-ext-name} # The multiple files should be separated by ","
 ```
 
 Meter-analyzer-config file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
