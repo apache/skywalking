@@ -1,27 +1,42 @@
 # gRPC SSL transportation support for OAP server
 
-For OAP communication, we are currently using gRPC, a multi-platform RPC framework that uses protocol buffers for
-message serialization. The nice part about gRPC is that it promotes the use of SSL/TLS to authenticate and encrypt
-exchanges. Now OAP supports enabling SSL transportation for gRPC receivers.
+For OAP communication, we are currently using gRPC, a multi-platform RPC framework that uses protocol buffers for message serialization. The nice part about gRPC is that it promotes the use of SSL/TLS to authenticate and encrypt exchanges. Now OAP supports enabling SSL transportation for gRPC receivers. Since 8.8.0, OAP supports enabling mutual TLS authentication between probes and OAP servers.
 
 To enable this feature, follow the steps below.
 
-## Creating SSL/TLS Certificates
+## Preparation
 
-The first step is to generate certificates and key files for encrypting communication. This is
-fairly straightforward: use `openssl` from the command line.
+
+By default, the communication between OAP nodes and the communication between receiver and probe share the same gRPC server. Its configuration is in `application.yml/core/default` section.
+
+The advanced gRPC receiver is only for communication with the probes. This configuration is in `application.yml/receiver-sharing-server/default` section.
+
+
+The first step is to generate certificates and private key files for encrypting communication.
+
+### Creating SSL/TLS Certificates
+
+The first step is to generate certificates and key files for encrypting communication. This is fairly straightforward: use `openssl` from the command line.
 
 Use this [script](../../../../tools/TLS/tls_key_generate.sh) if you are not familiar with how to generate key files.
 
 We need the following files:
- - `server.pem`: A private RSA key to sign and authenticate the public key. It's either a PKCS#8(PEM) or PKCS#1(DER).
- - `server.crt`: Self-signed X.509 public keys for distribution.
- - `ca.crt`: A certificate authority public key for a client to validate the server's certificate.
- 
-## Config OAP server 
+
+* `ca.crt`: A certificate authority public key for a client to validate the server's certificate.
+* `server.pem`, `client.pem`: A private RSA key to sign and authenticate the public key. It's either a PKCS#8(PEM) or PKCS#1(DER).
+* `server.crt`, `client.crt`: Self-signed X.509 public keys for distribution.
+
+## TLS on OAP servers
+
+By default, the communication between OAP nodes and the communication between receiver and probe share the same gRPC server. That means once you enabling SSL for receivers and probes, the OAP nodes will enable it too.
+
+
+**NOTE**: SkyWalking **does not** support to enable mTLS on `OAP server nodes communication`. That means you have to enable `receiver-sharing-server` for enabling mTLS on communication between probes ang OAP servers. More details see [Enable mTLS mode on gRPC receiver](#Enable_mTLS_mode_on_gRPC_receiver).
+
 
 You can enable gRPC SSL by adding the following lines to `application.yml/core/default`.
-```json
+
+```yaml
 gRPCSslEnabled: true
 gRPCSslKeyPath: /path/to/server.pem
 gRPCSslCertChainPath: /path/to/server.crt
@@ -31,31 +46,37 @@ gRPCSslTrustedCAPath: /path/to/ca.crt
 `gRPCSslKeyPath` and `gRPCSslCertChainPath` are loaded by the OAP server to encrypt communication. `gRPCSslTrustedCAPath`
 helps the gRPC client to verify server certificates in cluster mode.
 
-When new files are in place, they can be loaded dynamically, and you won't have to restart an OAP instance.
+> There is a gRPC client and server in every OAP server node. The gRPC client comunicates with OAP servers in cluster mode. They are sharing the core module configuration.
 
-If you enable `sharding-server` to ingest data from an external source, add the following lines to `application.yml/receiver-sharing-server/default`:
+**When new files are in place, they can be loaded dynamically, and you won't have to restart an OAP instance.**
 
-```json
+
+## Enable TLS on independent gRPC receiver
+
+If you enable `receiver-sharing-server` to ingest data from an external source, add the following lines to `application.yml/receiver-sharing-server/default`:
+
+```yaml
+gRPCPort: ${SW_RECEIVER_GRPC_PORT:"changeMe"}
 gRPCSslEnabled: true
 gRPCSslKeyPath: /path/to/server.pem
 gRPCSslCertChainPath: /path/to/server.crt
 ```
 
-Since `sharding-server` only receives data from an external source, it doesn't need a CA at all.
+Since `recevier-sharing-server` only receives data from an external source, it doesn't need a CA at all. But you have to configure the CA for the clients, such as [Java agent](http://github.com/apache/skywalking-java), [Satellite](http://github.com/apache/skywalking-satellite). If you port to Java agent, refer to [the Java agent repo](http://github.com/apache/skywalking-java) to configure java agent and enable TLS.
 
-If you port to Java agent, refer to [the Java agent repo](http://github.com/apache/skywalking-java) to config java agent and enable TLS.
+**NOTE**: change the `SW_RECEIVER_GRPC_PORT` as non-zore to enable `receiver-sharing-server`. And the port is open for the clients.
 
-## mutual TLS mode
+### Enable mTLS mode on gRPC receiver
 
-To enable `mTLS` mode for gRPC channel requires [Sharing gRPC Server](./backend-receivers.md/#grpchttp-server-for-receiver) enabled, as following configuration. 
+Since 8.8.0, SkyWalking supports enable mutual TLS authentication for transporting between clients and OAP servers. To enable `mTLS` mode for gRPC channel requires [Sharing gRPC Server](./backend-receivers.md/#grpchttp-server-for-receiver) enabled, as the following configuration.
 
-```properties
+```yaml
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
     # For gRPC server
     gRPCHost: ${SW_RECEIVER_GRPC_HOST:0.0.0.0}
-    gRPCPort: ${SW_RECEIVER_GRPC_PORT:11801}
+    gRPCPort: ${SW_RECEIVER_GRPC_PORT:"changeMe"}
     maxConcurrentCallsPerConnection: ${SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL:0}
     maxMessageSize: ${SW_RECEIVER_GRPC_MAX_MESSAGE_SIZE:0}
     gRPCThreadPoolQueueSize: ${SW_RECEIVER_GRPC_POOL_QUEUE_SIZE:0}
@@ -67,5 +88,5 @@ receiver-sharing-server:
     authentication: ${SW_AUTHENTICATION:""}
 ```
 
-You still use this [script](../../../../tools/TLS/tls_key_generate.sh) to generate CA certificate and the private keys of server side(for OAP Server) and Client side(for Agent/Satellite).
-You have to notice the private keys, including server and client-side, are from the same CA certification.
+You can still use this [script](../../../../tools/TLS/tls_key_generate.sh) to generate CA certificate and the key files of server-side(for OAP Server) and client-side(for Agent/Satellite).
+You have to notice the keys, including server and client-side, are from the same CA certificate.
