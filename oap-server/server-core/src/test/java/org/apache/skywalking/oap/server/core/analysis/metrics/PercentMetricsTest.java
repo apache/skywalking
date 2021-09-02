@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.expression.EqualMatch;
+import org.apache.skywalking.oap.server.core.analysis.metrics.expression.StringMatch;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,18 +27,18 @@ public class PercentMetricsTest {
     @Test
     public void testEntranceCombine() {
         PercentMetricsImpl impl = new PercentMetricsImpl();
-        impl.combine(new EqualMatch().match(true, true));
-        impl.combine(new EqualMatch().match(true, false));
-        impl.combine(new EqualMatch().match(true, false));
+        impl.combine(new StringMatch().match(true, true));
+        impl.combine(new StringMatch().match(true, false));
+        impl.combine(new StringMatch().match(true, false));
 
         impl.calculate();
 
         Assert.assertEquals(3333, impl.getValue());
 
         impl = new PercentMetricsImpl();
-        impl.combine(new EqualMatch().match(true, true));
-        impl.combine(new EqualMatch().match(true, true));
-        impl.combine(new EqualMatch().match(true, false));
+        impl.combine(new StringMatch().match(true, true));
+        impl.combine(new StringMatch().match(true, true));
+        impl.combine(new StringMatch().match(true, false));
 
         impl.calculate();
 
@@ -48,14 +48,14 @@ public class PercentMetricsTest {
     @Test
     public void testSelfCombine() {
         PercentMetricsImpl impl = new PercentMetricsImpl();
-        impl.combine(new EqualMatch().match(true, true));
-        impl.combine(new EqualMatch().match(true, false));
-        impl.combine(new EqualMatch().match(true, false));
+        impl.combine(new StringMatch().match(true, true));
+        impl.combine(new StringMatch().match(true, false));
+        impl.combine(new StringMatch().match(true, false));
 
         PercentMetricsImpl impl2 = new PercentMetricsImpl();
-        impl2.combine(new EqualMatch().match(true, true));
-        impl2.combine(new EqualMatch().match(true, true));
-        impl2.combine(new EqualMatch().match(true, false));
+        impl2.combine(new StringMatch().match(true, true));
+        impl2.combine(new StringMatch().match(true, true));
+        impl2.combine(new StringMatch().match(true, false));
 
         impl.combine(impl2);
 

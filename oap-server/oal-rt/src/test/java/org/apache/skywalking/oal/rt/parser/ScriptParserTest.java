@@ -270,6 +270,24 @@ public class ScriptParserTest {
     }
 
     @Test
+    public void testParse10() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "ClientCpm = from(ServiceInstanceRelation.*).filter(componentId == 7).cpm();", TEST_SOURCE_PACKAGE);
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
+        AnalysisResult clientCpm = results.get(0);
+        Assert.assertEquals("ClientCpm", clientCpm.getMetricsName());
+        Assert.assertEquals("ServiceInstanceRelation", clientCpm.getSourceName());
+        Assert.assertEquals("[*]", clientCpm.getSourceAttribute().toString());
+        final List<Expression> filterExpressions = clientCpm.getFilterExpressions();
+        Assert.assertEquals(1, filterExpressions.size());
+        Assert.assertEquals("source.getComponentId()", filterExpressions.get(0).getLeft());
+        Assert.assertEquals("cpm", clientCpm.getAggregationFunctionName());
+        EntryMethod entryMethod = clientCpm.getEntryMethod();
+        List<Object> methodArgsExpressions = entryMethod.getArgsExpressions();
+        Assert.assertEquals(1, methodArgsExpressions.size());
+    }
+
+    @Test
     public void testDisable() throws IOException {
         ScriptParser parser = ScriptParser.createFromScriptText("disable(segment);", TEST_SOURCE_PACKAGE);
         DisableCollection collection = parser.parse().getDisableCollection();

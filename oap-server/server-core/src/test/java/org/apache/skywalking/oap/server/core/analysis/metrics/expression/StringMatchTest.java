@@ -23,13 +23,13 @@ import org.junit.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class EqualMatchTest {
+public class StringMatchTest {
 
     @Test
     public void integerShouldEqualWhenLargerThan128() {
         Integer a = 334;
         Integer b = 334;
-        boolean match = new EqualMatch().match(a, b);
+        boolean match = new StringMatch().match(a, b);
         assertTrue(match);
     }
 
@@ -37,7 +37,7 @@ public class EqualMatchTest {
     public void longShouldEqualWhenLargerThan128() {
         Long a = 334L;
         Long b = 334L;
-        boolean match = new EqualMatch().match(a, b);
+        boolean match = new StringMatch().match(a, b);
         assertTrue(match);
     }
 
@@ -45,7 +45,7 @@ public class EqualMatchTest {
     public void doubleShouldEqualWhenLargerThan128() {
         Double a = 334.0;
         Double b = 334.0;
-        boolean match = new EqualMatch().match(a, b);
+        boolean match = new StringMatch().match(a, b);
         assertTrue(match);
     }
 
@@ -53,14 +53,14 @@ public class EqualMatchTest {
     public void floatShouldEqualWhenLargerThan128() {
         Float a = 334.0F;
         Float b = 334.0F;
-        boolean match = new EqualMatch().match(a, b);
+        boolean match = new StringMatch().match(a, b);
         assertTrue(match);
     }
 
     @Test
     public void stringShouldEqual() {
-        assertTrue(new EqualMatch().match("\"a\"", "a"));
-        assertTrue(new EqualMatch().match("a", "a"));
-        assertFalse(new EqualMatch().match("\"a\"", "ab"));
+        assertTrue(new StringMatch().match("\"a\"", "a"));
+        assertTrue(new StringMatch().match("a", "a"));
+        assertFalse(new StringMatch().match("\"a\"", "ab"));
     }
 }
