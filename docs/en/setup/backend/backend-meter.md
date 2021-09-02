@@ -19,7 +19,8 @@ kafka-fetcher:
 ```
 
 ## Meter collection
-There are plentiful metrics are collected by default, you may find predefined metrics by oal files located in `config/oal/`.
+
+Metrics named in OAL script could be used in MAL, as described in [Official OAL script](../../guides/backend-oal-scripts.md)
 
 Custom metrics may be collected by Manual Meter API. You may find correct APIs diving into [Server Agents](../service-agent/server-agents.md).
 Custom metrics collected cannot be used directly, they should be configured in `meter-analyzer-config` configuration files, which is described in next part.
