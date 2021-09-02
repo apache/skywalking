@@ -58,7 +58,7 @@ expSuffix: <string>
 metricPrefix: <string>
 # Metrics rule allow you to recompute queries.
 metricsRules:
-  # The name of rule, which combined with a prefix '<metricPrefix>_' as the index/table name in storage.
+  # The name of rule, which combinates with a prefix '<metricPrefix>_' as the index/table name in storage.
   # The name with prefix can also be quoted in UI (Dashboard/Template/Item/Metrics)
   name: <string>
   # MAL expression. Raw name of custom metrics collected can be used here
