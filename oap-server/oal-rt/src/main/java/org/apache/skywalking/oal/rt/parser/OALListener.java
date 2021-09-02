@@ -115,8 +115,8 @@ public class OALListener extends OALParserBaseListener {
     }
 
     @Override
-    public void enterIntMatch(OALParser.IntMatchContext ctx) {
-        conditionExpression.setExpressionType("intMatch");
+    public void enterNumberMatch(OALParser.NumberMatchContext ctx) {
+        conditionExpression.setExpressionType("numberMatch");
     }
 
     @Override

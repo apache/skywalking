@@ -17,34 +17,24 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
-import org.junit.Test;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+@FilterMatcher
+public class NumberMatch {
 
-public class IntMatchTest {
-
-    @Test
-    public void integerShouldEqual() {
-        Integer a = 334;
-        Integer b = 334;
-        boolean match = new IntMatch().match(a, b);
-        assertTrue(match);
-
-        a = -123;
-        b = -123;
-        match = new IntMatch().match(a, b);
-        assertTrue(match);
-
-        a = -122;
-        b = -123;
-        match = new IntMatch().match(a, b);
-        assertFalse(match);
-
-        a = -123;
-        b = -122;
-        match = new IntMatch().match(a, b);
-        assertFalse(match);
+    public boolean match(int left, int right) {
+        return left == right;
     }
 
+    public boolean match(long left, long right) {
+        return left == right;
+    }
+
+    public boolean match(float left, float right) {
+        return left == right;
+    }
+
+    public boolean match(Number left, Number right) {
+        return left.equals(right);
+    }
 }
