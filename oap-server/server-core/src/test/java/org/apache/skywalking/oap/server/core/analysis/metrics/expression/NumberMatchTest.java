@@ -93,30 +93,4 @@ public class NumberMatchTest {
         assertFalse(match);
     }
 
-    @Test
-    public void doubleShouldEqual() {
-        Double a = 334.0;
-        Double b = 334.0;
-        boolean match = new NumberMatch().match(a, b);
-        assertTrue(match);
-
-        double c = 334.0;
-        double d = 334.0;
-        match = new NumberMatch().match(c, d);
-        assertTrue(match);
-    }
-
-    @Test
-    public void floatShouldEqual() {
-        Float a = 334.0F;
-        Float b = 334.0F;
-        boolean match = new NumberMatch().match(a, b);
-        assertTrue(match);
-
-        float c = 334.0F;
-        float d = 334.0F;
-        match = new NumberMatch().match(c, d);
-        assertTrue(match);
-    }
-
 }

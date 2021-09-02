@@ -30,11 +30,4 @@ public class NumberMatch {
         return left == right;
     }
 
-    public boolean match(float left, float right) {
-        return left == right;
-    }
-
-    public boolean match(Number left, Number right) {
-        return left.equals(right);
-    }
 }
