@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.metrics.expression.BooleanMatch;
 import org.apache.skywalking.oap.server.core.analysis.metrics.expression.BooleanNotEqualMatch;
-import org.apache.skywalking.oap.server.core.analysis.metrics.expression.EqualMatch;
+import org.apache.skywalking.oap.server.core.analysis.metrics.expression.StringMatch;
 import org.apache.skywalking.oap.server.core.analysis.metrics.expression.NotEqualMatch;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -127,7 +127,7 @@ public class DeepAnalysisTest {
         List<Expression> filterExpressions = result.getFilterExpressions();
         Assert.assertEquals(1, filterExpressions.size());
         Expression filterExpression = filterExpressions.get(0);
-        Assert.assertEquals(EqualMatch.class.getName(), filterExpression.getExpressionObject());
+        Assert.assertEquals(StringMatch.class.getName(), filterExpression.getExpressionObject());
         Assert.assertEquals("source.getName()", filterExpression.getLeft());
         Assert.assertEquals("\"/service/prod/save\"", filterExpression.getRight());
     }
@@ -157,7 +157,7 @@ public class DeepAnalysisTest {
         result.addFilterExpressionsParserResult(new ConditionExpression("stringMatch", "type", ""));
         result = analysis.analysis(result);
         assertTrue(result.getFilterExpressions().size() > 0);
-        assertEquals(EqualMatch.class.getName(), result.getFilterExpressions().get(0).getExpressionObject());
+        assertEquals(StringMatch.class.getName(), result.getFilterExpressions().get(0).getExpressionObject());
         assertEquals("source.getType()", result.getFilterExpressions().get(0).getLeft());
 
         result.setFilterExpressions(null);

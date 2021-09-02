@@ -93,7 +93,7 @@ literalExpression
     ;
 
 expression
-    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch | booleanNotEqualMatch | likeMatch | inMatch | containMatch | notContainMatch
+    : booleanMatch | intMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch | booleanNotEqualMatch | likeMatch | inMatch | containMatch | notContainMatch
     ;
 
 containMatch
@@ -106,6 +106,10 @@ notContainMatch
 
 booleanMatch
     : conditionAttributeStmt DUALEQUALS booleanConditionValue
+    ;
+
+intMatch
+    : conditionAttributeStmt DUALEQUALS numberConditionValue
     ;
 
 stringMatch
