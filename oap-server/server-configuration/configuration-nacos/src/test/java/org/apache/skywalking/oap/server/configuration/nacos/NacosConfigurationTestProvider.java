@@ -18,21 +18,23 @@
 
 package org.apache.skywalking.oap.server.configuration.nacos;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class NacosConfigurationTestProvider extends ModuleProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NacosConfigurationTestProvider.class);
-
     ConfigChangeWatcher watcher;
+    GroupConfigChangeWatcher groupWatcher;
 
     @Override
     public String name() {
@@ -57,7 +59,7 @@ public class NacosConfigurationTestProvider extends ModuleProvider {
 
             @Override
             public void notify(ConfigChangeEvent value) {
-                LOGGER.info("ConfigChangeWatcher.ConfigChangeEvent: {}", value);
+                log.info("ConfigChangeWatcher.ConfigChangeEvent: {}", value);
                 if (EventType.DELETE.equals(value.getEventType())) {
                     testValue = null;
                 } else {
@@ -70,6 +72,27 @@ public class NacosConfigurationTestProvider extends ModuleProvider {
                 return testValue;
             }
         };
+
+        groupWatcher = new GroupConfigChangeWatcher(NacosConfigurationTestModule.NAME, this, "testKeyGroup") {
+            private Map<String, String> config = new ConcurrentHashMap<>();
+
+            @Override
+            public void notifyGroup(Map<String, ConfigChangeEvent> groupItems) {
+                log.info("GroupConfigChangeWatcher.ConfigChangeEvents: {}", groupItems);
+                groupItems.forEach((groupItemName, event) -> {
+                    if (EventType.DELETE.equals(event.getEventType())) {
+                        config.remove(groupItemName);
+                    } else {
+                        config.put(groupItemName, event.getNewValue());
+                    }
+                });
+            }
+
+            @Override
+            public Map<String, String> groupItems() {
+                return config;
+            }
+        };
     }
 
     @Override
@@ -78,6 +101,11 @@ public class NacosConfigurationTestProvider extends ModuleProvider {
                     .provider()
                     .getService(DynamicConfigurationService.class)
                     .registerConfigChangeWatcher(watcher);
+
+        getManager().find(ConfigurationModule.NAME)
+                    .provider()
+                    .getService(DynamicConfigurationService.class)
+                    .registerConfigChangeWatcher(groupWatcher);
     }
 
     @Override
