@@ -50,9 +50,10 @@ public class LoggingConfigWatcher extends ConfigChangeWatcher {
     public void notify(final ConfigChangeEvent value) {
         String newValue;
         if (EventType.DELETE.equals(value.getEventType())) {
-            this.content = "";
-            newValue = "";
+            this.content = null;
+            newValue = null;
         } else {
+            this.content = value.getNewValue();
             newValue = value.getNewValue();
         }
         try {
@@ -63,14 +64,6 @@ public class LoggingConfigWatcher extends ConfigChangeWatcher {
             log.error("failed to apply configuration to log4j", t);
             return;
         }
-        StringBuilder builder = new StringBuilder();
-        ctx.getConfiguration().getLoggers().forEach((loggerName, config) -> {
-            builder.append(Strings.isNullOrEmpty(loggerName) ? "Root" : loggerName)
-                   .append(":")
-                   .append(config.getLevel())
-                   .append(",");
-        });
-        this.content = builder.toString();
     }
 
     @Override
