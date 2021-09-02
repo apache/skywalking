@@ -40,6 +40,7 @@ Release Notes.
 * Fix NPE when OAP nodes synchronize events with each other in cluster mode.
 * Support k8s configmap grouped dynamic configurations.
 * Add desc sort function in H2 and ElasticSearch implementations of IBrowserLogQueryDAO
+* Support for filter function filtering of int type values.
 
 #### UI
 
