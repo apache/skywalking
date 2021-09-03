@@ -37,7 +37,7 @@ User could click the `lock` button left aside the `Service/Instance/Endpoint Rel
 Users could customize the dashboard. The default dashboards are provided through the default templates located in 
 `/ui-initialized-templates` folders.
 
-The template file follows this format.
+The template file must end with `.yml` or `.yaml` and follows this format.
 ```yaml
 templates:
   - name: template name # The unique name
