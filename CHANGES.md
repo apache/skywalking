@@ -51,6 +51,7 @@ Release Notes.
 * Fix `ZookeeperConfigWatcherRegister.readConfig()` could cause `NPE` when `data.getData()` is null.
 * Support nacos grouped dynamic configurations.
 * Support for filter function filtering of int type values.
+* Support mTLS for gRPC channel.
 
 #### UI
 

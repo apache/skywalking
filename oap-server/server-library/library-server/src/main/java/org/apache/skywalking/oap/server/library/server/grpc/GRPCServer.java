@@ -49,6 +49,7 @@ public class GRPCServer implements Server {
     private NettyServerBuilder nettyServerBuilder;
     private String certChainFile;
     private String privateKeyFile;
+    private String trustedCAsFile;
     private DynamicSslContext sslContext;
     private int threadPoolSize = Runtime.getRuntime().availableProcessors() * 4;
     private int threadPoolQueueSize = 10000;
@@ -82,10 +83,11 @@ public class GRPCServer implements Server {
      * @param certChainFile  `server.crt` file
      * @param privateKeyFile `server.pem` file
      */
-    public GRPCServer(String host, int port, String certChainFile, String privateKeyFile) {
+    public GRPCServer(String host, int port, String certChainFile, String privateKeyFile, String trustedCAsFile) {
         this(host, port);
         this.certChainFile = certChainFile;
         this.privateKeyFile = privateKeyFile;
+        this.trustedCAsFile = trustedCAsFile;
     }
 
     @Override
@@ -101,7 +103,7 @@ public class GRPCServer implements Server {
     @Override
     public void initialize() {
         InetSocketAddress address = new InetSocketAddress(host, port);
-        ArrayBlockingQueue blockingQueue = new ArrayBlockingQueue(threadPoolQueueSize);
+        ArrayBlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(threadPoolQueueSize);
         ExecutorService executor = new ThreadPoolExecutor(
             threadPoolSize, threadPoolSize, 60, TimeUnit.SECONDS, blockingQueue,
             new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler()
@@ -111,7 +113,7 @@ public class GRPCServer implements Server {
                                                .maxInboundMessageSize(maxMessageSize)
                                                .executor(executor);
         if (!Strings.isNullOrEmpty(privateKeyFile) && !Strings.isNullOrEmpty(certChainFile)) {
-            sslContext = DynamicSslContext.forServer(privateKeyFile, certChainFile);
+            sslContext = DynamicSslContext.forServer(privateKeyFile, certChainFile, trustedCAsFile);
             nettyServerBuilder.sslContext(sslContext);
         }
         log.info("Server started, host {} listening on {}", host, port);

@@ -91,6 +91,8 @@ catalog:
               path: "/en/setup/backend/ttl"
             - name: "Dynamical Logging"
               path: "/en/setup/backend/dynamical-logging"
+            - name: "Security(SSL/TLS/mTLS)"
+              path: "/en/setup/backend/grpc-security"
           - name: "Deploy In Kubernetes"
             path: "/en/setup/backend/backend-k8s"
           - name: "Tracing"
