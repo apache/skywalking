@@ -52,7 +52,7 @@ public class ITApolloConfigurationTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ITApolloConfigurationTest.class);
 
     private final Yaml yaml = new Yaml();
-    private final String token = "f5b842b7e597d242d854105a49c95de8350c1def";
+    private final String token = "f71f002a4ff9845639ef655ee7019759e31449de";
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
     private final ResponseHandler responseHandler = new BasicResponseHandler();
 
@@ -61,8 +61,8 @@ public class ITApolloConfigurationTest {
 
     @Before
     public void setUp() throws Exception {
-        String host = "localhost";//System.getProperty("apollo.portal.host");
-        String port = "8070";//System.getProperty("apollo.portal.port");
+        String host = System.getProperty("apollo.portal.host");
+        String port = System.getProperty("apollo.portal.port");
 
         baseUrl = "http://" + host + ":" + port;
         LOGGER.info("baseUrl: {}", baseUrl);
@@ -80,7 +80,7 @@ public class ITApolloConfigurationTest {
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Ignore // due to instability
-    @Test(timeout = 100000)
+    @Test(timeout = 10000)
     public void shouldReadUpdated() {
         try {
             assertNull(provider.watcher.value());
