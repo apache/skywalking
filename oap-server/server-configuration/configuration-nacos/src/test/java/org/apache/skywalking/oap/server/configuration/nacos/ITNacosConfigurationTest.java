@@ -88,7 +88,7 @@ public class ITNacosConfigurationTest {
 
     @Test(timeout = 20000)
     public void shouldReadUpdatedGroup() throws NacosException {
-        assertNull(provider.watcher.value());
+        assertEquals("{}", provider.groupWatcher.groupItems().toString());
 
         final Properties properties = new Properties();
         final String nacosHost = System.getProperty("nacos.host");

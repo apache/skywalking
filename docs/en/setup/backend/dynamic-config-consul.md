@@ -13,3 +13,53 @@ configuration:
     # Consul aclToken
     aclToken: ${SW_CONFIG_CONSUL_ACL_TOKEN:""}
 ```
+
+## Config Storage
+### Single Config
+Single configs in Consul are key/value pairs:
+
+| Key | Value |
+|-----|-----|
+| configKey | configVaule |
+
+e.g. The config is:
+```
+{agent-analyzer.default.slowDBAccessThreshold}:{default:200,mongodb:50}
+```
+The config in Consul is:
+
+| Key | Value |
+|-----|-----|
+| agent-analyzer.default.slowDBAccessThreshold | default:200,mongodb:50 |
+| ... | ... |
+
+
+### Group Config
+Group config in Consul are key/value pairs as well, but  according to the level keys organized by `/`, see: https://www.consul.io/docs/dynamic-app-config/kv#using-consul-kv
+
+| Key | Value |
+|-----|-----|
+| configKey/subItemkey1 | subItemValue1 |
+| configKey/subItemkey2 | subItemValue2 |
+| ... | ... |
+
+If use Consul UI we can see keys organized like folder:
+```
+configKey
+    -- subItemkey1
+    -- subItemkey2
+...
+```
+e.g. The config is:
+```
+{core.default.endpoint-name-grouping-openapi}:|{customerAPI-v1}:{value of customerAPI-v1}
+                                              |{productAPI-v1}:{value of productAPI-v1}
+                                              |{productAPI-v2}:{value of productAPI-v2}
+```
+The config in Consul is:
+
+| Key | Value |
+|-----|-----|
+| core.default.endpoint-name-grouping-openapi/customerAPI-v1 | value of customerAPI-v1 |
+| core.default.endpoint-name-grouping-openapi/productAPI-v1 | value of productAPI-v1 |
+| core.default.endpoint-name-grouping-openapi/productAPI-v2 | value of productAPI-v2 |
