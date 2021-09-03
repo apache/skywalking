@@ -52,6 +52,7 @@ Release Notes.
 * Support nacos grouped dynamic configurations.
 * Support for filter function filtering of int type values.
 * Support mTLS for gRPC channel.
+* Add yaml file suffix limit when reading ui templates.
 
 #### UI
 

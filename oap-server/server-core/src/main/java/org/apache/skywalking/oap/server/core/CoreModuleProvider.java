@@ -376,6 +376,9 @@ public class CoreModuleProvider extends ModuleProvider {
         try {
             final File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates");
             for (final File templateFile : templateFiles) {
+                if (!templateFile.getName().endsWith(".yml") && !templateFile.getName().endsWith(".yaml")) {
+                    continue;
+                }
                 new UITemplateInitializer(new FileInputStream(templateFile))
                     .read()
                     .forEach(uiTemplate -> {
