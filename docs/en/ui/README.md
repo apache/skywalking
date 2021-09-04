@@ -124,7 +124,7 @@ Even though the profile has a very limited performance impact on the target syst
 1. Not all SkyWalking ecosystem agents support this feature. Java agent from version 7.0.0 supports this by default.
 
 Once the profile is done, the profiled trace segments would show up, and you could request to analyze any span.
-Typically, we analyze spans with long duration. If a span and its children both have long duration, you could set the analysis boundaries by choosing to `Include Children` or `Exclude Children`. 
+Typically, we analyze spans with long self duration. If a span and its children both have long duration, you could set the analysis boundaries by choosing to `Include Children` or `Exclude Children`. 
 
 Choose the appropriate span, and click `Analyze`. You will see the stack-based analysis results. The slowest methods are highlighted.
 
