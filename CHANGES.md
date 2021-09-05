@@ -54,6 +54,7 @@ Release Notes.
 * Support mTLS for gRPC channel.
 * Add yaml file suffix limit when reading ui templates.
 * Support consul grouped dynamic configurations.
+* Fix `H2MetadataQueryDAO.searchService` doesn't support auto grouping.
 
 #### UI
 
