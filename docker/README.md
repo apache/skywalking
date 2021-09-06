@@ -36,4 +36,5 @@ We can start up backend cluster by docker-compose
 cd docker
 docker compose up
 ```
-`docker/.env` file contains the default `TAG` and elasticsearch tag(`ES_TAG`).
+
+[docker/.env](./.env) file contains the default elasticsearch tag (`ES_TAG`).
