@@ -26,10 +26,6 @@
 
     <artifactId>cluster-nacos-plugin</artifactId>
 
-    <properties>
-        <test.nacos.version>1.4.2</test.nacos.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -70,11 +66,6 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore-nio</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
         </dependency>
     </dependencies>
 </project>

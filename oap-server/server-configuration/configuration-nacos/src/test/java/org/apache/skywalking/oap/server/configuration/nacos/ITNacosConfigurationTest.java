@@ -23,6 +23,7 @@ import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.exception.NacosException;
 import java.io.FileNotFoundException;
 import java.io.Reader;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.Assert.assertEquals;
@@ -46,8 +51,17 @@ public class ITNacosConfigurationTest {
 
     private NacosConfigurationTestProvider provider;
 
+    @Rule
+    public final GenericContainer<?> container =
+        new GenericContainer<>(DockerImageName.parse("nacos/nacos-server:1.4.2"))
+            .waitingFor(Wait.forLogMessage(".*Nacos started successfully.*", 1))
+            .withEnv(Collections.singletonMap("MODE", "standalone"));
+
     @Before
     public void setUp() throws Exception {
+        System.setProperty("nacos.host", container.getHost());
+        System.setProperty("nacos.port", String.valueOf(container.getMappedPort(8848)));
+
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
 
