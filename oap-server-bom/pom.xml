@@ -33,9 +33,9 @@
         <graphql-java-tools.version>5.2.3</graphql-java-tools.version>
         <graphql-java.version>8.0</graphql-java.version>
         <okhttp.version>3.14.9</okhttp.version>
+        <httpclient.version>4.5.13</httpclient.version>
         <h2.version>1.4.196</h2.version>
         <joda-time.version>2.10.5</joda-time.version>
-        <elasticsearch.version>6.3.2</elasticsearch.version>
         <zookeeper.version>3.5.7</zookeeper.version>
         <guava.version>28.1-jre</guava.version>
         <snakeyaml.version>1.28</snakeyaml.version>
@@ -73,6 +73,9 @@
         <postgresql.version>42.2.18</postgresql.version>
         <jetcd.version>0.5.3</jetcd.version>
         <testcontainers.version>1.15.3</testcontainers.version>
+        <armeria.version>1.11.0</armeria.version>
+        <awaitility.version>3.0.0</awaitility.version>
+        <httpcore.version>4.4.13</httpcore.version>
     </properties>
 
     <dependencyManagement>
@@ -138,17 +141,6 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>${joda-time.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.elasticsearch.client</groupId>
-                <artifactId>elasticsearch-rest-high-level-client</artifactId>
-                <version>${elasticsearch.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
@@ -480,6 +472,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.google.flatbuffers</groupId>
                 <artifactId>flatbuffers-java</artifactId>
                 <version>${flatbuffers-java.version}</version>
@@ -492,9 +490,47 @@
             </dependency>
 
             <dependency>
+                <groupId>com.linecorp.armeria</groupId>
+                <artifactId>armeria</artifactId>
+                <version>${armeria.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.aayushatharva.brotli4j</groupId>
+                        <artifactId>native-linux-x86_64</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.aayushatharva.brotli4j</groupId>
+                        <artifactId>native-osx-x86_64</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${httpcore.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore-nio</artifactId>
+                <version>${httpcore.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers</artifactId>
                 <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

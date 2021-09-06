@@ -25,7 +25,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.apache.skywalking</groupId>
     <artifactId>profile-exporter</artifactId>
     <version>8.8.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -34,8 +33,6 @@
         <module>tool-profile-snapshot-server-mock</module>
         <module>tool-profile-snapshot-bootstrap</module>
         <module>tool-profile-snapshot-exporter</module>
-        <module>tool-profile-snapshot-exporter-es7</module>
+        <module>tool-profile-snapshot-exporter-es</module>
     </modules>
-
-
 </project>

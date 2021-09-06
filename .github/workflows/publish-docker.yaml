@@ -33,12 +33,7 @@ jobs:
       contents: read
       packages: write
     timeout-minutes: 90
-    strategy:
-      fail-fast: true
-      matrix:
-        es: [es6, es7]
     env:
-      ES_VERSION: ${{ matrix.es }}
       TAG: ${{ github.sha }}-${{ matrix.es }}
     steps:
       - uses: actions/checkout@v2

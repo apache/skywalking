@@ -173,7 +173,7 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
             });
         } catch (Throwable e) {
             healthChecker.unHealth(e);
-            throw new ServiceRegisterException(e.getMessage());
+            throw new ServiceRegisterException(e);
         }
     }
 

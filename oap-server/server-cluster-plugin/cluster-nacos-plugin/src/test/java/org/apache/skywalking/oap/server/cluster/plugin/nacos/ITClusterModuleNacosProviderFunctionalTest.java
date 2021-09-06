@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 import com.alibaba.nacos.api.naming.NamingService;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
@@ -35,25 +34,39 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.BlockJUnit4ClassRunner;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.powermock.reflect.Whitebox;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.security.*", "javax.net.ssl.*"})
+// ClassRule is not applied in PowerMockRunner
+@PowerMockRunnerDelegate(BlockJUnit4ClassRunner.class)
+@PowerMockIgnore({"javax.security.*", "javax.net.ssl.*", "javax.management.*"})
 public class ITClusterModuleNacosProviderFunctionalTest {
 
     private String nacosAddress;
-    private String username;
-    private String password;
+    private final String username = "nacos";
+    private final String password = "nacos";
+
+    @Rule
+    public final GenericContainer<?> container =
+        new GenericContainer<>(DockerImageName.parse("nacos/nacos-server:1.4.2"))
+            .waitingFor(Wait.forLogMessage(".*Nacos started successfully.*", 1))
+            .withEnv(Collections.singletonMap("MODE", "standalone"));
 
     @Mock
     private ModuleManager moduleManager;
@@ -62,15 +75,12 @@ public class ITClusterModuleNacosProviderFunctionalTest {
 
     @Before
     public void before() {
-        username = "nacos";
-        password = "nacos";
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
-                .thenReturn(new MetricsCreatorNoop());
+               .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
         Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
-        nacosAddress = System.getProperty("nacos.address");
-        assertFalse(StringUtil.isEmpty(nacosAddress));
+        nacosAddress = container.getHost() + ":" + container.getMappedPort(8848);
     }
 
     @Test
@@ -100,7 +110,8 @@ public class ITClusterModuleNacosProviderFunctionalTest {
 
         List<RemoteInstance> remoteInstances = queryRemoteNodes(provider, 1);
 
-        ClusterModuleNacosConfig config = (ClusterModuleNacosConfig) provider.createConfigBeanIfAbsent();
+        ClusterModuleNacosConfig config =
+            (ClusterModuleNacosConfig) provider.createConfigBeanIfAbsent();
         assertEquals(1, remoteInstances.size());
         Address queryAddress = remoteInstances.get(0).getAddress();
         assertEquals(config.getInternalComHost(), queryAddress.getHost());
@@ -183,10 +194,12 @@ public class ITClusterModuleNacosProviderFunctionalTest {
         assertTrue(address.isSelf());
     }
 
-    private ClusterModuleNacosProvider createProvider(String servicName) throws ModuleStartException {
+    private ClusterModuleNacosProvider createProvider(String servicName)
+        throws ModuleStartException {
         ClusterModuleNacosProvider provider = new ClusterModuleNacosProvider();
 
-        ClusterModuleNacosConfig config = (ClusterModuleNacosConfig) provider.createConfigBeanIfAbsent();
+        ClusterModuleNacosConfig config =
+            (ClusterModuleNacosConfig) provider.createConfigBeanIfAbsent();
 
         config.setHostPort(nacosAddress);
         config.setServiceName(servicName);
@@ -201,10 +214,11 @@ public class ITClusterModuleNacosProviderFunctionalTest {
     }
 
     private ClusterModuleNacosProvider createProvider(String serviceName, String internalComHost,
-                                                       int internalComPort) throws Exception {
+                                                      int internalComPort) throws Exception {
         ClusterModuleNacosProvider provider = new ClusterModuleNacosProvider();
 
-        ClusterModuleNacosConfig config = (ClusterModuleNacosConfig) provider.createConfigBeanIfAbsent();
+        ClusterModuleNacosConfig config =
+            (ClusterModuleNacosConfig) provider.createConfigBeanIfAbsent();
 
         config.setHostPort(nacosAddress);
         config.setServiceName(serviceName);
@@ -233,7 +247,8 @@ public class ITClusterModuleNacosProviderFunctionalTest {
         return provider.getService(ClusterNodesQuery.class);
     }
 
-    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals) throws InterruptedException {
+    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals)
+        throws InterruptedException {
         int i = 20;
         do {
             List<RemoteInstance> instances = getClusterNodesQuery(provider).queryRemoteNodes();
@@ -244,10 +259,11 @@ public class ITClusterModuleNacosProviderFunctionalTest {
             }
         }
         while (--i > 0);
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    private void validateServiceInstance(Address selfAddress, Address otherAddress, List<RemoteInstance> queryResult) {
+    private void validateServiceInstance(Address selfAddress, Address otherAddress,
+                                         List<RemoteInstance> queryResult) {
         assertEquals(2, queryResult.size());
 
         boolean selfExist = false, otherExist = false;

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.meter.analyzer;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.control.Try;
 import java.util.List;
@@ -27,7 +28,6 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.elasticsearch.common.Strings;
 
 import static java.util.stream.Collectors.toList;
 
@@ -51,7 +51,7 @@ public class MetricConvert {
         this.analyzers = rule.getMetricsRules().stream().map(
             r -> Analyzer.build(
                 formatMetricName(rule, r.getName()),
-                Strings.isEmpty(rule.getExpSuffix()) ?
+                Strings.isNullOrEmpty(rule.getExpSuffix()) ?
                     r.getExp() : String.format("(%s).%s", r.getExp(), rule.getExpSuffix()),
                 service
             )

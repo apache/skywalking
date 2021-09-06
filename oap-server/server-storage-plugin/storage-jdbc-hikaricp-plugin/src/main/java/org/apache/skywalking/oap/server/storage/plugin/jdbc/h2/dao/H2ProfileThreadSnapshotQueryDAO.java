@@ -37,7 +37,6 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.elasticsearch.search.sort.SortOrder;
 
 public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
     private JDBCHikariCPClient h2Client;
@@ -82,14 +81,13 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
         for (int i = 0; i < segments.size(); i++) {
             sql.append(i > 0 ? " or " : "").append(SegmentRecord.SEGMENT_ID).append(" = ? ");
         }
-        sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append(SortOrder.DESC);
+        sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append("desc");
 
         ArrayList<BasicTrace> result = new ArrayList<>(segments.size());
         try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection, sql.toString(), segments.toArray(new String[segments
-                    .size()]))) {
+                connection, sql.toString(), segments.toArray(new String[segments.size()]))) {
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 

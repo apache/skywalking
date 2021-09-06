@@ -55,6 +55,8 @@ Release Notes.
 * Add yaml file suffix limit when reading ui templates.
 * Support consul grouped dynamic configurations.
 * Fix `H2MetadataQueryDAO.searchService` doesn't support auto grouping.
+* Rebuilt ElasticSearch client on top of their REST API.
+* Fix ElasticSearch storage plugin doesn't work when hot reloading from `secretsManagementFile`.
 
 #### UI
 

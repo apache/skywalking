@@ -18,20 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.remote;
 
-import java.io.IOException;
-import javax.servlet.ServletException;
+import com.linecorp.armeria.client.WebClient;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpTrace;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyHandler;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServerConfig;
@@ -66,88 +55,62 @@ public class JettyServerTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws Exception {
 
         String rootURI = "http://localhost:12800";
         String testHandlerURI = "http://localhost:12800/test";
         String testNoHandlerURI = "http://localhost:12800/test/noHandler";
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-        HttpGet httpGet = new HttpGet(rootURI);
-        HttpPost httpPost = new HttpPost(rootURI);
-        HttpPost httpPostTestHandler = new HttpPost(testHandlerURI);
-        HttpPost httpPostTestNoHandler = new HttpPost(testNoHandlerURI);
-        HttpTrace httpTrace = new HttpTrace(testHandlerURI);
-        HttpTrace httpTraceRoot = new HttpTrace(rootURI);
-        HttpPut httpPut = new HttpPut(testHandlerURI);
-        HttpDelete httpDelete = new HttpDelete(testHandlerURI);
-        HttpOptions httpOptions = new HttpOptions(testHandlerURI);
-        HttpHead httpHead = new HttpHead(testHandlerURI);
-        CloseableHttpResponse response = null;
-        try {
-            //get
-            response = httpClient.execute(httpGet);
-            Assert.assertEquals(response.getStatusLine().getStatusCode(), 405);
-            response.close();
 
-            //post root
-            response = httpClient.execute(httpPost);
-            Assert.assertEquals(response.getStatusLine().getStatusCode(), 404);
-            response.close();
+        Assert.assertEquals(
+            WebClient.of().get(rootURI).aggregate().get().status().code(),
+            405
+        );
 
-            //post
-            response = httpClient.execute(httpPostTestHandler);
-            Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
-            response.close();
+        Assert.assertEquals(
+            WebClient.of().post(rootURI, new byte[0]).aggregate().get().status().code(),
+            404
+        );
 
-            //post no handler
-            response = httpClient.execute(httpPostTestNoHandler);
-            Assert.assertEquals(response.getStatusLine().getStatusCode(), 404);
-            response.close();
+        Assert.assertEquals(
+            WebClient.of().post(testHandlerURI, new byte[0]).aggregate().get().status().code(),
+            200
+        );
 
-            //trace
-            response = httpClient.execute(httpTrace);
-            Assert.assertEquals(response.getStatusLine().getStatusCode(), 405);
-            response.close();
+        Assert.assertEquals(
+            WebClient.of().post(testNoHandlerURI, new byte[0]).aggregate().get().status()
+                     .code(),
+            404
+        );
 
-            //trace root
-            response = httpClient.execute(httpTraceRoot);
-            Assert.assertEquals(response.getStatusLine().getStatusCode(), 405);
-            response.close();
+        Assert.assertEquals(
+            WebClient.of().trace(testNoHandlerURI).aggregate().get().status().code(),
+            405
+        );
 
-            //put
-            response = httpClient.execute(httpPut);
-            Assert.assertEquals(response.getStatusLine().getStatusCode(), 405);
-            response.close();
+        Assert.assertEquals(
+            WebClient.of().trace(rootURI).aggregate().get().status().code(),
+            405
+        );
 
-            //delete
-            response = httpClient.execute(httpDelete);
-            Assert.assertEquals(response.getStatusLine().getStatusCode(), 405);
-            response.close();
+        Assert.assertEquals(
+            WebClient.of().put(testHandlerURI, new byte[0]).aggregate().get().status().code(),
+            405
+        );
 
-            //options
-            response = httpClient.execute(httpOptions);
-            Assert.assertEquals(response.getStatusLine().getStatusCode(), 405);
-            response.close();
+        Assert.assertEquals(
+            WebClient.of().delete(testHandlerURI).aggregate().get().status().code(),
+            405
+        );
 
-            //head
-            response = httpClient.execute(httpHead);
-            Assert.assertEquals(response.getStatusLine().getStatusCode(), 405);
-            response.close();
-        } catch (IOException e) {
-            Assert.fail("Test failed!");
-            e.printStackTrace();
-        } finally {
-            try {
-                if (httpClient != null) {
-                    httpClient.close();
-                }
-                if (response != null) {
-                    response.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        Assert.assertEquals(
+            WebClient.of().options(testHandlerURI).aggregate().get().status().code(),
+            405
+        );
+
+        Assert.assertEquals(
+            WebClient.of().head(testHandlerURI).aggregate().get().status().code(),
+            405
+        );
     }
 
     static class TestPostHandler extends JettyHandler {
@@ -159,7 +122,7 @@ public class JettyServerTest {
 
         @Override
         protected void doPost(final HttpServletRequest req,
-                              final HttpServletResponse resp) throws ServletException, IOException {
+                              final HttpServletResponse resp) {
             resp.setStatus(HttpServletResponse.SC_OK);
         }
 

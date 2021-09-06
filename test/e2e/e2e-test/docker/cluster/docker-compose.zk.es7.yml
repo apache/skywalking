@@ -34,10 +34,10 @@ services:
   oap1:
     extends:
       file: ../base-compose.yml
-      service: oap-es7
+      service: oap
     environment:
       SW_CLUSTER: zookeeper
-      SW_STORAGE: elasticsearch7
+      SW_STORAGE: elasticsearch
     depends_on:
       zk:
         condition: service_healthy
@@ -47,10 +47,10 @@ services:
   oap2:
     extends:
       file: ../base-compose.yml
-      service: oap-es7
+      service: oap
     environment:
       SW_CLUSTER: zookeeper
-      SW_STORAGE: elasticsearch7
+      SW_STORAGE: elasticsearch
     depends_on:
       zk:
         condition: service_healthy

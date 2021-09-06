@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
@@ -37,10 +37,9 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
     }
 
     @Override
-    public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
+    public void deleteHistory(Model model, String timeBucketColumnName, int ttl) {
         ElasticSearchClient client = getClient();
 
-        long deadline;
         if (!model.isRecord()) {
             if (!DownSampling.Minute.equals(model.getDownsampling())) {
                 /*
@@ -51,19 +50,26 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
                 return;
             }
         }
-        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
+        long deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
         String tableName = IndexController.INSTANCE.getTableName(model);
-        List<String> indexes = client.retrievalIndexByAliases(tableName);
+        Collection<String> indices = client.retrievalIndexByAliases(tableName);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Deadline = {}, indices = {}, ttl = {}", deadline, indices, ttl);
+        }
 
         List<String> prepareDeleteIndexes = new ArrayList<>();
         List<String> leftIndices = new ArrayList<>();
-        for (String index : indexes) {
+        for (String index : indices) {
             long timeSeries = TimeSeriesUtils.isolateTimeFromIndexName(index);
             if (deadline >= timeSeries) {
                 prepareDeleteIndexes.add(index);
             } else {
                 leftIndices.add(index);
             }
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Indices to be deleted: {}", prepareDeleteIndexes);
         }
         for (String prepareDeleteIndex : prepareDeleteIndexes) {
             client.deleteByIndexName(prepareDeleteIndex);
@@ -95,13 +101,7 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
                 }
             }
             String tableName = IndexController.INSTANCE.getTableName(model);
-            List<String> indexes;
-            try {
-                indexes = client.retrievalIndexByAliases(tableName);
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
-                return;
-            }
+            Collection<String> indexes = client.retrievalIndexByAliases(tableName);
 
             indices.addAll(indexes);
         });

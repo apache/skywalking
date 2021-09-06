@@ -42,7 +42,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-          depth: 0
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
       - name: Set Up Java

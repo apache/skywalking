@@ -29,7 +29,7 @@ services:
         soft: -1
         hard: -1
   oap:
-    image: skywalking/oap:${TAG}
+    image: skywalking/oap
     container_name: oap
     depends_on:
       - elasticsearch
@@ -51,7 +51,7 @@ services:
       retries: 3
       start_period: 40s
   ui:
-    image: skywalking/ui:${TAG}
+    image: skywalking/ui
     container_name: ui
     depends_on:
       - oap

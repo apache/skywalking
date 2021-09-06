@@ -22,50 +22,37 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import lombok.Getter;
+import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 
 public class IndexStructures {
     private final Map<String, Fields> structures;
-    @Getter
-    private final PropertiesExtractor extractor;
-    @Getter
-    private final PropertiesWrapper wrapper;
 
     public IndexStructures() {
         this.structures = new HashMap<>();
-        this.extractor = doGetPropertiesExtractor();
-        this.wrapper = doGetPropertiesWrapper();
     }
 
-    protected PropertiesExtractor doGetPropertiesExtractor() {
-        return mapping -> (Map<String, Object>) ((Map<String, Object>) mapping.get(
-            ElasticSearchClient.TYPE)).get("properties");
-    }
-
-    protected PropertiesWrapper doGetPropertiesWrapper() {
-        return properties -> {
-            HashMap<String, Object> mappings = new HashMap<>();
-            HashMap<String, Object> types = new HashMap<>();
-            mappings.put(ElasticSearchClient.TYPE, types);
-            types.put("properties", properties);
-            return mappings;
-        };
-    }
-
-    public Map<String, Object> getMapping(String tableName) {
-        return wrapper.wrapper(
-            structures.containsKey(tableName) ? structures.get(tableName).properties : new HashMap<>());
+    public Mappings getMapping(String tableName) {
+        Map<String, Object> properties =
+            structures.containsKey(tableName) ?
+                structures.get(tableName).properties : new HashMap<>();
+        return Mappings.builder()
+                       .type(ElasticSearchClient.TYPE)
+                       .properties(properties)
+                       .build();
     }
 
     /**
-     * Add or append field when the current structures don't contain the input structure or having new fields in it.
+     * Add or append field when the current structures don't contain the input structure or having
+     * new fields in it.
      */
-    public void putStructure(String tableName, Map<String, Object> mapping) {
-        if (Objects.isNull(mapping) || mapping.isEmpty()) {
+    public void putStructure(String tableName, Mappings mapping) {
+        if (Objects.isNull(mapping)
+            || Objects.isNull(mapping.getProperties())
+            || mapping.getProperties().isEmpty()) {
             return;
         }
-        Map<String, Object> properties = this.extractor.extract(mapping);
+        Map<String, Object> properties = mapping.getProperties();
         Fields fields = new Fields(properties);
         if (structures.containsKey(tableName)) {
             structures.get(tableName).appendNewFields(fields);
@@ -77,24 +64,32 @@ public class IndexStructures {
     /**
      * Returns mappings with fields that not exist in the input mappings.
      */
-    public Map<String, Object> diffStructure(String tableName, Map<String, Object> mappings) {
+    public Mappings diffStructure(String tableName, Mappings mappings) {
         if (!structures.containsKey(tableName)) {
-            return new HashMap<>();
+            return new Mappings();
         }
-        Map<String, Object> properties = this.extractor.extract(mappings);
-        Map<String, Object> diffProperties = structures.get(tableName).diffFields(new Fields(properties));
-        return this.wrapper.wrapper(diffProperties);
+        Map<String, Object> properties = mappings.getProperties();
+        Map<String, Object> diffProperties =
+            structures.get(tableName).diffFields(new Fields(properties));
+        return Mappings.builder()
+                       .type(ElasticSearchClient.TYPE)
+                       .properties(diffProperties)
+                       .build();
     }
 
     /**
-     * Returns true when the current structures already contains the properties of the input mappings.
+     * Returns true when the current structures already contains the properties of the input
+     * mappings.
      */
-    public boolean containsStructure(String tableName, Map<String, Object> mappings) {
-        if (Objects.isNull(mappings) || mappings.isEmpty()) {
+    public boolean containsStructure(String tableName, Mappings mappings) {
+        if (Objects.isNull(mappings) ||
+            Objects.isNull(mappings.getProperties()) ||
+            mappings.getProperties().isEmpty()) {
             return true;
         }
         return structures.containsKey(tableName)
-            && structures.get(tableName).containsAllFields(new Fields(this.extractor.extract(mappings)));
+            && structures.get(tableName)
+                         .containsAllFields(new Fields(mappings.getProperties()));
     }
 
     /**
@@ -111,20 +106,23 @@ public class IndexStructures {
          * Returns ture when the input fields have already been stored in the properties.
          */
         private boolean containsAllFields(Fields fields) {
-            return fields.properties.entrySet().stream().allMatch(item -> this.properties.containsKey(item.getKey()));
+            return fields.properties.entrySet().stream()
+                                    .allMatch(item -> this.properties.containsKey(item.getKey()));
         }
 
         /**
          * Append new fields to the properties when have new fields.
          */
         private void appendNewFields(Fields fields) {
-            Map<String, Object> newFields = fields.properties.entrySet()
-                                                             .stream()
-                                                             .filter(e -> !this.properties.containsKey(e.getKey()))
-                                                             .collect(Collectors.toMap(
-                                                                 Map.Entry::getKey, Map.Entry::getValue
-                                                             ));
-            newFields.forEach(properties::put);
+            Map<String, Object> newFields =
+                fields.properties.entrySet()
+                                 .stream()
+                                 .filter(e -> !this.properties.containsKey(e.getKey()))
+                                 .collect(Collectors.toMap(
+                                     Map.Entry::getKey,
+                                     Map.Entry::getValue
+                                 ));
+            properties.putAll(newFields);
         }
 
         /**
@@ -134,24 +132,9 @@ public class IndexStructures {
             return this.properties.entrySet().stream()
                                   .filter(e -> !fields.properties.containsKey(e.getKey()))
                                   .collect(Collectors.toMap(
-                                      Map.Entry::getKey, Map.Entry::getValue
+                                      Map.Entry::getKey,
+                                      Map.Entry::getValue
                                   ));
         }
-    }
-
-    /**
-     * Extract properties form the mappings.
-     */
-    @FunctionalInterface
-    public interface PropertiesExtractor {
-        Map<String, Object> extract(Map<String, Object> mappings);
-    }
-
-    /**
-     * Wrapper properties to the mappings.
-     */
-    @FunctionalInterface
-    public interface PropertiesWrapper {
-        Map<String, Object> wrapper(Map<String, Object> properties);
     }
 }

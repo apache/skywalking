@@ -25,6 +25,9 @@ concurrency:
   group: ci-it-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+
 jobs:
   check-license-header:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
