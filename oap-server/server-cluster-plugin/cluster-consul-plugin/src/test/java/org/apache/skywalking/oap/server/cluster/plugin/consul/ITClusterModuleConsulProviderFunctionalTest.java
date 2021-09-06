@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -44,6 +45,9 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -54,6 +58,12 @@ import static org.junit.Assert.assertTrue;
 public class ITClusterModuleConsulProviderFunctionalTest {
 
     private String consulAddress;
+
+    @Rule
+    public final GenericContainer<?> container =
+        new GenericContainer<>(DockerImageName.parse("consul:0.9"))
+            .waitingFor(Wait.forLogMessage(".*Synced node info.*", 1))
+            .withCommand("agent", "-server", "-bootstrap-expect=1", "-client=0.0.0.0");
 
     @Mock
     private ModuleManager moduleManager;
@@ -67,8 +77,7 @@ public class ITClusterModuleConsulProviderFunctionalTest {
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
         Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
-        consulAddress = System.getProperty("consul.address");
-        assertFalse(StringUtil.isEmpty(consulAddress));
+        consulAddress = container.getHost() + ":" + container.getMappedPort(8500);
     }
 
     @Test
@@ -258,7 +267,7 @@ public class ITClusterModuleConsulProviderFunctionalTest {
             }
         }
         while (--cyclic > 0);
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     private void validateServiceInstance(Address selfAddress, Address otherAddress, List<RemoteInstance> queryResult) {
