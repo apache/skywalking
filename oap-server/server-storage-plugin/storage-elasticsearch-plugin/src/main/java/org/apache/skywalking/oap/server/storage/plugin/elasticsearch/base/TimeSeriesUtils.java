@@ -117,7 +117,7 @@ public class TimeSeriesUtils {
      * @return the index represented time, which is included in the index name.
      */
     static long isolateTimeFromIndexName(String indexName) {
-        return Long.valueOf(indexName.substring(indexName.lastIndexOf(Const.LINE) + 1));
+        return Long.parseLong(indexName.substring(indexName.lastIndexOf(Const.LINE) + 1));
     }
 
     /**
@@ -135,7 +135,7 @@ public class TimeSeriesUtils {
             int groupBucketOffset = days % dayStep;
             return Long.parseLong(time.minusDays(groupBucketOffset).toString(TIME_BUCKET_FORMATTER));
         } else {
-            /**
+            /*
              * No calculation required. dayStep is for lower traffic. For normally configuration, there is pointless to calculate.
              */
             return timeBucket;

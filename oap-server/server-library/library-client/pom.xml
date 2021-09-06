@@ -40,6 +40,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-elasticsearch-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-core</artifactId>
         </dependency>
@@ -72,110 +78,14 @@
             <artifactId>commons-dbcp</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
-    </dependencies>
 
-    <profiles>
-        <profile>
-            <id>CI-with-IT</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <configuration>
-                            <sourceMode>all</sourceMode>
-                            <logDate>default</logDate>
-                            <verbose>true</verbose>
-                            <imagePullPolicy>IfNotPresent</imagePullPolicy>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>prepare-elasticsearch</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>start</goal>
-                                </goals>
-                                <configuration>
-                                    <images>
-                                        <image>
-                                            <name>elastic/elasticsearch:${test.elasticsearch.version}</name>
-                                            <alias>elastic-client-integration-test</alias>
-                                            <run>
-                                                <ports>
-                                                    <port>es-port:9200</port>
-                                                </ports>
-                                                <wait>
-                                                    <log>started</log>
-                                                    <time>60000</time>
-                                                </wait>
-                                                <env>
-                                                    <discovery.type>single-node</discovery.type>
-                                                </env>
-                                            </run>
-                                        </image>
-                                    </images>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>remove-it-database</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.gmaven</groupId>
-                        <artifactId>gmaven-plugin</artifactId>
-                        <version>${gmaven-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>add-default-properties</id>
-                                <phase>initialize</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <providerSelection>2.0</providerSelection>
-                                    <source>
-                                        project.properties.setProperty('docker.hostname', 'localhost')
-                                    </source>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <elastic.search.address>
-                                    ${docker.hostname}:${es-port}
-                                </elastic.search.address>
-                                <elastic.search.protocol>
-                                    http
-                                </elastic.search.protocol>
-                            </systemPropertyVariables>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

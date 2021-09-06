@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
+import com.google.common.hash.Hashing;
 import java.io.InputStream;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -58,10 +59,15 @@ public class AgentConfigurationsReader {
                         map.forEach((key, value) -> {
                             config.put(key.toString(), value.toString());
 
-                            serviceConfigStr.append(key.toString()).append(":").append(value.toString());
+                            serviceConfigStr.append(key).append(":").append(value);
                         });
+
+                        // noinspection UnstableApiUsage
                         AgentConfigurations agentConfigurations = new AgentConfigurations(
-                            k.toString(), config, DigestUtils.sha512Hex(serviceConfigStr.toString()));
+                            k.toString(), config,
+                            Hashing.sha512().hashString(
+                                serviceConfigStr.toString(), StandardCharsets.UTF_8).toString()
+                        );
                         agentConfigurationsTable.getAgentConfigurationsCache()
                                                 .put(agentConfigurations.getService(), agentConfigurations);
                     });

@@ -25,7 +25,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.apache.skywalking</groupId>
     <artifactId>tool-profile-snapshot-exporter</artifactId>
     <version>8.8.0-SNAPSHOT</version>
 
@@ -42,6 +41,4 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
-
 </project>

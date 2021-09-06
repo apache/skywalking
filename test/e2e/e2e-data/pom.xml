@@ -28,5 +28,5 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>e2e-base</artifactId>
+    <artifactId>e2e-data</artifactId>
 </project>

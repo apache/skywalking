@@ -19,12 +19,21 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Query;
+import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
+import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
+import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.AggregationBuilder;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
@@ -35,86 +44,81 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 
-public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileThreadSnapshotQueryDAO {
+public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
+    implements IProfileThreadSnapshotQueryDAO {
 
     private final int querySegmentMaxSize;
 
-    protected final ProfileThreadSnapshotRecord.Builder builder = new ProfileThreadSnapshotRecord.Builder();
+    protected final ProfileThreadSnapshotRecord.Builder builder =
+        new ProfileThreadSnapshotRecord.Builder();
 
-    public ProfileThreadSnapshotQueryEsDAO(ElasticSearchClient client, int profileTaskQueryMaxSize) {
+    public ProfileThreadSnapshotQueryEsDAO(ElasticSearchClient client,
+                                           int profileTaskQueryMaxSize) {
         super(client);
         this.querySegmentMaxSize = profileTaskQueryMaxSize;
     }
 
     @Override
-    public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
-        // search segment id list
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+    public List<BasicTrace> queryProfiledSegments(String taskId) {
+        final BoolQueryBuilder segmentIdQuery =
+            Query.bool()
+                 .must(Query.term(ProfileThreadSnapshotRecord.TASK_ID, taskId))
+                 .must(Query.term(ProfileThreadSnapshotRecord.SEQUENCE, 0));
 
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
+        final SearchBuilder search =
+            Search.builder().query(segmentIdQuery)
+                  .size(querySegmentMaxSize)
+                  .sort(
+                      ProfileThreadSnapshotRecord.DUMP_TIME,
+                      Sort.Order.DESC
+                  );
 
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileThreadSnapshotRecord.TASK_ID, taskId));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileThreadSnapshotRecord.SEQUENCE, 0));
+        SearchResponse response =
+            getClient().search(
+                IndexController.LogicIndicesRegister.getPhysicalTableName(
+                    ProfileThreadSnapshotRecord.INDEX_NAME),
+                search.build()
+            );
 
-        sourceBuilder.size(querySegmentMaxSize);
-        sourceBuilder.sort(ProfileThreadSnapshotRecord.DUMP_TIME, SortOrder.DESC);
-
-        SearchResponse response = getClient().search(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileThreadSnapshotRecord.INDEX_NAME),
-            sourceBuilder
-        );
-
-        final LinkedList<String> segments = new LinkedList<>();
+        final List<String> segmentIds = new LinkedList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
-            segments.add((String) searchHit.getSourceAsMap().get(ProfileThreadSnapshotRecord.SEGMENT_ID));
+            segmentIds.add(
+                (String) searchHit.getSource().get(ProfileThreadSnapshotRecord.SEGMENT_ID));
         }
 
-        if (CollectionUtils.isEmpty(segments)) {
+        if (CollectionUtils.isEmpty(segmentIds)) {
             return Collections.emptyList();
         }
 
-        // search traces
-        sourceBuilder = SearchSourceBuilder.searchSource();
-
-        boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
-        List<QueryBuilder> shouldQueryList = boolQueryBuilder.should();
-
-        for (String segmentId : segments) {
-            shouldQueryList.add(QueryBuilders.termQuery(SegmentRecord.SEGMENT_ID, segmentId));
+        final BoolQueryBuilder traceQuery = Query.bool();
+        for (String segmentId : segmentIds) {
+            traceQuery.should(Query.term(SegmentRecord.SEGMENT_ID, segmentId));
         }
-        sourceBuilder.size(segments.size());
-        sourceBuilder.sort(SegmentRecord.START_TIME, SortOrder.DESC);
+        final SearchBuilder traceSearch =
+            Search.builder().query(traceQuery)
+                  .size(segmentIds.size())
+                  .sort(SegmentRecord.START_TIME, Sort.Order.DESC);
 
-        response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        response = getClient().search(SegmentRecord.INDEX_NAME, traceSearch.build());
 
         List<BasicTrace> result = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();
 
-            basicTrace.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
-            basicTrace.setStart(String.valueOf(searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)));
+            basicTrace.setSegmentId((String) searchHit.getSource().get(SegmentRecord.SEGMENT_ID));
+            basicTrace.setStart(
+                String.valueOf(searchHit.getSource().get(SegmentRecord.START_TIME)));
             basicTrace.getEndpointNames().add(
                 IDManager.EndpointID.analysisId(
-                    (String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_ID)
+                    (String) searchHit.getSource().get(SegmentRecord.ENDPOINT_ID)
                 ).getEndpointName());
-            basicTrace.setDuration(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
-            basicTrace.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap()
-                                                                               .get(
-                                                                                   SegmentRecord.IS_ERROR)).intValue()));
-            basicTrace.getTraceIds().add((String) searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
+            basicTrace.setDuration(
+                ((Number) searchHit.getSource().get(SegmentRecord.LATENCY)).intValue());
+            basicTrace.setError(BooleanUtils.valueToBoolean(
+                ((Number) searchHit.getSource().get(SegmentRecord.IS_ERROR)).intValue()));
+            basicTrace.getTraceIds()
+                      .add((String) searchHit.getSource().get(SegmentRecord.TRACE_ID));
 
             result.add(basicTrace);
         }
@@ -123,17 +127,19 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
     }
 
     @Override
-    public int queryMinSequence(String segmentId, long start, long end) throws IOException {
+    public int queryMinSequence(String segmentId, long start, long end) {
         return querySequenceWithAgg(
-            AggregationBuilders.min(ProfileThreadSnapshotRecord.SEQUENCE).field(ProfileThreadSnapshotRecord.SEQUENCE),
+            Aggregation.min(ProfileThreadSnapshotRecord.SEQUENCE)
+                       .field(ProfileThreadSnapshotRecord.SEQUENCE),
             segmentId, start, end
         );
     }
 
     @Override
-    public int queryMaxSequence(String segmentId, long start, long end) throws IOException {
+    public int queryMaxSequence(String segmentId, long start, long end) {
         return querySequenceWithAgg(
-            AggregationBuilders.max(ProfileThreadSnapshotRecord.SEQUENCE).field(ProfileThreadSnapshotRecord.SEQUENCE),
+            Aggregation.max(ProfileThreadSnapshotRecord.SEQUENCE)
+                       .field(ProfileThreadSnapshotRecord.SEQUENCE),
             segmentId, start, end
         );
     }
@@ -141,27 +147,25 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
     @Override
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId,
                                                           int minSequence,
-                                                          int maxSequence) throws IOException {
-        // search traces
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+                                                          int maxSequence) {
+        final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(
+            ProfileThreadSnapshotRecord.INDEX_NAME);
 
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
-        List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
+        final BoolQueryBuilder query =
+            Query.bool()
+                 .must(Query.term(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
+                 .must(Query.range(ProfileThreadSnapshotRecord.SEQUENCE)
+                            .gte(minSequence)
+                            .lt(maxSequence));
 
-        mustQueryList.add(QueryBuilders.termQuery(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId));
-        mustQueryList.add(
-            QueryBuilders.rangeQuery(ProfileThreadSnapshotRecord.SEQUENCE).gte(minSequence).lt(maxSequence));
-        sourceBuilder.size(maxSequence - minSequence);
-
-        SearchResponse response = getClient().search(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileThreadSnapshotRecord.INDEX_NAME),
-            sourceBuilder
-        );
+        final SearchBuilder search =
+            Search.builder().query(query)
+                  .size(maxSequence - minSequence);
+        final SearchResponse response = getClient().search(index, search.build());
 
         List<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
         for (SearchHit searchHit : response.getHits().getHits()) {
-            ProfileThreadSnapshotRecord record = builder.storage2Entity(searchHit.getSourceAsMap());
+            ProfileThreadSnapshotRecord record = builder.storage2Entity(searchHit.getSource());
 
             result.add(record);
         }
@@ -169,54 +173,55 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
     }
 
     @Override
-    public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.SEGMENT_ID, segmentId));
-        sourceBuilder.size(1);
+    public SegmentRecord getProfiledSegment(String segmentId) {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME);
+        final SearchBuilder search =
+            Search.builder()
+                  .query(Query.term(SegmentRecord.SEGMENT_ID, segmentId))
+                  .size(1);
 
-        SearchResponse response = getClient().search(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME), sourceBuilder);
+        final SearchResponse response = getClient().search(index, search.build());
 
-        if (response.getHits().getHits().length == 0) {
+        if (response.getHits().getHits().isEmpty()) {
             return null;
         }
-        SearchHit searchHit = response.getHits().getHits()[0];
-        SegmentRecord segmentRecord = new SegmentRecord();
-        segmentRecord.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
-        segmentRecord.setTraceId((String) searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
-        segmentRecord.setServiceId((String) searchHit.getSourceAsMap().get(SegmentRecord.SERVICE_ID));
-        segmentRecord.setStartTime(((Number) searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)).longValue());
-        segmentRecord.setLatency(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
-        segmentRecord.setIsError(((Number) searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue());
-        String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(SegmentRecord.DATA_BINARY);
+        final SearchHit searchHit = response.getHits().iterator().next();
+        final SegmentRecord segmentRecord = new SegmentRecord();
+        segmentRecord.setSegmentId((String) searchHit.getSource().get(SegmentRecord.SEGMENT_ID));
+        segmentRecord.setTraceId((String) searchHit.getSource().get(SegmentRecord.TRACE_ID));
+        segmentRecord.setServiceId((String) searchHit.getSource().get(SegmentRecord.SERVICE_ID));
+        segmentRecord.setStartTime(
+            ((Number) searchHit.getSource().get(SegmentRecord.START_TIME)).longValue());
+        segmentRecord.setLatency(
+            ((Number) searchHit.getSource().get(SegmentRecord.LATENCY)).intValue());
+        segmentRecord.setIsError(
+            ((Number) searchHit.getSource().get(SegmentRecord.IS_ERROR)).intValue());
+        String dataBinaryBase64 = (String) searchHit.getSource().get(SegmentRecord.DATA_BINARY);
         if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
             segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
         }
         return segmentRecord;
     }
 
-    protected int querySequenceWithAgg(AbstractAggregationBuilder aggregationBuilder,
-                                       String segmentId,
-                                       long start,
-                                       long end) throws IOException {
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+    protected int querySequenceWithAgg(AggregationBuilder aggregationBuilder,
+                                       String segmentId, long start, long end) {
+        final BoolQueryBuilder query =
+            Query.bool()
+                 .must(Query.term(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
+                 .must(Query.range(ProfileThreadSnapshotRecord.DUMP_TIME).gte(start).lte(end));
 
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
-        List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
+        final SearchBuilder search = 
+            Search.builder()
+                  .query(query).size(0)
+                  .aggregation(aggregationBuilder);
+        final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(
+            ProfileThreadSnapshotRecord.INDEX_NAME);
+        final SearchResponse response = getClient().search(index, search.build());
+        final Map<String, Object> agg =
+            (Map<String, Object>) response.getAggregations()
+                                          .get(ProfileThreadSnapshotRecord.SEQUENCE);
 
-        mustQueryList.add(QueryBuilders.termQuery(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId));
-        mustQueryList.add(QueryBuilders.rangeQuery(ProfileThreadSnapshotRecord.DUMP_TIME).gte(start).lte(end));
-        sourceBuilder.size(0);
-
-        sourceBuilder.aggregation(aggregationBuilder);
-        SearchResponse response = getClient().search(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileThreadSnapshotRecord.INDEX_NAME),
-            sourceBuilder
-        );
-        NumericMetricsAggregation.SingleValue agg = response.getAggregations()
-                                                            .get(ProfileThreadSnapshotRecord.SEQUENCE);
-
-        return (int) agg.value();
+        return ((Number) agg.get("value")).intValue();
     }
 }

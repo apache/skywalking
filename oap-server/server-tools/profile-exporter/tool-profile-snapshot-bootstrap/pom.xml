@@ -25,14 +25,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.apache.skywalking</groupId>
     <artifactId>tool-profile-snapshot-bootstrap</artifactId>
     <version>8.8.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>server-bootstrap</artifactId>
+            <artifactId>server-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
 

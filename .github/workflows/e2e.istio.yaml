@@ -26,7 +26,6 @@ on:
 
 env:
   SKIP_TEST: true
-  ES_VERSION: es7
   TAG: ${{ github.sha }}
   SCRIPTS_DIR: test/e2e-mesh/e2e-istio/scripts
   SW_OAP_BASE_IMAGE: openjdk:11-jdk
@@ -103,7 +102,7 @@ jobs:
                --set ui.image.tag=$TAG \
                --set oap.image.tag=$TAG \
                --set oap.image.repository=skywalking/oap \
-               --set oap.storageType=elasticsearch7
+               --set oap.storageType=elasticsearch
           kubectl -n istio-system get pods
 
           sleep 3
@@ -233,7 +232,7 @@ jobs:
                --set ui.image.tag=$TAG \
                --set oap.image.tag=$TAG \
                --set oap.image.repository=skywalking/oap \
-               --set oap.storageType=elasticsearch7
+               --set oap.storageType=elasticsearch
           kubectl -n istio-system get pods
 
           sleep 3

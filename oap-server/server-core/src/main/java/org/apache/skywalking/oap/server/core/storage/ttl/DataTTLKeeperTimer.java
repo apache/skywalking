@@ -98,6 +98,13 @@ public enum DataTTLKeeperTimer {
             if (!model.isTimeSeries()) {
                 return;
             }
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    "Is record? {}. RecordDataTTL {}, MetricsDataTTL {}",
+                    model.isRecord(),
+                    moduleConfig.getRecordDataTTL(),
+                    moduleConfig.getMetricsDataTTL());
+            }
             moduleManager.find(StorageModule.NAME)
                          .provider()
                          .getService(IHistoryDeleteDAO.class)

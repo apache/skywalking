@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import com.google.common.hash.Hashing;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-
-import java.io.StringReader;
-import java.util.HashMap;
 
 /**
  * AgentConfigurationsWatcher used to handle dynamic configuration changes.
@@ -37,8 +37,10 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
         super(ConfigurationDiscoveryModule.NAME, provider, "agentConfigurations");
         this.settingsString = null;
         this.agentConfigurationsTable = new AgentConfigurationsTable();
+        // noinspection UnstableApiUsage
         this.emptyAgentConfigurations = new AgentConfigurations(
-            null, new HashMap<>(), DigestUtils.sha512Hex("EMPTY")
+            null, new HashMap<>(),
+            Hashing.sha512().hashString("EMPTY", StandardCharsets.UTF_8).toString()
         );
     }
 

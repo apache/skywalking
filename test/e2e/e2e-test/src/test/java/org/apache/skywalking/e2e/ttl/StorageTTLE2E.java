@@ -158,6 +158,7 @@ public class StorageTTLE2E extends SkyWalkingTestAdapter {
         while (!prepared) {
             sendMetrics(builder.setStartTime(startTime).setEndTime(endTime).build());
             final Metrics serviceMetrics = queryMetrics(queryStart, queryEnd, step);
+            LOGGER.info("serviceMetrics: {}", serviceMetrics);
             final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
             final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
             greaterThanZero.setValue("gt 0");
@@ -166,7 +167,9 @@ public class StorageTTLE2E extends SkyWalkingTestAdapter {
                 assert serviceMetrics != null;
                 instanceRespTimeMatcher.verify(serviceMetrics);
                 prepared = true;
-            } catch (Throwable ignored) {
+                LOGGER.info("Prepared!!!");
+            } catch (Throwable e) {
+                LOGGER.error("Failed to send metrics or query metrics", e);
                 sendMetrics(builder.setStartTime(startTime).setEndTime(endTime).build());
                 Thread.sleep(10000);
             }
@@ -197,7 +200,8 @@ public class StorageTTLE2E extends SkyWalkingTestAdapter {
                                                          .step(step)
                                                          .start(queryStart)
                                                          .end(queryEnd));
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                LOGGER.error("Failed to query metrics", e);
                 Thread.sleep(10000);
             }
         }

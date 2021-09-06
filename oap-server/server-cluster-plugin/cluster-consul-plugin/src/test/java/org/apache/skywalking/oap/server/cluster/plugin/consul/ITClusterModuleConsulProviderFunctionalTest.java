@@ -50,7 +50,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.net.ssl.*", "javax.security.*"})
+@PowerMockIgnore({"javax.net.ssl.*", "javax.security.*", "javax.management.*"})
 public class ITClusterModuleConsulProviderFunctionalTest {
 
     private String consulAddress;

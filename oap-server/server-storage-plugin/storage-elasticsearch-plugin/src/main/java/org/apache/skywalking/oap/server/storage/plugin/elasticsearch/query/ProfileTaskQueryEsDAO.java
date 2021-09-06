@@ -21,19 +21,21 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Query;
+import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 
 public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO {
 
@@ -45,43 +47,43 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
     }
 
     @Override
-    public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket,
-                                         Long endTimeBucket, Integer limit) throws IOException {
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-
-        final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
+    public List<ProfileTask> getTaskList(String serviceId, String endpointName,
+                                         Long startTimeBucket, Long endTimeBucket,
+                                         Integer limit) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileTaskRecord.INDEX_NAME);
+        final BoolQueryBuilder query = Query.bool();
 
         if (StringUtil.isNotEmpty(serviceId)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskRecord.SERVICE_ID, serviceId));
+            query.must(Query.term(ProfileTaskRecord.SERVICE_ID, serviceId));
         }
 
         if (StringUtil.isNotEmpty(endpointName)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskRecord.ENDPOINT_NAME, endpointName));
+            query.must(Query.term(ProfileTaskRecord.ENDPOINT_NAME, endpointName));
         }
 
         if (startTimeBucket != null) {
-            boolQueryBuilder.must()
-                            .add(QueryBuilders.rangeQuery(ProfileTaskRecord.TIME_BUCKET).gte(startTimeBucket));
+            query.must(Query.range(ProfileTaskRecord.TIME_BUCKET).gte(startTimeBucket));
         }
 
         if (endTimeBucket != null) {
-            boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ProfileTaskRecord.TIME_BUCKET).lte(endTimeBucket));
+            query.must(Query.range(ProfileTaskRecord.TIME_BUCKET).lte(endTimeBucket));
         }
+
+        final SearchBuilder search = Search.builder().query(query);
 
         if (limit != null) {
-            sourceBuilder.size(limit);
+            search.size(limit);
         } else {
-            sourceBuilder.size(queryMaxSize);
+            search.size(queryMaxSize);
         }
 
-        sourceBuilder.sort(ProfileTaskRecord.START_TIME, SortOrder.DESC);
+        search.sort(ProfileTaskRecord.START_TIME, Sort.Order.DESC);
 
-        final SearchResponse response = getClient().search(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileTaskRecord.INDEX_NAME), sourceBuilder);
+        final SearchResponse response = getClient().search(index, search.build());
 
         final LinkedList<ProfileTask> tasks = new LinkedList<>();
-        for (SearchHit searchHit : response.getHits().getHits()) {
+        for (SearchHit searchHit : response.getHits()) {
             tasks.add(parseTask(searchHit));
         }
 
@@ -93,37 +95,40 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         if (StringUtil.isEmpty(id)) {
             return null;
         }
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileTaskRecord.INDEX_NAME);
 
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.idsQuery().addIds(id));
-        sourceBuilder.size(1);
+        final SearchBuilder search = Search.builder()
+                                           .query(Query.ids(id))
+                                           .size(1);
 
-        final SearchResponse response = getClient().search(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileTaskRecord.INDEX_NAME), sourceBuilder);
+        final SearchResponse response = getClient().search(index, search.build());
 
-        if (response.getHits().getHits().length > 0) {
-            return parseTask(response.getHits().getHits()[0]);
+        if (response.getHits().getHits().size() > 0) {
+            return parseTask(response.getHits().getHits().iterator().next());
         }
 
         return null;
     }
 
     private ProfileTask parseTask(SearchHit data) {
+        final Map<String, Object> source = data.getSource();
         return ProfileTask.builder()
                           .id(data.getId())
-                          .serviceId((String) data.getSourceAsMap().get(ProfileTaskRecord.SERVICE_ID))
-                          .endpointName((String) data.getSourceAsMap().get(ProfileTaskRecord.ENDPOINT_NAME))
-                          .startTime(((Number) data.getSourceAsMap().get(ProfileTaskRecord.START_TIME)).longValue())
-                          .createTime(((Number) data.getSourceAsMap()
-                                                    .get(ProfileTaskRecord.CREATE_TIME)).longValue())
-                          .duration(((Number) data.getSourceAsMap().get(ProfileTaskRecord.DURATION)).intValue())
-                          .minDurationThreshold(((Number) data.getSourceAsMap()
-                                                              .get(
-                                                                  ProfileTaskRecord.MIN_DURATION_THRESHOLD)).intValue())
-                          .dumpPeriod(((Number) data.getSourceAsMap()
-                                                    .get(ProfileTaskRecord.DUMP_PERIOD)).intValue())
-                          .maxSamplingCount(((Number) data.getSourceAsMap()
-                                                          .get(ProfileTaskRecord.MAX_SAMPLING_COUNT)).intValue())
+                          .serviceId((String) source.get(ProfileTaskRecord.SERVICE_ID))
+                          .endpointName((String) source.get(ProfileTaskRecord.ENDPOINT_NAME))
+                          .startTime(
+                              ((Number) source.get(ProfileTaskRecord.START_TIME)).longValue())
+                          .createTime(
+                              ((Number) source.get(ProfileTaskRecord.CREATE_TIME)).longValue())
+                          .duration(((Number) source.get(ProfileTaskRecord.DURATION)).intValue())
+                          .minDurationThreshold(((Number) source.get(
+                              ProfileTaskRecord.MIN_DURATION_THRESHOLD)).intValue())
+                          .dumpPeriod(
+                              ((Number) source.get(ProfileTaskRecord.DUMP_PERIOD)).intValue())
+                          .maxSamplingCount(
+                              ((Number) source.get(ProfileTaskRecord.MAX_SAMPLING_COUNT))
+                                  .intValue())
                           .build();
     }
 }

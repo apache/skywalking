@@ -19,11 +19,16 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Query;
+import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
@@ -35,13 +40,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 
 public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
 
@@ -50,43 +48,44 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
     }
 
     @Override
-    public Alarms getAlarm(final Integer scopeId, final String keyword, final int limit, final int from,
-                           final long startTB, final long endTB, final List<Tag> tags) throws IOException {
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
+    public Alarms getAlarm(final Integer scopeId, final String keyword, final int limit,
+                           final int from,
+                           final long startTB, final long endTB, final List<Tag> tags)
+        throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(AlarmRecord.INDEX_NAME);
+        final BoolQueryBuilder query = Query.bool();
 
         if (startTB != 0 && endTB != 0) {
-            mustQueryList.add(QueryBuilders.rangeQuery(AlarmRecord.TIME_BUCKET).gte(startTB).lte(endTB));
+            query.must(Query.range(AlarmRecord.TIME_BUCKET).gte(startTB).lte(endTB));
         }
 
         if (Objects.nonNull(scopeId)) {
-            mustQueryList.add(QueryBuilders.termQuery(AlarmRecord.SCOPE, scopeId.intValue()));
+            query.must(Query.term(AlarmRecord.SCOPE, scopeId));
         }
 
         if (!Strings.isNullOrEmpty(keyword)) {
             String matchCName = MatchCNameBuilder.INSTANCE.build(AlarmRecord.ALARM_MESSAGE);
-            mustQueryList.add(QueryBuilders.matchPhraseQuery(matchCName, keyword));
+            query.must(Query.matchPhrase(matchCName, keyword));
         }
 
         if (CollectionUtils.isNotEmpty(tags)) {
-            tags.forEach(tag -> mustQueryList.add(QueryBuilders.termQuery(AlarmRecord.TAGS, tag.toString())));
+            tags.forEach(tag -> query.must(Query.term(AlarmRecord.TAGS, tag.toString())));
         }
 
-        sourceBuilder.query(boolQueryBuilder).sort(AlarmRecord.START_TIME, SortOrder.DESC);
-        sourceBuilder.size(limit);
-        sourceBuilder.from(from);
+        final SearchBuilder search =
+            Search.builder().query(query)
+                  .size(limit).from(from)
+                  .sort(AlarmRecord.START_TIME, Sort.Order.DESC);
 
-        SearchResponse response = getClient()
-                .search(IndexController.LogicIndicesRegister.getPhysicalTableName(AlarmRecord.INDEX_NAME), sourceBuilder);
+        SearchResponse response = getClient().search(index, search.build());
 
         Alarms alarms = new Alarms();
-        alarms.setTotal((int) response.getHits().totalHits);
+        alarms.setTotal(response.getHits().getTotal());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();
-            AlarmRecord alarmRecord = builder.storage2Entity(searchHit.getSourceAsMap());
+            AlarmRecord alarmRecord = builder.storage2Entity(searchHit.getSource());
 
             AlarmMessage message = new AlarmMessage();
             message.setId(String.valueOf(alarmRecord.getId0()));

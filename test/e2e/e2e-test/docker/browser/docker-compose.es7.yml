@@ -33,9 +33,9 @@ services:
   oap:
     extends:
       file: ../base-compose.yml
-      service: oap-es7
+      service: oap
     environment:
-      SW_STORAGE: elasticsearch7
+      SW_STORAGE: elasticsearch
     depends_on:
       es:
         condition: service_healthy

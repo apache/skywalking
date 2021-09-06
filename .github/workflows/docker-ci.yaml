@@ -59,7 +59,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Build docker image
-        run: export ES_VERSION=${{ matrix.es }} && export TAG=${{ matrix.es }} && (make docker || make docker)
+        run: make docker || make docker
       - name: Bootstrap cluster
         run: |
           case ${{ matrix.es }} in
@@ -67,7 +67,7 @@ jobs:
           es7) export ES_TAG=7.5.0 ;;
           esac
 
-          export TAG=${{ matrix.es }}
+          export TAG=latest
           cd ${DOCKER_DIR} && docker-compose up -d
       - name: Check port available
         run: |

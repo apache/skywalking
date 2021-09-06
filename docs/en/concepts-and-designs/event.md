@@ -108,7 +108,7 @@ service / instance / endpoint.
 
 By default, SkyWalking also generates some metrics for events by using [OAL](oal.md). The default metrics list of event
 may change over time, you can find the complete list
-in [event.oal](../../../oap-server/server-bootstrap/src/main/resources/oal/event.oal). If you want to generate you
+in [event.oal](../../../oap-server/server-starter/src/main/resources/oal/event.oal). If you want to generate you
 custom metrics from events, please refer to [OAL](oal.md) about how to write OAL rules.
 
 ## Known Events

@@ -41,7 +41,7 @@ runs:
       run: |
         echo "::group::Build Docker Image"
         # Retry one more time due to frequent "maven connection reset"
-        (make docker || make docker) && (ES_VERSION=es7 TAG=latest-es7 make docker.oap || ES_VERSION=es7 TAG=latest-es7 make docker.oap)
+        make docker || make docker
         echo "::endgroup::"
     - name: Run E2E Test
       shell: bash
