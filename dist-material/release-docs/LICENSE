@@ -241,7 +241,6 @@ The text of each license is the standard Apache 2.0 license.
     parent-join-client 6.3.2, 7.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/parent-join , Apache 2.0
     rank-eval-client 6.3.2, 7.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/rank-eval , Apache 2.0
     reindex-client 5.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/reindex , Apache 2.0
-    percolator-client 5.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/percolator , Apache 2.0
     rest 5.5.0: https://github.com/elastic/elasticsearch/tree/master/client/rest , Apache 2.0
     transport 5.5.0: https://github.com/elastic/elasticsearch/tree/master/client/transport , Apache 2.0
     securesm 1.1: https://github.com/elastic/securesm/blob/master/pom.xml , Apache 2.0
@@ -352,7 +351,6 @@ The following components are provided under the MIT License. See project link fo
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
     slf4j 1.7.25: https://www.slf4j.org/ , MIT
-    Jedis 2.9.0: https://github.com/xetorthio/jedis , MIT
     GraphQL java 8.0: https://github.com/graphql-java/graphql-java , MIT
     GraphQL Java Tools 5.2.3: https://github.com/graphql-java/graphql-java-tools , MIT
     jopt-simple 5.0.2: https://github.com/jopt-simple/jopt-simple , MIT
@@ -360,7 +358,6 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     bcprov-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
     bcprov-ext-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
     bcutil-ext-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
-    minimal-json 0.9.5:  https://github.com/ralfstx/minimal-json, MIT
     checker-qual 2.8.1: https://github.com/typetools/checker-framework, MIT
     influxdb-java 2.15: https://github.com/influxdata/influxdb-java, MIT
 
@@ -381,13 +378,10 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
     asm 9.0:https://gitlab.ow2.org , BSD-3-Clause
     antlr4-runtime 4.5.1: http://www.antlr.org/license.html, BSD-3-Clause
-    jline 0.9.94: http://mvnrepository.com/artifact/jline/jline/0.9.94, BSD
     Google: protobuf-java 3.13.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     Google: protobuf-java-util 3.12.4: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     reflectasm 1.11.7: https://github.com/EsotericSoftware/reflectasm , BSD-3-Clause
 
-    proto files from gogo: https://github.com/gogo/protobuf  BSD-2
-    proto files from grpc-gateway, https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-swagger/options BSD-3
     zstd-jni 1.4.3-1: https://github.com/luben/zstd-jni, BSD-3-Clause
     postgresql 42.2.18: https://jdbc.postgresql.org/about/license.html, BSD-2-Clause
 
@@ -414,7 +408,6 @@ EPL licenses
 The following components are provided under the EPL License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-    aspectjweaver 1.8.6: http://central.maven.org/maven2/org/aspectj/aspectjweaver/1.8.6/aspectjweaver-1.8.6.pom , EPL 1.0
     logback 1.1.11: https://github.com/qos-ch/logback: EPL 1.0
 
 ========================================================================
@@ -424,7 +417,6 @@ CDDL licenses
 The following components are provided under the CDDL License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-    jersey 1.19.1: https://github.com/jersey/jersey ,  CDDL 1.1 and GPL 2.0
     jsr311-api 1.1.1: http://central.maven.org/maven2/javax/ws/rs/jsr311-api/1.1.1/jsr311-api-1.1.1.pom ,  CDDL 1.1
 
 ========================================================================

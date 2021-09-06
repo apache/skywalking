@@ -423,7 +423,6 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>none</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
@@ -435,7 +434,6 @@
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
                     <configLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/checkStyle.xml</configLocation>
-                    <headerLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -469,9 +467,6 @@
                         **/generated/*_jmhType*.java,
                         **/generated/*_jmhTest.java
                     </excludes>
-                    <propertyExpansion>
-                        import.control=${maven.multiModuleProjectDirectory}/apm-checkstyle/importControl.xml
-                    </propertyExpansion>
                 </configuration>
                 <executions>
                     <execution>
