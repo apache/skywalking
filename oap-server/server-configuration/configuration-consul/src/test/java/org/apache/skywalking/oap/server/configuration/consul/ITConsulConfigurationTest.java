@@ -31,7 +31,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.Assert.assertEquals;
@@ -44,8 +48,15 @@ public class ITConsulConfigurationTest {
 
     private ConsulConfigurationTestProvider provider;
 
+    @Rule
+    public final GenericContainer<?> container =
+        new GenericContainer<>(DockerImageName.parse("consul:0.9"))
+            .waitingFor(Wait.forLogMessage(".*Synced node info.*", 1))
+            .withCommand("agent", "-server", "-bootstrap-expect=1", "-client=0.0.0.0");
+
     @Before
     public void setUp() throws Exception {
+        System.setProperty("consul.address", container.getHost() + ":" + container.getMappedPort(8500));
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
 

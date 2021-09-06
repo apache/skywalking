@@ -33,7 +33,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.Assert.assertEquals;
@@ -47,8 +51,18 @@ public class ITZookeeperConfigurationTest {
 
     private MockZookeeperConfigurationProvider provider;
 
+    @Rule
+    public final GenericContainer<?> container =
+        new GenericContainer<>(DockerImageName.parse("zookeeper:3.5"))
+            .waitingFor(Wait.forLogMessage(".*binding to port.*", 1));
+
+    private String zkAddress;
+
     @Before
     public void setUp() throws Exception {
+        zkAddress = container.getHost() + ":" + container.getMappedPort(2181);
+        System.setProperty("zk.address", zkAddress);
+
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
 
@@ -67,9 +81,6 @@ public class ITZookeeperConfigurationTest {
         String nameSpace = "/default";
         String key = "test-module.default.testKey";
         assertNull(provider.watcher.value());
-
-        String zkAddress = System.getProperty("zk.address");
-        log.info("zkAddress: " + zkAddress);
 
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
@@ -96,9 +107,6 @@ public class ITZookeeperConfigurationTest {
         String nameSpace = "/default";
         String key = "test-module.default.testKeyGroup";
         assertEquals("{}", provider.groupWatcher.groupItems().toString());
-
-        String zkAddress = System.getProperty("zk.address");
-        log.info("zkAddress: " + zkAddress);
 
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
