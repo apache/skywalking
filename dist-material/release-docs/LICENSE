@@ -255,7 +255,7 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-collections 3.2.2: https://github.com/apache/commons-collections, Apache 2.0
     Apache: commons-configuration 1.8: https://github.com/apache/commons-configuration, Apache 2.0
     Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
-    Apache: commons-compress 1.21: https://github.com/apache/commons-compress, Apache 2.0
+    Apache: commons-compress 1.20: https://github.com/apache/commons-compress, Apache 2.0
     Apache: commons-collections4 4.4: https://mvnrepository.com/artifact/org.apache.commons/commons-collections4, Apache 2.0
     Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
     netty 4.1.65: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
