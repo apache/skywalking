@@ -108,6 +108,56 @@ public class ITEtcdConfigurationTest {
         assertNull(provider.watcher.value());
     }
 
+    @Test(timeout = 20000)
+    public void shouldReadUpdated4Group() throws Exception {
+        assertEquals("{}", provider.groupWatcher.groupItems().toString());
+
+        KV client = Client.builder()
+                          .endpoints("http://localhost:" + container.getMappedPort(2379))
+                          .namespace(ByteSequence.from("/skywalking/", Charset.defaultCharset()))
+                          .build()
+                          .getKVClient();
+
+        client.put(
+            ByteSequence.from("test-module.default.testKeyGroup/item1", Charset.defaultCharset()),
+            ByteSequence.from("100", Charset.defaultCharset())
+        ).get();
+        client.put(
+            ByteSequence.from("test-module.default.testKeyGroup/item2", Charset.defaultCharset()),
+            ByteSequence.from("200", Charset.defaultCharset())
+        ).get();
+
+        for (String v = provider.groupWatcher.groupItems().get("item1"); v == null; v = provider.groupWatcher.groupItems().get("item1")) {
+            log.info("value is : {}", provider.groupWatcher.groupItems().get("item1"));
+            TimeUnit.MILLISECONDS.sleep(200L);
+        }
+        for (String v = provider.groupWatcher.groupItems().get("item2"); v == null; v = provider.groupWatcher.groupItems().get("item2")) {
+            log.info("value is : {}", provider.groupWatcher.groupItems().get("item2"));
+            TimeUnit.MILLISECONDS.sleep(200L);
+        }
+        assertEquals("100", provider.groupWatcher.groupItems().get("item1"));
+        assertEquals("200", provider.groupWatcher.groupItems().get("item2"));
+
+        //test remove item1
+        client.delete(ByteSequence.from("test-module.default.testKeyGroup/item1", Charset.defaultCharset())).get();
+        for (String v = provider.groupWatcher.groupItems().get("item1"); v != null; v = provider.groupWatcher.groupItems().get("item1")) {
+            log.info("value is : {}", provider.groupWatcher.groupItems().get("item1"));
+            TimeUnit.MILLISECONDS.sleep(200L);
+        }
+        assertNull(provider.groupWatcher.groupItems().get("item1"));
+
+        //test modify item2
+        client.put(
+            ByteSequence.from("test-module.default.testKeyGroup/item2", Charset.defaultCharset()),
+            ByteSequence.from("300", Charset.defaultCharset())
+        ).get();
+        for (String v = provider.groupWatcher.groupItems().get("item2"); v.equals("200"); v = provider.groupWatcher.groupItems().get("item2")) {
+            log.info("value is : {}", provider.groupWatcher.groupItems().get("item2"));
+            TimeUnit.MILLISECONDS.sleep(200L);
+        }
+        assertEquals("300", provider.groupWatcher.groupItems().get("item2"));
+    }
+
     @SuppressWarnings("unchecked")
     private static void loadConfig(ApplicationConfiguration configuration) throws FileNotFoundException {
         final Yaml yaml = new Yaml();

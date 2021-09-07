@@ -241,7 +241,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | baseSleepTimeMs|The period of Zookeeper client between two retries (in milliseconds). |SW_CONFIG_ZK_BASE_SLEEP_TIME_MS|1000|
 | - | - | maxRetries| The maximum retry time. |SW_CONFIG_ZK_MAX_RETRIES|3|
 | - | - | period | The period of data sync (in seconds). | SW_CONFIG_ZK_PERIOD | 60 |
-| - | etcd| endpoints | Hosts and ports for etcd cluster (separated by commas if multiple). | SW_CONFIG_ETCD_ENDPOINTS | localhost:2379 | 
+| - | etcd| endpoints | Hosts and ports for etcd cluster (separated by commas if multiple). | SW_CONFIG_ETCD_ENDPOINTS | http://localhost:2379 | 
 | - | - | namespace | Namespace for SkyWalking cluster. |SW_CONFIG_ETCD_NAMESPACE | /skywalking |
 | - | - | authentication | Indicates whether there is authentication. | SW_CONFIG_ETCD_AUTHENTICATION | false |
 | - | - | user | Etcd auth username. | SW_CONFIG_ETCD_USER | |
