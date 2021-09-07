@@ -65,6 +65,7 @@ Release Notes.
 * Add Python falcon icon on the UI.
 * Fix searching endpoints with keywords.
 * Support clicking the service name in the chart to link to the trace or log page.
+* Implement the Log Analysis Language text regexp debugger.
 
 #### Documentation
 
