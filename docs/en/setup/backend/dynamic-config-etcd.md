@@ -22,13 +22,13 @@ Single configs in etcd are key/value pairs:
 
 | Key | Value |
 |-----|-----|
-| {nameSpace}/configKey | configVaule |
+| {namespace}/configKey | configVaule |
 
 e.g. The config is:
 ```
 {agent-analyzer.default.slowDBAccessThreshold}:{default:200,mongodb:50}
 ```
-If `nameSpace = /skywalking` the config in etcd is:
+If `namespace = /skywalking` the config in etcd is:
 
 | Key | Value |
 |-----|-----|
@@ -41,8 +41,8 @@ Group config in etcd are key/value pairs as well and the key is composited by co
 
 | Key | Value |
 |-----|-----|
-| {nameSpace}/configKey/subItemkey1 | subItemValue1 |
-| {nameSpace}/configKey/subItemkey2 | subItemValue2 |
+| {namespace}/configKey/subItemkey1 | subItemValue1 |
+| {namespace}/configKey/subItemkey2 | subItemValue2 |
 | ... | ... |
 
 e.g. The config is:
@@ -51,7 +51,7 @@ e.g. The config is:
                                               |{productAPI-v1}:{value of productAPI-v1}
                                               |{productAPI-v2}:{value of productAPI-v2}
 ```
-If `nameSpace = /skywalking` the config in etcd is:
+If `namespace = /skywalking` the config in etcd is:
 
 | Key | Value |
 |-----|-----|
