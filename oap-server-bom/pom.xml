@@ -76,6 +76,7 @@
         <armeria.version>1.11.0</armeria.version>
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
+        <commons-compress.version>1.21</commons-compress.version>
     </properties>
 
     <dependencyManagement>
@@ -533,6 +534,11 @@
                 <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
+             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+             </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
