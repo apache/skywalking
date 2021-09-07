@@ -53,7 +53,9 @@ public class LogTestQuery implements GraphQLQueryResolver {
 
     public LogTestResponse test(LogTestRequest request) throws Exception {
         if (!config.isEnableLogTestTool()) {
-            throw new IllegalAccessException("LAL debug tool is not enabled");
+            throw new IllegalAccessException(
+                "LAL debug tool is not enabled. To enable, please set SW_QUERY_GRAPHQL_ENABLE_LOG_TEST_TOOL=true," +
+                    "for more details, refer to https://skywalking.apache.org/docs/main/latest/en/setup/backend/configuration-vocabulary/");
         }
 
         requireNonNull(request, "request");

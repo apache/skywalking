@@ -86,7 +86,7 @@ public class LogTestQueryTest extends TestCase {
             fail();
         } catch (Exception e) {
             assertTrue(e instanceof IllegalAccessException);
-            assertEquals("LAL debug tool is not enabled", e.getMessage());
+            assertTrue(e.getMessage().contains("LAL debug tool is not enabled"));
         }
     }
 
