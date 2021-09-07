@@ -57,6 +57,7 @@ Release Notes.
 * Fix `H2MetadataQueryDAO.searchService` doesn't support auto grouping.
 * Rebuilt ElasticSearch client on top of their REST API.
 * Fix ElasticSearch storage plugin doesn't work when hot reloading from `secretsManagementFile`.
+* Support etcd grouped dynamic configurations.
 
 #### UI
 

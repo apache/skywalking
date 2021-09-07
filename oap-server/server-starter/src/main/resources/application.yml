@@ -432,7 +432,7 @@ configuration:
     maxRetries: ${SW_CONFIG_ZK_MAX_RETRIES:3} # max number of times to retry
   etcd:
     period: ${SW_CONFIG_ETCD_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
-    endpoints: ${SW_CONFIG_ETCD_ENDPOINTS:localhost:2379}
+    endpoints: ${SW_CONFIG_ETCD_ENDPOINTS:http://localhost:2379}
     namespace: ${SW_CONFIG_ETCD_NAMESPACE:/skywalking}
     authentication: ${SW_CONFIG_ETCD_AUTHENTICATION:false}
     user: ${SW_CONFIG_ETCD_USER:}
