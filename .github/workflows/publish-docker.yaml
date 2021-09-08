@@ -34,7 +34,7 @@ jobs:
       packages: write
     timeout-minutes: 90
     env:
-      TAG: ${{ github.sha }}-${{ matrix.es }}
+      TAG: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v2
         with:
