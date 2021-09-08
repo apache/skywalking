@@ -16,12 +16,11 @@
 
 SHELL := /bin/bash -o pipefail
 
-export SW_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-
-export SW_OUT:=${SW_ROOT}/dist
-
-SKIP_TEST?=false
-DIST_NAME := apache-skywalking-apm-bin
+SW_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+CONTEXT ?= ${SW_ROOT}/dist
+SKIP_TEST ?= false
+DIST ?= apache-skywalking-apm-bin.tar.gz
+CLI_VERSION ?= 0.7.0 # CLI version inside OAP image should always use an Apache released artifact.
 
 init:
 	cd $(SW_ROOT) && git submodule update --init --recursive
@@ -37,11 +36,10 @@ build.backend:
 build.ui:
 	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pui,dist
 
-DOCKER_BUILD_TOP:=${SW_OUT}/docker_build
+DOCKER_BUILD_TOP:=${CONTEXT}/docker_build
 
-HUB?=skywalking
-
-TAG?=latest
+HUB ?= skywalking
+TAG ?= latest
 
 .SECONDEXPANSION: #allow $@ to be used in dependency list
 
@@ -57,15 +55,15 @@ ifneq ($(SW_OAP_BASE_IMAGE),)
   BUILD_ARGS := $(BUILD_ARGS) --build-arg BASE_IMAGE=$(SW_OAP_BASE_IMAGE)
 endif
 
-BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST_NAME=$(DIST_NAME)
+BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST) --build-arg SKYWALKING_CLI_VERSION=$(CLI_VERSION)
 
-docker.oap: $(SW_OUT)/$(DIST_NAME).tar.gz
+docker.oap: $(CONTEXT)/$(DIST)
 docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
 		$(DOCKER_RULE)
 
-docker.ui: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
+docker.ui: $(CONTEXT)/$(DIST)
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
 docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
