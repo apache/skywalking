@@ -110,10 +110,10 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
-        if (StringUtil.isEmpty(config.getNameSpace())) {
-            config.setNameSpace("sw");
+        if (StringUtil.isEmpty(config.getNamespace())) {
+            config.setNamespace("sw");
         } else {
-            config.setNameSpace(config.getNameSpace().toLowerCase());
+            config.setNamespace(config.getNamespace().toLowerCase());
         }
         if (config.getDayStep() > 1) {
             TimeSeriesUtils.setDAY_STEP(config.getDayStep());
@@ -155,7 +155,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         elasticSearchClient = new ElasticSearchClient(
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
-            indexNameConverter(config.getNameSpace()), config.getConnectTimeout(),
+            indexNameConverter(config.getNamespace()), config.getConnectTimeout(),
             config.getSocketTimeout(), config.getNumHttpClientThread()
         );
         this.registerServiceImplementation(

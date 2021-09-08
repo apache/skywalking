@@ -78,23 +78,23 @@ public class ITZookeeperConfigurationTest {
     @SuppressWarnings("StatementWithEmptyBody")
     @Test(timeout = 20000)
     public void shouldReadUpdated() throws Exception {
-        String nameSpace = "/default";
+        String namespace = "/default";
         String key = "test-module.default.testKey";
         assertNull(provider.watcher.value());
 
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
         client.start();
-        log.info("per path: " + nameSpace + "/" + key);
+        log.info("per path: " + namespace + "/" + key);
 
-        assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key, "500".getBytes()) != null);
+        assertTrue(client.create().creatingParentsIfNeeded().forPath(namespace + "/" + key, "500".getBytes()) != null);
 
-        log.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key)));
+        log.info("data: " + new String(client.getData().forPath(namespace + "/" + key)));
 
         for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
         }
 
-        assertTrue(client.delete().forPath(nameSpace + "/" + key) == null);
+        assertTrue(client.delete().forPath(namespace + "/" + key) == null);
 
         for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
         }
@@ -104,28 +104,28 @@ public class ITZookeeperConfigurationTest {
 
     @Test(timeout = 20000)
     public void shouldReadUpdated4GroupConfig() throws Exception {
-        String nameSpace = "/default";
+        String namespace = "/default";
         String key = "test-module.default.testKeyGroup";
         assertEquals("{}", provider.groupWatcher.groupItems().toString());
 
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
         client.start();
-        log.info("per path: " + nameSpace + "/" + key);
+        log.info("per path: " + namespace + "/" + key);
 
-        assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key + "/item1", "100".getBytes()) != null);
-        assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key + "/item2", "200".getBytes()) != null);
+        assertTrue(client.create().creatingParentsIfNeeded().forPath(namespace + "/" + key + "/item1", "100".getBytes()) != null);
+        assertTrue(client.create().creatingParentsIfNeeded().forPath(namespace + "/" + key + "/item2", "200".getBytes()) != null);
 
-        log.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key + "/item1")));
-        log.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key + "/item2")));
+        log.info("data: " + new String(client.getData().forPath(namespace + "/" + key + "/item1")));
+        log.info("data: " + new String(client.getData().forPath(namespace + "/" + key + "/item2")));
 
         for (String v = provider.groupWatcher.groupItems().get("item1"); v == null; v = provider.groupWatcher.groupItems().get("item1")) {
         }
         for (String v = provider.groupWatcher.groupItems().get("item2"); v == null; v = provider.groupWatcher.groupItems().get("item2")) {
         }
 
-        assertTrue(client.delete().forPath(nameSpace + "/" + key + "/item1") == null);
-        assertTrue(client.delete().forPath(nameSpace + "/" + key + "/item2") == null);
+        assertTrue(client.delete().forPath(namespace + "/" + key + "/item1") == null);
+        assertTrue(client.delete().forPath(namespace + "/" + key + "/item2") == null);
 
         for (String v = provider.groupWatcher.groupItems().get("item1"); v != null; v = provider.groupWatcher.groupItems().get("item1")) {
         }

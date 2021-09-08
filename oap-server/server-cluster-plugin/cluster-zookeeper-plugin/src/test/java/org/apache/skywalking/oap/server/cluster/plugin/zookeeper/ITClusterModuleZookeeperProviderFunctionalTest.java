@@ -199,7 +199,7 @@ public class ITClusterModuleZookeeperProviderFunctionalTest {
         moduleConfig.setMaxRetries(3);
 
         if (!StringUtil.isEmpty(namespace)) {
-            moduleConfig.setNameSpace(namespace);
+            moduleConfig.setNamespace(namespace);
         }
 
         if (!StringUtil.isEmpty(internalComHost)) {

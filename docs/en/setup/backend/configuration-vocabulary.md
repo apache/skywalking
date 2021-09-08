@@ -47,7 +47,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | prepareThreads| The number of threads used to prepare metrics data to the storage. | SW_CORE_PREPARE_THREADS | 2 |
 | - | - | enableEndpointNameGroupingByOpenapi | Automatically groups endpoints by the given OpenAPI definitions. | SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI | true |
 |cluster|standalone| - | Standalone is not suitable for running on a single node running. No configuration available. | - | - |
-| - | zookeeper|nameSpace| The namespace, represented by root path, isolates the configurations in Zookeeper.|SW_NAMESPACE| `/`, root path|
+| - | zookeeper|namespace| The namespace, represented by root path, isolates the configurations in Zookeeper.|SW_NAMESPACE| `/`, root path|
 | - | - | hostPort| Hosts and ports of Zookeeper Cluster. |SW_CLUSTER_ZK_HOST_PORT| localhost:2181|
 | - | - | baseSleepTimeMs| The period of Zookeeper client between two retries (in milliseconds). |SW_CLUSTER_ZK_SLEEP_TIME|1000|
 | - | - | maxRetries| The maximum retry time. |SW_CLUSTER_ZK_MAX_RETRIES|3|
@@ -80,7 +80,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | accessKey | Nacos Auth accessKey. | SW_CLUSTER_NACOS_ACCESSKEY | - |
 | - | - | secretKey | Nacos Auth secretKey.  | SW_CLUSTER_NACOS_SECRETKEY | - |
 | storage|elasticsearch| - | ElasticSearch (and OpenSearch) storage implementation. | - | - |
-| - | - | nameSpace | Prefix of indexes created and used by SkyWalking. | SW_NAMESPACE | - |
+| - | - | namespace | Prefix of indexes created and used by SkyWalking. | SW_NAMESPACE | - |
 | - | - | clusterNodes | ElasticSearch cluster nodes for client connection.| SW_STORAGE_ES_CLUSTER_NODES |localhost|
 | - | - | protocol | HTTP or HTTPs. | SW_STORAGE_ES_HTTP_PROTOCOL | HTTP|
 | - | - | connectTimeout | Connect timeout of ElasticSearch client (in milliseconds). | SW_STORAGE_ES_CONNECT_TIMEOUT | 500|
@@ -236,7 +236,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | apolloEnv | `env` in Apollo. | SW_CONFIG_APOLLO_ENV | - |
 | - | - | appId | `app.id` in Apollo. | SW_CONFIG_APOLLO_APP_ID | skywalking |
 | - | - | period | The period of data sync (in seconds). | SW_CONFIG_APOLLO_PERIOD | 60 |
-| - | zookeeper|nameSpace| The namespace (represented by root path) that isolates the configurations in the Zookeeper. |SW_CONFIG_ZK_NAMESPACE| `/`, root path|
+| - | zookeeper|namespace| The namespace (represented by root path) that isolates the configurations in the Zookeeper. |SW_CONFIG_ZK_NAMESPACE| `/`, root path|
 | - | - | hostPort| Hosts and ports of Zookeeper Cluster. |SW_CONFIG_ZK_HOST_PORT| localhost:2181|
 | - | - | baseSleepTimeMs|The period of Zookeeper client between two retries (in milliseconds). |SW_CONFIG_ZK_BASE_SLEEP_TIME_MS|1000|
 | - | - | maxRetries| The maximum retry time. |SW_CONFIG_ZK_MAX_RETRIES|3|
