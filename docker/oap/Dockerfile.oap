@@ -20,7 +20,7 @@ FROM apache/skywalking-base:8.7.0-es7 AS cli
 
 FROM $BASE_IMAGE
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl || true
 
 ENV JAVA_OPTS=" -Xms256M " \
     SW_CLUSTER="standalone" \
