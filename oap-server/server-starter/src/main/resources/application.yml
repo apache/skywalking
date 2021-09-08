@@ -19,7 +19,7 @@ cluster:
   # Please check your ZooKeeper is 3.5+, However, it is also compatible with ZooKeeper 3.4.x. Replace the ZooKeeper 3.5+
   # library the oap-libs folder with your ZooKeeper 3.4.x library.
   zookeeper:
-    nameSpace: ${SW_NAMESPACE:""}
+    namespace: ${SW_NAMESPACE:""}
     hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
     # Retry Policy
     baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
@@ -120,7 +120,7 @@ core:
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
-    nameSpace: ${SW_NAMESPACE:""}
+    namespace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     connectTimeout: ${SW_STORAGE_ES_CONNECT_TIMEOUT:500}
@@ -207,7 +207,7 @@ storage:
     maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
     numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
   zipkin-elasticsearch:
-    nameSpace: ${SW_NAMESPACE:""}
+    namespace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
@@ -425,7 +425,7 @@ configuration:
     period: ${SW_CONFIG_APOLLO_PERIOD:5}
   zookeeper:
     period: ${SW_CONFIG_ZK_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
-    nameSpace: ${SW_CONFIG_ZK_NAMESPACE:/default}
+    namespace: ${SW_CONFIG_ZK_NAMESPACE:/default}
     hostPort: ${SW_CONFIG_ZK_HOST_PORT:localhost:2181}
     # Retry Policy
     baseSleepTimeMs: ${SW_CONFIG_ZK_BASE_SLEEP_TIME_MS:1000} # initial amount of time to wait between retries

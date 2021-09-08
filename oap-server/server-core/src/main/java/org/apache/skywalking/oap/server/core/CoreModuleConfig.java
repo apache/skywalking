@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Getter
 public class CoreModuleConfig extends ModuleConfig {
     private String role = "Mixed";
-    private String nameSpace;
+    private String namespace;
     private String restHost;
     private int restPort;
     private String restContextPath;

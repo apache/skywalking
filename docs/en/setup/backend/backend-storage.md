@@ -54,7 +54,7 @@ follows:
 storage:
   selector: ${SW_STORAGE:elasticsearch}
   elasticsearch:
-    nameSpace: ${SW_NAMESPACE:""}
+    namespace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
@@ -90,7 +90,7 @@ Example:
 storage:
   selector: ${SW_STORAGE:elasticsearch}
   elasticsearch:
-    # nameSpace: ${SW_NAMESPACE:""}
+    namespace: ${SW_NAMESPACE:""}
     user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
     password: ${SW_ES_PASSWORD:""} # Password to be set when Http Basic authentication is enabled
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:443}
@@ -166,7 +166,7 @@ The configurations are largely the same.
 storage:
   selector: ${SW_STORAGE:zipkin-elasticsearch}
   zipkin-elasticsearch:
-    nameSpace: ${SW_NAMESPACE:""}
+    namespace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     user: ${SW_ES_USER:""}

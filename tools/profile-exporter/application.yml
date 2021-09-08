@@ -18,7 +18,7 @@ core:
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
-    nameSpace: ${SW_NAMESPACE:""}
+    namespace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     #trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:"../es_keystore.jks"}
