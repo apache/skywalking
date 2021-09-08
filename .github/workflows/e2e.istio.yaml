@@ -28,7 +28,7 @@ env:
   SKIP_TEST: true
   TAG: ${{ github.sha }}
   SCRIPTS_DIR: test/e2e-mesh/e2e-istio/scripts
-  SW_OAP_BASE_IMAGE: openjdk:11-jdk
+  SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk11:alpine-jre
   SW_KUBERNETES_COMMIT_SHA: 6d5897616ce30ebb1706c0cf566ac36f733d93e0
 
 concurrency:

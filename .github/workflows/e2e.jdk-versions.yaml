@@ -37,7 +37,7 @@ jobs:
     env:
       SW_SIMPLE_CASE: jdk
       SW_AGENT_JDK_VERSION: ${{ matrix.jdk }}
-      SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk${{ matrix.jdk }}:alpine
+      SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk${{ matrix.jdk }}:alpine-jre
     steps:
       - uses: actions/checkout@v2
         with:
