@@ -8,6 +8,7 @@ Release Notes.
 #### Project
 
 * Split javaagent into skywalking-java repository. https://github.com/apache/skywalking-java
+* Merge `Dockerfile`s from apache/skywalking-docker into this codebase. 
 
 #### OAP Server
 

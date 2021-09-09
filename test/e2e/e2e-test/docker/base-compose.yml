@@ -27,6 +27,7 @@ services:
       - e2e
     volumes:
       - ./download-mysql.sh:/download-mysql.sh
+      - ./log4j2.xml:/skywalking/config/log4j2.xml
     environment:
       SW_CLUSTER_ZK_HOST_PORT: zk:2181
       SW_STORAGE_ES_CLUSTER_NODES: es:9200
