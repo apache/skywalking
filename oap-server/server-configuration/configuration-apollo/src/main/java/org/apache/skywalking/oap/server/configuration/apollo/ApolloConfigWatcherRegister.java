@@ -78,7 +78,7 @@ public class ApolloConfigWatcherRegister extends ConfigWatcherRegister {
             if (allKeys != null) {
                 allKeys.stream().filter(it -> it.startsWith(groupKey)).forEach(groupItemKey -> {
                     String itemValue = this.configReader.getProperty(groupItemKey, null);
-                    String itemName = groupItemKey.substring(key.length() + 1);
+                    String itemName = groupItemKey.substring(groupKey.length());
                     groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
                 });
             }

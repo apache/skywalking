@@ -74,10 +74,13 @@ public class ITApolloConfigurationTest {
 
     @Before
     public void setUp() throws Exception {
-        System.setProperty("apollo.configService", "http://" + ENVIRONMENT.getServiceHost("apollo-config-and-portal", 8080) + ":" + ENVIRONMENT
-            .getServicePort("apollo-config-and-portal", 8080));
-        System.setProperty("apollo.meta.port", ENVIRONMENT.getServicePort("apollo-config-and-portal", 8080).toString());
-        System.setProperty("apollo.meta.host", ENVIRONMENT.getServiceHost("apollo-config-and-portal", 8080));
+        String metaHost = ENVIRONMENT.getServiceHost("apollo-config-and-portal", 8080);
+        String metaPort = ENVIRONMENT.getServicePort("apollo-config-and-portal", 8080).toString();
+        System.setProperty("apollo.configService", "http://" + metaHost + ":" + metaPort);
+        System.setProperty("apollo.meta.port", metaPort);
+        System.setProperty("apollo.meta.host", metaHost);
+        log.info("apollo.configService: {}", System.getProperty("apollo.configService"));
+
         String host = ENVIRONMENT.getServiceHost("apollo-config-and-portal", 8070);
         String port = ENVIRONMENT.getServicePort("apollo-config-and-portal", 8070).toString();
         baseUrl = "http://" + host + ":" + port;
