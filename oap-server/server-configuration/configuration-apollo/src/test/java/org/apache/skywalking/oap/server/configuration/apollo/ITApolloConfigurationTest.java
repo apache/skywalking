@@ -25,10 +25,12 @@ import java.io.Reader;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -98,7 +100,7 @@ public class ITApolloConfigurationTest {
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
-    @Test(timeout = 10000)
+    @Test(timeout = 100000)
     public void shouldReadUpdated() {
         try {
             assertNull(provider.watcher.value());
@@ -108,8 +110,15 @@ public class ITApolloConfigurationTest {
             createConfigPost.setHeader("Content-Type", "application/json;charset=UTF-8");
             final StringEntity entity = new StringEntity("{\n" + "    \"key\":\"test-module.default.testKey\",\n" + "    \"value\":\"3000\",\n" + "    \"comment\":\"test key\",\n" + "    \"dataChangeCreatedBy\":\"apollo\"\n" + "}");
             createConfigPost.setEntity(entity);
-            final String createResponse = (String) httpClient.execute(createConfigPost, responseHandler);
-            log.info("createResponse: {}", createResponse);
+            String createResponse = null;
+            //retry to wait apollo adminserver registered
+            for (int r = 1; r <= 10 && createResponse == null; r++) {
+                TimeUnit.SECONDS.sleep(5);
+                log.info("try createItem, times...: {}", r);
+                createResponse = this.httpExec(createConfigPost, responseHandler);
+                log.info("createResponse: {}", createResponse);
+
+            }
 
             final HttpPost releaseConfigRequest = new HttpPost(baseUrl + "/openapi/v1/envs/DEV" + "/apps/SampleApp" + "/clusters/default" + "/namespaces/application/releases");
             releaseConfigRequest.setEntity(new StringEntity("{\n" + "    \"releaseTitle\":\"2019-06-07\",\n" + "    \"releaseComment\":\"test\",\n" + "    \"releasedBy\":\"apollo\"\n" + "}"));
@@ -134,14 +143,14 @@ public class ITApolloConfigurationTest {
             }
 
             assertNull(provider.watcher.value());
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             log.error(e.getMessage(), e);
             fail(e.getMessage());
         }
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
-    @Test(timeout = 10000)
+    @Test(timeout = 100000)
     public void shouldReadUpdated4Group() {
 
         try {
@@ -152,8 +161,16 @@ public class ITApolloConfigurationTest {
             createConfigPost.setHeader("Content-Type", "application/json;charset=UTF-8");
             final StringEntity entityItem1 = new StringEntity("{\n" + "    \"key\":\"test-module.default.testKeyGroup.item1\",\n" + "    \"value\":\"100\",\n" + "    \"comment\":\"test key\",\n" + "    \"dataChangeCreatedBy\":\"apollo\"\n" + "}");
             createConfigPost.setEntity(entityItem1);
-            final String createResponseItem1 = (String) httpClient.execute(createConfigPost, responseHandler);
-            log.info("createResponseItem1: {}", createResponseItem1);
+
+            String createResponseItem1 = null;
+            //retry to wait apollo adminserver registered
+            for (int r = 1; r <= 10 && createResponseItem1 == null; r++) {
+                TimeUnit.SECONDS.sleep(5);
+                log.info("try createItem, times...: {}", r);
+                createResponseItem1 = this.httpExec(createConfigPost, responseHandler);
+                log.info("createResponse: {}", createResponseItem1);
+
+            }
 
             final StringEntity entityItem2 = new StringEntity("{\n" + "    \"key\":\"test-module.default.testKeyGroup.item2\",\n" + "    \"value\":\"200\",\n" + "    \"comment\":\"test key\",\n" + "    \"dataChangeCreatedBy\":\"apollo\"\n" + "}");
             createConfigPost.setEntity(entityItem2);
@@ -187,7 +204,7 @@ public class ITApolloConfigurationTest {
             assertNull(provider.groupWatcher.groupItems().get("item1"));
             assertEquals("200", provider.groupWatcher.groupItems().get("item2"));
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             log.error(e.getMessage(), e);
             fail(e.getMessage());
         }
@@ -216,6 +233,15 @@ public class ITApolloConfigurationTest {
                     });
                 }
             });
+        }
+    }
+
+    //for retry
+    private String httpExec(HttpUriRequest request, ResponseHandler responseHandler) {
+        try {
+            return (String) this.httpClient.execute(request, responseHandler);
+        } catch (IOException e) {
+            return null;
         }
     }
 }
