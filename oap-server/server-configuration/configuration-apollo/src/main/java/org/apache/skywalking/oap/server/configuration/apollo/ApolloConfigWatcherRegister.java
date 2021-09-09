@@ -68,7 +68,21 @@ public class ApolloConfigWatcherRegister extends ConfigWatcherRegister {
 
     @Override
     public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
-        // TODO: implement readGroupConfig
-        return Optional.empty();
+        GroupConfigTable groupConfigTable = new GroupConfigTable();
+        Set<String> allKeys = this.configReader.getPropertyNames();
+
+        keys.forEach(key -> {
+            GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
+            groupConfigTable.addGroupConfigItems(groupConfigItems);
+            String groupKey = key + ".";
+            if (allKeys != null) {
+                allKeys.stream().filter(it -> it.startsWith(groupKey)).forEach(groupItemKey -> {
+                    String itemValue = this.configReader.getProperty(groupItemKey, null);
+                    String itemName = groupItemKey.substring(key.length() + 1);
+                    groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
+                });
+            }
+        });
+        return Optional.of(groupConfigTable);
     }
 }

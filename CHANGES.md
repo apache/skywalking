@@ -61,6 +61,7 @@ Release Notes.
 * Support etcd grouped dynamic configurations.
 * Unified the config word `namespace` in the project.
 * Switch JRE base image for dev images.
+* Support apollo grouped dynamic configurations.
 
 #### UI
 
