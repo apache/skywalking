@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -60,8 +60,8 @@ public class ITApolloConfigurationTest {
     private String baseUrl;
     private ApolloConfigurationTestProvider provider;
 
-    @ClassRule
-    public final static DockerComposeContainer ENVIRONMENT =
+    @Rule
+    public final DockerComposeContainer environment =
         new DockerComposeContainer(new File(ITApolloConfigurationTest.class
                                                 .getClassLoader()
                                                 .getResource("docker/docker-compose.yaml").getPath()))
@@ -74,15 +74,15 @@ public class ITApolloConfigurationTest {
 
     @Before
     public void setUp() throws Exception {
-        String metaHost = ENVIRONMENT.getServiceHost("apollo-config-and-portal", 8080);
-        String metaPort = ENVIRONMENT.getServicePort("apollo-config-and-portal", 8080).toString();
+        String metaHost = environment.getServiceHost("apollo-config-and-portal", 8080);
+        String metaPort = environment.getServicePort("apollo-config-and-portal", 8080).toString();
         System.setProperty("apollo.configService", "http://" + metaHost + ":" + metaPort);
         System.setProperty("apollo.meta.port", metaPort);
         System.setProperty("apollo.meta.host", metaHost);
         log.info("apollo.configService: {}", System.getProperty("apollo.configService"));
 
-        String host = ENVIRONMENT.getServiceHost("apollo-config-and-portal", 8070);
-        String port = ENVIRONMENT.getServicePort("apollo-config-and-portal", 8070).toString();
+        String host = environment.getServiceHost("apollo-config-and-portal", 8070);
+        String port = environment.getServicePort("apollo-config-and-portal", 8070).toString();
         baseUrl = "http://" + host + ":" + port;
         log.info("baseUrl: {}", baseUrl);
 
