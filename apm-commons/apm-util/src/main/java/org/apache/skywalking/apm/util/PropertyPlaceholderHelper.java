@@ -63,7 +63,7 @@ public enum PropertyPlaceholderHelper {
             throw new UnsupportedOperationException("'placeholderPrefix or placeholderSuffix' must not be null");
         }
 
-        final Map<String, String> wellKnownSimplePrefixes = new HashMap<String, String>(4);
+        final Map<String, String> wellKnownSimplePrefixes = new HashMap<>(4);
 
         wellKnownSimplePrefixes.put("}", "{");
         wellKnownSimplePrefixes.put("]", "[");
@@ -90,12 +90,9 @@ public enum PropertyPlaceholderHelper {
      * @return the supplied value with placeholders replaced inline
      */
     public String replacePlaceholders(String value, final Properties properties) {
-        return replacePlaceholders(value, new PlaceholderResolver() {
-            @Override
-            public String resolvePlaceholder(String placeholderName) {
-                return getConfigValue(placeholderName, properties);
-            }
-        });
+        return replacePlaceholders(value,
+                                   placeholderName -> getConfigValue(placeholderName, properties)
+        );
     }
 
     private String getConfigValue(String key, final Properties properties) {

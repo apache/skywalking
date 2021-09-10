@@ -65,6 +65,8 @@ catalog:
         catalog:
           - name: "Quick Start"
             path: "/en/setup/backend/backend-setup"
+          - name: "Quick Start with Docker"
+            path: "/en/setup/backend/docker"
           - name: "Configuration Vocabulary"
             path: "/en/setup/backend/configuration-vocabulary"
           - name: "Advanced Setup"

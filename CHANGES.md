@@ -8,6 +8,7 @@ Release Notes.
 #### Project
 
 * Split javaagent into skywalking-java repository. https://github.com/apache/skywalking-java
+* Merge `Dockerfile`s from apache/skywalking-docker into this codebase. 
 
 #### OAP Server
 
@@ -59,6 +60,7 @@ Release Notes.
 * Fix ElasticSearch storage plugin doesn't work when hot reloading from `secretsManagementFile`.
 * Support etcd grouped dynamic configurations.
 * Unified the config word `namespace` in the project.
+* Switch JRE base image for dev images.
 
 #### UI
 

@@ -16,48 +16,111 @@
 
 ARG BASE_IMAGE='adoptopenjdk/openjdk11:alpine'
 
-FROM golang:1.14 AS cli
+FROM $BASE_IMAGE as cli
 
-ARG COMMIT_HASH=9f267876493943716434fdaa30047a14c0b5b2d9
-ARG CLI_CODE=${COMMIT_HASH}.tar.gz
-ARG CLI_CODE_URL=https://github.com/apache/skywalking-cli/archive/${CLI_CODE}
+WORKDIR /skywalking
 
-ENV CGO_ENABLED=0
-ENV GO111MODULE=on
+ARG SKYWALKING_CLI_VERSION=0.7.0
+ENV SKYWALKING_CLI_TGZ=skywalking-cli-$SKYWALKING_CLI_VERSION-bin.tgz
+ENV SKYWALKING_CLI_ASC=${SKYWALKING_CLI_TGZ}.asc
+ENV SKYWALKING_CLI_SHA512=${SKYWALKING_CLI_TGZ}.sha512
 
-WORKDIR /cli
+ENV SKYWALKING_CLI_TGZ_URLS \
+        https://www.apache.org/dyn/closer.cgi?action=download&filename=skywalking/cli/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_TGZ \
+        # if the version is outdated, we might have to pull from the dist/archive :/
+	    https://www-us.apache.org/dist/skywalking/cli/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_TGZ \
+	    https://www.apache.org/dist/skywalking/cli/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_TGZ \
+	    https://archive.apache.org/dist/skywalking/cli/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_TGZ
 
-ADD ${CLI_CODE_URL} .
-RUN tar -xf ${CLI_CODE} --strip 1
-RUN rm ${CLI_CODE}
+ENV SKYWALKING_CLI_ASC_URLS \
+        https://www.apache.org/dyn/closer.cgi?action=download&filename=skywalking/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_ASC \
+        # if the version is outdated, we might have to pull from the dist/archive :/
+	    https://www-us.apache.org/dist/skywalking/cli/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_ASC \
+	    https://www.apache.org/dist/skywalking/cli/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_ASC \
+	    https://archive.apache.org/dist/skywalking/cli/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_ASC
 
-RUN mkdir -p /skywalking/bin/
-RUN make linux && mv bin/swctl-latest-linux-amd64 /skywalking/bin/swctl
+ENV SKYWALKING_CLI_SHA512_URLS \
+        https://www.apache.org/dyn/closer.cgi?action=download&filename=skywalking/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_SHA512 \
+        # if the version is outdated, we might have to pull from the dist/archive :/
+	    https://www-us.apache.org/dist/skywalking/cli/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_SHA512 \
+	    https://www.apache.org/dist/skywalking/cli/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_SHA512 \
+	    https://archive.apache.org/dist/skywalking/cli/$SKYWALKING_CLI_VERSION/$SKYWALKING_CLI_SHA512
+
+
+RUN set -eux; \
+	\
+	apk add --no-cache --virtual .fetch-deps \
+		gnupg \
+		ca-certificates \
+		openssl \
+	; \
+	\
+	wget --timeout=20 -O KEYS https://downloads.apache.org/skywalking/KEYS; \
+	gpg --import KEYS; \
+	\
+	success=; \
+	for url in $SKYWALKING_CLI_TGZ_URLS; do \
+		if wget --timeout=20  -O ${SKYWALKING_CLI_TGZ} "$url"; then \
+			success=1; \
+			break; \
+		fi; \
+	done; \
+	[ -n "$success" ]; \
+	\
+	success=; \
+	for url in $SKYWALKING_CLI_SHA512_URLS; do \
+		if wget --timeout=20  -O ${SKYWALKING_CLI_SHA512} "$url"; then \
+			success=1; \
+			break; \
+		fi; \
+	done; \
+	[ -n "$success" ]; \
+	\
+	sha512sum -c ${SKYWALKING_CLI_SHA512}; \
+	\
+	success=; \
+	for url in $SKYWALKING_CLI_ASC_URLS; do \
+		if wget --timeout=20  -O ${SKYWALKING_CLI_ASC} "$url"; then \
+			success=1; \
+			break; \
+		fi; \
+	done; \
+	[ -n "$success" ]; \
+	\
+	gpg --batch --verify ${SKYWALKING_CLI_ASC} ${SKYWALKING_CLI_TGZ}; \
+	tar -xvf ${SKYWALKING_CLI_TGZ}; \
+    mkdir "bin/"; \
+	mv skywalking-cli-${SKYWALKING_CLI_VERSION}-bin/bin/swctl-${SKYWALKING_CLI_VERSION}-linux-amd64 bin/swctl; \
+	chmod 755 bin/*; \
+	command -v gpgconf && gpgconf --kill all || :; \
+	ls -la .;
 
 FROM $BASE_IMAGE
 
-ENV JAVA_OPTS=" -Xms256M " \
-    SW_CLUSTER="standalone" \
-    SW_STORAGE="h2"
+RUN apk add --no-cache openssl
 
-ARG DIST_NAME
+WORKDIR /skywalking
 
-COPY "$DIST_NAME.tar.gz" /
+ENV JAVA_OPTS=" -Xms2G "
+
+ARG DIST
+
+COPY "$DIST" .
 
 RUN set -ex; \
-    tar -xzf "$DIST_NAME.tar.gz"; \
-    rm -rf "$DIST_NAME.tar.gz"; \
-    rm -rf "$DIST_NAME/config/log4j2.xml"; \
-    rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/webapp"; rm -rf "$DIST_NAME/agent"; \
-    mkdir "$DIST_NAME/bin"; \
-    mv "$DIST_NAME" skywalking;
-
-WORKDIR skywalking
+    tar -xzf "$DIST" --strip 1; \
+    rm -rf "$DIST"; \
+    rm -rf "config/log4j2.xml"; \
+    rm -rf "bin"; \
+    rm -rf "webapp"; \
+    rm -rf "agent"; \
+    mkdir "bin";
 
 COPY --from=cli /skywalking/bin/swctl ./bin
 
 COPY log4j2.xml config/
 COPY docker-entrypoint.sh .
+
 RUN mkdir ext-config; \
     mkdir ext-libs;
 

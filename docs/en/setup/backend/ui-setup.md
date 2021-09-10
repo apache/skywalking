@@ -32,3 +32,18 @@ spring:
 
 ```
 
+## Start with Docker Image
+
+Start a container to connect oap server whose address is `http://oap:12800`.
+
+```shell
+docker run --name oap --restart always -d -e SW_OAP_ADDRESS=http://oap:12800 apache/skywalking-ui:8.8.0
+```
+
+### Configuration
+
+We could set up environment variables to configure this image.
+
+### SW_OAP_ADDRESS
+
+The address of OAP server. Default value is `http://127.0.0.1:12800`.

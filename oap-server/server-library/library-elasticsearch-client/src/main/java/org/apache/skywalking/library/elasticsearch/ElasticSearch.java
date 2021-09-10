@@ -145,6 +145,7 @@ public final class ElasticSearch implements Closeable {
             log.info("ElasticSearch version is: {}", v);
             version.complete(v);
         });
+        endpointGroup.whenReady().thenAccept(healthyEndpointListener);
         endpointGroup.addListener(healthyEndpointListener);
         return future;
     }
