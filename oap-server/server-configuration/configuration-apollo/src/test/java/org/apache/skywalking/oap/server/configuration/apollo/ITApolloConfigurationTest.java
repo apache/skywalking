@@ -41,12 +41,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.yaml.snakeyaml.Yaml;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -62,9 +61,9 @@ public class ITApolloConfigurationTest {
     private String baseUrl;
     private ApolloConfigurationTestProvider provider;
 
-    @Rule
-    public final DockerComposeContainer environment =
-        new DockerComposeContainer(new File(ITApolloConfigurationTest.class
+    @ClassRule
+    public final static DockerComposeContainer<?> ENVIRONMENT =
+        new DockerComposeContainer<>(new File(ITApolloConfigurationTest.class
                                                 .getClassLoader()
                                                 .getResource("docker/docker-compose.yaml").getPath()))
             .withExposedService("apollo-config-and-portal", 8080,
@@ -76,15 +75,15 @@ public class ITApolloConfigurationTest {
 
     @Before
     public void setUp() throws Exception {
-        String metaHost = environment.getServiceHost("apollo-config-and-portal", 8080);
-        String metaPort = environment.getServicePort("apollo-config-and-portal", 8080).toString();
+        String metaHost = ENVIRONMENT.getServiceHost("apollo-config-and-portal", 8080);
+        String metaPort = ENVIRONMENT.getServicePort("apollo-config-and-portal", 8080).toString();
         System.setProperty("apollo.configService", "http://" + metaHost + ":" + metaPort);
         System.setProperty("apollo.meta.port", metaPort);
         System.setProperty("apollo.meta.host", metaHost);
         log.info("apollo.configService: {}", System.getProperty("apollo.configService"));
 
-        String host = environment.getServiceHost("apollo-config-and-portal", 8070);
-        String port = environment.getServicePort("apollo-config-and-portal", 8070).toString();
+        String host = ENVIRONMENT.getServiceHost("apollo-config-and-portal", 8070);
+        String port = ENVIRONMENT.getServicePort("apollo-config-and-portal", 8070).toString();
         baseUrl = "http://" + host + ":" + port;
         log.info("baseUrl: {}", baseUrl);
 
@@ -117,7 +116,6 @@ public class ITApolloConfigurationTest {
                 log.info("try createItem, times...: {}", r);
                 createResponse = this.httpExec(createConfigPost, responseHandler);
                 log.info("createResponse: {}", createResponse);
-
             }
 
             final HttpPost releaseConfigRequest = new HttpPost(baseUrl + "/openapi/v1/envs/DEV" + "/apps/SampleApp" + "/clusters/default" + "/namespaces/application/releases");
@@ -152,7 +150,6 @@ public class ITApolloConfigurationTest {
     @SuppressWarnings("StatementWithEmptyBody")
     @Test(timeout = 100000)
     public void shouldReadUpdated4Group() {
-
         try {
             assertEquals("{}", provider.groupWatcher.groupItems().toString());
 
@@ -169,7 +166,6 @@ public class ITApolloConfigurationTest {
                 log.info("try createItem, times...: {}", r);
                 createResponseItem1 = this.httpExec(createConfigPost, responseHandler);
                 log.info("createResponse: {}", createResponseItem1);
-
             }
 
             final StringEntity entityItem2 = new StringEntity("{\n" + "    \"key\":\"test-module.default.testKeyGroup.item2\",\n" + "    \"value\":\"200\",\n" + "    \"comment\":\"test key\",\n" + "    \"dataChangeCreatedBy\":\"apollo\"\n" + "}");
@@ -203,7 +199,6 @@ public class ITApolloConfigurationTest {
             }
             assertNull(provider.groupWatcher.groupItems().get("item1"));
             assertEquals("200", provider.groupWatcher.groupItems().get("item2"));
-
         } catch (IOException | InterruptedException e) {
             log.error(e.getMessage(), e);
             fail(e.getMessage());
@@ -240,7 +235,7 @@ public class ITApolloConfigurationTest {
     private String httpExec(HttpUriRequest request, ResponseHandler responseHandler) {
         try {
             return (String) this.httpClient.execute(request, responseHandler);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
             return null;
         }
     }
