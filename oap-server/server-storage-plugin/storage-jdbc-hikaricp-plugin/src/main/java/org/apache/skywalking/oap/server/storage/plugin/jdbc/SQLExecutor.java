@@ -54,4 +54,12 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
         }
         preparedStatement.execute();
     }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public List<Object> getParam() {
+        return param;
+    }
 }

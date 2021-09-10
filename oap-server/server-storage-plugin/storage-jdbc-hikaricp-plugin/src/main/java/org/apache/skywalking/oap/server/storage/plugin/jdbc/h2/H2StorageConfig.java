@@ -59,4 +59,16 @@ public class H2StorageConfig extends ModuleConfig {
      * @since 8.2.0
      */
     private int numOfSearchableValuesPerTag = 2;
+    /**
+     * max size per batch execute sql
+     */
+    private int maxSizeOfBatchSql = 2000;
+    /**
+     * async batch execute pool size
+     */
+    private int h2AsyncBatchPersistentPoolSize = 4;
+    /**
+     * async batch execute channel size
+     */
+    private int h2AsyncBatchPersistentChannelSize = 4;
 }

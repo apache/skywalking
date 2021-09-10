@@ -106,7 +106,7 @@ public class TiDBStorageProvider extends ModuleProvider {
         
         mysqlClient = new JDBCHikariCPClient(config.getProperties());
 
-        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient));
+        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient, config.getMaxSizeOfBatchSql(), config.getH2AsyncBatchPersistentPoolSize(), config.getH2AsyncBatchPersistentChannelSize()));
         this.registerServiceImplementation(
             StorageDAO.class,
             new H2StorageDAO(
