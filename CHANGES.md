@@ -62,6 +62,7 @@ Release Notes.
 * Unified the config word `namespace` in the project.
 * Switch JRE base image for dev images.
 * Support apollo grouped dynamic configurations.
+* Fix `ProfileThreadSnapshotQuery.queryProfiledSegments` adopts a wrong sort function
 
 #### UI
 

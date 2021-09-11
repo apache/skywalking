@@ -77,7 +77,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
         }
 
         final WhereQueryImpl<SelectQueryImpl> whereQuery = select()
-            .function(InfluxConstants.SORT_ASC, SegmentRecord.START_TIME, segments.size())
+            .function(InfluxConstants.SORT_DES, SegmentRecord.START_TIME, segments.size())
             .column(SegmentRecord.SEGMENT_ID)
             .column(SegmentRecord.START_TIME)
             .column(SegmentRecord.ENDPOINT_ID)
