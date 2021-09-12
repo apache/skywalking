@@ -18,11 +18,10 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,9 +31,8 @@ import java.util.List;
 /**
  * A Batch SQL executor.
  */
+@Slf4j
 public class BatchSQLExecutor implements InsertRequest, UpdateRequest {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BatchSQLExecutor.class);
 
     private String sql;
     private List<PrepareRequest> prepareRequests;
@@ -45,11 +43,11 @@ public class BatchSQLExecutor implements InsertRequest, UpdateRequest {
     }
 
     public void invoke(Connection connection, int maxBatchSqlSize) throws SQLException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("execute sql batch.sql by key size: {},sql:{}", prepareRequests.size(), sql);
+        if (log.isDebugEnabled()) {
+            log.debug("execute sql batch.sql by key size: {},sql:{}", prepareRequests.size(), sql);
         }
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        int index = 0;
+        int pendingCount = 0;
         for (int k = 0; k < prepareRequests.size(); k++) {
             SQLExecutor sqlExecutor = (SQLExecutor) prepareRequests.get(k);
             for (int i = 0; i < sqlExecutor.getParam().size(); i++) {
@@ -61,21 +59,21 @@ public class BatchSQLExecutor implements InsertRequest, UpdateRequest {
                 preparedStatement.executeBatch();
                 long end = System.currentTimeMillis();
                 long cost = end - start;
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("execute batch sql,batch size: {}, cost:{},sql: {}", maxBatchSqlSize, cost, sql);
+                if (log.isDebugEnabled()) {
+                    log.debug("execute batch sql,batch size: {}, cost:{},sql: {}", maxBatchSqlSize, cost, sql);
                 }
-                index = 0;
+                pendingCount = 0;
             } else {
-                index = index + 1;
+                pendingCount++;
             }
         }
-        if (index > 0) {
+        if (pendingCount > 0) {
             long start = System.currentTimeMillis();
             preparedStatement.executeBatch();
             long end = System.currentTimeMillis();
             long cost = end - start;
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("execute batch sql,batch size: {}, cost:{},sql: {}", index, cost, sql);
+            if (log.isDebugEnabled()) {
+                log.debug("execute batch sql,batch size: {}, cost:{},sql: {}", pendingCount, cost, sql);
             }
         }
     }

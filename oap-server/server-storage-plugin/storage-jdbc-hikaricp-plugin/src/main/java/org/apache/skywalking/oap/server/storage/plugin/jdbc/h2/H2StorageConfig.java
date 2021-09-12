@@ -62,13 +62,9 @@ public class H2StorageConfig extends ModuleConfig {
     /**
      * max size per batch execute sql
      */
-    private int maxSizeOfBatchSql = 2000;
+    private int maxSizeOfBatchSql = 100;
     /**
      * async batch execute pool size
      */
-    private int h2AsyncBatchPersistentPoolSize = 4;
-    /**
-     * async batch execute channel size
-     */
-    private int h2AsyncBatchPersistentChannelSize = 4;
+    private int asyncBatchPersistentPoolSize  = 1;
 }

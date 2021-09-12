@@ -25,6 +25,8 @@ import java.util.Properties;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.Iterator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
@@ -42,17 +44,16 @@ public class H2BatchDAO implements IBatchDAO {
     private JDBCHikariCPClient h2Client;
     private final DataCarrier<PrepareRequest> dataCarrier;
     private int maxBatchSqlSize = 2000;
-    private int h2AsyncBatchPersistentPoolSize = 4;
-    private int h2AsyncBatchPersistentChannelSize = 4;
+    private int asyncBatchPersistentPoolSize = 4;
 
-    public H2BatchDAO(JDBCHikariCPClient h2Client, int batchSqlSize, int h2AsyncBatchPersistentPoolSize, int h2AsyncBatchPersistentChannelSize) {
+    public H2BatchDAO(JDBCHikariCPClient h2Client, int batchSqlSize, int asyncBatchPersistentPoolSize) {
         this.h2Client = h2Client;
         String name = "H2_ASYNCHRONOUS_BATCH_PERSISTENT";
         if (log.isDebugEnabled()) {
-            log.debug("H2_ASYNCHRONOUS_BATCH_PERSISTENT poolSize: {},channelSize: {},maxBatchSqlSize:{}", h2AsyncBatchPersistentPoolSize, h2AsyncBatchPersistentChannelSize, batchSqlSize);
+            log.debug("H2_ASYNCHRONOUS_BATCH_PERSISTENT poolSize: {},maxBatchSqlSize:{}", asyncBatchPersistentPoolSize, batchSqlSize);
         }
-        this.dataCarrier = new DataCarrier<>(name, h2AsyncBatchPersistentChannelSize, 10000);
-        this.dataCarrier.consume(new H2BatchDAO.H2BatchConsumer(this), h2AsyncBatchPersistentPoolSize, 20);
+        this.dataCarrier = new DataCarrier<>(name, asyncBatchPersistentPoolSize, 10000);
+        this.dataCarrier.consume(new H2BatchDAO.H2BatchConsumer(this), asyncBatchPersistentPoolSize, 20);
     }
 
     @Override
@@ -63,32 +64,9 @@ public class H2BatchDAO implements IBatchDAO {
         if (log.isDebugEnabled()) {
             log.debug("to execute sql statements execute, data size: {}, maxBatchSqlSize: {}", prepareRequests.size(), maxBatchSqlSize);
         }
-        if (maxBatchSqlSize <= 1) {
-            executeSql(prepareRequests);
-        } else {
-            executeSql(prepareRequests, maxBatchSqlSize);
-        }
+        executeSql(prepareRequests, maxBatchSqlSize);
         if (log.isDebugEnabled()) {
             log.debug("execute sql statements done, data size: {}, maxBatchSqlSize: {}", prepareRequests.size(), maxBatchSqlSize);
-        }
-    }
-
-    private void executeSql(List<PrepareRequest> prepareRequests) {
-        if (log.isDebugEnabled()) {
-            log.debug("execute sql one by one.data size: {}", prepareRequests.size());
-        }
-        try (Connection connection = h2Client.getConnection()) {
-            for (PrepareRequest prepareRequest : prepareRequests) {
-                try {
-                    SQLExecutor sqlExecutor = (SQLExecutor) prepareRequest;
-                    sqlExecutor.invoke(connection);
-                } catch (SQLException e) {
-                    // Just avoid one execution failure makes the rest of batch failure.
-                    log.error(e.getMessage(), e);
-                }
-            }
-        } catch (SQLException | JDBCClientException e) {
-            log.error(e.getMessage(), e);
         }
     }
 
@@ -99,16 +77,20 @@ public class H2BatchDAO implements IBatchDAO {
         Map<String, List<PrepareRequest>> batchRequestMap = new HashMap<>();
         for (PrepareRequest prepareRequest : prepareRequests) {
             SQLExecutor sqlExecutor = (SQLExecutor) prepareRequest;
-            if (batchRequestMap.get(sqlExecutor.getSql()) == null) {
+            if (batchRequestMap.containsKey(sqlExecutor.getSql())) {
+                batchRequestMap.get(sqlExecutor.getSql()).add(prepareRequest);
+            } else {
                 List<PrepareRequest> prepareRequestList = new ArrayList<>();
                 batchRequestMap.put(sqlExecutor.getSql(), prepareRequestList);
             }
-            batchRequestMap.get(sqlExecutor.getSql()).add(prepareRequest);
         }
         try (Connection connection = h2Client.getConnection()) {
             try {
-                for (String key : batchRequestMap.keySet()) {
-                    BatchSQLExecutor batchSQLExecutor = new BatchSQLExecutor(key, batchRequestMap.get(key));
+                Set<Map.Entry<String, List<PrepareRequest>>> entrySet = batchRequestMap.entrySet();
+                Iterator<Map.Entry<String, List<PrepareRequest>>> iterator = entrySet.iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<String, List<PrepareRequest>> next = iterator.next();
+                    BatchSQLExecutor batchSQLExecutor = new BatchSQLExecutor(next.getKey(), next.getValue());
                     batchSQLExecutor.invoke(connection, maxBatchSqlSize);
                 }
             } catch (SQLException e) {

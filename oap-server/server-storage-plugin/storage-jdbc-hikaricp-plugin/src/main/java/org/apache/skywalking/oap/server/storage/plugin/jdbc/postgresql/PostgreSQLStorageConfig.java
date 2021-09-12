@@ -25,5 +25,12 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLStorageCo
 @Setter
 @Getter
 public class PostgreSQLStorageConfig extends MySQLStorageConfig {
-
+    /**
+     * max size per batch execute sql
+     */
+    private int maxSizeOfBatchSql = 2000;
+    /**
+     * async batch execute pool size
+     */
+    private int asyncBatchPersistentPoolSize  = 4;
 }

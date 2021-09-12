@@ -117,7 +117,7 @@ public class H2StorageProvider extends ModuleProvider {
         settings.setProperty("dataSource.password", config.getPassword());
         h2Client = new JDBCHikariCPClient(settings);
 
-        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(h2Client, config.getMaxSizeOfBatchSql(), config.getH2AsyncBatchPersistentPoolSize(), config.getH2AsyncBatchPersistentChannelSize()));
+        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(h2Client, config.getMaxSizeOfBatchSql(), config.getAsyncBatchPersistentPoolSize()));
         this.registerServiceImplementation(
             StorageDAO.class,
             new H2StorageDAO(

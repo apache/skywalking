@@ -103,7 +103,7 @@ public class MySQLStorageProvider extends ModuleProvider {
 
         mysqlClient = new JDBCHikariCPClient(config.getProperties());
 
-        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient, config.getMaxSizeOfBatchSql(), config.getH2AsyncBatchPersistentPoolSize(), config.getH2AsyncBatchPersistentChannelSize()));
+        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient, config.getMaxSizeOfBatchSql(), config.getAsyncBatchPersistentPoolSize()));
         this.registerServiceImplementation(
             StorageDAO.class,
             new H2StorageDAO(

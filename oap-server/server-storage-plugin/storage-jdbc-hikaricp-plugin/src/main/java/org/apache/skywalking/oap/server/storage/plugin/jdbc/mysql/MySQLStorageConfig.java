@@ -46,11 +46,6 @@ public class MySQLStorageConfig extends ModuleConfig {
     /**
      * async batch execute pool size
      */
-    private int h2AsyncBatchPersistentPoolSize = 4;
-    /**
-     * async batch execute channel size
-     */
-    private int h2AsyncBatchPersistentChannelSize = 4;
-
+    private int asyncBatchPersistentPoolSize  = 4;
     private Properties properties;
 }
