@@ -81,6 +81,7 @@ public class H2BatchDAO implements IBatchDAO {
                 batchRequestMap.get(sqlExecutor.getSql()).add(prepareRequest);
             } else {
                 List<PrepareRequest> prepareRequestList = new ArrayList<>();
+                prepareRequestList.add(sqlExecutor);
                 batchRequestMap.put(sqlExecutor.getSql(), prepareRequestList);
             }
         }
