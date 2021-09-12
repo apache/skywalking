@@ -39,11 +39,11 @@ public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
 
     public ZookeeperConfigWatcherRegister(ZookeeperServerSettings settings) throws Exception {
         super(settings.getPeriod());
-        prefix = settings.getNameSpace() + "/";
+        prefix = settings.getNamespace() + "/";
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(settings.getBaseSleepTimeMs(), settings.getMaxRetries());
         this.client = CuratorFrameworkFactory.newClient(settings.getHostPort(), retryPolicy);
         client.start();
-        this.childrenCache = new PathChildrenCache(client, settings.getNameSpace(), true);
+        this.childrenCache = new PathChildrenCache(client, settings.getNamespace(), true);
         this.childrenCache.start();
     }
 

@@ -23,4 +23,8 @@ public class ServiceRegisterException extends RuntimeException {
     public ServiceRegisterException(String message) {
         super(message);
     }
+
+    public ServiceRegisterException(Throwable cause) {
+        super(cause);
+    }
 }

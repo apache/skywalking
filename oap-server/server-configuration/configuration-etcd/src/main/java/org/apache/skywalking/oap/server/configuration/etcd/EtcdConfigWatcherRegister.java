@@ -21,8 +21,11 @@ import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.ClientBuilder;
 import io.etcd.jetcd.KV;
+import io.etcd.jetcd.KeyValue;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.options.GetOption;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -77,8 +80,37 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
 
     @Override
     public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
-        // TODO: implement readGroupConfig
-        return Optional.empty();
+        GroupConfigTable groupConfigTable = new GroupConfigTable();
+        keys.forEach(key -> {
+            GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
+            groupConfigTable.addGroupConfigItems(groupConfigItems);
+            String groupKey = key + "/";
+
+            GetOption option = GetOption.newBuilder()
+                                        .withPrefix(ByteSequence.from(groupKey, Charset.defaultCharset()))
+                                        .build();
+            try {
+                GetResponse response = client.get(ByteSequence.from(groupKey, Charset.defaultCharset()), option).get();
+                if (0 != response.getCount()) {
+                    List<KeyValue> groupItemKeys = response.getKvs();
+                    if (groupItemKeys != null) {
+                        groupItemKeys.forEach(groupItem -> {
+                            String groupItemKey = groupItem.getKey().toString(Charset.defaultCharset());
+                            if (!groupKey.equals(groupItemKey)) {
+                                String itemValue = groupItem.getValue().toString(Charset.defaultCharset());
+                                String itemName = groupItemKey.substring(groupKey.length());
+                                groupConfigItems.add(
+                                    new ConfigTable.ConfigItem(itemName, itemValue));
+                            }
+                        });
+                    }
+                }
+            } catch (Exception exp) {
+                throw new EtcdConfigException("Failed to read configuration", exp);
+            }
+
+        });
+        return Optional.of(groupConfigTable);
     }
 
 }

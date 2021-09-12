@@ -96,7 +96,7 @@ public class ProfileAnalyzer {
         return analyzation;
     }
 
-    protected SequenceSearch getAllSequenceRange(String segmentId, List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
+    protected SequenceSearch getAllSequenceRange(String segmentId, List<ProfileAnalyzeTimeRange> timeRanges) {
         final List<SequenceSearch> searches = timeRanges.parallelStream().map(r -> {
             try {
                 return getAllSequenceRange(segmentId, r.getStart(), r.getEnd());

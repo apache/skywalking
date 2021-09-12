@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import org.testcontainers.containers.GenericContainer;
@@ -49,7 +49,7 @@ public class ITClusterEtcdPluginTest {
 
     private Client client;
 
-    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
+    private final HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
 
     private EtcdCoordinator coordinator;
 
@@ -59,15 +59,22 @@ public class ITClusterEtcdPluginTest {
 
     private static final String SERVICE_NAME = "my-service";
 
-    @ClassRule
-    public static final GenericContainer CONTAINER =
-        new GenericContainer(DockerImageName.parse("bitnami/etcd:3.5.0"))
-            .waitingFor(Wait.forLogMessage(".*etcd setup finished!.*", 1))
-            .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"));
+    @Rule
+    public final GenericContainer<?> container =
+        new GenericContainer<>(DockerImageName.parse("quay.io/coreos/etcd:v3.5.0"))
+            .waitingFor(Wait.forLogMessage(".*ready to serve client requests.*", 1))
+            .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"))
+            .withCommand(
+                "etcd",
+                "--advertise-client-urls", "http://0.0.0.0:2379",
+                "--listen-client-urls", "http://0.0.0.0:2379"
+            );
 
     @Before
     public void before() throws Exception {
-        String baseUrl = "http://127.0.0.1:" + CONTAINER.getMappedPort(2379);
+        String baseUrl = "http://" + container.getHost() + ":" + container.getMappedPort(2379);
+        System.setProperty("etcd.endpoint", baseUrl);
+
         etcdConfig = new ClusterModuleEtcdConfig();
         etcdConfig.setEndpoints(baseUrl);
         etcdConfig.setNamespace("skywalking/");

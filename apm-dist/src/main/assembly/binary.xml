@@ -50,7 +50,7 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../oap-server/server-bootstrap/src/main/resources</directory>
+            <directory>${project.basedir}/../oap-server/server-starter/src/main/resources</directory>
             <includes>
                 <include>application.yml</include>
                 <include>component-libraries.yml</include>

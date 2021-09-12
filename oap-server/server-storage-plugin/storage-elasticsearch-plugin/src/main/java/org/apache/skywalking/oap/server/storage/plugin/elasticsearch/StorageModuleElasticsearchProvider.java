@@ -19,14 +19,8 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
+import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -34,7 +28,6 @@ import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
@@ -53,7 +46,6 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexNameConverter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -118,10 +110,10 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
-        if (StringUtil.isEmpty(config.getNameSpace())) {
-            config.setNameSpace("sw");
+        if (StringUtil.isEmpty(config.getNamespace())) {
+            config.setNamespace("sw");
         } else {
-            config.setNameSpace(config.getNameSpace().toLowerCase());
+            config.setNamespace(config.getNamespace().toLowerCase());
         }
         if (config.getDayStep() > 1) {
             TimeSeriesUtils.setDAY_STEP(config.getDayStep());
@@ -154,7 +146,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                     elasticSearchClient.connect();
                 }
             }, config.getSecretsManagementFile(), config.getTrustStorePass());
-            /**
+            /*
              * By leveraging the sync update check feature when startup.
              */
             monitor.start();
@@ -163,7 +155,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         elasticSearchClient = new ElasticSearchClient(
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
-            indexNameConverters(config.getNameSpace()), config.getConnectTimeout(), config.getSocketTimeout()
+            indexNameConverter(config.getNamespace()), config.getConnectTimeout(),
+            config.getSocketTimeout(), config.getNumHttpClientThread()
         );
         this.registerServiceImplementation(
             IBatchDAO.class,
@@ -215,7 +208,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             StorageEsInstaller installer = new StorageEsInstaller(elasticSearchClient, getManager(), config);
 
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
-        } catch (StorageException | IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
+        } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }
@@ -229,26 +222,12 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         return new String[] {CoreModule.NAME};
     }
 
-    public static List<IndexNameConverter> indexNameConverters(String namespace) {
-        List<IndexNameConverter> converters = new ArrayList<>();
-        converters.add(new NamespaceConverter(namespace));
-        return converters;
-    }
-
-    private static class NamespaceConverter implements IndexNameConverter {
-        private final String namespace;
-
-        public NamespaceConverter(final String namespace) {
-            this.namespace = namespace;
-        }
-
-        @Override
-        public String convert(final String indexName) {
+    public static Function<String, String> indexNameConverter(String namespace) {
+        return indexName -> {
             if (StringUtil.isNotEmpty(namespace)) {
                 return namespace + "_" + indexName;
             }
-
             return indexName;
-        }
+        };
     }
 }

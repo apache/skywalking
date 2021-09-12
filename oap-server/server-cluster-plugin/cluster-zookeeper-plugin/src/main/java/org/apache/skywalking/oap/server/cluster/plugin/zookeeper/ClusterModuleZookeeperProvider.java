@@ -118,7 +118,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         }
         client = builder.build();
 
-        String path = BASE_PATH + (StringUtil.isEmpty(config.getNameSpace()) ? "" : "/" + config.getNameSpace());
+        String path = BASE_PATH + (StringUtil.isEmpty(config.getNamespace()) ? "" : "/" + config.getNamespace());
 
         serviceDiscovery = ServiceDiscoveryBuilder.builder(RemoteInstance.class)
                                                   .client(client)

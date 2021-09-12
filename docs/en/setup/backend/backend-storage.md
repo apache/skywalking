@@ -4,7 +4,7 @@ use one of them by specifying it as the `selector` in `application.yml`：
 
 ```yaml
 storage:
-  selector: ${SW_STORAGE:elasticsearch7}
+  selector: ${SW_STORAGE:elasticsearch}
 ```
 
 Natively supported storage:
@@ -34,9 +34,8 @@ storage:
 
 ## OpenSearch
 
-OpenSearch storage shares the same configurations as ElasticSearch 7.
-In order to activate ElasticSearch 7 as storage, set storage provider to **elasticsearch7**.
-Please download the `apache-skywalking-bin-es7.tar.gz` if you want to use OpenSearch as storage.
+OpenSearch storage shares the same configurations as ElasticSearch.
+In order to activate OpenSearch as storage, set storage provider to **elasticsearch**.
 
 ## ElasticSearch
 
@@ -44,21 +43,18 @@ Please download the `apache-skywalking-bin-es7.tar.gz` if you want to use OpenSe
 License (SSPL), which is incompatible with Apache License 2.0. This license change is effective from Elasticsearch
 version 7.11. So please choose the suitable ElasticSearch version according to your usage.
 
-- In order to activate ElasticSearch 6 as storage, set storage provider to **elasticsearch**
-- In order to activate ElasticSearch 7 as storage, set storage provider to **elasticsearch7**
+Since 8.8.0, SkyWalking rebuilds the ElasticSearch client on top of ElasticSearch REST API and automatically picks up
+correct request formats according to the server side version, hence you don't need to download different binaries
+and don't need to configure different storage selector for different ElasticSearch server side version anymore.
 
-**Required ElasticSearch 6.3.2 or higher. HTTP RestHighLevelClient is used to connect server.**
-
-- For ElasticSearch 6.3.2 ~ 7.0.0 (excluded), please download `apache-skywalking-bin.tar.gz`.
-- For ElasticSearch 7.0.0 ~ 8.0.0 (excluded), please download `apache-skywalking-bin-es7.tar.gz`.
-
-For now, ElasticSearch 6 and ElasticSearch 7 share the same configurations as follows:
+For now, SkyWalking supports ElasticSearch 6.x, ElasticSearch 7.x, and OpenSearch 1.x, their configurations are as
+follows:
 
 ```yaml
 storage:
   selector: ${SW_STORAGE:elasticsearch}
   elasticsearch:
-    nameSpace: ${SW_NAMESPACE:""}
+    namespace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
@@ -86,7 +82,7 @@ storage:
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
 ```
 
-### ElasticSearch 6 With Https SSL Encrypting communications.
+### ElasticSearch With Https SSL Encrypting communications.
 
 Example: 
 
@@ -94,7 +90,7 @@ Example:
 storage:
   selector: ${SW_STORAGE:elasticsearch}
   elasticsearch:
-    # nameSpace: ${SW_NAMESPACE:""}
+    namespace: ${SW_NAMESPACE:""}
     user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
     password: ${SW_ES_PASSWORD:""} # Password to be set when Http Basic authentication is enabled
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:443}
@@ -163,14 +159,14 @@ index.max_result_window: 1000000
 We strongly recommend that you read more about these configurations from ElasticSearch's official document, since they have a direct impact on the performance of ElasticSearch.
 
 
-### ElasticSearch 7 with Zipkin trace extension
-This implementation is very similar to `elasticsearch7`, except that it extends to support Zipkin span storage.
+### ElasticSearch with Zipkin trace extension
+This implementation is very similar to `elasticsearch`, except that it extends to support Zipkin span storage.
 The configurations are largely the same.
 ```yaml
 storage:
-  selector: ${SW_STORAGE:zipkin-elasticsearch7}
-  zipkin-elasticsearch7:
-    nameSpace: ${SW_NAMESPACE:""}
+  selector: ${SW_STORAGE:zipkin-elasticsearch}
+  zipkin-elasticsearch:
+    namespace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     user: ${SW_ES_USER:""}

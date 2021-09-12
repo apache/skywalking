@@ -23,6 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Query;
+import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -33,12 +40,6 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 
 public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO {
     public TopNRecordsQueryEsDAO(ElasticSearchClient client) {
@@ -49,32 +50,41 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
     public List<SelectedRecord> readSampledRecords(final TopNCondition condition,
                                                    final String valueColumnName,
                                                    final Duration duration) throws IOException {
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(TopN.TIME_BUCKET)
-                                                 .gte(duration.getStartTimeBucketInSec())
-                                                 .lte(duration.getEndTimeBucketInSec()));
+        final BoolQueryBuilder query =
+            Query.bool()
+                 .must(Query.range(TopN.TIME_BUCKET)
+                            .gte(duration.getStartTimeBucketInSec())
+                            .lte(duration.getEndTimeBucketInSec()));
 
         if (StringUtil.isNotEmpty(condition.getParentService())) {
-            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(TopN.SERVICE_ID, serviceId));
+            final String serviceId =
+                IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
+            query.must(Query.term(TopN.SERVICE_ID, serviceId));
         }
 
-        sourceBuilder.query(boolQueryBuilder);
-        sourceBuilder.size(condition.getTopN())
-                     .sort(valueColumnName, condition.getOrder().equals(Order.DES) ? SortOrder.DESC : SortOrder.ASC);
-        SearchResponse response = getClient().search(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()), sourceBuilder);
+        final SearchBuilder search =
+            Search.builder()
+                  .query(query)
+                  .size(condition.getTopN())
+                  .sort(
+                      valueColumnName,
+                      condition.getOrder().equals(Order.DES) ?
+                          Sort.Order.DESC : Sort.Order.ASC
+                  );
+        final SearchResponse response = getClient().search(
+            IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()),
+            search.build()
+        );
 
         List<SelectedRecord> results = new ArrayList<>(condition.getTopN());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             SelectedRecord record = new SelectedRecord();
-            final Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
+            final Map<String, Object> sourceAsMap = searchHit.getSource();
             record.setName((String) sourceAsMap.get(TopN.STATEMENT));
             record.setRefId((String) sourceAsMap.get(TopN.TRACE_ID));
             record.setId(record.getRefId());
-            record.setValue(((Number) sourceAsMap.get(valueColumnName)).toString());
+            record.setValue(sourceAsMap.get(valueColumnName).toString());
             results.add(record);
         }
 

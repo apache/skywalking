@@ -33,7 +33,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.Assert.assertEquals;
@@ -47,8 +51,18 @@ public class ITZookeeperConfigurationTest {
 
     private MockZookeeperConfigurationProvider provider;
 
+    @Rule
+    public final GenericContainer<?> container =
+        new GenericContainer<>(DockerImageName.parse("zookeeper:3.5"))
+            .waitingFor(Wait.forLogMessage(".*binding to port.*", 1));
+
+    private String zkAddress;
+
     @Before
     public void setUp() throws Exception {
+        zkAddress = container.getHost() + ":" + container.getMappedPort(2181);
+        System.setProperty("zk.address", zkAddress);
+
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
 
@@ -64,26 +78,23 @@ public class ITZookeeperConfigurationTest {
     @SuppressWarnings("StatementWithEmptyBody")
     @Test(timeout = 20000)
     public void shouldReadUpdated() throws Exception {
-        String nameSpace = "/default";
+        String namespace = "/default";
         String key = "test-module.default.testKey";
         assertNull(provider.watcher.value());
-
-        String zkAddress = System.getProperty("zk.address");
-        log.info("zkAddress: " + zkAddress);
 
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
         client.start();
-        log.info("per path: " + nameSpace + "/" + key);
+        log.info("per path: " + namespace + "/" + key);
 
-        assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key, "500".getBytes()) != null);
+        assertTrue(client.create().creatingParentsIfNeeded().forPath(namespace + "/" + key, "500".getBytes()) != null);
 
-        log.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key)));
+        log.info("data: " + new String(client.getData().forPath(namespace + "/" + key)));
 
         for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
         }
 
-        assertTrue(client.delete().forPath(nameSpace + "/" + key) == null);
+        assertTrue(client.delete().forPath(namespace + "/" + key) == null);
 
         for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
         }
@@ -93,31 +104,28 @@ public class ITZookeeperConfigurationTest {
 
     @Test(timeout = 20000)
     public void shouldReadUpdated4GroupConfig() throws Exception {
-        String nameSpace = "/default";
+        String namespace = "/default";
         String key = "test-module.default.testKeyGroup";
         assertEquals("{}", provider.groupWatcher.groupItems().toString());
-
-        String zkAddress = System.getProperty("zk.address");
-        log.info("zkAddress: " + zkAddress);
 
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
         client.start();
-        log.info("per path: " + nameSpace + "/" + key);
+        log.info("per path: " + namespace + "/" + key);
 
-        assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key + "/item1", "100".getBytes()) != null);
-        assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key + "/item2", "200".getBytes()) != null);
+        assertTrue(client.create().creatingParentsIfNeeded().forPath(namespace + "/" + key + "/item1", "100".getBytes()) != null);
+        assertTrue(client.create().creatingParentsIfNeeded().forPath(namespace + "/" + key + "/item2", "200".getBytes()) != null);
 
-        log.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key + "/item1")));
-        log.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key + "/item2")));
+        log.info("data: " + new String(client.getData().forPath(namespace + "/" + key + "/item1")));
+        log.info("data: " + new String(client.getData().forPath(namespace + "/" + key + "/item2")));
 
         for (String v = provider.groupWatcher.groupItems().get("item1"); v == null; v = provider.groupWatcher.groupItems().get("item1")) {
         }
         for (String v = provider.groupWatcher.groupItems().get("item2"); v == null; v = provider.groupWatcher.groupItems().get("item2")) {
         }
 
-        assertTrue(client.delete().forPath(nameSpace + "/" + key + "/item1") == null);
-        assertTrue(client.delete().forPath(nameSpace + "/" + key + "/item2") == null);
+        assertTrue(client.delete().forPath(namespace + "/" + key + "/item1") == null);
+        assertTrue(client.delete().forPath(namespace + "/" + key + "/item2") == null);
 
         for (String v = provider.groupWatcher.groupItems().get("item1"); v != null; v = provider.groupWatcher.groupItems().get("item1")) {
         }

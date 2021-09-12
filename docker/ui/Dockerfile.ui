@@ -14,23 +14,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM adoptopenjdk/openjdk11:alpine
+FROM adoptopenjdk/openjdk11:alpine-jre
 
-ENV DIST_NAME=apache-skywalking-apm-bin \
-    JAVA_OPTS=" -Xms256M " \
+ENV JAVA_OPTS=" -Xms256M " \
     SW_OAP_ADDRESS="http://127.0.0.1:12800"
 
-COPY "$DIST_NAME.tar.gz" /
+WORKDIR skywalking
 
 RUN set -ex; \
-    apk add bash; \
-    tar -xzf "$DIST_NAME.tar.gz"; \
-    rm -rf "$DIST_NAME.tar.gz"; \
-    rm -rf "$DIST_NAME/config"; \
-    rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/oap-libs"; rm -rf "$DIST_NAME/agent"; \
-    mv "$DIST_NAME" skywalking;
+    apk add --no-cache \
+    bash
 
-WORKDIR skywalking
+ARG DIST
+COPY "$DIST" .
+
+RUN tar -xzf "$DIST" --strip 1; \
+    rm -rf "$DIST"; \
+    rm -rf "config"; \
+    rm -rf "bin"; \
+    rm -rf "oap-libs"; \
+    rm -rf "agent";
 
 COPY docker-entrypoint.sh .
 COPY logback.xml webapp/

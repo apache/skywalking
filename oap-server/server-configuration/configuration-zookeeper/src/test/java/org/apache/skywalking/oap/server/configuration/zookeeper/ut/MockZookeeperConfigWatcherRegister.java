@@ -33,7 +33,7 @@ public class MockZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
 
     public MockZookeeperConfigWatcherRegister(ZookeeperServerSettings settings) throws Exception {
         super(settings.getPeriod());
-        prefix = settings.getNameSpace() + "/";
+        prefix = settings.getNamespace() + "/";
     }
 
     @Override

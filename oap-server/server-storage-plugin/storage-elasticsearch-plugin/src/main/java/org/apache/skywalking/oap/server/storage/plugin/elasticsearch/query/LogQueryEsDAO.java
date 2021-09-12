@@ -18,8 +18,16 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.List;
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Query;
+import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
@@ -36,14 +44,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.apm.util.StringUtil.isNotEmpty;
@@ -71,46 +71,44 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
                           final List<Tag> tags,
                           final List<String> keywordsOfContent,
                           final List<String> excludingKeywordsOfContent) throws IOException {
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(LogRecord.INDEX_NAME);
 
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
-        List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
-
+        final BoolQueryBuilder query = Query.bool();
         if (startSecondTB != 0 && endSecondTB != 0) {
-            mustQueryList.add(QueryBuilders.rangeQuery(Record.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
+            query.must(Query.range(Record.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
         }
         if (isNotEmpty(serviceId)) {
-            mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_ID, serviceId));
+            query.must(Query.term(AbstractLogRecord.SERVICE_ID, serviceId));
         }
         if (isNotEmpty(serviceInstanceId)) {
-            mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
+            query.must(Query.term(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (isNotEmpty(endpointId)) {
-            mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.ENDPOINT_ID, endpointId));
+            query.must(Query.term(AbstractLogRecord.ENDPOINT_ID, endpointId));
         }
         if (nonNull(relatedTrace)) {
             if (isNotEmpty(relatedTrace.getTraceId())) {
-                mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.TRACE_ID, relatedTrace.getTraceId()));
+                query.must(Query.term(AbstractLogRecord.TRACE_ID, relatedTrace.getTraceId()));
             }
             if (isNotEmpty(relatedTrace.getSegmentId())) {
-                mustQueryList.add(
-                    QueryBuilders.termQuery(AbstractLogRecord.TRACE_SEGMENT_ID, relatedTrace.getSegmentId()));
+                query.must(
+                    Query.term(AbstractLogRecord.TRACE_SEGMENT_ID, relatedTrace.getSegmentId()));
             }
             if (nonNull(relatedTrace.getSpanId())) {
-                mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.SPAN_ID, relatedTrace.getSpanId()));
+                query.must(Query.term(AbstractLogRecord.SPAN_ID, relatedTrace.getSpanId()));
             }
         }
 
         if (CollectionUtils.isNotEmpty(tags)) {
-            tags.forEach(tag -> mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.TAGS, tag.toString())));
+            tags.forEach(tag -> query.must(Query.term(AbstractLogRecord.TAGS, tag.toString())));
         }
 
         if (CollectionUtils.isNotEmpty(keywordsOfContent)) {
             keywordsOfContent.forEach(
                 content ->
-                    mustQueryList.add(
-                        QueryBuilders.matchPhraseQuery(
+                    query.must(
+                        Query.matchPhrase(
                             MatchCNameBuilder.INSTANCE.build(AbstractLogRecord.CONTENT),
                             content
                         )
@@ -121,8 +119,8 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
         if (CollectionUtils.isNotEmpty(excludingKeywordsOfContent)) {
             excludingKeywordsOfContent.forEach(
                 content ->
-                    boolQueryBuilder.mustNot(
-                        QueryBuilders.matchPhraseQuery(
+                    query.mustNot(
+                        Query.matchPhrase(
                             MatchCNameBuilder.INSTANCE.build(AbstractLogRecord.CONTENT),
                             content
                         )
@@ -130,31 +128,41 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
             );
         }
 
-        sourceBuilder.sort(LogRecord.TIMESTAMP, Order.DES.equals(queryOrder) ? SortOrder.DESC : SortOrder.ASC);
-        sourceBuilder.size(limit);
-        sourceBuilder.from(from);
+        final SearchBuilder search =
+            Search.builder().query(query)
+                  .sort(
+                      LogRecord.TIMESTAMP,
+                      Order.DES.equals(queryOrder) ?
+                          Sort.Order.DESC : Sort.Order.ASC
+                  )
+                  .size(limit)
+                  .from(from);
 
-        SearchResponse response = getClient()
-            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(LogRecord.INDEX_NAME), sourceBuilder);
+        SearchResponse response = getClient().search(index, search.build());
 
         Logs logs = new Logs();
-        logs.setTotal((int) response.getHits().totalHits);
+        logs.setTotal(response.getHits().getTotal());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             Log log = new Log();
-            log.setServiceId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.SERVICE_ID));
-            log.setServiceInstanceId((String) searchHit.getSourceAsMap()
+            log.setServiceId((String) searchHit.getSource().get(AbstractLogRecord.SERVICE_ID));
+            log.setServiceInstanceId((String) searchHit.getSource()
                                                        .get(AbstractLogRecord.SERVICE_INSTANCE_ID));
-            log.setEndpointId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_ID));
+            log.setEndpointId(
+                (String) searchHit.getSource().get(AbstractLogRecord.ENDPOINT_ID));
             if (log.getEndpointId() != null) {
-                log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+                log.setEndpointName(
+                    IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
             }
-            log.setTraceId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.TRACE_ID));
-            log.setTimestamp(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.TIMESTAMP)).longValue());
+            log.setTraceId((String) searchHit.getSource().get(AbstractLogRecord.TRACE_ID));
+            log.setTimestamp(
+                ((Number) searchHit.getSource().get(AbstractLogRecord.TIMESTAMP)).longValue());
             log.setContentType(ContentType.instanceOf(
-                ((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
-            log.setContent((String) searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT));
-            String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(AbstractLogRecord.TAGS_RAW_DATA);
+                ((Number) searchHit.getSource()
+                                   .get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
+            log.setContent((String) searchHit.getSource().get(AbstractLogRecord.CONTENT));
+            String dataBinaryBase64 =
+                (String) searchHit.getSource().get(AbstractLogRecord.TAGS_RAW_DATA);
             if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                 parserDataBinary(dataBinaryBase64, log.getTags());
             }

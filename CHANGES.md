@@ -8,6 +8,7 @@ Release Notes.
 #### Project
 
 * Split javaagent into skywalking-java repository. https://github.com/apache/skywalking-java
+* Merge `Dockerfile`s from apache/skywalking-docker into this codebase. 
 
 #### OAP Server
 
@@ -54,6 +55,14 @@ Release Notes.
 * Support mTLS for gRPC channel.
 * Add yaml file suffix limit when reading ui templates.
 * Support consul grouped dynamic configurations.
+* Fix `H2MetadataQueryDAO.searchService` doesn't support auto grouping.
+* Rebuilt ElasticSearch client on top of their REST API.
+* Fix ElasticSearch storage plugin doesn't work when hot reloading from `secretsManagementFile`.
+* Support etcd grouped dynamic configurations.
+* Unified the config word `namespace` in the project.
+* Switch JRE base image for dev images.
+* Support apollo grouped dynamic configurations.
+* Fix `ProfileThreadSnapshotQuery.queryProfiledSegments` adopts a wrong sort function
 
 #### UI
 
@@ -62,6 +71,7 @@ Release Notes.
 * Add Python falcon icon on the UI.
 * Fix searching endpoints with keywords.
 * Support clicking the service name in the chart to link to the trace or log page.
+* Implement the Log Analysis Language text regexp debugger.
 
 #### Documentation
 

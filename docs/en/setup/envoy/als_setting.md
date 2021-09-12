@@ -96,7 +96,7 @@ The [blog](https://skywalking.apache.org/blog/obs-service-mesh-vm-with-sw-and-al
 `persistence` analyzer adapts the Envoy access log format to
 SkyWalking's [native log format](https://github.com/apache/skywalking-data-collect-protocol/blob/master/logging/Logging.proto), and forwards the formatted logs to [LAL](../../concepts-and-designs/lal.md), where you can configure persistent
 conditions, such as `sampler`, only persist error logs, etc. SkyWalking provides a default configuration
-file [`envoy-als.yaml`](../../../../oap-server/server-bootstrap/src/main/resources/lal/envoy-als.yaml) that you can
+file [`envoy-als.yaml`](../../../../oap-server/server-starter/src/main/resources/lal/envoy-als.yaml) that you can
 adjust as per your needs. Please make sure to activate this rule via adding the rule name `envoy-als`
 into config item `log-analyzer/default/lalFiles` (or environment variable `SW_LOG_LAL_FILES`,
 e.g. `SW_LOG_LAL_FILES=envoy-als`).

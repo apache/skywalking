@@ -30,7 +30,7 @@ In addition, you can integrate
 ## Architecture
 SkyWalking is logically split into four parts: Probes, Platform backend, Storage and UI.
 
-<img src="https://skywalking.apache.org/assets/frame-v8.jpg?u=20200423"/>
+<img src="https://skywalking.apache.org/images/SkyWalking_Architecture_20210424.png?t=20210424"/>
 
 - **Probe**s collect data and reformat them for SkyWalking requirements (different probes support different sources).
 - **Platform backend** supports data aggregation, analysis and streaming process covers traces, metrics, and logs.

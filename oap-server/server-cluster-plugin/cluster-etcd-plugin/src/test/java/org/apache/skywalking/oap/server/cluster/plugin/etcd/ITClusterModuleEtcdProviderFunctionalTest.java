@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
@@ -49,20 +49,26 @@ import static org.mockito.Mockito.mock;
 
 public class ITClusterModuleEtcdProviderFunctionalTest {
 
-    private static String ENDPOINTS;
-    private static NoneTelemetryProvider TELEMETRY_PROVIDER = mock(NoneTelemetryProvider.class);
+    private String endpoint;
+    private NoneTelemetryProvider telemetryProvider;
 
-    @ClassRule
-    public static final GenericContainer CONTAINER =
-        new GenericContainer(DockerImageName.parse("bitnami/etcd:3.5.0"))
-            .waitingFor(Wait.forLogMessage(".*etcd setup finished!.*", 1))
-            .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"));
+    @Rule
+    public final GenericContainer<?> container =
+        new GenericContainer<>(DockerImageName.parse("quay.io/coreos/etcd:v3.5.0"))
+            .waitingFor(Wait.forLogMessage(".*ready to serve client requests.*", 1))
+            .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"))
+            .withCommand(
+                "etcd",
+                "--advertise-client-urls", "http://0.0.0.0:2379",
+                "--listen-client-urls", "http://0.0.0.0:2379"
+            );
 
     @Before
     public void setup() {
-        Mockito.when(TELEMETRY_PROVIDER.getService(MetricsCreator.class))
+        telemetryProvider = mock(NoneTelemetryProvider.class);
+        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                .thenReturn(new MetricsCreatorNoop());
-        ENDPOINTS = "http://127.0.0.1:" + CONTAINER.getMappedPort(2379);
+        endpoint = "http://" + container.getHost() + ":" + container.getMappedPort(2379);
     }
 
     @Test
@@ -92,7 +98,8 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
 
         List<RemoteInstance> remoteInstances = queryRemoteNodes(provider, 1);
 
-        ClusterModuleEtcdConfig config = (ClusterModuleEtcdConfig) provider.createConfigBeanIfAbsent();
+        ClusterModuleEtcdConfig config =
+            (ClusterModuleEtcdConfig) provider.createConfigBeanIfAbsent();
         assertEquals(1, remoteInstances.size());
         Address queryAddress = remoteInstances.get(0).getAddress();
         assertEquals(config.getInternalComHost(), queryAddress.getHost());
@@ -174,17 +181,20 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         assertTrue(addressB.isSelf());
     }
 
-    private ClusterModuleEtcdProvider createProvider(String serviceName) throws ModuleStartException {
+    private ClusterModuleEtcdProvider createProvider(String serviceName)
+        throws ModuleStartException {
         return createProvider(serviceName, null, 0);
     }
 
     private ClusterModuleEtcdProvider createProvider(String serviceName, String internalComHost,
-                                                     int internalComPort) throws ModuleStartException {
+                                                     int internalComPort)
+        throws ModuleStartException {
         ClusterModuleEtcdProvider provider = new ClusterModuleEtcdProvider();
 
-        ClusterModuleEtcdConfig config = (ClusterModuleEtcdConfig) provider.createConfigBeanIfAbsent();
+        ClusterModuleEtcdConfig config =
+            (ClusterModuleEtcdConfig) provider.createConfigBeanIfAbsent();
 
-        config.setEndpoints(ENDPOINTS);
+        config.setEndpoints(endpoint);
         config.setServiceName(serviceName);
 
         if (!StringUtil.isEmpty(internalComHost)) {
@@ -195,7 +205,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
             config.setInternalComPort(internalComPort);
         }
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", TELEMETRY_PROVIDER);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         ModuleManager manager = mock(ModuleManager.class);
         Mockito.when(manager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
 
@@ -214,7 +224,8 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         return provider.getService(ClusterNodesQuery.class);
     }
 
-    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals) throws InterruptedException {
+    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals)
+        throws InterruptedException {
         return queryRemoteNodes(provider, goals, 20);
     }
 
@@ -229,10 +240,11 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
             }
         }
         while (--cyclic > 0);
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    private void validateServiceInstance(Address selfAddress, Address otherAddress, List<RemoteInstance> queryResult) {
+    private void validateServiceInstance(Address selfAddress, Address otherAddress,
+                                         List<RemoteInstance> queryResult) {
         assertEquals(2, queryResult.size());
 
         boolean selfExist = false, otherExist = false;

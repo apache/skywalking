@@ -34,9 +34,9 @@ services:
   oap:
     extends:
       file: ../base-compose.yml
-      service: oap-es7
+      service: oap
     environment:
-      SW_STORAGE: elasticsearch7
+      SW_STORAGE: elasticsearch
       SW_STORAGE_ES_BULK_ACTIONS: 1
       SW_CORE_DATA_KEEPER_EXECUTE_PERIOD: 1
       SW_STORAGE_ES_FLUSH_INTERVAL: 1

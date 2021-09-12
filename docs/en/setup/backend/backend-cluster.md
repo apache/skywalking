@@ -47,7 +47,7 @@ The following settings are provided to set the host and port manually, based on 
 
 ```yaml
 zookeeper:
-  nameSpace: ${SW_NAMESPACE:""}
+  namespace: ${SW_NAMESPACE:""}
   hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
   #Retry Policy
   baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries

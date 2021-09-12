@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -77,7 +76,7 @@ public class MetricQuery implements GraphQLQueryResolver {
     }
 
     public IntValues getLinearIntValues(final MetricCondition metrics,
-                                        final Duration duration) throws IOException, ParseException {
+                                        final Duration duration) throws IOException {
 
         MetricsCondition condition = new MetricsCondition();
         condition.setName(metrics.getName());
@@ -88,7 +87,7 @@ public class MetricQuery implements GraphQLQueryResolver {
     }
 
     public List<IntValues> getMultipleLinearIntValues(final MetricCondition metrics, final int numOfLinear,
-                                                      final Duration duration) throws IOException, ParseException {
+                                                      final Duration duration) throws IOException {
         MetricsCondition condition = new MetricsCondition();
         condition.setName(metrics.getName());
         condition.setEntity(new MockEntity(metrics.getId()));
@@ -109,7 +108,7 @@ public class MetricQuery implements GraphQLQueryResolver {
 
     public List<IntValues> getSubsetOfMultipleLinearIntValues(final MetricCondition metrics,
                                                               final List<Integer> linearIndex,
-                                                              final Duration duration) throws IOException, ParseException {
+                                                              final Duration duration) throws IOException {
         MetricsCondition condition = new MetricsCondition();
         condition.setName(metrics.getName());
         condition.setEntity(new MockEntity(metrics.getId()));
@@ -127,7 +126,7 @@ public class MetricQuery implements GraphQLQueryResolver {
     }
 
     public Thermodynamic getThermodynamic(final MetricCondition metrics,
-                                          final Duration duration) throws IOException, ParseException {
+                                          final Duration duration) throws IOException {
         MetricsCondition condition = new MetricsCondition();
         condition.setName(metrics.getName());
         condition.setEntity(new MockEntity(metrics.getId()));

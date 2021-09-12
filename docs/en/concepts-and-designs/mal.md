@@ -248,4 +248,4 @@ They extract level relevant labels from metric labels, then informs the meter-sy
 
 ## More Examples
 
-Please refer to [OAP Self-Observability](../../../oap-server/server-bootstrap/src/main/resources/fetcher-prom-rules/self.yaml)
+Please refer to [OAP Self-Observability](../../../oap-server/server-starter/src/main/resources/fetcher-prom-rules/self.yaml)

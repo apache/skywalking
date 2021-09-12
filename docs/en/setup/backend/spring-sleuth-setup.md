@@ -35,7 +35,7 @@ receiver-meter:
   default:
 ```
 
-2. Configure the meter config file. It already has the [spring sleuth meter config](../../../../oap-server/server-bootstrap/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
+2. Configure the meter config file. It already has the [spring sleuth meter config](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
 If you have a customized meter at the agent side, please configure the meter using the steps set out in the [meter document](backend-meter.md#meters-configure).
    
 3. Enable Spring sleuth config in `application.yml`.

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,7 +38,6 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
-import org.elasticsearch.common.Strings;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
@@ -77,7 +77,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
         }
 
         final WhereQueryImpl<SelectQueryImpl> whereQuery = select()
-            .function(InfluxConstants.SORT_ASC, SegmentRecord.START_TIME, segments.size())
+            .function(InfluxConstants.SORT_DES, SegmentRecord.START_TIME, segments.size())
             .column(SegmentRecord.SEGMENT_ID)
             .column(SegmentRecord.START_TIME)
             .column(SegmentRecord.ENDPOINT_ID)

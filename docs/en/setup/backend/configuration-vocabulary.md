@@ -47,7 +47,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | prepareThreads| The number of threads used to prepare metrics data to the storage. | SW_CORE_PREPARE_THREADS | 2 |
 | - | - | enableEndpointNameGroupingByOpenapi | Automatically groups endpoints by the given OpenAPI definitions. | SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI | true |
 |cluster|standalone| - | Standalone is not suitable for running on a single node running. No configuration available. | - | - |
-| - | zookeeper|nameSpace| The namespace, represented by root path, isolates the configurations in Zookeeper.|SW_NAMESPACE| `/`, root path|
+| - | zookeeper|namespace| The namespace, represented by root path, isolates the configurations in Zookeeper.|SW_NAMESPACE| `/`, root path|
 | - | - | hostPort| Hosts and ports of Zookeeper Cluster. |SW_CLUSTER_ZK_HOST_PORT| localhost:2181|
 | - | - | baseSleepTimeMs| The period of Zookeeper client between two retries (in milliseconds). |SW_CLUSTER_ZK_SLEEP_TIME|1000|
 | - | - | maxRetries| The maximum retry time. |SW_CLUSTER_ZK_MAX_RETRIES|3|
@@ -79,12 +79,13 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | password | Nacos Auth password. | SW_CLUSTER_NACOS_PASSWORD | - |
 | - | - | accessKey | Nacos Auth accessKey. | SW_CLUSTER_NACOS_ACCESSKEY | - |
 | - | - | secretKey | Nacos Auth secretKey.  | SW_CLUSTER_NACOS_SECRETKEY | - |
-| storage|elasticsearch| - | ElasticSearch 6 storage implementation. | - | - |
-| - | - | nameSpace | Prefix of indexes created and used by SkyWalking. | SW_NAMESPACE | - |
+| storage|elasticsearch| - | ElasticSearch (and OpenSearch) storage implementation. | - | - |
+| - | - | namespace | Prefix of indexes created and used by SkyWalking. | SW_NAMESPACE | - |
 | - | - | clusterNodes | ElasticSearch cluster nodes for client connection.| SW_STORAGE_ES_CLUSTER_NODES |localhost|
 | - | - | protocol | HTTP or HTTPs. | SW_STORAGE_ES_HTTP_PROTOCOL | HTTP|
 | - | - | connectTimeout | Connect timeout of ElasticSearch client (in milliseconds). | SW_STORAGE_ES_CONNECT_TIMEOUT | 500|
 | - | - | socketTimeout | Socket timeout of ElasticSearch client (in milliseconds). | SW_STORAGE_ES_SOCKET_TIMEOUT | 30000|
+| - | - | numHttpClientThread | The number of threads for the underlying HTTP client to perform socket I/O. If the value is <= 0, the number of available processors will be used. | SW_STORAGE_ES_NUM_HTTP_CLIENT_THREAD | 0 |
 | - | - | user| Username of ElasticSearch cluster. | SW_ES_USER | - |
 | - | - | password | Password of ElasticSearch cluster. | SW_ES_PASSWORD | - |
 | - | - | trustStorePath | Trust JKS file path. Only works when username and password are enabled. | SW_STORAGE_ES_SSL_JKS_PATH | - |
@@ -98,32 +99,6 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | superDatasetIndexReplicasNumber | Represents the replicas number in the super size dataset record index. |SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER|0 |
 | - | - | indexTemplateOrder| The order of index template. | SW_STORAGE_ES_INDEX_TEMPLATE_ORDER| 0|
 | - | - | bulkActions| Async bulk size of the record data batch execution. | SW_STORAGE_ES_BULK_ACTIONS| 5000|
-| - | - | flushInterval| Period of flush (in seconds). Does not matter whether `bulkActions` is reached or not. INT(flushInterval * 2/3) is used for index refresh period. | SW_STORAGE_ES_FLUSH_INTERVAL | 15 (index refresh period = 10)|
-| - | - | concurrentRequests| The number of concurrent requests allowed to be executed. | SW_STORAGE_ES_CONCURRENT_REQUESTS| 2 |
-| - | - | resultWindowMaxSize | The maximum size of dataset when the OAP loads cache, such as network aliases. | SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE | 10000|
-| - | - | metadataQueryMaxSize | The maximum size of metadata per query. | SW_STORAGE_ES_QUERY_MAX_SIZE | 5000 |
-| - | - | segmentQueryMaxSize | The maximum size of trace segments per query. | SW_STORAGE_ES_QUERY_SEGMENT_SIZE | 200|
-| - | - | profileTaskQueryMaxSize | The maximum size of profile task per query. | SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE | 200|
-| - | - | advanced | All settings of ElasticSearch index creation. The value should be in JSON format. | SW_STORAGE_ES_ADVANCED | - |
-| - |elasticsearch7| - | ElasticSearch 7 storage implementation. | - | - |
-| - | - | nameSpace | Prefix of indexes created and used by SkyWalking. | SW_NAMESPACE | - |
-| - | - | clusterNodes | ElasticSearch cluster nodes for client connection.| SW_STORAGE_ES_CLUSTER_NODES |localhost|
-| - | - | protocol | HTTP or HTTPs. | SW_STORAGE_ES_HTTP_PROTOCOL | HTTP|
-| - | - | connectTimeout | Connect timeout of ElasticSearch client (in milliseconds). | SW_STORAGE_ES_CONNECT_TIMEOUT | 500|
-| - | - | socketTimeout | Socket timeout of ElasticSearch client (in milliseconds). | SW_STORAGE_ES_SOCKET_TIMEOUT | 30000|
-| - | - | user| Username of ElasticSearch cluster.| SW_ES_USER | - |
-| - | - | password | Password of ElasticSearch cluster. | SW_ES_PASSWORD | - |
-| - | - | trustStorePath | Trust JKS file path. Only works when username and password are enabled. | SW_STORAGE_ES_SSL_JKS_PATH | - |
-| - | - | trustStorePass | Trust JKS file password. Only works when username and password are enabled. | SW_STORAGE_ES_SSL_JKS_PASS | - |
-| - | - | secretsManagementFile| Secrets management file in the properties format, including username and password, which are managed by a 3rd party tool. Capable of being updated at runtime. |SW_ES_SECRETS_MANAGEMENT_FILE | - |
-| - | - | dayStep| Represents the number of days in the one-minute/hour/day index. | SW_STORAGE_DAY_STEP | 1|
-| - | - | indexShardsNumber | Shard number of new indexes. | SW_STORAGE_ES_INDEX_SHARDS_NUMBER | 1 |
-| - | - | indexReplicasNumber | Replicas number of new indexes. | SW_STORAGE_ES_INDEX_REPLICAS_NUMBER | 0 |
-| - | - | superDatasetDayStep | Represents the number of days in the super size dataset record index. Default value is the same as dayStep when the value is less than 0. |SW_SUPERDATASET_STORAGE_DAY_STEP|-1 |
-| - | - | superDatasetIndexShardsFactor | Super dataset is defined in the code (e.g. trace segments). This factor provides more shards for the super dataset: shards number = indexShardsNumber * superDatasetIndexShardsFactor. This factor also affects Zipkin and Jaeger traces. |SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR|5 |
-| - | - | superDatasetIndexReplicasNumber | Represents the replicas number in the super size dataset record index. |SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER|0 |
-| - | - | indexTemplateOrder| The order of index template. | SW_STORAGE_ES_INDEX_TEMPLATE_ORDER| 0|
-| - | - | bulkActions| Async bulk size of data batch execution. | SW_STORAGE_ES_BULK_ACTIONS| 5000|
 | - | - | flushInterval| Period of flush (in seconds). Does not matter whether `bulkActions` is reached or not. INT(flushInterval * 2/3) is used for index refresh period. | SW_STORAGE_ES_FLUSH_INTERVAL | 15 (index refresh period = 10)|
 | - | - | concurrentRequests| The number of concurrent requests allowed to be executed. | SW_STORAGE_ES_CONCURRENT_REQUESTS| 2 |
 | - | - | resultWindowMaxSize | The maximum size of dataset when the OAP loads cache, such as network aliases. | SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE | 10000|
@@ -261,12 +236,12 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | apolloEnv | `env` in Apollo. | SW_CONFIG_APOLLO_ENV | - |
 | - | - | appId | `app.id` in Apollo. | SW_CONFIG_APOLLO_APP_ID | skywalking |
 | - | - | period | The period of data sync (in seconds). | SW_CONFIG_APOLLO_PERIOD | 60 |
-| - | zookeeper|nameSpace| The namespace (represented by root path) that isolates the configurations in the Zookeeper. |SW_CONFIG_ZK_NAMESPACE| `/`, root path|
+| - | zookeeper|namespace| The namespace (represented by root path) that isolates the configurations in the Zookeeper. |SW_CONFIG_ZK_NAMESPACE| `/`, root path|
 | - | - | hostPort| Hosts and ports of Zookeeper Cluster. |SW_CONFIG_ZK_HOST_PORT| localhost:2181|
 | - | - | baseSleepTimeMs|The period of Zookeeper client between two retries (in milliseconds). |SW_CONFIG_ZK_BASE_SLEEP_TIME_MS|1000|
 | - | - | maxRetries| The maximum retry time. |SW_CONFIG_ZK_MAX_RETRIES|3|
 | - | - | period | The period of data sync (in seconds). | SW_CONFIG_ZK_PERIOD | 60 |
-| - | etcd| endpoints | Hosts and ports for etcd cluster (separated by commas if multiple). | SW_CONFIG_ETCD_ENDPOINTS | localhost:2379 | 
+| - | etcd| endpoints | Hosts and ports for etcd cluster (separated by commas if multiple). | SW_CONFIG_ETCD_ENDPOINTS | http://localhost:2379 | 
 | - | - | namespace | Namespace for SkyWalking cluster. |SW_CONFIG_ETCD_NAMESPACE | /skywalking |
 | - | - | authentication | Indicates whether there is authentication. | SW_CONFIG_ETCD_AUTHENTICATION | false |
 | - | - | user | Etcd auth username. | SW_CONFIG_ETCD_USER | |

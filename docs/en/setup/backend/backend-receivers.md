@@ -170,7 +170,7 @@ for identification of the metric data.
 
 ## Zipkin receiver
 The Zipkin receiver makes the OAP server work as an alternative Zipkin server implementation. It supports Zipkin v1/v2 formats through HTTP service.
-Make sure you use this with `SW_STORAGE=zipkin-elasticsearch7` option to activate Zipkin storage implementation.
+Make sure you use this with `SW_STORAGE=zipkin-elasticsearch` option to activate Zipkin storage implementation.
 Once this receiver and storage are activated, SkyWalking's native traces would be ignored, and SkyWalking wouldn't analyze topology, metrics, and endpoint
 dependency from Zipkin's trace. 
 
@@ -189,6 +189,5 @@ receiver_zipkin:
     jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
 ```
 
-NOTE: Zipkin receiver is only provided in `apache-skywalking-apm-es7-x.y.z.tar.gz` tar.
-This requires `zipkin-elasticsearch7` storage implementation to be activated.
+NOTE: Zipkin receiver requires `zipkin-elasticsearch` storage implementation to be activated.
 Read [this](backend-storage.md#elasticsearch-7-with-zipkin-trace-extension) doc to learn about Zipkin as a storage option.
