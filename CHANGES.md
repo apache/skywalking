@@ -63,6 +63,7 @@ Release Notes.
 * Switch JRE base image for dev images.
 * Support apollo grouped dynamic configurations.
 * Fix `ProfileThreadSnapshotQuery.queryProfiledSegments` adopts a wrong sort function
+* Support gRPC sync grouped dynamic configurations.
 
 #### UI
 
