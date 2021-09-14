@@ -55,11 +55,25 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
         preparedStatement.execute();
     }
 
-    public String getSql() {
-        return sql;
+    public void setParameters(PreparedStatement preparedStatement) throws SQLException {
+        for (int i = 0; i < param.size(); i++) {
+            preparedStatement.setObject(i + 1, param.get(i));
+        }
     }
 
-    public List<Object> getParam() {
-        return param;
+    @Override
+    public boolean equals(Object o) {
+        SQLExecutor s = (SQLExecutor) o;
+        return sql == s.sql;
+    }
+
+    @Override
+    public int hashCode() {
+        return sql.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return sql;
     }
 }

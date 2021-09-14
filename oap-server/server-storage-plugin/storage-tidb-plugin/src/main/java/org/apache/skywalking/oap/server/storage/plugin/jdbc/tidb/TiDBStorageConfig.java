@@ -26,11 +26,15 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLStorageCo
 @Getter
 public class TiDBStorageConfig extends MySQLStorageConfig {
     /**
-     * max size per batch execute sql
+     * The maximum size of batch size of SQL execution
+     *
+     * @since 8.8.0
      */
     private int maxSizeOfBatchSql = 2000;
     /**
      * async batch execute pool size
+     *
+     * @since 8.8.0
      */
     private int asyncBatchPersistentPoolSize  = 4;
 }
