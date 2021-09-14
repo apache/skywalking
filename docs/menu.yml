@@ -61,6 +61,8 @@ catalog:
         path: "/en/setup/service-agent/server-agents"
       - name: "Browser Agent"
         path: "/en/setup/service-agent/browser-agent"
+      - name: "Compatibility"
+        path: "/en/setup/service-agent/agent-compatibility"
       - name: "Backend"
         catalog:
           - name: "Quick Start"
