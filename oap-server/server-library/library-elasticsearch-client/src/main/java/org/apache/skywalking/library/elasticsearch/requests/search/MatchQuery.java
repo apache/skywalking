@@ -38,10 +38,14 @@ public final class MatchQuery extends Query {
         public void serialize(final MatchQuery value, final JsonGenerator gen,
                               final SerializerProvider provider)
             throws IOException {
-            gen.writeFieldName("match");
             gen.writeStartObject();
             {
-                gen.writeStringField(value.getName(), value.getText());
+                gen.writeFieldName("match");
+                gen.writeStartObject();
+                {
+                    gen.writeStringField(value.getName(), value.getText());
+                }
+                gen.writeEndObject();
             }
             gen.writeEndObject();
         }
