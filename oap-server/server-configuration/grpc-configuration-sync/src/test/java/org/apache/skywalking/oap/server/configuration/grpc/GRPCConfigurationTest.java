@@ -63,8 +63,8 @@ public class GRPCConfigurationTest {
 
     @Test(timeout = 20000)
     public void shouldReadUpdated() throws Exception {
-        AtomicInteger dataFlage = new AtomicInteger(0);
-        grpcServerRule.getServiceRegistry().addService(new MockGRPCConfigService(dataFlage));
+        AtomicInteger dataFlag = new AtomicInteger(0);
+        grpcServerRule.getServiceRegistry().addService(new MockGRPCConfigService(dataFlag));
         assertNull(singleWatcher.value());
         register.registerConfigChangeWatcher(singleWatcher);
         register.start();
@@ -73,19 +73,19 @@ public class GRPCConfigurationTest {
         }
         assertEquals("100", singleWatcher.value());
         //change
-        dataFlage.set(1);
+        dataFlag.set(1);
         TimeUnit.SECONDS.sleep(1);
         for (String v = singleWatcher.value(); v.equals("100"); v = singleWatcher.value()) {
         }
         assertEquals("300", singleWatcher.value());
         //no change
-        dataFlage.set(2);
+        dataFlag.set(2);
         TimeUnit.SECONDS.sleep(3);
         for (String v = singleWatcher.value(); !v.equals("300"); v = singleWatcher.value()) {
         }
         assertEquals("300", singleWatcher.value());
         //delete
-        dataFlage.set(3);
+        dataFlag.set(3);
         TimeUnit.SECONDS.sleep(1);
         for (String v = singleWatcher.value(); v.equals("300"); v = singleWatcher.value()) {
         }
@@ -94,8 +94,8 @@ public class GRPCConfigurationTest {
 
     @Test(timeout = 20000)
     public void shouldReadUpdated4Group() throws Exception {
-        AtomicInteger dataFlage = new AtomicInteger(0);
-        grpcServerRule.getServiceRegistry().addService(new MockGRPCConfigService(dataFlage));
+        AtomicInteger dataFlag = new AtomicInteger(0);
+        grpcServerRule.getServiceRegistry().addService(new MockGRPCConfigService(dataFlag));
         assertEquals("{}", groupWatcher.groupItems().toString());
         register.registerConfigChangeWatcher(groupWatcher);
         register.start();
@@ -111,7 +111,7 @@ public class GRPCConfigurationTest {
         }
         assertEquals("200", groupWatcher.groupItems().get("item2"));
         //change item2
-        dataFlage.set(1);
+        dataFlag.set(1);
         TimeUnit.SECONDS.sleep(1);
         for (String v = groupWatcher.groupItems().get("item2");
             v.equals("200");
@@ -119,12 +119,12 @@ public class GRPCConfigurationTest {
         }
         assertEquals("2000", groupWatcher.groupItems().get("item2"));
         //no change
-        dataFlage.set(2);
+        dataFlag.set(2);
         TimeUnit.SECONDS.sleep(3);
         assertEquals("100", groupWatcher.groupItems().get("item1"));
         assertEquals("2000", groupWatcher.groupItems().get("item2"));
         //delete item1
-        dataFlage.set(3);
+        dataFlag.set(3);
         TimeUnit.SECONDS.sleep(1);
         for (String v = groupWatcher.groupItems().get("item1");
             v != null;

@@ -104,7 +104,7 @@ public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
             });
             this.groupUuid = responseUuid;
         } catch (Exception e) {
-            log.error("Remote config center [{}}] is not available.", settings, e);
+            log.error("Remote config center [{}] is not available.", settings, e);
         }
         return Optional.of(groupConfigTable);
     }
