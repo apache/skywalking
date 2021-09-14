@@ -35,12 +35,14 @@ public class MockGRPCConfigService extends ConfigurationServiceGrpc.Configuratio
         String uuid = request.getUuid();
         switch (GRPCConfigurationTest.singleDataFlag) {
             case 1:
-                response = ConfigurationResponse.newBuilder().setUuid(UUID.randomUUID().toString())
-                                                .addConfigTable(Config.newBuilder()
-                                                                      .setName(
-                                                                          "test-module.grpc.testKey")
-                                                                      .setValue("300")
-                                                                      .build()).build();
+                response = ConfigurationResponse
+                    .newBuilder().setUuid(UUID.randomUUID().toString())
+                    .addConfigTable(Config
+                                        .newBuilder()
+                                        .setName(
+                                            "test-module.grpc.testKey")
+                                        .setValue("300")
+                                        .build()).build();
                 responseObserver.onNext(response);
                 break;
             case 2:
@@ -48,20 +50,24 @@ public class MockGRPCConfigService extends ConfigurationServiceGrpc.Configuratio
                 responseObserver.onNext(response);
                 break;
             case 3:
-                response = ConfigurationResponse.newBuilder().setUuid(UUID.randomUUID().toString())
-                                                .addConfigTable(Config.newBuilder()
-                                                                      .setName(
-                                                                          "test-module.grpc.testKey")
-                                                                      .build()).build();
+                response = ConfigurationResponse
+                    .newBuilder().setUuid(UUID.randomUUID().toString())
+                    .addConfigTable(Config
+                                        .newBuilder()
+                                        .setName(
+                                            "test-module.grpc.testKey")
+                                        .build()).build();
                 responseObserver.onNext(response);
                 break;
             default:
-                response = ConfigurationResponse.newBuilder().setUuid(UUID.randomUUID().toString())
-                                                .addConfigTable(Config.newBuilder()
-                                                                      .setName(
-                                                                          "test-module.grpc.testKey")
-                                                                      .setValue("100")
-                                                                      .build()).build();
+                response = ConfigurationResponse
+                    .newBuilder().setUuid(UUID.randomUUID().toString())
+                    .addConfigTable(Config
+                                        .newBuilder()
+                                        .setName(
+                                            "test-module.grpc.testKey")
+                                        .setValue("100")
+                                        .build()).build();
                 responseObserver.onNext(response);
 
         }
@@ -70,21 +76,25 @@ public class MockGRPCConfigService extends ConfigurationServiceGrpc.Configuratio
 
     @Override
     public void callGroup(ConfigurationRequest request,
-                     StreamObserver<GroupConfigurationResponse> responseObserver) {
+                          StreamObserver<GroupConfigurationResponse> responseObserver) {
         GroupConfigurationResponse response;
         String uuid = request.getUuid();
         switch (GRPCConfigurationTest.groupDataFlag) {
             case 1:
-                response = GroupConfigurationResponse.newBuilder().setUuid(UUID.randomUUID().toString())
-                                                .addGroupConfigTable(GroupConfigItems.newBuilder().setGroupName("test-module.grpc.testKeyGroup")
-                                                                                     .addItems(Config.newBuilder()
-                                                                                                     .setName("item1")
-                                                                                                     .setValue("100")
-                                                                                                     .build())
-                                                                                     .addItems(Config.newBuilder()
-                                                                                                     .setName("item2")
-                                                                                                     .setValue("2000")
-                                                                                                     .build()).build()).build();
+                response = GroupConfigurationResponse
+                    .newBuilder().setUuid(UUID.randomUUID().toString())
+                    .addGroupConfigTable(GroupConfigItems
+                                             .newBuilder().setGroupName("test-module.grpc.testKeyGroup")
+                                             .addItems(Config
+                                                           .newBuilder()
+                                                           .setName("item1")
+                                                           .setValue("100")
+                                                           .build())
+                                             .addItems(Config
+                                                           .newBuilder()
+                                                           .setName("item2")
+                                                           .setValue("2000")
+                                                           .build()).build()).build();
                 responseObserver.onNext(response);
                 break;
             case 2:
@@ -92,25 +102,32 @@ public class MockGRPCConfigService extends ConfigurationServiceGrpc.Configuratio
                 responseObserver.onNext(response);
                 break;
             case 3:
-                response = GroupConfigurationResponse.newBuilder().setUuid(UUID.randomUUID().toString())
-                                                     .addGroupConfigTable(GroupConfigItems.newBuilder().setGroupName("test-module.grpc.testKeyGroup")
-                                                                                          .addItems(Config.newBuilder()
-                                                                                                          .setName("item2")
-                                                                                                          .setValue("2000")
-                                                                                                          .build()).build()).build();
+                response = GroupConfigurationResponse
+                    .newBuilder().setUuid(UUID.randomUUID().toString())
+                    .addGroupConfigTable(GroupConfigItems
+                                             .newBuilder().setGroupName("test-module.grpc.testKeyGroup")
+                                             .addItems(Config
+                                                           .newBuilder()
+                                                           .setName("item2")
+                                                           .setValue("2000")
+                                                           .build()).build()).build();
                 responseObserver.onNext(response);
                 break;
             default:
-                response = GroupConfigurationResponse.newBuilder().setUuid(UUID.randomUUID().toString())
-                                                     .addGroupConfigTable(GroupConfigItems.newBuilder().setGroupName("test-module.grpc.testKeyGroup")
-                                                                                          .addItems(Config.newBuilder()
-                                                                                                          .setName("item1")
-                                                                                                          .setValue("100")
-                                                                                                          .build())
-                                                                                          .addItems(Config.newBuilder()
-                                                                                                          .setName("item2")
-                                                                                                          .setValue("200")
-                                                                                                          .build()).build()).build();
+                response = GroupConfigurationResponse
+                    .newBuilder().setUuid(UUID.randomUUID().toString())
+                    .addGroupConfigTable(GroupConfigItems
+                                             .newBuilder().setGroupName("test-module.grpc.testKeyGroup")
+                                             .addItems(Config
+                                                           .newBuilder()
+                                                           .setName("item1")
+                                                           .setValue("100")
+                                                           .build())
+                                             .addItems(Config
+                                                           .newBuilder()
+                                                           .setName("item2")
+                                                           .setValue("200")
+                                                           .build()).build()).build();
                 responseObserver.onNext(response);
         }
         responseObserver.onCompleted();

@@ -88,13 +88,13 @@ public class GRPCConfigurationTest {
         TimeUnit.SECONDS.sleep(3);
         for (String v = singleWatcher.value(); !v.equals("300"); v = singleWatcher.value()) {
         }
-        assertEquals("300",singleWatcher.value());
+        assertEquals("300", singleWatcher.value());
         //delete
         singleDataFlag = 3;
         TimeUnit.SECONDS.sleep(1);
         for (String v = singleWatcher.value(); v.equals("300"); v = singleWatcher.value()) {
         }
-        assertEquals("",singleWatcher.value());
+        assertEquals("", singleWatcher.value());
     }
 
     @Test(timeout = 20000)
@@ -103,37 +103,48 @@ public class GRPCConfigurationTest {
         register.registerConfigChangeWatcher(groupWatcher);
         register.start();
         groupDataFlag = 0;
-        for (String v = groupWatcher.groupItems().get("item1"); v == null; v = groupWatcher.groupItems().get("item1")) {
+        for (String v = groupWatcher.groupItems().get("item1");
+            v == null;
+            v = groupWatcher.groupItems().get("item1")) {
         }
         assertEquals("100", groupWatcher.groupItems().get("item1"));
-        for (String v = groupWatcher.groupItems().get("item2"); v == null; v = groupWatcher.groupItems().get("item2")) {
+        for (String v = groupWatcher.groupItems().get("item2");
+            v == null;
+            v = groupWatcher.groupItems().get("item2")) {
         }
         assertEquals("200", groupWatcher.groupItems().get("item2"));
         //change item2
         groupDataFlag = 1;
         TimeUnit.SECONDS.sleep(1);
-        for (String v = groupWatcher.groupItems().get("item2"); v.equals("200"); v = groupWatcher.groupItems().get("item2")) {
+        for (String v = groupWatcher.groupItems().get("item2");
+            v.equals("200");
+            v = groupWatcher.groupItems().get("item2")) {
         }
         assertEquals("2000", groupWatcher.groupItems().get("item2"));
         //no change
         groupDataFlag = 2;
         TimeUnit.SECONDS.sleep(3);
-        for (String v = groupWatcher.groupItems().get("item1"); v.equals("100"); v = groupWatcher.groupItems().get("item2")) {
+        for (String v = groupWatcher.groupItems().get("item1");
+            v.equals("100");
+            v = groupWatcher.groupItems().get("item2")) {
         }
         assertEquals("100", groupWatcher.groupItems().get("item1"));
-        for (String v = groupWatcher.groupItems().get("item2"); !v.equals("2000"); v = groupWatcher.groupItems().get("item2")) {
+        for (String v = groupWatcher.groupItems().get("item2");
+            !v.equals("2000");
+            v = groupWatcher.groupItems().get("item2")) {
         }
         assertEquals("2000", groupWatcher.groupItems().get("item2"));
         //delete item1
         groupDataFlag = 3;
         TimeUnit.SECONDS.sleep(1);
-        for (String v = groupWatcher.groupItems().get("item1"); v != null; v = groupWatcher.groupItems().get("item1")) {
+        for (String v = groupWatcher.groupItems().get("item1");
+            v != null;
+            v = groupWatcher.groupItems().get("item1")) {
         }
         assertNull(groupWatcher.groupItems().get("item1"));
     }
 
-
-    private void initWatcher(){
+    private void initWatcher() {
         singleWatcher = new ConfigChangeWatcher("test-module", provider, "testKey") {
             private volatile String testValue;
 
