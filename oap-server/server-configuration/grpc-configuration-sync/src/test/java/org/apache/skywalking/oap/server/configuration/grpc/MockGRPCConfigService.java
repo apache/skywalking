@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.configuration.grpc;
 
 import io.grpc.stub.StreamObserver;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.oap.server.configuration.service.Config;
 import org.apache.skywalking.oap.server.configuration.service.ConfigurationRequest;
 import org.apache.skywalking.oap.server.configuration.service.ConfigurationResponse;
@@ -28,19 +29,27 @@ import org.apache.skywalking.oap.server.configuration.service.GroupConfigItems;
 import org.apache.skywalking.oap.server.configuration.service.GroupConfigurationResponse;
 
 public class MockGRPCConfigService extends ConfigurationServiceGrpc.ConfigurationServiceImplBase {
+    private final AtomicInteger dataFlag;
+
+    /**
+     * @param dataFlag 0:init, 1:change, 2:no change, 3:delete
+     */
+    public MockGRPCConfigService(AtomicInteger dataFlag) {
+        this.dataFlag = dataFlag;
+    }
+
     @Override
     public void call(ConfigurationRequest request,
                      StreamObserver<ConfigurationResponse> responseObserver) {
         ConfigurationResponse response;
         String uuid = request.getUuid();
-        switch (GRPCConfigurationTest.singleDataFlag) {
+        switch (this.dataFlag.get()) {
             case 1:
                 response = ConfigurationResponse
                     .newBuilder().setUuid(UUID.randomUUID().toString())
                     .addConfigTable(Config
                                         .newBuilder()
-                                        .setName(
-                                            "test-module.grpc.testKey")
+                                        .setName("test-module.grpc.testKey")
                                         .setValue("300")
                                         .build()).build();
                 responseObserver.onNext(response);
@@ -54,8 +63,7 @@ public class MockGRPCConfigService extends ConfigurationServiceGrpc.Configuratio
                     .newBuilder().setUuid(UUID.randomUUID().toString())
                     .addConfigTable(Config
                                         .newBuilder()
-                                        .setName(
-                                            "test-module.grpc.testKey")
+                                        .setName("test-module.grpc.testKey")
                                         .build()).build();
                 responseObserver.onNext(response);
                 break;
@@ -64,12 +72,10 @@ public class MockGRPCConfigService extends ConfigurationServiceGrpc.Configuratio
                     .newBuilder().setUuid(UUID.randomUUID().toString())
                     .addConfigTable(Config
                                         .newBuilder()
-                                        .setName(
-                                            "test-module.grpc.testKey")
+                                        .setName("test-module.grpc.testKey")
                                         .setValue("100")
                                         .build()).build();
                 responseObserver.onNext(response);
-
         }
         responseObserver.onCompleted();
     }
@@ -79,7 +85,7 @@ public class MockGRPCConfigService extends ConfigurationServiceGrpc.Configuratio
                           StreamObserver<GroupConfigurationResponse> responseObserver) {
         GroupConfigurationResponse response;
         String uuid = request.getUuid();
-        switch (GRPCConfigurationTest.groupDataFlag) {
+        switch (this.dataFlag.get()) {
             case 1:
                 response = GroupConfigurationResponse
                     .newBuilder().setUuid(UUID.randomUUID().toString())

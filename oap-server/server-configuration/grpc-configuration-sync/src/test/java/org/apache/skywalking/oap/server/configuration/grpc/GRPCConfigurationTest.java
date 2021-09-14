@@ -22,6 +22,7 @@ import io.grpc.testing.GrpcServerRule;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigChangeWatcher;
@@ -40,14 +41,7 @@ public class GRPCConfigurationTest {
     private GRPCConfigWatcherRegister register;
     private ConfigChangeWatcher singleWatcher;
     private GroupConfigChangeWatcher groupWatcher;
-    /**
-     * 0:init, 1:change, 2:no change, 3:delete
-     */
-    public static volatile int singleDataFlag;
-    /**
-     * 0:init, 1:change, 2:no change, 3:delete
-     */
-    public static volatile int groupDataFlag;
+
     @Rule
     public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
 
@@ -60,7 +54,6 @@ public class GRPCConfigurationTest {
         settings.setPeriod(1);
         provider = new GRPCConfigurationProvider();
         register = new GRPCConfigWatcherRegister(settings);
-        grpcServerRule.getServiceRegistry().addService(new MockGRPCConfigService());
         ConfigurationServiceGrpc.ConfigurationServiceBlockingStub blockingStub = ConfigurationServiceGrpc.newBlockingStub(
             grpcServerRule.getChannel());
         Whitebox.setInternalState(register, "stub", blockingStub);
@@ -70,27 +63,29 @@ public class GRPCConfigurationTest {
 
     @Test(timeout = 20000)
     public void shouldReadUpdated() throws Exception {
+        AtomicInteger dataFlage = new AtomicInteger(0);
+        grpcServerRule.getServiceRegistry().addService(new MockGRPCConfigService(dataFlage));
         assertNull(singleWatcher.value());
         register.registerConfigChangeWatcher(singleWatcher);
         register.start();
-        singleDataFlag = 0;
+
         for (String v = singleWatcher.value(); v == null; v = singleWatcher.value()) {
         }
         assertEquals("100", singleWatcher.value());
         //change
-        singleDataFlag = 1;
+        dataFlage.set(1);
         TimeUnit.SECONDS.sleep(1);
         for (String v = singleWatcher.value(); v.equals("100"); v = singleWatcher.value()) {
         }
         assertEquals("300", singleWatcher.value());
         //no change
-        singleDataFlag = 2;
+        dataFlage.set(2);
         TimeUnit.SECONDS.sleep(3);
         for (String v = singleWatcher.value(); !v.equals("300"); v = singleWatcher.value()) {
         }
         assertEquals("300", singleWatcher.value());
         //delete
-        singleDataFlag = 3;
+        dataFlage.set(3);
         TimeUnit.SECONDS.sleep(1);
         for (String v = singleWatcher.value(); v.equals("300"); v = singleWatcher.value()) {
         }
@@ -99,10 +94,12 @@ public class GRPCConfigurationTest {
 
     @Test(timeout = 20000)
     public void shouldReadUpdated4Group() throws Exception {
+        AtomicInteger dataFlage = new AtomicInteger(0);
+        grpcServerRule.getServiceRegistry().addService(new MockGRPCConfigService(dataFlage));
         assertEquals("{}", groupWatcher.groupItems().toString());
         register.registerConfigChangeWatcher(groupWatcher);
         register.start();
-        groupDataFlag = 0;
+
         for (String v = groupWatcher.groupItems().get("item1");
             v == null;
             v = groupWatcher.groupItems().get("item1")) {
@@ -114,7 +111,7 @@ public class GRPCConfigurationTest {
         }
         assertEquals("200", groupWatcher.groupItems().get("item2"));
         //change item2
-        groupDataFlag = 1;
+        dataFlage.set(1);
         TimeUnit.SECONDS.sleep(1);
         for (String v = groupWatcher.groupItems().get("item2");
             v.equals("200");
@@ -122,20 +119,12 @@ public class GRPCConfigurationTest {
         }
         assertEquals("2000", groupWatcher.groupItems().get("item2"));
         //no change
-        groupDataFlag = 2;
+        dataFlage.set(2);
         TimeUnit.SECONDS.sleep(3);
-        for (String v = groupWatcher.groupItems().get("item1");
-            v.equals("100");
-            v = groupWatcher.groupItems().get("item2")) {
-        }
         assertEquals("100", groupWatcher.groupItems().get("item1"));
-        for (String v = groupWatcher.groupItems().get("item2");
-            !v.equals("2000");
-            v = groupWatcher.groupItems().get("item2")) {
-        }
         assertEquals("2000", groupWatcher.groupItems().get("item2"));
         //delete item1
-        groupDataFlag = 3;
+        dataFlage.set(3);
         TimeUnit.SECONDS.sleep(1);
         for (String v = groupWatcher.groupItems().get("item1");
             v != null;
