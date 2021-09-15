@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
 import java.io.IOException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -40,12 +41,12 @@ public class JsonLogHandler extends LogHandler {
     public String getPlainTopic() {
         return config.getTopicNameOfJsonLogs();
     }
-    
+
     @Override
     protected String getDataFormat() {
         return "json";
     }
-    
+
     @Override
     protected LogData parseConsumerRecord(ConsumerRecord<String, Bytes> record) throws IOException {
         LogData.Builder logDataBuilder = LogData.newBuilder();

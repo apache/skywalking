@@ -41,26 +41,26 @@ public class LogHandler extends AbstractKafkaHandler {
 
     public LogHandler(final ModuleManager moduleManager,
                       final KafkaFetcherConfig config) {
-        super(moduleManager,config);
+        super(moduleManager, config);
         this.config = config;
         this.logAnalyzerService = moduleManager.find(LogAnalyzerModule.NAME)
-                                               .provider()
-                                               .getService(ILogAnalyzerService.class);
+                .provider()
+                .getService(ILogAnalyzerService.class);
 
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
-                                                     .provider()
-                                                     .getService(MetricsCreator.class);
+                .provider()
+                .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "log_in_latency",
-            "The process latency of log",
-            new MetricsTag.Keys("protocol", "data_format"),
-            new MetricsTag.Values("kafka", getDataFormat())
+                "log_in_latency",
+                "The process latency of log",
+                new MetricsTag.Keys("protocol", "data_format"),
+                new MetricsTag.Values("kafka", getDataFormat())
         );
         errorCounter = metricsCreator.createCounter(
-            "log_analysis_error_count",
-            "The error number of log analysis",
-            new MetricsTag.Keys("protocol", "data_format"),
-            new MetricsTag.Values("kafka", getDataFormat())
+                "log_analysis_error_count",
+                "The error number of log analysis",
+                new MetricsTag.Keys("protocol", "data_format"),
+                new MetricsTag.Values("kafka", getDataFormat())
         );
     }
 
