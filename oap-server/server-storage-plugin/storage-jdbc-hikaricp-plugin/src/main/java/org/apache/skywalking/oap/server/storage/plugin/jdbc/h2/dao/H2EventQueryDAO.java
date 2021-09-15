@@ -29,15 +29,18 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
-import org.apache.skywalking.oap.server.core.query.type.Pagination;
-import org.apache.skywalking.oap.server.core.source.Event;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.event.EventType;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.core.query.type.event.Source;
+import org.apache.skywalking.oap.server.core.source.Event;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+
+import static java.util.Objects.isNull;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -69,8 +72,14 @@ public class H2EventQueryDAO implements IEventQueryDAO {
 
             PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
 
-            sql = "select * from " + Event.INDEX_NAME + whereClause
-                + " limit " + page.getLimit() + " offset " + page.getFrom();
+            final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+            sql = "select * from " + Event.INDEX_NAME + whereClause;
+            if (Order.DES.equals(queryOrder)) {
+                sql += " order by " + Event.START_TIME + " desc";
+            } else {
+                sql += " order by " + Event.START_TIME + " asc";
+            }
+            sql += " limit " + page.getLimit() + " offset " + page.getFrom();
             if (log.isDebugEnabled()) {
                 log.debug("Query SQL: {}, parameters: {}", sql, parameters);
             }
@@ -112,7 +121,15 @@ public class H2EventQueryDAO implements IEventQueryDAO {
                 }
                 result.setTotal(resultSet.getInt("total"));
             }
-            sql = "select * from " + Event.INDEX_NAME + whereClause + " limit " + size;
+
+            final Order queryOrder = isNull(conditions.get(0).getOrder()) ? Order.DES : conditions.get(0).getOrder();
+            sql = "select * from " + Event.INDEX_NAME + whereClause;
+            if (Order.DES.equals(queryOrder)) {
+                sql += " order by " + Event.START_TIME + " desc";
+            } else {
+                sql += " order by " + Event.START_TIME + " asc";
+            }
+            sql += " limit " + size;
             if (log.isDebugEnabled()) {
                 log.debug("Query SQL: {}, parameters: {}", sql, parameters);
             }

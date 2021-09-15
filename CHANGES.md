@@ -64,6 +64,7 @@ Release Notes.
 * Support apollo grouped dynamic configurations.
 * Fix `ProfileThreadSnapshotQuery.queryProfiledSegments` adopts a wrong sort function
 * Support gRPC sync grouped dynamic configurations.
+* Fix `H2EventQueryDAO` doesn't sort data by Event.START_TIME.
 
 #### UI
 
