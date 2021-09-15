@@ -79,19 +79,7 @@ docker.ui: $(SW_ROOT)/docker/ui/logback.xml
 # 4. This rule runs $(BUILD_PRE) prior to any docker build and only if specified as a dependency variable
 # 5. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
 
-DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .)
+DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .))
 
-# for each docker.XXX target create a push.docker.XXX target that pushes
-# the local docker image to another hub
-# a possible optimization is to use tag.$(TGT) as a dependency to do the tag for us
-$(foreach TGT,$(DOCKER_TARGETS),$(eval push.$(TGT): | $(TGT) ; \
-	time (docker push $(HUB)/$(subst docker.,,$(TGT)):$(TAG))))
-
-# create a DOCKER_PUSH_TARGETS that's each of DOCKER_TARGETS with a push. prefix
-DOCKER_PUSH_TARGETS:=
-$(foreach TGT,$(DOCKER_TARGETS),$(eval DOCKER_PUSH_TARGETS+=push.$(TGT)))
-
-# Will build and push docker images.
-docker.push: $(DOCKER_PUSH_TARGETS)
 
 
