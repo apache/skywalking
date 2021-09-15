@@ -22,10 +22,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.library.elasticsearch.client.TemplateClient;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
+import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.awaitility.Duration;
@@ -38,6 +40,7 @@ import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import org.testcontainers.utility.DockerImageName;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -51,7 +54,7 @@ public class ITElasticSearchTest {
     @Parameterized.Parameters(name = "version: {0}")
     public static Collection<Object[]> versions() {
         return Arrays.asList(new Object[][] {
-            {"6.3.2"}, {"7.4.2"}, {"7.8.0"}
+            {"6.3.2"}, {"7.4.2"}, {"7.8.0"}, {"7.10.2"}
         });
     }
 
@@ -77,6 +80,30 @@ public class ITElasticSearchTest {
     @After
     public void tearDown() {
         server.stop();
+    }
+
+    @Test
+    public void testTemplate() {
+        final String name = "test-template";
+        final TemplateClient templateClient = client.templates();
+
+        final ImmutableMap<String, Object> properties = ImmutableMap.of(
+            "metric_table", ImmutableMap.of("type", "keyword"),
+            "service_id", ImmutableMap.of("type", "keyword")
+        );
+        final Mappings mappings = Mappings.builder()
+                                          .type("_doc")
+                                          .properties(properties)
+                                          .build();
+
+        assertThat(templateClient.createOrUpdate(name, ImmutableMap.of(), mappings, 0))
+            .isTrue();
+
+        assertThat(templateClient.get(name))
+            .isPresent()
+            .map(IndexTemplate::getMappings)
+            .map(Mappings::getProperties)
+            .hasValue(mappings.getProperties());
     }
 
     @Test
@@ -167,7 +194,7 @@ public class ITElasticSearchTest {
                                                             .must(Query.term("key1", "val3"))
                                                             .must(Query.term("key2", "val4"))
                                                             .build()
-                                               ).build()))
+                                               )))
                              .aggregation(
                                  Aggregation
                                      .terms("key1").field("key1.keyword")
