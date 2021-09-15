@@ -31,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.event.EventType;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
@@ -70,9 +69,8 @@ public class H2EventQueryDAO implements IEventQueryDAO {
                 result.setTotal(resultSet.getInt("total"));
             }
 
-            PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-
             final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+            final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
             sql = "select * from " + Event.INDEX_NAME + whereClause;
             if (Order.DES.equals(queryOrder)) {
                 sql += " order by " + Event.START_TIME + " desc";
@@ -106,8 +104,6 @@ public class H2EventQueryDAO implements IEventQueryDAO {
                                                        .map(Tuple2::_1)
                                                        .map(it -> it.collect(Collectors.joining(" and ")))
                                                        .collect(Collectors.joining(" or ", " where ", ""));
-        final int size = conditions.stream().map(EventQueryCondition::getPaging)
-                                   .mapToInt(Pagination::getPageSize).sum();
 
         final Events result = new Events();
         try (final Connection connection = client.getConnection()) {
@@ -122,14 +118,16 @@ public class H2EventQueryDAO implements IEventQueryDAO {
                 result.setTotal(resultSet.getInt("total"));
             }
 
-            final Order queryOrder = isNull(conditions.get(0).getOrder()) ? Order.DES : conditions.get(0).getOrder();
+            EventQueryCondition condition = conditions.get(0);
+            final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+            final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
             sql = "select * from " + Event.INDEX_NAME + whereClause;
             if (Order.DES.equals(queryOrder)) {
                 sql += " order by " + Event.START_TIME + " desc";
             } else {
                 sql += " order by " + Event.START_TIME + " asc";
             }
-            sql += " limit " + size;
+            sql += " limit " + page.getLimit() + " offset " + page.getFrom();
             if (log.isDebugEnabled()) {
                 log.debug("Query SQL: {}, parameters: {}", sql, parameters);
             }
