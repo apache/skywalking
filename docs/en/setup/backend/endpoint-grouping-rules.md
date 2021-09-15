@@ -3,7 +3,7 @@ In most cases, endpoints are detected automatically through language agents, ser
 or meter system configurations.
 
 There are some special cases, especially when REST style URI is used, where the application codes include the parameter in the endpoint name,
-such as putting order ID in the URI. Examples are `/prod/ORDER123` and `/prod/ORDER123`. But logically, most would expect to
+such as putting order ID in the URI. Examples are `/prod/ORDER123` and `/prod/ORDER456`. But logically, most would expect to
 have an endpoint name like `prod/{order-id}`. This is a specially designed feature in parameterized endpoint grouping.
 
 If the incoming endpoint name accords with the rules, SkyWalking will group the endpoint by rules.

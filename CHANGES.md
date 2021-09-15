@@ -64,6 +64,7 @@ Release Notes.
 * Support apollo grouped dynamic configurations.
 * Fix `ProfileThreadSnapshotQuery.queryProfiledSegments` adopts a wrong sort function
 * Support gRPC sync grouped dynamic configurations.
+* Fix `LogHandler` of `kafka-fetcher-plugin` cannot recognize namespace.
 
 #### UI
 
@@ -81,6 +82,7 @@ Release Notes.
 * Add one missing step in `otel-receiver` doc about how to activate the default receiver.
 * Reorganize dynamic configuration doc.
 * Add more description about meter configurations in `backend-meter` doc.
+* Fix typo in `endpoint-grouping-rules` doc.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/96?closed=1)
 
