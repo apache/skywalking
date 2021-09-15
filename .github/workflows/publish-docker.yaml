@@ -71,7 +71,7 @@ jobs:
           echo "Status:    ${{ steps.buildx1.outputs.status }}"
           echo "Flags:     ${{ steps.buildx1.outputs.flags }}"
           echo "Platforms: ${{ steps.buildx1.outputs.platforms }}"
-#      - name: Build docker image
-#        run: |
-#          make docker || make docker
+      - name: Build docker image
+        run: |
+          make docker || make docker
 #          make docker.push || make docker.push
