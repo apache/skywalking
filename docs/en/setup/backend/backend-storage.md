@@ -236,7 +236,7 @@ storage:
 ```
 All connection-related settings, including URL link, username, and password are found in `application.yml`. 
 For details on settings, refer to the configuration of *MySQL* above.
-The function of the parameter [rewriteBatchedStatements=true] in TIDB .see document TIDB best practices(https://docs.pingcap.com/tidb/stable/java-app-best-practices#use-batch-api)
+To understand the function of the parameter `rewriteBatchedStatements=true` in TiDB, see the document of [TiDB best practices](https://docs.pingcap.com/tidb/stable/java-app-best-practices#use-batch-api).
 
 ## InfluxDB
 InfluxDB storage provides a time-series database as a new storage option.
