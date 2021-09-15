@@ -209,7 +209,7 @@ storage:
 ```
 All connection-related settings, including URL link, username, and password are found in `application.yml`. 
 Only part of the settings are listed here. See the [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
-The function of the parameter [rewriteBatchedStatements=true] in MYSQL .see MYSQL official document (https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-performance-extensions.html#cj-conn-prop_rewriteBatchedStatements) 
+To understand the function of the parameter `rewriteBatchedStatements=true` in MySQL, see the [MySQL official document](https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-performance-extensions.html#cj-conn-prop_rewriteBatchedStatements).
 
 ## TiDB
 Tested TiDB Server 4.0.8 version and MySQL Client driver 8.0.13 version are currently available.
