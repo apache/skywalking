@@ -75,7 +75,7 @@ public class StorageEsInstaller extends ModelInstaller {
         final Optional<IndexTemplate> template = esClient.getTemplate(tableName);
 
         if ((exist && !template.isPresent()) || (!exist && template.isPresent())) {
-            throw new Error("Bug!!! ElasticSearch client query template result is not consistent");
+            throw new Error("[Bug warning]ElasticSearch client query template result is not consistent. Please file an issue to Apache SkyWalking.(https://github.com/apache/skywalking/issues)");
         }
 
         if (exist && IndexController.INSTANCE.isMetricModel(model)) {
