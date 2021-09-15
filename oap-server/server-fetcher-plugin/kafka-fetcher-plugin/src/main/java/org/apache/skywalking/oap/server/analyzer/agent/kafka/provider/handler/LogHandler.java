@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
-public class LogHandler implements KafkaHandler {
+public class LogHandler extends AbstractKafkaHandler {
 
     private final KafkaFetcherConfig config;
     private final HistogramMetrics histogram;
@@ -41,6 +41,7 @@ public class LogHandler implements KafkaHandler {
 
     public LogHandler(final ModuleManager moduleManager,
                       final KafkaFetcherConfig config) {
+        super(moduleManager, config);
         this.config = config;
         this.logAnalyzerService = moduleManager.find(LogAnalyzerModule.NAME)
                                                .provider()
@@ -69,7 +70,7 @@ public class LogHandler implements KafkaHandler {
     }
 
     @Override
-    public String getTopic() {
+    protected String getPlainTopic() {
         return config.getTopicNameOfLogs();
     }
 
