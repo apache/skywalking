@@ -64,6 +64,7 @@ Release Notes.
 * Support apollo grouped dynamic configurations.
 * Fix `ProfileThreadSnapshotQuery.queryProfiledSegments` adopts a wrong sort function
 * Support gRPC sync grouped dynamic configurations.
+* improve write tidb speed by batch execute sql.
 
 #### UI
 

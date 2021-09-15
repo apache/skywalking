@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A SQL executor.
  */
+@EqualsAndHashCode(of = "sql")
 public class SQLExecutor implements InsertRequest, UpdateRequest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SQLExecutor.class);
@@ -44,11 +46,7 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
 
     public void invoke(Connection connection) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
-
-        for (int i = 0; i < param.size(); i++) {
-            preparedStatement.setObject(i + 1, param.get(i));
-        }
-
+        setParameters(preparedStatement);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("execute sql in batch: {}, parameters: {}", sql, param);
         }
@@ -59,17 +57,6 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
         for (int i = 0; i < param.size(); i++) {
             preparedStatement.setObject(i + 1, param.get(i));
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        SQLExecutor s = (SQLExecutor) o;
-        return sql == s.sql;
-    }
-
-    @Override
-    public int hashCode() {
-        return sql.hashCode();
     }
 
     @Override

@@ -22,9 +22,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
@@ -35,7 +35,6 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.BatchSQLExecutor;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 
 @Slf4j
 public class H2BatchDAO implements IBatchDAO {
@@ -47,7 +46,7 @@ public class H2BatchDAO implements IBatchDAO {
         this.h2Client = h2Client;
         String name = "H2_ASYNCHRONOUS_BATCH_PERSISTENT";
         if (log.isDebugEnabled()) {
-            log.debug("H2_ASYNCHRONOUS_BATCH_PERSISTENT poolSize: {},maxBatchSqlSize:{}", asyncBatchPersistentPoolSize, maxBatchSqlSize);
+            log.debug("H2_ASYNCHRONOUS_BATCH_PERSISTENT poolSize: {}, maxBatchSqlSize:{}", asyncBatchPersistentPoolSize, maxBatchSqlSize);
         }
         this.maxBatchSqlSize = maxBatchSqlSize;
         this.dataCarrier = new DataCarrier<>(name, asyncBatchPersistentPoolSize, 10000);
@@ -62,17 +61,8 @@ public class H2BatchDAO implements IBatchDAO {
         if (log.isDebugEnabled()) {
             log.debug("to execute sql statements execute, data size: {}, maxBatchSqlSize: {}", prepareRequests.size(), maxBatchSqlSize);
         }
-        Map<Integer, List<PrepareRequest>> batchRequestMap = new HashMap<>();
-        for (PrepareRequest prepareRequest : prepareRequests) {
-            SQLExecutor sqlExecutor = (SQLExecutor) prepareRequest;
-            if (batchRequestMap.containsKey(sqlExecutor.hashCode())) {
-                batchRequestMap.get(sqlExecutor.hashCode()).add(prepareRequest);
-            } else {
-                List<PrepareRequest> prepareRequestList = new ArrayList<>();
-                prepareRequestList.add(sqlExecutor);
-                batchRequestMap.put(sqlExecutor.hashCode(), prepareRequestList);
-            }
-        }
+        final Map<PrepareRequest, List<PrepareRequest>> batchRequestMap =
+                prepareRequests.stream().collect(Collectors.groupingBy(Function.identity()));
         try (Connection connection = h2Client.getConnection()) {
             batchRequestMap.forEach((key, requests) -> {
                 try {

@@ -196,7 +196,7 @@ storage:
   selector: ${SW_STORAGE:mysql}
   mysql:
     properties:
-      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true"}
       dataSource.user: ${SW_DATA_SOURCE_USER:root}
       dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
       dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
@@ -209,6 +209,7 @@ storage:
 ```
 All connection-related settings, including URL link, username, and password are found in `application.yml`. 
 Only part of the settings are listed here. See the [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
+The function of the parameter [rewriteBatchedStatements=true] in MYSQL .see MYSQL official document (https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-performance-extensions.html#cj-conn-prop_rewriteBatchedStatements) 
 
 ## TiDB
 Tested TiDB Server 4.0.8 version and MySQL Client driver 8.0.13 version are currently available.
@@ -219,7 +220,7 @@ storage:
   selector: ${SW_STORAGE:tidb}
   tidb:
     properties:
-      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:4000/swtest"}
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:4000/swtest?rewriteBatchedStatements=true"}
       dataSource.user: ${SW_DATA_SOURCE_USER:root}
       dataSource.password: ${SW_DATA_SOURCE_PASSWORD:""}
       dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
@@ -235,6 +236,7 @@ storage:
 ```
 All connection-related settings, including URL link, username, and password are found in `application.yml`. 
 For details on settings, refer to the configuration of *MySQL* above.
+The function of the parameter [rewriteBatchedStatements=true] in TIDB .see document TIDB best practices(https://docs.pingcap.com/tidb/stable/java-app-best-practices#use-batch-api)
 
 ## InfluxDB
 InfluxDB storage provides a time-series database as a new storage option.

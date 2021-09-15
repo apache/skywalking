@@ -61,17 +61,15 @@ public class BatchSQLExecutor implements InsertRequest, UpdateRequest {
             if (pendingCount > 0) {
                 executeBatch(preparedStatement, pendingCount, sql);
             }
-        } catch (SQLException e) {
-            throw e;
         }
     }
 
     private void executeBatch(PreparedStatement preparedStatement, int pendingCount, String sql) throws SQLException {
         long start = System.currentTimeMillis();
         preparedStatement.executeBatch();
-        long end = System.currentTimeMillis();
-        long cost = end - start;
         if (log.isDebugEnabled()) {
+            long end = System.currentTimeMillis();
+            long cost = end - start;
             log.debug("execute batch sql, batch size: {}, cost:{}ms, sql: {}", pendingCount, cost, sql);
         }
     }
