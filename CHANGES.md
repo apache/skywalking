@@ -63,6 +63,7 @@ Release Notes.
 * Switch JRE base image for dev images.
 * Support apollo grouped dynamic configurations.
 * Fix `ProfileThreadSnapshotQuery.queryProfiledSegments` adopts a wrong sort function
+* Support gRPC sync grouped dynamic configurations.
 
 #### UI
 
@@ -72,6 +73,7 @@ Release Notes.
 * Fix searching endpoints with keywords.
 * Support clicking the service name in the chart to link to the trace or log page.
 * Implement the Log Analysis Language text regexp debugger.
+* Fix fetching nodes and calls with serviceIds on the topology side.
 
 #### Documentation
 

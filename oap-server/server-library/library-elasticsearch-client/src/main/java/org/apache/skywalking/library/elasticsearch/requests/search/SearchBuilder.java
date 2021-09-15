@@ -24,12 +24,14 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.A
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.AggregationBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 public final class SearchBuilder {
     private Integer from;
     private Integer size;
     private Query query;
+    private QueryBuilder queryBuilder;
     private ImmutableList.Builder<Sort> sort;
     private ImmutableMap.Builder<String, Aggregation> aggregations;
 
@@ -58,13 +60,15 @@ public final class SearchBuilder {
     }
 
     public SearchBuilder query(Query query) {
-        requireNonNull(query, "query");
-        this.query = query;
+        ensureQueryIsNotSet();
+        this.query = requireNonNull(query, "query");
         return this;
     }
 
     public SearchBuilder query(QueryBuilder queryBuilder) {
-        return query(queryBuilder.build());
+        ensureQueryIsNotSet();
+        this.queryBuilder = requireNonNull(queryBuilder, "queryBuilder");
+        return this;
     }
 
     public SearchBuilder aggregation(Aggregation aggregation) {
@@ -92,6 +96,14 @@ public final class SearchBuilder {
         } else {
             aggregations = aggregations().build();
         }
+        final Query query;
+        if (this.query != null) {
+            query = this.query;
+        } else if (queryBuilder != null) {
+            query = queryBuilder.build();
+        } else {
+            query = null;
+        }
 
         return new Search(
             from, size, query, sorts, aggregations
@@ -110,5 +122,11 @@ public final class SearchBuilder {
             aggregations = ImmutableMap.builder();
         }
         return aggregations;
+    }
+
+    private void ensureQueryIsNotSet() {
+        final String errMsg = "query and queryBuilder can not be set simultaneously";
+        checkState(query == null, errMsg);
+        checkState(queryBuilder == null, errMsg);
     }
 }
