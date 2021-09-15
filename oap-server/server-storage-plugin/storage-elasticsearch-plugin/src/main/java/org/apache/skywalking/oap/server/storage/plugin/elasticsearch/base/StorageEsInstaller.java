@@ -63,7 +63,7 @@ public class StorageEsInstaller extends ModelInstaller {
     }
 
     @Override
-    protected boolean isExists(Model model) throws StorageException {
+    protected boolean isExists(Model model) {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         String tableName = IndexController.INSTANCE.getTableName(model);
         IndexController.LogicIndicesRegister.registerRelation(model.getName(), tableName);
@@ -73,7 +73,12 @@ public class StorageEsInstaller extends ModelInstaller {
         boolean exist = esClient.isExistsTemplate(tableName)
             && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
         final Optional<IndexTemplate> template = esClient.getTemplate(tableName);
-        if (exist && template.isPresent() && IndexController.INSTANCE.isMetricModel(model)) {
+
+        if ((exist && !template.isPresent()) || (!exist && template.isPresent())) {
+            throw new Error("Bug!!! ElasticSearch client query template result is not consistent");
+        }
+
+        if (exist && IndexController.INSTANCE.isMetricModel(model)) {
             structures.putStructure(
                 tableName, template.get().getMappings()
             );
