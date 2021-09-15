@@ -37,7 +37,7 @@ public class JsonLogHandler extends LogHandler {
     }
 
     @Override
-    public String getTopic() {
+    public String getPlainTopic() {
         return config.getTopicNameOfJsonLogs();
     }
     
