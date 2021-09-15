@@ -22,10 +22,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 @Data
+@RequiredArgsConstructor
 public final class IndexTemplates implements Iterable<IndexTemplate> {
-    private Map<String, IndexTemplate> templates;
+    private final Map<String, IndexTemplate> templates;
 
     public Optional<IndexTemplate> get(String name) {
         final Map<String, IndexTemplate> templates = getTemplates();

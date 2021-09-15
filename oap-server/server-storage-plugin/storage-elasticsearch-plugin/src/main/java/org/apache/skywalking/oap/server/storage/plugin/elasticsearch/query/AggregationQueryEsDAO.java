@@ -82,7 +82,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                          condition.getName()
                      ));
             additionalConditions.forEach(additionalCondition -> boolQuery
-                .must(Query.term(
+                .must(Query.terms(
                     additionalCondition.getKey(),
                     additionalCondition.getValue()
                 )));
@@ -91,7 +91,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         } else {
             final BoolQueryBuilder boolQuery = Query.bool();
             additionalConditions.forEach(additionalCondition -> boolQuery
-                .must(Query.term(
+                .must(Query.terms(
                     additionalCondition.getKey(),
                     additionalCondition.getValue()
                 )));

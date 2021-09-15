@@ -30,7 +30,6 @@ import static java.util.Objects.requireNonNull;
 public final class SearchBuilder {
     private Integer from;
     private Integer size;
-    private Query query;
     private QueryBuilder queryBuilder;
     private ImmutableList.Builder<Sort> sort;
     private ImmutableMap.Builder<String, Aggregation> aggregations;
@@ -59,14 +58,8 @@ public final class SearchBuilder {
         return this;
     }
 
-    public SearchBuilder query(Query query) {
-        ensureQueryIsNotSet();
-        this.query = requireNonNull(query, "query");
-        return this;
-    }
-
     public SearchBuilder query(QueryBuilder queryBuilder) {
-        ensureQueryIsNotSet();
+        checkState(this.queryBuilder == null, "queryBuilder is already set");
         this.queryBuilder = requireNonNull(queryBuilder, "queryBuilder");
         return this;
     }
@@ -97,9 +90,7 @@ public final class SearchBuilder {
             aggregations = aggregations().build();
         }
         final Query query;
-        if (this.query != null) {
-            query = this.query;
-        } else if (queryBuilder != null) {
+        if (queryBuilder != null) {
             query = queryBuilder.build();
         } else {
             query = null;
@@ -122,11 +113,5 @@ public final class SearchBuilder {
             aggregations = ImmutableMap.builder();
         }
         return aggregations;
-    }
-
-    private void ensureQueryIsNotSet() {
-        final String errMsg = "query and queryBuilder can not be set simultaneously";
-        checkState(query == null, errMsg);
-        checkState(queryBuilder == null, errMsg);
     }
 }
