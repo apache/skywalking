@@ -5,6 +5,13 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -34,7 +41,7 @@ jobs:
       packages: write
     timeout-minutes: 90
     env:
-      TAG: ${{ github.sha }}
+      TAG: ${{ github.sha }}-${{ matrix.es }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -52,7 +59,19 @@ jobs:
           registry: ${{ env.HUB }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build docker image
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1.10.0
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1.10.0
+      - name: Inspect builder 1
         run: |
-          make docker || make docker
-          make docker.push || make docker.push
+          echo "Name:      ${{ steps.buildx1.outputs.name }}"
+          echo "Endpoint:  ${{ steps.buildx1.outputs.endpoint }}"
+          echo "Status:    ${{ steps.buildx1.outputs.status }}"
+          echo "Flags:     ${{ steps.buildx1.outputs.flags }}"
+          echo "Platforms: ${{ steps.buildx1.outputs.platforms }}"
+#      - name: Build docker image
+#        run: |
+#          make docker || make docker
+#          make docker.push || make docker.push
