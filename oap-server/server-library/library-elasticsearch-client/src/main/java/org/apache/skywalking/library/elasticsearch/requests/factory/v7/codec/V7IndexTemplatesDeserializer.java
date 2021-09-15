@@ -22,28 +22,25 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.Map;
-import org.apache.skywalking.library.elasticsearch.response.Mappings;
+import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
+import org.apache.skywalking.library.elasticsearch.response.IndexTemplates;
 
-final class V7MappingsDeserializer extends JsonDeserializer<Mappings> {
+final class V7IndexTemplatesDeserializer extends JsonDeserializer<IndexTemplates> {
+    public static final TypeReference<Map<String, IndexTemplate>> TYPE_REFERENCE =
+        new TypeReference<Map<String, IndexTemplate>>() {
+        };
+
     @Override
-    @SuppressWarnings("unchecked")
-    public Mappings deserialize(final JsonParser p, final DeserializationContext ctxt)
+    public IndexTemplates deserialize(final JsonParser p,
+                                      final DeserializationContext ctxt)
         throws IOException {
 
-        final Map<String, Object> m =
-            p.getCodec().readValue(p, new TypeReference<Map<String, Object>>() {
-            });
-
-        final Iterator<Map.Entry<String, Object>> it = m.entrySet().iterator();
-        if (it.hasNext()) {
-            final Map.Entry<String, Object> first = it.next();
-            final Mappings mappings = new Mappings();
-            mappings.setType("_doc");
-            mappings.setProperties((Map<String, Object>) first.getValue());
-            return mappings;
+        final Map<String, IndexTemplate> templates = p.getCodec().readValue(p, TYPE_REFERENCE);
+        if (templates == null) {
+            return new IndexTemplates(Collections.emptyMap());
         }
-        return null;
+        return new IndexTemplates(templates);
     }
 }
