@@ -25,6 +25,7 @@ import org.apache.skywalking.library.elasticsearch.requests.factory.v6.V6Request
 import org.apache.skywalking.library.elasticsearch.requests.factory.v6.codec.V6Codec;
 import org.apache.skywalking.library.elasticsearch.requests.factory.v7.V78RequestFactory;
 import org.apache.skywalking.library.elasticsearch.requests.factory.v7.V7RequestFactory;
+import org.apache.skywalking.library.elasticsearch.requests.factory.v7.codec.V78Codec;
 import org.apache.skywalking.library.elasticsearch.requests.factory.v7.codec.V7Codec;
 
 public final class ElasticSearchVersion {
@@ -53,11 +54,12 @@ public final class ElasticSearchVersion {
                 return;
             }
             if (major == 7) {
-                codec = V7Codec.INSTANCE;
                 if (minor < 8) { // [7.0, 7.8)
                     requestFactory = new V7RequestFactory(this);
+                    codec = V7Codec.INSTANCE;
                 } else { // [7.8, 8.0)
                     requestFactory = new V78RequestFactory(this);
+                    codec = V78Codec.INSTANCE;
                 }
                 return;
             }

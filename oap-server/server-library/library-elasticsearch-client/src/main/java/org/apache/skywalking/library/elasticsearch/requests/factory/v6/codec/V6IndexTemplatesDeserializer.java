@@ -22,33 +22,24 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
-import org.apache.skywalking.library.elasticsearch.response.Mappings;
+import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
+import org.apache.skywalking.library.elasticsearch.response.IndexTemplates;
 
-final class V6MappingsDeserializer extends JsonDeserializer<Mappings> {
+final class V6IndexTemplatesDeserializer extends JsonDeserializer<IndexTemplates> {
+    public static final TypeReference<Map<String, IndexTemplate>> TYPE_REFERENCE =
+        new TypeReference<Map<String, IndexTemplate>>() {
+        };
+
     @Override
-    @SuppressWarnings("unchecked")
-    public Mappings deserialize(final JsonParser p, final DeserializationContext ctxt)
+    public IndexTemplates deserialize(final JsonParser p,
+                                      final DeserializationContext ctxt)
         throws IOException {
-
-        final Map<String, Object> m =
-            p.getCodec().readValue(p, new TypeReference<Map<String, Object>>() {
-            });
-        final Optional<Map.Entry<String, Object>> typeMapping =
-            m.entrySet()
-             .stream()
-             .filter(it -> it.getValue() instanceof Map)
-             .filter(it -> ((Map<String, Object>) it.getValue()).containsKey("properties"))
-             .peek(it -> it.setValue(((Map<?, ?>) it.getValue()).get("properties")))
-             .findFirst();
-
-        final Optional<Mappings> result = typeMapping.map(it -> {
-            final Mappings mappings = new Mappings();
-            mappings.setType(it.getKey());
-            mappings.setProperties((Map<String, Object>) it.getValue());
-            return mappings;
-        });
-        return result.orElse(null);
+        final Map<String, IndexTemplate> templates = p.getCodec().readValue(p, TYPE_REFERENCE);
+        if (templates == null) {
+            return new IndexTemplates(Collections.emptyMap());
+        }
+        return new IndexTemplates(templates);
     }
 }

@@ -52,12 +52,31 @@ public final class TermsAggregation extends Aggregation {
                 gen.writeStartObject();
                 {
                     gen.writeStringField("field", value.getField());
+                    if (value.getSize() != null) {
+                        gen.writeNumberField("size", value.getSize());
+                    }
+                    if (value.getOrder() != null) {
+                        writeOrder(value, gen);
+                    }
                 }
                 gen.writeEndObject();
 
                 if (value.getAggregations() != null && !value.getAggregations().isEmpty()) {
                     gen.writeObjectField("aggregations", value.getAggregations());
                 }
+            }
+            gen.writeEndObject();
+        }
+
+        private void writeOrder(final TermsAggregation value,
+                                final JsonGenerator gen) throws IOException {
+            gen.writeFieldName("order");
+            gen.writeStartObject();
+            {
+                gen.writeStringField(
+                    value.getOrder().getPath(),
+                    value.getOrder().isAsc() ? "asc" : "desc"
+                );
             }
             gen.writeEndObject();
         }

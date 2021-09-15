@@ -28,7 +28,12 @@ import static java.util.Objects.requireNonNull;
 /**
  * Represents criteria when matching documents in ElasticSearch.
  */
-public abstract class Query {
+public abstract class Query implements QueryBuilder {
+    @Override
+    public Query build() {
+        return this;
+    }
+
     public static RangeQueryBuilder range(String name) {
         checkArgument(!Strings.isNullOrEmpty(name), "name cannot be blank");
         return new RangeQueryBuilder(name);
