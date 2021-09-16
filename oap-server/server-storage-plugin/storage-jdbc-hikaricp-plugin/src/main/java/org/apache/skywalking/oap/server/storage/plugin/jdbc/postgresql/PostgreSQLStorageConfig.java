@@ -25,5 +25,4 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLStorageCo
 @Setter
 @Getter
 public class PostgreSQLStorageConfig extends MySQLStorageConfig {
-
 }

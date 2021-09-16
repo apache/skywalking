@@ -49,7 +49,7 @@ public class ApplicationConfigLoaderTestCase {
         assertThat(providerConfig.get("metadataQueryMaxSize"), is(5000));
         assertThat(providerConfig.get("properties"), instanceOf(Properties.class));
         Properties properties = (Properties) providerConfig.get("properties");
-        assertThat(properties.get("jdbcUrl"), is("jdbc:mysql://localhost:3306/swtest"));
+        assertThat(properties.get("jdbcUrl"), is("jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true"));
     }
 
     @Test

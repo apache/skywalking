@@ -66,6 +66,7 @@ Release Notes.
 * Support gRPC sync grouped dynamic configurations.
 * Fix `H2EventQueryDAO` doesn't sort data by Event.START_TIME and uses a wrong pagination query.
 * Fix `LogHandler` of `kafka-fetcher-plugin` cannot recognize namespace.
+* Improve the speed of writing TiDB by batching the SQL execution.
 
 #### UI
 
