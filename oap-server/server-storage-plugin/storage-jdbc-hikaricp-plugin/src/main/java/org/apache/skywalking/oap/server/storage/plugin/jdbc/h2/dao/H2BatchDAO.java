@@ -40,7 +40,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.BatchSQLExecutor;
 public class H2BatchDAO implements IBatchDAO {
     private JDBCHikariCPClient h2Client;
     private final DataCarrier<PrepareRequest> dataCarrier;
-    private int maxBatchSqlSize;
+    private final int maxBatchSqlSize;
 
     public H2BatchDAO(JDBCHikariCPClient h2Client, int maxBatchSqlSize, int asyncBatchPersistentPoolSize) {
         this.h2Client = h2Client;

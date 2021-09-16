@@ -19,83 +19,64 @@ package org.apache.skywalking.library.elasticsearch.requests.search;
 
 import com.google.common.collect.ImmutableList;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Objects.requireNonNull;
 
 public final class BoolQueryBuilder implements QueryBuilder {
-    private ImmutableList.Builder<Query> must;
-    private ImmutableList.Builder<Query> mustNot;
-    private ImmutableList.Builder<Query> should;
-    private ImmutableList.Builder<Query> shouldNot;
+    private ImmutableList.Builder<QueryBuilder> must;
+    private ImmutableList.Builder<QueryBuilder> mustNot;
+    private ImmutableList.Builder<QueryBuilder> should;
+    private ImmutableList.Builder<QueryBuilder> shouldNot;
 
     BoolQueryBuilder() {
     }
 
-    public BoolQueryBuilder must(Query query) {
-        requireNonNull(query, "query");
-        must().add(query);
-        return this;
-    }
-
     public BoolQueryBuilder must(QueryBuilder queryBuilder) {
         requireNonNull(queryBuilder, "queryBuilder");
-        return must(queryBuilder.build());
-    }
-
-    public BoolQueryBuilder mustNot(Query query) {
-        requireNonNull(query, "query");
-        mustNot().add(query);
+        must().add(queryBuilder);
         return this;
     }
 
     public BoolQueryBuilder mustNot(QueryBuilder queryBuilder) {
         requireNonNull(queryBuilder, "queryBuilder");
-        return mustNot(queryBuilder.build());
-    }
-
-    public BoolQueryBuilder should(Query query) {
-        requireNonNull(query, "query");
-        should().add(query);
+        mustNot().add(queryBuilder);
         return this;
     }
 
     public BoolQueryBuilder should(QueryBuilder queryBuilder) {
         requireNonNull(queryBuilder, "queryBuilder");
-        return should(queryBuilder.build());
-    }
-
-    public BoolQueryBuilder shouldNot(Query query) {
-        requireNonNull(query, "query");
-        shouldNot().add(query);
+        should().add(queryBuilder);
         return this;
     }
 
     public BoolQueryBuilder shouldNot(QueryBuilder queryBuilder) {
         requireNonNull(queryBuilder, "queryBuilder");
-        return shouldNot(queryBuilder.build());
+        shouldNot().add(queryBuilder);
+        return this;
     }
 
-    private ImmutableList.Builder<Query> must() {
+    private ImmutableList.Builder<QueryBuilder> must() {
         if (must == null) {
             must = ImmutableList.builder();
         }
         return must;
     }
 
-    private ImmutableList.Builder<Query> mustNot() {
+    private ImmutableList.Builder<QueryBuilder> mustNot() {
         if (mustNot == null) {
             mustNot = ImmutableList.builder();
         }
         return mustNot;
     }
 
-    private ImmutableList.Builder<Query> should() {
+    private ImmutableList.Builder<QueryBuilder> should() {
         if (should == null) {
             should = ImmutableList.builder();
         }
         return should;
     }
 
-    private ImmutableList.Builder<Query> shouldNot() {
+    private ImmutableList.Builder<QueryBuilder> shouldNot() {
         if (shouldNot == null) {
             shouldNot = ImmutableList.builder();
         }
@@ -108,25 +89,33 @@ public final class BoolQueryBuilder implements QueryBuilder {
         if (this.must == null) {
             must = null;
         } else {
-            must = this.must.build();
+            must = this.must.build().stream()
+                            .map(QueryBuilder::build)
+                            .collect(toImmutableList());
         }
         final ImmutableList<Query> should;
         if (this.should == null) {
             should = null;
         } else {
-            should = this.should.build();
+            should = this.should.build().stream()
+                                .map(QueryBuilder::build)
+                                .collect(toImmutableList());
         }
         final ImmutableList<Query> mustNot;
         if (this.mustNot == null) {
             mustNot = null;
         } else {
-            mustNot = this.mustNot.build();
+            mustNot = this.mustNot.build().stream()
+                                  .map(QueryBuilder::build)
+                                  .collect(toImmutableList());
         }
         final ImmutableList<Query> shouldNot;
         if (this.shouldNot == null) {
             shouldNot = null;
         } else {
-            shouldNot = this.shouldNot.build();
+            shouldNot = this.shouldNot.build().stream()
+                                      .map(QueryBuilder::build)
+                                      .collect(toImmutableList());
         }
         return new BoolQuery(must, mustNot, should, shouldNot);
     }
