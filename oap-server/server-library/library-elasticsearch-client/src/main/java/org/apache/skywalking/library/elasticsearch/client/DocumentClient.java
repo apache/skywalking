@@ -32,7 +32,6 @@ import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
 import org.apache.skywalking.library.elasticsearch.response.Document;
-import org.apache.skywalking.library.elasticsearch.response.Documents;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -79,33 +78,6 @@ public final class DocumentClient {
             }
             if (log.isDebugEnabled()) {
                 log.debug("Doc by id {} in index {}: {}", id, index, result);
-            }
-        });
-        return future.get();
-    }
-
-    @SneakyThrows
-    public Optional<Documents> mget(String index, String type, Iterable<String> ids) {
-        final CompletableFuture<Optional<Documents>> future =
-            version.thenCompose(
-                v -> client.execute(v.requestFactory().document().mget(index, type, ids))
-                           .aggregate().thenApply(response -> {
-                        if (response.status() != HttpStatus.OK) {
-                            throw new RuntimeException(response.contentUtf8());
-                        }
-
-                        try (final HttpData content = response.content();
-                             final InputStream is = content.toInputStream()) {
-                            return Optional.of(v.codec().decode(is, Documents.class));
-                        } catch (Exception e) {
-                            return Exceptions.throwUnsafely(e);
-                        }
-                    }));
-        future.whenComplete((result, exception) -> {
-            if (exception != null) {
-                log.error("Failed to get by ids, {} {}", index, ids, exception);
-            } else if (log.isDebugEnabled()) {
-                log.debug("Succeeded to get docs by ids: {} {} {}", index, ids, result);
             }
         });
         return future.get();

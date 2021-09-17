@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.library.elasticsearch.response.Document;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -88,11 +88,10 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
             List<String> ids = metricList.stream()
                                          .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
                                          .collect(Collectors.toList());
-            getClient().ids(tableName, ids).ifPresent(documents -> {
-                for (final Document doc : documents) {
-                    Metrics source = storageBuilder.storage2Entity(doc.getSource());
-                    result.add(source);
-                }
+            final SearchResponse response = getClient().ids(tableName, ids);
+            response.getHits().getHits().forEach(hit -> {
+                Metrics source = storageBuilder.storage2Entity(hit.getSource());
+                result.add(source);
             });
         });
 
