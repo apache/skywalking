@@ -66,6 +66,8 @@ public class K8SServiceRegistry {
 
     private final EnvoyMetricReceiverConfig config;
 
+    private final KubernetesNodeRegistry nodeRegistry;
+
     public K8SServiceRegistry(final EnvoyMetricReceiverConfig config) {
         this.config = config;
 
@@ -80,6 +82,7 @@ public class K8SServiceRegistry {
                 .setDaemon(true)
                 .build()
         );
+        nodeRegistry = new KubernetesNodeRegistry();
     }
 
     public void start() throws IOException {
@@ -99,6 +102,8 @@ public class K8SServiceRegistry {
         listenPodEvents(coreV1Api, factory);
 
         factory.startAllRegisteredInformers();
+
+        nodeRegistry.start();
     }
 
     private void listenServiceEvents(final CoreV1Api coreV1Api, final SharedInformerFactory factory) {
@@ -268,6 +273,9 @@ public class K8SServiceRegistry {
     }
 
     public ServiceMetaInfo findService(final String ip) {
+        if (nodeRegistry.isNode(ip)) {
+            return config.serviceMetaInfoFactory().unknown();
+        }
         final ServiceMetaInfo service = ipServiceMetaInfoMap.get(ip);
         if (isNull(service)) {
             log.debug("Unknown ip {}, ip -> service is null", ip);
