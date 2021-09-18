@@ -79,7 +79,7 @@ public class ITElasticSearch {
         client = new ElasticSearchClient(
             server.getHttpHostAddress(),
             "http", "", "", "test", "test",
-            indexNameConverter(namespace), 500, 6000,
+            indexNameConverter(namespace), 500,
             0
         );
         client.connect();

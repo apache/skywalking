@@ -8,7 +8,8 @@ Release Notes.
 #### Project
 
 * Split javaagent into skywalking-java repository. https://github.com/apache/skywalking-java
-* Merge `Dockerfile`s from apache/skywalking-docker into this codebase. 
+* Merge `Dockerfile`s from apache/skywalking-docker into this codebase.
+* ElasticSearch official client has been removed from Apache SkyWalking due to SSPL and ELv2.
 
 #### OAP Server
 
@@ -31,7 +32,8 @@ Release Notes.
 * [Break Change] Remove endpoint name in the backend log query condition. Only support `query by endpoint id`.
 * [Break Change] Fix typo for a column `page_path_id`(was `pate_path_id`) of storage entity `browser_error_log`.
 * Add component id for Python falcon plugin.
-* Add `rpcStatusCode` for `rpc.status_code` tag. The `responseCode` field is marked as deprecated and replaced by `httpResponseStatusCode` field. 
+* Add `rpcStatusCode` for `rpc.status_code` tag. The `responseCode` field is marked as deprecated and replaced
+  by `httpResponseStatusCode` field.
 * Remove the duplicated tags to reduce the storage payload.
 * Add a new API to test log analysis language.
 * Harden the security of Groovy-based DSL, MAL and LAL.
@@ -68,6 +70,7 @@ Release Notes.
 * Fix `LogHandler` of `kafka-fetcher-plugin` cannot recognize namespace.
 * Improve the speed of writing TiDB by batching the SQL execution.
 * Fix wrong service name when IP is node IP in `k8s-mesh`.
+* Merge `connectTimeout` and `connectTimeout` settings of ElasticSearch client into a new `httpTimeout` setting.
 
 #### UI
 

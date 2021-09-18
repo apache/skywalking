@@ -83,8 +83,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | namespace | Prefix of indexes created and used by SkyWalking. | SW_NAMESPACE | - |
 | - | - | clusterNodes | ElasticSearch cluster nodes for client connection.| SW_STORAGE_ES_CLUSTER_NODES |localhost|
 | - | - | protocol | HTTP or HTTPs. | SW_STORAGE_ES_HTTP_PROTOCOL | HTTP|
-| - | - | connectTimeout | Connect timeout of ElasticSearch client (in milliseconds). | SW_STORAGE_ES_CONNECT_TIMEOUT | 500|
-| - | - | socketTimeout | Socket timeout of ElasticSearch client (in milliseconds). | SW_STORAGE_ES_SOCKET_TIMEOUT | 30000|
+| - | - | httpTimeout | HTTP timeout of ElasticSearch client (in milliseconds). | SW_STORAGE_ES_HTTP_TIMEOUT | 30000|
 | - | - | numHttpClientThread | The number of threads for the underlying HTTP client to perform socket I/O. If the value is <= 0, the number of available processors will be used. | SW_STORAGE_ES_NUM_HTTP_CLIENT_THREAD | 0 |
 | - | - | user| Username of ElasticSearch cluster. | SW_ES_USER | - |
 | - | - | password | Password of ElasticSearch cluster. | SW_ES_PASSWORD | - |

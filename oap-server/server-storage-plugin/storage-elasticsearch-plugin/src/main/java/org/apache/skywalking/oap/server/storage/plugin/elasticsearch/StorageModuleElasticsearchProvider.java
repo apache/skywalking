@@ -155,8 +155,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         elasticSearchClient = new ElasticSearchClient(
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
-            indexNameConverter(config.getNamespace()), config.getConnectTimeout(),
-            config.getSocketTimeout(), config.getNumHttpClientThread()
+            indexNameConverter(config.getNamespace()),
+            config.getHttpTimeout(), config.getNumHttpClientThread()
         );
         this.registerServiceImplementation(
             IBatchDAO.class,

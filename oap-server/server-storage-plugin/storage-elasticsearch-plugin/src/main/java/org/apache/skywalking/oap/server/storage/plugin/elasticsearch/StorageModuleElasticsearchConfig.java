@@ -30,17 +30,11 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private String clusterNodes;
     String protocol = "http";
     /**
-     * Connect timeout of ElasticSearch client.
+     * HTTP timeout for ElasticSearch client. The unit is millisecond.
      *
-     * @since 8.7.0
+     * @since 8.8.0 merged connectTimeout and connectTimeout because the native implementation of ElasticSearch client.
      */
-    private int connectTimeout = 500;
-    /**
-     * Socket timeout of ElasticSearch client.
-     *
-     * @since 8.7.0
-     */
-    private int socketTimeout = 30000;
+    private int httpTimeout = 30000;
     /**
      * @since 6.4.0, the index of metrics and traces data in minute/hour/month precision are organized in days. ES
      * storage creates new indexes in every day.

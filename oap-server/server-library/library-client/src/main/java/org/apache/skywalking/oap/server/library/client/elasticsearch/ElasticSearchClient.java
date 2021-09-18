@@ -79,8 +79,6 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     private final int connectTimeout;
 
-    private final int socketTimeout;
-
     private final int numHttpClientThread;
 
     private final AtomicReference<ElasticSearch> es = new AtomicReference<>();
@@ -93,7 +91,6 @@ public class ElasticSearchClient implements Client, HealthCheckable {
                                String password,
                                Function<String, String> indexNameConverter,
                                int connectTimeout,
-                               int socketTimeout,
                                int numHttpClientThread) {
         this.clusterNodes = clusterNodes;
         this.protocol = protocol;
@@ -103,7 +100,6 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         this.password = password;
         this.indexNameConverter = indexNameConverter;
         this.connectTimeout = connectTimeout;
-        this.socketTimeout = socketTimeout;
         this.numHttpClientThread = numHttpClientThread;
     }
 
