@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @Slf4j
 public class OAPServerBootstrap {
     public static void start() {
+        final long startTime = System.currentTimeMillis();
         String mode = System.getProperty("mode");
         RunningMode.setMode(mode);
 
@@ -42,17 +43,20 @@ public class OAPServerBootstrap {
             ApplicationConfiguration applicationConfiguration = configLoader.load();
             manager.init(applicationConfiguration);
 
+            final long endTime = System.currentTimeMillis();
+
             manager.find(TelemetryModule.NAME)
                    .provider()
                    .getService(MetricsCreator.class)
                    .createGauge("uptime", "oap server start up time", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE)
                    // Set uptime to second
-                   .setValue(System.currentTimeMillis() / 1000d);
+                   .setValue(endTime / 1000d);
 
             if (RunningMode.isInitMode()) {
                 log.info("OAP starts up in init mode successfully, exit now...");
                 System.exit(0);
             }
+            log.info("Apache SkyWalking Server starts up successfully in {} ms ", endTime - startTime);
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
             System.exit(1);
