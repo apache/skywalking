@@ -68,6 +68,7 @@ Release Notes.
 * Fix `LogHandler` of `kafka-fetcher-plugin` cannot recognize namespace.
 * Improve the speed of writing TiDB by batching the SQL execution.
 * Fix wrong service name when IP is node IP in `k8s-mesh`.
+* Support dynamic configurations for openAPI endpoint name grouping rule.
 
 #### UI
 
