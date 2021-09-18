@@ -56,9 +56,9 @@ For example:
 ```
 Supported configurations are as follows:
 
-| Config Key | SubItem Key Description | Value Format Example |
-|:----:|:----:|:----:|
-|core.default.endpoint-name-grouping-openapi|The serviceName relevant to openAPI definition file. eg. `serviceA` If the serviceName relevant to multiple files should split with `.` eg. `serviceA.API-file1` |The openAPI definitions file contents(yaml format). Same as [`productAPI-v2.yaml`](endpoint-grouping-rules.md)|
+| Config Key | SubItem Key Description |  Value Description | Value Format Example |
+|:----:|:----:|:----:|:----:|
+|core.default.endpoint-name-grouping-openapi|The serviceName relevant to openAPI definition file. eg. `serviceA` If the serviceName relevant to multiple files should split with `.` eg. `serviceA.API-file1` |The openAPI definitions file contents(yaml format) for create endpoint name grouping rules.|Same as [`productAPI-v2.yaml`](endpoint-grouping-rules.md)|
 
 ## Dynamic Configuration Implementations
 - [Dynamic Configuration Service, DCS](./dynamic-config-service.md)
