@@ -377,6 +377,9 @@ GuavaCache:
 AlibabaDruid:
   id: 115
   languages: Java
+HikariCP:
+  id: 116
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
