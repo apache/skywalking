@@ -10,10 +10,6 @@ Release Notes.
 * Split javaagent into skywalking-java repository. https://github.com/apache/skywalking-java
 * Merge `Dockerfile`s from apache/skywalking-docker into this codebase. 
 
-#### Java Agent
-
-* Support `Alibaba Druid` database connection pool plugin.
-
 #### OAP Server
 
 * Fix CVE-2021-35515, CVE-2021-35516, CVE-2021-35517, CVE-2021-36090. Upgrade org.apache.commons:commons-compress to
@@ -73,6 +69,7 @@ Release Notes.
 * Improve the speed of writing TiDB by batching the SQL execution.
 * Fix wrong service name when IP is node IP in `k8s-mesh`.
 * Support dynamic configurations for openAPI endpoint name grouping rule.
+* Add component definition for `Alibaba Druid`.
 
 #### UI
 
