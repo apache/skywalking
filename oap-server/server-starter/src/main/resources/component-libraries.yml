@@ -374,7 +374,7 @@ Sentinel:
 GuavaCache:
   id: 114
   languages: Java
-druid:
+AlibabaDruid:
   id: 115
   languages: Java
 
