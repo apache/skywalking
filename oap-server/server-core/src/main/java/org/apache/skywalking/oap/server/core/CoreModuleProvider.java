@@ -48,7 +48,7 @@ import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogServ
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
-import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4Openapi;
+import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointNameGroupingRule4OpenapiWatcher;
 import org.apache.skywalking.oap.server.core.logging.LoggingConfigWatcher;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateInitializer;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
@@ -123,6 +123,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private EndpointNameGroupingRuleWatcher endpointNameGroupingRuleWatcher;
     private OALEngineLoaderService oalEngineLoaderService;
     private LoggingConfigWatcher loggingConfigWatcher;
+    private EndpointNameGroupingRule4OpenapiWatcher endpointNameGroupingRule4OpenapiWatcher;
 
     public CoreModuleProvider() {
         super();
@@ -164,8 +165,8 @@ public class CoreModuleProvider extends ModuleProvider {
                 this, endpointNameGrouping);
 
             if (moduleConfig.isEnableEndpointNameGroupingByOpenapi()) {
-                endpointNameGrouping.setEndpointGroupingRule4Openapi(
-                    new EndpointGroupingRuleReader4Openapi("openapi-definitions").read());
+                endpointNameGroupingRule4OpenapiWatcher = new EndpointNameGroupingRule4OpenapiWatcher(
+                    this, endpointNameGrouping);
             }
         } catch (FileNotFoundException e) {
             throw new ModuleStartException(e.getMessage(), e);
@@ -354,6 +355,9 @@ public class CoreModuleProvider extends ModuleProvider {
         dynamicConfigurationService.registerConfigChangeWatcher(apdexThresholdConfig);
         dynamicConfigurationService.registerConfigChangeWatcher(endpointNameGroupingRuleWatcher);
         dynamicConfigurationService.registerConfigChangeWatcher(loggingConfigWatcher);
+        if (moduleConfig.isEnableEndpointNameGroupingByOpenapi()) {
+            dynamicConfigurationService.registerConfigChangeWatcher(endpointNameGroupingRule4OpenapiWatcher);
+        }
     }
 
     @Override

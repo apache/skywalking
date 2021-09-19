@@ -67,6 +67,8 @@ Release Notes.
 * Fix `H2EventQueryDAO` doesn't sort data by Event.START_TIME and uses a wrong pagination query.
 * Fix `LogHandler` of `kafka-fetcher-plugin` cannot recognize namespace.
 * Improve the speed of writing TiDB by batching the SQL execution.
+* Fix wrong service name when IP is node IP in `k8s-mesh`.
+* Support dynamic configurations for openAPI endpoint name grouping rule.
 
 #### UI
 
