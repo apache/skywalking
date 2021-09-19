@@ -70,6 +70,7 @@ Release Notes.
 * Fix wrong service name when IP is node IP in `k8s-mesh`.
 * Support dynamic configurations for openAPI endpoint name grouping rule.
 * Add component definition for `Alibaba Druid`.
+* Add component definition for `HikariCP`.
 
 #### UI
 
