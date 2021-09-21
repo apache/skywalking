@@ -44,17 +44,25 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 public class IoTDBClientTest {
     private IoTDBClient client;
 
+    @Rule
+    public GenericContainer iotdb = new GenericContainer(DockerImageName.parse("apache/iotdb:0.12.2-node")).withExposedPorts(6667);
+
     @Before
     public void addTableMetaInfo() throws Exception {
         IoTDBStorageConfig config = new IoTDBStorageConfig();
-        config.setHost("127.0.0.1");
-        config.setRpcPort(6667);
+        config.setHost(iotdb.getHost());
+        config.setRpcPort(iotdb.getFirstMappedPort());
         config.setUsername("root");
         config.setPassword("root");
         config.setStorageGroup("root.skywalking");
@@ -135,10 +143,12 @@ public class IoTDBClientTest {
         List<? super StorageData> storageDataList = client.filterQuery(modelName, querySQL, storageBuilder);
         storageDataList.forEach(storageData -> instanceTrafficList.add((InstanceTraffic) storageData));
 
-        InstanceTraffic instanceTraffic = instanceTrafficList.get(0);
-        assert instanceTraffic.id().equals("service_id_1_bmFtZV8x");
-        assert instanceTraffic.getServiceId().equals("service_id_1");
-        assert instanceTraffic.getLastPingTimestamp() == 1L;
+        for (InstanceTraffic instanceTraffic : instanceTrafficList) {
+            if (instanceTraffic.getName().equals("name_1")) {
+                assertThat(instanceTraffic.id()).isEqualTo("service_id_1_bmFtZV8x");
+                assertThat(instanceTraffic.getServiceId()).isEqualTo("service_id_1");
+            }
+        }
     }
 
     @Test

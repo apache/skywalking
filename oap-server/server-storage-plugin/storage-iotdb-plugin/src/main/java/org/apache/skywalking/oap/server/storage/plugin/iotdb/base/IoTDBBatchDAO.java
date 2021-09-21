@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -25,17 +29,10 @@ import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBBatchDAO implements IBatchDAO {
     private final IoTDBClient client;
-
-    public IoTDBBatchDAO(IoTDBClient client) {
-        this.client = client;
-    }
 
     @Override
     public void insert(InsertRequest insertRequest) {

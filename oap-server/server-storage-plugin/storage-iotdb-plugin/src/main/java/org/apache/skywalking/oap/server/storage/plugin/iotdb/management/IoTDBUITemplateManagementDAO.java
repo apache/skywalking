@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
-import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
 
 @Slf4j
@@ -44,10 +43,9 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
 
     @Override
     public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException {
-        final List<String> indexes = IoTDBTableMetaInfo.get(UITemplate.INDEX_NAME).getIndexes();
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(UITemplate.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, UITemplate.INDEX_NAME);
         query = client.addQueryAsterisk(UITemplate.INDEX_NAME, query);
         if (!includingDisabled) {
             query.append(" where ").append(UITemplate.DISABLED).append(" = ").append(BooleanUtils.FALSE);
@@ -77,9 +75,9 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
         final UITemplate uiTemplate = setting.toEntity();
 
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(UITemplate.INDEX_NAME).append(IoTDBClient.DOT)
-                .append(client.indexValue2LayerName(uiTemplate.id()))
+        query.append("select * from ");
+        query = client.addModelPath(query, UITemplate.INDEX_NAME);
+        query.append(IoTDBClient.DOT).append(client.indexValue2LayerName(uiTemplate.id()))
                 .append(IoTDBClient.ALIGN_BY_DEVICE);
         List<? super StorageData> queryResult = client.filterQuery(UITemplate.INDEX_NAME, query.toString(), storageBuilder);
         if (queryResult.size() == 0) {
@@ -95,9 +93,9 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
     @Override
     public TemplateChangeStatus disableTemplate(String name) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(UITemplate.INDEX_NAME).append(IoTDBClient.DOT)
-                .append(client.indexValue2LayerName(name))
+        query.append("select * from ");
+        query = client.addModelPath(query, UITemplate.INDEX_NAME);
+        query.append(IoTDBClient.DOT).append(client.indexValue2LayerName(name))
                 .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> queryResult = client.filterQuery(UITemplate.INDEX_NAME, query.toString(), storageBuilder);

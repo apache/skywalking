@@ -26,6 +26,7 @@ import lombok.Setter;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
@@ -55,7 +56,7 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
             if (index.equals(IoTDBClient.ID_IDX)) {
                 indexValues.add(storageData.id());
             } else if (storageMap.containsKey(index)) {
-                indexValues.add(storageMap.get(index).toString());
+                indexValues.add(String.valueOf(storageMap.get(index)));
                 storageMap.remove(index);
             }
         });
@@ -71,6 +72,20 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
         if (storageMap.containsKey(IoTDBClient.TIMESTAMP)) {
             int idx = timeseriesList.indexOf(IoTDBClient.TIMESTAMP);
             timeseriesList.set(idx, "\"" + IoTDBClient.TIMESTAMP + "\"");
+        }
+
+        storageMap.forEach((String key, Object value) -> {
+            if (key.contains(".")) {
+                int idx = timeseriesList.indexOf(key);
+                timeseriesList.set(idx, "\"" + key + "\"");
+            }
+        });
+
+        for (int i = 0; i < timeseriesValues.size(); i++) {
+            Object timeseriesValue = timeseriesValues.get(i);
+            if (timeseriesValue instanceof StorageDataComplexObject) {
+                timeseriesValues.set(i, ((StorageDataComplexObject) timeseriesValue).toStorageData());
+            }
         }
     }
 }

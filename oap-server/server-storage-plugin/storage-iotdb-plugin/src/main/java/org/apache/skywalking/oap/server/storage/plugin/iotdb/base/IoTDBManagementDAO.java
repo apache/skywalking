@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
@@ -28,14 +29,10 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import java.io.IOException;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBManagementDAO implements IManagementDAO {
     private final IoTDBClient client;
     private final StorageHashMapBuilder<ManagementData> storageBuilder;
-
-    public IoTDBManagementDAO(IoTDBClient client, StorageHashMapBuilder<ManagementData> storageBuilder) {
-        this.client = client;
-        this.storageBuilder = storageBuilder;
-    }
 
     @Override
     public void insert(Model model, ManagementData storageData) throws IOException {

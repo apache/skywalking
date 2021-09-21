@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
 import java.io.IOException;
@@ -16,17 +34,23 @@ import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBStorageConfig;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 public class IoTDBAggregationQueryDAOTest {
     private IoTDBClient client;
     private IoTDBAggregationQueryDAO aggregationQueryDAO;
 
+    @Rule
+    public GenericContainer iotdb = new GenericContainer(DockerImageName.parse("apache/iotdb:0.12.2-node")).withExposedPorts(6667);
+
     @Before
     public void setUp() throws Exception {
         IoTDBStorageConfig config = new IoTDBStorageConfig();
-        config.setHost("127.0.0.1");
-        config.setRpcPort(6667);
+        config.setHost(iotdb.getHost());
+        config.setRpcPort(iotdb.getFirstMappedPort());
         config.setUsername("root");
         config.setPassword("root");
         config.setStorageGroup("root.skywalking");
@@ -43,8 +67,8 @@ public class IoTDBAggregationQueryDAOTest {
     public void sortMetrics() throws IOException {
         // Because building the parameter of sortMetrics is difficult, I adopt the same logic to test sortMetrics
         StringBuilder query = new StringBuilder();
-        query.append(String.format("select %s from ", ServiceRelationServerSideMetrics.COMPONENT_ID))
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceRelationServerSideMetrics.INDEX_NAME);
+        query.append(String.format("select %s from ", ServiceRelationServerSideMetrics.COMPONENT_ID));
+        query = client.addModelPath(query, ServiceRelationServerSideMetrics.INDEX_NAME);
         query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(-30612585599000L)
                 .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(10000000000001L);
 //        if (additionalConditions != null) {
@@ -54,13 +78,11 @@ public class IoTDBAggregationQueryDAOTest {
 //        }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
+        SessionPool sessionPool = client.getSessionPool();
+        SessionDataSetWrapper wrapper = null;
         List<SelectedRecord> topEntities = new ArrayList<>();
         try {
-            SessionPool sessionPool = client.getSessionPool();
-            if (!sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + ServiceRelationServerSideMetrics.INDEX_NAME)) {
-                return;
-            }
-            SessionDataSetWrapper wrapper = sessionPool.executeQueryStatement(query.toString());
+            wrapper = sessionPool.executeQueryStatement(query.toString());
 //            if (log.isDebugEnabled()) {
 //                log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
 //            }
@@ -87,6 +109,8 @@ public class IoTDBAggregationQueryDAOTest {
             });
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
+        } finally {
+            sessionPool.closeResultSet(wrapper);
         }
 //        if (condition.getOrder().equals(Order.DES)) {
 //            topEntities.sort((SelectedRecord t1, SelectedRecord t2) ->

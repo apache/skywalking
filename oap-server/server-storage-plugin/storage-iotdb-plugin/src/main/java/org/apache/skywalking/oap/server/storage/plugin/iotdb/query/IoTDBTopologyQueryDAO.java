@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
@@ -40,12 +41,9 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
     private final IoTDBClient client;
-
-    public IoTDBTopologyQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
 
     @Override
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB, long endTB,
@@ -127,9 +125,8 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                                                    List<String> serviceIds, DetectPoint detectPoint) throws IOException {
         // This method don't use "group by" like other storage plugin.
         StringBuilder query = new StringBuilder();
-        query.append("select ").append(ServiceRelationServerSideMetrics.COMPONENT_ID)
-                .append(" from ")
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(tableName);
+        query.append("select ").append(ServiceRelationServerSideMetrics.COMPONENT_ID).append(" from ");
+        query = client.addModelPath(query, tableName);
         query = client.addQueryAsterisk(tableName, query);
         query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB))
                 .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
@@ -147,13 +144,11 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
+        SessionPool sessionPool = client.getSessionPool();
+        SessionDataSetWrapper wrapper = null;
         List<Call.CallDetail> calls = new ArrayList<>();
         try {
-            SessionPool sessionPool = client.getSessionPool();
-            if (!sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + tableName)) {
-                return calls;
-            }
-            SessionDataSetWrapper wrapper = sessionPool.executeQueryStatement(query.toString());
+            wrapper = sessionPool.executeQueryStatement(query.toString());
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
             }
@@ -168,11 +163,12 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 call.buildFromServiceRelation(entityId, componentId, detectPoint);
                 calls.add(call);
             }
-            sessionPool.closeResultSet(wrapper);
-            return calls;
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
+        } finally {
+            sessionPool.closeResultSet(wrapper);
         }
+        return calls;
     }
 
     private List<Call.CallDetail> loadServiceInstanceCalls(String tableName, long startTB, long endTB,
@@ -181,8 +177,8 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                                                            DetectPoint detectPoint) throws IOException {
         // This method don't use "group by" like other storage plugin.
         StringBuilder query = new StringBuilder();
-        query.append("select ").append(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID).append(" from ")
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(tableName);
+        query.append("select ").append(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID).append(" from ");
+        query = client.addModelPath(query, tableName);
         query = client.addQueryAsterisk(tableName, query);
         query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB))
                 .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
@@ -193,12 +189,9 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         SessionPool sessionPool = client.getSessionPool();
-        SessionDataSetWrapper wrapper;
+        SessionDataSetWrapper wrapper = null;
         List<Call.CallDetail> calls = new ArrayList<>();
         try {
-            if (!sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + tableName)) {
-                return calls;
-            }
             wrapper = sessionPool.executeQueryStatement(query.toString());
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
@@ -213,11 +206,12 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 call.buildFromInstanceRelation(entityId, componentId, detectPoint);
                 calls.add(call);
             }
-            sessionPool.closeResultSet(wrapper);
-            return calls;
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
+        } finally {
+            sessionPool.closeResultSet(wrapper);
         }
+        return calls;
     }
 
     private List<Call.CallDetail> loadEndpointFromSide(String tableName, long startTB, long endTB,
@@ -225,7 +219,8 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                                                        String id, boolean isSourceId) throws IOException {
         // This method don't use "group by" like other storage plugin.
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(tableName);
+        query.append("select * from ");
+        query = client.addModelPath(query, tableName);
         query = client.addQueryAsterisk(tableName, query);
         query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB))
                 .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
@@ -233,12 +228,9 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         SessionPool sessionPool = client.getSessionPool();
-        SessionDataSetWrapper wrapper;
+        SessionDataSetWrapper wrapper = null;
         List<Call.CallDetail> calls = new ArrayList<>();
         try {
-            if (!sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + tableName)) {
-                return calls;
-            }
             wrapper = sessionPool.executeQueryStatement(query.toString());
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
@@ -253,10 +245,11 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 call.buildFromEndpointRelation(entityId, DetectPoint.SERVER);
                 calls.add(call);
             }
-            sessionPool.closeResultSet(wrapper);
-            return calls;
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
+        } finally {
+            sessionPool.closeResultSet(wrapper);
         }
+        return calls;
     }
 }

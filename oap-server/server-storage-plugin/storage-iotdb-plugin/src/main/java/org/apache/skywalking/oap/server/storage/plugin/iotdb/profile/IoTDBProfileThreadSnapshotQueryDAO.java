@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
@@ -32,20 +33,17 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
+@RequiredArgsConstructor
 public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
     private final IoTDBClient client;
     private final StorageHashMapBuilder<ProfileThreadSnapshotRecord> profileThreadSnapshotRecordBuilder = new ProfileThreadSnapshotRecord.Builder();
     private final StorageHashMapBuilder<SegmentRecord> segmentRecordBuilder = new SegmentRecord.Builder();
 
-    public IoTDBProfileThreadSnapshotQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
-
     @Override
     public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(ProfileThreadSnapshotRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, ProfileThreadSnapshotRecord.INDEX_NAME);
         query = client.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
         query.append(" where ").append(ProfileThreadSnapshotRecord.TASK_ID).append(" = \"").append(taskId).append("\"")
                 .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" = 0")
@@ -63,7 +61,8 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
         query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(SegmentRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, SegmentRecord.INDEX_NAME);
         query = client.addQueryAsterisk(SegmentRecord.INDEX_NAME, query);
         query.append(" where ").append(SegmentRecord.SEGMENT_ID).append(" in (");
         for (String segmentId : segmentIds) {
@@ -105,8 +104,8 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
     @Override
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(ProfileThreadSnapshotRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, ProfileThreadSnapshotRecord.INDEX_NAME);
         query = client.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
         query.append(" where ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
                 .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ").append(minSequence)
@@ -123,8 +122,8 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
     @Override
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(SegmentRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, SegmentRecord.INDEX_NAME);
         query = client.addQueryAsterisk(SegmentRecord.INDEX_NAME, query);
         query.append(" where ").append(SegmentRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
                 .append(IoTDBClient.ALIGN_BY_DEVICE);
@@ -141,8 +140,8 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
         // This method has poor efficiency. It queries all data which meets a condition without aggregation function
         // See https://github.com/apache/iotdb/discussions/3907
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(ProfileThreadSnapshotRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, ProfileThreadSnapshotRecord.INDEX_NAME);
         query = client.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
         query.append(" where ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
                 .append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ").append(start)

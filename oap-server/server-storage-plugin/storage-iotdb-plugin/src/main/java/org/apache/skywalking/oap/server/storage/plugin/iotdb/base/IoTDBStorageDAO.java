@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -31,12 +32,9 @@ import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
+@RequiredArgsConstructor
 public class IoTDBStorageDAO implements StorageDAO {
     private final IoTDBClient ioTDBClient;
-
-    public IoTDBStorageDAO(IoTDBClient ioTDBClient) {
-        this.ioTDBClient = ioTDBClient;
-    }
 
     @Override
     public IMetricsDAO newMetricsDao(StorageBuilder storageBuilder) {

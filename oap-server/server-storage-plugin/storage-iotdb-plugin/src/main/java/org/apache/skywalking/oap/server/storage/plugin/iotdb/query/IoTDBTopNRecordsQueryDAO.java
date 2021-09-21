@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
@@ -44,18 +45,16 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
     private final IoTDBClient client;
-
-    public IoTDBTopNRecordsQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
 
     @Override
     public List<SelectedRecord> readSampledRecords(TopNCondition condition, String valueColumnName, Duration duration) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(TopN.STATEMENT).append(", ").append(TopN.TRACE_ID).append(", ").append(valueColumnName)
-                .append(" from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(condition.getName());
+                .append(" from ");
+        query = client.addModelPath(query, condition.getName());
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(condition.getParentService())) {
             final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
@@ -73,14 +72,11 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         String queryString = query.toString();
         queryString = queryString.replace("1=1 and ", "");
 
+        SessionPool sessionPool = client.getSessionPool();
+        SessionDataSetWrapper wrapper = null;
         List<SelectedRecord> records = new ArrayList<>();
         try {
-            SessionPool sessionPool = client.getSessionPool();
-            String devicePath = client.getStorageGroup() + IoTDBClient.DOT + condition.getName();
-            if (!sessionPool.checkTimeseriesExists(devicePath)) {
-                return new ArrayList<>();
-            }
-            SessionDataSetWrapper wrapper = sessionPool.executeQueryStatement(queryString);
+            wrapper = sessionPool.executeQueryStatement(queryString);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }
@@ -97,6 +93,8 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
             }
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + queryString, e);
+        } finally {
+            sessionPool.closeResultSet(wrapper);
         }
 
         // resort by self, because of the select query result order by time.

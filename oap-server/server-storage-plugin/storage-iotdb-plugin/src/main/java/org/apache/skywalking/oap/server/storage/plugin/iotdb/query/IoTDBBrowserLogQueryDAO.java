@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -40,13 +41,10 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
     private final IoTDBClient client;
     private final StorageHashMapBuilder<BrowserErrorLogRecord> storageBuilder = new BrowserErrorLogRecord.Builder();
-
-    public IoTDBBrowserLogQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
 
     @Override
     public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId,
@@ -55,7 +53,8 @@ public class IoTDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
         StringBuilder query = new StringBuilder();
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(BrowserErrorLogRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, BrowserErrorLogRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
             indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);

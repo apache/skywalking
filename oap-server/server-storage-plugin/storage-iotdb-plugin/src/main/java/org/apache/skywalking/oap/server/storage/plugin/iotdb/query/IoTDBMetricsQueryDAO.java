@@ -20,10 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
@@ -45,12 +45,9 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
     private final IoTDBClient client;
-
-    public IoTDBMetricsQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
 
     @Override
     public long readMetricsValue(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
@@ -67,8 +64,8 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         } else {
             op = "sum";
         }
-        query.append(String.format("select %s(%s) from ", op, valueColumnName))
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(condition.getName());
+        query.append(String.format("select %s(%s) from ", op, valueColumnName));
+        query = client.addModelPath(query, condition.getName());
         final String entityId = condition.getEntity().buildId();
         if (entityId != null) {
             Map<String, String> indexAndValueMap = new HashMap<>();
@@ -101,7 +98,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(valueColumnName).append(" from ");
         for (String id : ids) {
-            query.append(client.getStorageGroup()).append(IoTDBClient.DOT).append(condition.getName());
+            query = client.addModelPath(query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
             indexAndValueMap.put(IoTDBClient.ID_IDX, id);
             query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
@@ -113,15 +110,13 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         }
         queryString += IoTDBClient.ALIGN_BY_DEVICE;
 
+        SessionPool sessionPool = client.getSessionPool();
+        SessionDataSetWrapper wrapper = null;
         MetricsValues metricsValues = new MetricsValues();
         // Label is null, because in readMetricsValues, no label parameter.
         final IntValues intValues = metricsValues.getValues();
         try {
-            SessionPool sessionPool = client.getSessionPool();
-            if (sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + condition.getName())) {
-                return metricsValues;
-            }
-            SessionDataSetWrapper wrapper = sessionPool.executeQueryStatement(queryString);
+            wrapper = sessionPool.executeQueryStatement(queryString);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }
@@ -138,9 +133,10 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
                 kv.setValue(value);
                 intValues.addKVInt(kv);
             }
-            sessionPool.closeResultSet(wrapper);
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + queryString, e);
+        } finally {
+            sessionPool.closeResultSet(wrapper);
         }
         metricsValues.setValues(Util.sortValues(intValues, ids, ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())));
         return metricsValues;
@@ -155,7 +151,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(valueColumnName).append(" from ");
         for (String id : ids) {
-            query.append(client.getStorageGroup()).append(IoTDBClient.DOT).append(condition.getName());
+            query = client.addModelPath(query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
             indexAndValueMap.put(IoTDBClient.ID_IDX, id);
             query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
@@ -167,13 +163,11 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         }
         queryString += IoTDBClient.ALIGN_BY_DEVICE;
 
+        SessionPool sessionPool = client.getSessionPool();
+        SessionDataSetWrapper wrapper = null;
         Map<String, DataTable> idMap = new HashMap<>();
         try {
-            SessionPool sessionPool = client.getSessionPool();
-            if (sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + condition.getName())) {
-                return Collections.emptyList();
-            }
-            SessionDataSetWrapper wrapper = sessionPool.executeQueryStatement(queryString);
+            wrapper = sessionPool.executeQueryStatement(queryString);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }
@@ -188,9 +182,10 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
                 multipleValues.toObject(fields.get(1).getStringValue());
                 idMap.put(id, multipleValues);
             }
-            sessionPool.closeResultSet(wrapper);
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + queryString, e);
+        } finally {
+            sessionPool.closeResultSet(wrapper);
         }
         return Util.composeLabelValue(condition, labels, ids, idMap);
     }
@@ -204,7 +199,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(valueColumnName).append(" from ");
         for (String id : ids) {
-            query.append(client.getStorageGroup()).append(IoTDBClient.DOT).append(condition.getName());
+            query = client.addModelPath(query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
             indexAndValueMap.put(IoTDBClient.ID_IDX, id);
             query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
@@ -216,14 +211,12 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         }
         queryString += IoTDBClient.ALIGN_BY_DEVICE;
 
+        SessionPool sessionPool = client.getSessionPool();
+        SessionDataSetWrapper wrapper = null;
         HeatMap heatMap = new HeatMap();
         final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         try {
-            SessionPool sessionPool = client.getSessionPool();
-            if (sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + condition.getName())) {
-                return heatMap;
-            }
-            SessionDataSetWrapper wrapper = sessionPool.executeQueryStatement(queryString);
+            wrapper = sessionPool.executeQueryStatement(queryString);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }
@@ -236,9 +229,10 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
 
                 heatMap.buildColumn(id, fields.get(1).getStringValue(), defaultValue);
             }
-            sessionPool.closeResultSet(wrapper);
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + queryString, e);
+        } finally {
+            sessionPool.closeResultSet(wrapper);
         }
         heatMap.fixMissingColumns(ids, defaultValue);
         return heatMap;

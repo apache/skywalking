@@ -21,8 +21,10 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
@@ -34,19 +36,27 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
+import org.assertj.core.api.Condition;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClientTest.retrieval;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IoTDBMetricsDAOTest {
     private IoTDBMetricsDAO metricsDAO;
 
+    @Rule
+    public GenericContainer iotdb = new GenericContainer(DockerImageName.parse("apache/iotdb:0.12.2-node")).withExposedPorts(6667);
+
     @Before
     public void setUp() throws Exception {
         IoTDBStorageConfig config = new IoTDBStorageConfig();
-        config.setHost("127.0.0.1");
-        config.setRpcPort(6667);
+        config.setHost(iotdb.getHost());
+        config.setRpcPort(iotdb.getFirstMappedPort());
         config.setUsername("root");
         config.setPassword("root");
         config.setStorageGroup("root.skywalking");
@@ -107,11 +117,21 @@ public class IoTDBMetricsDAOTest {
         metrics.add(instanceTraffic2);
 
         List<Metrics> newMetrics = metricsDAO.multiGet(IoTDBTableMetaInfo.get(InstanceTraffic.INDEX_NAME).getModel(), metrics);
+
+        Set<String> serviceIdSet = new HashSet<>();
+        serviceIdSet.add("service_id_1");
+        serviceIdSet.add("service_id_2");
+        Condition<String> serviceIdCondition = new Condition<>(serviceIdSet::contains, "service_id");
+        Set<String> nameSet = new HashSet<>();
+        nameSet.add("name_1");
+        nameSet.add("name_2");
+        Condition<String> nameCondition = new Condition<>(nameSet::contains, "name");
+
         newMetrics.forEach(metrics1 -> {
             String serviceId = ((InstanceTraffic) metrics1).getServiceId();
             String name = ((InstanceTraffic) metrics1).getName();
-            assert serviceId.equals("service_id_1") || serviceId.equals("service_id_2");
-            assert name.equals("name_1") || name.equals("name_2");
+            assertThat(serviceId).is(serviceIdCondition);
+            assertThat(name).is(nameCondition);
         });
     }
 }

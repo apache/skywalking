@@ -21,8 +21,10 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -43,19 +45,27 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
+import org.assertj.core.api.Condition;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClientTest.retrieval;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IoTDBMetadataQueryDAOTest {
     private IoTDBMetadataQueryDAO metadataQueryDAO;
 
+    @Rule
+    public GenericContainer iotdb = new GenericContainer(DockerImageName.parse("apache/iotdb:0.12.2-node")).withExposedPorts(6667);
+
     @Before
     public void setUp() throws Exception {
         IoTDBStorageConfig config = new IoTDBStorageConfig();
-        config.setHost("127.0.0.1");
-        config.setRpcPort(6667);
+        config.setHost(iotdb.getHost());
+        config.setRpcPort(iotdb.getFirstMappedPort());
         config.setUsername("root");
         config.setPassword("root");
         config.setStorageGroup("root.skywalking");
@@ -161,7 +171,7 @@ public class IoTDBMetadataQueryDAOTest {
     public void getAllServices() throws IOException {
         List<Service> serviceList = metadataQueryDAO.getAllServices("group_1");
         serviceList.forEach(service -> {
-            assert service.getGroup().equals("group_1");
+            assertThat(service.getGroup()).isEqualTo("group_1");
         });
     }
 
@@ -169,7 +179,7 @@ public class IoTDBMetadataQueryDAOTest {
     public void getAllBrowserServices() throws IOException {
         List<Service> serviceList = metadataQueryDAO.getAllBrowserServices();
         serviceList.forEach(service -> {
-            assert service.getId().equals(IDManager.ServiceID.buildId(service.getName(), NodeType.Browser));
+            assertThat(service.getId()).isEqualTo(IDManager.ServiceID.buildId(service.getName(), NodeType.Browser));
         });
     }
 
@@ -177,39 +187,51 @@ public class IoTDBMetadataQueryDAOTest {
     public void getAllDatabases() throws IOException {
         List<Database> databaseList = metadataQueryDAO.getAllDatabases();
         databaseList.forEach(database -> {
-            assert database.getId().equals(IDManager.ServiceID.buildId(database.getName(), NodeType.Database));
+            assertThat(database.getId()).isEqualTo(IDManager.ServiceID.buildId(database.getName(), NodeType.Database));
         });
     }
 
     @Test
     public void searchServices() throws IOException {
         List<Service> serviceList = metadataQueryDAO.searchServices("");
+
+        Set<String> nameSet = new HashSet<>();
+        nameSet.add("name_1");
+        nameSet.add("name_2");
+        Condition<String> nameCondition = new Condition<>(nameSet::contains, "name");
+
         serviceList.forEach(service -> {
-            assert service.getName().contains("name_1") || service.getName().contains("name_2");
+            assertThat(service.getName()).is(nameCondition);
         });
 
         serviceList = metadataQueryDAO.searchServices("1");
         serviceList.forEach(service -> {
-            assert service.getName().contains("1");
+            assertThat(service.getName()).contains("1");
         });
     }
 
     @Test
     public void searchService() throws IOException {
         Service service = metadataQueryDAO.searchService("name_1");
-        assert service.getName().equals("name_1");
+        assertThat(service.getName()).contains("name_1");
     }
 
     @Test
     public void searchEndpoint() throws IOException {
         List<Endpoint> endpointList = metadataQueryDAO.searchEndpoint("", "service_id_1", 2);
+
+        Set<String> nameSet = new HashSet<>();
+        nameSet.add("name_1");
+        nameSet.add("name_2");
+        Condition<String> nameCondition = new Condition<>(nameSet::contains, "name");
+
         endpointList.forEach(endpoint -> {
-            assert endpoint.getName().contains("name_1") || endpoint.getName().contains("name_2");
+            assertThat(endpoint.getName()).is(nameCondition);
         });
 
         endpointList = metadataQueryDAO.searchEndpoint("1", "service_id_1", 2);
         endpointList.forEach(endpoint -> {
-            assert endpoint.getName().contains("1");
+            assertThat(endpoint.getName()).contains("1");
         });
     }
 
@@ -217,7 +239,7 @@ public class IoTDBMetadataQueryDAOTest {
     public void getServiceInstances() throws IOException {
         List<ServiceInstance> serviceInstanceList = metadataQueryDAO.getServiceInstances(0L, 10L, "service_id_1");
         serviceInstanceList.forEach(serviceInstance -> {
-            assert serviceInstance.getName().equals("name_1");
+            assertThat(serviceInstance.getName()).isEqualTo("name_1");
         });
     }
 }

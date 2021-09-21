@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -35,20 +36,18 @@ import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
+@RequiredArgsConstructor
 public class IoTDBEventQueryDAO implements IEventQueryDAO {
     private final IoTDBClient client;
     private final StorageHashMapBuilder<Event> storageBuilder = new Event.Builder();
-
-    public IoTDBEventQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
 
     @Override
     public Events queryEvents(EventQueryCondition condition) throws Exception {
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(Event.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, Event.INDEX_NAME);
         query = client.addQueryAsterisk(Event.INDEX_NAME, query);
         query = whereSQL(condition, query);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
@@ -85,7 +84,8 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(Event.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, Event.INDEX_NAME);
         query = client.addQueryAsterisk(Event.INDEX_NAME, query);
         query = whereSQL(conditionList, query);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);

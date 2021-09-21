@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -33,14 +34,10 @@ import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBMetricsDAO implements IMetricsDAO {
     private final IoTDBClient client;
     private final StorageHashMapBuilder<Metrics> storageBuilder;
-
-    public IoTDBMetricsDAO(IoTDBClient client, StorageHashMapBuilder<Metrics> storageBuilder) {
-        this.client = client;
-        this.storageBuilder = storageBuilder;
-    }
 
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
@@ -48,8 +45,8 @@ public class IoTDBMetricsDAO implements IMetricsDAO {
         query.append("select * from ");
         for (Metrics metric : metrics) {
             query.append(", ");
-            query.append(client.getStorageGroup()).append(IoTDBClient.DOT).append(model.getName())
-                    .append(IoTDBClient.DOT).append(client.indexValue2LayerName(metric.id()));
+            query = client.addModelPath(query, model.getName());
+            query.append(IoTDBClient.DOT).append(client.indexValue2LayerName(metric.id()));
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
         String queryString = query.toString().replaceFirst(", ", "");

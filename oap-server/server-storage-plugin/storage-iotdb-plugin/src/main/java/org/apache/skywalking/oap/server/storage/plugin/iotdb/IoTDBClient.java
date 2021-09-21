@@ -20,22 +20,22 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.rpc.TSStatusCode;
 import org.apache.iotdb.session.pool.SessionDataSetWrapper;
 import org.apache.iotdb.session.pool.SessionPool;
-import org.apache.iotdb.tsfile.exception.NullFieldException;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
+import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.library.client.Client;
@@ -53,10 +53,12 @@ public class IoTDBClient implements Client, HealthCheckable {
     private final String storageGroup;
 
     public static final String DOT = ".";
+    public static final String ALIGN_BY_DEVICE = " align by device";
+
     public static final String TIME_BUCKET = "time_bucket";
     public static final String TIME = "Time";
     public static final String TIMESTAMP = "timestamp";
-    public static final String ALIGN_BY_DEVICE = " align by device";
+
     public static final String ID_IDX = "id";
     public static final String ENTITY_ID_IDX = "entity_id";
     public static final String NODE_TYPE_IDX = "node_type";
@@ -67,10 +69,6 @@ public class IoTDBClient implements Client, HealthCheckable {
     public IoTDBClient(IoTDBStorageConfig config) throws IOException {
         this.config = config;
         storageGroup = config.getStorageGroup();
-    }
-
-    public final String getStorageGroup() {
-        return storageGroup;
     }
 
     @Override
@@ -184,14 +182,10 @@ public class IoTDBClient implements Client, HealthCheckable {
         if (!querySQL.contains("align by device")) {
             throw new IOException("querySQL must contain \"align by device\"");
         }
+        SessionDataSetWrapper wrapper = null;
         List<? super StorageData> storageDataList = new ArrayList<>();
         try {
-            StringBuilder devicePath = new StringBuilder();
-            devicePath.append(storageGroup).append(IoTDBClient.DOT).append(modelName);
-            if (!sessionPool.checkTimeseriesExists(devicePath.toString())) {
-                return storageDataList;
-            }
-            SessionDataSetWrapper wrapper = sessionPool.executeQueryStatement(querySQL);
+            wrapper = sessionPool.executeQueryStatement(querySQL);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", querySQL, wrapper.getColumnNames());
             }
@@ -200,12 +194,14 @@ public class IoTDBClient implements Client, HealthCheckable {
             IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.get(modelName);
             List<String> indexes = tableMetaInfo.getIndexes();
             while (wrapper.hasNext()) {
-                Map<String, Object> map = new HashMap<>();
+                Map<String, Object> map = new ConcurrentHashMap<>();
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 // transform timestamp to time_bucket
-                map.put(IoTDBClient.TIME_BUCKET, TimeBucket.getTimeBucket(rowRecord.getTimestamp(),
-                        tableMetaInfo.getModel().getDownsampling()));
+                if (!UITemplate.INDEX_NAME.equals(modelName)) {
+                    map.put(IoTDBClient.TIME_BUCKET, TimeBucket.getTimeBucket(rowRecord.getTimestamp(),
+                            tableMetaInfo.getModel().getDownsampling()));
+                }
                 // field.get(0) -> Device, transform layerName to indexValue
                 String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
                 for (int i = 0; i < indexes.size(); i++) {
@@ -230,142 +226,24 @@ public class IoTDBClient implements Client, HealthCheckable {
                 if (modelName.equals(BrowserErrorLogRecord.INDEX_NAME) || modelName.equals(LogRecord.INDEX_NAME)) {
                     map.put(IoTDBClient.TIMESTAMP, map.get("\"" + IoTDBClient.TIMESTAMP + "\""));
                 }
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    // remove double quotes
+                    String key = entry.getKey();
+                    if (key.contains(".")) {
+                        map.put(key.substring(1, key.length() - 1), entry.getValue());
+                    }
+                }
 
                 storageDataList.add(storageBuilder.storage2Entity(map));
             }
-            sessionPool.closeResultSet(wrapper);
             healthChecker.health();
-        } catch (IoTDBConnectionException | StatementExecutionException e) {
-            healthChecker.unHealth(e);
-            throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + querySQL, e);
-        }
-        return storageDataList;
-    }
-
-    /**
-     * query with "string_contains" function
-     *
-     * @param modelName      model name
-     * @param querySQL       query sql
-     * @param storageBuilder storageBuilder
-     * @return a list of data which has been filtered by "string_contains" function
-     * @throws IOException IoTDBConnectionException or StatementExecutionException
-     */
-    public List<? super StorageData> queryWithContains(String modelName, String querySQL,
-                                                       StorageHashMapBuilder<? extends StorageData> storageBuilder)
-            throws IOException {
-        List<? super StorageData> storageDataList = new ArrayList<>();
-        try {
-            StringBuilder devicePath = new StringBuilder();
-            devicePath.append(storageGroup).append(IoTDBClient.DOT).append(modelName);
-            if (!sessionPool.checkTimeseriesExists(devicePath.toString())) {
-                return storageDataList;
-            }
-            SessionDataSetWrapper wrapper = sessionPool.executeQueryStatement(querySQL);
-            if (log.isDebugEnabled()) {
-                log.debug("SQL: {}, columnNames: {}", querySQL, wrapper.getColumnNames());
-            }
-            List<String> iotDBColumnNames = wrapper.getColumnNames();
-            IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.get(modelName);
-            List<String> indexes = tableMetaInfo.getIndexes();
-
-            // group columns by device
-            Map<String, List<Integer>> deviceAndTimeseriesMap = new HashMap<>();
-            Map<String, Integer> deviceAndStringContainsMap = new HashMap<>();
-            List<String> timeseriesList = new ArrayList<>(iotDBColumnNames.size());
-            final String stringContains = "string_contains";
-            for (int i = 1; i < iotDBColumnNames.size(); i++) {
-                String iotDBColumnName = iotDBColumnNames.get(i);
-                timeseriesList.add(iotDBColumnName.substring(iotDBColumnName.lastIndexOf(IoTDBClient.DOT) + 1));
-                if (iotDBColumnName.contains(stringContains)) {
-                    String device = iotDBColumnName.substring(stringContains.length() + 1, iotDBColumnName.lastIndexOf(IoTDBClient.DOT));
-                    deviceAndStringContainsMap.put(device, i);
-                } else {
-                    String device = iotDBColumnName.substring(0, iotDBColumnName.lastIndexOf(IoTDBClient.DOT));
-                    if (deviceAndTimeseriesMap.containsKey(device)) {
-                        deviceAndTimeseriesMap.get(device).add(i);
-                    } else {
-                        List<Integer> timeseriesIndex = new ArrayList<>(iotDBColumnNames.size());
-                        timeseriesIndex.add(i);
-                        deviceAndTimeseriesMap.put(device, timeseriesIndex);
-                    }
-                }
-            }
-
-            while (wrapper.hasNext()) {
-                Map<String, Object> map = new HashMap<>();
-                RowRecord rowRecord = wrapper.next();
-                List<Field> fields = rowRecord.getFields();
-                // transform timestamp to time_bucket
-                map.put(IoTDBClient.TIME_BUCKET, TimeBucket.getTimeBucket(rowRecord.getTimestamp(),
-                        tableMetaInfo.getModel().getDownsampling()));
-                boolean isStringContains = false;
-                for (Map.Entry<String, Integer> entry : deviceAndStringContainsMap.entrySet()) {
-                    String device = entry.getKey();
-                    int stringContainsIdx = entry.getValue();
-                    if (getStringContainsResult(fields.get(stringContainsIdx - 1))) {
-                        isStringContains = true;
-                        String[] layerNames = device.split("\\" + IoTDBClient.DOT + "\"");
-                        for (int i = 0; i < indexes.size(); i++) {
-                            map.put(indexes.get(i), layerName2IndexValue(layerNames[i + 1]));
-                        }
-                        List<Integer> timeseriesIndexes = deviceAndTimeseriesMap.get(device);
-                        timeseriesIndexes.forEach(timeseriesIndex -> {
-                            String timeseries = timeseriesList.get(timeseriesIndex - 1);
-                            Field field = fields.get(timeseriesIndex - 1);
-                            if (field.getDataType().equals(TSDataType.TEXT)) {
-                                map.put(timeseries, field.getStringValue());
-                            } else {
-                                map.put(timeseries, field.getObjectValue(field.getDataType()));
-                            }
-                        });
-                        break;
-                    }
-                }
-                if (map.containsKey(IoTDBClient.NODE_TYPE_IDX)) {
-                    String nodeType = (String) map.get(IoTDBClient.NODE_TYPE_IDX);
-                    map.put(IoTDBClient.NODE_TYPE_IDX, Integer.valueOf(nodeType));
-                }
-
-                if (isStringContains) {
-                    storageDataList.add(storageBuilder.storage2Entity(map));
-                }
-            }
-            sessionPool.closeResultSet(wrapper);
-            healthChecker.health();
-        } catch (IoTDBConnectionException | StatementExecutionException e) {
-            healthChecker.unHealth(e);
-            throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + querySQL, e);
-        }
-        return storageDataList;
-    }
-
-    public List<Long> queryWithSelect(String modelName, String querySQL) throws IOException {
-        // TODO refactor select query, https://github.com/apache/iotdb/discussions/3888
-        StringBuilder devicePath = new StringBuilder();
-        devicePath.append(storageGroup).append(IoTDBClient.DOT).append(modelName);
-        SessionDataSetWrapper wrapper = null;
-        try {
-            if (!sessionPool.checkTimeseriesExists(devicePath.toString())) {
-                return null;
-            }
-            wrapper = sessionPool.executeQueryStatement(querySQL);
-            if (log.isDebugEnabled()) {
-                log.debug("SQL: {}, columnNames: {}", querySQL, wrapper.getColumnNames());
-            }
-            List<Long> longList = new ArrayList<>();
-            while (wrapper.hasNext()) {
-                RowRecord rowRecord = wrapper.next();
-                longList.add(rowRecord.getFields().get(1).getLongV());
-            }
-            healthChecker.health();
-            return longList;
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             healthChecker.unHealth(e);
             throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + querySQL, e);
         } finally {
             sessionPool.closeResultSet(wrapper);
         }
+        return storageDataList;
     }
 
     /**
@@ -377,23 +255,22 @@ public class IoTDBClient implements Client, HealthCheckable {
      * @throws IOException IoTDBConnectionException or StatementExecutionException
      */
     public List<Double> queryWithAgg(String modelName, String querySQL) throws IOException {
-        StringBuilder devicePath = new StringBuilder();
-        devicePath.append(storageGroup).append(IoTDBClient.DOT).append(modelName);
         SessionDataSetWrapper wrapper = null;
+        List<Double> results = new ArrayList<>();
         try {
-            if (!sessionPool.checkTimeseriesExists(devicePath.toString())) {
-                throw new IOException("Timeseries doesn't exist");
-            }
             wrapper = sessionPool.executeQueryStatement(querySQL);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", querySQL, wrapper.getColumnNames());
             }
-            List<Double> results = new ArrayList<>();
+
             if (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 for (Field field : fields) {
-                    results.add(Double.parseDouble(field.getStringValue()));
+                    String stringValue = field.getStringValue();
+                    if (!stringValue.equals("null")) {
+                        results.add(Double.parseDouble(stringValue));
+                    }
                 }
             }
             healthChecker.health();
@@ -407,7 +284,7 @@ public class IoTDBClient implements Client, HealthCheckable {
     }
 
     /**
-     * Delete data <= deleteTime in one timeseries
+     * Delete data &lt;= deleteTime in one timeseries
      *
      * @param device     device name
      * @param deleteTime deleteTime
@@ -451,11 +328,7 @@ public class IoTDBClient implements Client, HealthCheckable {
         return query;
     }
 
-    private boolean getStringContainsResult(Field field) {
-        try {
-            return field.getBoolV();
-        } catch (NullFieldException e) {
-            return false;
-        }
+    public StringBuilder addModelPath(StringBuilder query, String modelName) {
+        return query.append(storageGroup).append(IoTDBClient.DOT).append(modelName);
     }
 }

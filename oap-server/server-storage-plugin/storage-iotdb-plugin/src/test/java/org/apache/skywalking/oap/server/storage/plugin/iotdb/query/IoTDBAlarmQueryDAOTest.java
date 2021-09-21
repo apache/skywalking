@@ -43,18 +43,25 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBStorageDAO;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClientTest.retrieval;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IoTDBAlarmQueryDAOTest {
     private IoTDBAlarmQueryDAO alarmQueryDAO;
 
+    @Rule
+    public GenericContainer iotdb = new GenericContainer(DockerImageName.parse("apache/iotdb:0.12.2-node")).withExposedPorts(6667);
+
     @Before
     public void setUp() throws Exception {
         IoTDBStorageConfig config = new IoTDBStorageConfig();
-        config.setHost("127.0.0.1");
-        config.setRpcPort(6667);
+        config.setHost(iotdb.getHost());
+        config.setRpcPort(iotdb.getFirstMappedPort());
         config.setUsername("root");
         config.setPassword("root");
         config.setStorageGroup("root.skywalking");
@@ -124,8 +131,8 @@ public class IoTDBAlarmQueryDAOTest {
         List<AlarmMessage> messageList = alarms.getMsgs();
         long startTime = Long.MAX_VALUE;
         for (AlarmMessage message : messageList) {
-            assert message.getScope().getScopeId() == Scope.Service.getScopeId();
-            assert message.getStartTime() < startTime;
+            assertThat(message.getScope().getScopeId()).isEqualTo(Scope.Service.getScopeId());
+            assertThat(message.getStartTime()).isLessThanOrEqualTo(startTime);
             startTime = message.getStartTime();
         }
 
@@ -134,9 +141,9 @@ public class IoTDBAlarmQueryDAOTest {
         messageList = alarms.getMsgs();
         startTime = Long.MAX_VALUE;
         for (AlarmMessage message : messageList) {
-            assert message.getScope().getScopeId() == Scope.Service.getScopeId();
-            assert message.getMessage().contains("1");
-            assert message.getStartTime() < startTime;
+            assertThat(message.getScope().getScopeId()).isEqualTo(Scope.Service.getScopeId());
+            assertThat(message.getMessage()).contains("1");
+            assertThat(message.getStartTime()).isLessThanOrEqualTo(startTime);
             startTime = message.getStartTime();
         }
     }

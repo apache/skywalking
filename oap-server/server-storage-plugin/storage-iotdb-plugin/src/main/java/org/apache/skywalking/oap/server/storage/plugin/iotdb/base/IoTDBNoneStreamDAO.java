@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
@@ -28,6 +29,7 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 import java.io.IOException;
 
+@RequiredArgsConstructor
 public class IoTDBNoneStreamDAO implements INoneStreamDAO {
     private static final int PADDING_SIZE = 1_000_000;
     private static final AtomicRangeInteger SUFFIX = new AtomicRangeInteger(0, PADDING_SIZE);
@@ -35,15 +37,9 @@ public class IoTDBNoneStreamDAO implements INoneStreamDAO {
     private final IoTDBClient client;
     private final StorageHashMapBuilder<NoneStream> storageBuilder;
 
-    public IoTDBNoneStreamDAO(IoTDBClient client, StorageHashMapBuilder<NoneStream> storageBuilder) {
-        this.client = client;
-        this.storageBuilder = storageBuilder;
-    }
-
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
-        final long timestamp = TimeBucket.getTimestamp(noneStream.getTimeBucket(), model.getDownsampling())
-                * PADDING_SIZE + SUFFIX.getAndIncrement();
+        final long timestamp = TimeBucket.getTimestamp(noneStream.getTimeBucket(), model.getDownsampling());
         final IoTDBInsertRequest request = new IoTDBInsertRequest(model.getName(), timestamp, noneStream, storageBuilder);
         client.write(request);
     }

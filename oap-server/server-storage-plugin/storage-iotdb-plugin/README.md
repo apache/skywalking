@@ -165,7 +165,7 @@ group by level = 3;
 3. username，用户名，默认root
 4. password，密码，默认root
 5. storageGroup，存储组名称，默认root.skywalking
-6. sessionPoolSize，SessionPool大小，默认3（后续可配置为主机核心线程数）
+6. sessionPoolSize，SessionPool大小，默认16（后续可配置为主机核心线程数）
 7. fetchTaskLogMaxSize，在一次请求中获取的TaskLog数量的最大值，默认1000
 
 ## 遇到的问题及解决方案

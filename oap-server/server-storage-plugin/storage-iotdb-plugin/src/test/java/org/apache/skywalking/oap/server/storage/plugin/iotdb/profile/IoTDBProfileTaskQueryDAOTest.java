@@ -36,18 +36,25 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClientTest.retrieval;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IoTDBProfileTaskQueryDAOTest {
     private IoTDBProfileTaskQueryDAO profileTaskQueryDAO;
 
+    @Rule
+    public GenericContainer iotdb = new GenericContainer(DockerImageName.parse("apache/iotdb:0.12.2-node")).withExposedPorts(6667);
+
     @Before
     public void setUp() throws Exception {
         IoTDBStorageConfig config = new IoTDBStorageConfig();
-        config.setHost("127.0.0.1");
-        config.setRpcPort(6667);
+        config.setHost(iotdb.getHost());
+        config.setRpcPort(iotdb.getFirstMappedPort());
         config.setUsername("root");
         config.setPassword("root");
         config.setStorageGroup("root.skywalking");
@@ -93,14 +100,14 @@ public class IoTDBProfileTaskQueryDAOTest {
         List<ProfileTask> tasks = profileTaskQueryDAO.getTaskList("service_id_1", "endpoint_name_1",
                 null, null, null);
         ProfileTask profileTask = tasks.get(0);
-        assert profileTask.getServiceId().equals("service_id_1");
-        assert profileTask.getEndpointName().equals("endpoint_name_1");
+        assertThat(profileTask.getServiceId()).isEqualTo("service_id_1");
+        assertThat(profileTask.getEndpointName()).isEqualTo("endpoint_name_1");
     }
 
     @Test
     public void getById() throws IOException {
         ProfileTask profileTask = profileTaskQueryDAO.getById("5_service_id_1");
-        assert profileTask.getServiceId().equals("service_id_1");
-        assert profileTask.getEndpointName().equals("endpoint_name_1");
+        assertThat(profileTask.getServiceId()).isEqualTo("service_id_1");
+        assertThat(profileTask.getEndpointName()).isEqualTo("endpoint_name_1");
     }
 }

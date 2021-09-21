@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -42,13 +43,10 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
+@RequiredArgsConstructor
 public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
     private final IoTDBClient client;
     private final StorageHashMapBuilder<SegmentRecord> storageBuilder = new SegmentRecord.Builder();
-
-    public IoTDBTraceQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
@@ -59,7 +57,8 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
         StringBuilder query = new StringBuilder();
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(SegmentRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, SegmentRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
             indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
@@ -137,7 +136,8 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(SegmentRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, SegmentRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBClient.TRACE_ID_IDX, traceId);
         query = client.addQueryIndexValue(SegmentRecord.INDEX_NAME, query, indexAndValueMap);

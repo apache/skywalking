@@ -43,18 +43,25 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBStorageDAO;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClientTest.retrieval;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IoTDBTraceQueryDAOTest {
     private IoTDBTraceQueryDAO traceQueryDAO;
 
+    @Rule
+    public GenericContainer iotdb = new GenericContainer(DockerImageName.parse("apache/iotdb:0.12.2-node")).withExposedPorts(6667);
+
     @Before
     public void setUp() throws Exception {
         IoTDBStorageConfig config = new IoTDBStorageConfig();
-        config.setHost("127.0.0.1");
-        config.setRpcPort(6667);
+        config.setHost(iotdb.getHost());
+        config.setRpcPort(iotdb.getFirstMappedPort());
         config.setUsername("root");
         config.setPassword("root");
         config.setStorageGroup("root.skywalking");
@@ -122,12 +129,13 @@ public class IoTDBTraceQueryDAOTest {
                 QueryOrder.BY_START_TIME, tags);
         long startTime = Long.MAX_VALUE;
         for (BasicTrace trace : traceBrief.getTraces()) {
-            assert Long.parseLong(trace.getStart()) < startTime;
+            assertThat(Long.parseLong(trace.getStart())).isLessThanOrEqualTo(startTime);
             startTime = Long.parseLong(trace.getStart());
-            assert trace.getDuration() >= 1L && trace.getDuration() <= 10L;
-            assert !trace.isError();
+            assertThat(trace.getDuration()).isGreaterThanOrEqualTo(1);
+            assertThat(trace.getDuration()).isLessThanOrEqualTo(10);
+            assertThat(trace.isError()).isFalse();
             for (String traceId : trace.getTraceIds()) {
-                assert traceId.equals("trace_id_1");
+                assertThat(traceId).isEqualTo("trace_id_1");
             }
         }
     }
@@ -136,7 +144,7 @@ public class IoTDBTraceQueryDAOTest {
     public void queryByTraceId() throws IOException {
         List<SegmentRecord> segmentRecordList = traceQueryDAO.queryByTraceId("trace_id_1");
         segmentRecordList.forEach(segmentRecord -> {
-            assert segmentRecord.getTraceId().equals("trace_id_1");
+            assertThat(segmentRecord.getTraceId()).isEqualTo("trace_id_1");
         });
     }
 }

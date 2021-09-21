@@ -20,8 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -40,19 +42,27 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
+import org.assertj.core.api.Condition;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClientTest.retrieval;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IoTDBEventQueryDAOTest {
     private IoTDBEventQueryDAO eventQueryDAO;
 
+    @Rule
+    public GenericContainer iotdb = new GenericContainer(DockerImageName.parse("apache/iotdb:0.12.2-node")).withExposedPorts(6667);
+
     @Before
     public void setUp() throws Exception {
         IoTDBStorageConfig config = new IoTDBStorageConfig();
-        config.setHost("127.0.0.1");
-        config.setRpcPort(6667);
+        config.setHost(iotdb.getHost());
+        config.setRpcPort(iotdb.getFirstMappedPort());
         config.setUsername("root");
         config.setPassword("root");
         config.setStorageGroup("root.skywalking");
@@ -118,15 +128,15 @@ public class IoTDBEventQueryDAOTest {
         Events events = eventQueryDAO.queryEvents(condition);
         long startTime = Long.MAX_VALUE;
         for (org.apache.skywalking.oap.server.core.query.type.event.Event event : events.getEvents()) {
-            assert event.getUuid().equals("uuid_1");
-            assert event.getSource().getService().equals("service_1");
-            assert event.getSource().getServiceInstance().equals("instance_1");
-            assert event.getSource().getEndpoint().equals("endpoint_1");
-            assert event.getName().equals("name_1");
-            assert event.getType().name().equals(EventType.Normal.name());
-            assert event.getStartTime() > 0;
-            assert event.getEndTime() < 10;
-            assert event.getStartTime() < startTime;
+            assertThat(event.getUuid()).isEqualTo("uuid_1");
+            assertThat(event.getSource().getService()).isEqualTo("service_1");
+            assertThat(event.getSource().getServiceInstance()).isEqualTo("instance_1");
+            assertThat(event.getSource().getEndpoint()).isEqualTo("endpoint_1");
+            assertThat(event.getName()).isEqualTo("name_1");
+            assertThat(event.getType().name()).isEqualTo(EventType.Normal.name());
+            assertThat(event.getStartTime()).isGreaterThan(0L);
+            assertThat(event.getEndTime()).isLessThan(10L);
+            assertThat(event.getStartTime()).isLessThanOrEqualTo(startTime);
             startTime = event.getStartTime();
         }
     }
@@ -145,16 +155,21 @@ public class IoTDBEventQueryDAOTest {
         conditionList.add(condition2);
         Events events = eventQueryDAO.queryEvents(conditionList);
         long startTime = Long.MAX_VALUE;
+        Set<String> uuitSet = new HashSet<>();
+        uuitSet.add("uuid_1");
+        uuitSet.add("uuid_2");
+        Condition<String> uuidCondition = new Condition<>(uuitSet::contains, "name");
+
         for (org.apache.skywalking.oap.server.core.query.type.event.Event event : events.getEvents()) {
-            assert event.getUuid().equals("uuid_1") || event.getUuid().equals("uuid_2");
-            assert event.getSource().getService().equals("service_1");
-            assert event.getSource().getServiceInstance().equals("instance_1");
-            assert event.getSource().getEndpoint().equals("endpoint_1");
-            assert event.getName().equals("name_1");
-            assert event.getType().name().equals(EventType.Normal.name());
-            assert event.getStartTime() > 0;
-            assert event.getEndTime() < 10;
-            assert event.getStartTime() < startTime;
+            assertThat(event.getUuid()).is(uuidCondition);
+            assertThat(event.getSource().getService()).isEqualTo("service_1");
+            assertThat(event.getSource().getServiceInstance()).isEqualTo("instance_1");
+            assertThat(event.getSource().getEndpoint()).isEqualTo("endpoint_1");
+            assertThat(event.getName()).isEqualTo("name_1");
+            assertThat(event.getType().name()).isEqualTo(EventType.Normal.name());
+            assertThat(event.getStartTime()).isGreaterThan(0L);
+            assertThat(event.getEndTime()).isLessThan(10L);
+            assertThat(event.getStartTime()).isLessThanOrEqualTo(startTime);
             startTime = event.getStartTime();
         }
     }

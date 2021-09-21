@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.profile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
@@ -31,20 +32,17 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQuer
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
     private final IoTDBClient client;
     private final StorageHashMapBuilder<ProfileTaskLogRecord> storageBuilder = new ProfileTaskLogRecord.Builder();
     private final int fetchTaskLogMaxSize;
 
-    public IoTDBProfileTaskLogQueryDAO(IoTDBClient client, int fetchTaskLogMaxSize) {
-        this.client = client;
-        this.fetchTaskLogMaxSize = fetchTaskLogMaxSize;
-    }
-
     @Override
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileTaskLogRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, ProfileTaskLogRecord.INDEX_NAME);
         query = client.addQueryAsterisk(ProfileTaskLogRecord.INDEX_NAME, query);
         query.append(" limit ").append(fetchTaskLogMaxSize).append(IoTDBClient.ALIGN_BY_DEVICE);
 

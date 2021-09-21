@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -27,12 +28,9 @@ import org.joda.time.DateTime;
 import java.io.IOException;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBHistoryDeleteDAO implements IHistoryDeleteDAO {
     private final IoTDBClient client;
-
-    public IoTDBHistoryDeleteDAO(IoTDBClient client) {
-        this.client = client;
-    }
 
     @Override
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {

@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -34,20 +35,18 @@ import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
+@RequiredArgsConstructor
 public class IoTDBAlarmQueryDAO implements IAlarmQueryDAO {
     private final IoTDBClient client;
     private final StorageHashMapBuilder<AlarmRecord> storageBuilder = new AlarmRecord.Builder();
-
-    public IoTDBAlarmQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
 
     @Override
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB, long endTB, List<Tag> tags) throws IOException {
         StringBuilder query = new StringBuilder();
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(AlarmRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, AlarmRecord.INDEX_NAME);
         query = client.addQueryAsterisk(AlarmRecord.INDEX_NAME, query);
         query.append(" where 1=1");
         if (Objects.nonNull(scopeId)) {

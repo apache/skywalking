@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.HashMap;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     private static final Gson GSON = new Gson();
     private final IoTDBClient client;
@@ -54,14 +56,11 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     private final StorageHashMapBuilder<EndpointTraffic> endpointBuilder = new EndpointTraffic.Builder();
     private final StorageHashMapBuilder<InstanceTraffic> instanceBuilder = new InstanceTraffic.Builder();
 
-    public IoTDBMetadataQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
-
     @Override
     public List<Service> getAllServices(String group) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Normal.value()));
         if (StringUtil.isNotEmpty(group)) {
@@ -79,7 +78,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public List<Service> getAllBrowserServices() throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Browser.value()));
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
@@ -94,7 +94,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public List<Database> getAllDatabases() throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Database.value()));
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
@@ -115,7 +116,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public List<Service> searchServices(String keyword) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Normal.value()));
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
@@ -132,7 +134,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public Service searchService(String serviceCode) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ServiceTraffic.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Normal.value()));
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
@@ -145,7 +148,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public List<Endpoint> searchEndpoint(String keyword, String serviceId, int limit) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(EndpointTraffic.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, EndpointTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
         query = client.addQueryIndexValue(EndpointTraffic.INDEX_NAME, query, indexAndValueMap);
@@ -170,7 +174,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     public List<ServiceInstance> getServiceInstances(long startTimestamp, long endTimestamp, String serviceId) throws IOException {
         final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(InstanceTraffic.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, InstanceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
         query = client.addQueryIndexValue(InstanceTraffic.INDEX_NAME, query, indexAndValueMap);

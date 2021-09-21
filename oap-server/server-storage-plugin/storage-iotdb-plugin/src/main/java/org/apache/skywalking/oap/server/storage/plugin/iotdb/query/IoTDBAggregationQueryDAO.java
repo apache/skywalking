@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
@@ -40,16 +41,9 @@ import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
-    private IoTDBClient client;
-    private static final Comparator<SelectedRecord> ASCENDING =
-            Comparator.comparingLong(a -> Long.parseLong(a.getValue()));
-    private static final Comparator<SelectedRecord> DESCENDING = (a, b) ->
-            Long.compare(Long.parseLong(b.getValue()), Long.parseLong(a.getValue()));
-
-    public IoTDBAggregationQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
+    private final IoTDBClient client;
 
     @Override
     public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration,
@@ -57,24 +51,23 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
         // This method maybe have poor efficiency. It queries all data which meets a condition without aggregation function.
         // https://github.com/apache/iotdb/issues/4006
         StringBuilder query = new StringBuilder();
-        query.append(String.format("select %s from ", valueColumnName))
-                .append(client.getStorageGroup()).append(IoTDBClient.DOT).append(condition.getName());
+        query.append(String.format("select %s from ", valueColumnName));
+        query = client.addModelPath(query, condition.getName());
         query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(duration.getStartTimestamp())
                 .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(duration.getStartTimestamp());
         if (additionalConditions != null) {
-            additionalConditions.forEach(additionalCondition ->
-                    query.append(" and ").append(additionalCondition.getKey()).append(" = \"")
-                            .append(additionalCondition.getValue()).append("\""));
+            for (KeyValue additionalCondition : additionalConditions) {
+                query.append(" and ").append(additionalCondition.getKey()).append(" = \"")
+                        .append(additionalCondition.getValue()).append("\"");
+            }
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
+        SessionPool sessionPool = client.getSessionPool();
+        SessionDataSetWrapper wrapper = null;
         List<SelectedRecord> topEntities = new ArrayList<>();
         try {
-            SessionPool sessionPool = client.getSessionPool();
-            if (!sessionPool.checkTimeseriesExists(client.getStorageGroup() + IoTDBClient.DOT + condition.getName())) {
-                return topEntities;
-            }
-            SessionDataSetWrapper wrapper = sessionPool.executeQueryStatement(query.toString());
+            wrapper = sessionPool.executeQueryStatement(query.toString());
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
             }
@@ -101,7 +94,10 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
             });
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
+        } finally {
+            sessionPool.closeResultSet(wrapper);
         }
+
         if (condition.getOrder().equals(Order.DES)) {
             topEntities.sort((SelectedRecord t1, SelectedRecord t2) ->
                     Double.compare(Double.parseDouble(t2.getValue()), Double.parseDouble(t1.getValue())));

@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -34,19 +35,17 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDA
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     private final IoTDBClient client;
     private final ProfileTaskRecord.Builder storageBuilder = new ProfileTaskRecord.Builder();
-
-    public IoTDBProfileTaskQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
 
     @Override
     public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket,
                                          Long endTimeBucket, Integer limit) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileTaskRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, ProfileTaskRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
             indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
@@ -83,7 +82,8 @@ public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
             return null;
         }
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(ProfileTaskRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, ProfileTaskRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBClient.ID_IDX, id);
         query = client.addQueryIndexValue(ProfileTaskRecord.INDEX_NAME, query, indexAndValueMap);

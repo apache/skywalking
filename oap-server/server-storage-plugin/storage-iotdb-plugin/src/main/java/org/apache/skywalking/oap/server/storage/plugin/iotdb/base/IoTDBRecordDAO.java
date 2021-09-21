@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
 import java.util.List;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
@@ -33,15 +34,12 @@ import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 
+@RequiredArgsConstructor
 public class IoTDBRecordDAO implements IRecordDAO {
     private static final int PADDING_SIZE = 1_000_000;
     private static final AtomicRangeInteger SUFFIX = new AtomicRangeInteger(0, PADDING_SIZE);
 
     private final StorageHashMapBuilder<Record> storageBuilder;
-
-    public IoTDBRecordDAO(StorageHashMapBuilder<Record> storageBuilder) {
-        this.storageBuilder = storageBuilder;
-    }
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) {
@@ -71,7 +69,11 @@ public class IoTDBRecordDAO implements IRecordDAO {
         }
         if (Objects.nonNull(rawTags)) {
             rawTags.forEach(rawTag -> {
-                timeseriesList.add(rawTag.getKey());
+                if (rawTag.getKey().contains(".")) {
+                    timeseriesList.add("\"" + rawTag.getKey() + "\"");
+                } else {
+                    timeseriesList.add(rawTag.getKey());
+                }
                 timeseriesTypes.add(TSDataType.TEXT);
                 timeseriesValues.add(rawTag.getValue());
             });

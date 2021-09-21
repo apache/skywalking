@@ -34,18 +34,25 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClientTest.retrieval;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IoTDBNetworkAddressAliasDAOTest {
     private IoTDBNetworkAddressAliasDAO networkAddressAliasDAO;
 
+    @Rule
+    public GenericContainer iotdb = new GenericContainer(DockerImageName.parse("apache/iotdb:0.12.2-node")).withExposedPorts(6667);
+
     @Before
     public void setUp() throws Exception {
         IoTDBStorageConfig config = new IoTDBStorageConfig();
-        config.setHost("127.0.0.1");
-        config.setRpcPort(6667);
+        config.setHost(iotdb.getHost());
+        config.setRpcPort(iotdb.getFirstMappedPort());
         config.setUsername("root");
         config.setPassword("root");
         config.setStorageGroup("root.skywalking");
@@ -87,7 +94,7 @@ public class IoTDBNetworkAddressAliasDAOTest {
     public void loadLastUpdate() {
         List<NetworkAddressAlias> networkAddressAliases = networkAddressAliasDAO.loadLastUpdate(1L);
         networkAddressAliases.forEach(networkAddressAlias -> {
-            assert networkAddressAlias.getLastUpdateTimeBucket() >= 1L;
+            assertThat(networkAddressAlias.getLastUpdateTimeBucket()).isGreaterThanOrEqualTo(1L);
         });
     }
 }

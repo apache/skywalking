@@ -18,30 +18,27 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.cache;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBNetworkAddressAliasDAO implements INetworkAddressAliasDAO {
     private final NetworkAddressAlias.Builder storageBuilder = new NetworkAddressAlias.Builder();
     private final IoTDBClient client;
 
-    public IoTDBNetworkAddressAliasDAO(final IoTDBClient client) {
-        this.client = client;
-    }
-
     @Override
     public List<NetworkAddressAlias> loadLastUpdate(long timeBucket) {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT)
-                .append(NetworkAddressAlias.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, NetworkAddressAlias.INDEX_NAME);
         query = client.addQueryAsterisk(NetworkAddressAlias.INDEX_NAME, query);
         query.append(" where ").append(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET).append(" >= ").append(timeBucket)
                 .append(IoTDBClient.ALIGN_BY_DEVICE);

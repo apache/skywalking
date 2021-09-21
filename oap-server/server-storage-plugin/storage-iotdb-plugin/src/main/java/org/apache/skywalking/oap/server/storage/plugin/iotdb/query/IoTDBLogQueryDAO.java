@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -45,13 +46,10 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
+@RequiredArgsConstructor
 public class IoTDBLogQueryDAO implements ILogQueryDAO {
     private final IoTDBClient client;
     private final StorageHashMapBuilder<LogRecord> storageBuilder = new LogRecord.Builder();
-
-    public IoTDBLogQueryDAO(IoTDBClient client) {
-        this.client = client;
-    }
 
     @Override
     public Logs queryLogs(String serviceId, String serviceInstanceId, String endpointId,
@@ -61,7 +59,8 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
         StringBuilder query = new StringBuilder();
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
-        query.append("select * from ").append(client.getStorageGroup()).append(IoTDBClient.DOT).append(LogRecord.INDEX_NAME);
+        query.append("select * from ");
+        query = client.addModelPath(query, LogRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
             indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);

@@ -40,18 +40,25 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBStorageDAO;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClientTest.retrieval;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IoTDBProfileThreadSnapshotQueryDAOTest {
     private IoTDBProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
 
+    @Rule
+    public GenericContainer iotdb = new GenericContainer(DockerImageName.parse("apache/iotdb:0.12.2-node")).withExposedPorts(6667);
+
     @Before
     public void setUp() throws Exception {
         IoTDBStorageConfig config = new IoTDBStorageConfig();
-        config.setHost("127.0.0.1");
-        config.setRpcPort(6667);
+        config.setHost(iotdb.getHost());
+        config.setRpcPort(iotdb.getFirstMappedPort());
         config.setUsername("root");
         config.setPassword("root");
         config.setStorageGroup("root.skywalking");
@@ -158,9 +165,9 @@ public class IoTDBProfileThreadSnapshotQueryDAOTest {
         List<BasicTrace> basicTraceList = profileThreadSnapshotQueryDAO.queryProfiledSegments("task_id_1");
         long startTime = Long.MAX_VALUE;
         for (BasicTrace basicTrace : basicTraceList) {
-            assert basicTrace.getSegmentId().equals("segment_id_1");
+            assertThat(basicTrace.getSegmentId()).isEqualTo("segment_id_1");
             long traceStartTime = Long.parseLong(basicTrace.getStart());
-            assert traceStartTime <= startTime;
+            assertThat(traceStartTime).isLessThanOrEqualTo(startTime);
             startTime = traceStartTime;
         }
     }
@@ -168,26 +175,26 @@ public class IoTDBProfileThreadSnapshotQueryDAOTest {
     @Test
     public void queryMinSequence() throws IOException {
         int minValue = profileThreadSnapshotQueryDAO.queryMinSequence("segment_id_1", 0L, 10L);
-        assert minValue == 0;
+        assertThat(minValue).isEqualTo(0);
     }
 
     @Test
     public void queryMaxSequence() throws IOException {
         int maxValue = profileThreadSnapshotQueryDAO.queryMaxSequence("segment_id_1", 0L, 10L);
-        assert maxValue == 3;
+        assertThat(maxValue).isEqualTo(3);
     }
 
     @Test
     public void queryRecords() throws IOException {
         List<ProfileThreadSnapshotRecord> records = profileThreadSnapshotQueryDAO.queryRecords("segment_id_1", 0, 10);
         records.forEach(record -> {
-            assert record.getSegmentId().equals("segment_id_1");
+            assertThat(record.getSegmentId()).isEqualTo("segment_id_1");
         });
     }
 
     @Test
     public void getProfiledSegment() throws IOException {
         SegmentRecord segmentRecord = profileThreadSnapshotQueryDAO.getProfiledSegment("segment_id_2");
-        assert segmentRecord.getSegmentId().equals("segment_id_2");
+        assertThat(segmentRecord.getSegmentId()).isEqualTo("segment_id_2");
     }
 }
