@@ -10,5 +10,5 @@ These are the settings for the different types:
     metricsDataTTL: ${SW_CORE_METRICS_DATA_TTL:7} # Unit is day
 ```
 
-- `recordDataTTL` applies to **record** data, including tracing and alarm.
+- `recordDataTTL` applies to **record** data, including tracing, logging, topN sampled statements and alarm.
 - `metricsDataTTL` applies to all metrics, including the metrics for service, instance, endpoint, and topology map.
