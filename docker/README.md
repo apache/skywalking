@@ -55,6 +55,6 @@ From the output, we can find out the building tool adopts the files stored in `o
 We can start up backend cluster by docker-compose
 ```
 cd docker
-docker compose up
+docker-compose up -d
 ```
 `docker/.env` file contains the default `TAG` and elasticsearch tag(`ES_TAG`).
