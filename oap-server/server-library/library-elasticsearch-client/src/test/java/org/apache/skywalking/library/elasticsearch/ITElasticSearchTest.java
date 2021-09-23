@@ -99,6 +99,8 @@ public class ITElasticSearchTest {
         assertThat(templateClient.createOrUpdate(name, ImmutableMap.of(), mappings, 0))
             .isTrue();
 
+        assertThat(templateClient.exists(name)).isTrue();
+
         assertThat(templateClient.get(name))
             .isPresent()
             .map(IndexTemplate::getMappings)
