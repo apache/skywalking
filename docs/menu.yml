@@ -93,6 +93,8 @@ catalog:
               path: "/en/setup/backend/advanced-deployment"
             - name: "Data Lifecycle. Time To Live (TTL)"
               path: "/en/setup/backend/ttl"
+            - name: "Group Parameterized Endpoints"
+              path: "/en/setup/backend/endpoint-grouping-rules"
             - name: "Dynamical Logging"
               path: "/en/setup/backend/dynamical-logging"
             - name: "Security(SSL/TLS/mTLS)"
@@ -111,8 +113,6 @@ catalog:
             catalog:
               - name: "OAL Scripts"
                 path: "/en/guides/backend-oal-scripts"
-              - name: "Group Parameterized Endpoints"
-                path: "/en/setup/backend/endpoint-grouping-rules"
               - name: "OpenTelemetry Metrics Analysis"
                 path: "/en/setup/backend/backend-receivers#opentelemetry-receiver"
               - name: "Meter Analysis"
