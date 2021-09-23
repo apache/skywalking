@@ -93,16 +93,17 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
                 query.append(" and ").append(tag.getKey()).append(" = \"").append(tag.getValue()).append("\"");
             }
         }
-        if (CollectionUtils.isNotEmpty(keywordsOfContent)) {
-            for (String keyword : keywordsOfContent) {
-                query.append(" and ").append(AbstractLogRecord.CONTENT).append(" like '%").append(keyword).append("%'");
-            }
-        }
-        if (CollectionUtils.isNotEmpty(excludingKeywordsOfContent)) {
-            for (String keyword : excludingKeywordsOfContent) {
-                query.append(" and ").append(AbstractLogRecord.CONTENT).append(" regexp '^((?!").append(keyword).append(").)*$'");
-            }
-        }
+        // The fuzzy query efficiency is poor.
+//        if (CollectionUtils.isNotEmpty(keywordsOfContent)) {
+//            for (String keyword : keywordsOfContent) {
+//                query.append(" and ").append(AbstractLogRecord.CONTENT).append(" like '%").append(keyword).append("%'");
+//            }
+//        }
+//        if (CollectionUtils.isNotEmpty(excludingKeywordsOfContent)) {
+//            for (String keyword : excludingKeywordsOfContent) {
+//                query.append(" and ").append(AbstractLogRecord.CONTENT).append(" regexp '^((?!").append(keyword).append(").)*$'");
+//            }
+//        }
         // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
         String queryString = query.toString().replace("1=1 and ", "");
         queryString = queryString + IoTDBClient.ALIGN_BY_DEVICE;
