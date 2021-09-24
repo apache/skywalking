@@ -63,6 +63,8 @@ public final class ElasticSearchBuilder {
 
     private Duration connectTimeout = Duration.ofMillis(500);
 
+    private Duration socketTimeout = Duration.ofSeconds(30);
+
     private Consumer<Boolean> healthyListener;
 
     private int numHttpClientThread;
@@ -117,6 +119,12 @@ public final class ElasticSearchBuilder {
         return this;
     }
 
+    public ElasticSearchBuilder socketTimeout(int socketTimeout) {
+        checkArgument(socketTimeout > 0, "socketTimeout must be positive");
+        this.socketTimeout = Duration.ofMillis(socketTimeout);
+        return this;
+    }
+
     public ElasticSearchBuilder healthyListener(Consumer<Boolean> healthyListener) {
         requireNonNull(healthyListener, "healthyListener");
         this.healthyListener = healthyListener;
@@ -138,6 +146,7 @@ public final class ElasticSearchBuilder {
         final ClientFactoryBuilder factoryBuilder =
             ClientFactory.builder()
                          .connectTimeout(connectTimeout)
+                         .idleTimeout(socketTimeout)
                          .useHttp2Preface(false)
                          .workerGroup(numHttpClientThread > 0 ? numHttpClientThread : NUM_PROC);
 
