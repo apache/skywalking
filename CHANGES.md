@@ -73,6 +73,8 @@ Release Notes.
 * Add component definition for `Alibaba Druid` and `HikariCP`.
 * Fix `Hour` and `Day` dimensionality metrics not accurate, due to the cache read-then-clear mechanism conflicts with low
   down metrics flush period added in 8.7.0.
+* Fix `Slow SQL sampling` not accurate, due to TopN works conflict with cache read-then-clear mechanism.
+* The persistent cache is only read when necessary.
 
 #### UI
 
