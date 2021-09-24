@@ -117,6 +117,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
                 .endpoints(clusterNodes.split(","))
                 .protocol(protocol)
                 .connectTimeout(connectTimeout)
+                .socketTimeout(socketTimeout)
                 .numHttpClientThread(numHttpClientThread)
                 .healthyListener(healthy -> {
                     if (healthy) {
