@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -160,10 +159,12 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     }
 
     @Override
-    public List<PrepareRequest> prepareBatch(Collection<Metrics> lastCollection) {
+    public List<PrepareRequest> buildBatchRequests() {
         if (persistentCounter++ % persistentMod != 0) {
             return Collections.EMPTY_LIST;
         }
+
+        final List<Metrics> lastCollection = getCache().read();
 
         long start = System.currentTimeMillis();
         if (lastCollection.size() == 0) {
