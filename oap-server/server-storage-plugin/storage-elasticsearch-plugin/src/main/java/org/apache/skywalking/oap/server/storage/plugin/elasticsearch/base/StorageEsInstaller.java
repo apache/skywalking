@@ -70,13 +70,16 @@ public class StorageEsInstaller extends ModelInstaller {
         if (!model.isTimeSeries()) {
             return esClient.isExistsIndex(tableName);
         }
-        boolean exist = esClient.isExistsTemplate(tableName)
-            && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
+        boolean templateExists = esClient.isExistsTemplate(tableName);
         final Optional<IndexTemplate> template = esClient.getTemplate(tableName);
+        boolean lastIndexExists = esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
 
-        if ((exist && !template.isPresent()) || (!exist && template.isPresent())) {
-            throw new Error("[Bug warning]ElasticSearch client query template result is not consistent. Please file an issue to Apache SkyWalking.(https://github.com/apache/skywalking/issues)");
+        if ((templateExists && !template.isPresent()) || (!templateExists && template.isPresent())) {
+            throw new Error("[Bug warning] ElasticSearch client query template result is not consistent. " +
+                                "Please file an issue to Apache SkyWalking.(https://github.com/apache/skywalking/issues)");
         }
+
+        boolean exist = templateExists && lastIndexExists;
 
         if (exist && IndexController.INSTANCE.isMetricModel(model)) {
             structures.putStructure(
