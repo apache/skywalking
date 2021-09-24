@@ -380,6 +380,9 @@ AlibabaDruid:
 HikariCP:
   id: 116
   languages: Java
+Fastjson:
+  id: 117
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
