@@ -87,7 +87,10 @@ public class MeterEntity {
      * Create a service level meter entity.
      */
     public static MeterEntity newService(String serviceName) {
-        return MeterEntity.builder().scopeType(ScopeType.SERVICE).serviceName(serviceName).build();
+        return MeterEntity.builder()
+                          .scopeType(ScopeType.SERVICE)
+                          .serviceName(NAMING_CONTROL.formatServiceName(serviceName))
+                          .build();
     }
 
     /**
@@ -96,8 +99,8 @@ public class MeterEntity {
     public static MeterEntity newServiceInstance(String serviceName, String serviceInstance) {
         return MeterEntity.builder()
                           .scopeType(ScopeType.SERVICE_INSTANCE)
-                          .serviceName(serviceName)
-                          .instanceName(serviceInstance)
+                          .serviceName(NAMING_CONTROL.formatServiceName(serviceName))
+                          .instanceName(NAMING_CONTROL.formatInstanceName(serviceInstance))
                           .build();
     }
 
@@ -107,8 +110,8 @@ public class MeterEntity {
     public static MeterEntity newEndpoint(String serviceName, String endpointName) {
         return MeterEntity.builder()
                           .scopeType(ScopeType.ENDPOINT)
-                          .serviceName(serviceName)
-                          .endpointName(endpointName)
+                          .serviceName(NAMING_CONTROL.formatServiceName(serviceName))
+                          .endpointName(NAMING_CONTROL.formatEndpointName(serviceName, endpointName))
                           .build();
     }
 
@@ -117,8 +120,8 @@ public class MeterEntity {
                                                  DetectPoint detectPoint) {
         return MeterEntity.builder()
                           .scopeType(ScopeType.SERVICE_RELATION)
-                          .sourceServiceName(sourceServiceName)
-                          .destServiceName(destServiceName)
+                          .sourceServiceName(NAMING_CONTROL.formatServiceName(sourceServiceName))
+                          .destServiceName(NAMING_CONTROL.formatServiceName(destServiceName))
                           .detectPoint(detectPoint)
                           .build();
     }
