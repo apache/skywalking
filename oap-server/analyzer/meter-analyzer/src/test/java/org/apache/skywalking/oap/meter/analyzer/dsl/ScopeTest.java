@@ -25,7 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -56,6 +60,10 @@ public class ScopeTest {
 
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
+        // This method is called before `@BeforeClass`.
+        MeterEntity.setNamingControl(
+            new NamingControl(512, 512, 512, new EndpointNameGrouping()));
+
         return Arrays.asList(new Object[][] {
             {
                 "sum_service",
@@ -525,6 +533,17 @@ public class ScopeTest {
                 }
             }
         });
+    }
+
+    @BeforeClass
+    public static void setup() {
+        MeterEntity.setNamingControl(
+            new NamingControl(512, 512, 512, new EndpointNameGrouping()));
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        MeterEntity.setNamingControl(null);
     }
 
     @Test

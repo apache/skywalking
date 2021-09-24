@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgFunction;
@@ -30,10 +31,14 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHist
 import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramPercentileFunction;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.config.ZabbixConfig;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.config.ZabbixConfigs;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -58,6 +63,17 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
     protected MeterSystem meterSystem;
 
     private List<AcceptableValue> values = new ArrayList<>();
+
+    @BeforeClass
+    public static void setup() {
+        MeterEntity.setNamingControl(
+            new NamingControl(512, 512, 512, new EndpointNameGrouping()));
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        MeterEntity.setNamingControl(null);
+    }
 
     @Override
     public void setupMetrics() throws Throwable {
