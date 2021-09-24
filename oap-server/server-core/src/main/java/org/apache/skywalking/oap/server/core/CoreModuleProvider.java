@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationSe
 import org.apache.skywalking.oap.server.core.analysis.ApdexThresholdConfig;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.metrics.ApdexMetrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.ManagementStreamProcessor;
@@ -154,12 +155,14 @@ public class CoreModuleProvider extends ModuleProvider {
             DefaultScopeDefine.activeExtraModelColumns();
         }
         EndpointNameGrouping endpointNameGrouping = new EndpointNameGrouping();
-        this.registerServiceImplementation(NamingControl.class, new NamingControl(
+        final NamingControl namingControl = new NamingControl(
             moduleConfig.getServiceNameMaxLength(),
             moduleConfig.getInstanceNameMaxLength(),
             moduleConfig.getEndpointNameMaxLength(),
             endpointNameGrouping
-        ));
+        );
+        this.registerServiceImplementation(NamingControl.class, namingControl);
+        MeterEntity.setNamingControl(namingControl);
         try {
             endpointNameGroupingRuleWatcher = new EndpointNameGroupingRuleWatcher(
                 this, endpointNameGrouping);

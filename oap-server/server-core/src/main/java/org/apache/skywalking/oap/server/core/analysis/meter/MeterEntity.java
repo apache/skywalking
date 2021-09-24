@@ -25,6 +25,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
 /**
@@ -35,6 +36,8 @@ import org.apache.skywalking.oap.server.core.source.DetectPoint;
 @Getter
 @Builder(toBuilder = true)
 public class MeterEntity {
+    private static NamingControl NAMING_CONTROL;
+
     private ScopeType scopeType;
     @Setter
     private String serviceName;
@@ -74,6 +77,10 @@ public class MeterEntity {
 
     public String destServiceId() {
         return IDManager.ServiceID.buildId(destServiceName, true);
+    }
+
+    public static void setNamingControl(final NamingControl namingControl) {
+        NAMING_CONTROL = namingControl;
     }
 
     /**
