@@ -90,6 +90,7 @@ Release Notes.
 * Implement the Log Analysis Language text regexp debugger.
 * Fix fetching nodes and calls with serviceIds on the topology side.
 * Implement Alerts for query errors.
+* Fixes graph parameter of query for topology metrics.
 
 #### Documentation
 
