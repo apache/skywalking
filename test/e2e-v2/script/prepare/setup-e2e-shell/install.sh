@@ -27,13 +27,9 @@ CURRENT_DIR="$(cd "$(dirname $0)"; pwd)"
 # prepare base dir
 TMP_DIR=/tmp/skywalking-infra-e2e
 BIN_DIR=/usr/local/bin
-mkdir -p $TMP_DIR $BIN_DIR && cd $TMP_DIR
+mkdir -p $TMP_DIR && cd $TMP_DIR
 
 # execute install
 bash $CURRENT_DIR/install-$NAME.sh $TMP_DIR $BIN_DIR
 
-# export path
-if [[ $PATH != *$BIN_DIR* ]]; then
-  export PATH="$PATH:$BIN_DIR"
-fi
 echo "success to install $NAME"
