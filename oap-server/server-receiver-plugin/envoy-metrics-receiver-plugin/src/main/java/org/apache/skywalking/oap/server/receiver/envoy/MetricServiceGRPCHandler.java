@@ -99,7 +99,7 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                 if (log.isDebugEnabled()) {
                     log.debug("Envoy metrics reported from service[{}]", service);
                 }
-                List<Metrics.MetricFamily> metricFamilies = new ArrayList<>();
+
                 if (service != null && StringUtil.isNotEmpty(service.getServiceName()) && StringUtil.isNotEmpty(
                     service.getServiceInstanceName())) {
                     List<Metrics.MetricFamily> list = message.getEnvoyMetricsList();
