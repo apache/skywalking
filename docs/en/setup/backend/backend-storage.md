@@ -280,6 +280,24 @@ storage:
 All connection-related settings, including URL link, username, and password are found in `application.yml`. 
 Only part of the settings are listed here. Please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
 
+## IoTDB
+IoTDB is a time-series database from Apache, which is one of the storage plugin options.  
+IoTDB storage plugin is still in progress. Its efficiency will improve in the future.
+
+```yaml
+storage:
+  selector: ${SW_STORAGE:iotdb}
+  iotdb:
+    host: ${SW_STORAGE_IOTDB_HOST:127.0.0.1}
+    rpcPort: ${SW_STORAGE_IOTDB_RPCPORT:6667}
+    username: ${SW_STORAGE_IOTDB_USERNAME:root}
+    password: ${SW_STORAGE_IOTDB_PASSWORD:root}
+    storageGroup: ${SW_STORAGE_IOTDB_STORAGEGROUP:root.skywalking}
+    sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:16}
+    fetchTaskLogMaxSize: ${SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
+```
+All connection related settings, including host, rpcPort, username, and password are found in `application.yml`. Please ensure that iotdb version >= 0.12.3.
+
 ## More storage extension solutions
 Follow the [Storage extension development guide](../../guides/storage-extention.md) 
 in the [Project Extensions document](../../guides/README.md#project-extensions).
