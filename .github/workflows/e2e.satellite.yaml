@@ -29,7 +29,7 @@ env:
   SW_STORAGE: h2
 
 concurrency:
-  group: e2e-alarm-${{ github.event.pull_request.number || github.ref }}
+  group: e2e-satellite-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
