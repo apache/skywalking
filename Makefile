@@ -39,6 +39,8 @@ build.ui:
 DOCKER_BUILD_TOP:=${CONTEXT}/docker_build
 
 HUB ?= skywalking
+OAP_NAME ?= oap
+UI_NAME ?= ui
 TAG ?= latest
 
 .SECONDEXPANSION: #allow $@ to be used in dependency list
@@ -61,13 +63,17 @@ docker.oap: $(CONTEXT)/$(DIST)
 docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
-		$(DOCKER_RULE)
+docker.oap: NAME = $(OAP_NAME)
+docker.oap:
+	$(DOCKER_RULE)
 
 docker.ui: $(CONTEXT)/$(DIST)
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
 docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
-		$(DOCKER_RULE)
+docker.ui: NAME = $(UI_NAME)
+docker.ui:
+	$(DOCKER_RULE)
 
 # $@ is the name of the target
 # $^ the name of the dependencies for the target
@@ -79,13 +85,16 @@ docker.ui: $(SW_ROOT)/docker/ui/logback.xml
 # 4. This rule runs $(BUILD_PRE) prior to any docker build and only if specified as a dependency variable
 # 5. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
 
-DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .)
+DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(NAME):$(TAG) -f Dockerfile$(suffix $@) .)
 
 # for each docker.XXX target create a push.docker.XXX target that pushes
 # the local docker image to another hub
 # a possible optimization is to use tag.$(TGT) as a dependency to do the tag for us
-$(foreach TGT,$(DOCKER_TARGETS),$(eval push.$(TGT): | $(TGT) ; \
-	time (docker push $(HUB)/$(subst docker.,,$(TGT)):$(TAG))))
+push.docker.oap: NAME = $(OAP_NAME)
+push.docker.ui: NAME = $(UI_NAME)
+
+$(foreach TGT,$(DOCKER_TARGETS),push.$(TGT)): push.%: %
+	time (docker push $(HUB)/$(NAME):$(TAG))
 
 # create a DOCKER_PUSH_TARGETS that's each of DOCKER_TARGETS with a push. prefix
 DOCKER_PUSH_TARGETS:=
