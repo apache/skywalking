@@ -52,12 +52,10 @@ services:
       - SW_OAP_ADDRESS=http://oap:12800
 
   provider:
-    build:
-      context: ../../java-test-service/
-      dockerfile: Dockerfile.provider
-      args:
-        - SW_AGENT_JDK_VERSION=${SW_AGENT_JDK_VERSION}
-        - SW_AGENT_JAVA_COMMIT=${SW_AGENT_JAVA_COMMIT}
+    image: "ghcr.io/apache/skywalking-java/skywalking-java:${SW_AGENT_JAVA_COMMIT}-java${SW_AGENT_JDK_VERSION}"
+    volumes:
+      - ./../../java-test-service/e2e-service-provider/target/e2e-service-provider-2.0.0.jar:/services_provider.jar
+    command: [ "java", "-jar", "/services_provider.jar" ]
     networks:
       - e2e
     expose:
@@ -65,6 +63,7 @@ services:
       - 5005
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
+      SW_LOGGING_OUTPUT: CONSOLE
       SW_AGENT_NAME: e2e-service-provider
       SW_AGENT_INSTANCE_NAME: provider1
       SW_AGENT_COLLECTOR_GET_PROFILE_TASK_INTERVAL: 1
@@ -76,12 +75,10 @@ services:
       retries: 120
 
   consumer:
-    build:
-      context: ../../java-test-service/
-      dockerfile: Dockerfile.consumer
-      args:
-        - SW_AGENT_JDK_VERSION=${SW_AGENT_JDK_VERSION}
-        - SW_AGENT_JAVA_COMMIT=${SW_AGENT_JAVA_COMMIT}
+    image: "ghcr.io/apache/skywalking-java/skywalking-java:${SW_AGENT_JAVA_COMMIT}-java${SW_AGENT_JDK_VERSION}"
+    volumes:
+      - ../../java-test-service/e2e-service-consumer/target/e2e-service-consumer-2.0.0.jar:/services_consumer.jar
+    command: ["java", "-jar", "/services_consumer.jar"]
     networks:
       - e2e
     expose:
@@ -89,6 +86,7 @@ services:
       - 5005
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
+      SW_LOGGING_OUTPUT: CONSOLE
       PROVIDER_URL: http://provider:9090
       SW_AGENT_NAME: e2e-service-consumer
       SW_AGENT_INSTANCE_NAME: consumer1

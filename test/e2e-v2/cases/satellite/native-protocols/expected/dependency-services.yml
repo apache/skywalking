@@ -33,6 +33,12 @@ nodes:
   type: Tomcat
   isreal: true
 {{- end }}
+{{- if eq .name "localhost:-1" }}
+- id: {{ b64enc "localhost:-1" }}.0
+  name: localhost:-1
+  type: H2
+  isreal: false
+{{- end }}
 {{- end }}
 calls:
 {{- range .calls }}
@@ -45,6 +51,15 @@ calls:
   detectpoints:
     - CLIENT
     - SERVER
+{{- end }}
+{{- if eq .source "ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1" }}
+- source: {{ b64enc "e2e-service-provider" }}.1
+  sourcecomponents: []
+  target: {{ b64enc "localhost:-1"}}.0
+  targetcomponents: []
+  id: {{ b64enc "e2e-service-provider" }}.1-{{ b64enc "localhost:-1"}}.0
+  detectpoints:
+    - CLIENT
 {{- end }}
 {{- if eq .source "VXNlcg==.0" }}
 - source: {{ b64enc "User" }}.0
