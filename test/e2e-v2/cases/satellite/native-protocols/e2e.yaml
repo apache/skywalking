@@ -60,7 +60,7 @@ verify:
       expected: expected/metrics-has-value.yml
     # basic check: dependency service
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service $(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls|grep -B 1 'provider'|yq e '.[0].id' -)
-      expected: expected/topology-service.yml
+      expected: expected/dependency-services.yml
 
     # native management: service instance list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
