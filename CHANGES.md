@@ -7,7 +7,7 @@ Release Notes.
 
 #### OAP Server
 
-
+* Add component definition for `Jackson`.
 
 #### UI
 
