@@ -17,7 +17,7 @@
 - id: {{ notEmpty .id }}
   serviceid: {{ b64enc "e2e-service-provider" }}.1
   servicename: ""
-  endpointname: /info
+  endpointname: POST:/info
   starttime: {{ gt .starttime 0 }}
   duration: 1
   mindurationthreshold: 0

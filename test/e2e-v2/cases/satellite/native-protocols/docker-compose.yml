@@ -61,11 +61,14 @@ services:
       dockerfile: Dockerfile.satellite
     expose:
       - 11800
+    ports:
+      - 11800
     environment:
       SATELLITE_GRPC_CLIENT: oap:11800
       SATELLITE_LOGPIPE_SENDER_MIN_FLUSH_EVENTS: 1
+      SW_AGENT_SATELLITE_COMMIT: ${SW_AGENT_SATELLITE_COMMIT}
     volumes:
-      - ./satellite_config.yaml:/configs/satellite_config.yaml
+      - ./satellite_config.yaml:/skywalking/configs/satellite_config.yaml
     networks:
       - e2e
     healthcheck:

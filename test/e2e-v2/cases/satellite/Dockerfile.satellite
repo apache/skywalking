@@ -13,24 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.14 AS builder
-
-ARG COMMIT_HASH=6292e2fa41305202283587a7d570c1bc54c23c11
-ARG SATELLITE_CODE=${COMMIT_HASH}.tar.gz
-ARG SATELLITE_CODE_URL=https://github.com/apache/skywalking-satellite/archive/${SATELLITE_CODE}
-
-ENV CGO_ENABLED=0
-
-WORKDIR /skywalking-satellite
-
-ADD ${SATELLITE_CODE_URL} .
-RUN tar -xf ${SATELLITE_CODE} --strip 1
-RUN rm ${SATELLITE_CODE}
-
-RUN make linux
+ARG SW_AGENT_SATELLITE_COMMIT=1f3c08a5af19f8522f2a40d9339c45fa816bfe07
+FROM ghcr.io/apache/skywalking-satellite/skywalking-satellite:v${SW_AGENT_SATELLITE_COMMIT} as base
 
 FROM alpine:3.10
 
-COPY --from=builder /skywalking-satellite/bin/skywalking-satellite-latest-linux-amd64 /sw-satellite
+COPY --from=base /skywalking-satellite /sw-satellite
+COPY --from=base /skywalking/configs /skywalking/
 
-ENTRYPOINT ["/sw-satellite", "start"]
+ENTRYPOINT ["/sw-satellite", "start", "--config", "/skywalking/configs/satellite_config.yaml"]

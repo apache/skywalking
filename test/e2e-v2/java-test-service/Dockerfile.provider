@@ -14,8 +14,9 @@
 # limitations under the License.
 
 ARG SW_AGENT_JDK_VERSION=8
+ARG SW_AGENT_JAVA_COMMIT=3997f0256056788bd054ee37e4603c11c0fd6756
 
-FROM ghcr.io/apache/skywalking-java/jdk-${SW_AGENT_JDK_VERSION}:f19195368916e9514d19084eb1a29737c74bd25b
+FROM ghcr.io/apache/skywalking-java/skywalking-java:${SW_AGENT_JAVA_COMMIT}-java${SW_AGENT_JDK_VERSION}
 
 VOLUME /services
 

@@ -57,6 +57,7 @@ services:
       dockerfile: Dockerfile.provider
       args:
         - SW_AGENT_JDK_VERSION=${SW_AGENT_JDK_VERSION}
+        - SW_AGENT_JAVA_COMMIT=${SW_AGENT_JAVA_COMMIT}
     networks:
       - e2e
     expose:
@@ -80,6 +81,7 @@ services:
       dockerfile: Dockerfile.consumer
       args:
         - SW_AGENT_JDK_VERSION=${SW_AGENT_JDK_VERSION}
+        - SW_AGENT_JAVA_COMMIT=${SW_AGENT_JAVA_COMMIT}
     networks:
       - e2e
     expose:

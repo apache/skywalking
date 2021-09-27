@@ -21,7 +21,7 @@ spans:
   serviceinstancename: ""
   starttime: {{ gt .starttime 0 }}
   endtime: {{ gt .endtime 0 }}
-  endpointname: /info
+  endpointname: POST:/info
   type: Entry
   peer: ""
   component: Tomcat

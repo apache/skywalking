@@ -35,7 +35,12 @@ spans:
     serviceinstancename: {{ notEmpty .serviceinstancename }}
     starttime: {{ gt .starttime 0 }}
     endtime: {{ gt .endtime 0 }}
-    endpointname: /info
+    endpointname:
+      {{- if eq .type "Exit" }}
+        /info
+      {{ else }}
+        POST:/info
+      {{- end }}
     type: {{ notEmpty .type }}
     peer:
     {{- if eq .type "Exit" }}

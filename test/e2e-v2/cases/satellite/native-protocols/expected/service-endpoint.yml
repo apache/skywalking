@@ -14,8 +14,8 @@
 # limitations under the License.
 
 {{- range .}}
-{{- if eq .name "/info" }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "/info" }}
-  name: /info
+{{- if eq .name "POST:/info" }}
+- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/info" }}
+  name: POST:/info
 {{- end}}
 {{- end}}

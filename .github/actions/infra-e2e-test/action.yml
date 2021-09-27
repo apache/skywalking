@@ -34,6 +34,15 @@ runs:
           ${{ runner.os }}-maven-
     - name: Check License
       uses: apache/skywalking-eyes@a63f4afcc287dfb3727ecc45a4afc55a5e69c15f
+    - name: Setup E2E env
+      shell: bash
+      run: |
+        function export_env() {
+          echo "$1=$2" >> $GITHUB_ENV
+        }
+
+        export_env SW_AGENT_JAVA_COMMIT 3997f0256056788bd054ee37e4603c11c0fd6756
+        export_env SW_AGENT_SATELLITE_COMMIT 1f3c08a5af19f8522f2a40d9339c45fa816bfe07
     - name: Build Docker Image
       shell: bash
       env:

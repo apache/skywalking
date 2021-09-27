@@ -16,7 +16,7 @@
 {{- range . }}
 - segmentid: {{ notEmpty .segmentid }}
   endpointnames:
-    - /info
+    - POST:/info
   duration: {{ gt .duration 0 }}
   start: "{{ notEmpty .start }}"
   iserror: false
