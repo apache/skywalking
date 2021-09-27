@@ -75,7 +75,7 @@ Release Notes.
   low down metrics flush period added in 8.7.0.
 * Fix `Slow SQL sampling` not accurate, due to TopN works conflict with cache read-then-clear mechanism.
 * The persistent cache is only read when necessary.
-* Add component definition for `Alibaba Fastjson` and `Jackson`.
+* Add component definition for `Alibaba Fastjson`.
 * Fix entity(service/instance/endpoint) names in the MAL system(prometheus, native meter, open census, envoy metric
   service) are not controlled by core's naming-control mechanism.
 * Upgrade netty version to 4.1.68.Final avoid cve-2021-37136.
