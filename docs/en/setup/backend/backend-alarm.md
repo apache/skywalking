@@ -41,7 +41,7 @@ For multiple-value metrics, such as **percentile**, the threshold is an array. I
 Each value may serve as the threshold for each value of the metrics. Set the value to `-` if you do not wish to trigger the alarm by one or more of the values.  
 For example in **percentile**, `value1` is the threshold of P50, and `-, -, value3, value4, value5` means that there is no threshold for P50 and P75 in the percentile alarm rule.
 - **OP**. The operator. It supports `>`, `>=`, `<`, `<=`, `=`. We welcome contributions of all OPs.
-- **Period**. The frequency for checking the alarm rule. This is a time window that corresponds to the backend deployment env time.
+- **Period**. The size of metrics cache in minutes for checking the alarm conditions. This is a time window that corresponds to the backend deployment env time.
 - **Count**. Within a period window, if the number of times which **value** goes over the threshold (based on OP) reaches `count`, then an alarm will be sent.
 - **Only as condition**. Indicates if the rule can send notifications, or if it simply serves as an condition of the composite rule.
 - **Silence period**. After the alarm is triggered in Time-N, there will be silence during the **TN -> TN + period**.
