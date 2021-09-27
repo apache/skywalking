@@ -54,8 +54,6 @@
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
-
-        <testcontainers.version>1.15.3</testcontainers.version>
     </properties>
 
     <repositories>
@@ -77,7 +75,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.5.5.RELEASE</version>
+                <version>2.5.5</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
