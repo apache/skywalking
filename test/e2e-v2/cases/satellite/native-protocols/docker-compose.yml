@@ -59,9 +59,9 @@ services:
     build:
       context: ../
       dockerfile: Dockerfile.satellite
+      args:
+        - SW_AGENT_SATELLITE_COMMIT=${SW_AGENT_SATELLITE_COMMIT}
     expose:
-      - 11800
-    ports:
       - 11800
     environment:
       SATELLITE_GRPC_CLIENT: oap:11800

@@ -33,8 +33,8 @@ cleanup:
 
 trigger:
   action: http
-  interval: 3s
-  times: 5
+  interval: 10s
+  times: 10
   url: http://${consumer_host}:${consumer_9092}/info
   method: POST
 
@@ -58,6 +58,9 @@ verify:
     # basic check: service endpoint metrics
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name endpoint_cpm --endpoint=POST:/info --service=e2e-service-provider |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
+    # basic check: dependency service
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service $(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls|grep -B 1 'provider'|yq e '.[0].id' -)
+      expected: expected/topology-service.yml
 
     # native management: service instance list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider

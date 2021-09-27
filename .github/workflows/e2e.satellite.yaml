@@ -47,4 +47,4 @@ jobs:
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/infra-e2e-test
         with:
-          config_file: satellite/native-protocols/e2e.yaml
+          config-file: satellite/native-protocols/e2e.yaml

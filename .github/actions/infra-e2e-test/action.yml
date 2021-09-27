@@ -19,7 +19,7 @@
 name: 'Run Infra E2E Test'
 description: 'Common steps when running an E2E Test'
 inputs:
-  config_file:
+  config-file:
     description: 'The e2e test config file path'
     required: true
 runs:
@@ -54,8 +54,6 @@ runs:
         echo "::endgroup::"
     - name: Build Java Test Services
       shell: bash
-      env:
-        SKIP_TEST: "true"
       run: |
         echo "::group::build java test services"
         # Retry one more time due to frequent "maven connection reset"
