@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG SW_AGENT_SATELLITE_COMMIT=1f3c08a5af19f8522f2a40d9339c45fa816bfe07
+ARG SW_AGENT_SATELLITE_COMMIT=
 FROM ghcr.io/apache/skywalking-satellite/skywalking-satellite:v${SW_AGENT_SATELLITE_COMMIT} as base
 
 FROM alpine:3.10

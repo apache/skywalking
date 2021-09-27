@@ -13,15 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG SW_AGENT_JDK_VERSION=8
-ARG SW_AGENT_JAVA_COMMIT=1f3c08a5af19f8522f2a40d9339c45fa816bfe07
-
-FROM ghcr.io/apache/skywalking-java/skywalking-java:${SW_AGENT_JAVA_COMMIT}-java${SW_AGENT_JDK_VERSION}
-
-VOLUME /services
-
-ENV SW_LOGGING_OUTPUT=CONSOLE
-
-ADD e2e-service-consumer/target/e2e-service-consumer-2.0.0.jar /services/
-
-CMD ["sh", "-c", "java -jar /services/e2e-service-consumer-2.0.0.jar"]
+SW_AGENT_JAVA_COMMIT=3997f0256056788bd054ee37e4603c11c0fd6756
+SW_AGENT_SATELLITE_COMMIT=1f3c08a5af19f8522f2a40d9339c45fa816bfe07
+SW_CTL_COMMIT=401e0e5671a3fb49de1d1e1e89f5b693b2062867

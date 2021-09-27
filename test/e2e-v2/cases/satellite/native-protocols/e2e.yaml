@@ -19,6 +19,7 @@ setup:
   env: compose
   file: docker-compose.yml
   timeout: 1200
+  init-system-environment: ../../../script/env
   steps:
     - name: install yq
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
@@ -29,7 +30,7 @@ setup:
 
 cleanup:
   # always never success failure
-  on: no
+  on: always
 
 trigger:
   action: http
