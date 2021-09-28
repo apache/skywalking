@@ -121,7 +121,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             BoolQueryBuilder tagMatchQuery = Query.bool();
-            tags.forEach(tag -> tagMatchQuery.must(Query.term(SegmentRecord.TAGS, tag)));
+            tags.forEach(tag -> tagMatchQuery.must(Query.term(SegmentRecord.TAGS, tag.toString())));
             query.must(tagMatchQuery);
         }
         search.size(limit).from(from);
