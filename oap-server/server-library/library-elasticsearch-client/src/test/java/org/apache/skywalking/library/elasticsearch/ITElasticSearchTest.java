@@ -52,23 +52,54 @@ import static org.junit.Assert.assertTrue;
 public class ITElasticSearchTest {
 
     @Parameterized.Parameters(name = "version: {0}")
-    public static Collection<Object[]> versions() {
+    public static Collection<Object[]> es() {
         return Arrays.asList(new Object[][] {
-            {"6.3.2"}, {"7.4.2"}, {"7.8.0"}, {"7.10.2"}
+            {
+                "ElasticSearch 6.3.2",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
+                                   .withTag("6.3.2"))
+            },
+            {
+                "ElasticSearch 7.4.2",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
+                                   .withTag("7.4.2"))
+            },
+            {
+                "ElasticSearch 7.8.0",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
+                                   .withTag("7.8.0"))
+            },
+            {
+                "ElasticSearch 7.15.0",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("elastic/elasticsearch")
+                                   .withTag("7.15.0")
+                                   .asCompatibleSubstituteFor(
+                                       "docker.elastic.co/elasticsearch/elasticsearch-oss"))
+            },
+            {
+                "OpenSearch 1.0.0",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("opensearchproject/opensearch")
+                                   .withTag("1.0.0")
+                                   .asCompatibleSubstituteFor(
+                                       "docker.elastic.co/elasticsearch/elasticsearch-oss"))
+                    .withEnv("plugins.security.disabled", "true")
+            }
         });
     }
 
-    private final String version;
-
-    private ElasticsearchContainer server;
+    @Parameterized.Parameter
+    public String ignored;
+    @Parameterized.Parameter(1)
+    public ElasticsearchContainer server;
     private ElasticSearch client;
 
     @Before
     public void setup() {
-        server = new ElasticsearchContainer(
-            DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
-                           .withTag(version)
-        );
         server.start();
 
         client = ElasticSearch.builder()

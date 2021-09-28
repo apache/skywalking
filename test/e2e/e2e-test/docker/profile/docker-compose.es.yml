@@ -13,21 +13,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.14 AS builder
+version: '2.1'
 
-ARG COMMIT_HASH=ae085deb32434a0859e49c45819fed7a5c4010b5
-ARG CLI_CODE=${COMMIT_HASH}.tar.gz
-ARG CLI_CODE_URL=https://github.com/apache/skywalking-cli/archive/${CLI_CODE}
+services:
+  es:
+    image: elastic/elasticsearch:${ES_VERSION}
+    expose:
+      - 9200
+    networks:
+      - e2e
+    environment:
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
 
-ENV CGO_ENABLED=0
-ENV GO111MODULE=on
+  oap:
+    extends:
+      file: ../base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: elasticsearch
+    depends_on:
+      es:
+        condition: service_healthy
 
-WORKDIR /cli
-
-ADD ${CLI_CODE_URL} .
-RUN tar -xf ${CLI_CODE} --strip 1
-RUN rm ${CLI_CODE}
-
-RUN make build && mv bin/swctl-latest-linux-amd64 /swctl
-
-ENTRYPOINT [ "/swctl" ]
+networks:
+  e2e:

@@ -25,9 +25,7 @@ services:
         condition: service_healthy
 
   cli:
-    build:
-      context: .
-      dockerfile: ../Dockerfile.cli
+    image: ghcr.io/apache/skywalking-cli/skywalking-cli:401e0e5671a3fb49de1d1e1e89f5b693b2062867
     networks:
       - e2e
     entrypoint:
