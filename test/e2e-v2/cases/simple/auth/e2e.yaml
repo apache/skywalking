@@ -1,0 +1,75 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to show how to write configuration files and can be used to test.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 1200
+  init-system-environment: ../../../script/env
+  steps:
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+    - name: install etcdctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
+
+cleanup:
+  on: always
+
+trigger:
+  action: http
+  interval: 10s
+  times: 10
+  url: http://${consumer_host}:${consumer_9092}/info
+  method: POST
+
+verify:
+  # verify with retry strategy
+  retry:
+    # max retry count
+    count: 20
+    # the interval between two retries, in millisecond.
+    interval: 10000
+  cases:
+    # service list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+      expected: ../expected/service.yml
+    # service metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name service_sla --service=e2e-service-provider |yq e 'to_entries' -
+      expected: ../expected/metrics-has-value.yml
+    # service endpoint
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=info --service-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls|grep -B 1 'provider'|yq e '.[0].id' -)
+      expected: ../expected/service-endpoint.yml
+    # service endpoint metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name endpoint_cpm --endpoint=POST:/info --service=e2e-service-provider |yq e 'to_entries' -
+      expected: ../expected/metrics-has-value.yml
+    # dependency service
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service $(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls|grep -B 1 'provider'|yq e '.[0].id' -)
+      expected: ../expected/dependency-services.yml
+    # service instance list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
+      expected: ../expected/service-instance.yml
+
+    # dependency instance
+
+    # trace segment list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
+      expected: ../expected/traces-list.yml
+    # trace detail
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls|grep -A 5 '/info'|tail -n1|awk -F ' ' '{print $2}')
+      expected: ../expected/trace-info-detail.yml
