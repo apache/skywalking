@@ -6,8 +6,7 @@ Release Notes.
 ------------------
 
 #### OAP Server
-
-
+* Replace e2e simple cases to e2e-v2.
 
 #### UI
 

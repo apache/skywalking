@@ -41,11 +41,11 @@ jobs:
     strategy:
       matrix:
         case:
-          - name: auth
+          - name: Auth
             config-file: simple/auth/e2e.yaml
-          - name: ssl
+          - name: SSL
             config-file: simple/ssl/e2e.yaml
-          - name: mtls
+          - name: mTLS
             config-file: simple/mtls/e2e.yaml
     steps:
       - uses: actions/checkout@v2
