@@ -1,0 +1,41 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+traces:
+{{- range .traces }}
+- segmentid: {{ notEmpty .segmentid }}
+  endpointnames:
+  {{- if eq (index .endpointnames 0) "H2/JDBI/Statement/execute" }}
+    - H2/JDBI/Statement/execute
+  {{- end}}
+  {{- if eq (index .endpointnames 0) "H2/JDBI/Statement/executeQuery" }}
+    - H2/JDBI/Statement/executeQuery
+  {{- end}}
+  {{- if eq (index .endpointnames 0) "H2/JDBI/PreparedStatement/executeQuery" }}
+    - H2/JDBI/PreparedStatement/executeQuery
+  {{- end }}
+  {{- if eq (index .endpointnames 0) "POST:/info" }}
+    - POST:/info
+  {{- end }}
+  {{- if eq (index .endpointnames 0) "POST:/users" }}
+    - POST:/users
+  {{- end }}
+  duration: {{ ge .duration 0 }}
+  start: "{{ notEmpty .start}}"
+  iserror: false
+  traceids:
+    - {{ (index .traceids 0) }}
+{{- end }}
+total: {{ gt .total 0 }}
