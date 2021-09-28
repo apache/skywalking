@@ -82,6 +82,7 @@ jobs:
         if: env.SKIP_CI != 'true' && matrix.os != 'ubuntu'
         run: ./mvnw -q --batch-mode -P"backend,ui,dist" clean verify install
       - uses: actions/upload-artifact@v2
+        if: env.SKIP_CI != 'true' && matrix.os == 'ubuntu' && matrix.java-version == '8'
         name: Upload Agent
         with:
           name: dist

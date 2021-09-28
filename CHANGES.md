@@ -6,7 +6,8 @@ Release Notes.
 ------------------
 
 #### OAP Server
-
+* Fix wrong (de)serializer of ElasticSearch client for OpenSearch storage.
+* Fix that traces query with tags will report error.
 
 
 #### UI
