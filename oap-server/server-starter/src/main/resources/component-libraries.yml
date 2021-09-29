@@ -383,6 +383,9 @@ HikariCP:
 Fastjson:
   id: 117
   languages: Java
+Jackson:
+  id: 118
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
