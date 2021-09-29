@@ -12,7 +12,7 @@ Release Notes.
 * Fix endpoint dependency breaking.
 
 #### UI
-
+* Delete duplicate calls for endpoint dependency. 
 
 #### Documentation
 
