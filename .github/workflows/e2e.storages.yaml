@@ -36,9 +36,17 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['mysql', 'es6', 'es7.0', 'es7.10', 'es7.14', 'opensearch', 'influxdb', 'tidb', 'postgresql']
+        storage: ['mysql', 'influxdb', 'tidb', 'postgresql'] #opensearch
+        include:
+          - { storage: es, es-version: 6.3.2 }
+          - { storage: es, es-version: 7.0.0 }
+          - { storage: es, es-version: 7.8.0 }
+          - { storage: es, es-version: 7.10.1 }
+          - { storage: es, es-version: 7.14.0 }
+          - { storage: es, es-version: 7.15.0 }
     env:
       SW_STORAGE: ${{ matrix.storage }}
+      ES_VERSION: ${{ matrix.es-version }}
     steps:
       - uses: actions/checkout@v2
         with:

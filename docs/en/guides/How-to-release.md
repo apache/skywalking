@@ -293,6 +293,8 @@ svn co https://dist.apache.org/repos/dist/release/skywalking/$SW_VERSION release
 
 export CONTEXT=release
 export HUB=apache
+export OAP_NAME=skywalking-oap-server
+export UI_NAME=skywalking-ui
 export TAG=$SW_VERSION
 export DIST=<the binary package name inside (1), e.g. apache-skywalking-apm-8.8.0.tar.gz>
 make docker.all && make docker.push

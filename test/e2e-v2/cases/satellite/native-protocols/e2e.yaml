@@ -1,0 +1,127 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to show how to write configuration files and can be used to test.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 1200
+  init-system-environment: ../../../script/env
+  steps:
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+    - name: install etcdctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
+
+cleanup:
+  # always never success failure
+  on: always
+
+trigger:
+  action: http
+  interval: 10s
+  times: 10
+  url: http://${consumer_host}:${consumer_9092}/info
+  method: POST
+
+verify:
+  # verify with retry strategy
+  retry:
+    # max retry count
+    count: 20
+    # the interval between two retries, in millisecond.
+    interval: 10000
+  cases:
+    # basic check: service list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+      expected: expected/service.yml
+    # basic check: service metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name service_sla --service=e2e-service-provider |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    # basic check: service endpoint
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=info --service-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls|grep -B 1 'provider'|yq e '.[0].id' -)
+      expected: expected/service-endpoint.yml
+    # basic check: service endpoint metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name endpoint_cpm --endpoint=POST:/info --service=e2e-service-provider |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    # basic check: dependency service
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service $(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls|grep -B 1 'provider'|yq e '.[0].id' -)
+      expected: expected/dependency-services.yml
+
+    # native management: service instance list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
+      expected: expected/service-instance.yml
+
+    # native jvm: service instance jvm metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name instance_jvm_thread_live_count --instance=provider1 --service=e2e-service-provider |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+
+    # native tracing: trace segment list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
+      expected: expected/traces-list.yml
+    # native tracing: trace detail
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls|grep -A 5 '/info'|tail -n1|awk -F ' ' '{print $2}')
+      expected: expected/trace-info-detail.yml
+
+    # native meter: instance meter
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name meter_jvm_classes_loaded --instance=provider1 --service=e2e-service-provider |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+
+    # native event: event list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql event list
+      expected: expected/event-list.yml
+
+    # native log: logs list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls|grep -B 1 'provider'|yq e '.[0].id' -) --trace-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls|grep -A 5 '/info'|tail -n1|awk -F ' ' '{print $2}')
+      expected: expected/logs-list.yml
+
+    # native profile: create task
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile create --service-name=e2e-service-provider --endpoint=POST:/info --start-time=$((($(date +%s)+5)*1000)) --duration=1 --min-duration-threshold=0 --dump-period=10 --max-sampling-count=9
+      expected: expected/profile-create.yml
+    # native profile: sleep to wait agent notices and query profile list
+    - query: sleep 10 && swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list -service-name=e2e-service-provider --endpoint=POST:/info
+      expected: expected/profile-list.yml
+    # native profile: sleep to wait segment report and query profiled segment list
+    - query: |
+        curl -X POST http://${consumer_host}:${consumer_9092}/info > /dev/null;
+        sleep 5;
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile segment-list --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list --service-name=e2e-service-provider --endpoint=POST:/info|yq e '.[0].id' -)
+      expected: expected/profile-segment-list.yml
+    # native profile: query profiled segment
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile profiled-segment --segment-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile segment-list --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list --service-name=e2e-service-provider --endpoint=POST:/info|yq e '.[0].id' -) | yq e '.[0].segmentid' -)
+      expected: expected/profile-segment-detail.yml
+    # native profile: query profiled segment
+    - query: |
+        segmentid=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile segment-list --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list --service-name=e2e-service-provider --endpoint=POST:/info|yq e '.[0].id' -) |yq e '.[0].segmentid' -);
+        start=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile profiled-segment --segment-id=$segmentid|yq e '.spans.[0].starttime' -);
+        end=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile profiled-segment --segment-id=$segmentid|yq e '.spans.[0].endtime' -);
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile profiled-analyze --segment-id=$segmentid --time-ranges=$(echo $start"-"$end)
+      expected: expected/profile-segment-analyze.yml
+
+    # native CDS: using etcdctl to update trace span limit, "/users" should have more than one span because it need DB save
+    - query: |
+        etcdctl --endpoints http://${etcd_host}:${etcd_2379}/ put /skywalking/configuration-discovery.default.agentConfigurations 'configurations:
+               e2e-service-provider:
+                 agent.span_limit_per_segment: 1' | yq e '{"message": .}' -
+      expected: expected/etcd-put.yml
+    - query: |
+        sleep 5;
+        curl -X POST http://${provider_host}:${provider_9090}/users -d '{}' -H "Content-Type: application/json" > /dev/null;
+        sleep 5;
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace list --step=SECOND --service-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls|grep -B 1 'provider'|yq e '.[0].id' -)|grep -A 5 "/users"|head -n 6|tail -n1|awk -F ' ' '{print $2}')
+      expected: expected/trace-users-detail.yml

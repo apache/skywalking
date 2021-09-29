@@ -35,14 +35,18 @@ concurrency:
 jobs:
   FeatureGroup01:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: Feature
+    name: ${{ matrix.case.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       matrix:
-        case: [auth, ssl, mtls]
-    env:
-      SW_SIMPLE_CASE: ${{ matrix.case }}
+        case:
+          - name: Auth
+            config-file: simple/auth/e2e.yaml
+          - name: SSL
+            config-file: simple/ssl/e2e.yaml
+          - name: mTLS
+            config-file: simple/mtls/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
@@ -51,9 +55,9 @@ jobs:
         uses: ./.github/actions/skip
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
+        uses: ./.github/actions/infra-e2e-test
         with:
-          test_class: org.apache.skywalking.e2e.simple.SimpleE2E
+          config-file: ${{ matrix.case.config-file }}
 
   FeatureGroup02:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
