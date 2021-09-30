@@ -142,6 +142,7 @@ snappy-java-1.1.7.3.jar
 swagger-annotations-1.6.2.jar
 vavr-0.10.3.jar
 vavr-match-0.10.3.jar
+zipkin-2.9.1.jar
 zookeeper-3.5.7.jar
 zookeeper-jute-3.5.7.jar
 zstd-jni-1.4.3-1.jar
