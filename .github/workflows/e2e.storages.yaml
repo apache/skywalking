@@ -36,7 +36,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['mysql', 'influxdb', 'tidb', 'postgresql'] #opensearch
+        storage: ['mysql', 'influxdb', 'opensearch', 'tidb', 'postgresql']
         include:
           - { storage: es, es-version: 6.3.2 }
           - { storage: es, es-version: 7.0.0 }
