@@ -13,41 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
+FROM openresty/openresty:1.17.8.2-5-alpine-fat
 
-services:
-  oap:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: oap
-    environment:
-      SW_AUTHENTICATION: test-token
-    ports:
-      - 12800
+ENV COMMIT_HASH=c3cee4841798a147d83b96a10914d4ac0e11d0aa
 
-  provider:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: provider
-    environment:
-      SW_AGENT_AUTHENTICATION: test-token
-    ports:
-      - 9090
-    depends_on:
-      oap:
-        condition: service_healthy
+WORKDIR /usr/share/skywalking-nginx-lua
 
-  consumer:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: consumer
-    environment:
-      SW_AGENT_AUTHENTICATION: test-token
-    ports:
-      - 9092
-    depends_on:
-      provider:
-        condition: service_healthy
+ADD https://github.com/apache/skywalking-nginx-lua/archive/${COMMIT_HASH}.tar.gz .
 
-networks:
-  e2e:
+RUN tar -xf ${COMMIT_HASH}.tar.gz --strip 1
+
+RUN rm ${COMMIT_HASH}.tar.gz
+
+RUN luarocks make rockspec/skywalking-nginx-lua-master-0.rockspec
+

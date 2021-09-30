@@ -18,36 +18,51 @@ version: '2.1'
 services:
   oap:
     extends:
-      file: ../../../script/docker-compose/base-compose.yml
+      file: ../../script/docker-compose/base-compose.yml
       service: oap
-    environment:
-      SW_AUTHENTICATION: test-token
     ports:
       - 12800
 
-  provider:
+  provider-entry:
     extends:
-      file: ../../../script/docker-compose/base-compose.yml
+      file: ../../script/docker-compose/base-compose.yml
       service: provider
     environment:
-      SW_AGENT_AUTHENTICATION: test-token
+      SW_AGENT_NAME: e2e-service-entry-provider
+    depends_on:
+      oap:
+        condition: service_healthy
     ports:
       - 9090
+
+  provider-end:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: provider
+    environment:
+      SW_AGENT_NAME: e2e-service-end-provider
     depends_on:
       oap:
         condition: service_healthy
 
-  consumer:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: consumer
-    environment:
-      SW_AGENT_AUTHENTICATION: test-token
-    ports:
-      - 9092
+  nginx:
+    build:
+      context: ..
+      dockerfile: lua/Dockerfile.nginx
+    networks:
+      - e2e
+    expose:
+      - 8080
     depends_on:
-      provider:
+      oap:
         condition: service_healthy
+      provider-entry:
+        condition: service_healthy
+      provider-end:
+        condition: service_healthy
+    volumes:
+      - ../lua/nginx.conf:/var/nginx/conf.d/nginx.conf
+    entrypoint: ['bash', '-c', 'sleep 5 && openresty -c /var/nginx/conf.d/nginx.conf']
 
 networks:
   e2e:

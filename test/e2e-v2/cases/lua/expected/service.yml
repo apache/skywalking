@@ -13,41 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
-services:
-  oap:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: oap
-    environment:
-      SW_AUTHENTICATION: test-token
-    ports:
-      - 12800
-
-  provider:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: provider
-    environment:
-      SW_AGENT_AUTHENTICATION: test-token
-    ports:
-      - 9090
-    depends_on:
-      oap:
-        condition: service_healthy
-
-  consumer:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: consumer
-    environment:
-      SW_AGENT_AUTHENTICATION: test-token
-    ports:
-      - 9092
-    depends_on:
-      provider:
-        condition: service_healthy
-
-networks:
-  e2e:
+{{- range . }}
+{{- if eq .name "e2e-service-entry-provider" }}
+- id: {{ b64enc "e2e-service-entry-provider" }}.1
+  name: e2e-service-entry-provider
+  group: ""
+{{- end }}
+{{- if eq .name "User_Service_Name" }}
+- id: {{ b64enc "User_Service_Name" }}.1
+  name: User_Service_Name
+  group: ""
+{{- end }}
+{{- if eq .name "e2e-service-end-provider" }}
+- id: {{ b64enc "e2e-service-end-provider" }}.1
+  name: e2e-service-end-provider
+  group: ""
+{{- end }}
+{{- end }}

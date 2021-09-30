@@ -18,19 +18,18 @@ version: '2.1'
 services:
   oap:
     extends:
-      file: ../../../script/docker-compose/base-compose.yml
+      file: ../../script/docker-compose/base-compose.yml
       service: oap
     environment:
-      SW_AUTHENTICATION: test-token
+      SW_PROMETHEUS_FETCHER: "default"
+      SW_TELEMETRY: prometheus
     ports:
       - 12800
 
   provider:
     extends:
-      file: ../../../script/docker-compose/base-compose.yml
+      file: ../../script/docker-compose/base-compose.yml
       service: provider
-    environment:
-      SW_AGENT_AUTHENTICATION: test-token
     ports:
       - 9090
     depends_on:
@@ -39,10 +38,8 @@ services:
 
   consumer:
     extends:
-      file: ../../../script/docker-compose/base-compose.yml
+      file: ../../script/docker-compose/base-compose.yml
       service: consumer
-    environment:
-      SW_AGENT_AUTHENTICATION: test-token
     ports:
       - 9092
     depends_on:

@@ -13,41 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
-services:
-  oap:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: oap
-    environment:
-      SW_AUTHENTICATION: test-token
-    ports:
-      - 12800
-
-  provider:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: provider
-    environment:
-      SW_AGENT_AUTHENTICATION: test-token
-    ports:
-      - 9090
-    depends_on:
-      oap:
-        condition: service_healthy
-
-  consumer:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: consumer
-    environment:
-      SW_AGENT_AUTHENTICATION: test-token
-    ports:
-      - 9092
-    depends_on:
-      provider:
-        condition: service_healthy
-
-networks:
-  e2e:
+{{- contains . }}
+- key: {{ notEmpty .key }}
+  value: {{ ge .value 0 }}
+- key: {{ notEmpty .key }}
+  value: {{ ge .value 1 }}
+{{- end }}

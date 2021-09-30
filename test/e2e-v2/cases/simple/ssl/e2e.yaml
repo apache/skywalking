@@ -49,24 +49,27 @@ verify:
     # service list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
       expected: ../expected/service.yml
-    # service metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name service_sla --service=e2e-service-provider |yq e 'to_entries' -
-      expected: ../expected/metrics-has-value.yml
+    # service instance list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
+      expected: ../expected/service-instance.yml
     # service endpoint
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=info --service-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls|grep -B 1 'provider'|yq e '.[0].id' -)
       expected: ../expected/service-endpoint.yml
+    # service metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_sla --service=e2e-service-provider |yq e 'to_entries' -
+      expected: ../expected/metrics-has-value.yml
     # service endpoint metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name endpoint_cpm --endpoint=POST:/info --service=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_cpm --endpoint=POST:/info --service=e2e-service-provider |yq e 'to_entries' -
       expected: ../expected/metrics-has-value.yml
     # dependency service
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service $(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls|grep -B 1 'provider'|yq e '.[0].id' -)
       expected: ../expected/dependency-services.yml
-    # service instance list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
-      expected: ../expected/service-instance.yml
-
     # dependency instance
-
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency instance ZTJlLXNlcnZpY2UtY29uc3VtZXI=.1 ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+      expected: ../expected/dependency-instance.yml
+    # dependency endpoint
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency endpoint ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1_UE9TVDovaW5mbw==
+      expected: ../expected/dependency-endpoint.yml
     # trace segment list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
       expected: ../expected/traces-list.yml

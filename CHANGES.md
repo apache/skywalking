@@ -8,7 +8,7 @@ Release Notes.
 #### OAP Server
 * Add component definition for `Jackson`.
 * Fix that zipkin-receiver plugin is not packaged into dist.
-
+* Replace e2e cases to e2e-v2: Lua Nginx/SelfObservability.
 #### UI
 
 #### Documentation
