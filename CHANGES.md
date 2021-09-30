@@ -7,6 +7,7 @@ Release Notes.
 
 #### OAP Server
 * Add component definition for `Jackson`.
+* Fix that zipkin-receiver plugin is not packaged into dist.
 
 #### UI
 
