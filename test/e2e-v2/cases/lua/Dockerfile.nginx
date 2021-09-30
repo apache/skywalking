@@ -15,13 +15,15 @@
 
 FROM openresty/openresty:1.17.8.2-5-alpine-fat
 
+ARG SW_AGENT_NGINX_LUA_COMMIT
+
 WORKDIR /usr/share/skywalking-nginx-lua
 
 ADD https://github.com/apache/skywalking-nginx-lua/archive/${SW_AGENT_NGINX_LUA_COMMIT}.tar.gz .
 
-RUN tar -xf ${COMMIT_HASH}.tar.gz --strip 1
+RUN tar -xf ${SW_AGENT_NGINX_LUA_COMMIT}.tar.gz --strip 1
 
-RUN rm ${COMMIT_HASH}.tar.gz
+RUN rm ${SW_AGENT_NGINX_LUA_COMMIT}.tar.gz
 
 RUN luarocks make rockspec/skywalking-nginx-lua-master-0.rockspec
 

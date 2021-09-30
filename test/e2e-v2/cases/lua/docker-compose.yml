@@ -49,6 +49,8 @@ services:
     build:
       context: ..
       dockerfile: lua/Dockerfile.nginx
+      args:
+        - SW_AGENT_NGINX_LUA_COMMIT=${SW_AGENT_NGINX_LUA_COMMIT}
     networks:
       - e2e
     expose:
