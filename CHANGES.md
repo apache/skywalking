@@ -4,6 +4,9 @@ Release Notes.
 
 8.9.0
 ------------------
+#### Project
+
+* replace log e2e cases to e2e-v2.
 
 #### OAP Server
 * Add component definition for `Jackson`.
