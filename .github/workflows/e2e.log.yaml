@@ -39,7 +39,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage:
+        case:
           - name: h2
             config-file: log/h2/e2e.yaml
           - name: mysql
@@ -52,9 +52,8 @@ jobs:
             config-file: log/es7.14/e2e.yaml
           - name: influxdb
             config-file: log/influxdb/e2e.yaml
-
-    env:
-      SW_STORAGE: ${{ matrix.storage }}
+          - name: postgres
+            config-file: log/postgres/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
@@ -65,20 +64,4 @@ jobs:
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/infra-e2e-test
         with:
-          test_class: ${{ matrix.case.config-file }}
-
-  LogFluentBit:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: Log (FluentBit)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-      - name: Run E2E Test
-        if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
-        with:
-          test_class: org.apache.skywalking.e2e.log.LogFluentBitE2E
+          config-file: ${{ matrix.case.config-file }}
