@@ -18,8 +18,8 @@ version: '2.1'
 services:
   h2db:
     build:
-      context: ..
-      dockerfile: ../../../script/dockerfiles/Dockerfile.h2
+      context: .
+      dockerfile: Dockerfile.h2
     networks:
       - e2e
     expose:
