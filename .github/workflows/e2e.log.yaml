@@ -39,7 +39,20 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['h2', 'mysql', 'es6', 'es7', 'es7.14', 'influxdb']
+        storage:
+          - name: h2
+            config-file: log/h2/e2e.yaml
+          - name: mysql
+            config-file: log/mysql/e2e.yaml
+          - name: es6
+            config-file: log/es6/e2e.yaml
+          - name: es7
+            config-file: log/es7/e2e.yaml
+          - name: es7.14
+            config-file: log/es7.14/e2e.yaml
+          - name: influxdb
+            config-file: log/influxdb/e2e.yaml
+
     env:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
@@ -50,9 +63,9 @@ jobs:
         uses: ./.github/actions/skip
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
+        uses: ./.github/actions/infra-e2e-test
         with:
-          test_class: org.apache.skywalking.e2e.log.LogE2E
+          test_class: ${{ matrix.case.config-file }}
 
   LogFluentBit:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
