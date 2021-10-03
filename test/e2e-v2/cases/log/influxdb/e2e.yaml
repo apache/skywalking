@@ -29,7 +29,7 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
 
 cleanup:
-  on: always
+  on: success
 
 trigger:
   action: http

@@ -32,7 +32,7 @@ services:
 
   oap:
     extends:
-      file: ../base-compose.yml
+      file: ../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
       SW_STORAGE: elasticsearch
@@ -44,7 +44,7 @@ services:
 
   provider:
     extends:
-      file: ../base-compose.yml
+      file: ../../../script/docker-compose/base-compose.yml
       service: provider
     volumes:
       - /tmp/skywalking-logs/:/tmp/skywalking-logs/
@@ -58,7 +58,9 @@ services:
     image: fluent/fluent-bit:1.7
     volumes:
       - /tmp/skywalking-logs:/tmp/skywalking-logs
-      - ./fluent-bit:/fluent-bit/etc
+      - ./fluent-bit.conf:/fluent-bit/etc
+      - ./fluent-bit-parser.conf:/fluent-bit/etc
+      - ./fluent-bit-script.lua:/fluent-bit/etc
     networks:
       - e2e
     depends_on:

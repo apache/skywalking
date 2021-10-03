@@ -31,7 +31,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 public class FluentBitE2E extends LogE2E {
     @SuppressWarnings("unused")
     @DockerCompose({
-        "docker/log/docker-compose.fluentbit.yml"
+        "docker/log/docker-compose.yml"
     })
     protected DockerComposeContainer<?> justForSideEffects;
 
