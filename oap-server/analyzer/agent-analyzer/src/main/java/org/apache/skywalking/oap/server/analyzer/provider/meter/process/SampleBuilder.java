@@ -31,16 +31,36 @@ public class SampleBuilder {
     final String name;
     final ImmutableMap<String, String> labels;
     final double value;
+    final String serviceLabel;
+    final String instanceLabel;
+
+    public SampleBuilder(final String name, final ImmutableMap<String, String> labels, final double value) {
+        this.name = name;
+        this.labels = labels;
+        this.value = value;
+        if (labels.containsKey("instance")) {
+            instanceLabel = "__instance__";
+        } else {
+            instanceLabel = "instance";
+        }
+        if (labels.containsKey("service")) {
+            serviceLabel = "__service__";
+        } else {
+            serviceLabel = "service";
+        }
+    }
 
     public Sample build(String service, String instance, long timestamp) {
+        ImmutableMap.Builder<Object, Object> builder = ImmutableMap.builder().putAll(labels);
         return Sample.builder()
             .name(name)
             .labels(ImmutableMap.<String, String>builder()
                 // Put original labels
                 .putAll(labels)
                 // Put report service and instance to labels
+                .put(serviceLabel, service)
+                .put(instanceLabel, instance)
                 .put("service", service)
-                .put("instance", instance)
                 .build())
             .value(value)
             .timestamp(timestamp).build();
