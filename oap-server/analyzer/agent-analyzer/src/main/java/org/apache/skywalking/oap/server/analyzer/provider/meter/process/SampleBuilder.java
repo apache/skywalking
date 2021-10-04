@@ -51,7 +51,6 @@ public class SampleBuilder {
     }
 
     public Sample build(String service, String instance, long timestamp) {
-        ImmutableMap.Builder<Object, Object> builder = ImmutableMap.builder().putAll(labels);
         return Sample.builder()
             .name(name)
             .labels(ImmutableMap.<String, String>builder()
