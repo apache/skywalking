@@ -186,7 +186,8 @@ public class BrowserWithClientJSE2E extends SkyWalkingTestAdapter {
         BROWSER_APP_PAGE_DOM_ANALYSIS_AVG,
         BROWSER_APP_PAGE_DOM_READY_AVG,
         BROWSER_APP_PAGE_LOAD_PAGE_AVG,
-        BROWSER_APP_PAGE_RES_AVG,
+        // Represents a synchronized load resource in pages
+        // BROWSER_APP_PAGE_RES_AVG,
         BROWSER_APP_PAGE_TTL_AVG,
         };
 
