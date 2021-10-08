@@ -14,23 +14,11 @@
 # limitations under the License.
 
 traces:
-{{- range .traces }}
+{{- contains .traces }}
 - segmentid: {{ notEmpty .segmentid }}
   endpointnames:
-  {{- if eq (index .endpointnames 0) "H2/JDBI/Statement/execute" }}
-    - H2/JDBI/Statement/execute
-  {{- end}}
-  {{- if eq (index .endpointnames 0) "H2/JDBI/Statement/executeQuery" }}
-    - H2/JDBI/Statement/executeQuery
-  {{- end}}
-  {{- if eq (index .endpointnames 0) "H2/JDBI/PreparedStatement/executeQuery" }}
-    - H2/JDBI/PreparedStatement/executeQuery
-  {{- end }}
-  {{- if eq (index .endpointnames 0) "POST:/info" }}
+  {{- contains .endpointnames }}
     - POST:/info
-  {{- end }}
-  {{- if eq (index .endpointnames 0) "POST:/users" }}
-    - POST:/users
   {{- end }}
   duration: {{ ge .duration 0 }}
   start: "{{ notEmpty .start}}"

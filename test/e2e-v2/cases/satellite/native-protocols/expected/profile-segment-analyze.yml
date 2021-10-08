@@ -15,26 +15,14 @@
 
 tip: null
 trees:
-  {{- range .trees }}
+  {{- contains .trees }}
   - elements:
     {{- contains .elements }}
     - id: "{{ notEmpty .id }}"
       parentid: "{{ notEmpty .parentid }}"
-      codesignature:
-        {{- if eq .codesignature "java.lang.Thread.sleep:-2" }}
-          java.lang.Thread.sleep:-2
-        {{- end }}
+      codesignature: "java.lang.Thread.sleep:-2"
       duration: {{ gt .duration 0 }}
       durationchildexcluded: {{ gt .durationchildexcluded 0 }}
-      count: {{ gt .count 0 }}
-    - id: "{{ notEmpty .id }}"
-      parentid: "{{ notEmpty .parentid }}"
-      codesignature:
-        {{- if ne .codesignature "java.lang.Thread.sleep:-2" }}
-          {{ notEmpty .codesignature }}
-        {{- end}}
-      duration: {{ ge .duration 0 }}
-      durationchildexcluded: {{ ge .durationchildexcluded 0 }}
       count: {{ gt .count 0 }}
     {{- end }}
   {{- end }}

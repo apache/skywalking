@@ -14,27 +14,34 @@
 # limitations under the License.
 
 events:
-{{- range .events }}
+{{- contains .events }}
 - uuid: {{ notEmpty .uuid }}
   source:
-    {{- if eq .source.service "e2e-service-provider" }}
     service: e2e-service-provider
     serviceinstance: provider1
-    {{- end }}
-    {{- if eq .source.service "e2e-service-consumer" }}
-    service: e2e-service-consumer
-    serviceinstance: consumer1
-    {{- end }}
     endpoint: ""
   name: Start
   type: Normal
   message: Start Java Application
   parameters:
-  {{- range .parameters }}
-  {{- if eq .key "OPTS"}}
+  {{- contains .parameters }}
     - key: OPTS
       value: {{ notEmpty .value }}
   {{- end }}
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
+- uuid: {{ notEmpty .uuid }}
+  source:
+    service: e2e-service-consumer
+    serviceinstance: consumer1
+    endpoint: ""
+  name: Start
+  type: Normal
+  message: Start Java Application
+  parameters:
+  {{- contains .parameters }}
+    - key: OPTS
+      value: {{ notEmpty .value }}
   {{- end }}
   starttime: {{ gt .starttime 0 }}
   endtime: {{ gt .endtime 0 }}
