@@ -14,7 +14,7 @@
 # limitations under the License.
 
 spans:
-{{- range .spans }}
+{{- contains .spans }}
 - spanid: 0
   parentspanid: -1
   servicecode: e2e-service-provider
@@ -28,15 +28,11 @@ spans:
   iserror: false
   layer: Http
   tags:
-    {{- range .tags }}
-    {{- if eq .key "url" }}
+    {{- contains .tags }}
     - key: url
       value: {{ notEmpty .value }}
-    {{- end }}
-    {{- if eq .key "http.method" }}
     - key: http.method
       value: POST
-    {{- end }}
     {{- end }}
   logs: []
 {{- end }}

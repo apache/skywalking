@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- range . }}
+{{- contains . }}
 - segmentid: {{ notEmpty .segmentid }}
   endpointnames:
     - POST:/info
@@ -21,7 +21,7 @@
   start: "{{ notEmpty .start }}"
   iserror: false
   traceids:
-  {{- range .traceids }}
+  {{- contains .traceids }}
     - {{ notEmpty . }}
   {{- end }}
 {{- end }}
