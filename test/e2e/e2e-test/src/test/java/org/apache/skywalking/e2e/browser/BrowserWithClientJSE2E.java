@@ -55,8 +55,6 @@ import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_LOAD_PAGE_AVG;
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_LOAD_PAGE_PERCENTILE;
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_PV;
-import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_REDIRECT_AVG;
-import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_RES_AVG;
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_TTL_AVG;
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PV;
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_SINGLE_VERSION_ERROR_SUM;
