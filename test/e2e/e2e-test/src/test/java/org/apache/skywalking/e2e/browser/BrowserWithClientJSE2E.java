@@ -181,7 +181,8 @@ public class BrowserWithClientJSE2E extends SkyWalkingTestAdapter {
         BROWSER_APP_PAGE_PV,
         BROWSER_APP_PAGE_ERROR_SUM,
         BROWSER_APP_PAGE_JS_ERROR_SUM,
-        BROWSER_APP_PAGE_REDIRECT_AVG,
+        // If the current document and the document that is redirected to are not from the same origin, set redirectStart, redirectEnd to 0
+        // BROWSER_APP_PAGE_REDIRECT_AVG,
         BROWSER_APP_PAGE_DOM_ANALYSIS_AVG,
         BROWSER_APP_PAGE_DOM_READY_AVG,
         BROWSER_APP_PAGE_LOAD_PAGE_AVG,
