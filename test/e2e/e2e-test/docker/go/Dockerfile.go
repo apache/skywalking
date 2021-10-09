@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.12 AS builder
+FROM golang:1.13 AS builder
 
 ARG COMMIT_HASH=4af380c2db6243106b0fc650b6003ce3b3eb82a0
 ARG GO2SKY_CODE=${COMMIT_HASH}.tar.gz

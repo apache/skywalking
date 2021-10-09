@@ -324,9 +324,9 @@ The text of each license is the standard Apache 2.0 license.
     simpleclient_httpserver 0.11 from prometheus https://github.com/prometheus/client_java Apache 2.0
     jetcd 0.5.3, https://github.com/etcd-io/jetcd, Apache 2.0
     failasfe 2.3.4, https://github.com/jhalterman/failsafe, Apache 2.0
-    Armeria 1.11.0, http://github.com/line/armeria, Apache 2.0
+    Armeria 1.12.0, http://github.com/line/armeria, Apache 2.0
     Brotli4j 1.6.0, https://github.com/hyperxpro/Brotli4j, Apache 2.0
-    micrometer 1.7.3, https://github.com/micrometer-metrics/micrometer, Apache 2.0
+    micrometer 1.7.4, https://github.com/micrometer-metrics/micrometer, Apache 2.0
 
 ========================================================================
 MIT licenses
