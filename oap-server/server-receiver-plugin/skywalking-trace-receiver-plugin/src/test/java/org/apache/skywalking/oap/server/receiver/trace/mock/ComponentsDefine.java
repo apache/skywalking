@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.network.trace.component;
+package org.apache.skywalking.oap.server.receiver.trace.mock;
 
 /**
  * The supported list of skywalking java sniffer.
