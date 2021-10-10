@@ -16,15 +16,24 @@
  *
  */
 
-package org.apache.skywalking.apm.network.trace.component;
+package org.apache.skywalking.oap.server.receiver.trace.mock;
 
-/**
- * The <code>Component</code> represents component library, which has been supported by skywalking sniffer.
- * <p>
- * The supported list is in {@link ComponentsDefine}.
- */
-public interface Component {
-    int getId();
+public class OfficialComponent implements Component {
+    private int id;
+    private String name;
 
-    String getName();
+    public OfficialComponent(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 }
