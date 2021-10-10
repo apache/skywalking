@@ -25,7 +25,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 class ServiceCMock {
     public static String SERVICE_NAME = "mock_c_service";
