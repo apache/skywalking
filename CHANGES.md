@@ -12,6 +12,9 @@ Release Notes.
 * Upgrade Armeria to 1.12, upgrade OpenSearch test version to 1.1.0.
 * Add component definition for `Apache-Kylin`.
 * Enhance `get` generation mechanism of OAL engine, support map type of source's field.
+* Fix `funcParamExpression` and `literalExpression` can't be used in the same aggregation function.
+* Support cast statement in the OAL core engine.
+* Support `(str->long)` cast statement.
 
 #### UI
 * Optimize endpoint dependency.

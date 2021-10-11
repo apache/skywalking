@@ -16,24 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.parser;
+package org.apache.skywalking.oal.rt.util;
 
-import java.util.List;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-
-/**
- * Function argument.
- */
-@Getter
-@RequiredArgsConstructor
-public class Argument {
-
-    private final int type;
-
-    private final List<String> text;
-
-    @Setter
-    private String castType;
+public class TypeCastUtil {
+    /**
+     * @param castType           to change the value of given original expression.
+     * @param originalExpression to read the value
+     * @return cast expression if cast type exists and is legal.
+     */
+    public static String withCast(String castType, String originalExpression) {
+        if (castType == null) {
+            return originalExpression;
+        }
+        if ("(str->long)".equals(castType)) {
+            return "Long.parseLong(" + originalExpression + ")";
+        }
+        throw new IllegalArgumentException(
+            "castType:" + castType + " is legal, context expression:" + originalExpression);
+    }
 }

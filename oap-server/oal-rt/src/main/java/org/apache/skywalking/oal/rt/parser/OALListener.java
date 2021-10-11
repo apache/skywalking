@@ -64,6 +64,11 @@ public class OALListener extends OALParserBaseListener {
     }
 
     @Override
+    public void enterSourceAttrCast(OALParser.SourceAttrCastContext ctx) {
+        current.setSourceCastType(ctx.getText());
+    }
+
+    @Override
     public void enterVariable(OALParser.VariableContext ctx) {
     }
 
@@ -205,6 +210,11 @@ public class OALListener extends OALParserBaseListener {
         enterConditionValue(ctx.getText());
     }
 
+    @Override
+    public void enterExpressionAttrCast(final OALParser.ExpressionAttrCastContext ctx) {
+        conditionExpression.setCastType(ctx.getText());
+    }
+
     private void enterConditionValue(String value) {
         if (value.split("\\.").length == 2 && !value.startsWith("\"")) {
             // Value is an enum.
@@ -224,6 +234,11 @@ public class OALListener extends OALParserBaseListener {
             return;
         }
         current.addFuncArg(new Argument(EntryMethod.IDENTIFIER_TYPE, Arrays.asList(ctx.getText().split("\\."))));
+    }
+
+    @Override
+    public void enterFunctionArgCast(final OALParser.FunctionArgCastContext ctx) {
+        current.addCastForLatestArg(ctx.getText());
     }
 
     private String metricsNameFormat(String source) {

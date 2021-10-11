@@ -15,15 +15,17 @@ You can open set `SW_OAL_ENGINE_DEBUG=Y` at system env to see which classes are 
 Scripts should be named `*.oal`
 ```
 // Declare the metrics.
-METRICS_NAME = from(SCOPE.(* | [FIELD][,FIELD ...]))
-[.filter(FIELD OP [INT | STRING])]
+METRICS_NAME = from(SCOPE.(* | [FIELD][,FIELD ...]) CAST)
+[.filter(FIELD CAST OP [INT | STRING])]
 .FUNCTION([PARAM][, PARAM ...])
 
 // Disable hard code 
 disable(METRICS_NAME);
 ```
 
-## Scope
+## From
+The **from** statement defines the data source of this OAL expression.
+
 Primary **SCOPE**s are `All`, `Service`, `ServiceInstance`, `Endpoint`, `ServiceRelation`, `ServiceInstanceRelation`, and `EndpointRelation`.
 There are also some secondary scopes which belong to a primary scope. 
 
@@ -94,6 +96,20 @@ The metrics name for storage implementor, alarm and query modules. The type infe
 All metrics data will be grouped by Scope.ID and min-level TimeBucket. 
 
 - In the `Endpoint` scope, the Scope.ID is same as the Endpoint ID (i.e. the unique ID based on service and its endpoint).
+
+## Cast
+Fields of source are static type. In some cases, the type required the filter expression and aggregation function doesn't 
+match the type in the source, such as tag value in the source is String type, most aggregation calculation requires numeric.
+
+Cast expression is provided to do so. 
+- `(str->long)`, cast string type into long.
+
+> mq_consume_latency = from(Service.tag["transmission.latency"](str->long)).longAvg(); // the value of tag is string type.
+
+Cast statement is supported in
+1. **From statement**. `from(source.attre(cast))`. 
+2. **Filter expression**. `.filter(tag["transmission.latency"](str->long) > 0)`
+3. **Aggregation function parameter**. `.longAvg(strField1(str->long)== 1,  strField2(str->long))`
 
 ## Disable
 `Disable` is an advanced statement in OAL, which is only used in certain cases.

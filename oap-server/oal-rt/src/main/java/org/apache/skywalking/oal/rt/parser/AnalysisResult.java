@@ -46,6 +46,8 @@ public class AnalysisResult {
 
     private List<String> sourceAttribute = new ArrayList<>();
 
+    private String sourceCastType;
+
     private String aggregationFunctionName;
 
     private String metricsClassName;
@@ -108,6 +110,10 @@ public class AnalysisResult {
             funcArgs = new LinkedList<>();
         }
         funcArgs.add(argument);
+    }
+
+    public void addCastForLatestArg(String castType) {
+        funcArgs.get(funcArgs.size() - 1).setCastType(castType);
     }
 
     public Argument getNextFuncArg() {

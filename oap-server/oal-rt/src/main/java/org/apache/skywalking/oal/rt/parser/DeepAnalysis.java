@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.List;
 import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
+import org.apache.skywalking.oal.rt.util.TypeCastUtil;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
@@ -56,7 +57,7 @@ public class DeepAnalysis {
 
                 final Expression filterExpression = new Expression();
                 filterExpression.setExpressionObject(matcherInfo.getMatcher().getName());
-                filterExpression.setLeft("source." + getter);
+                filterExpression.setLeft(TypeCastUtil.withCast(expression.getCastType(), "source." + getter));
                 filterExpression.setRight(expression.getValue());
                 result.addFilterExpressions(filterExpression);
             }
@@ -94,7 +95,12 @@ public class DeepAnalysis {
             Annotation annotation = parameterAnnotations[0];
             if (annotation instanceof SourceFrom) {
                 entryMethod.addArg(
-                    parameterType, "source." + ClassMethodUtil.toGetMethod(result.getSourceAttribute()));
+                    parameterType,
+                    TypeCastUtil.withCast(
+                        result.getSourceCastType(),
+                        "source." + ClassMethodUtil.toGetMethod(result.getSourceAttribute())
+                    )
+                );
             } else if (annotation instanceof ConstOne) {
                 entryMethod.addArg(parameterType, "1");
             } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
@@ -113,7 +119,7 @@ public class DeepAnalysis {
                     final Expression argExpression = new Expression();
                     argExpression.setRight(expression.getValue());
                     argExpression.setExpressionObject(matcherInfo.getMatcher().getName());
-                    argExpression.setLeft("source." + getter);
+                    argExpression.setLeft(TypeCastUtil.withCast(expression.getCastType(), "source." + getter));
 
                     entryMethod.addArg(argExpression);
                 }

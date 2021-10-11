@@ -253,7 +253,9 @@ public class ScriptParserTest {
     @Test
     public void testParse9() throws IOException {
         ScriptParser parser = ScriptParser.createFromScriptText(
-            "ServicePercent = from(Service.sidecar.internalError).filter(sidecar.internalError == \"abc\").percent(sidecar.internalError != \"\");", TEST_SOURCE_PACKAGE);
+            "ServicePercent = from(Service.sidecar.internalError).filter(sidecar.internalError == \"abc\").percent(sidecar.internalError != \"\");",
+            TEST_SOURCE_PACKAGE
+        );
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult servicePercent = results.get(0);
@@ -296,6 +298,24 @@ public class ScriptParserTest {
         final List<Expression> filterExpressions = clientCpm.getFilterExpressions();
         Assert.assertEquals(1, filterExpressions.size());
         Assert.assertEquals("source.getTag(\"http.method\")", filterExpressions.get(0).getLeft());
+    }
+
+    @Test
+    public void testParse12() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "cast_metrics = from(Service.tag[\"transmission.latency\"](str->long)).filter(tag[\"transmission.latency\"](str->long) > 0).longAvg(strField1(str->long)== 1,  strField2(str->long));",
+            TEST_SOURCE_PACKAGE
+        );
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
+        AnalysisResult castExp = results.get(0);
+        Assert.assertEquals("(str->long)", castExp.getSourceCastType());
+        final List<Expression> filterExpressions = castExp.getFilterExpressions();
+        Assert.assertEquals(1, filterExpressions.size());
+        Assert.assertEquals(
+            "Long.parseLong(source.getTag(\"transmission.latency\"))", filterExpressions.get(0).getLeft());
+        Assert.assertEquals("(str->long)", castExp.getFuncConditionExpressions().get(0).getCastType());
+        Assert.assertEquals(EntryMethod.IDENTIFIER_TYPE, castExp.getFuncArgs().get(0).getType());
+        Assert.assertEquals("(str->long)", castExp.getFuncArgs().get(0).getCastType());
     }
 
     @Test
