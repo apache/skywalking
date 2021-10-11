@@ -392,7 +392,7 @@ ClickHouse-jdbc-driver:
 ClickHouse:
   id: 120
   languages: Java
-Apache-kylin-jdbc-driver:
+Apache-Kylin-jdbc-driver:
   id: 121
   languages: Java
 Apache-Kylin:
@@ -643,4 +643,4 @@ Component-Server-Mappings:
   Psychopg: PostgreSQL
   GoMysql: Mysql
   ClickHouse-jdbc-driver: ClickHouse
-  Apache-kylin-jdbc-driver: Apache-Kylin
+  Apache-Kylin-jdbc-driver: Apache-Kylin
