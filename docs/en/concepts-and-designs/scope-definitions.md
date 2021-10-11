@@ -15,6 +15,7 @@ Using the Aggregation Function, the requests will be grouped by time and **Group
 | rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
+| tag | The key-value pair of span tags in the segment. | | `Map<String, String>` |
 
 ### SCOPE `Service`
 
@@ -33,6 +34,7 @@ This calculates the metrics data from each request of the service.
 | rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
+| tag | The key-value pair of span tags in the segment. | | `Map<String, String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
 | tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
 | tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
@@ -54,6 +56,7 @@ This calculates the metrics data from each request of the service instance.
 | rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
+| tag | The key-value pair of span tags in the segment. | | `Map<String, String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
 | tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
 | tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
@@ -145,6 +148,7 @@ This calculates the metrics data from each request of the endpoint in the servic
 | rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
+| tag | The key-value pair of span tags in the segment. | | `Map<String, String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
 | tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
 | tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |

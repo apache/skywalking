@@ -133,7 +133,10 @@ endpoint_url_sum = from(Endpoint.*).filter(name in ["/v1", "/v2"]).count()
 endpoint_calls = from(Endpoint.*).count()
 
 // Calculate the CPM with the GET method for each service.The value is made up with `tagKey:tagValue`.
+// Option 1, use `tags contain`.
 service_cpm_http_get = from(Service.*).filter(tags contain "http.method:GET").cpm()
+// Option 2, use `tag[key]`.
+service_cpm_http_get = from(Service.*).filter(tag["http.method"] == "GET").cpm();
 
 // Calculate the CPM with the HTTP method except for the GET method for each service.The value is made up with `tagKey:tagValue`.
 service_cpm_http_other = from(Service.*).filter(tags not contain "http.method:GET").cpm()

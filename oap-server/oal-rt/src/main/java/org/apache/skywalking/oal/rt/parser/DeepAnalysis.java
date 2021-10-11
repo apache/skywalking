@@ -47,7 +47,8 @@ public class DeepAnalysis {
         List<ConditionExpression> expressions = result.getFilterExpressionsParserResult();
         if (expressions != null && expressions.size() > 0) {
             for (ConditionExpression expression : expressions) {
-                final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expression.getExpressionType());
+                final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(
+                    expression.getExpressionType());
 
                 final String getter = matcherInfo.isBooleanType()
                     ? ClassMethodUtil.toIsMethod(expression.getAttributes())
@@ -55,7 +56,7 @@ public class DeepAnalysis {
 
                 final Expression filterExpression = new Expression();
                 filterExpression.setExpressionObject(matcherInfo.getMatcher().getName());
-                filterExpression.setLeft("source." + getter + "()");
+                filterExpression.setLeft("source." + getter);
                 filterExpression.setRight(expression.getValue());
                 result.addFilterExpressions(filterExpression);
             }
@@ -93,15 +94,17 @@ public class DeepAnalysis {
             Annotation annotation = parameterAnnotations[0];
             if (annotation instanceof SourceFrom) {
                 entryMethod.addArg(
-                    parameterType, "source." + ClassMethodUtil.toGetMethod(result.getSourceAttribute()) + "()");
+                    parameterType, "source." + ClassMethodUtil.toGetMethod(result.getSourceAttribute()));
             } else if (annotation instanceof ConstOne) {
                 entryMethod.addArg(parameterType, "1");
             } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
                 if (isNull(result.getFuncConditionExpressions()) || result.getFuncConditionExpressions().isEmpty()) {
-                    throw new IllegalArgumentException("Entrance method:" + entranceMethod + " argument can't find funcParamExpression.");
+                    throw new IllegalArgumentException(
+                        "Entrance method:" + entranceMethod + " argument can't find funcParamExpression.");
                 } else {
                     ConditionExpression expression = result.getNextFuncConditionExpression();
-                    final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expression.getExpressionType());
+                    final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(
+                        expression.getExpressionType());
 
                     final String getter = matcherInfo.isBooleanType()
                         ? ClassMethodUtil.toIsMethod(expression.getAttributes())
@@ -110,7 +113,7 @@ public class DeepAnalysis {
                     final Expression argExpression = new Expression();
                     argExpression.setRight(expression.getValue());
                     argExpression.setExpressionObject(matcherInfo.getMatcher().getName());
-                    argExpression.setLeft("source." + getter + "()");
+                    argExpression.setLeft("source." + getter);
 
                     entryMethod.addArg(argExpression);
                 }

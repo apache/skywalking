@@ -288,6 +288,17 @@ public class ScriptParserTest {
     }
 
     @Test
+    public void testParse11() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "GetCallTraffic = from(Service.*).filter(tag[\"http.method\"] == \"get\").cpm();", TEST_SOURCE_PACKAGE);
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
+        AnalysisResult clientCpm = results.get(0);
+        final List<Expression> filterExpressions = clientCpm.getFilterExpressions();
+        Assert.assertEquals(1, filterExpressions.size());
+        Assert.assertEquals("source.getTag(\"http.method\")", filterExpressions.get(0).getLeft());
+    }
+
+    @Test
     public void testDisable() throws IOException {
         ScriptParser parser = ScriptParser.createFromScriptText("disable(segment);", TEST_SOURCE_PACKAGE);
         DisableCollection collection = parser.parse().getDisableCollection();

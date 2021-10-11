@@ -19,7 +19,9 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -104,6 +106,8 @@ class SourceBuilder {
     private long timeBucket;
     @Getter
     private final List<String> tags = new ArrayList<>();
+    @Getter
+    private final Map<String, String> originalTags = new HashMap<>();
 
     void prepare() {
         this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
@@ -131,6 +135,7 @@ class SourceBuilder {
         all.setType(type);
         all.setTimeBucket(timeBucket);
         all.setTags(tags);
+        all.setOriginalTags(originalTags);
         return all;
     }
 
@@ -151,6 +156,7 @@ class SourceBuilder {
         service.setType(type);
         service.setTags(tags);
         service.setTimeBucket(timeBucket);
+        service.setOriginalTags(originalTags);
         return service;
     }
 
@@ -195,6 +201,7 @@ class SourceBuilder {
         serviceInstance.setRpcStatusCode(rpcStatusCode);
         serviceInstance.setType(type);
         serviceInstance.setTags(tags);
+        serviceInstance.setOriginalTags(originalTags);
         serviceInstance.setTimeBucket(timeBucket);
         return serviceInstance;
     }
@@ -242,6 +249,7 @@ class SourceBuilder {
         endpoint.setRpcStatusCode(rpcStatusCode);
         endpoint.setType(type);
         endpoint.setTags(tags);
+        endpoint.setOriginalTags(originalTags);
         endpoint.setTimeBucket(timeBucket);
         return endpoint;
     }
@@ -309,5 +317,6 @@ class SourceBuilder {
 
     public void setTag(KeyStringValuePair tag) {
         tags.add(tag.getKey().trim() + ":" + tag.getValue().trim());
+        originalTags.put(tag.getKey(), tag.getValue());
     }
 }

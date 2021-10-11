@@ -19,10 +19,12 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
@@ -86,6 +88,8 @@ public class Endpoint extends Source {
     @Getter
     @Setter
     private List<String> tags;
+    @Setter
+    private Map<String, String> originalTags;
     @Getter
     @Setter
     private SideCar sideCar = new SideCar();
@@ -93,5 +97,9 @@ public class Endpoint extends Source {
     @Override
     public void prepare() {
         serviceId = IDManager.ServiceID.buildId(serviceName, serviceNodeType);
+    }
+
+    public String getTag(String key) {
+        return originalTags.getOrDefault(key, Const.EMPTY_STRING);
     }
 }

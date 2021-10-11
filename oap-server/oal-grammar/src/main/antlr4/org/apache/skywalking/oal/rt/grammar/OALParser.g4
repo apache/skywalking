@@ -157,7 +157,11 @@ conditionAttributeStmt
     ;
 
 conditionAttribute
-    : IDENTIFIER
+    : IDENTIFIER | mapAttribute
+    ;
+
+mapAttribute
+    : IDENTIFIER LS_BRACKET STRING_LITERAL RS_BRACKET
     ;
 
 booleanConditionValue
