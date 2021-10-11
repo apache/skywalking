@@ -122,7 +122,7 @@ fragment HexDigit
     ;
 
 fragment Digits
-    : [0-9] ([0-9_]* [0-9])?
+    : [0-9] ([0-9_]* [0-9])? ('l'|'L')?
     ;
 
 fragment LetterOrDigit
