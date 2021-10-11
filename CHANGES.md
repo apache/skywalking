@@ -9,6 +9,8 @@ Release Notes.
 * Add component definition for `Jackson`.
 * Fix that zipkin-receiver plugin is not packaged into dist.
 * Replace e2e cases to e2e-v2: Lua Nginx/SelfObservability.
+* Upgrade Armeria to 1.12, upgrade OpenSearch test version to 1.1.0.
+
 #### UI
 
 #### Documentation

@@ -18,7 +18,6 @@
 package org.apache.skywalking.library.elasticsearch;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.net.HttpHeaders;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
 import com.linecorp.armeria.client.Endpoint;
@@ -179,10 +178,7 @@ public final class ElasticSearchBuilder {
                                           return options;
                                       });
         if (StringUtil.isNotBlank(username) && StringUtil.isNotBlank(password)) {
-            endpointGroupBuilder.withClientOptions(it -> it.setHeader(
-                HttpHeaders.AUTHORIZATION,
-                BasicToken.of(username, password).asHeaderValue()
-            ));
+            endpointGroupBuilder.auth(BasicToken.of(username, password));
         }
         final HealthCheckedEndpointGroup endpointGroup = endpointGroupBuilder.build();
 
