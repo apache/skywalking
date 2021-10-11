@@ -395,6 +395,9 @@ ClickHouse:
 Apache-kylin-jdbc-driver:
   id: 121
   languages: Java
+Apache-Kylin:
+  id: 122
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -640,4 +643,4 @@ Component-Server-Mappings:
   Psychopg: PostgreSQL
   GoMysql: Mysql
   ClickHouse-jdbc-driver: ClickHouse
-  Apache-kylin-jdbc-driver: Apache-kylin
+  Apache-kylin-jdbc-driver: Apache-Kylin
