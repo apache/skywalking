@@ -47,6 +47,8 @@ jobs:
             config-file: simple/ssl/e2e.yaml
           - name: mTLS
             config-file: simple/mtls/e2e.yaml
+          - name: Lua Nginx
+            config-file: lua/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
@@ -67,8 +69,6 @@ jobs:
     strategy:
       matrix:
         case:
-          - name: Lua Nginx
-            class: org.apache.skywalking.e2e.LuaE2E
           - name: Gateway
             class: org.apache.skywalking.e2e.GatewayE2E
           - name: Meter

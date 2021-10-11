@@ -15,9 +15,9 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
-  name: provider1
+{{- contains .}}
+- id: {{ b64enc "User_Service_Name" }}.1_{{ b64enc "User_Service_Instance_Name" }}
+  name: User_Service_Instance_Name
   attributes:
   {{- contains .attributes }}
   - name: OS Name
@@ -33,8 +33,8 @@
   - name: Jar Dependencies
     value: '{{ notEmpty .value }}'
   - name: ipv4s
-    value: {{ notEmpty .value }}
+    value: ""
   {{- end}}
-  language: JAVA
-  instanceuuid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
+  language: LUA
+  instanceuuid: {{ b64enc "User_Service_Name" }}.1_{{ b64enc "User_Service_Instance_Name" }}
 {{- end}}

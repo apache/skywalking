@@ -14,6 +14,13 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
-  name: POST:/users
-{{- end}}
+- id: {{ b64enc "e2e-service-entry-provider" }}.1
+  name: e2e-service-entry-provider
+  group: ""
+- id: {{ b64enc "User_Service_Name" }}.1
+  name: User_Service_Name
+  group: ""
+- id: {{ b64enc "e2e-service-end-provider" }}.1
+  name: e2e-service-end-provider
+  group: ""
+{{- end }}

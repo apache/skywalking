@@ -14,6 +14,13 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
-  name: POST:/users
-{{- end}}
+- id: {{ b64enc "e2e-service-provider" }}.1
+  name: e2e-service-provider
+  group: ""
+- id: {{ b64enc "e2e-service-consumer" }}.1
+  name: e2e-service-consumer
+  group: ""
+- id: {{ b64enc "oap::oap-server" }}.1
+  name: oap::oap-server
+  group: ""
+{{- end }}

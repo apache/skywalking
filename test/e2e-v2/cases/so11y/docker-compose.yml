@@ -13,7 +13,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
-  name: POST:/users
-{{- end}}
+version: '2.1'
+
+services:
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_PROMETHEUS_FETCHER: "default"
+      SW_TELEMETRY: prometheus
+    ports:
+      - 12800
+
+  provider:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: provider
+    ports:
+      - 9090
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  consumer:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: consumer
+    ports:
+      - 9092
+    depends_on:
+      provider:
+        condition: service_healthy
+
+networks:
+  e2e:

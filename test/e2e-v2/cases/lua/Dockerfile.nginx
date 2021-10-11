@@ -13,7 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
-  name: POST:/users
-{{- end}}
+FROM openresty/openresty:1.17.8.2-5-alpine-fat
+
+ARG SW_AGENT_NGINX_LUA_COMMIT
+
+WORKDIR /usr/share/skywalking-nginx-lua
+
+ADD https://github.com/apache/skywalking-nginx-lua/archive/${SW_AGENT_NGINX_LUA_COMMIT}.tar.gz .
+
+RUN tar -xf ${SW_AGENT_NGINX_LUA_COMMIT}.tar.gz --strip 1
+
+RUN rm ${SW_AGENT_NGINX_LUA_COMMIT}.tar.gz
+
+RUN luarocks make rockspec/skywalking-nginx-lua-master-0.rockspec
+
