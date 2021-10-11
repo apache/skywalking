@@ -9,6 +9,7 @@ Release Notes.
 * Add component definition for `Jackson`.
 * Fix that zipkin-receiver plugin is not packaged into dist.
 * Upgrade Armeria to 1.12, upgrade OpenSearch test version to 1.1.0.
+* Add component definition for `Apache-Kylin`.
 
 #### UI
 
