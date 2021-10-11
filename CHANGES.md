@@ -13,6 +13,10 @@ Release Notes.
 * Add component definition for `Apache-Kylin`.
 
 #### UI
+* Optimize endpoint dependency.
+* Show service name by hovering nodes in the sankey chart.
+* Add Apache Kylin logo.
+* Add ClickHouse logo.
 
 #### Documentation
 
