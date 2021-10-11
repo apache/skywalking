@@ -14,16 +14,13 @@
 # limitations under the License.
 
 nodes:
-{{- range .nodes }}
-{{- if eq .name "User_Service_Instance_Name" }}
+{{- contains .nodes }}
 - id: {{ b64enc "User_Service_Name" }}.1_{{ b64enc "User_Service_Instance_Name" }}
   name: User_Service_Instance_Name
   serviceid: {{ b64enc "User_Service_Name" }}.1
   servicename: User_Service_Name
   type: Nginx
   isreal: true
-{{- end }}
-{{- if eq .name "provider1" }}
 - id: {{ b64enc "e2e-service-entry-provider" }}.1_{{ b64enc "provider1" }}
   name: provider1
   serviceid: {{ b64enc "e2e-service-entry-provider" }}.1
@@ -31,10 +28,8 @@ nodes:
   type: ""
   isreal: true
 {{- end }}
-{{- end }}
 calls:
-{{- range .calls }}
-{{- if eq .source "ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1_cHJvdmlkZXIx" }}
+{{- contains .calls }}
 - source: {{ b64enc "e2e-service-entry-provider" }}.1_{{ b64enc "provider1" }}
   sourcecomponents: []
   target: {{ b64enc "User_Service_Name" }}.1_{{ b64enc "User_Service_Instance_Name" }}
@@ -43,5 +38,4 @@ calls:
   detectpoints:
     - CLIENT
     - SERVER
-{{- end }}
 {{- end }}

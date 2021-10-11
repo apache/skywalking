@@ -15,79 +15,26 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- range .}}
-{{- if eq .name "provider1" }}
+{{- contains .}}
 - id: {{ b64enc "e2e-service-entry-provider" }}.1_{{ b64enc "provider1" }}
   name: provider1
   attributes:
-  {{- range .attributes }}
-  {{- if eq .name "OS Name" }}
+  {{- contains .attributes }}
   - name: OS Name
     value: Linux
-  {{- end }}
-  {{- if eq .name "hostname" }}
   - name: hostname
     value: {{ notEmpty .value }}
-  {{- end }}
-  {{- if eq .name "Process No." }}
   - name: Process No.
     value: "1"
-  {{- end }}
-  {{- if eq .name "Start Time" }}
   - name: Start Time
     value: {{ notEmpty .value }}
-  {{- end }}
-  {{- if eq .name "JVM Arguments" }}
   - name: JVM Arguments
     value: '{{ notEmpty .value }}'
-  {{- end }}
-  {{- if eq .name "Jar Dependencies" }}
   - name: Jar Dependencies
     value: '{{ notEmpty .value }}'
-  {{- end }}
-  {{- if eq .name "ipv4s" }}
   - name: ipv4s
     value: {{ notEmpty .value }}
-  {{- end }}
   {{- end}}
   language: JAVA
   instanceuuid: {{ b64enc "e2e-service-entry-provider" }}.1_{{ b64enc "provider1" }}
-{{- end}}
-{{- if eq .name "User_Service_Instance_Name" }}
-- id: {{ b64enc "User_Service_Name" }}.1_{{ b64enc "User_Service_Instance_Name" }}
-  name: User_Service_Instance_Name
-  attributes:
-  {{- range .attributes }}
-  {{- if eq .name "OS Name" }}
-  - name: OS Name
-    value: Linux
-  {{- end }}
-  {{- if eq .name "hostname" }}
-  - name: hostname
-    value: {{ notEmpty .value }}
-  {{- end }}
-  {{- if eq .name "Process No." }}
-  - name: Process No.
-    value: "1"
-  {{- end }}
-  {{- if eq .name "Start Time" }}
-  - name: Start Time
-    value: {{ notEmpty .value }}
-  {{- end }}
-  {{- if eq .name "JVM Arguments" }}
-  - name: JVM Arguments
-    value: '{{ notEmpty .value }}'
-  {{- end }}
-  {{- if eq .name "Jar Dependencies" }}
-  - name: Jar Dependencies
-    value: '{{ notEmpty .value }}'
-  {{- end }}
-  {{- if eq .name "ipv4s" }}
-  - name: ipv4s
-    value: ""
-  {{- end }}
-  {{- end}}
-  language: LUA
-  instanceuuid: {{ b64enc "User_Service_Name" }}.1_{{ b64enc "User_Service_Instance_Name" }}
-{{- end}}
 {{- end}}

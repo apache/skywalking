@@ -14,29 +14,22 @@
 # limitations under the License.
 
 nodes:
-{{- range .nodes }}
-{{- if eq .name "e2e-service-entry-provider" }}
+{{- contains .nodes }}
 - id: {{ b64enc "e2e-service-entry-provider" }}.1
   name: e2e-service-entry-provider
   type: Tomcat
   isreal: true
-{{- end }}
-{{- if eq .name "e2e-service-end-provider" }}
 - id: {{ b64enc "e2e-service-end-provider"}}.1
   name: e2e-service-end-provider
   type: Tomcat
   isreal: true
-{{- end }}
-{{- if eq .name "User_Service_Name" }}
 - id: {{ b64enc "User_Service_Name"}}.1
   name: User_Service_Name
   type: Nginx
   isreal: true
 {{- end }}
-{{- end }}
 calls:
-{{- range .calls }}
-{{- if eq .source "ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1" }}
+{{- contains .calls }}
 - source: {{ b64enc "e2e-service-entry-provider"}}.1
   sourcecomponents: []
   target: {{ b64enc "User_Service_Name"}}.1
@@ -45,8 +38,6 @@ calls:
   detectpoints:
     - CLIENT
     - SERVER
-{{- end }}
-{{- if eq .source "VXNlcl9TZXJ2aWNlX05hbWU=.1" }}
 - source: {{ b64enc "User_Service_Name" }}.1
   sourcecomponents: []
   target: {{ b64enc "e2e-service-end-provider"}}.1
@@ -55,5 +46,4 @@ calls:
   detectpoints:
     - CLIENT
     - SERVER
-{{- end }}
 {{- end }}

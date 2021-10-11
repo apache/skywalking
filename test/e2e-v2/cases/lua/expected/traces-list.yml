@@ -14,27 +14,10 @@
 # limitations under the License.
 
 traces:
-{{- range .traces }}
+{{- contains .traces }}
 - segmentid: {{ notEmpty .segmentid }}
   endpointnames:
-  {{- if eq (index .endpointnames 0) "HikariCP/Connection/getConnection" }}
-    - HikariCP/Connection/getConnection
-  {{- end}}
-  {{- if eq (index .endpointnames 0) "H2/JDBI/Statement/executeQuery" }}
-    - H2/JDBI/Statement/executeQuery
-  {{- end}}
-  {{- if eq (index .endpointnames 0) "H2/JDBI/PreparedStatement/executeQuery" }}
-    - H2/JDBI/PreparedStatement/executeQuery
-  {{- end }}
-  {{- if eq (index .endpointnames 0) "POST:/nginx/entry/info" }}
     - POST:/nginx/entry/info
-  {{- end }}
-  {{- if eq (index .endpointnames 0) "POST:/nginx/end/info" }}
-    - POST:/nginx/end/info
-  {{- end }}
-  {{- if eq (index .endpointnames 0) "/nginx/info" }}
-    - /nginx/info
-  {{- end }}
   duration: {{ ge .duration 0 }}
   start: "{{ notEmpty .start}}"
   iserror: false

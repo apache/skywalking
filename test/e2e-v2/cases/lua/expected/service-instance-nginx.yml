@@ -16,9 +16,25 @@
 # under the License.
 
 {{- contains .}}
-- id: {{ b64enc "oap::oap-server" }}.1_{{ b64enc "http://localhost:1234" }}
-  name: http://localhost:1234
-  attributes: []
-  language: UNKNOWN
-  instanceuuid: {{ b64enc "oap::oap-server" }}.1_{{ b64enc "http://localhost:1234" }}
+- id: {{ b64enc "User_Service_Name" }}.1_{{ b64enc "User_Service_Instance_Name" }}
+  name: User_Service_Instance_Name
+  attributes:
+  {{- contains .attributes }}
+  - name: OS Name
+    value: Linux
+  - name: hostname
+    value: {{ notEmpty .value }}
+  - name: Process No.
+    value: "1"
+  - name: Start Time
+    value: {{ notEmpty .value }}
+  - name: JVM Arguments
+    value: '{{ notEmpty .value }}'
+  - name: Jar Dependencies
+    value: '{{ notEmpty .value }}'
+  - name: ipv4s
+    value: ""
+  {{- end}}
+  language: LUA
+  instanceuuid: {{ b64enc "User_Service_Name" }}.1_{{ b64enc "User_Service_Instance_Name" }}
 {{- end}}

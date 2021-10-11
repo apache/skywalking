@@ -13,17 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- range .}}
-{{- if eq .name "POST:/nginx/entry/info" }}
-- id: {{ b64enc "e2e-service-entry-provider" }}.1_{{ b64enc "POST:/nginx/entry/info" }}
-  name: POST:/nginx/entry/info
-{{- end}}
-{{- if eq .name "POST:/nginx/end/info" }}
+{{- contains .}}
 - id: {{ b64enc "e2e-service-end-provider" }}.1_{{ b64enc "POST:/nginx/end/info" }}
   name: POST:/nginx/end/info
-{{- end}}
-{{- if eq .name "/nginx/info" }}
-- id: {{ b64enc "User_Service_Name" }}.1_{{ b64enc "/nginx/info" }}
-  name: /nginx/info
-{{- end}}
 {{- end}}

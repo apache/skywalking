@@ -13,20 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- range . }}
-{{- if eq .name "e2e-service-provider" }}
+{{- contains . }}
 - id: {{ b64enc "e2e-service-provider" }}.1
   name: e2e-service-provider
   group: ""
-{{- end }}
-{{- if eq .name "e2e-service-consumer" }}
 - id: {{ b64enc "e2e-service-consumer" }}.1
   name: e2e-service-consumer
   group: ""
-{{- end }}
-{{- if eq .name "oap::oap-server" }}
 - id: {{ b64enc "oap::oap-server" }}.1
   name: oap::oap-server
   group: ""
-{{- end }}
 {{- end }}

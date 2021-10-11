@@ -28,23 +28,20 @@ setup:
     - name: install etcdctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
 
-cleanup:
-  on: always
-
 trigger:
   action: http
-  interval: 10s
+  interval: 3s
   times: 10
-  url: http://${consumer_host}:${consumer_9092}/info
+  url: http://${consumer_host}:${consumer_9092}/users
   method: POST
+  body: '{"id":"123","name":"skywalking"}'
+  headers:
+    "Content-Type": "application/json"
 
 verify:
-  # verify with retry strategy
   retry:
-    # max retry count
     count: 20
-    # the interval between two retries, in millisecond.
-    interval: 10000
+    interval: 3s
   cases:
     # service list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
@@ -53,24 +50,24 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=oap::oap-server
       expected: expected/service-instance.yml
     # service instance metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_cpu_percentage --instance=http://localhost:1234 --service=oap::oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_cpu_percentage --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-   # wait infra e2e fix- query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name meter_oap_instance_jvm_memory_bytes_used --instance=http://localhost:1234 --service=oap::oap-server |yq e 'to_entries' -
-   #   expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_trace_count --instance=http://localhost:1234 --service=oap::oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name meter_oap_instance_jvm_memory_bytes_used --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_metrics_first_aggregation --instance=http://localhost:1234 --service=oap::oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_trace_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_prepare_count --instance=http://localhost:1234 --service=oap::oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_metrics_first_aggregation --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_execute_count --instance=http://localhost:1234 --service=oap::oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_prepare_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_thread_live_count --instance=http://localhost:1234 --service=oap::oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_execute_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_thread_runnable_count --instance=http://localhost:1234 --service=oap::oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_thread_live_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_class_loaded_count --instance=http://localhost:1234 --service=oap::oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_thread_runnable_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_class_total_loaded_count --instance=http://localhost:1234 --service=oap::oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_class_loaded_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_class_total_loaded_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
 

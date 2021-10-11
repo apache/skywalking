@@ -28,12 +28,9 @@ setup:
     - name: install etcdctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
 
-cleanup:
-  on: always
-
 trigger:
   action: http
-  interval: 10s
+  interval: 3s
   times: 10
   url: http://${consumer_host}:${consumer_9092}/users
   method: POST
@@ -44,14 +41,11 @@ trigger:
 verify:
   retry:
     count: 20
-    interval: 10000
+    interval: 3s
   cases:
     # service list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
       expected: ../expected/service.yml
-    # service metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name service_sla --service-name=e2e-service-provider | yq e 'to_entries' -
-      expected: ../expected/metrics-has-value.yml
     # service instance list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
       expected: ../expected/service-instance.yml
@@ -59,20 +53,19 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=users --service-name=e2e-service-provider
       expected: ../expected/service-endpoint.yml
     # service metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_sla --service=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_sla --service-name=e2e-service-provider | yq e 'to_entries' -
       expected: ../expected/metrics-has-value.yml
     # service endpoint metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name endpoint_cpm --endpoint-name=POST:/users --service-name=e2e-service-provider | yq e 'to_entries' -
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_cpm --endpoint=POST:/info --service=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_cpm --endpoint-name=POST:/users --service-name=e2e-service-provider | yq e 'to_entries' -
       expected: ../expected/metrics-has-value.yml
     # dependency service
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name e2e-service-provider
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=e2e-service-provider
       expected: ../expected/dependency-services.yml
     # dependency instance
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency instance ZTJlLXNlcnZpY2UtY29uc3VtZXI=.1 ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency instance --service-name=e2e-service-consumer --dest-service-name=e2e-service-provider
       expected: ../expected/dependency-instance.yml
     # dependency endpoint
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency endpoint ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1_UE9TVDovaW5mbw==
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency endpoint --service-name=e2e-service-provider --endpoint-name=POST:/users
       expected: ../expected/dependency-endpoint.yml
     # trace segment list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
