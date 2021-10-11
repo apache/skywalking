@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
-  name: POST:/users
+{{- contains .}}
+- id: {{ b64enc "e2e-service-entry-provider" }}.1_{{ b64enc "POST:/nginx/entry/info" }}
+  name: POST:/nginx/entry/info
 {{- end}}

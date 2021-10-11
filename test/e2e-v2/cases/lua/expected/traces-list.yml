@@ -13,7 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
-  name: POST:/users
-{{- end}}
+traces:
+{{- contains .traces }}
+- segmentid: {{ notEmpty .segmentid }}
+  endpointnames:
+    - POST:/nginx/entry/info
+  duration: {{ ge .duration 0 }}
+  start: "{{ notEmpty .start}}"
+  iserror: false
+  traceids:
+    - {{ (index .traceids 0) }}
+{{- end }}
+total: {{ gt .total 0 }}

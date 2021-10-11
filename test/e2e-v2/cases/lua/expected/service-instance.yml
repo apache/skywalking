@@ -15,8 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
+{{- contains .}}
+- id: {{ b64enc "e2e-service-entry-provider" }}.1_{{ b64enc "provider1" }}
   name: provider1
   attributes:
   {{- contains .attributes }}
@@ -36,5 +36,5 @@
     value: {{ notEmpty .value }}
   {{- end}}
   language: JAVA
-  instanceuuid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
+  instanceuuid: {{ b64enc "e2e-service-entry-provider" }}.1_{{ b64enc "provider1" }}
 {{- end}}
