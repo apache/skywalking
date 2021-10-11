@@ -40,7 +40,7 @@ HttpClient:
   languages: Java,C#,Node.js
 Dubbo:
   id: 3
-  languages: Java
+  languages: Java,Golang
 H2:
   id: 4
   languages: Java
