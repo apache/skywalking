@@ -41,8 +41,10 @@ public class EntryMethod {
             addArg(parameterType, arg.getType(), arg.getText().get(0));
             return;
         }
-        addArg(parameterType, arg.getType(), parameterType.equals(boolean.class) ? "source." + ClassMethodUtil.toIsMethod(arg
-            .getText()) + "()" : "source." + ClassMethodUtil.toGetMethod(arg.getText()) + "()");
+        addArg(parameterType, arg.getType(), parameterType.equals(boolean.class) ?
+            "source." + ClassMethodUtil.toIsMethod(arg.getText())
+            :
+            "source." + ClassMethodUtil.toGetMethod(arg.getText()));
     }
 
     void addArg(Class<?> parameterType, String expression) {

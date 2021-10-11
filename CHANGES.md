@@ -11,6 +11,7 @@ Release Notes.
 * Replace e2e cases to e2e-v2: Lua Nginx/SelfObservability.
 * Upgrade Armeria to 1.12, upgrade OpenSearch test version to 1.1.0.
 * Add component definition for `Apache-Kylin`.
+* Enhance `get` generation mechanism of OAL engine, support map type of source's field.
 
 #### UI
 * Optimize endpoint dependency.
