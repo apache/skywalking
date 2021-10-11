@@ -14,8 +14,8 @@ Release Notes.
 
 #### UI
 * Optimize endpoint dependency.
-* show service name by hovering nodes in the sankey chart.
-* Add Kylin logo.
+* Show service name by hovering nodes in the sankey chart.
+* Add Apache Kylin logo.
 * Add ClickHouse logo.
 
 #### Documentation
