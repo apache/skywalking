@@ -98,7 +98,7 @@ All metrics data will be grouped by Scope.ID and min-level TimeBucket.
 - In the `Endpoint` scope, the Scope.ID is same as the Endpoint ID (i.e. the unique ID based on service and its endpoint).
 
 ## Cast
-Fields of source are static type. In some cases, the type required the filter expression and aggregation function doesn't 
+Fields of source are static type. In some cases, the type required by the filter expression and aggregation function doesn't 
 match the type in the source, such as tag value in the source is String type, most aggregation calculation requires numeric.
 
 Cast expression is provided to do so. 
