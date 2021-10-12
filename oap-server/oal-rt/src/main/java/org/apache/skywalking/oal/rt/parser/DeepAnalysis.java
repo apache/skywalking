@@ -37,15 +37,13 @@ import static java.util.Objects.isNull;
 public class DeepAnalysis {
     public AnalysisResult analysis(AnalysisResult result) {
         // 1. Set sub package name by source.metrics
-        result.setPackageName(result.getSourceName().toLowerCase());
-
-        Class<? extends Metrics> metricsClass = MetricsHolder.find(result.getAggregationFunctionName());
+        Class<? extends Metrics> metricsClass = MetricsHolder.find(result.getAggregationFuncStmt().getAggregationFunctionName());
         String metricsClassSimpleName = metricsClass.getSimpleName();
 
         result.setMetricsClassName(metricsClassSimpleName);
 
         // Optional for filter
-        List<ConditionExpression> expressions = result.getFilterExpressionsParserResult();
+        List<ConditionExpression> expressions = result.getFilters().getFilterExpressionsParserResult();
         if (expressions != null && expressions.size() > 0) {
             for (ConditionExpression expression : expressions) {
                 final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(
@@ -59,7 +57,7 @@ public class DeepAnalysis {
                 filterExpression.setExpressionObject(matcherInfo.getMatcher().getName());
                 filterExpression.setLeft(TypeCastUtil.withCast(expression.getCastType(), "source." + getter));
                 filterExpression.setRight(expression.getValue());
-                result.addFilterExpressions(filterExpression);
+                result.getFilters().addFilterExpressions(filterExpression);
             }
         }
 
@@ -97,18 +95,19 @@ public class DeepAnalysis {
                 entryMethod.addArg(
                     parameterType,
                     TypeCastUtil.withCast(
-                        result.getSourceCastType(),
-                        "source." + ClassMethodUtil.toGetMethod(result.getSourceAttribute())
+                        result.getFrom().getSourceCastType(),
+                        "source." + ClassMethodUtil.toGetMethod(result.getFrom().getSourceAttribute())
                     )
                 );
             } else if (annotation instanceof ConstOne) {
                 entryMethod.addArg(parameterType, "1");
             } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
-                if (isNull(result.getFuncConditionExpressions()) || result.getFuncConditionExpressions().isEmpty()) {
+                if (isNull(result.getAggregationFuncStmt().getFuncConditionExpressions())
+                    || result.getAggregationFuncStmt().getFuncConditionExpressions().isEmpty()) {
                     throw new IllegalArgumentException(
                         "Entrance method:" + entranceMethod + " argument can't find funcParamExpression.");
                 } else {
-                    ConditionExpression expression = result.getNextFuncConditionExpression();
+                    ConditionExpression expression = result.getAggregationFuncStmt().getNextFuncConditionExpression();
                     final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(
                         expression.getExpressionType());
 
@@ -124,7 +123,7 @@ public class DeepAnalysis {
                     entryMethod.addArg(argExpression);
                 }
             } else if (annotation instanceof Arg) {
-                entryMethod.addArg(parameterType, result.getNextFuncArg());
+                entryMethod.addArg(parameterType, result.getAggregationFuncStmt().getNextFuncArg());
             } else {
                 throw new IllegalArgumentException(
                     "Entrance method:" + entranceMethod + " doesn't the expected annotation.");
@@ -144,7 +143,7 @@ public class DeepAnalysis {
         }
 
         // 6. Based on Source, generate default columns
-        List<SourceColumn> columns = SourceColumnsFactory.getColumns(result.getSourceName());
+        List<SourceColumn> columns = SourceColumnsFactory.getColumns(result.getFrom().getSourceName());
         result.setFieldsFromSource(columns);
 
         result.generateSerializeFields();

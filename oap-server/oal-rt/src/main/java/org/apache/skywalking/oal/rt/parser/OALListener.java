@@ -55,18 +55,18 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterSource(OALParser.SourceContext ctx) {
-        current.setSourceName(ctx.getText());
-        current.setSourceScopeId(DefaultScopeDefine.valueOf(metricsNameFormat(ctx.getText())));
+        current.getFrom().setSourceName(ctx.getText());
+        current.getFrom().setSourceScopeId(DefaultScopeDefine.valueOf(metricsNameFormat(ctx.getText())));
     }
 
     @Override
     public void enterSourceAttribute(OALParser.SourceAttributeContext ctx) {
-        current.getSourceAttribute().add(ctx.getText());
+        current.getFrom().getSourceAttribute().add(ctx.getText());
     }
 
     @Override
     public void enterSourceAttrCast(OALParser.SourceAttrCastContext ctx) {
-        current.setSourceCastType(ctx.getText());
+        current.getFrom().setSourceCastType(ctx.getText());
     }
 
     @Override
@@ -82,7 +82,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterFunctionName(OALParser.FunctionNameContext ctx) {
-        current.setAggregationFunctionName(ctx.getText());
+        current.getAggregationFuncStmt().setAggregationFunctionName(ctx.getText());
     }
 
     @Override
@@ -92,7 +92,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void exitFilterStatement(OALParser.FilterStatementContext ctx) {
-        current.addFilterExpressionsParserResult(conditionExpression);
+        current.getFilters().addFilterExpressionsParserResult(conditionExpression);
         conditionExpression = null;
     }
 
@@ -103,7 +103,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void exitFuncParamExpression(OALParser.FuncParamExpressionContext ctx) {
-        current.addFuncConditionExpression(conditionExpression);
+        current.getAggregationFuncStmt().addFuncConditionExpression(conditionExpression);
         conditionExpression = null;
     }
 
@@ -230,22 +230,22 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterLiteralExpression(OALParser.LiteralExpressionContext ctx) {
-        current.addFuncArg(new Argument(EntryMethod.LITERAL_TYPE, Arrays.asList(ctx.getText())));
+        current.getAggregationFuncStmt().addFuncArg(new Argument(EntryMethod.LITERAL_TYPE, Arrays.asList(ctx.getText())));
     }
 
     @Override
     public void enterAttributeExpression(final OALParser.AttributeExpressionContext ctx) {
-        current.addFuncArg(new Argument(EntryMethod.ATTRIBUTE_EXP_TYPE, new ArrayList<>(3)));
+        current.getAggregationFuncStmt().addFuncArg(new Argument(EntryMethod.ATTRIBUTE_EXP_TYPE, new ArrayList<>(3)));
     }
 
     @Override
     public void enterAttributeExpressionSegment(OALParser.AttributeExpressionSegmentContext ctx) {
-        current.getLastArgument().addText(ctx.getText());
+        current.getAggregationFuncStmt().getLastArgument().addText(ctx.getText());
     }
 
     @Override
     public void enterFunctionArgCast(final OALParser.FunctionArgCastContext ctx) {
-        current.getLastArgument().setCastType(ctx.getText());
+        current.getAggregationFuncStmt().getLastArgument().setCastType(ctx.getText());
     }
 
     private String metricsNameFormat(String source) {
