@@ -51,6 +51,8 @@ jobs:
             config-file: lua/e2e.yaml
           - name: Gateway
             config-file: gateway/e2e.yaml
+          - name: Meter
+            config-file: meter/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
@@ -71,8 +73,6 @@ jobs:
     strategy:
       matrix:
         case:
-          - name: Meter
-            class: org.apache.skywalking.e2e.meter.MeterE2E
           - name: Zabbix
             class: org.apache.skywalking.e2e.zabbix.ZabbixE2E
     steps:

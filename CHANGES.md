@@ -14,6 +14,7 @@ Release Notes.
 * Add component definition for `Apache-Kylin`.
 * Enhance `get` generation mechanism of OAL engine, support map type of source's field.
 * Replace e2e cases to e2e-v2: Gateway.
+* Replace e2e cases to e2e-v2: Meter.
 * Add `tag`(Map) into All, Service, ServiceInstance and Endpoint sources.
 * Fix `funcParamExpression` and `literalExpression` can't be used in the same aggregation function.
 * Support cast statement in the OAL core engine.
