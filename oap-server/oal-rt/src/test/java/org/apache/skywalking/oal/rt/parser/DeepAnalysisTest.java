@@ -52,10 +52,9 @@ public class DeepAnalysisTest {
     public void testServiceAnalysis() {
         AnalysisResult result = new AnalysisResult();
         result.getFrom().setSourceName("Service");
-        result.setPackageName("service.serviceavg");
         result.getFrom().getSourceAttribute().add("latency");
         result.setMetricsName("ServiceAvg");
-        result.setAggregationFunctionName("longAvg");
+        result.getAggregationFuncStmt().setAggregationFunctionName("longAvg");
 
         DeepAnalysis analysis = new DeepAnalysis();
         result = analysis.analysis(result);
@@ -76,10 +75,9 @@ public class DeepAnalysisTest {
     public void testEndpointAnalysis() {
         AnalysisResult result = new AnalysisResult();
         result.getFrom().setSourceName("Endpoint");
-        result.setPackageName("endpoint.endpointavg");
         result.getFrom().getSourceAttribute().add("latency");
         result.setMetricsName("EndpointAvg");
-        result.setAggregationFunctionName("longAvg");
+        result.getAggregationFuncStmt().setAggregationFunctionName("longAvg");
 
         DeepAnalysis analysis = new DeepAnalysis();
         result = analysis.analysis(result);
@@ -100,10 +98,9 @@ public class DeepAnalysisTest {
     public void testFilterAnalysis() {
         AnalysisResult result = new AnalysisResult();
         result.getFrom().setSourceName("Endpoint");
-        result.setPackageName("endpoint.endpointavg");
         result.getFrom().getSourceAttribute().add("latency");
         result.setMetricsName("EndpointAvg");
-        result.setAggregationFunctionName("longAvg");
+        result.getAggregationFuncStmt().setAggregationFunctionName("longAvg");
         ConditionExpression expression = new ConditionExpression();
         expression.setExpressionType("stringMatch");
         expression.getAttributes().add("name");
@@ -137,10 +134,9 @@ public class DeepAnalysisTest {
 
         AnalysisResult result = new AnalysisResult();
         result.getFrom().setSourceName("Endpoint");
-        result.setPackageName("endpoint.endpointavg");
         result.getFrom().getSourceAttribute().add("latency");
         result.setMetricsName("EndpointAvg");
-        result.setAggregationFunctionName("longAvg");
+        result.getAggregationFuncStmt().setAggregationFunctionName("longAvg");
 
         DeepAnalysis analysis = new DeepAnalysis();
 

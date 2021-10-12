@@ -58,13 +58,13 @@ public class ScriptParserTest {
         Assert.assertEquals("EndpointAvg", endpointAvg.getMetricsName());
         Assert.assertEquals("Endpoint", endpointAvg.getFrom().getSourceName());
         Assert.assertEquals("[latency]", endpointAvg.getFrom().getSourceAttribute().toString());
-        Assert.assertEquals("longAvg", endpointAvg.getAggregationFunctionName());
+        Assert.assertEquals("longAvg", endpointAvg.getAggregationFuncStmt().getAggregationFunctionName());
 
         AnalysisResult serviceAvg = results.get(1);
         Assert.assertEquals("ServiceAvg", serviceAvg.getMetricsName());
         Assert.assertEquals("Service", serviceAvg.getFrom().getSourceName());
         Assert.assertEquals("[latency]", serviceAvg.getFrom().getSourceAttribute().toString());
-        Assert.assertEquals("longAvg", serviceAvg.getAggregationFunctionName());
+        Assert.assertEquals("longAvg", serviceAvg.getAggregationFuncStmt().getAggregationFunctionName());
     }
 
     @Test
@@ -77,7 +77,7 @@ public class ScriptParserTest {
         Assert.assertEquals("EndpointPercent", endpointPercent.getMetricsName());
         Assert.assertEquals("Endpoint", endpointPercent.getFrom().getSourceName());
         Assert.assertEquals("[*]", endpointPercent.getFrom().getSourceAttribute().toString());
-        Assert.assertEquals("percent", endpointPercent.getAggregationFunctionName());
+        Assert.assertEquals("percent", endpointPercent.getAggregationFuncStmt().getAggregationFunctionName());
         EntryMethod entryMethod = endpointPercent.getEntryMethod();
         List<Object> methodArgsExpressions = entryMethod.getArgsExpressions();
         Assert.assertEquals(1, methodArgsExpressions.size());
@@ -95,7 +95,7 @@ public class ScriptParserTest {
         Assert.assertEquals("EndpointPercent", endpointPercent.getMetricsName());
         Assert.assertEquals("Endpoint", endpointPercent.getFrom().getSourceName());
         Assert.assertEquals("[*]", endpointPercent.getFrom().getSourceAttribute().toString());
-        Assert.assertEquals("longAvg", endpointPercent.getAggregationFunctionName());
+        Assert.assertEquals("longAvg", endpointPercent.getAggregationFuncStmt().getAggregationFunctionName());
         List<ConditionExpression> expressions = endpointPercent.getFilters().getFilterExpressionsParserResult();
 
         Assert.assertEquals(2, expressions.size());
@@ -126,7 +126,7 @@ public class ScriptParserTest {
         Assert.assertEquals("ServiceResponseS1Summary", responseSummary.getMetricsName());
         Assert.assertEquals("Service", responseSummary.getFrom().getSourceName());
         Assert.assertEquals("[latency]", responseSummary.getFrom().getSourceAttribute().toString());
-        Assert.assertEquals("sum", responseSummary.getAggregationFunctionName());
+        Assert.assertEquals("sum", responseSummary.getAggregationFuncStmt().getAggregationFunctionName());
         List<ConditionExpression> expressions = responseSummary.getFilters().getFilterExpressionsParserResult();
 
         Assert.assertEquals(1, expressions.size());
@@ -176,15 +176,15 @@ public class ScriptParserTest {
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
         Assert.assertEquals(1, results.size());
         AnalysisResult result = results.get(0);
-        Assert.assertEquals("rate", result.getAggregationFunctionName());
-        Assert.assertEquals(2, result.getFuncConditionExpressions().size());
+        Assert.assertEquals("rate", result.getAggregationFuncStmt().getAggregationFunctionName());
+        Assert.assertEquals(2, result.getAggregationFuncStmt().getFuncConditionExpressions().size());
 
-        ConditionExpression expression1 = result.getFuncConditionExpressions().get(0);
+        ConditionExpression expression1 = result.getAggregationFuncStmt().getFuncConditionExpressions().get(0);
         Assert.assertEquals("[param1]", expression1.getAttributes().toString());
         Assert.assertEquals("booleanMatch", expression1.getExpressionType());
         Assert.assertEquals("true", expression1.getValue());
 
-        ConditionExpression expression2 = result.getFuncConditionExpressions().get(1);
+        ConditionExpression expression2 = result.getAggregationFuncStmt().getFuncConditionExpressions().get(1);
         Assert.assertEquals("[param2]", expression2.getAttributes().toString());
         Assert.assertEquals("booleanMatch", expression2.getExpressionType());
         Assert.assertEquals("false", expression2.getValue());
@@ -265,7 +265,7 @@ public class ScriptParserTest {
         final List<Expression> filterExpressions = servicePercent.getFilters().getFilterExpressions();
         Assert.assertEquals(1, filterExpressions.size());
         Assert.assertEquals("source.getSidecar().getInternalError()", filterExpressions.get(0).getLeft());
-        Assert.assertEquals("percent", servicePercent.getAggregationFunctionName());
+        Assert.assertEquals("percent", servicePercent.getAggregationFuncStmt().getAggregationFunctionName());
         EntryMethod entryMethod = servicePercent.getEntryMethod();
         List<Object> methodArgsExpressions = entryMethod.getArgsExpressions();
         Assert.assertEquals(1, methodArgsExpressions.size());
@@ -283,7 +283,7 @@ public class ScriptParserTest {
         final List<Expression> filterExpressions = clientCpm.getFilters().getFilterExpressions();
         Assert.assertEquals(1, filterExpressions.size());
         Assert.assertEquals("source.getComponentId()", filterExpressions.get(0).getLeft());
-        Assert.assertEquals("cpm", clientCpm.getAggregationFunctionName());
+        Assert.assertEquals("cpm", clientCpm.getAggregationFuncStmt().getAggregationFunctionName());
         EntryMethod entryMethod = clientCpm.getEntryMethod();
         List<Object> methodArgsExpressions = entryMethod.getArgsExpressions();
         Assert.assertEquals(1, methodArgsExpressions.size());
@@ -300,8 +300,8 @@ public class ScriptParserTest {
         final List<Expression> filterExpressions = clientCpm.getFilters().getFilterExpressions();
         Assert.assertEquals(1, filterExpressions.size());
         Assert.assertEquals("source.getTag(\"http.method\")", filterExpressions.get(0).getLeft());
-        Assert.assertEquals(1, clientCpm.getFuncArgs().size());
-        Assert.assertEquals("[tag[\"http.method\"]]", clientCpm.getFuncArgs().get(0).getText().toString());
+        Assert.assertEquals(1, clientCpm.getAggregationFuncStmt().getFuncArgs().size());
+        Assert.assertEquals("[tag[\"http.method\"]]", clientCpm.getAggregationFuncStmt().getFuncArgs().get(0).getText().toString());
     }
 
     @Test
@@ -317,9 +317,9 @@ public class ScriptParserTest {
         Assert.assertEquals(1, filterExpressions.size());
         Assert.assertEquals(
             "Long.parseLong(source.getTag(\"transmission.latency\"))", filterExpressions.get(0).getLeft());
-        Assert.assertEquals("(str->long)", castExp.getFuncConditionExpressions().get(0).getCastType());
-        Assert.assertEquals(EntryMethod.ATTRIBUTE_EXP_TYPE, castExp.getFuncArgs().get(0).getType());
-        Assert.assertEquals("(str->long)", castExp.getFuncArgs().get(0).getCastType());
+        Assert.assertEquals("(str->long)", castExp.getAggregationFuncStmt().getFuncConditionExpressions().get(0).getCastType());
+        Assert.assertEquals(EntryMethod.ATTRIBUTE_EXP_TYPE, castExp.getAggregationFuncStmt().getFuncArgs().get(0).getType());
+        Assert.assertEquals("(str->long)", castExp.getAggregationFuncStmt().getFuncArgs().get(0).getCastType());
     }
 
     @Test
