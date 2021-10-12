@@ -46,6 +46,8 @@ public class AnalysisResult {
 
     private List<String> sourceAttribute = new ArrayList<>();
 
+    private String sourceCastType;
+
     private String aggregationFunctionName;
 
     private String metricsClassName;
@@ -63,6 +65,8 @@ public class AnalysisResult {
     private List<Argument> funcArgs;
 
     private int argGetIdx = 0;
+
+    private String nextArgCast = null;
 
     private List<DataColumn> persistentFields;
 
@@ -107,7 +111,15 @@ public class AnalysisResult {
         if (funcArgs == null) {
             funcArgs = new LinkedList<>();
         }
+        if (nextArgCast != null) {
+            argument.setCastType(nextArgCast);
+            nextArgCast = null;
+        }
         funcArgs.add(argument);
+    }
+
+    public Argument getLastArgument() {
+        return funcArgs.get(funcArgs.size() - 1);
     }
 
     public Argument getNextFuncArg() {

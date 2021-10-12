@@ -253,7 +253,9 @@ public class ScriptParserTest {
     @Test
     public void testParse9() throws IOException {
         ScriptParser parser = ScriptParser.createFromScriptText(
-            "ServicePercent = from(Service.sidecar.internalError).filter(sidecar.internalError == \"abc\").percent(sidecar.internalError != \"\");", TEST_SOURCE_PACKAGE);
+            "ServicePercent = from(Service.sidecar.internalError).filter(sidecar.internalError == \"abc\").percent(sidecar.internalError != \"\");",
+            TEST_SOURCE_PACKAGE
+        );
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult servicePercent = results.get(0);
@@ -290,12 +292,34 @@ public class ScriptParserTest {
     @Test
     public void testParse11() throws IOException {
         ScriptParser parser = ScriptParser.createFromScriptText(
-            "GetCallTraffic = from(Service.*).filter(tag[\"http.method\"] == \"get\").cpm();", TEST_SOURCE_PACKAGE);
+            "GetCallTraffic = from(Service.*).filter(tag[\"http.method\"] == \"get\").cpm(tag[\"http.method\"]);",
+            TEST_SOURCE_PACKAGE
+        );
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
         AnalysisResult clientCpm = results.get(0);
         final List<Expression> filterExpressions = clientCpm.getFilterExpressions();
         Assert.assertEquals(1, filterExpressions.size());
         Assert.assertEquals("source.getTag(\"http.method\")", filterExpressions.get(0).getLeft());
+        Assert.assertEquals(1, clientCpm.getFuncArgs().size());
+        Assert.assertEquals("[tag[\"http.method\"]]", clientCpm.getFuncArgs().get(0).getText().toString());
+    }
+
+    @Test
+    public void testParse12() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "cast_metrics = from((str->long)Service.tag[\"transmission.latency\"]).filter((str->long)tag[\"transmission.latency\"] > 0).longAvg((str->long)strField1== 1,  (str->long)strField2);",
+            TEST_SOURCE_PACKAGE
+        );
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
+        AnalysisResult castExp = results.get(0);
+        Assert.assertEquals("(str->long)", castExp.getSourceCastType());
+        final List<Expression> filterExpressions = castExp.getFilterExpressions();
+        Assert.assertEquals(1, filterExpressions.size());
+        Assert.assertEquals(
+            "Long.parseLong(source.getTag(\"transmission.latency\"))", filterExpressions.get(0).getLeft());
+        Assert.assertEquals("(str->long)", castExp.getFuncConditionExpressions().get(0).getCastType());
+        Assert.assertEquals(EntryMethod.ATTRIBUTE_EXP_TYPE, castExp.getFuncArgs().get(0).getType());
+        Assert.assertEquals("(str->long)", castExp.getFuncArgs().get(0).getCastType());
     }
 
     @Test
