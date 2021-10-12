@@ -103,6 +103,7 @@ match the type in the source, such as tag value in the source is String type, mo
 
 Cast expression is provided to do so. 
 - `(str->long)`, cast string type into long.
+- `(str->int)`, cast string type into int.
 
 ```
 mq_consume_latency = from(Service.tag["transmission.latency"](str->long)).longAvg(); // the value of tag is string type.

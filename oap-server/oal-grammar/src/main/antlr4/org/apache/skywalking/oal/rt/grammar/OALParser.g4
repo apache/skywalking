@@ -193,5 +193,5 @@ functionArgCast
     ;
 
 castStmt
-    : STRING_TO_LONG
+    : STRING_TO_LONG | STRING_TO_INT
     ;

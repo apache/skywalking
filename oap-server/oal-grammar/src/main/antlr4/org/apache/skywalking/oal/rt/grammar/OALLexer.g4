@@ -138,3 +138,4 @@ fragment Letter
 
 // Type cast rule
 STRING_TO_LONG:                                '(str->long)';
+STRING_TO_INT:                                 '(str->int)';

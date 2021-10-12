@@ -30,6 +30,8 @@ public class TypeCastUtil {
         }
         if ("(str->long)".equals(castType)) {
             return "Long.parseLong(" + originalExpression + ")";
+        } else if ("(str->int)".equals(castType)) {
+            return "Integer.parseInt(" + originalExpression + ")";
         }
         throw new IllegalArgumentException(
             "castType:" + castType + " is legal, context expression:" + originalExpression);

@@ -15,6 +15,7 @@ Release Notes.
 * Fix `funcParamExpression` and `literalExpression` can't be used in the same aggregation function.
 * Support cast statement in the OAL core engine.
 * Support `(str->long)` cast statement.
+* Support `(str->int)` cast statement.
 * Support Long literal number in the OAL core engine.
 
 #### UI
