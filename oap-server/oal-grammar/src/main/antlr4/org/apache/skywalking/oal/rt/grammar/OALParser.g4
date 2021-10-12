@@ -38,7 +38,7 @@ disableStatement
     ;
 
 metricStatement
-    : FROM LR_BRACKET source (sourceAttributeStmt+) (sourceAttrCast)? RR_BRACKET (filterStatement+)? DOT aggregateFunction
+    : FROM LR_BRACKET (sourceAttrCast)? source (sourceAttributeStmt+) RR_BRACKET (filterStatement+)? DOT aggregateFunction
     ;
 
 filterStatement
@@ -77,7 +77,7 @@ variable
     ;
 
 aggregateFunction
-    : functionName LR_BRACKET ((funcParamExpression|literalExpression) (COMMA (funcParamExpression | literalExpression))?)? RR_BRACKET
+    : functionName LR_BRACKET ((funcParamExpression|literalExpression|attributeExpression) (COMMA (funcParamExpression|literalExpression|attributeExpression))?)? RR_BRACKET
     ;
 
 functionName
@@ -89,7 +89,15 @@ funcParamExpression
     ;
 
 literalExpression
-    : BOOL_LITERAL | NUMBER_LITERAL | IDENTIFIER functionArgCast?
+    : BOOL_LITERAL | NUMBER_LITERAL | STRING_LITERAL
+    ;
+
+attributeExpression
+    : functionArgCast? attributeExpressionSegment (DOT attributeExpressionSegment)*
+    ;
+
+attributeExpressionSegment
+    : (IDENTIFIER | mapAttribute)
     ;
 
 expression
@@ -153,7 +161,7 @@ multiConditionValue
     ;
 
 conditionAttributeStmt
-    : conditionAttribute ((DOT conditionAttribute)*) (expressionAttrCast)?
+    : (expressionAttrCast)? conditionAttribute ((DOT conditionAttribute)*)
     ;
 
 conditionAttribute
@@ -193,5 +201,5 @@ functionArgCast
     ;
 
 castStmt
-    : STRING_TO_LONG | STRING_TO_INT
+    : STRING_TO_LONG | STRING_TO_LONG_SHORT | STRING_TO_INT | STRING_TO_INT_SHORT
     ;

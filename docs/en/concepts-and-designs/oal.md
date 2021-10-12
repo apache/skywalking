@@ -15,8 +15,8 @@ You can open set `SW_OAL_ENGINE_DEBUG=Y` at system env to see which classes are 
 Scripts should be named `*.oal`
 ```
 // Declare the metrics.
-METRICS_NAME = from(SCOPE.(* | [FIELD][,FIELD ...]) CAST)
-[.filter(FIELD CAST OP [INT | STRING])]
+METRICS_NAME = from(CAST SCOPE.(* | [FIELD][,FIELD ...]))
+[.filter(CAST FIELD OP [INT | STRING])]
 .FUNCTION([PARAM][, PARAM ...])
 
 // Disable hard code 
@@ -102,17 +102,17 @@ Fields of source are static type. In some cases, the type required by the filter
 match the type in the source, such as tag value in the source is String type, most aggregation calculation requires numeric.
 
 Cast expression is provided to do so. 
-- `(str->long)`, cast string type into long.
-- `(str->int)`, cast string type into int.
+- `(str->long)` or `(long)`, cast string type into long.
+- `(str->int)` or `(int)`, cast string type into int.
 
 ```
-mq_consume_latency = from(Service.tag["transmission.latency"](str->long)).longAvg(); // the value of tag is string type.
+mq_consume_latency = from((str->long)Service.tag["transmission.latency"]).longAvg(); // the value of tag is string type.
 ```
 
 Cast statement is supported in
-1. **From statement**. `from(source.attre(cast))`. 
-2. **Filter expression**. `.filter(tag["transmission.latency"](str->long) > 0)`
-3. **Aggregation function parameter**. `.longAvg(strField1(str->long)== 1,  strField2(str->long))`
+1. **From statement**. `from((cast)source.attre)`. 
+2. **Filter expression**. `.filter((cast)tag["transmission.latency"] > 0)`
+3. **Aggregation function parameter**. `.longAvg((cast)strField1== 1,  (cast)strField2)`
 
 ## Disable
 `Disable` is an advanced statement in OAL, which is only used in certain cases.

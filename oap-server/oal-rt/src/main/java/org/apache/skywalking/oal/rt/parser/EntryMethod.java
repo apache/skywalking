@@ -29,7 +29,7 @@ import org.apache.skywalking.oal.rt.util.TypeCastUtil;
 @Setter
 public class EntryMethod {
     static final int LITERAL_TYPE = 1;
-    static final int IDENTIFIER_TYPE = 2;
+    static final int ATTRIBUTE_EXP_TYPE = 2;
     static final int EXPRESSION_TYPE = 3;
 
     private String methodName;

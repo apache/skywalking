@@ -36,4 +36,8 @@ public class Argument {
 
     @Setter
     private String castType;
+
+    public void addText(String text) {
+        this.text.add(text);
+    }
 }

@@ -28,12 +28,16 @@ public class TypeCastUtil {
         if (castType == null) {
             return originalExpression;
         }
-        if ("(str->long)".equals(castType)) {
-            return "Long.parseLong(" + originalExpression + ")";
-        } else if ("(str->int)".equals(castType)) {
-            return "Integer.parseInt(" + originalExpression + ")";
+        switch (castType) {
+            case "(str->long)":
+            case "(long)":
+                return "Long.parseLong(" + originalExpression + ")";
+            case "(str->int)":
+            case "(int)":
+                return "Integer.parseInt(" + originalExpression + ")";
+            default:
+                throw new IllegalArgumentException(
+                    "castType:" + castType + " is legal, context expression:" + originalExpression);
         }
-        throw new IllegalArgumentException(
-            "castType:" + castType + " is legal, context expression:" + originalExpression);
     }
 }

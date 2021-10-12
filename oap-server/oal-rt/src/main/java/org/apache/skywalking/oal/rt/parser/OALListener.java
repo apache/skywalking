@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.antlr.v4.runtime.misc.NotNull;
@@ -229,16 +230,22 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterLiteralExpression(OALParser.LiteralExpressionContext ctx) {
-        if (ctx.IDENTIFIER() == null) {
-            current.addFuncArg(new Argument(EntryMethod.LITERAL_TYPE, Arrays.asList(ctx.getText())));
-            return;
-        }
-        current.addFuncArg(new Argument(EntryMethod.IDENTIFIER_TYPE, Arrays.asList(ctx.getText().split("\\."))));
+        current.addFuncArg(new Argument(EntryMethod.LITERAL_TYPE, Arrays.asList(ctx.getText())));
+    }
+
+    @Override
+    public void enterAttributeExpression(final OALParser.AttributeExpressionContext ctx) {
+        current.addFuncArg(new Argument(EntryMethod.ATTRIBUTE_EXP_TYPE, new ArrayList<>(3)));
+    }
+
+    @Override
+    public void enterAttributeExpressionSegment(OALParser.AttributeExpressionSegmentContext ctx) {
+        current.getLastArgument().addText(ctx.getText());
     }
 
     @Override
     public void enterFunctionArgCast(final OALParser.FunctionArgCastContext ctx) {
-        current.addCastForLatestArg(ctx.getText());
+        current.getLastArgument().setCastType(ctx.getText());
     }
 
     private String metricsNameFormat(String source) {
