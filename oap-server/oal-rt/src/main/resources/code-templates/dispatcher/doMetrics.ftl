@@ -1,7 +1,7 @@
 private void do${metricsName}(${sourcePackage}${from.sourceName} source) {
 
-<#if filterExpressions??>
-    <#list filterExpressions as filterExpression>
+<#if filters.filterExpressions??>
+    <#list filters.filterExpressions as filterExpression>
         if (!new ${filterExpression.expressionObject}().match(${filterExpression.left}, ${filterExpression.right})) {
         return;
         }

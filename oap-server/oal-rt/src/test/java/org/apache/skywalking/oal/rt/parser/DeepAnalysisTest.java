@@ -108,7 +108,7 @@ public class DeepAnalysisTest {
         expression.setExpressionType("stringMatch");
         expression.getAttributes().add("name");
         expression.setValue("\"/service/prod/save\"");
-        result.addFilterExpressionsParserResult(expression);
+        result.getFilters().addFilterExpressionsParserResult(expression);
 
         DeepAnalysis analysis = new DeepAnalysis();
         result = analysis.analysis(result);
@@ -124,7 +124,7 @@ public class DeepAnalysisTest {
         List<DataColumn> persistentFields = result.getPersistentFields();
         Assert.assertEquals(4, persistentFields.size());
 
-        List<Expression> filterExpressions = result.getFilterExpressions();
+        List<Expression> filterExpressions = result.getFilters().getFilterExpressions();
         Assert.assertEquals(1, filterExpressions.size());
         Expression filterExpression = filterExpressions.get(0);
         Assert.assertEquals(StringMatch.class.getName(), filterExpression.getExpressionObject());
@@ -144,36 +144,36 @@ public class DeepAnalysisTest {
 
         DeepAnalysis analysis = new DeepAnalysis();
 
-        result.setFilterExpressions(null);
-        result.setFilterExpressionsParserResult(null);
-        result.addFilterExpressionsParserResult(new ConditionExpression("booleanMatch", "valid", ""));
+        result.getFilters().setFilterExpressions(null);
+        result.getFilters().setFilterExpressionsParserResult(null);
+        result.getFilters().addFilterExpressionsParserResult(new ConditionExpression("booleanMatch", "valid", ""));
         result = analysis.analysis(result);
-        assertTrue(result.getFilterExpressions().size() > 0);
-        assertEquals(BooleanMatch.class.getName(), result.getFilterExpressions().get(0).getExpressionObject());
-        assertEquals("source.isValid()", result.getFilterExpressions().get(0).getLeft());
+        assertTrue(result.getFilters().getFilterExpressions().size() > 0);
+        assertEquals(BooleanMatch.class.getName(), result.getFilters().getFilterExpressions().get(0).getExpressionObject());
+        assertEquals("source.isValid()", result.getFilters().getFilterExpressions().get(0).getLeft());
 
-        result.setFilterExpressions(null);
-        result.setFilterExpressionsParserResult(null);
-        result.addFilterExpressionsParserResult(new ConditionExpression("stringMatch", "type", ""));
+        result.getFilters().setFilterExpressions(null);
+        result.getFilters().setFilterExpressionsParserResult(null);
+        result.getFilters().addFilterExpressionsParserResult(new ConditionExpression("stringMatch", "type", ""));
         result = analysis.analysis(result);
-        assertTrue(result.getFilterExpressions().size() > 0);
-        assertEquals(StringMatch.class.getName(), result.getFilterExpressions().get(0).getExpressionObject());
-        assertEquals("source.getType()", result.getFilterExpressions().get(0).getLeft());
+        assertTrue(result.getFilters().getFilterExpressions().size() > 0);
+        assertEquals(StringMatch.class.getName(), result.getFilters().getFilterExpressions().get(0).getExpressionObject());
+        assertEquals("source.getType()", result.getFilters().getFilterExpressions().get(0).getLeft());
 
-        result.setFilterExpressions(null);
-        result.setFilterExpressionsParserResult(null);
-        result.addFilterExpressionsParserResult(new ConditionExpression("notEqualMatch", "type", ""));
+        result.getFilters().setFilterExpressions(null);
+        result.getFilters().setFilterExpressionsParserResult(null);
+        result.getFilters().addFilterExpressionsParserResult(new ConditionExpression("notEqualMatch", "type", ""));
         result = analysis.analysis(result);
-        assertTrue(result.getFilterExpressions().size() > 0);
-        assertEquals(NotEqualMatch.class.getName(), result.getFilterExpressions().get(0).getExpressionObject());
-        assertEquals("source.getType()", result.getFilterExpressions().get(0).getLeft());
+        assertTrue(result.getFilters().getFilterExpressions().size() > 0);
+        assertEquals(NotEqualMatch.class.getName(), result.getFilters().getFilterExpressions().get(0).getExpressionObject());
+        assertEquals("source.getType()", result.getFilters().getFilterExpressions().get(0).getLeft());
 
-        result.setFilterExpressions(null);
-        result.setFilterExpressionsParserResult(null);
-        result.addFilterExpressionsParserResult(new ConditionExpression("booleanNotEqualMatch", "type", ""));
+        result.getFilters().setFilterExpressions(null);
+        result.getFilters().setFilterExpressionsParserResult(null);
+        result.getFilters().addFilterExpressionsParserResult(new ConditionExpression("booleanNotEqualMatch", "type", ""));
         result = analysis.analysis(result);
-        assertTrue(result.getFilterExpressions().size() > 0);
-        assertEquals(BooleanNotEqualMatch.class.getName(), result.getFilterExpressions().get(0).getExpressionObject());
-        assertEquals("source.isType()", result.getFilterExpressions().get(0).getLeft());
+        assertTrue(result.getFilters().getFilterExpressions().size() > 0);
+        assertEquals(BooleanNotEqualMatch.class.getName(), result.getFilters().getFilterExpressions().get(0).getExpressionObject());
+        assertEquals("source.isType()", result.getFilters().getFilterExpressions().get(0).getLeft());
     }
 }

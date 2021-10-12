@@ -45,7 +45,7 @@ public class DeepAnalysis {
         result.setMetricsClassName(metricsClassSimpleName);
 
         // Optional for filter
-        List<ConditionExpression> expressions = result.getFilterExpressionsParserResult();
+        List<ConditionExpression> expressions = result.getFilters().getFilterExpressionsParserResult();
         if (expressions != null && expressions.size() > 0) {
             for (ConditionExpression expression : expressions) {
                 final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(
@@ -59,7 +59,7 @@ public class DeepAnalysis {
                 filterExpression.setExpressionObject(matcherInfo.getMatcher().getName());
                 filterExpression.setLeft(TypeCastUtil.withCast(expression.getCastType(), "source." + getter));
                 filterExpression.setRight(expression.getValue());
-                result.addFilterExpressions(filterExpression);
+                result.getFilters().addFilterExpressions(filterExpression);
             }
         }
 

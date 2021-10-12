@@ -92,7 +92,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void exitFilterStatement(OALParser.FilterStatementContext ctx) {
-        current.addFilterExpressionsParserResult(conditionExpression);
+        current.getFilters().addFilterExpressionsParserResult(conditionExpression);
         conditionExpression = null;
     }
 

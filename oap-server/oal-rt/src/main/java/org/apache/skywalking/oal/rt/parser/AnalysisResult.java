@@ -43,13 +43,11 @@ public class AnalysisResult {
 
     private FromStmt from = new FromStmt();
 
+    private FilterStmts filters = new FilterStmts();
+
     private String aggregationFunctionName;
 
     private EntryMethod entryMethod;
-
-    private List<Expression> filterExpressions;
-
-    private List<ConditionExpression> filterExpressionsParserResult;
 
     private List<ConditionExpression> funcConditionExpressions;
 
@@ -84,20 +82,6 @@ public class AnalysisResult {
 
     public ConditionExpression getNextFuncConditionExpression() {
         return funcConditionExpressions.get(funcConditionExpressionGetIdx++);
-    }
-
-    public void addFilterExpressions(Expression filterExpression) {
-        if (filterExpressions == null) {
-            filterExpressions = new LinkedList<>();
-        }
-        filterExpressions.add(filterExpression);
-    }
-
-    public void addFilterExpressionsParserResult(ConditionExpression conditionExpression) {
-        if (filterExpressionsParserResult == null) {
-            filterExpressionsParserResult = new LinkedList<>();
-        }
-        filterExpressionsParserResult.add(conditionExpression);
     }
 
     public void addFuncArg(Argument argument) {
