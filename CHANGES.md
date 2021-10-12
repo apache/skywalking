@@ -6,6 +6,7 @@ Release Notes.
 ------------------
 
 #### OAP Server
+
 * Add component definition for `Jackson`.
 * Fix that zipkin-receiver plugin is not packaged into dist.
 * Replace e2e cases to e2e-v2: Lua Nginx/SelfObservability.
@@ -13,15 +14,24 @@ Release Notes.
 * Add component definition for `Apache-Kylin`.
 * Enhance `get` generation mechanism of OAL engine, support map type of source's field.
 * Replace e2e cases to e2e-v2: Gateway.
+* Add `tag`(Map) into All, Service, ServiceInstance and Endpoint sources.
+* Fix `funcParamExpression` and `literalExpression` can't be used in the same aggregation function.
+* Support cast statement in the OAL core engine.
+* Support `(str->long)` and `(long)` for string to long cast statement.
+* Support `(str->int)` and `(int)` for string to int cast statement.
+* Support Long literal number in the OAL core engine.
+* Support literal `string` as parameter of aggregation function.
+* Add `attributeExpression` and `attributeExpressionSegment` in the OAL grammar tree to support `map` type for the
+  attribute expression.
 
 #### UI
+
 * Optimize endpoint dependency.
 * Show service name by hovering nodes in the sankey chart.
 * Add Apache Kylin logo.
 * Add ClickHouse logo.
 
 #### Documentation
-
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/101?closed=1)
 
