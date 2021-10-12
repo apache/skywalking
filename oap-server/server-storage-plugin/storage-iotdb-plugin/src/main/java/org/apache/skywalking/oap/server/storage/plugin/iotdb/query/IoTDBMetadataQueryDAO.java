@@ -22,10 +22,13 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
@@ -40,12 +43,8 @@ import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -114,12 +113,12 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> searchServices(String keyword) throws IOException {
+    public List<Service> searchServices(final NodeType nodeType, final String keyword) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
         query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Normal.value()));
+        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(nodeType.value()));
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         if (!Strings.isNullOrEmpty(keyword)) {
             query.append(" where ").append(ServiceTraffic.NAME).append(" like '%").append(keyword).append("%'");
@@ -132,16 +131,19 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public Service searchService(String serviceCode) throws IOException {
+    public Service searchService(final NodeType nodeType, final String serviceCode) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
         query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Normal.value()));
+        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(nodeType.value()));
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(" where ").append(ServiceTraffic.NAME).append(" = \"").append(serviceCode).append("\"")
                 .append(IoTDBClient.ALIGN_BY_DEVICE);
         List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        if (storageDataList.isEmpty()) {
+            return null;
+        }
         return buildService((ServiceTraffic) storageDataList.get(0));
     }
 
@@ -186,13 +188,16 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         List<ServiceInstance> serviceInstanceList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> {
             InstanceTraffic instanceTraffic = (InstanceTraffic) storageData;
+            if (instanceTraffic.getName() == null) {
+                instanceTraffic.setName("");
+            }
             ServiceInstance serviceInstance = new ServiceInstance();
             serviceInstance.setId(instanceTraffic.id());
             serviceInstance.setName(instanceTraffic.getName());
             serviceInstance.setInstanceUUID(serviceInstance.getId());
 
             JsonObject properties = instanceTraffic.getProperties();
-            if (!properties.isJsonNull()) {
+            if (properties != null) {
                 for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
                     String key = property.getKey();
                     String value = property.getValue().getAsString();

@@ -33,7 +33,7 @@ import org.apache.iotdb.session.pool.SessionDataSetWrapper;
 import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
@@ -76,7 +76,7 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         SessionDataSetWrapper wrapper = null;
         List<SelectedRecord> records = new ArrayList<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(queryString);
+            wrapper = sessionPool.executeQueryStatement(queryString, 0);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }

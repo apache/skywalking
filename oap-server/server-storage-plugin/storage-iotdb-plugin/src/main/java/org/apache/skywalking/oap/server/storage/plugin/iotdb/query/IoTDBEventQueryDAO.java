@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -36,6 +37,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
+@Slf4j
 @RequiredArgsConstructor
 public class IoTDBEventQueryDAO implements IEventQueryDAO {
     private final IoTDBClient client;
@@ -60,8 +62,7 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
             if (i >= page.getFrom() && limitCount < page.getLimit()) {
                 limitCount++;
                 Event event = (Event) storageDataList.get(i);
-                org.apache.skywalking.oap.server.core.query.type.event.Event resultEvent = parseEvent(event);
-                events.getEvents().add(resultEvent);
+                events.getEvents().add(parseEvent(event));
             }
         }
         events.setTotal(storageDataList.size());
@@ -95,15 +96,17 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         EventQueryCondition condition = conditionList.get(0);
         int limitCount = 0;
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        log.debug("page from: {}, limit: {}", page.getFrom(), page.getLimit());
         for (int i = 0; i < storageDataList.size(); i++) {
             if (i >= page.getFrom() && limitCount < page.getLimit()) {
                 limitCount++;
                 Event event = (Event) storageDataList.get(i);
-                org.apache.skywalking.oap.server.core.query.type.event.Event resultEvent = parseEvent(event);
-                events.getEvents().add(resultEvent);
+                log.debug("!!!! get event, its uuid: {}", event.getUuid());
+                events.getEvents().add(parseEvent(event));
             }
         }
         events.setTotal(storageDataList.size());
+        log.debug("!!!!events size: {}", events.getTotal());
         // resort by self, because of the select query result order by time.
         final Order order = Objects.isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
         if (Order.DES.equals(order)) {
@@ -131,7 +134,7 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
             if (!Strings.isNullOrEmpty(source.getServiceInstance())) {
                 query.append(" and ").append(Event.SERVICE_INSTANCE).append(" = \"").append(source.getServiceInstance()).append("\"");
             }
-            if (!Strings.isNullOrEmpty(source.getService())) {
+            if (!Strings.isNullOrEmpty(source.getEndpoint())) {
                 query.append(" and ").append(Event.ENDPOINT).append(" = \"").append(source.getEndpoint()).append("\"");
             }
         }
@@ -179,6 +182,7 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         resultEvent.setParameters(event.getParameters());
         resultEvent.setStartTime(event.getStartTime());
         resultEvent.setEndTime(event.getEndTime());
+        log.debug("resultEvent: {}", resultEvent);
         return resultEvent;
     }
 }

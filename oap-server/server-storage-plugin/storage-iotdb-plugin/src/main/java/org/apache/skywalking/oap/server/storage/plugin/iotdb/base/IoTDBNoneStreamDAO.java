@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
@@ -27,13 +27,8 @@ import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor
 public class IoTDBNoneStreamDAO implements INoneStreamDAO {
-    private static final int PADDING_SIZE = 1_000_000;
-    private static final AtomicRangeInteger SUFFIX = new AtomicRangeInteger(0, PADDING_SIZE);
-
     private final IoTDBClient client;
     private final StorageHashMapBuilder<NoneStream> storageBuilder;
 

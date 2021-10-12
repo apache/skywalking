@@ -40,6 +40,7 @@ jobs:
           - cluster/zk/es/e2e.yaml
           - cluster/zk/mysql/e2e.yaml
           - cluster/zk/influxdb/e2e.yaml
+          - cluster/zk/iotdb/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:

@@ -29,6 +29,7 @@ import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.pool.SessionDataSetWrapper;
 import org.apache.iotdb.session.pool.SessionPool;
+import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
@@ -116,7 +117,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         // Label is null, because in readMetricsValues, no label parameter.
         final IntValues intValues = metricsValues.getValues();
         try {
-            wrapper = sessionPool.executeQueryStatement(queryString);
+            wrapper = sessionPool.executeQueryStatement(queryString, 0);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }
@@ -126,7 +127,15 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
                 List<Field> fields = rowRecord.getFields();
                 String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
                 String id = client.layerName2IndexValue(layerNames[1]);
-                long value = fields.get(1).getLongV();
+
+                Field valueField = fields.get(1);
+                TSDataType valueType = valueField.getDataType();
+                long value = 0;
+                if (TSDataType.INT32.equals(valueType)) {
+                    value = valueField.getIntV();
+                } else if (TSDataType.INT64.equals(valueType)) {
+                    value = valueField.getLongV();
+                }
 
                 KVInt kv = new KVInt();
                 kv.setId(id);
@@ -167,7 +176,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         SessionDataSetWrapper wrapper = null;
         Map<String, DataTable> idMap = new HashMap<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(queryString);
+            wrapper = sessionPool.executeQueryStatement(queryString, 0);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }
@@ -216,7 +225,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         HeatMap heatMap = new HeatMap();
         final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         try {
-            wrapper = sessionPool.executeQueryStatement(queryString);
+            wrapper = sessionPool.executeQueryStatement(queryString, 0);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }

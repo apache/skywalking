@@ -62,8 +62,8 @@ public class IoTDBClient implements Client, HealthCheckable {
     public static final String ID_IDX = "id";
     public static final String ENTITY_ID_IDX = "entity_id";
     public static final String NODE_TYPE_IDX = "node_type";
-    public static final String GROUP_IDX = "service_group";
     public static final String SERVICE_ID_IDX = "service_id";
+    public static final String GROUP_IDX = "service_group";
     public static final String TRACE_ID_IDX = "trace_id";
 
     public IoTDBClient(IoTDBStorageConfig config) throws IOException {
@@ -75,7 +75,7 @@ public class IoTDBClient implements Client, HealthCheckable {
     public void connect() throws IoTDBConnectionException, StatementExecutionException {
         try {
             sessionPool = new SessionPool(config.getHost(), config.getRpcPort(), config.getUsername(),
-                    config.getPassword(), config.getSessionPoolSize(), config.isRpcCompression());
+                    config.getPassword(), config.getSessionPoolSize());
             sessionPool.setStorageGroup(storageGroup);
 
             healthChecker.health();
@@ -113,6 +113,11 @@ public class IoTDBClient implements Client, HealthCheckable {
      * @throws IOException IoTDBConnectionException or StatementExecutionException
      */
     public void write(IoTDBInsertRequest request) throws IOException {
+        log.debug(request.toString());
+        if (request.getModelName().equals("log")) {
+            log.debug("log model insert!!!!!");
+            log.debug(request.toString());
+        }
         StringBuilder devicePath = new StringBuilder();
         devicePath.append(storageGroup).append(IoTDBClient.DOT).append(request.getModelName());
         try {
@@ -122,7 +127,7 @@ public class IoTDBClient implements Client, HealthCheckable {
                         .append(indexValue2LayerName(value)));
             }
             sessionPool.insertRecord(devicePath.toString(), request.getTime(),
-                    request.getTimeseriesList(), request.getTimeseriesTypes(), request.getTimeseriesValues());
+                    request.getMeasurements(), request.getMeasurementTypes(), request.getMeasurementValues());
             healthChecker.health();
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             healthChecker.unHealth(e);
@@ -137,6 +142,13 @@ public class IoTDBClient implements Client, HealthCheckable {
      * @throws IOException IoTDBConnectionException or StatementExecutionException
      */
     public void write(List<IoTDBInsertRequest> requestList) throws IOException {
+        for (IoTDBInsertRequest request : requestList) {
+            log.debug(request.toString());
+            if (request.getModelName().equals("log")) {
+                log.debug("log model insert!!!!!");
+                log.debug(request.toString());
+            }
+        }
         List<String> devicePathList = new ArrayList<>();
         List<Long> timeList = new ArrayList<>();
         List<List<String>> timeseriesListList = new ArrayList<>();
@@ -153,9 +165,9 @@ public class IoTDBClient implements Client, HealthCheckable {
             }
             devicePathList.add(devicePath.toString());
             timeList.add(request.getTime());
-            timeseriesListList.add(request.getTimeseriesList());
-            typesList.add(request.getTimeseriesTypes());
-            valuesList.add(request.getTimeseriesValues());
+            timeseriesListList.add(request.getMeasurements());
+            typesList.add(request.getMeasurementTypes());
+            valuesList.add(request.getMeasurementValues());
         });
 
         try {
@@ -185,7 +197,7 @@ public class IoTDBClient implements Client, HealthCheckable {
         SessionDataSetWrapper wrapper = null;
         List<? super StorageData> storageDataList = new ArrayList<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(querySQL);
+            wrapper = sessionPool.executeQueryStatement(querySQL, 0);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", querySQL, wrapper.getColumnNames());
             }
@@ -258,7 +270,7 @@ public class IoTDBClient implements Client, HealthCheckable {
         SessionDataSetWrapper wrapper = null;
         List<Double> results = new ArrayList<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(querySQL);
+            wrapper = sessionPool.executeQueryStatement(querySQL, 0);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", querySQL, wrapper.getColumnNames());
             }
@@ -291,10 +303,8 @@ public class IoTDBClient implements Client, HealthCheckable {
      * @throws IOException IoTDBConnectionException or StatementExecutionException
      */
     public void deleteData(String device, long deleteTime) throws IOException {
-        StringBuilder devicePath = new StringBuilder();
-        devicePath.append(storageGroup).append(IoTDBClient.DOT).append(device);
         try {
-            sessionPool.deleteData(devicePath.toString(), deleteTime);
+            sessionPool.deleteData(storageGroup + IoTDBClient.DOT + device, deleteTime);
             healthChecker.health();
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             healthChecker.unHealth(e);

@@ -17,7 +17,8 @@ version: '2.1'
 
 services:
   iotdb:
-    image: apache/iotdb:0.12.2-node
+#    image: apache/iotdb:0.12.2-node
+    image: timcross0/iotdb
     expose:
       - 6667
     networks:
@@ -28,28 +29,27 @@ services:
       timeout: 60s
       retries: 120
 
-  oap:
-    extends:
-      file: ../base-compose.yml
-      service: oap
-    environment:
-      SW_STORAGE: iotdb
-      SW_LOG_LAL_FILES: test
-      SW_LOG_MAL_FILES: test
-    volumes:
-      - ./lal.yaml:/skywalking/config/lal/test.yaml
-      - ./log-mal.yaml:/skywalking/config/log-mal-rules/test.yaml
-    depends_on:
-      iotdb:
-        condition: service_healthy
-
   provider:
     extends:
-      file: ../base-compose.yml
+      file: ../../../script/docker-compose/base-compose.yml
       service: provider
     depends_on:
       oap:
         condition: service_healthy
+    ports:
+    - 9090
+
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: iotdb
+    depends_on:
+      iotdb:
+        condition: service_healthy
+    ports:
+    - 12800
 
 networks:
   e2e:

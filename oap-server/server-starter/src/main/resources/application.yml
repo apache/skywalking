@@ -244,10 +244,10 @@ storage:
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
   iotdb:
     host: ${SW_STORAGE_IOTDB_HOST:127.0.0.1}
-    rpcPort: ${SW_STORAGE_IOTDB_RPCPORT:6667}
+    rpcPort: ${SW_STORAGE_IOTDB_RPC_PORT:6667}
     username: ${SW_STORAGE_IOTDB_USERNAME:root}
     password: ${SW_STORAGE_IOTDB_PASSWORD:root}
-    storageGroup: ${SW_STORAGE_IOTDB_STORAGEGROUP:root.skywalking}
+    storageGroup: ${SW_STORAGE_IOTDB_STORAGE_GROUP:root.skywalking}
     sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:16}
     fetchTaskLogMaxSize: ${SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
 

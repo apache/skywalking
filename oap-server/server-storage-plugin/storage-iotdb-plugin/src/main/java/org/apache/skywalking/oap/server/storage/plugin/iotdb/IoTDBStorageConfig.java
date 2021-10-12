@@ -29,9 +29,8 @@ public class IoTDBStorageConfig extends ModuleConfig {
     private int rpcPort;
     private String username;
     private String password;
-    private int sessionPoolSize;
-    private boolean rpcCompression;
-
     private String storageGroup;
+    private int sessionPoolSize;
+
     private int fetchTaskLogMaxSize;
 }

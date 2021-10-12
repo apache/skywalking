@@ -61,7 +61,7 @@ httpclient-4.5.13.jar
 httpcore-4.4.13.jar
 httpcore-nio-4.4.13.jar
 influxdb-java-2.15.jar
-iotdb-session-0.12.2.jar
+iotdb-session-0.13.0-SNAPSHOT.jar
 jackson-annotations-2.12.2.jar
 jackson-core-2.12.2.jar
 jackson-databind-2.12.2.jar

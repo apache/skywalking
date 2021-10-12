@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
@@ -34,14 +35,15 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 
 @Getter
 @Setter
+@Slf4j
 public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
     private String modelName;
     private long time;
     private List<String> indexes;
     private List<String> indexValues;
-    private List<String> timeseriesList;
-    private List<TSDataType> timeseriesTypes;
-    private List<Object> timeseriesValues;
+    private List<String> measurements;
+    private List<TSDataType> measurementTypes;
+    private List<Object> measurementValues;
 
     public <T extends StorageData> IoTDBInsertRequest(String modelName, long time, T storageData,
                                                       StorageHashMapBuilder<T> storageBuilder) {
@@ -52,7 +54,6 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
         Map<String, Object> storageMap = storageBuilder.entity2Storage(storageData);
 
         indexes.forEach(index -> {
-            // TODO check indexValue is empty or not
             if (index.equals(IoTDBClient.ID_IDX)) {
                 indexValues.add(storageData.id());
             } else if (storageMap.containsKey(index)) {
@@ -61,31 +62,47 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
             }
         });
 
-        // time_bucket has changed to time before calling this method, so remove it from timeseriesList
+        // time_bucket has changed to time before calling this method, so remove it from measurementList
         storageMap.remove(IoTDBClient.TIME_BUCKET);
-        timeseriesList = new ArrayList<>(storageMap.keySet());
+        measurements = new ArrayList<>(storageMap.keySet());
         Map<String, TSDataType> columnTypeMap = IoTDBTableMetaInfo.get(modelName).getColumnTypeMap();
-        timeseriesTypes = new ArrayList<>(columnTypeMap.keySet().size());
-        timeseriesList.forEach(timeseries -> timeseriesTypes.add(columnTypeMap.get(timeseries)));
-        timeseriesValues = new ArrayList<>(storageMap.values());
+        measurementTypes = new ArrayList<>(measurements.size());
+        measurements.forEach(measurement -> measurementTypes.add(columnTypeMap.get(measurement)));
+        measurementValues = new ArrayList<>(storageMap.values());
 
         if (storageMap.containsKey(IoTDBClient.TIMESTAMP)) {
-            int idx = timeseriesList.indexOf(IoTDBClient.TIMESTAMP);
-            timeseriesList.set(idx, "\"" + IoTDBClient.TIMESTAMP + "\"");
+            int idx = measurements.indexOf(IoTDBClient.TIMESTAMP);
+            measurements.set(idx, "\"" + IoTDBClient.TIMESTAMP + "\"");
         }
 
         storageMap.forEach((String key, Object value) -> {
             if (key.contains(".")) {
-                int idx = timeseriesList.indexOf(key);
-                timeseriesList.set(idx, "\"" + key + "\"");
+                int idx = measurements.indexOf(key);
+                measurements.set(idx, "\"" + key + "\"");
             }
         });
 
-        for (int i = 0; i < timeseriesValues.size(); i++) {
-            Object timeseriesValue = timeseriesValues.get(i);
-            if (timeseriesValue instanceof StorageDataComplexObject) {
-                timeseriesValues.set(i, ((StorageDataComplexObject) timeseriesValue).toStorageData());
+        for (int i = 0; i < measurementValues.size(); i++) {
+            Object measurementValue = measurementValues.get(i);
+            if (measurementValues.get(i) == null) {
+                measurementValues.set(i, "");
+            }
+            if (measurementValue instanceof StorageDataComplexObject) {
+                measurementValues.set(i, ((StorageDataComplexObject) measurementValue).toStorageData());
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "IoTDBInsertRequest{" +
+                "modelName='" + modelName + '\'' +
+                ", time=" + time +
+                ", indexes=" + indexes.toString() +
+                ", indexValues=" + indexValues.toString() +
+                ", measurementList=" + measurements.toString() +
+                ", measurementTypes=" + measurementTypes.toString() +
+                ", measurementValues=" + measurementValues.toString() +
+                '}';
     }
 }

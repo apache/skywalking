@@ -82,7 +82,7 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
             BasicTrace basicTrace = new BasicTrace();
             basicTrace.setSegmentId(segmentRecord.getSegmentId());
             basicTrace.setStart(String.valueOf(segmentRecord.getStartTime()));
-            basicTrace.getEndpointNames().add(String.valueOf(IDManager.EndpointID.analysisId(segmentRecord.getEndpointId())));
+            basicTrace.getEndpointNames().add(IDManager.EndpointID.analysisId(segmentRecord.getEndpointId()).getEndpointName());
             basicTrace.setDuration(segmentRecord.getLatency());
             basicTrace.setError(BooleanUtils.valueToBoolean(segmentRecord.getIsError()));
             basicTrace.getTraceIds().add(segmentRecord.getTraceId());

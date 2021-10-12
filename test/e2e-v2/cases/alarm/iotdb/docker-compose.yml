@@ -17,7 +17,8 @@ version: '2.1'
 
 services:
   iotdb:
-    image: apache/iotdb:0.12.2-node
+#    image: apache/iotdb:0.12.2-node
+    image: timcross0/iotdb
     expose:
       - 6667
     networks:
@@ -30,33 +31,28 @@ services:
 
   oap:
     extends:
-      file: ../base-compose.yml
+      file: ../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
       SW_STORAGE: iotdb
       SW_SEARCHABLE_ALARM_TAG_KEYS: level,receivers
+    ports:
+      - 12800
     depends_on:
       iotdb:
         condition: service_healthy
     volumes:
-      - ./alarm-settings.yml:/skywalking/config/alarm-settings.yml
-
-  ui:
-    extends:
-      file: ../base-compose.yml
-      service: ui
-    depends_on:
-      oap:
-        condition: service_healthy
+      - ../alarm-settings.yml:/skywalking/config/alarm-settings.yml
 
   provider:
     extends:
-      file: ../base-compose.yml
+      file: ../../../script/docker-compose/base-compose.yml
       service: provider
-    environment:
-      SW_AGENT_NAME: e2e-service-provider
+    ports:
+      - 9090
     depends_on:
       oap:
         condition: service_healthy
+
 networks:
   e2e:

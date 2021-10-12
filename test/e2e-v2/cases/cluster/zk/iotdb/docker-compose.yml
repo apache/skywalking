@@ -16,8 +16,21 @@
 version: '2.1'
 
 services:
+  zk:
+    image: zookeeper:3.5
+    expose:
+      - 2181
+    networks:
+      - e2e
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/2181" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
   iotdb:
-    image: apache/iotdb:0.12.2-node
+#    image: apache/iotdb:0.12.2-node
+    image: timcross0/iotdb
     expose:
       - 6667
     networks:
@@ -30,7 +43,7 @@ services:
 
   oap1:
     extends:
-      file: ../base-compose.yml
+      file: ../../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
       SW_CLUSTER: zookeeper
@@ -43,7 +56,7 @@ services:
 
   oap2:
     extends:
-      file: ../base-compose.yml
+      file: ../../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
       SW_CLUSTER: zookeeper
@@ -56,5 +69,44 @@ services:
       oap1:
         condition: service_healthy
 
+  ui:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: ui
+    environment:
+      - SW_OAP_ADDRESS=http://oap1:12800,http://oap2:12800
+    depends_on:
+      oap1:
+        condition: service_healthy
+      oap2:
+        condition: service_healthy
+    ports:
+    - 8080
+
+  provider1:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: provider
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap2:11800
+      SW_AGENT_INSTANCE_NAME: provider1
+    depends_on:
+      oap2:
+        condition: service_healthy
+
+  consumer:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: consumer
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap1:11800
+      PROVIDER_URL: http://provider1:9090
+    depends_on:
+      oap1:
+        condition: service_healthy
+      provider1:
+        condition: service_healthy
+    ports:
+      - 9092
 networks:
   e2e:

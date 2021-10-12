@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
@@ -38,6 +39,6 @@ public class IoTDBHistoryDeleteDAO implements IHistoryDeleteDAO {
             log.debug("TTL execution log, model: {}", model.getName());
         }
         long deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmm"));
-        client.deleteData(model.getName(), deadline);
+        client.deleteData(model.getName(), TimeBucket.getTimestamp(deadline));
     }
 }

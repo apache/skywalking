@@ -28,7 +28,6 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
-import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
@@ -43,6 +42,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
@@ -118,7 +118,11 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
                 Log log = new Log();
                 log.setServiceId(logRecord.getServiceId());
                 log.setServiceInstanceId(logRecord.getServiceInstanceId());
-                log.setEndpointId(logRecord.getEndpointId());
+                if (!StringUtil.isEmpty(logRecord.getEndpointId())) {
+                    log.setEndpointId(logRecord.getEndpointId());
+                } else {
+                    log.setEndpointId(null);
+                }
                 log.setTraceId(logRecord.getTraceId());
                 log.setTimestamp(logRecord.getTimestamp());
                 log.setContentType(ContentType.instanceOf(logRecord.getContentType()));

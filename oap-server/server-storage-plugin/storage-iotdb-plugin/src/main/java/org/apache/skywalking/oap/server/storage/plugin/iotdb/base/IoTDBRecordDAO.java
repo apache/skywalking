@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
-import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
@@ -36,9 +35,6 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 
 @RequiredArgsConstructor
 public class IoTDBRecordDAO implements IRecordDAO {
-    private static final int PADDING_SIZE = 1_000_000;
-    private static final AtomicRangeInteger SUFFIX = new AtomicRangeInteger(0, PADDING_SIZE);
-
     private final StorageHashMapBuilder<Record> storageBuilder;
 
     @Override
@@ -47,40 +43,40 @@ public class IoTDBRecordDAO implements IRecordDAO {
         IoTDBInsertRequest request = new IoTDBInsertRequest(model.getName(), timestamp, record, storageBuilder);
 
         // transform tags of SegmentRecord, LogRecord, AlarmRecord to tag1, tag2, ...
-        List<String> timeseriesList = request.getTimeseriesList();
-        List<TSDataType> timeseriesTypes = request.getTimeseriesTypes();
-        List<Object> timeseriesValues = request.getTimeseriesValues();
+        List<String> measurements = request.getMeasurements();
+        List<TSDataType> measurementTypes = request.getMeasurementTypes();
+        List<Object> measurementValues = request.getMeasurementValues();
         List<Tag> rawTags = null;
         if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
             rawTags = ((SegmentRecord) record).getTagsRawData();
-            timeseriesTypes.remove(timeseriesList.indexOf(SegmentRecord.TAGS));
-            timeseriesValues.remove(timeseriesList.indexOf(SegmentRecord.TAGS));
-            timeseriesList.remove(SegmentRecord.TAGS);
+            measurementTypes.remove(measurements.indexOf(SegmentRecord.TAGS));
+            measurementValues.remove(measurements.indexOf(SegmentRecord.TAGS));
+            measurements.remove(SegmentRecord.TAGS);
         } else if (LogRecord.INDEX_NAME.equals(model.getName())) {
             rawTags = ((LogRecord) record).getTags();
-            timeseriesTypes.remove(timeseriesList.indexOf(LogRecord.TAGS));
-            timeseriesValues.remove(timeseriesList.indexOf(LogRecord.TAGS));
-            timeseriesList.remove(LogRecord.TAGS);
+            measurementTypes.remove(measurements.indexOf(LogRecord.TAGS));
+            measurementValues.remove(measurements.indexOf(LogRecord.TAGS));
+            measurements.remove(LogRecord.TAGS);
         } else if (AlarmRecord.INDEX_NAME.equals(model.getName())) {
             rawTags = ((AlarmRecord) record).getTags();
-            timeseriesTypes.remove(timeseriesList.indexOf(AlarmRecord.TAGS));
-            timeseriesValues.remove(timeseriesList.indexOf(AlarmRecord.TAGS));
-            timeseriesList.remove(AlarmRecord.TAGS);
+            measurementTypes.remove(measurements.indexOf(AlarmRecord.TAGS));
+            measurementValues.remove(measurements.indexOf(AlarmRecord.TAGS));
+            measurements.remove(AlarmRecord.TAGS);
         }
         if (Objects.nonNull(rawTags)) {
             rawTags.forEach(rawTag -> {
                 if (rawTag.getKey().contains(".")) {
-                    timeseriesList.add("\"" + rawTag.getKey() + "\"");
+                    measurements.add("\"" + rawTag.getKey() + "\"");
                 } else {
-                    timeseriesList.add(rawTag.getKey());
+                    measurements.add(rawTag.getKey());
                 }
-                timeseriesTypes.add(TSDataType.TEXT);
-                timeseriesValues.add(rawTag.getValue());
+                measurementTypes.add(TSDataType.TEXT);
+                measurementValues.add(rawTag.getValue());
             });
         }
-        request.setTimeseriesList(timeseriesList);
-        request.setTimeseriesTypes(timeseriesTypes);
-        request.setTimeseriesValues(timeseriesValues);
+        request.setMeasurements(measurements);
+        request.setMeasurementTypes(measurementTypes);
+        request.setMeasurementValues(measurementValues);
         return request;
     }
 }

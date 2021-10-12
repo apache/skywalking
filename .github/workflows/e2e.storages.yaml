@@ -43,6 +43,7 @@ jobs:
           - storage/tidb/e2e.yaml
           - storage/influxdb/e2e.yaml
           - storage/postgres/e2e.yaml
+          - storage/iotdb/e2e.yaml
         include:
           - es-version: 6.3.2
             config-file: storage/es/e2e.yaml

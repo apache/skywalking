@@ -148,7 +148,7 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
         SessionDataSetWrapper wrapper = null;
         List<Call.CallDetail> calls = new ArrayList<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(query.toString());
+            wrapper = sessionPool.executeQueryStatement(query.toString(), 0);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
             }
@@ -192,7 +192,7 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
         SessionDataSetWrapper wrapper = null;
         List<Call.CallDetail> calls = new ArrayList<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(query.toString());
+            wrapper = sessionPool.executeQueryStatement(query.toString(), 0);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
             }
@@ -231,7 +231,7 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
         SessionDataSetWrapper wrapper = null;
         List<Call.CallDetail> calls = new ArrayList<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(query.toString());
+            wrapper = sessionPool.executeQueryStatement(query.toString(), 0);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
             }
