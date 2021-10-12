@@ -1,4 +1,4 @@
-private void do${metricsName}(${sourcePackage}${sourceName} source) {
+private void do${metricsName}(${sourcePackage}${from.sourceName} source) {
 
 <#if filterExpressions??>
     <#list filterExpressions as filterExpression>

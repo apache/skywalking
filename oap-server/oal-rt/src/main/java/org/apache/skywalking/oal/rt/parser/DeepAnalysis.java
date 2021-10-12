@@ -37,7 +37,7 @@ import static java.util.Objects.isNull;
 public class DeepAnalysis {
     public AnalysisResult analysis(AnalysisResult result) {
         // 1. Set sub package name by source.metrics
-        result.setPackageName(result.getSourceName().toLowerCase());
+        result.setPackageName(result.getFrom().getSourceName().toLowerCase());
 
         Class<? extends Metrics> metricsClass = MetricsHolder.find(result.getAggregationFunctionName());
         String metricsClassSimpleName = metricsClass.getSimpleName();
@@ -97,8 +97,8 @@ public class DeepAnalysis {
                 entryMethod.addArg(
                     parameterType,
                     TypeCastUtil.withCast(
-                        result.getSourceCastType(),
-                        "source." + ClassMethodUtil.toGetMethod(result.getSourceAttribute())
+                        result.getFrom().getSourceCastType(),
+                        "source." + ClassMethodUtil.toGetMethod(result.getFrom().getSourceAttribute())
                     )
                 );
             } else if (annotation instanceof ConstOne) {
@@ -144,7 +144,7 @@ public class DeepAnalysis {
         }
 
         // 6. Based on Source, generate default columns
-        List<SourceColumn> columns = SourceColumnsFactory.getColumns(result.getSourceName());
+        List<SourceColumn> columns = SourceColumnsFactory.getColumns(result.getFrom().getSourceName());
         result.setFieldsFromSource(columns);
 
         result.generateSerializeFields();

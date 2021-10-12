@@ -55,18 +55,18 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterSource(OALParser.SourceContext ctx) {
-        current.setSourceName(ctx.getText());
-        current.setSourceScopeId(DefaultScopeDefine.valueOf(metricsNameFormat(ctx.getText())));
+        current.getFrom().setSourceName(ctx.getText());
+        current.getFrom().setSourceScopeId(DefaultScopeDefine.valueOf(metricsNameFormat(ctx.getText())));
     }
 
     @Override
     public void enterSourceAttribute(OALParser.SourceAttributeContext ctx) {
-        current.getSourceAttribute().add(ctx.getText());
+        current.getFrom().getSourceAttribute().add(ctx.getText());
     }
 
     @Override
     public void enterSourceAttrCast(OALParser.SourceAttrCastContext ctx) {
-        current.setSourceCastType(ctx.getText());
+        current.getFrom().setSourceCastType(ctx.getText());
     }
 
     @Override

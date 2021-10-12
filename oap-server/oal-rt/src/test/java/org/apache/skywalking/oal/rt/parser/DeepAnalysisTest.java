@@ -51,9 +51,9 @@ public class DeepAnalysisTest {
     @Test
     public void testServiceAnalysis() {
         AnalysisResult result = new AnalysisResult();
-        result.setSourceName("Service");
+        result.getFrom().setSourceName("Service");
         result.setPackageName("service.serviceavg");
-        result.getSourceAttribute().add("latency");
+        result.getFrom().getSourceAttribute().add("latency");
         result.setMetricsName("ServiceAvg");
         result.setAggregationFunctionName("longAvg");
 
@@ -75,9 +75,9 @@ public class DeepAnalysisTest {
     @Test
     public void testEndpointAnalysis() {
         AnalysisResult result = new AnalysisResult();
-        result.setSourceName("Endpoint");
+        result.getFrom().setSourceName("Endpoint");
         result.setPackageName("endpoint.endpointavg");
-        result.getSourceAttribute().add("latency");
+        result.getFrom().getSourceAttribute().add("latency");
         result.setMetricsName("EndpointAvg");
         result.setAggregationFunctionName("longAvg");
 
@@ -99,9 +99,9 @@ public class DeepAnalysisTest {
     @Test
     public void testFilterAnalysis() {
         AnalysisResult result = new AnalysisResult();
-        result.setSourceName("Endpoint");
+        result.getFrom().setSourceName("Endpoint");
         result.setPackageName("endpoint.endpointavg");
-        result.getSourceAttribute().add("latency");
+        result.getFrom().getSourceAttribute().add("latency");
         result.setMetricsName("EndpointAvg");
         result.setAggregationFunctionName("longAvg");
         ConditionExpression expression = new ConditionExpression();
@@ -136,9 +136,9 @@ public class DeepAnalysisTest {
     public void shouldUseCorrectMatcher() {
 
         AnalysisResult result = new AnalysisResult();
-        result.setSourceName("Endpoint");
+        result.getFrom().setSourceName("Endpoint");
         result.setPackageName("endpoint.endpointavg");
-        result.getSourceAttribute().add("latency");
+        result.getFrom().getSourceAttribute().add("latency");
         result.setMetricsName("EndpointAvg");
         result.setAggregationFunctionName("longAvg");
 
