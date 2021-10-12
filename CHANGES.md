@@ -24,7 +24,7 @@ Release Notes.
 * Support literal `string` as parameter of aggregation function.
 * Add `attributeExpression` and `attributeExpressionSegment` in the OAL grammar tree to support `map` type for the
   attribute expression.
-* Refactor the OAL context to improve readability.
+* Refactor the OAL compiler context to improve readability.
 * Fix wrong generated codes of `hashCode` and `remoteHashCode` methods for numeric fields.
 
 #### UI
