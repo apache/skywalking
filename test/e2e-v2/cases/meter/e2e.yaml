@@ -28,9 +28,6 @@ setup:
     - name: install etcdctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
 
-cleanup:
-  on: never
-
 trigger:
   action: http
   interval: 3s
