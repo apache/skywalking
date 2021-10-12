@@ -13,6 +13,7 @@ Release Notes.
 * Add component definition for `Apache-Kylin`.
 * Enhance `get` generation mechanism of OAL engine, support map type of source's field.
 * Replace e2e cases to e2e-v2: Gateway.
+* Replace e2e cases to e2e-v2: Meter.
 
 #### UI
 * Optimize endpoint dependency.

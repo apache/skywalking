@@ -51,6 +51,8 @@ jobs:
             config-file: lua/e2e.yaml
           - name: Gateway
             config-file: gateway/e2e.yaml
+          - name: Meter
+            config-file: meter/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
