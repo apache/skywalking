@@ -49,21 +49,42 @@ jobs:
           - name: postgres
             config-file: log/postgres/e2e.yaml
         include:
-          - { case: elasticsearch, es-version: 6.3.2, config-file: log/es6/e2e.yaml }
-          - { case: elasticsearch, es-version: 7.0.0, config-file: log/es7/e2e.yaml }
-          - { case: elasticsearch, es-version: 7.8.0, config-file: log/es7/e2e.yaml }
-          - { case: elasticsearch, es-version: 7.10.1, config-file: log/es7/e2e.yaml }
-          - { case: elasticsearch, es-version: 7.14.0, config-file: log/es7/e2e.yaml }
-          - { case: elasticsearch, es-version: 7.15.0, config-file: log/es7/e2e.yaml }
-          - { case: elasticsearch, es-version: 6.3.2, config-file: log/fluent-bit/e2e.yaml }
-          - { case: elasticsearch, es-version: 7.0.0, config-file: log/fluent-bit/e2e.yaml }
-          - { case: elasticsearch, es-version: 7.8.0, config-file: log/fluent-bit/e2e.yaml }
-          - { case: elasticsearch, es-version: 7.10.1, config-file: log/fluent-bit/e2e.yaml }
-          - { case: elasticsearch, es-version: 7.14.0, config-file: log/fluent-bit/e2e.yaml }
-          - { case: elasticsearch, es-version: 7.15.0, config-file: log/fluent-bit/e2e.yaml }
-    env:
-      SW_STORAGE: ${{ matrix.case }}
-      ES_VERSION: ${{ matrix.es-version }}
+          - name: elasticsearch
+            es-version: 6.3.2
+            config-file: log/es6/e2e.yaml
+          - name: elasticsearch
+            es-version: 7.0.0
+            config-file: log/es7/e2e.yaml
+          - name: elasticsearch
+            es-version: 7.8.0
+            config-file: log/es7/e2e.yaml
+          - name: elasticsearch
+            es-version: 7.10.1
+            config-file: log/es7/e2e.yaml
+          - name: elasticsearch
+            es-version: 7.14.0
+            config-file: log/es7/e2e.yaml
+          - name: elasticsearch
+            es-version: 7.15.0
+            config-file: log/es7/e2e.yaml
+          - name: elasticsearch
+            es-version: 6.3.2
+            config-file: log/fluent-bit/e2e.yaml
+          - name: elasticsearch
+            es-version: 7.0.0
+            config-file: log/fluent-bit/e2e.yaml
+          - name: elasticsearch
+            es-version: 7.8.0
+            config-file: log/fluent-bit/e2e.yaml
+          - name: elasticsearch
+            es-version: 7.10.1
+            config-file: log/fluent-bit/e2e.yaml
+          - name: elasticsearch
+            es-version: 7.14.0
+            config-file: log/fluent-bit/e2e.yaml
+          - name: elasticsearch
+            es-version: 7.15.0
+            config-file: log/fluent-bit/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
@@ -73,5 +94,8 @@ jobs:
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/infra-e2e-test
+        env:
+          SW_STORAGE: ${{ matrix.case }}
+          ES_VERSION: ${{ matrix.es-version }}
         with:
           config-file: ${{ matrix.case.config-file }}
