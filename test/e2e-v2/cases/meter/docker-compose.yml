@@ -29,6 +29,8 @@ services:
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: provider
+    environment:
+      SW_METER_REPORT_INTERVAL: 5
     depends_on:
       oap:
         condition: service_healthy
