@@ -61,9 +61,9 @@ jobs:
           - { case: elasticsearch, es-version: 7.10.1, config-file: log/fluent-bit/e2e.yaml }
           - { case: elasticsearch, es-version: 7.14.0, config-file: log/fluent-bit/e2e.yaml }
           - { case: elasticsearch, es-version: 7.15.0, config-file: log/fluent-bit/e2e.yaml }
-      env:
-        SW_STORAGE: ${{ matrix.case }}
-        ES_VERSION: ${{ matrix.es-version }}
+    env:
+      SW_STORAGE: ${{ matrix.case }}
+      ES_VERSION: ${{ matrix.es-version }}
     steps:
       - uses: actions/checkout@v2
         with:
