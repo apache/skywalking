@@ -24,6 +24,8 @@ import org.apache.skywalking.e2e.User;
 import org.apache.skywalking.e2e.UserRepo;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +41,7 @@ public class UserController {
     private final int sleepMin = 500;
     private final int sleepMax = 1000;
 
-    @PostMapping("/info")
+    @RequestMapping(value = "/info", method = {RequestMethod.POST, RequestMethod.GET})
     public String info() throws InterruptedException {
         Thread.sleep(randomSleepLong(sleepMin, sleepMax));
         LOGBACK_LOGGER.info("logback message==> now: {}", System.currentTimeMillis());
