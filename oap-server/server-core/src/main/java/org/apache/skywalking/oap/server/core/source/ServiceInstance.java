@@ -102,6 +102,6 @@ public class ServiceInstance extends Source {
     }
 
     public String getTag(String key) {
-        return originalTags.getOrDefault(key, Const.EMPTY_STRING);
+        return originalTags.getOrDefault(key, null);
     }
 }
