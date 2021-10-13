@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.trace.mock;
 
 import io.grpc.stub.StreamObserver;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.RefType;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
@@ -61,6 +62,7 @@ class ServiceCMock {
         span.setIsError(false);
         span.addRefs(createReference(traceId, parentSegmentId));
         span.setOperationName(ServiceBMock.ROCKET_MQ_ENDPOINT);
+        span.addTags(KeyStringValuePair.newBuilder().setKey("transmission.latency").setValue("100").build());
         return span;
     }
 

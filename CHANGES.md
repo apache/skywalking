@@ -30,6 +30,9 @@ Release Notes.
 * Refactor the OAL compiler context to improve readability.
 * Fix wrong generated codes of `hashCode` and `remoteHashCode` methods for numeric fields.
 * Replace e2e cases to e2e-v2: Nodejs.
+* Support `!= null` in OAL engine.
+* Add `Message Queue Consuming Count` metric for MQ consuming service and endpoint.
+* Add `Message Queue Avg Consuming Latency` metric for MQ consuming service and endpoint.
 
 #### UI
 

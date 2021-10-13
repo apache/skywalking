@@ -78,6 +78,7 @@ CONTAIN:                            'contain';
 NOT_CONTAIN:                        'not contain';
 
 // Literals
+NULL_LITERAL:                       'null';
 
 BOOL_LITERAL:       'true'
             |       'false'

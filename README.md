@@ -22,10 +22,11 @@ The core features are following.
 - Root cause analysis. Profile the code on the runtime
 - Service topology map analysis
 - Service, service instance and endpoint dependency analysis
-- Slow services and endpoints detected
+- Slow services and endpoints detecting
 - Performance optimization
 - Distributed tracing and context propagation
 - Database access metrics. Detect slow database access statements(including SQL statements)
+- Message Queue performance and consuming latency monitoring
 - Alarm
 - Browser performance monitoring
 - Infrastructure(VM, network, disk etc.) monitoring
