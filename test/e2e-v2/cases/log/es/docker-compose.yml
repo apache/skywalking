@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   es:
-    image: elastic/elasticsearch:6.3.2
+    image: elastic/elasticsearch:${ES_VERSION}
     expose:
       - 9200
     networks:

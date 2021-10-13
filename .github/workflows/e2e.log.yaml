@@ -39,51 +39,36 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        case:
-          - name: h2
-            config-file: log/h2/e2e.yaml
-          - name: mysql
-            config-file: log/mysql/e2e.yaml
-          - name: influxdb
-            config-file: log/influxdb/e2e.yaml
-          - name: postgres
-            config-file: log/postgres/e2e.yaml
+        config-file:
+          - log/h2/e2e.yaml
+          - log/mysql/e2e.yaml
+          - log/influxdb/e2e.yaml
+          - log/postgres/e2e.yaml
         include:
-          - name: elasticsearch
-            es-version: 6.3.2
-            config-file: log/es6/e2e.yaml
-          - name: elasticsearch
-            es-version: 7.0.0
-            config-file: log/es7/e2e.yaml
-          - name: elasticsearch
-            es-version: 7.8.0
-            config-file: log/es7/e2e.yaml
-          - name: elasticsearch
-            es-version: 7.10.1
-            config-file: log/es7/e2e.yaml
-          - name: elasticsearch
-            es-version: 7.14.0
-            config-file: log/es7/e2e.yaml
-          - name: elasticsearch
-            es-version: 7.15.0
-            config-file: log/es7/e2e.yaml
-          - name: elasticsearch
-            es-version: 6.3.2
+          - es-version: 6.3.2
+            config-file: log/es/e2e.yaml
+          - es-version: 7.0.0
+            config-file: log/es/e2e.yaml
+          - es-version: 7.8.0
+            config-file: log/es/e2e.yaml
+          - es-version: 7.10.1
+            config-file: log/es/e2e.yaml
+          - es-version: 7.14.0
+            config-file: log/es/e2e.yaml
+          - es-version: 7.15.0
+            config-file: log/es/e2e.yaml
+
+          - es-version: 6.3.2
             config-file: log/fluent-bit/e2e.yaml
-          - name: elasticsearch
-            es-version: 7.0.0
+          - es-version: 7.0.0
             config-file: log/fluent-bit/e2e.yaml
-          - name: elasticsearch
-            es-version: 7.8.0
+          - es-version: 7.8.0
             config-file: log/fluent-bit/e2e.yaml
-          - name: elasticsearch
-            es-version: 7.10.1
+          - es-version: 7.10.1
             config-file: log/fluent-bit/e2e.yaml
-          - name: elasticsearch
-            es-version: 7.14.0
+          - es-version: 7.14.0
             config-file: log/fluent-bit/e2e.yaml
-          - name: elasticsearch
-            es-version: 7.15.0
+          - es-version: 7.15.0
             config-file: log/fluent-bit/e2e.yaml
     steps:
       - uses: actions/checkout@v2
@@ -95,7 +80,6 @@ jobs:
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/infra-e2e-test
         env:
-          SW_STORAGE: ${{ matrix.case }}
           ES_VERSION: ${{ matrix.es-version }}
         with:
-          config-file: ${{ matrix.case.config-file }}
+          config-file: ${{ matrix.config-file }}
