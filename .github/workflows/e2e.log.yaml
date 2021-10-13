@@ -44,18 +44,26 @@ jobs:
             config-file: log/h2/e2e.yaml
           - name: mysql
             config-file: log/mysql/e2e.yaml
-          - name: es6
-            config-file: log/es6/e2e.yaml
-          - name: es7
-            config-file: log/es7/e2e.yaml
-          - name: es7.14
-            config-file: log/es7.14/e2e.yaml
+        include:
+          - { case: elasticsearch, es-version: 6.3.2, config-file: log/es6/e2e.yaml }
+          - { case: elasticsearch, es-version: 7.0.0, config-file: log/es7/e2e.yaml }
+          - { case: elasticsearch, es-version: 7.8.0, config-file: log/es7/e2e.yaml }
+          - { case: elasticsearch, es-version: 7.10.1, config-file: log/es7/e2e.yaml }
+          - { case: elasticsearch, es-version: 7.14.0, config-file: log/es7/e2e.yaml }
+          - { case: elasticsearch, es-version: 7.15.0, config-file: log/es7/e2e.yaml }
           - name: influxdb
             config-file: log/influxdb/e2e.yaml
           - name: postgres
             config-file: log/postgres/e2e.yaml
-          - name: fluent bit & es6
-            config-file: log/fluent-bit/e2e.yaml
+          - { case: elasticsearch, es-version: 6.3.2, config-file: log/fluent-bit/e2e.yaml }
+          - { case: elasticsearch, es-version: 7.0.0, config-file: log/fluent-bit/e2e.yaml }
+          - { case: elasticsearch, es-version: 7.8.0, config-file: log/fluent-bit/e2e.yaml }
+          - { case: elasticsearch, es-version: 7.10.1, config-file: log/fluent-bit/e2e.yaml }
+          - { case: elasticsearch, es-version: 7.14.0, config-file: log/fluent-bit/e2e.yaml }
+          - { case: elasticsearch, es-version: 7.15.0, config-file: log/fluent-bit/e2e.yaml }
+    env:
+      SW_STORAGE: ${{ matrix.case }}
+      ES_VERSION: ${{ matrix.es-version }}
     steps:
       - uses: actions/checkout@v2
         with:
