@@ -13,29 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
+FROM node:12
 
-services:
-  oap:
-    environment:
-      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth
-    extends:
-      file: ../../script/docker-compose/base-compose.yml
-      service: oap
-    ports:
-      - 12800
+ARG SW_AGENT_NODEJS_COMMIT
 
-  provider:
-    extends:
-      file: ../../script/docker-compose/base-compose.yml
-      service: provider
-    environment:
-      SW_METER_REPORT_INTERVAL: 5
-    depends_on:
-      oap:
-        condition: service_healthy
-    ports:
-      - 9090
+WORKDIR /app
 
-networks:
-  e2e:
+EXPOSE 5050 5051
+
+RUN git clone https://github.com/apache/skywalking-nodejs.git $(pwd)
+
+RUN git reset --hard ${SW_AGENT_NODEJS_COMMIT} && git submodule update --init
+
+RUN npm install
+RUN npm run generate-source
+RUN npm install express axios

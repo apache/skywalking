@@ -13,29 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
-services:
-  oap:
-    environment:
-      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth
-    extends:
-      file: ../../script/docker-compose/base-compose.yml
-      service: oap
-    ports:
-      - 12800
-
-  provider:
-    extends:
-      file: ../../script/docker-compose/base-compose.yml
-      service: provider
-    environment:
-      SW_METER_REPORT_INTERVAL: 5
-    depends_on:
-      oap:
-        condition: service_healthy
-    ports:
-      - 9090
-
-networks:
-  e2e:
+nodes:
+{{- contains .nodes }}
+- id: {{ b64enc "provider" }}.1
+  name: provider
+  type: Express
+  isreal: true
+- id: {{ b64enc "e2e-service-consumer" }}.1
+  name: e2e-service-consumer
+  type: Tomcat
+  isreal: true
+{{- end }}
+calls:
+{{- contains .calls }}
+- source: {{ b64enc "e2e-service-consumer" }}.1
+  sourcecomponents: []
+  target: {{ b64enc "provider" }}.1
+  targetcomponents: []
+  id: {{ b64enc "e2e-service-consumer" }}.1-{{ b64enc "provider" }}.1
+  detectpoints:
+    - CLIENT
+    - SERVER
+{{- end }}

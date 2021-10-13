@@ -1,0 +1,111 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to show how to write configuration files and can be used to test.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 1200
+  init-system-environment: ../../script/env
+  steps:
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+    - name: install etcdctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
+
+trigger:
+  action: http
+  interval: 3s
+  times: 10
+  url: http://${consumer_host}:${consumer_5001}/users
+  method: POST
+  body: '{"id":"123","name":"skywalking"}'
+  headers:
+    "Content-Type": "application/json"
+
+verify:
+  # verify with retry strategy
+  retry:
+    # max retry count
+    count: 20
+    # the interval between two retries, in millisecond.
+    interval: 3s
+  cases:
+    # service list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+      expected: expected/service.yml
+    # service instance list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=provider
+      expected: expected/service-instance-provider-nodejs.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=consumer
+      expected: expected/service-instance-consumer-nodejs.yml
+    # service endpoint
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=users --service-name=provider
+      expected: expected/service-endpoint-provider-nodejs.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=users --service-name=consumer
+      expected: expected/service-endpoint-consumer-nodejs.yml
+    # trace segment list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
+      expected: expected/traces-list.yml
+    # dependency service
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=provider
+      expected: expected/dependency-services-provider-nodejs.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=consumer
+      expected: expected/dependency-services-consumer-nodejs.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=e2e-service-consumer
+      expected: expected/dependency-services-consumer.yml
+    # dependency instance
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency instance --service-name=consumer --dest-service-name=e2e-service-consumer
+      expected: expected/dependency-instance.yml
+    # service metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_sla --service-name=consumer |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_cpm --service-name=consumer |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_resp_time --service-name=consumer |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_apdex --service-name=consumer |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    # service instance metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_resp_time --instance-name=provider-instance --service-name=provider |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_cpm --instance-name=provider-instance --service-name=provider |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_sla --instance-name=provider-instance --service-name=provider |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    # service endpoint metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_cpm --endpoint-name=/users --service-name=consumer |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_avg --endpoint-name=/users --service-name=consumer |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_sla --endpoint-name=/users --service-name=consumer |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    # service relation metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_client_cpm  --service-name=consumer --dest-service-name=e2e-service-consumer |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_server_cpm  --service-name=consumer --dest-service-name=e2e-service-consumer |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_client_cpm  --service-name=e2e-service-consumer --dest-service-name=provider |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_server_cpm  --service-name=e2e-service-consumer --dest-service-name=provider |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    # service instance relation metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_relation_client_cpm  --instance-name=consumer-instance  --service-name=consumer --dest-instance-name=consumer1 --dest-service-name=e2e-service-consumer |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_relation_server_cpm  --instance-name=consumer-instance  --service-name=consumer --dest-instance-name=consumer1 --dest-service-name=e2e-service-consumer |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
