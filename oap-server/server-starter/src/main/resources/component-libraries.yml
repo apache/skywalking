@@ -40,7 +40,7 @@ HttpClient:
   languages: Java,C#,Node.js
 Dubbo:
   id: 3
-  languages: Java
+  languages: Java,Golang
 H2:
   id: 4
   languages: Java
@@ -386,6 +386,18 @@ Fastjson:
 Jackson:
   id: 118
   languages: Java
+ClickHouse-jdbc-driver:
+  id: 119
+  languages: Java
+ClickHouse:
+  id: 120
+  languages: Java
+Apache-Kylin-jdbc-driver:
+  id: 121
+  languages: Java
+Apache-Kylin:
+  id: 122
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -630,3 +642,5 @@ Component-Server-Mappings:
   mssql-jdbc-driver: SqlServer
   Psychopg: PostgreSQL
   GoMysql: Mysql
+  ClickHouse-jdbc-driver: ClickHouse
+  Apache-Kylin-jdbc-driver: Apache-Kylin

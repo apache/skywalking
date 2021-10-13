@@ -42,10 +42,10 @@ public class ClassMethodUtil {
             if (i != 0) {
                 method.append(".");
             }
-            if (i != attributes.size() - 1) {
-                method.append(toGetMethod(attributes.get(i))).append("()");
+            if (isMapExpression(attributes.get(i))) {
+                method.append(mapExpression(attributes.get(i)));
             } else {
-                method.append(toGetMethod(attributes.get(i)));
+                method.append(toGetMethod(attributes.get(i))).append("()");
             }
         }
         return method.toString();
@@ -63,9 +63,22 @@ public class ClassMethodUtil {
             if (i != attributes.size() - 1) {
                 method.append(toGetMethod(attributes.get(i))).append("()");
             } else {
-                method.append(toIsMethod(attributes.get(i)));
+                method.append(toIsMethod(attributes.get(i))).append("()");
             }
         }
         return method.toString();
+    }
+
+    /**
+     * @return empty if this attribute is not type of map.
+     */
+    private static String mapExpression(String attribute) {
+        final int indexOf = attribute.indexOf("[");
+        return toGetMethod(attribute.substring(0, indexOf))
+            + "(" + attribute.substring(indexOf + 1, attribute.length() - 1) + ")";
+    }
+
+    private static boolean isMapExpression(String attribute) {
+        return attribute.indexOf("[") > 0 && attribute.endsWith("]");
     }
 }
