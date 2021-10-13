@@ -42,6 +42,6 @@ jobs:
         uses: ./.github/actions/skip
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
+        uses: ./.github/actions/infra-e2e-test
         with:
-          test_class: org.apache.skywalking.e2e.PHPE2E
+          config-file: php/e2e.yaml
