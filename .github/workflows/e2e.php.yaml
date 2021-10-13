@@ -24,6 +24,9 @@ on:
   schedule:
     - cron: '0 18 * * *'
 
+env:
+  SW_AGENT_JDK_VERSION: 8
+
 concurrency:
   group: e2e-php-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
