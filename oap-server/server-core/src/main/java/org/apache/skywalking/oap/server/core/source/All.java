@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALL;
 

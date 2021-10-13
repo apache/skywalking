@@ -107,6 +107,8 @@ catalog:
                 path: "/en/setup/backend/trace-sampling"
               - name: "Detect Slow Database Statement"
                 path: "/en/setup/backend/slow-db-statement"
+              - name: "Message Queue Performance"
+                path: "/en/setup/backend/mq"
               - name: "Uninstrumented Gateways"
                 path: "/en/setup/backend/uninstrumented-gateways"
           - name: "Metrics"
