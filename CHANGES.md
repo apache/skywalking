@@ -26,6 +26,7 @@ Release Notes.
   attribute expression.
 * Refactor the OAL compiler context to improve readability.
 * Fix wrong generated codes of `hashCode` and `remoteHashCode` methods for numeric fields.
+* Replace e2e cases to e2e-v2: Nodejs.
 
 #### UI
 

@@ -13,9 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SW_AGENT_JAVA_COMMIT=3997f0256056788bd054ee37e4603c11c0fd6756
-SW_AGENT_SATELLITE_COMMIT=1f3c08a5af19f8522f2a40d9339c45fa816bfe07
-SW_AGENT_NGINX_LUA_COMMIT=c3cee4841798a147d83b96a10914d4ac0e11d0aa
-SW_AGENT_NODEJS_COMMIT=e755659c7f308d3b5589619778c8360308cb14f8
-
-SW_CTL_COMMIT=515a6a415f83a2e7ba114ca8c6fc79e2acd0ee4e
+{{- contains . }}
+- id: {{ b64enc "consumer" }}.1
+  name: consumer
+  group: ""
+- id: {{ b64enc "provider" }}.1
+  name: provider
+  group: ""
+- id: {{ b64enc "e2e-service-consumer" }}.1
+  name: e2e-service-consumer
+  group: ""
+{{- end }}
