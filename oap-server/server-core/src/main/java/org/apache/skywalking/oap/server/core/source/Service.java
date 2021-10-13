@@ -91,6 +91,6 @@ public class Service extends Source {
     private TCPInfo tcpInfo = new TCPInfo();
 
     public String getTag(String key) {
-        return originalTags.getOrDefault(key, null);
+        return originalTags.get(key);
     }
 }
