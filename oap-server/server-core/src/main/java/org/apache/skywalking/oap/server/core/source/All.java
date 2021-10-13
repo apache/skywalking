@@ -72,6 +72,6 @@ public class All extends Source {
     private Map<String, String> originalTags;
 
     public String getTag(String key) {
-        return originalTags.getOrDefault(key, null);
+        return originalTags.get(key);
     }
 }
