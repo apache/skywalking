@@ -54,9 +54,9 @@ jobs:
           - name: Meter
             config-file: meter/e2e.yaml
           - name: VM Zabbix
-            config-file: zabbix/e2e.yaml
+            config-file: vm/zabbix/e2e.yaml
           - name: VM Prometheus Node Exporter
-            config-file: prometheus-node-exporter/e2e.yaml
+            config-file: vm/prometheus-node-exporter/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
