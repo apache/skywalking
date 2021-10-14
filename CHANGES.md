@@ -41,6 +41,8 @@ Release Notes.
 * Show service name by hovering nodes in the sankey chart.
 * Add Apache Kylin logo.
 * Add ClickHouse logo.
+* Optimize the style and add tips for log conditions.
+* Fix the condition for trace table.
 
 #### Documentation
 
