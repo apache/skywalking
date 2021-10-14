@@ -58,9 +58,9 @@ services:
     image: fluent/fluent-bit:1.7
     volumes:
       - /tmp/skywalking-logs:/tmp/skywalking-logs
-      - ./fluent-bit.conf:/fluent-bit/etc
-      - ./fluent-bit-parser.conf:/fluent-bit/etc
-      - ./fluent-bit-script.lua:/fluent-bit/etc
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./fluent-bit-parser.conf:/fluent-bit/etc/fluent-bit-parser.conf
+      - ./fluent-bit-script.lua:/fluent-bit/etc/fluent-bit-script.lua
     networks:
       - e2e
     depends_on:
