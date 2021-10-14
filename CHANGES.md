@@ -33,6 +33,7 @@ Release Notes.
 * Replace e2e cases to e2e-v2: PHP.
 * Replace VM e2e cases to e2e-v2: Prometheus Node Exporter, Zabbix.
 * Support `-Inf` as bucket in the meter system.
+* Replace e2e cases to e2e-v2: go2sky.
 
 #### UI
 
