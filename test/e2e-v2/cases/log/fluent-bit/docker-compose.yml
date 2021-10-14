@@ -29,13 +29,15 @@ services:
       interval: 5s
       timeout: 60s
       retries: 120
-
   oap:
     extends:
-      file: ../../../script/docker-compose/base-compose.yml
+      file: ../log-base-compose.yml
       service: oap
     environment:
       SW_STORAGE: elasticsearch
+      SW_STORAGE_ES_CLUSTER_NODES: es:9200
+      SW_LOG_LAL_FILES: test
+      SW_LOG_MAL_FILES: test
     depends_on:
       es:
         condition: service_healthy
