@@ -31,6 +31,7 @@ Release Notes.
 * Add `Message Queue Consuming Count` metric for MQ consuming service and endpoint.
 * Add `Message Queue Avg Consuming Latency` metric for MQ consuming service and endpoint.
 * Replace e2e cases to e2e-v2: PHP.
+* Replace VM e2e cases to e2e-v2: Prometheus Node Exporter, Zabbix.
 * Support `-Inf` as bucket in the meter system.
 
 #### UI
@@ -39,6 +40,8 @@ Release Notes.
 * Show service name by hovering nodes in the sankey chart.
 * Add Apache Kylin logo.
 * Add ClickHouse logo.
+* Optimize the style and add tips for log conditions.
+* Fix the condition for trace table.
 
 #### Documentation
 
