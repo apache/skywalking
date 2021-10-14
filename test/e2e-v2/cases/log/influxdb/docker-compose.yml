@@ -35,6 +35,8 @@ services:
     environment:
       SW_STORAGE: influxdb
       SW_STORAGE_INFLUXDB_URL: "http://influxdb:8086"
+    ports:
+      - 12800
     networks:
       - e2e
     depends_on:

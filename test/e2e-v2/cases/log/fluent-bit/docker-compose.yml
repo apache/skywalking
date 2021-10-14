@@ -39,6 +39,8 @@ services:
     depends_on:
       es:
         condition: service_healthy
+    ports:
+      - 12800
     networks:
       - e2e
 

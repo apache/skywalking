@@ -40,6 +40,8 @@ services:
     depends_on:
       h2db:
         condition: service_healthy
+    ports:
+      - 12800
     networks:
       - e2e
 

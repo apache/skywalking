@@ -38,6 +38,8 @@ services:
     environment:
       SW_STORAGE: postgresql
       SW_JDBC_URL: "jdbc:postgresql://postgres:5432/skywalking"
+    ports:
+      - 12800
     depends_on:
       postgres:
         condition: service_healthy

@@ -39,6 +39,8 @@ services:
     environment:
       SW_STORAGE: mysql
       SW_JDBC_URL: "jdbc:mysql://mysql:3306/swtest?rewriteBatchedStatements=true"
+    ports:
+      - 12800
     volumes:
       - /skywalking/oap-libs/mysql-connector-java-8.0.13.jar:/skywalking/oap-libs/mysql-connector-java-8.0.13.jar
     networks:
