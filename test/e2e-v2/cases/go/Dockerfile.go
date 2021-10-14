@@ -13,10 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SW_AGENT_JAVA_COMMIT=3997f0256056788bd054ee37e4603c11c0fd6756
-SW_AGENT_SATELLITE_COMMIT=1f3c08a5af19f8522f2a40d9339c45fa816bfe07
-SW_AGENT_NGINX_LUA_COMMIT=c3cee4841798a147d83b96a10914d4ac0e11d0aa
-SW_AGENT_NODEJS_COMMIT=e755659c7f308d3b5589619778c8360308cb14f8
-SW_AGENT_GO_COMMIT=4af380c2db6243106b0fc650b6003ce3b3eb82a0
+FROM golang:1.13 AS builder
 
-SW_CTL_COMMIT=b90255132f916f53eb90955cc8a6445b03a4bec3
+ARG SW_AGENT_GO_COMMIT
+ARG GO2SKY_CODE=${SW_AGENT_GO_COMMIT}.tar.gz
+ARG GO2SKY_CODE_URL=https://github.com/SkyAPM/go2sky/archive/${GO2SKY_CODE}
+
+ENV CGO_ENABLED=0
+ENV GO111MODULE=on
+
+WORKDIR /go2sky
+
+ADD ${GO2SKY_CODE_URL} .
+RUN tar -xf ${GO2SKY_CODE} --strip 1
+RUN rm ${GO2SKY_CODE}
+
+WORKDIR /go2sky/test/e2e/example-server
+RUN go build -o main
+
+FROM alpine:3.10
+
+COPY --from=builder /go2sky/test/e2e/example-server/main .
+ENTRYPOINT ["/main"]

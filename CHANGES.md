@@ -32,6 +32,7 @@ Release Notes.
 * Add `Message Queue Avg Consuming Latency` metric for MQ consuming service and endpoint.
 * Replace e2e cases to e2e-v2: PHP.
 * Replace VM e2e cases to e2e-v2: Prometheus Node Exporter, Zabbix.
+* Replace e2e cases to e2e-v2: go2sky.
 
 #### UI
 
