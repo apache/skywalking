@@ -20,6 +20,9 @@ services:
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: oap
+    environment:
+      SW_LOG_LAL_FILES: test
+      SW_LOG_MAL_FILES: test
     volumes:
       - ./lal.yaml:/skywalking/config/lal/test.yaml
       - ./log-mal.yaml:/skywalking/config/log-mal-rules/test.yaml

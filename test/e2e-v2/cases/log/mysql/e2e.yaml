@@ -27,6 +27,8 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
     - name: install etcdctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
+    - name: download mysql driver
+      command: bash test/e2e-v2/script/prepare/setup-oap/download-mysql.sh
 
 trigger:
   action: http

@@ -34,8 +34,7 @@ services:
       service: oap
     environment:
       SW_STORAGE: influxdb
-      SW_LOG_LAL_FILES: test
-      SW_LOG_MAL_FILES: test
+      SW_STORAGE_INFLUXDB_URL: "http://influxdb:8086"
     networks:
       - e2e
     depends_on:
@@ -46,6 +45,8 @@ services:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
       service: provider
+    networks:
+      - e2e
     depends_on:
       oap:
         condition: service_healthy

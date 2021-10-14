@@ -37,11 +37,7 @@ services:
       service: oap
     environment:
       SW_STORAGE: postgresql
-      SW_PROMETHEUS_FETCHER: "default"
       SW_JDBC_URL: "jdbc:postgresql://postgres:5432/skywalking"
-      SW_TELEMETRY: prometheus
-      SW_LOG_LAL_FILES: test
-      SW_LOG_MAL_FILES: test
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,6 +46,8 @@ services:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
       service: provider
+    networks:
+      - e2e
     depends_on:
       oap:
         condition: service_healthy

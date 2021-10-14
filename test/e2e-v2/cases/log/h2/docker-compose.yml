@@ -37,8 +37,6 @@ services:
     environment:
       SW_STORAGE: h2
       SW_STORAGE_H2_URL: jdbc:h2:tcp://h2db:1521/skywalking-oap-db
-      SW_LOG_LAL_FILES: test
-      SW_LOG_MAL_FILES: test
     depends_on:
       h2db:
         condition: service_healthy
@@ -49,6 +47,8 @@ services:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
       service: provider
+    networks:
+      - e2e
     depends_on:
       oap:
         condition: service_healthy

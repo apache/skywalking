@@ -38,14 +38,14 @@ services:
       service: oap
     environment:
       SW_STORAGE: mysql
-      SW_LOG_LAL_FILES: test
-      SW_LOG_MAL_FILES: test
+      SW_JDBC_URL: "jdbc:mysql://mysql:3306/swtest?rewriteBatchedStatements=true"
+    volumes:
+      - /skywalking/oap-libs/mysql-connector-java-8.0.13.jar:/skywalking/oap-libs/mysql-connector-java-8.0.13.jar
     networks:
       - e2e
     depends_on:
       mysql:
         condition: service_healthy
-    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
 
   provider:
     extends:
@@ -54,6 +54,8 @@ services:
     depends_on:
       oap:
         condition: service_healthy
+    networks:
+      - e2e
 
 networks:
   e2e:
