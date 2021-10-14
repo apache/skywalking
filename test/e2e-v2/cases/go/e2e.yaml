@@ -35,9 +35,6 @@ trigger:
   url: http://${consumer_host}:${consumer_9092}/correlation
   method: POST
 
-cleanup:
-  on: never
-
 verify:
   retry:
     count: 20
