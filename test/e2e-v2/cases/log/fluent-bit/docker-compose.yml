@@ -48,6 +48,8 @@ services:
       service: provider
     volumes:
       - /tmp/skywalking-logs/:/tmp/skywalking-logs/
+    ports:
+      - 9090
     networks:
       - e2e
     depends_on:

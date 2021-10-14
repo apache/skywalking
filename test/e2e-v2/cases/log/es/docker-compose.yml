@@ -47,6 +47,8 @@ services:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
       service: provider
+    ports:
+      - 9090
     depends_on:
       oap:
         condition: service_healthy

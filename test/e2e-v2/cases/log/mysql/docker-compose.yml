@@ -54,6 +54,8 @@ services:
     depends_on:
       oap:
         condition: service_healthy
+    ports:
+      - 9090
     networks:
       - e2e
 
