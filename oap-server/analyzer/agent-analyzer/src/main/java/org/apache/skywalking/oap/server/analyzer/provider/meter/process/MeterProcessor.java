@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterBucketValue;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterHistogram;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
@@ -96,7 +97,7 @@ public class MeterProcessor {
                             .name(histogram.getName())
                             .labels(ImmutableMap.<String, String>builder()
                                 .putAll(baseLabel)
-                                .put("le", String.valueOf(v.getBucket())).build())
+                                .put("le", parseHistogramBucket(v)).build())
                             .value(v.getCount()).build()
                 ).collect(Collectors.toList()));
                 break;
@@ -140,6 +141,14 @@ public class MeterProcessor {
             ))));
         } catch (Exception e) {
             log.warn("Process meters failure.", e);
+        }
+    }
+
+    private String parseHistogramBucket(MeterBucketValue bucketValue) {
+        if (bucketValue.getIsNegativeInfinity()) {
+            return String.valueOf(Double.NEGATIVE_INFINITY);
+        } else {
+            return String.valueOf(bucketValue.getBucket());
         }
     }
 
