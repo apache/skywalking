@@ -30,10 +30,13 @@ setup:
 
 trigger:
   action: http
-  interval: 10s
+  interval: 3s
   times: 10
-  url: http://${consumer_host}:${consumer_9092}/info
+  url: http://${provider_host}:${provider_9090}/users
   method: POST
+  body: '{"id":"123","name":"skywalking"}'
+  headers:
+    "Content-Type": "application/json"
 
 verify:
   # verify with retry strategy

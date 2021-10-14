@@ -44,5 +44,13 @@ services:
       postgres:
         condition: service_healthy
 
+  provider:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: provider
+    depends_on:
+      oap:
+        condition: service_healthy
+
 networks:
   e2e:
