@@ -40,7 +40,7 @@ services:
       SW_LOG_LAL_FILES: test
       SW_LOG_MAL_FILES: test
     depends_on:
-      es:
+      h2db:
         condition: service_healthy
     networks:
       - e2e
