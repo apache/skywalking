@@ -6,8 +6,6 @@ Release Notes.
 ------------------
 #### Project
 
-* replace log e2e cases to e2e-v2.
-
 #### OAP Server
 
 * Add component definition for `Jackson`.
@@ -36,6 +34,8 @@ Release Notes.
 * Replace e2e cases to e2e-v2: PHP.
 * Replace VM e2e cases to e2e-v2: Prometheus Node Exporter, Zabbix.
 * Replace e2e cases to e2e-v2: go2sky.
+* replace log e2e cases to e2e-v2.
+* replace storage e2e cases to e2e-v2.
 
 #### UI
 
