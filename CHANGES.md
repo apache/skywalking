@@ -6,18 +6,26 @@ Release Notes.
 ------------------
 #### Project
 
-* replace log e2e cases to e2e-v2.
-
+* Replace e2e cases to e2e-v2: 
+  - Simple: JDK, Auth, SSL, mTLS
+  - Lua Nginx
+  - SelfObservability
+  - Gateway
+  - Meter
+  - Nodejs
+  - PHP
+  - VM: Prometheus Node Exporter, Zabbix
+  - go2sky
+  - log
+  - Python
+  
 #### OAP Server
 
 * Add component definition for `Jackson`.
 * Fix that zipkin-receiver plugin is not packaged into dist.
-* Replace e2e cases to e2e-v2: Lua Nginx/SelfObservability.
 * Upgrade Armeria to 1.12, upgrade OpenSearch test version to 1.1.0.
 * Add component definition for `Apache-Kylin`.
 * Enhance `get` generation mechanism of OAL engine, support map type of source's field.
-* Replace e2e cases to e2e-v2: Gateway.
-* Replace e2e cases to e2e-v2: Meter.
 * Add `tag`(Map) into All, Service, ServiceInstance and Endpoint sources.
 * Fix `funcParamExpression` and `literalExpression` can't be used in the same aggregation function.
 * Support cast statement in the OAL core engine.
@@ -29,14 +37,13 @@ Release Notes.
   attribute expression.
 * Refactor the OAL compiler context to improve readability.
 * Fix wrong generated codes of `hashCode` and `remoteHashCode` methods for numeric fields.
-* Replace e2e cases to e2e-v2: Nodejs.
 * Support `!= null` in OAL engine.
 * Add `Message Queue Consuming Count` metric for MQ consuming service and endpoint.
 * Add `Message Queue Avg Consuming Latency` metric for MQ consuming service and endpoint.
 * Replace e2e cases to e2e-v2: PHP.
 * Replace VM e2e cases to e2e-v2: Prometheus Node Exporter, Zabbix.
-* Support `-Inf` as bucket in the meter system.
 * Replace e2e cases to e2e-v2: go2sky.
+* Support `-Inf` as bucket in the meter system.
 
 #### UI
 
