@@ -13,11 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SW_AGENT_JAVA_COMMIT=3997f0256056788bd054ee37e4603c11c0fd6756
-SW_AGENT_SATELLITE_COMMIT=1f3c08a5af19f8522f2a40d9339c45fa816bfe07
-SW_AGENT_NGINX_LUA_COMMIT=c3cee4841798a147d83b96a10914d4ac0e11d0aa
-SW_AGENT_NODEJS_COMMIT=e755659c7f308d3b5589619778c8360308cb14f8
-SW_AGENT_GO_COMMIT=4af380c2db6243106b0fc650b6003ce3b3eb82a0
-SW_AGENT_PYTHON_COMMIT=50388c55428d742d73d9733278f04173585de80d
-
-SW_CTL_COMMIT=b90255132f916f53eb90955cc8a6445b03a4bec3
+{{- contains . }}
+- id: {{ b64enc "e2e-service-consumer" }}.1_{{ b64enc "POST:/users" }}
+  name: POST:/users
+{{- end}}
