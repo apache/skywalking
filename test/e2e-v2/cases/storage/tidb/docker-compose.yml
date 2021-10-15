@@ -37,8 +37,6 @@ services:
       service: oap
     environment:
       SW_STORAGE: tidb
-      SW_PROMETHEUS_FETCHER: "default"
-      SW_TELEMETRY: prometheus
       SW_JDBC_URL: "jdbc:mysql://tidb:4000/test"
       SW_DATA_SOURCE_PASSWORD: ""
     ports:

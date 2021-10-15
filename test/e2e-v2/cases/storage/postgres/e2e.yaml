@@ -76,10 +76,6 @@ verify:
         )
       expected: ../expected/trace-info-detail.yml
 
-    # native meter: instance meter
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name meter_jvm_classes_loaded --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: ../expected/metrics-has-value.yml
-
     # native event: event list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql event list
       expected: ../expected/event-list.yml

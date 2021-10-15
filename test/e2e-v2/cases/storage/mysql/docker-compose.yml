@@ -39,8 +39,6 @@ services:
     environment:
       SW_STORAGE: mysql
       SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
-      SW_PROMETHEUS_FETCHER: "default"
-      SW_TELEMETRY: prometheus
     ports:
       - 12800
     entrypoint: ['sh', '-c', 'apk add --no-cache bash && /download-mysql.sh && /skywalking/docker-entrypoint.sh']

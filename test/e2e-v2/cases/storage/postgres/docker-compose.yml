@@ -37,9 +37,7 @@ services:
       service: oap
     environment:
       SW_STORAGE: postgresql
-      SW_PROMETHEUS_FETCHER: "default"
       SW_JDBC_URL: "jdbc:postgresql://postgres:5432/skywalking"
-      SW_TELEMETRY: prometheus
     ports:
       - 12800
     depends_on:

@@ -35,8 +35,6 @@ services:
     environment:
       SW_STORAGE: influxdb
       SW_STORAGE_INFLUXDB_URL: "http://influxdb:8086"
-      SW_PROMETHEUS_FETCHER: "default"
-      SW_TELEMETRY: prometheus
     ports:
       - 12800
     networks:

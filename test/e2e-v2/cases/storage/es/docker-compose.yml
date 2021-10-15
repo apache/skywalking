@@ -38,8 +38,6 @@ services:
     environment:
       SW_STORAGE: elasticsearch
       SW_STORAGE_ES_CLUSTER_NODES: es:9200
-      SW_PROMETHEUS_FETCHER: "default"
-      SW_TELEMETRY: prometheus
     ports:
       - 12800
     depends_on:
