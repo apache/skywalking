@@ -146,7 +146,7 @@ public class MeterProcessor {
 
     private String parseHistogramBucket(MeterBucketValue bucketValue) {
         if (bucketValue.getIsNegativeInfinity()) {
-            return String.valueOf(Double.NEGATIVE_INFINITY);
+            return String.valueOf(Long.MIN_VALUE);
         } else {
             return String.valueOf(bucketValue.getBucket());
         }
