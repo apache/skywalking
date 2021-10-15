@@ -148,7 +148,12 @@ public class Analyzer {
                               long[] vv = new long[bb.length];
                               for (int i = 0; i < subSs.size(); i++) {
                                   Sample s = subSs.get(i);
-                                  bb[i] = Long.parseLong(s.getLabels().get("le"));
+                                  final double leVal = Double.parseDouble(s.getLabels().get("le"));
+                                  if (leVal == Double.NEGATIVE_INFINITY) {
+                                      bb[i] = Long.MIN_VALUE;
+                                  } else {
+                                      bb[i] = (long) leVal;
+                                  }
                                   vv[i] = getValue(s);
                               }
                               BucketedValues bv = new BucketedValues(bb, vv);

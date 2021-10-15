@@ -40,6 +40,7 @@ Release Notes.
 * Support `!= null` in OAL engine.
 * Add `Message Queue Consuming Count` metric for MQ consuming service and endpoint.
 * Add `Message Queue Avg Consuming Latency` metric for MQ consuming service and endpoint.
+* Support `-Inf` as bucket in the meter system.
 
 #### UI
 
