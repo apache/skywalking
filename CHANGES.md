@@ -6,9 +6,7 @@ Release Notes.
 ------------------
 #### Project
 
-<<<<<<< HEAD
-=======
-* Replace e2e cases to e2e-v2: 
+* Replace e2e cases to e2e-v2:
   - Simple: JDK, Auth, SSL, mTLS
   - Lua Nginx
   - SelfObservability
@@ -20,8 +18,8 @@ Release Notes.
   - go2sky
   - log
   - Python
-  
->>>>>>> origin/master
+  - Storage
+
 #### OAP Server
 
 * Add component definition for `Jackson`.
@@ -43,12 +41,7 @@ Release Notes.
 * Support `!= null` in OAL engine.
 * Add `Message Queue Consuming Count` metric for MQ consuming service and endpoint.
 * Add `Message Queue Avg Consuming Latency` metric for MQ consuming service and endpoint.
-* Replace e2e cases to e2e-v2: PHP.
-* Replace VM e2e cases to e2e-v2: Prometheus Node Exporter, Zabbix.
-* Replace e2e cases to e2e-v2: go2sky.
 * Support `-Inf` as bucket in the meter system.
-* Replace e2e cases to e2e-v2: Log
-* Replace e2e cases to e2e-v2: Storage
 
 #### UI
 
