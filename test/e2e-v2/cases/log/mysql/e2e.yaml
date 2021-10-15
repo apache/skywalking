@@ -27,8 +27,6 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
     - name: install etcdctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
-    - name: download mysql driver
-      command: bash test/e2e-v2/script/prepare/setup-oap/download-mysql.sh
 
 trigger:
   action: http
@@ -52,7 +50,7 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
       expected: ../expected/service.yml
     # service endpoint
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=info --service-name=e2e-service-provider
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=users --service-name=e2e-service-provider
       expected: ../expected/service-endpoint.yml
     # service instance list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider

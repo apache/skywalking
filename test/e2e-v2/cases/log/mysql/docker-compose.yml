@@ -23,9 +23,9 @@ services:
     expose:
       - 3306
     environment:
-      - MYSQL_ROOT_PASSWORD=root@1234
-      - MYSQL_DATABASE=swtest
-      - MYSQL_ROOT_HOST=%
+      MYSQL_ROOT_PASSWORD: "root@1234"
+      MYSQL_DATABASE: "swtest"
+      MYSQL_ROOT_HOST: "%"
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
       interval: 5s
@@ -38,11 +38,10 @@ services:
       service: oap
     environment:
       SW_STORAGE: mysql
-      SW_JDBC_URL: "jdbc:mysql://mysql:3306/swtest?rewriteBatchedStatements=true"
+      SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
     ports:
       - 12800
-    volumes:
-      - /skywalking/oap-libs/mysql-connector-java-8.0.13.jar:/skywalking/oap-libs/mysql-connector-java-8.0.13.jar
+    entrypoint: ['sh', '-c', 'apk add --no-cache bash && /download-mysql.sh && /skywalking/docker-entrypoint.sh']
     networks:
       - e2e
     depends_on:
