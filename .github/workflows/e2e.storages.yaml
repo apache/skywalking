@@ -37,6 +37,7 @@ jobs:
     strategy:
       matrix:
         config-file:
+          - storage/h2/e2e.yaml
           - storage/opensearch/e2e.yaml
           - storage/mysql/e2e.yaml
           - storage/tidb/e2e.yaml
