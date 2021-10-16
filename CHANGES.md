@@ -6,7 +6,7 @@ Release Notes.
 ------------------
 #### Project
 
-* Replace e2e cases to e2e-v2: 
+* Replace e2e cases to e2e-v2:
   - Simple: JDK, Auth, SSL, mTLS
   - Lua Nginx
   - SelfObservability
@@ -18,7 +18,8 @@ Release Notes.
   - go2sky
   - log
   - Python
-  
+  - Storage
+
 #### OAP Server
 
 * Add component definition for `Jackson`.
