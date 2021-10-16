@@ -51,6 +51,8 @@ Release Notes.
 * Add ClickHouse logo.
 * Optimize the style and add tips for log conditions.
 * Fix the condition for trace table.
+* Optimize profile functions.
+* Implement a reminder to clear cache for dashboard templates.
 
 #### Documentation
 
