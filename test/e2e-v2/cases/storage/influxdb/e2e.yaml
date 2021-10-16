@@ -68,7 +68,7 @@ verify:
     # trace segment list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
       expected: ../expected/traces-list.yml
-    # native tracing: trace info detail
+    # native tracing: trace detail
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls \
@@ -90,13 +90,11 @@ verify:
             --dump-period=10 --max-sampling-count=9
       expected: ../expected/profile-create.yml
     # native profile: sleep to wait agent notices and query profile list
-    - query: sleep 10 && swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list -service-name=e2e-service-provider --endpoint-name=POST:/info
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list -service-name=e2e-service-provider --endpoint-name=POST:/info
       expected: ../expected/profile-list.yml
 
     # native profile: sleep to wait segment report and query profiled segment list
     - query: |
-        curl -X POST http://${consumer_host}:${consumer_9092}/info > /dev/null;
-        sleep 5;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile segment-list --task-id=$( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list --service-name=e2e-service-provider --endpoint-name=POST:/info | yq e '.[0].id' - \
         )
@@ -123,10 +121,9 @@ verify:
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile profiled-analyze --segment-id=$segmentid --time-ranges=$(echo $start"-"$end)
       expected: ../expected/profile-segment-analyze.yml
 
-    # trace user detail
     - query: |
         curl -s -XPOST http://${provider_host}:${provider_9090}/users -d '{"id":"123","name":"SinglesBar"}' -H "Content-Type: application/json" > /dev/null;
-        sleep 10;
+        sleep 5;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --order startTime --service-name "e2e-service-provider" --endpoint-name "POST:/users" \
             | yq e '.traces[0].traceids[0]' - \

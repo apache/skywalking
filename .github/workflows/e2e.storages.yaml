@@ -70,3 +70,12 @@ jobs:
           ES_VERSION: ${{ matrix.es-version }}
         with:
           config-file: ${{ matrix.config-file }}
+
+  Storage:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    needs: [StoragePlugins]
+    steps:
+      - name: To pass or not pass
+        run: echo "Just to make the GitHub merge button green"
