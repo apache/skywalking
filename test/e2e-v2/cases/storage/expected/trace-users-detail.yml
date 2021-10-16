@@ -14,7 +14,7 @@
 # limitations under the License.
 
 spans:
-  {{- with (index .spans 0) }}
+{{- contains .spans }}
   - traceid: {{ .traceid }}
     segmentid: {{ .segmentid }}
     spanid: {{ .spanid }}
