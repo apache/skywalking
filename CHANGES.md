@@ -19,6 +19,7 @@ Release Notes.
   - log
   - Python
   - Storage
+  - Cluster
 
 #### OAP Server
 
