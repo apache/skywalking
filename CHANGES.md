@@ -20,6 +20,7 @@ Release Notes.
   - Python
   - Storage
   - Cluster
+  - Event
 
 #### OAP Server
 
