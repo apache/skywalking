@@ -29,11 +29,8 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
 
 verify:
-  # verify with retry strategy
   retry:
-    # max retry count
     count: 20
-    # the interval between two retries, in millisecond.
     interval: 3s
   cases:
     - includes:
