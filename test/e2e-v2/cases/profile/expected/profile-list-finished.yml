@@ -13,12 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM adoptopenjdk/openjdk8:alpine
-
-WORKDIR /h2
-
-VOLUME /h2/data
-
-ADD https://repo.maven.apache.org/maven2/com/h2database/h2/1.4.200/h2-1.4.200.jar /h2
-
-CMD ["sh", "-c", "java -cp /h2/*.jar org.h2.tools.Server -tcp -tcpAllowOthers -tcpPort 1521 -ifNotExists -baseDir /h2/data"]
+{{- contains . }}
+- id: {{ notEmpty .id }}
+  serviceid: {{ b64enc "e2e-service-provider" }}.1
+  servicename: ""
+  endpointname: POST:/profile/{name}
+  starttime: {{ gt .starttime 0 }}
+  duration: 1
+  mindurationthreshold: 1500
+  dumpperiod: 500
+  maxsamplingcount: 5
+  logs:
+    {{- contains .logs }}
+    - id: {{ notEmpty .id }}
+      instanceid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
+      operationtype: EXECUTION_FINISHED
+      instancename: ""
+      operationtime: {{ gt .operationtime 0 }}
+    {{- end }}
+{{- end }}

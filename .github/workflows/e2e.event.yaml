@@ -43,8 +43,6 @@ jobs:
           - event/es/e2e.yaml
           - event/mysql/e2e.yaml
           - event/influxdb/e2e.yaml
-    env:
-      SW_STORAGE: ${{ matrix.storage }}
     steps:
       - uses: actions/checkout@v2
         with:

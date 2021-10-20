@@ -21,6 +21,7 @@ Release Notes.
   - Storage
   - Cluster
   - Event
+  - Profile
 
 #### OAP Server
 
