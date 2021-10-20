@@ -57,6 +57,8 @@ Release Notes.
 * Fix the condition for trace table.
 * Optimize profile functions.
 * Implement a reminder to clear cache for dashboard templates.
+* Support +/- hh:mm in TimeZone setting.
+* Optimize global settings.
 
 #### Documentation
 
