@@ -110,10 +110,10 @@ public class MetadataQuery implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> searchServices(String keyword) throws IOException {
+    public List<Service> searchServices(final NodeType nodeType, final String keyword) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> where = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
-            .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
+            .where(eq(TagName.NODE_TYPE, String.valueOf(nodeType.value())));
         if (!Strings.isNullOrEmpty(keyword)) {
             where.and(contains(NAME, keyword));
         }
@@ -121,10 +121,10 @@ public class MetadataQuery implements IMetadataQueryDAO {
     }
 
     @Override
-    public Service searchService(String serviceCode) throws IOException {
+    public Service searchService(final NodeType nodeType, final String serviceCode) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> whereQuery = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
-            .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
+            .where(eq(TagName.NODE_TYPE, String.valueOf(nodeType.value())));
         whereQuery.and(eq(NAME, serviceCode));
         return buildServices(whereQuery).get(0);
     }
