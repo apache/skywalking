@@ -21,10 +21,6 @@ ENV JAVA_OPTS=" -Xms256M " \
 
 WORKDIR skywalking
 
-RUN set -ex; \
-    apk add --no-cache \
-    bash
-
 ARG DIST
 COPY "$DIST" .
 
