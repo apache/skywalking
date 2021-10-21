@@ -20,6 +20,8 @@ Release Notes.
   - Python
   - Storage
   - Cluster
+  - Event
+  - Profile
 
 #### OAP Server
 
@@ -43,6 +45,7 @@ Release Notes.
 * Add `Message Queue Consuming Count` metric for MQ consuming service and endpoint.
 * Add `Message Queue Avg Consuming Latency` metric for MQ consuming service and endpoint.
 * Support `-Inf` as bucket in the meter system.
+* Fix setting wrong field when combining `Event`s.
 * Support search browser service.
 
 #### UI
@@ -55,6 +58,8 @@ Release Notes.
 * Fix the condition for trace table.
 * Optimize profile functions.
 * Implement a reminder to clear cache for dashboard templates.
+* Support +/- hh:mm in TimeZone setting.
+* Optimize global settings.
 
 #### Documentation
 
