@@ -34,7 +34,7 @@ env:
 
 jobs:
   build:
-    if: github.repository == 'mis98zb/skywalking'
+    if: github.repository == 'apache/skywalking'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -74,4 +74,3 @@ jobs:
       - name: Build docker image
         run: |
           make docker || make docker
-#          make docker.push || make docker.push
