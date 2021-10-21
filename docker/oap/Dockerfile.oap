@@ -49,12 +49,6 @@ ENV SKYWALKING_CLI_SHA512_URLS \
 
 RUN set -eux; \
 	\
-	apk add --no-cache --virtual .fetch-deps \
-		gnupg \
-		ca-certificates \
-		openssl \
-	; \
-	\
 	wget --timeout=20 -O KEYS https://downloads.apache.org/skywalking/KEYS; \
 	gpg --import KEYS; \
 	\
@@ -96,8 +90,6 @@ RUN set -eux; \
 	ls -la .;
 
 FROM $BASE_IMAGE
-
-RUN apk add --no-cache openssl
 
 WORKDIR /skywalking
 
