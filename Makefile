@@ -61,13 +61,13 @@ docker.oap: $(CONTEXT)/$(DIST)
 docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
-		$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^)
+	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^)
 
 docker.ui: $(CONTEXT)/$(DIST)
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
 docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
-		$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^)
+	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^)
 
 # $@ is the name of the target
 # $^ the name of the dependencies for the target
@@ -81,11 +81,11 @@ docker.ui: $(SW_ROOT)/docker/ui/logback.xml
 
 # DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .))
 define DOCKER_RULE
-    mkdir -p $(1) 
-    cp -r $(2) $(1) 
-    cd $(1) 
-	pwd
-	dir
+    mkdir -p $(1) && \
+    cp -r $(2) $(1) && \
+    cd $(1) && \
+	pwd && \
+	dir && \
     $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .
 endef
 
