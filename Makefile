@@ -84,6 +84,8 @@ define DOCKER_RULE
     mkdir -p $(DOCKER_BUILD_TOP)/$@ 
     cp -r $^ $(DOCKER_BUILD_TOP)/$@ 
     cd $(DOCKER_BUILD_TOP)/$@ 
+	pwd
+	dir
     $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .
 endef
 
