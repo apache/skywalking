@@ -61,13 +61,25 @@ docker.oap: $(CONTEXT)/$(DIST)
 docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
-		@$(DOCKER_RULE)
+		pwd && \
+		mkdir -p $(DOCKER_BUILD_TOP)/$@  && \
+		cp -r $^ $(DOCKER_BUILD_TOP)/$@  && \
+		cd $(DOCKER_BUILD_TOP)/$@  && \
+		pwd && \
+		dir && \
+		$(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .
 
 docker.ui: $(CONTEXT)/$(DIST)
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
 docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
-		@$(DOCKER_RULE)
+		pwd && \
+		mkdir -p $(DOCKER_BUILD_TOP)/$@  && \
+		cp -r $^ $(DOCKER_BUILD_TOP)/$@  && \
+		cd $(DOCKER_BUILD_TOP)/$@  && \
+		pwd && \
+		dir && \
+		$(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .
 
 # $@ is the name of the target
 # $^ the name of the dependencies for the target
@@ -80,15 +92,15 @@ docker.ui: $(SW_ROOT)/docker/ui/logback.xml
 # 5. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
 
 # DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .))
-define DOCKER_RULE
-	echo on
-	pwd
-    mkdir -p $(DOCKER_BUILD_TOP)/$@ 
-    cp -r $^ $(DOCKER_BUILD_TOP)/$@ 
-    cd $(DOCKER_BUILD_TOP)/$@ 
-	pwd
-	dir
-    $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .
-endef
+# define DOCKER_RULE
+# 	echo on
+# 	pwd
+#     mkdir -p $(DOCKER_BUILD_TOP)/$@ 
+#     cp -r $^ $(DOCKER_BUILD_TOP)/$@ 
+#     cd $(DOCKER_BUILD_TOP)/$@ 
+# 	pwd
+# 	dir
+#     $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(subst docker.,,$@):$(TAG) -f Dockerfile$(suffix $@) .
+# endef
 
 
