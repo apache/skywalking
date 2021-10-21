@@ -39,12 +39,12 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Warmup(iterations = AbstractMicroBenchmark.DEFAULT_WARMUP_ITERATIONS)
-@Measurement(iterations = AbstractMicroBenchmark.DEFAULT_MEASURE_ITERATIONS)
+@Warmup(iterations = AbstractMicrobenchmark.DEFAULT_WARMUP_ITERATIONS)
+@Measurement(iterations = AbstractMicrobenchmark.DEFAULT_MEASURE_ITERATIONS)
 @State(Scope.Thread)
-@Fork(AbstractMicroBenchmark.DEFAULT_FORKS)
+@Fork(AbstractMicrobenchmark.DEFAULT_FORKS)
 @Slf4j
-public class AbstractMicroBenchmark {
+public class AbstractMicrobenchmark {
     static final int DEFAULT_WARMUP_ITERATIONS = 10;
 
     static final int DEFAULT_MEASURE_ITERATIONS = 10;
@@ -69,7 +69,7 @@ public class AbstractMicroBenchmark {
                 //set jvm args
                 .jvmArgsAppend("-Xmx512m", "-Xms512m", "-XX:MaxDirectMemorySize=512m",
                         "-XX:BiasedLockingStartupDelay=0",
-                        "-Djmh.executor=CUSTOM", "-Djmh.executor.class=org.apache.skywalking.microbench.base.AbstractMicroBenchmark$JmhThreadExecutor");
+                        "-Djmh.executor=CUSTOM", "-Djmh.executor.class=org.apache.skywalking.microbench.base.AbstractMicrobenchmark$JmhThreadExecutor");
 
         if (getMeasureIterations() > 0) {
             optBuilder.warmupIterations(getMeasureIterations());

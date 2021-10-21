@@ -30,13 +30,13 @@ import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Warmup;
 
-import org.apache.skywalking.microbench.base.AbstractMicroBenchmark;
+import org.apache.skywalking.microbench.base.AbstractMicrobenchmark;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @Warmup(iterations = 2)
 @Measurement(iterations = 1)
-public class StringFormatGroupBenchmark extends AbstractMicroBenchmark {
+public class StringFormatGroupBenchmark extends AbstractMicrobenchmark {
     @Benchmark
     public void testMatch() {
         StringFormatGroup group = new StringFormatGroup();

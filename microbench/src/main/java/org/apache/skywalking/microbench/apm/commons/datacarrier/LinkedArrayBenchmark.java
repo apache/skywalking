@@ -27,13 +27,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.skywalking.microbench.apm.commons.SampleData;
-import org.apache.skywalking.microbench.base.AbstractMicroBenchmark;
+import org.apache.skywalking.microbench.base.AbstractMicrobenchmark;
 
 /**
  * ISSUE-3064
  */
 @BenchmarkMode({Mode.Throughput})
-public class LinkedArrayBenchmark extends AbstractMicroBenchmark {
+public class LinkedArrayBenchmark extends AbstractMicrobenchmark {
 
     @Benchmark
     public void testArrayCap1000() {
