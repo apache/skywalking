@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG BASE_IMAGE='adoptopenjdk/openjdk11:jre'
+ARG BASE_IMAGE='openjdk:11-jre'
 
 FROM $BASE_IMAGE as cli
 
