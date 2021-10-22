@@ -43,11 +43,11 @@ jobs:
           - name: Base
             config-file: kafka/simple-so11y/e2e.yaml
           - name: Profiling
-            config-file: kafka/simple-profile/e2e.yaml
+            config-file: kafka/profile/e2e.yaml
           - name: Meter
-            config-file: kafka/simple-meter/e2e.yaml
+            config-file: kafka/meter/e2e.yaml
           - name: Log
-            config-file: kafka/simple-log/e2e.yaml
+            config-file: kafka/log/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
