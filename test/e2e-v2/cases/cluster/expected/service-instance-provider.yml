@@ -37,25 +37,4 @@
   {{- end}}
   language: JAVA
   instanceuuid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider2" }}
-  name: provider2
-  attributes:
-  {{- contains .attributes }}
-  - name: OS Name
-    value: Linux
-  - name: hostname
-    value: {{ notEmpty .value }}
-  - name: Process No.
-    value: "1"
-  - name: Start Time
-    value: {{ notEmpty .value }}
-  - name: JVM Arguments
-    value: '{{ notEmpty .value }}'
-  - name: Jar Dependencies
-    value: '{{ notEmpty .value }}'
-  - name: ipv4s
-    value: {{ notEmpty .value }}
-  {{- end}}
-  language: JAVA
-  instanceuuid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider2" }}
 {{- end}}

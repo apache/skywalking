@@ -74,12 +74,6 @@
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_sla --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_resp_time --instance-name=provider2 --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_cpm --instance-name=provider2 --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_sla --instance-name=provider2 --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_resp_time --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_cpm --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
@@ -115,9 +109,5 @@
     - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_relation_server_cpm --instance-name=consumer1 --service-name=e2e-service-consumer --dest-instance-name=provider1 --dest-service-name=e2e-service-provider |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_relation_client_cpm --instance-name=consumer1 --service-name=e2e-service-consumer --dest-instance-name=provider1 --dest-service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_relation_server_cpm --instance-name=consumer1 --service-name=e2e-service-consumer --dest-instance-name=provider2 --dest-service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_relation_client_cpm --instance-name=consumer1 --service-name=e2e-service-consumer --dest-instance-name=provider2 --dest-service-name=e2e-service-provider |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
 

@@ -93,19 +93,8 @@ services:
       file: ../../../../script/docker-compose/base-compose.yml
       service: provider
     environment:
-      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap1:11800
-      SW_AGENT_INSTANCE_NAME: provider1
-    depends_on:
-      oap1:
-        condition: service_healthy
-
-  provider2:
-    extends:
-      file: ../../../../script/docker-compose/base-compose.yml
-      service: provider
-    environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap2:11800
-      SW_AGENT_INSTANCE_NAME: provider2
+      SW_AGENT_INSTANCE_NAME: provider1
     depends_on:
       oap2:
         condition: service_healthy
@@ -116,14 +105,13 @@ services:
       service: consumer
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap1:11800
-      PROVIDER_URL: http://provider1:9090,http://provider2:9090
+      PROVIDER_URL: http://provider1:9090
     depends_on:
       oap1:
         condition: service_healthy
       provider1:
         condition: service_healthy
-      provider2:
-        condition: service_healthy
+
     ports:
       - 9092
 networks:
