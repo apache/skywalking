@@ -93,7 +93,7 @@ services:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap2:11800
       SW_AGENT_INSTANCE_NAME: provider1
     depends_on:
-      oap1:
+      oap2:
         condition: service_healthy
 
   consumer:
