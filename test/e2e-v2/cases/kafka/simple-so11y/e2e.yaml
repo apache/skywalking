@@ -19,7 +19,7 @@ setup:
   env: compose
   file: docker-compose.yml
   timeout: 1200
-  init-system-environment: ../../script/env
+  init-system-environment: ../../../script/env
   steps:
     - name: install yq
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
@@ -32,7 +32,7 @@ trigger:
   action: http
   interval: 3s
   times: 10
-  url: http://${provider_host}:${provider_9090}/users
+  url: http://${consumer_host}:${consumer_9092}/users
   method: POST
   body: '{"id":"123","name":"skywalking"}'
   headers:
@@ -44,4 +44,5 @@ verify:
     interval: 3s
   cases:
     - includes:
-        - meter-cases.yaml
+        - ../../simple/simple-cases.yaml
+        - ../../so11y/so11y-cases.yaml

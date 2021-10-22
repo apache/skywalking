@@ -19,7 +19,7 @@ setup:
   env: compose
   file: docker-compose.yml
   timeout: 1200
-  init-system-environment: ../../script/env
+  init-system-environment: ../../../script/env
   steps:
     - name: install yq
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
@@ -44,4 +44,16 @@ verify:
     interval: 3s
   cases:
     - includes:
-        - meter-cases.yaml
+        - ../../log/log-cases.yaml
+    # filebeat
+    - query: |
+        curl -X POST http://${provider_host}:${provider_9090}/file/logs/trigger > /dev/null;
+        curl -X POST http://${provider_host}:${provider_9090}/file/logs/trigger > /dev/null;
+        curl -X POST http://${provider_host}:${provider_9090}/file/logs/trigger > /dev/null;
+        sleep 10;
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=e2e-service-provider --tags agent=filebeat
+      expected: expected/logs-filebeat.yml
+    # fluentd
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=e2e-service-provider --tags agent=fluentd
+      expected: expected/logs-fluentd.yml

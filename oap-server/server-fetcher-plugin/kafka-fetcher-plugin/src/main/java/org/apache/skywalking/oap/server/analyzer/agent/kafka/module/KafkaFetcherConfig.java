@@ -67,9 +67,9 @@ public class KafkaFetcherConfig extends ModuleConfig {
      */
     private int replicationFactor = 2;
 
-    private boolean enableNativeProtoLog = false;
+    private boolean enableNativeProtoLog = true;
 
-    private boolean enableNativeJsonLog = false;
+    private boolean enableNativeJsonLog = true;
 
     private String configPath = "meter-analyzer-config";
 

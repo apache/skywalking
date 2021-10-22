@@ -34,9 +34,9 @@ public class LogController {
 
     @RequestMapping(value = "/logs/trigger")
     public String trigger() {
-        LOG4J_LOGGER.info("log4j message==> now: " + System.currentTimeMillis());
-        LOG4J2_LOGGER.info("log4j2 message==> now: " + System.currentTimeMillis());
-        LOGBACK_LOGGER.info("logback message==> now: {}", System.currentTimeMillis());
+        LOG4J_LOGGER.info("log4j message==> now-> " + System.currentTimeMillis());
+        LOG4J2_LOGGER.info("log4j2 message==> now-> " + System.currentTimeMillis());
+        LOGBACK_LOGGER.info("logback message==> now-> {}", System.currentTimeMillis());
         return TraceContext.traceId();
     }
 }
