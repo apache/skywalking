@@ -47,6 +47,7 @@ Release Notes.
 * Support `-Inf` as bucket in the meter system.
 * Fix setting wrong field when combining `Event`s.
 * Support search browser service.
+* Add `getProfileTaskLogs` to profile query protocol.
 
 #### UI
 
