@@ -49,12 +49,6 @@
         sleep 10;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list -service-name=e2e-service-provider --endpoint-name=POST:/profile/{name}
       expected: expected/profile-list-finished.yml
-    # profile logs
-    - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile logs --task-id=$( \
-          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' - \
-        )
-      expected: expected/profile-logs-finished.yml
     # profiled segment list
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile segment-list --task-id=$( \
