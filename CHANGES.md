@@ -22,6 +22,7 @@ Release Notes.
   - Cluster
   - Event
   - Profile
+  - Kafka: Base, Meter, Log, Profile
 
 #### OAP Server
 
@@ -48,6 +49,7 @@ Release Notes.
 * Fix setting wrong field when combining `Event`s.
 * Support search browser service.
 * Add `getProfileTaskLogs` to profile query protocol.
+* Set `SW_KAFKA_FETCHER_ENABLE_NATIVE_PROTO_LOG`, `SW_KAFKA_FETCHER_ENABLE_NATIVE_JSON_LOG` default `true`.
 
 #### UI
 

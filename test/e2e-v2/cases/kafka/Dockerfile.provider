@@ -13,11 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SW_AGENT_JAVA_COMMIT=fbdfc42b4d825ba33205d646ddaaaad20c005cb8
-SW_AGENT_SATELLITE_COMMIT=1f3c08a5af19f8522f2a40d9339c45fa816bfe07
-SW_AGENT_NGINX_LUA_COMMIT=c3cee4841798a147d83b96a10914d4ac0e11d0aa
-SW_AGENT_NODEJS_COMMIT=e755659c7f308d3b5589619778c8360308cb14f8
-SW_AGENT_GO_COMMIT=4af380c2db6243106b0fc650b6003ce3b3eb82a0
-SW_AGENT_PYTHON_COMMIT=50388c55428d742d73d9733278f04173585de80d
+ARG SW_AGENT_JDK_VERSION
+ARG SW_AGENT_JAVA_COMMIT
 
-SW_CTL_COMMIT=7dfb10bf79f463f16037e1ac352a8b2f5da6f27e
+FROM ghcr.io/apache/skywalking-java/skywalking-java:${SW_AGENT_JAVA_COMMIT}-java${SW_AGENT_JDK_VERSION}
+
+WORKDIR /skywalking
+
+RUN  echo 'plugin.kafka.producer_config[compression.type]=snappy' >> agent/config/agent.config
+
+# activate kafka-reporter plugin
+RUN mv agent/optional-reporter-plugins/kafka-reporter-plugin-*.jar agent/plugins/ || true
+RUN mv agent/optional-reporter-plugins/snappy-java-*.jar agent/plugins/ || true
+
+VOLUME /services
+
+ADD java-test-service/e2e-service-provider/target/e2e-service-provider-2.0.0.jar /services/
+
+CMD ["sh", "-c", "java -jar /services/e2e-service-provider-2.0.0.jar"]
