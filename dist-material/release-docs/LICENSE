@@ -216,7 +216,6 @@ The following components are provided under the Apache License. See project link
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
     Apache: httpcomponents 4.x.x: http://hc.apache.org/index.html, Apache 2.0
-    Apache: netty-tcnative-boringssl-static 2.0.39:  https://github.com/netty/netty-tcnative, Apache 2.0
 
 ========================================================================
 Apache 2.0 licenses
@@ -258,7 +257,8 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-compress 1.21: https://github.com/apache/commons-compress, Apache 2.0
     Apache: commons-collections4 4.4: https://mvnrepository.com/artifact/org.apache.commons/commons-collections4, Apache 2.0
     Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
-    netty 4.1.65: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
+    netty 4.1.68: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
+    netty: netty-tcnative-boringssl-static 2.0.43:  https://github.com/netty/netty-tcnative, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.6: https://github.com/spullara/mustache.java, Apache 2.0
     error_prone_annotations 2.3.2: https://github.com/google/error-prone, Apache 2.0
@@ -324,9 +324,9 @@ The text of each license is the standard Apache 2.0 license.
     simpleclient_httpserver 0.11 from prometheus https://github.com/prometheus/client_java Apache 2.0
     jetcd 0.5.3, https://github.com/etcd-io/jetcd, Apache 2.0
     failasfe 2.3.4, https://github.com/jhalterman/failsafe, Apache 2.0
-    Armeria 1.11.0, http://github.com/line/armeria, Apache 2.0
+    Armeria 1.12.0, http://github.com/line/armeria, Apache 2.0
     Brotli4j 1.6.0, https://github.com/hyperxpro/Brotli4j, Apache 2.0
-    micrometer 1.7.3, https://github.com/micrometer-metrics/micrometer, Apache 2.0
+    micrometer 1.7.4, https://github.com/micrometer-metrics/micrometer, Apache 2.0
 
 ========================================================================
 MIT licenses

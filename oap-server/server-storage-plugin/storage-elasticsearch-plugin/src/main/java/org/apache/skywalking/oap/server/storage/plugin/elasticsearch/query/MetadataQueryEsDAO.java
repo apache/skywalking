@@ -109,13 +109,13 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> searchServices(String keyword) throws IOException {
+    public List<Service> searchServices(final NodeType nodeType, final String keyword) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query =
             Query.bool()
-                 .must(Query.term(ServiceTraffic.NODE_TYPE, NodeType.Normal.value()));
+                 .must(Query.term(ServiceTraffic.NODE_TYPE, nodeType.value()));
         final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
 
         if (!Strings.isNullOrEmpty(keyword)) {
@@ -128,12 +128,12 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public Service searchService(String serviceCode) throws IOException {
+    public Service searchService(final NodeType nodeType, final String serviceCode) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME);
         final BoolQueryBuilder query =
             Query.bool()
-                 .must(Query.term(ServiceTraffic.NODE_TYPE, NodeType.Normal.value()))
+                 .must(Query.term(ServiceTraffic.NODE_TYPE, nodeType.value()))
                  .must(Query.term(ServiceTraffic.NAME, serviceCode));
         final SearchBuilder search = Search.builder().query(query).size(1);
 

@@ -40,7 +40,7 @@ Supported configurations are as follows:
 |configuration-discovery.default.agentConfigurations| The ConfigurationDiscovery settings. | See [`configuration-discovery.md`](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/configuration-discovery.md). |
 
 ## Group Configuration
-Single Configuration is a config key that corresponds to a group sub config items. A sub config item is a key value pair. The logic structure is:
+Group Configuration is a config key that corresponds to a group sub config items. A sub config item is a key value pair. The logic structure is:
 ```
 {configKey}: |{subItemkey1}:{subItemValue1}
              |{subItemkey2}:{subItemValue2}
@@ -55,6 +55,10 @@ For example:
                                               
 ```
 Supported configurations are as follows:
+
+| Config Key | SubItem Key Description |  Value Description | Value Format Example |
+|:----:|:----:|:----:|:----:|
+|core.default.endpoint-name-grouping-openapi|The serviceName relevant to openAPI definition file. eg. `serviceA`. If the serviceName relevant to multiple files should add subItems for each files, and each subItem key should split serviceName and fileName with `.` eg. `serviceA.API-file1`,`serviceA.API-file2` |The openAPI definitions file contents(yaml format) for create endpoint name grouping rules.|Same as [`productAPI-v2.yaml`](endpoint-grouping-rules.md)|
 
 ## Dynamic Configuration Implementations
 - [Dynamic Configuration Service, DCS](./dynamic-config-service.md)

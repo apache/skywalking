@@ -23,12 +23,13 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
+import org.apache.skywalking.oal.rt.util.TypeCastUtil;
 
 @Getter
 @Setter
 public class EntryMethod {
     static final int LITERAL_TYPE = 1;
-    static final int IDENTIFIER_TYPE = 2;
+    static final int ATTRIBUTE_EXP_TYPE = 2;
     static final int EXPRESSION_TYPE = 3;
 
     private String methodName;
@@ -41,8 +42,10 @@ public class EntryMethod {
             addArg(parameterType, arg.getType(), arg.getText().get(0));
             return;
         }
-        addArg(parameterType, arg.getType(), parameterType.equals(boolean.class) ? "source." + ClassMethodUtil.toIsMethod(arg
-            .getText()) + "()" : "source." + ClassMethodUtil.toGetMethod(arg.getText()) + "()");
+        addArg(parameterType, arg.getType(), parameterType.equals(boolean.class) ?
+            TypeCastUtil.withCast(arg.getCastType(), "source." + ClassMethodUtil.toIsMethod(arg.getText()))
+            :
+            TypeCastUtil.withCast(arg.getCastType(), "source." + ClassMethodUtil.toGetMethod(arg.getText())));
     }
 
     void addArg(Class<?> parameterType, String expression) {

@@ -18,7 +18,6 @@
 package org.apache.skywalking.library.elasticsearch;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.net.HttpHeaders;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
 import com.linecorp.armeria.client.Endpoint;
@@ -62,6 +61,8 @@ public final class ElasticSearchBuilder {
     private String trustStorePass;
 
     private Duration connectTimeout = Duration.ofMillis(500);
+
+    private Duration socketTimeout = Duration.ofSeconds(30);
 
     private Consumer<Boolean> healthyListener;
 
@@ -117,6 +118,12 @@ public final class ElasticSearchBuilder {
         return this;
     }
 
+    public ElasticSearchBuilder socketTimeout(int socketTimeout) {
+        checkArgument(socketTimeout > 0, "socketTimeout must be positive");
+        this.socketTimeout = Duration.ofMillis(socketTimeout);
+        return this;
+    }
+
     public ElasticSearchBuilder healthyListener(Consumer<Boolean> healthyListener) {
         requireNonNull(healthyListener, "healthyListener");
         this.healthyListener = healthyListener;
@@ -138,6 +145,7 @@ public final class ElasticSearchBuilder {
         final ClientFactoryBuilder factoryBuilder =
             ClientFactory.builder()
                          .connectTimeout(connectTimeout)
+                         .idleTimeout(socketTimeout)
                          .useHttp2Preface(false)
                          .workerGroup(numHttpClientThread > 0 ? numHttpClientThread : NUM_PROC);
 
@@ -170,10 +178,7 @@ public final class ElasticSearchBuilder {
                                           return options;
                                       });
         if (StringUtil.isNotBlank(username) && StringUtil.isNotBlank(password)) {
-            endpointGroupBuilder.withClientOptions(it -> it.setHeader(
-                HttpHeaders.AUTHORIZATION,
-                BasicToken.of(username, password).asHeaderValue()
-            ));
+            endpointGroupBuilder.auth(BasicToken.of(username, password));
         }
         final HealthCheckedEndpointGroup endpointGroup = endpointGroupBuilder.build();
 

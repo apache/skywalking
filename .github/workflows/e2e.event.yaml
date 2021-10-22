@@ -38,9 +38,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        storage: ['h2', 'mysql', 'es6', 'es7.0', 'influxdb']
-    env:
-      SW_STORAGE: ${{ matrix.storage }}
+        config-file:
+          - event/h2/e2e.yaml
+          - event/es/e2e.yaml
+          - event/mysql/e2e.yaml
+          - event/influxdb/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
@@ -49,6 +51,6 @@ jobs:
         uses: ./.github/actions/skip
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
+        uses: ./.github/actions/infra-e2e-test
         with:
-          test_class: org.apache.skywalking.e2e.event.EventE2E
+          config-file: ${{ matrix.config-file }}

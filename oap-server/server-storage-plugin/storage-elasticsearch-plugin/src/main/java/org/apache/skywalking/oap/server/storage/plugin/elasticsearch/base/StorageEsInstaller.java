@@ -63,17 +63,25 @@ public class StorageEsInstaller extends ModelInstaller {
     }
 
     @Override
-    protected boolean isExists(Model model) throws StorageException {
+    protected boolean isExists(Model model) {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         String tableName = IndexController.INSTANCE.getTableName(model);
         IndexController.LogicIndicesRegister.registerRelation(model.getName(), tableName);
         if (!model.isTimeSeries()) {
             return esClient.isExistsIndex(tableName);
         }
-        boolean exist = esClient.isExistsTemplate(tableName)
-            && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
+        boolean templateExists = esClient.isExistsTemplate(tableName);
         final Optional<IndexTemplate> template = esClient.getTemplate(tableName);
-        if (exist && template.isPresent() && IndexController.INSTANCE.isMetricModel(model)) {
+        boolean lastIndexExists = esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
+
+        if ((templateExists && !template.isPresent()) || (!templateExists && template.isPresent())) {
+            throw new Error("[Bug warning] ElasticSearch client query template result is not consistent. " +
+                                "Please file an issue to Apache SkyWalking.(https://github.com/apache/skywalking/issues)");
+        }
+
+        boolean exist = templateExists && lastIndexExists;
+
+        if (exist && IndexController.INSTANCE.isMetricModel(model)) {
             structures.putStructure(
                 tableName, template.get().getMappings()
             );

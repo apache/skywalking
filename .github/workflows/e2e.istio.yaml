@@ -144,7 +144,8 @@ jobs:
           export WEBAPP_HOST=127.0.0.1
           export WEBAPP_PORT=8080
 
-          ./mvnw -q --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.mesh.ALSE2E
+          ./mvnw -q -B -f test/e2e/pom.xml clean install
+          ./mvnw -q --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false test -Dtest=org.apache.skywalking.e2e.mesh.ALSE2E
 
       - name: Logs
         if: ${{ failure() }}
@@ -271,7 +272,8 @@ jobs:
           export WEBAPP_HOST=127.0.0.1
           export WEBAPP_PORT=8080
 
-          ./mvnw -q --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.mesh.MetricsServiceE2E
+          ./mvnw -q -B -f test/e2e/pom.xml clean install
+          ./mvnw -q --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false test -Dtest=org.apache.skywalking.e2e.mesh.MetricsServiceE2E
 
       - name: Logs
         if: ${{ failure() }}

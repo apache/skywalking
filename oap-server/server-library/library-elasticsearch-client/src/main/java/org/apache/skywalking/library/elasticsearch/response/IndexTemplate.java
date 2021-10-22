@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.library.elasticsearch.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
@@ -25,6 +26,7 @@ import lombok.Data;
 public final class IndexTemplate {
     private String name;
     private int order;
+    @JsonProperty("index_patterns")
     private List<String> indexPatterns;
     private Map<String, Object> settings;
     private Mappings mappings;

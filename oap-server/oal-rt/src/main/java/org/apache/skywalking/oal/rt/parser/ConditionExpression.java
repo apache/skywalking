@@ -36,6 +36,7 @@ public class ConditionExpression {
     private String value;
     private List<String> values;
     private boolean number;
+    private String castType;
 
     public ConditionExpression(final String expressionType, final String attributes, final String value) {
         this.expressionType = expressionType;

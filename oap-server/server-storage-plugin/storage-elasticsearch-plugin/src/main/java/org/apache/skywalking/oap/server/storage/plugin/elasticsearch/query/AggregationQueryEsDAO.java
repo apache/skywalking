@@ -82,7 +82,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                          condition.getName()
                      ));
             additionalConditions.forEach(additionalCondition -> boolQuery
-                .must(Query.term(
+                .must(Query.terms(
                     additionalCondition.getKey(),
                     additionalCondition.getValue()
                 )));
@@ -91,7 +91,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         } else {
             final BoolQueryBuilder boolQuery = Query.bool();
             additionalConditions.forEach(additionalCondition -> boolQuery
-                .must(Query.term(
+                .must(Query.terms(
                     additionalCondition.getKey(),
                     additionalCondition.getValue()
                 )));
@@ -118,7 +118,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             SelectedRecord record = new SelectedRecord();
             record.setId((String) termsBucket.get("key"));
             Map<String, Object> value = (Map<String, Object>) termsBucket.get(valueColumnName);
-            record.setValue(String.valueOf(value.get("value")));
+            record.setValue(String.valueOf(((Number) value.get("value")).longValue()));
             topNList.add(record);
         }
 

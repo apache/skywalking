@@ -57,7 +57,7 @@ Log framework config examples:
 module](https://docs.python.org/3/library/logging.html) with functionalities aligning with the Java toolkits. 
 
 To explore how to enable the reporting features for your use cases, please refer to the 
-[Log Reporter Doc](https://github.com/apache/skywalking-python/blob/master/docs/LogReporter.md) for a detailed guide.
+[Log Reporter Doc](https://github.com/apache/skywalking-python/blob/master/docs/en/setup/advanced/LogReporter.md) for a detailed guide.
 
 ## Log Analyzer
 

@@ -295,7 +295,7 @@ public class OALRuntime implements OALEngine {
             constPool, AnnotationsAttribute.visibleTag);
         Annotation streamAnnotation = new Annotation(Stream.class.getName(), constPool);
         streamAnnotation.addMemberValue("name", new StringMemberValue(metricsStmt.getTableName(), constPool));
-        streamAnnotation.addMemberValue("scopeId", new IntegerMemberValue(constPool, metricsStmt.getSourceScopeId()));
+        streamAnnotation.addMemberValue("scopeId", new IntegerMemberValue(constPool, metricsStmt.getFrom().getSourceScopeId()));
         streamAnnotation.addMemberValue(
             "builder", new ClassMemberValue(metricsBuilderClassName(metricsStmt, true), constPool));
         streamAnnotation.addMemberValue("processor", new ClassMemberValue(METRICS_STREAM_PROCESSOR, constPool));
@@ -460,7 +460,7 @@ public class OALRuntime implements OALEngine {
     }
 
     private void buildDispatcherContext(AnalysisResult metricsStmt) {
-        String sourceName = metricsStmt.getSourceName();
+        String sourceName = metricsStmt.getFrom().getSourceName();
 
         DispatcherContext context = allDispatcherContext.getAllContext().computeIfAbsent(sourceName, name -> {
             DispatcherContext absent = new DispatcherContext();

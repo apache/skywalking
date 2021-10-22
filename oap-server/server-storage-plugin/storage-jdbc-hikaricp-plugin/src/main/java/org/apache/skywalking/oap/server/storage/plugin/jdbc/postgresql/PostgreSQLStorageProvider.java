@@ -103,7 +103,7 @@ public class PostgreSQLStorageProvider extends ModuleProvider {
 
         postgresqlClient = new JDBCHikariCPClient(config.getProperties());
 
-        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(postgresqlClient));
+        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(postgresqlClient, config.getMaxSizeOfBatchSql(), config.getAsyncBatchPersistentPoolSize()));
         this.registerServiceImplementation(
                 StorageDAO.class,
                 new H2StorageDAO(

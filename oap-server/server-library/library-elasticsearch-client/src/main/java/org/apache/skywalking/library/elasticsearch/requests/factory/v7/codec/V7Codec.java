@@ -26,6 +26,7 @@ import java.io.InputStream;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
 import org.apache.skywalking.library.elasticsearch.requests.factory.Codec;
+import org.apache.skywalking.library.elasticsearch.response.IndexTemplates;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 
 public final class V7Codec implements Codec {
@@ -54,6 +55,10 @@ public final class V7Codec implements Codec {
                 .addDeserializer(
                     Mappings.class,
                     new V7MappingsDeserializer()
+                )
+                .addDeserializer(
+                    IndexTemplates.class,
+                    new V7IndexTemplatesDeserializer()
                 )
         )
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

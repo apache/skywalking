@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.Collection;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -61,13 +60,6 @@ public abstract class PersistenceWorker<INPUT extends StorageData> extends Abstr
     /**
      * Prepare the batch persistence, transfer all prepared data to the executable data format based on the storage
      * implementations.
-     *
-     * @param lastCollection  the source of transformation, they are in memory object format.
      */
-    public abstract List<PrepareRequest> prepareBatch(Collection<INPUT> lastCollection);
-
-    public List<PrepareRequest> buildBatchRequests() {
-        final List<INPUT> dataList = getCache().read();
-        return prepareBatch(dataList);
-    }
+    public abstract List<PrepareRequest> buildBatchRequests();
 }

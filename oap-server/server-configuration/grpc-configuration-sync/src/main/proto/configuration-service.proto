@@ -24,6 +24,9 @@ option java_package = "org.apache.skywalking.oap.server.configuration.service";
 service ConfigurationService {
     rpc call (ConfigurationRequest) returns (ConfigurationResponse) {
     }
+
+    rpc callGroup (ConfigurationRequest) returns (GroupConfigurationResponse) {
+    }
 }
 
 message ConfigurationRequest {
@@ -47,6 +50,22 @@ message ConfigurationResponse {
     // UUID is literal string represents the content of the config table.
     // If config table is unchanged, then could response the same uuid, and config table is not required.
     string uuid = 2;
+}
+
+message GroupConfigurationResponse {
+    // Include all groupConfig items.
+    // All groupConfigTable.groupName should be not empty,
+    // Each watcher implementor provides this, and it will be notified when the groupConfigTable changed.
+    repeated GroupConfigItems groupConfigTable = 1;
+    // UUID is literal string represents the content of the config table.
+    // If groupConfigTable is unchanged, then could response the same uuid, and groupConfigTable is not required.
+    string uuid = 2;
+}
+
+message GroupConfigItems {
+    // The name is composed by "module name"."provider name"."groupName".
+    string groupName = 1;
+    repeated Config items = 2;
 }
 
 message Config {

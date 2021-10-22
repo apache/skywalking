@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.query.type.Database;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.Service;
@@ -44,16 +45,18 @@ public interface IMetadataQueryDAO extends DAO {
     List<Database> getAllDatabases() throws IOException;
 
     /**
-     * @param keyword to filter the normal service
+     * @param nodeType describe which kind of node of Service
+     * @param keyword  to filter the normal service
      * @return the list of normal services matching the given keyword
      */
-    List<Service> searchServices(final String keyword) throws IOException;
+    List<Service> searchServices(final NodeType nodeType, final String keyword) throws IOException;
 
     /**
+     * @param nodeType    describe which kind of node of Service
      * @param serviceCode to literal match
      * @return the service matching the given full name.
      */
-    Service searchService(final String serviceCode) throws IOException;
+    Service searchService(final NodeType nodeType, final String serviceCode) throws IOException;
 
     /**
      * @param keyword   to filter the endpoints

@@ -77,6 +77,11 @@
             <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
 
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-tools/profile-exporter/tool-profile-snapshot-exporter/target/skywalking-tools-exporter-assembly/skywalking-tools-exporter/libs</directory>
+            <outputDirectory>oap-libs</outputDirectory>
+        </fileSet>
+
         <!-- Profile exporter tools -->
         <fileSet>
             <directory>${project.basedir}/../tools/profile-exporter</directory>

@@ -123,12 +123,12 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> searchServices(String keyword) throws IOException {
+    public List<Service> searchServices(final NodeType nodeType, final String keyword) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceTraffic.INDEX_NAME).append(" where ");
         sql.append(ServiceTraffic.NODE_TYPE).append("=?");
-        condition.add(NodeType.Normal.value());
+        condition.add(nodeType.value());
         if (!Strings.isNullOrEmpty(keyword)) {
             sql.append(" and ").append(ServiceTraffic.NAME).append(" like concat('%',?,'%')");
             condition.add(keyword);
@@ -146,12 +146,12 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public Service searchService(String serviceCode) throws IOException {
+    public Service searchService(NodeType nodeType, String serviceCode) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceTraffic.INDEX_NAME).append(" where ");
         sql.append(ServiceTraffic.NODE_TYPE).append("=?");
-        condition.add(NodeType.Normal.value());
+        condition.add(nodeType.value());
         sql.append(" and ").append(ServiceTraffic.NAME).append(" = ?");
         condition.add(serviceCode);
 

@@ -24,12 +24,13 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.A
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.AggregationBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 public final class SearchBuilder {
     private Integer from;
     private Integer size;
-    private Query query;
+    private QueryBuilder queryBuilder;
     private ImmutableList.Builder<Sort> sort;
     private ImmutableMap.Builder<String, Aggregation> aggregations;
 
@@ -57,14 +58,10 @@ public final class SearchBuilder {
         return this;
     }
 
-    public SearchBuilder query(Query query) {
-        requireNonNull(query, "query");
-        this.query = query;
-        return this;
-    }
-
     public SearchBuilder query(QueryBuilder queryBuilder) {
-        return query(queryBuilder.build());
+        checkState(this.queryBuilder == null, "queryBuilder is already set");
+        this.queryBuilder = requireNonNull(queryBuilder, "queryBuilder");
+        return this;
     }
 
     public SearchBuilder aggregation(Aggregation aggregation) {
@@ -91,6 +88,12 @@ public final class SearchBuilder {
             aggregations = null;
         } else {
             aggregations = aggregations().build();
+        }
+        final Query query;
+        if (queryBuilder != null) {
+            query = queryBuilder.build();
+        } else {
+            query = null;
         }
 
         return new Search(

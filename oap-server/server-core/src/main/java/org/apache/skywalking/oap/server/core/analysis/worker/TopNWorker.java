@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -71,11 +70,9 @@ public class TopNWorker extends PersistenceWorker<TopN> {
             return Collections.EMPTY_LIST;
         }
         lastReportTimestamp = now;
-        return super.buildBatchRequests();
-    }
 
-    @Override
-    public List<PrepareRequest> prepareBatch(Collection<TopN> lastCollection) {
+        final List<TopN> lastCollection = getCache().read();
+
         List<PrepareRequest> prepareRequests = new ArrayList<>(lastCollection.size());
         lastCollection.forEach(record -> {
             try {
