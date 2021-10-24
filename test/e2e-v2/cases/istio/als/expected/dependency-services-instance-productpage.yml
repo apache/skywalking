@@ -13,12 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SW_AGENT_JAVA_COMMIT=fbdfc42b4d825ba33205d646ddaaaad20c005cb8
-SW_AGENT_SATELLITE_COMMIT=1f3c08a5af19f8522f2a40d9339c45fa816bfe07
-SW_AGENT_NGINX_LUA_COMMIT=c3cee4841798a147d83b96a10914d4ac0e11d0aa
-SW_AGENT_NODEJS_COMMIT=e755659c7f308d3b5589619778c8360308cb14f8
-SW_AGENT_GO_COMMIT=4af380c2db6243106b0fc650b6003ce3b3eb82a0
-SW_AGENT_PYTHON_COMMIT=50388c55428d742d73d9733278f04173585de80d
-SW_KUBERNETES_COMMIT_SHA=0f3ec68e5a7e1608cec8688716b848ed15e971e5
-
-SW_CTL_COMMIT=7dfb10bf79f463f16037e1ac352a8b2f5da6f27e
+nodes:
+{{- contains .nodes }}
+- id: {{ notEmpty .id }}
+  name: {{ notEmpty .name }}
+  serviceid: {{ b64enc "e2e::reviews" }}.1
+  servicename: e2e::reviews
+  type: http
+  isreal: true
+- id: {{ notEmpty .id }}
+  name: {{ notEmpty .name }}
+  serviceid: {{ b64enc "e2e::productpage" }}.1
+  servicename: e2e::productpage
+  type: ""
+  isreal: true
+{{- end }}
+calls:
+{{- contains .calls }}
+- source: {{ notEmpty .source }}
+  sourcecomponents: []
+  target: {{ notEmpty .target }}
+  targetcomponents: []
+  id: {{ notEmpty .source }}-{{ notEmpty .target }}
+  detectpoints:
+    - CLIENT
+    - SERVER
+{{- end }}
