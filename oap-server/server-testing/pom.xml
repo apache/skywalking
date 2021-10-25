@@ -17,7 +17,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
@@ -27,12 +28,39 @@
 
     <artifactId>server-testing</artifactId>
     <packaging>jar</packaging>
+    <properties>
+        <jmh.version>1.21</jmh.version>
+        <junit.version>4.12</junit.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>library-module</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <!--JMH-->
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>${jmh.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!--SLF4j-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <!--JUNIT-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

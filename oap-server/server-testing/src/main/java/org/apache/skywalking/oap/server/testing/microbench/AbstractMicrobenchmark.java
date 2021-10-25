@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.microbench.base;
+package org.apache.skywalking.oap.server.testing.microbench;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
 
 import org.junit.Test;
 import org.openjdk.jmh.annotations.Fork;
@@ -41,10 +42,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Warmup(iterations = AbstractMicrobenchmark.DEFAULT_WARMUP_ITERATIONS)
 @Measurement(iterations = AbstractMicrobenchmark.DEFAULT_MEASURE_ITERATIONS)
-@State(Scope.Thread)
 @Fork(AbstractMicrobenchmark.DEFAULT_FORKS)
+@State(Scope.Thread)
 @Slf4j
-public class AbstractMicrobenchmark {
+public abstract class AbstractMicrobenchmark {
     static final int DEFAULT_WARMUP_ITERATIONS = 10;
 
     static final int DEFAULT_MEASURE_ITERATIONS = 10;
@@ -69,7 +70,7 @@ public class AbstractMicrobenchmark {
                 //set jvm args
                 .jvmArgsAppend("-Xmx512m", "-Xms512m", "-XX:MaxDirectMemorySize=512m",
                         "-XX:BiasedLockingStartupDelay=0",
-                        "-Djmh.executor=CUSTOM", "-Djmh.executor.class=org.apache.skywalking.microbench.base.AbstractMicrobenchmark$JmhThreadExecutor");
+                        "-Djmh.executor=CUSTOM", "-Djmh.executor.class=org.apache.skywalking.oap.server.testing.microbench.AbstractMicrobenchmark$JmhThreadExecutor");
 
         if (getMeasureIterations() > 0) {
             optBuilder.warmupIterations(getMeasureIterations());

@@ -16,28 +16,23 @@
  *
  */
 
-package org.apache.skywalking.microbench.apm.util;
-
-import org.apache.skywalking.apm.util.StringFormatGroup;
+package org.apache.skywalking.apm.util;
 
 import java.util.concurrent.TimeUnit;
-
 import org.junit.Assert;
+import org.junit.Test;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import org.apache.skywalking.microbench.base.AbstractMicrobenchmark;
-
-@BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(TimeUnit.MICROSECONDS)
-@Warmup(iterations = 2)
-@Measurement(iterations = 1)
-public class StringFormatGroupBenchmark extends AbstractMicrobenchmark {
+public class StringFormatGroupTest {
     @Benchmark
+    @Test
     public void testMatch() {
         StringFormatGroup group = new StringFormatGroup();
         group.addRule("/name/*/add", "/name/.+/add");
@@ -49,6 +44,7 @@ public class StringFormatGroupBenchmark extends AbstractMicrobenchmark {
     }
 
     @Benchmark
+    @Test
     public void test100Rule() {
         StringFormatGroup group = new StringFormatGroup();
         group.addRule("/name/*/add/{orderId}", "/name/.+/add/.*");
@@ -56,6 +52,21 @@ public class StringFormatGroupBenchmark extends AbstractMicrobenchmark {
             group.addRule("/name/*/add/{orderId}" + "/" + 1, "/name/.+/add/.*" + "/abc");
         }
         Assert.assertEquals("/name/*/add/{orderId}", group.format("/name/test/add/12323").getName());
+    }
+
+    /**
+     * The report below shows this pattern match performance is much about rule numbers. This is a single thread test.
+     */
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    public void performanceBenchmark() throws RunnerException {
+        Options opt = new OptionsBuilder().include(StringFormatGroupTest.class.getSimpleName())
+                .forks(1)
+                .warmupIterations(0)
+                .measurementIterations(5)
+                .build();
+
+        new Runner(opt).run();
     }
 
     /*********************************
@@ -68,7 +79,7 @@ public class StringFormatGroupBenchmark extends AbstractMicrobenchmark {
      * # Timeout: 10 min per iteration
      * # Threads: 1 thread, will synchronize iterations
      * # Benchmark mode: Throughput, ops/time
-     * # Benchmark: oorg.apache.skywalking.microbench.apm.util.StringFormatGroupTest.test100Rule
+     * # Benchmark: org.apache.skywalking.apm.util.StringFormatGroupTest.test100Rule
      *
      * # Run progress: 0.00% complete, ETA 00:01:40
      * # Fork: 1 of 1
@@ -79,7 +90,7 @@ public class StringFormatGroupBenchmark extends AbstractMicrobenchmark {
      * Iteration   5: 34712.564 ops/s
      *
      *
-     * Result "oorg.apache.skywalking.microbench.apm.util.StringFormatGroupTest.test100Rule":
+     * Result "org.apache.skywalking.apm.util.StringFormatGroupTest.test100Rule":
      *   35490.540 ±(99.9%) 8345.368 ops/s [Average]
      *   (min, avg, max) = (32016.496, 35490.540, 37121.543), stdev = 2167.265
      *   CI (99.9%): [27145.173, 43835.908] (assumes normal distribution)
@@ -94,7 +105,7 @@ public class StringFormatGroupBenchmark extends AbstractMicrobenchmark {
      * # Timeout: 10 min per iteration
      * # Threads: 1 thread, will synchronize iterations
      * # Benchmark mode: Throughput, ops/time
-     * # Benchmark: oorg.apache.skywalking.microbench.apm.util.StringFormatGroupTest.testMatch
+     * # Benchmark: org.apache.skywalking.apm.util.StringFormatGroupTest.testMatch
      *
      * # Run progress: 50.00% complete, ETA 00:00:50
      * # Fork: 1 of 1
@@ -105,7 +116,7 @@ public class StringFormatGroupBenchmark extends AbstractMicrobenchmark {
      * Iteration   5: 1235609.354 ops/s
      *
      *
-     * Result "oorg.apache.skywalking.microbench.apm.util.StringFormatGroupTest.testMatch":
+     * Result "org.apache.skywalking.apm.util.StringFormatGroupTest.testMatch":
      *   1201488.715 ±(99.9%) 150813.461 ops/s [Average]
      *   (min, avg, max) = (1137158.205, 1201488.715, 1235609.354), stdev = 39165.777
      *   CI (99.9%): [1050675.254, 1352302.176] (assumes normal distribution)

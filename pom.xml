@@ -34,7 +34,6 @@
     <modules>
         <module>apm-commons</module>
         <module>apm-protocol</module>
-        <module>microbench</module>
     </modules>
     <packaging>pom</packaging>
 

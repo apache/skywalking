@@ -16,18 +16,22 @@
  *
  */
 
-package org.apache.skywalking.microbench.apm.commons.datacarrier;
+package org.apache.skywalking.apm.commons.datacarrier;
+
+import org.apache.skywalking.oap.server.testing.microbench.AbstractMicrobenchmark;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.profile.GCProfiler;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.skywalking.microbench.apm.commons.SampleData;
-import org.apache.skywalking.microbench.base.AbstractMicrobenchmark;
 
 /**
  * ISSUE-3064
