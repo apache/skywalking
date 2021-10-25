@@ -40,28 +40,35 @@ public class TiDBHistoryDeleteDAO implements IHistoryDeleteDAO {
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
         SQLBuilder dataDeleteSQL = new SQLBuilder("delete from " + model.getName() + " where ")
             .append(timeBucketColumnName).append("<= ? ")
+            .append(" and ")
+            .append(timeBucketColumnName).append(">= ? ")
             .append(" limit 10000");
 
         try (Connection connection = client.getConnection()) {
             long deadline;
+            long minTime;
             if (model.isRecord()) {
                 deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmmss"));
+                minTime = 1000_00_00_00_00_00L;
             } else {
                 switch (model.getDownsampling()) {
                     case Minute:
                         deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmm"));
+                        minTime = 1000_00_00_00_00L;
                         break;
                     case Hour:
                         deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHH"));
+                        minTime = 1000_00_00_00L;
                         break;
                     case Day:
                         deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
+                        minTime = 1000_00_00L;
                         break;
                     default:
                         return;
                 }
             }
-            while (client.executeUpdate(connection, dataDeleteSQL.toString(), deadline) > 0) {
+            while (client.executeUpdate(connection, dataDeleteSQL.toString(), deadline, minTime) > 0) {
             }
         } catch (JDBCClientException | SQLException e) {
             throw new IOException(e.getMessage(), e);
