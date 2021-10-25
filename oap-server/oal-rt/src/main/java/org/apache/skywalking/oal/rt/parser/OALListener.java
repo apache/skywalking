@@ -202,7 +202,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterEnumConditionValue(OALParser.EnumConditionValueContext ctx) {
-        enterConditionValue(ctx.getText());
+        enterEnumConditionValue(ctx.getText());
     }
 
     @Override
@@ -212,16 +212,21 @@ public class OALListener extends OALParserBaseListener {
     }
 
     @Override
+    public void enterNullConditionValue(OALParser.NullConditionValueContext ctx) {
+        enterConditionValue(ctx.getText());
+    }
+
+    @Override
     public void enterExpressionAttrCast(final OALParser.ExpressionAttrCastContext ctx) {
         conditionExpression.setCastType(ctx.getText());
     }
 
     private void enterConditionValue(String value) {
-        if (value.split("\\.").length == 2 && !value.startsWith("\"")) {
-            // Value is an enum.
-            value = sourcePackage + value;
-        }
         conditionExpression.addValue(value);
+    }
+
+    private void enterEnumConditionValue(String value) {
+        conditionExpression.addValue(sourcePackage + value);
     }
 
     /////////////

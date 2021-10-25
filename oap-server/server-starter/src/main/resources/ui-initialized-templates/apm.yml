@@ -121,9 +121,9 @@ templates:
               "name": "Service",
               "children": [
                 {
-                  "width": 3,
+                  "width": 4,
                   "title": "Service Apdex",
-                  "height": "200",
+                  "height": "100",
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
@@ -132,6 +132,33 @@ templates:
                   "chartType": "ChartNum",
                   "aggregation": "/",
                   "aggregationNum": "10000"
+                },
+                {
+                  "width": 4,
+                  "title": "Successful Rate",
+                  "height": "100",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_sla",
+                  "queryMetricType": "readMetricsValue",
+                  "chartType": "ChartNum",
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                },
+                {
+                  "width": 4,
+                  "title": "Service Load",
+                  "height": "100",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_cpm",
+                  "queryMetricType": "readMetricsValue",
+                  "chartType": "ChartNum",
+                  "unit": "CPM / PPM",
+                  "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                 },
                 {
                   "width": 3,
@@ -144,33 +171,6 @@ templates:
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
                   "unit": "ms"
-                },
-                {
-                  "width": 3,
-                  "title": "Successful Rate",
-                  "height": "200",
-                  "entityType": "Service",
-                  "independentSelector": false,
-                  "metricType": "REGULAR_VALUE",
-                  "metricName": "service_sla",
-                  "queryMetricType": "readMetricsValue",
-                  "chartType": "ChartNum",
-                  "unit": "%",
-                  "aggregation": "/",
-                  "aggregationNum": "100"
-                },
-                {
-                  "width": 3,
-                  "title": "Service Load",
-                  "height": "200",
-                  "entityType": "Service",
-                  "independentSelector": false,
-                  "metricType": "REGULAR_VALUE",
-                  "metricName": "service_cpm",
-                  "queryMetricType": "readMetricsValue",
-                  "chartType": "ChartNum",
-                  "unit": "CPM / PPM",
-                  "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                 },
                 {
                   "width": 3,
@@ -240,7 +240,33 @@ templates:
                   "tips": "This metrics is only avaible for TCP services"
                 },
                 {
-                  "width": "3",
+                  "width": 3,
+                  "title": "Message Queue Consuming Count",
+                  "height": "200",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_mq_consume_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "",
+                  "tips": "The number of consumed messages."
+                },
+                {
+                  "width": 3,
+                  "title": "Message Queue Avg Consuming Latency",
+                  "height": "200",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_mq_consume_latency",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "ms",
+                  "tips": "The avg latency of message consuming. Latency = timestamp(received) - timestamp(producing)"
+                },
+                {
+                  "width": "4",
                   "title": "Service Instances Load",
                   "height": "280",
                   "entityType": "ServiceInstance",
@@ -254,7 +280,7 @@ templates:
                   "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                 },
                 {
-                  "width": "3",
+                  "width": "4",
                   "title": "Slow Service Instance",
                   "height": "280",
                   "entityType": "ServiceInstance",
@@ -267,7 +293,7 @@ templates:
                   "unit": "ms"
                 },
                 {
-                  "width": "3",
+                  "width": "4",
                   "title": "Service Instance Successful Rate",
                   "height": "280",
                   "entityType": "ServiceInstance",
@@ -519,9 +545,9 @@ templates:
                   "sortOrder": "ASC"
                 },
                 {
-                  "width": 3,
+                  "width": 4,
                   "title": "Endpoint Load",
-                  "height": 350,
+                  "height": 200,
                   "entityType": "Endpoint",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
@@ -530,9 +556,9 @@ templates:
                   "chartType": "ChartLine"
                 },
                 {
-                  "width": 3,
+                  "width": 4,
                   "title": "Endpoint Avg Response Time",
-                  "height": 350,
+                  "height": 200,
                   "entityType": "Endpoint",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
@@ -542,9 +568,9 @@ templates:
                   "unit": "ms"
                 },
                 {
-                  "width": 3,
+                  "width": 4,
                   "title": "Endpoint Response Time Percentile",
-                  "height": 350,
+                  "height": 200,
                   "entityType": "Endpoint",
                   "independentSelector": false,
                   "metricType": "LABELED_VALUE",
@@ -556,9 +582,9 @@ templates:
                   "unit": "ms"
                 },
                 {
-                  "width": 3,
+                  "width": 4,
                   "title": "Endpoint Successful Rate",
-                  "height": 350,
+                  "height": 200,
                   "entityType": "Endpoint",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
@@ -568,6 +594,32 @@ templates:
                   "unit": "%",
                   "aggregation": "/",
                   "aggregationNum": "100"
+                },
+                {
+                  "width": 4,
+                  "title": "Message Queue Consuming Count",
+                  "height": "200",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "endpoint_mq_consume_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "",
+                  "tips": "The number of consumed messages."
+                },
+                {
+                  "width": 4,
+                  "title": "Message Queue Avg Consuming Latency",
+                  "height": "200",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "endpoint_mq_consume_latency",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "ms",
+                  "tips": "The avg latency of message consuming. Latency = timestamp(received) - timestamp(producing)"
                 }
               ]
             }

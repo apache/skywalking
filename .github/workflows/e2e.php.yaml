@@ -24,6 +24,9 @@ on:
   schedule:
     - cron: '0 18 * * *'
 
+env:
+  SW_AGENT_JDK_VERSION: 8
+
 concurrency:
   group: e2e-php-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -42,6 +45,6 @@ jobs:
         uses: ./.github/actions/skip
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
+        uses: ./.github/actions/infra-e2e-test
         with:
-          test_class: org.apache.skywalking.e2e.PHPE2E
+          config-file: php/e2e.yaml

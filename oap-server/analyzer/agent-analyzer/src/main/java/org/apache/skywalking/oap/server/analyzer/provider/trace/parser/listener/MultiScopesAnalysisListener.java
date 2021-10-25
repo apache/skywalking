@@ -264,6 +264,9 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             case Database:
                 sourceBuilder.setType(RequestType.DATABASE);
                 break;
+            case MQ:
+                sourceBuilder.setType(RequestType.MQ);
+                break;
             default:
                 sourceBuilder.setType(RequestType.RPC);
                 break;

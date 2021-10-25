@@ -43,31 +43,6 @@ verify:
     count: 20
     interval: 3s
   cases:
-    # service list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
-      expected: expected/service.yml
-    # service instance list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=oap::oap-server
-      expected: expected/service-instance.yml
-    # service instance metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_cpu_percentage --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name meter_oap_instance_jvm_memory_bytes_used --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_trace_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_metrics_first_aggregation --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_prepare_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_execute_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_thread_live_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_thread_runnable_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_class_loaded_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_class_total_loaded_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
+    - includes:
+        - so11y-cases.yaml
 

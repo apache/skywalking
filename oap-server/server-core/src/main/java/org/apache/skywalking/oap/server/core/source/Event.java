@@ -138,7 +138,7 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
             setType(event.getType());
         }
         if (isNotBlank(event.getMessage())) {
-            setType(event.getMessage());
+            setMessage(event.getMessage());
         }
         if (isNotBlank(event.getParameters())) {
             setParameters(event.getParameters());

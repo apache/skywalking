@@ -81,6 +81,16 @@ public class MetadataQuery implements GraphQLQueryResolver {
         return getMetadataQueryService().searchService(serviceCode);
     }
 
+    public List<Service> searchBrowserServices(final Duration duration,
+                                               final String keyword) throws IOException, ParseException {
+        return getMetadataQueryService().searchBrowserServices(
+            duration.getStartTimestamp(), duration.getEndTimestamp(), keyword);
+    }
+
+    public Service searchBrowserService(final String serviceCode) throws IOException {
+        return getMetadataQueryService().searchBrowserService(serviceCode);
+    }
+
     public List<ServiceInstance> getServiceInstances(final Duration duration,
                                                      final String serviceId) throws IOException, ParseException {
         return getMetadataQueryService().getServiceInstances(

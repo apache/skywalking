@@ -1,0 +1,91 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+http.enabled: true
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /tmp/skywalking-logs/*/e2e-service-provider.log
+
+processors:
+  - dissect:
+      tokenizer: '[SW_CTX:%{SW_CTX}] [%{level}] %{logtime} [%{thread}] %{logger}:%{line} - %{body}'
+      field: "message"
+      target_prefix: ""
+      trim_values: all
+      overwrite_keys: true
+  - dissect:
+      tokenizer: '[%{service},%{serviceInstance},%{traceContext.traceId},%{traceContext.traceSegmentId},%{traceContext.spanId}]'
+      field: "SW_CTX"
+      target_prefix: ""
+      trim_values: all
+  - script:
+      lang: javascript
+      id: format_datetime
+      source: >
+        function process(event) {
+            var datetime = event.Get("logtime");
+            var datetimeArr = datetime.split(" ");
+            var dateArr = datetimeArr[0].split("-");
+            var timeArrs = datetimeArr[1].split(".");
+            var timeArr = timeArrs[0].split(":");
+            var mills = timeArrs[1];
+
+            var date = new Date();
+            date.setUTCFullYear(parseInt(dateArr[0]));
+            date.setUTCMonth(parseInt(dateArr[1]) - 1);
+            date.setUTCDate(parseInt(dateArr[2]));
+            date.setUTCHours(parseInt(timeArr[0]));
+            date.setUTCMinutes(parseInt(timeArr[1]));
+            date.setUTCSeconds(parseInt(timeArr[2]));
+            date.setUTCMilliseconds(parseInt(mills));
+
+            var timeMillis = date.getTime();
+            event.Put("timestamp", timeMillis);
+        }
+  - script:
+      lang: javascript
+      id: build_logTags_array
+      source: >
+        function process(event) {
+            var logLevel = {"key": "level", "value": event.Get("level")};
+            var logThread = {"key": "thread", "value": event.Get("thread")};
+            var logLogger = {"key": "logger", "value": event.Get("logger")};
+
+            var logFile = {"key": "logfile", "value": event.Get("log.file.path")};
+            var hostname = {"key": "hostname", "value": event.Get("agent.hostname")};
+            var agent = {"key": "agent", "value": event.Get("agent.type")};
+            var agentVersion = {"key": "agentVersion", "value": event.Get("agent.version")};
+            var agentId = {"key": "agentId", "value": event.Get("agent.id")};
+            var agentName = {"key": "agentName", "value": event.Get("agent.name")};
+
+            var logTags = [logLevel,logThread,logLogger,logFile,hostname,agent,agentVersion,agentId,agentName];
+            event.Put("tags.data", logTags);
+        }
+  - rename:
+      fields:
+        - from: "body"
+          to: "body.text.text"
+      ignore_missing: false
+      fail_on_error: true
+  - drop_fields:
+      fields: ["ecs", "host", "input", "agent", "log", "message", "SW_CTX", "level", "thread", "logger", "line", "logtime"]
+
+output.kafka:
+  hosts: ["broker-a:9092", "broker-b:9092"]
+  topic: "skywalking-logs-json"

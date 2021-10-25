@@ -53,6 +53,10 @@ jobs:
             config-file: gateway/e2e.yaml
           - name: Meter
             config-file: meter/e2e.yaml
+          - name: VM Zabbix
+            config-file: vm/zabbix/e2e.yaml
+          - name: VM Prometheus Node Exporter
+            config-file: vm/prometheus-node-exporter/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
@@ -64,25 +68,3 @@ jobs:
         uses: ./.github/actions/infra-e2e-test
         with:
           config-file: ${{ matrix.case.config-file }}
-
-  FeatureGroup02:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: ${{ matrix.case.name }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    strategy:
-      matrix:
-        case:
-          - name: Zabbix
-            class: org.apache.skywalking.e2e.zabbix.ZabbixE2E
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-      - name: Run E2E Test
-        if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
-        with:
-          test_class: ${{ matrix.case.class }}

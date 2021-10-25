@@ -1,0 +1,53 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+nodes:
+{{- contains .nodes }}
+- id: {{ b64enc "User" }}.0_{{ b64enc "User" }}
+  name: User
+  serviceid: {{ b64enc "User" }}.0
+  servicename: User
+  type: ""
+  isreal: false
+- id: {{ b64enc "e2e-service-consumer" }}.1_{{ b64enc "POST:/users" }}
+  name: POST:/users
+  serviceid: {{ b64enc "e2e-service-consumer" }}.1
+  servicename: e2e-service-consumer
+  type: ""
+  isreal: true
+- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
+  name: POST:/users
+  serviceid: {{ b64enc "e2e-service-provider" }}.1
+  servicename: e2e-service-provider
+  type: ""
+  isreal: true
+{{- end }}
+calls:
+{{- contains .calls }}
+- source: {{ b64enc "User" }}.0_{{ b64enc "User" }}
+  sourcecomponents: []
+  target: {{ b64enc "e2e-service-consumer" }}.1_{{ b64enc "POST:/users" }}
+  targetcomponents: []
+  id: {{ b64enc "User" }}.0-{{ b64enc "User" }}-{{ b64enc "e2e-service-consumer" }}.1-{{ b64enc "POST:/users" }}
+  detectpoints:
+    - SERVER
+- source: {{ b64enc "e2e-service-consumer" }}.1_{{ b64enc "POST:/users" }}
+  sourcecomponents: []
+  target: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
+  targetcomponents: []
+  id: {{ b64enc "e2e-service-consumer" }}.1-{{ b64enc "POST:/users" }}-{{ b64enc "e2e-service-provider" }}.1-{{ b64enc "POST:/users" }}
+  detectpoints:
+    - SERVER
+{{- end }}

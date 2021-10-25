@@ -141,17 +141,24 @@ public class ProfileTaskQueryService implements Service {
                 task.setServiceName(serviceIDDefinition.getName());
 
                 // filter all task logs
-                task.setLogs(taskLogList.stream().filter(l -> Objects.equal(l.getTaskId(), task.getId())).map(l -> {
-                    // get instance name from cache
-                    final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID
-                        .analysisId(l.getInstanceId());
-                    l.setInstanceName(instanceIDDefinition.getName());
-                    return l;
-                }).collect(Collectors.toList()));
+                task.setLogs(findMatchedLogs(task.getId(), taskLogList));
             }
         }
 
         return tasks;
+    }
+
+    /**
+     * query all task logs
+     */
+    public List<ProfileTaskLog> getProfileTaskLogs(final String taskID) throws IOException {
+        // query all and filter on task to match logs
+        List<ProfileTaskLog> taskLogList = getProfileTaskLogQueryDAO().getTaskLogList();
+        if (CollectionUtils.isEmpty(taskLogList)) {
+            return Collections.emptyList();
+        }
+
+        return findMatchedLogs(taskID, taskLogList);
     }
 
     /**
@@ -229,4 +236,17 @@ public class ProfileTaskQueryService implements Service {
         return spans;
     }
 
+    private List<ProfileTaskLog> findMatchedLogs(final String taskID, final List<ProfileTaskLog> allLogs) {
+        return allLogs.stream()
+                .filter(l -> Objects.equal(l.getTaskId(), taskID))
+                .map(this::extendTaskLog)
+                .collect(Collectors.toList());
+    }
+
+    private ProfileTaskLog extendTaskLog(ProfileTaskLog log) {
+        final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID
+                .analysisId(log.getInstanceId());
+        log.setInstanceName(instanceIDDefinition.getName());
+        return log;
+    }
 }

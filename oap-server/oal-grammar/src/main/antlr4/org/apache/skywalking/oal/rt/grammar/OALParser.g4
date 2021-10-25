@@ -121,7 +121,7 @@ numberMatch
     ;
 
 stringMatch
-    :  conditionAttributeStmt DUALEQUALS (stringConditionValue | enumConditionValue)
+    :  conditionAttributeStmt DUALEQUALS (stringConditionValue | enumConditionValue | nullConditionValue)
     ;
 
 greaterMatch
@@ -145,7 +145,7 @@ booleanNotEqualMatch
     ;
 
 notEqualMatch
-    :  conditionAttributeStmt NOT_EQUAL (numberConditionValue | stringConditionValue | enumConditionValue)
+    :  conditionAttributeStmt NOT_EQUAL (numberConditionValue | stringConditionValue | enumConditionValue | nullConditionValue)
     ;
 
 likeMatch
@@ -186,6 +186,10 @@ enumConditionValue
 
 numberConditionValue
     : NUMBER_LITERAL
+    ;
+
+nullConditionValue
+    : NULL_LITERAL
     ;
 
 sourceAttrCast
