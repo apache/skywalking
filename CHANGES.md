@@ -23,6 +23,7 @@ Release Notes.
   - Event
   - Profile
   - Kafka: Base, Meter, Log, Profile
+  - Client-JS
 
 #### OAP Server
 

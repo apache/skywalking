@@ -13,13 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SW_AGENT_JAVA_COMMIT=fbdfc42b4d825ba33205d646ddaaaad20c005cb8
-SW_AGENT_SATELLITE_COMMIT=1f3c08a5af19f8522f2a40d9339c45fa816bfe07
-SW_AGENT_NGINX_LUA_COMMIT=c3cee4841798a147d83b96a10914d4ac0e11d0aa
-SW_AGENT_NODEJS_COMMIT=e755659c7f308d3b5589619778c8360308cb14f8
-SW_AGENT_GO_COMMIT=4af380c2db6243106b0fc650b6003ce3b3eb82a0
-SW_AGENT_PYTHON_COMMIT=50388c55428d742d73d9733278f04173585de80d
-SW_AGENT_CLIENT_JS_COMMIT=af0565a67d382b683c1dbd94c379b7080db61449
-SW_AGENT_CLIENT_JS_TEST_COMMIT=4f1eb1dcdbde3ec4a38534bf01dded4ab5d2f016
-
-SW_CTL_COMMIT=7dfb10bf79f463f16037e1ac352a8b2f5da6f27e
+traces:
+{{- contains .traces }}
+- segmentid: {{ notEmpty .segmentid }}
+  endpointnames:
+  - index.html
+  duration: {{ gt .duration 0 }}
+  start: "{{ notEmpty .start}}"
+  iserror: false
+  traceids:
+  - {{ notEmpty (index .traceids 0) }}
+{{- end }}
+total: {{ gt .total 0 }}
