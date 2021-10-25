@@ -36,7 +36,7 @@ ADD ${CLIENT_JS_TEST_CODE_URL} .
 RUN tar -xf ${CLIENT_JS_TEST_CODE} --strip 1 \
     && rm ${CLIENT_JS_TEST_CODE} \
     && rm src/index.js
-COPY test/docker/index.js src/index.js
+COPY docker/index.js src/index.js
 
 RUN npm install \
     && rm -rf node_modules/skywalking-client-js \
@@ -46,4 +46,4 @@ RUN npm install \
 FROM nginx:1.19
 
 COPY --from=builder /skywalking-client-test/dist/* /etc/nginx/html/
-COPY test/docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx.conf /etc/nginx/nginx.conf
