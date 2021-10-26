@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogReportServiceGrpc;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;

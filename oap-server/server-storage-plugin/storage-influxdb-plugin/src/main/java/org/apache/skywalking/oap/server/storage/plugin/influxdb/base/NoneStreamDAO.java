@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
+import org.apache.skywalking.oap.server.library.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;

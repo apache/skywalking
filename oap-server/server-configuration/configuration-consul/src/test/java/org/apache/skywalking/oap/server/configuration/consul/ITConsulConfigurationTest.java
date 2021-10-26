@@ -25,7 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
+import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;

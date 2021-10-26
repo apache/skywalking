@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;

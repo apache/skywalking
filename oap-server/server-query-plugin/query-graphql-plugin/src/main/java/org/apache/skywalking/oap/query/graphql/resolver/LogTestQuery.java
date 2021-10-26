@@ -43,7 +43,7 @@ import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
-import static org.apache.skywalking.apm.util.StringUtil.isNotBlank;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 
 @RequiredArgsConstructor
 public class LogTestQuery implements GraphQLQueryResolver {

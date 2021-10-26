@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.command;
 
 import java.util.UUID;
-import org.apache.skywalking.apm.network.trace.component.command.ProfileTaskCommand;
+import org.apache.skywalking.oap.server.network.trace.component.command.ProfileTaskCommand;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;

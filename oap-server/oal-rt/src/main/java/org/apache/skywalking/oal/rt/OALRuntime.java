@@ -51,7 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
 import org.apache.skywalking.oal.rt.output.DispatcherContext;
 import org.apache.skywalking.oal.rt.parser.AnalysisResult;

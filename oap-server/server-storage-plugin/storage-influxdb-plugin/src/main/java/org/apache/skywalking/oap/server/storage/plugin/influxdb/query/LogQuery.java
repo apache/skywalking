@@ -46,7 +46,7 @@ import org.influxdb.querybuilder.WhereQueryImpl;
 import org.influxdb.querybuilder.clauses.ConjunctionClause;
 
 import static java.util.Objects.nonNull;
-import static org.apache.skywalking.apm.util.StringUtil.isNotEmpty;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotEmpty;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;

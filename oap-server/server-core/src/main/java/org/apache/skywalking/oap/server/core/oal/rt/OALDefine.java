@@ -20,8 +20,9 @@ package org.apache.skywalking.oap.server.core.oal.rt;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.apache.skywalking.apm.util.StringUtil;
+
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static java.util.Objects.requireNonNull;
 

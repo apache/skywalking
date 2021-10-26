@@ -43,6 +43,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
