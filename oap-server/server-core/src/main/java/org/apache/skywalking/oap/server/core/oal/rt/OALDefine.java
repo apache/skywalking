@@ -33,11 +33,26 @@ import static java.util.Objects.requireNonNull;
 public abstract class OALDefine {
     protected OALDefine(final String configFile,
                         final String sourcePackage) {
+        this(configFile, sourcePackage, Const.EMPTY_STRING);
+    }
+
+    /**
+     * Define the booting parameters for OAL engine
+     *
+     * @param configFile    OAL script file path
+     * @param sourcePackage the package path of source(s) used in given config OAL script file
+     * @param catalog       of metrics defined through given OAL script file. Be used as prefix of generated dispatcher
+     *                      class name.
+     */
+    protected OALDefine(final String configFile,
+                        final String sourcePackage,
+                        final String catalog) {
         this.configFile = requireNonNull(configFile);
         this.sourcePackage = appendPoint(requireNonNull(sourcePackage));
         this.dynamicMetricsClassPackage = "org.apache.skywalking.oap.server.core.source.oal.rt.metrics.";
         this.dynamicMetricsBuilderClassPackage = "org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder.";
-        this.dynamicDispatcherClassPackage = "org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher.";
+        this.dynamicDispatcherClassPackage
+            = appendPoint("org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher." + catalog);
     }
 
     private final String configFile;

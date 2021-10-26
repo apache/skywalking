@@ -49,6 +49,8 @@ import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.JavaVersion;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
 import org.apache.skywalking.oal.rt.output.DispatcherContext;
@@ -72,7 +74,6 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.util.JVMEnvUtil;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
 /**
@@ -310,7 +311,7 @@ public class OALRuntime implements OALEngine {
 
         Class targetClass;
         try {
-            if (JVMEnvUtil.version() < 9) {
+            if (SystemUtils.isJavaVersionAtMost(JavaVersion.JAVA_1_8)) {
                 targetClass = metricsClass.toClass(currentClassLoader, null);
             } else {
                 targetClass = metricsClass.toClass(MetricClassPackageHolder.class);
@@ -368,7 +369,7 @@ public class OALRuntime implements OALEngine {
         }
 
         try {
-            if (JVMEnvUtil.version() < 9) {
+            if (SystemUtils.isJavaVersionAtMost(JavaVersion.JAVA_1_8)) {
                 metricsBuilderClass.toClass(currentClassLoader, null);
             } else {
                 metricsBuilderClass.toClass(MetricBuilderClassPackageHolder.class);
@@ -450,7 +451,7 @@ public class OALRuntime implements OALEngine {
 
         Class targetClass;
         try {
-            if (JVMEnvUtil.version() < 9) {
+            if (SystemUtils.isJavaVersionAtMost(JavaVersion.JAVA_1_8)) {
                 targetClass = dispatcherClass.toClass(currentClassLoader, null);
             } else {
                 targetClass = dispatcherClass.toClass(DispatcherClassPackageHolder.class);

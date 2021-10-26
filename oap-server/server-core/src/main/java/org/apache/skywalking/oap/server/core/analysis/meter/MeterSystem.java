@@ -36,6 +36,8 @@ import javassist.NotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.JavaVersion;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -47,7 +49,6 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.library.util.JVMEnvUtil;
 
 /**
  * MeterSystem provides the API way to create {@link MetricsStreamProcessor} rather than manual analysis metrics or OAL
@@ -234,7 +235,7 @@ public class MeterSystem implements Service {
 
         Class targetClass;
         try {
-            if (JVMEnvUtil.version() < 9) {
+            if (SystemUtils.isJavaVersionAtMost(JavaVersion.JAVA_1_8)) {
                 targetClass = metricsClass.toClass(MeterSystem.class.getClassLoader(), null);
             } else {
                 targetClass = metricsClass.toClass(MeterClassPackageHolder.class);
