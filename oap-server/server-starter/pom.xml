@@ -29,7 +29,7 @@
     <artifactId>server-starter</artifactId>
 
     <properties>
-        <generateGitPropertiesFilename>${project.build.outputDirectory}/version.properties
+        <generateGitPropertiesFilename>${project.basedir}/src/main/resources/version.properties
         </generateGitPropertiesFilename>
     </properties>
 
