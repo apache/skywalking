@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.oal.rt;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 
 import static java.util.Objects.requireNonNull;
@@ -51,8 +52,9 @@ public abstract class OALDefine {
         this.sourcePackage = appendPoint(requireNonNull(sourcePackage));
         this.dynamicMetricsClassPackage = "org.apache.skywalking.oap.server.core.source.oal.rt.metrics.";
         this.dynamicMetricsBuilderClassPackage = "org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder.";
-        this.dynamicDispatcherClassPackage
-            = appendPoint("org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher." + catalog);
+        this.dynamicDispatcherClassPackage = StringUtil.isBlank(catalog) ?
+            "org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher." :
+            "org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher." + catalog;
     }
 
     private final String configFile;
