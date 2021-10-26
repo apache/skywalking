@@ -53,6 +53,7 @@ Release Notes.
 * Add `getProfileTaskLogs` to profile query protocol.
 * Set `SW_KAFKA_FETCHER_ENABLE_NATIVE_PROTO_LOG`, `SW_KAFKA_FETCHER_ENABLE_NATIVE_JSON_LOG` default `true`.
 * Fix unexpected deleting due to TTL mechanism bug for H2, MySQL, TiDB and PostgreSQL.
+* Add a GraphQL query to get OAP version, display OAP version in startup message and error logs.
 
 #### UI
 
