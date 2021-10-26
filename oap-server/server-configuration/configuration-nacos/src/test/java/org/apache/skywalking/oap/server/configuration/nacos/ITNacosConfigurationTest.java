@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
+import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;

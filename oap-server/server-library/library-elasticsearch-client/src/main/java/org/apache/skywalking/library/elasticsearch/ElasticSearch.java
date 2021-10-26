@@ -44,7 +44,7 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
+
 import org.apache.skywalking.library.elasticsearch.client.AliasClient;
 import org.apache.skywalking.library.elasticsearch.client.DocumentClient;
 import org.apache.skywalking.library.elasticsearch.client.IndexClient;
@@ -53,6 +53,7 @@ import org.apache.skywalking.library.elasticsearch.client.TemplateClient;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.response.NodeInfo;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 @Accessors(fluent = true)

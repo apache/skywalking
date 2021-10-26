@@ -23,7 +23,7 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 

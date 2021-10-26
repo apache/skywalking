@@ -22,7 +22,7 @@ Release Notes.
 * Update `byte-buddy` to 1.10.19.
 * Fix thrift plugin trace link broken when intermediate service does not mount agent
 * Fix thrift plugin collects wrong args when the method without parameter.
-* Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
+* Fix DataCarrier's `Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
 * Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
 * Support building gRPC TLS channel but CA file is not required.
 * Add witness method mechanism in the agent plugin core.

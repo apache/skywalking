@@ -37,7 +37,7 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-import static org.apache.skywalking.apm.util.StringUtil.isNotBlank;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
 
 @Getter

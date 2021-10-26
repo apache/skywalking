@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 import io.envoyproxy.envoy.config.core.v3.Address;
 
 import static java.util.Objects.nonNull;
-import static org.apache.skywalking.apm.util.StringUtil.isNotBlank;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 
 public class Addresses {
     public static boolean isValid(final Address address) {
