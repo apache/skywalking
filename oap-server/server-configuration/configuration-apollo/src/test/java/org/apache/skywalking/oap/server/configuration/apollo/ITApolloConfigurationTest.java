@@ -35,7 +35,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
+import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;

@@ -33,12 +33,7 @@
         <module>library-util</module>
         <module>library-client</module>
         <module>library-elasticsearch-client</module>
+        <module>library-datacarrier-queue</module>
     </modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-util</artifactId>
-        </dependency>
-    </dependencies>
 </project>

@@ -23,6 +23,8 @@ Release Notes.
   - Event
   - Profile
   - Kafka: Base, Meter, Log, Profile
+  - Client-JS
+* Support JDK 16 and 17.
 
 #### OAP Server
 
@@ -50,6 +52,9 @@ Release Notes.
 * Support search browser service.
 * Add `getProfileTaskLogs` to profile query protocol.
 * Set `SW_KAFKA_FETCHER_ENABLE_NATIVE_PROTO_LOG`, `SW_KAFKA_FETCHER_ENABLE_NATIVE_JSON_LOG` default `true`.
+* Fix unexpected deleting due to TTL mechanism bug for H2, MySQL, TiDB and PostgreSQL.
+* Add a GraphQL query to get OAP version, display OAP version in startup message and error logs.
+* Fix TimeBucket missing in H2, MySQL, TiDB and PostgreSQL bug, which causes TTL doesn't work for `service_traffic`.
 
 #### UI
 

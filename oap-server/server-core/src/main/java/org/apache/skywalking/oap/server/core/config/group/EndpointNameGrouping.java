@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.config.group;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringFormatGroup;
+import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRule4Openapi;
 
 @Slf4j

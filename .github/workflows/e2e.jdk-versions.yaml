@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        jdk: [ 8, 11, 12, 13, 14, 15 ]
+        jdk: [ 8, 11, 12, 13, 14, 15, 16 ]
     env:
       SW_AGENT_JDK_VERSION: ${{ matrix.jdk }}
       SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk${{ matrix.jdk }}:alpine-jre

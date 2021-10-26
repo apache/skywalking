@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.zabbix.provider;
 
 import com.google.common.base.Splitter;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;

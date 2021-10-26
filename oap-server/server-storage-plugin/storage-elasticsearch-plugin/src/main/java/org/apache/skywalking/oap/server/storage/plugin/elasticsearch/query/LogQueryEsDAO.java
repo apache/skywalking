@@ -46,7 +46,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexC
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 
 import static java.util.Objects.nonNull;
-import static org.apache.skywalking.apm.util.StringUtil.isNotEmpty;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotEmpty;
 
 public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
     public LogQueryEsDAO(ElasticSearchClient client) {

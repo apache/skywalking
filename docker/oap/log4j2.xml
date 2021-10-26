@@ -20,7 +20,11 @@
 <Configuration status="INFO">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout charset="UTF-8" pattern="%d %c %L [%t] %-5p %x - %m%n"/>
+            <PatternLayout>
+                <LevelPatternSelector defaultPattern="%d %c %L [%t] %-5p %x - %m%n">
+                    <PatternMatch key="ERROR" pattern="%d %c %L [%t] %-5p %x - [%swversion] %m%n" />
+                </LevelPatternSelector>
+            </PatternLayout>
         </Console>
     </Appenders>
     <Loggers>

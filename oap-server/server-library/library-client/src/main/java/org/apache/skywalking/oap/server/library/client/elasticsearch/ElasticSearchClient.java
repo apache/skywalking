@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.library.elasticsearch.ElasticSearch;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchBuilder;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;

@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.ConfigurationDiscover
 import org.apache.skywalking.apm.network.language.agent.v3.ConfigurationSyncRequest;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
-import org.apache.skywalking.apm.network.trace.component.command.ConfigurationDiscoveryCommand;
+import org.apache.skywalking.oap.server.network.trace.component.command.ConfigurationDiscoveryCommand;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.recevier.configuration.discovery.AgentConfigurations;
 import org.apache.skywalking.oap.server.recevier.configuration.discovery.AgentConfigurationsWatcher;
