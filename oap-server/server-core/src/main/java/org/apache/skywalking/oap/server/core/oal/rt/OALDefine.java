@@ -32,18 +32,12 @@ import static java.util.Objects.requireNonNull;
 @EqualsAndHashCode
 public abstract class OALDefine {
     protected OALDefine(final String configFile,
-              final String sourcePackage) {
-        this(configFile, sourcePackage, sourcePackage);
-    }
-
-    protected OALDefine(final String configFile,
-                        final String sourcePackage,
-                        final String dispatcherPackage) {
+                        final String sourcePackage) {
         this.configFile = requireNonNull(configFile);
         this.sourcePackage = appendPoint(requireNonNull(sourcePackage));
-        this.dynamicMetricsClassPackage = appendPoint(sourcePackage + ".oal.rt.metrics");
-        this.dynamicMetricsBuilderClassPackage = appendPoint(sourcePackage + ".oal.rt.metrics.builder");
-        this.dynamicDispatcherClassPackage = appendPoint(dispatcherPackage + ".oal.rt.dispatcher");
+        this.dynamicMetricsClassPackage = "org.apache.skywalking.oap.server.core.source.oal.rt.metrics.";
+        this.dynamicMetricsBuilderClassPackage = "org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder.";
+        this.dynamicDispatcherClassPackage = "org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher.";
     }
 
     private final String configFile;

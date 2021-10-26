@@ -65,10 +65,14 @@ import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
 import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
+import org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher.DispatcherClassPackageHolder;
+import org.apache.skywalking.oap.server.core.source.oal.rt.metrics.MetricClassPackageHolder;
+import org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder.MetricBuilderClassPackageHolder;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.JVMEnvUtil;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
 /**
@@ -295,7 +299,8 @@ public class OALRuntime implements OALEngine {
             constPool, AnnotationsAttribute.visibleTag);
         Annotation streamAnnotation = new Annotation(Stream.class.getName(), constPool);
         streamAnnotation.addMemberValue("name", new StringMemberValue(metricsStmt.getTableName(), constPool));
-        streamAnnotation.addMemberValue("scopeId", new IntegerMemberValue(constPool, metricsStmt.getFrom().getSourceScopeId()));
+        streamAnnotation.addMemberValue(
+            "scopeId", new IntegerMemberValue(constPool, metricsStmt.getFrom().getSourceScopeId()));
         streamAnnotation.addMemberValue(
             "builder", new ClassMemberValue(metricsBuilderClassName(metricsStmt, true), constPool));
         streamAnnotation.addMemberValue("processor", new ClassMemberValue(METRICS_STREAM_PROCESSOR, constPool));
@@ -305,7 +310,11 @@ public class OALRuntime implements OALEngine {
 
         Class targetClass;
         try {
-            targetClass = metricsClass.toClass(currentClassLoader, null);
+            if (JVMEnvUtil.version() < 9) {
+                targetClass = metricsClass.toClass(currentClassLoader, null);
+            } else {
+                targetClass = metricsClass.toClass(MetricClassPackageHolder.class);
+            }
         } catch (CannotCompileException e) {
             log.error("Can't compile/load " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
@@ -359,7 +368,11 @@ public class OALRuntime implements OALEngine {
         }
 
         try {
-            metricsBuilderClass.toClass(currentClassLoader, null);
+            if (JVMEnvUtil.version() < 9) {
+                metricsBuilderClass.toClass(currentClassLoader, null);
+            } else {
+                metricsBuilderClass.toClass(MetricBuilderClassPackageHolder.class);
+            }
         } catch (CannotCompileException e) {
             log.error("Can't compile/load " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
@@ -437,7 +450,11 @@ public class OALRuntime implements OALEngine {
 
         Class targetClass;
         try {
-            targetClass = dispatcherClass.toClass(currentClassLoader, null);
+            if (JVMEnvUtil.version() < 9) {
+                targetClass = dispatcherClass.toClass(currentClassLoader, null);
+            } else {
+                targetClass = dispatcherClass.toClass(DispatcherClassPackageHolder.class);
+            }
         } catch (CannotCompileException e) {
             log.error("Can't compile/load " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
