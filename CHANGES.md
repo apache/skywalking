@@ -24,6 +24,7 @@ Release Notes.
   - Profile
   - Kafka: Base, Meter, Log, Profile
   - Client-JS
+* Support JDK 16 and 17.
 
 #### OAP Server
 

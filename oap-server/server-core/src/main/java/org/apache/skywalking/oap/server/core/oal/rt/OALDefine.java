@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.oal.rt;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 
 import static java.util.Objects.requireNonNull;
@@ -32,18 +33,28 @@ import static java.util.Objects.requireNonNull;
 @EqualsAndHashCode
 public abstract class OALDefine {
     protected OALDefine(final String configFile,
-              final String sourcePackage) {
-        this(configFile, sourcePackage, sourcePackage);
+                        final String sourcePackage) {
+        this(configFile, sourcePackage, Const.EMPTY_STRING);
     }
 
+    /**
+     * Define the booting parameters for OAL engine
+     *
+     * @param configFile    OAL script file path
+     * @param sourcePackage the package path of source(s) used in given config OAL script file
+     * @param catalog       of metrics defined through given OAL script file. Be used as prefix of generated dispatcher
+     *                      class name.
+     */
     protected OALDefine(final String configFile,
                         final String sourcePackage,
-                        final String dispatcherPackage) {
+                        final String catalog) {
         this.configFile = requireNonNull(configFile);
         this.sourcePackage = appendPoint(requireNonNull(sourcePackage));
-        this.dynamicMetricsClassPackage = appendPoint(sourcePackage + ".oal.rt.metrics");
-        this.dynamicMetricsBuilderClassPackage = appendPoint(sourcePackage + ".oal.rt.metrics.builder");
-        this.dynamicDispatcherClassPackage = appendPoint(dispatcherPackage + ".oal.rt.dispatcher");
+        this.dynamicMetricsClassPackage = "org.apache.skywalking.oap.server.core.source.oal.rt.metrics.";
+        this.dynamicMetricsBuilderClassPackage = "org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder.";
+        this.dynamicDispatcherClassPackage = StringUtil.isBlank(catalog) ?
+            "org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher." :
+            "org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher." + catalog;
     }
 
     private final String configFile;
