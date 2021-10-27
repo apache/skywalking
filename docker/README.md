@@ -14,6 +14,14 @@ You can use `Makefile` located at the root folder to build a docker image with t
 make docker
 ```
 
+It will build docker image with the same architecture as local environment. 
+
+IF you want to run a cross build for amd64 & arm64 docker images, you need to setup docker experimental environment, and install QEMU to support the different architectures. After that, you can use below command to do cross build:
+
+```shell
+make docker -DDOCKER_CROSS_BUILD=1
+```
+
 It not only contains the process of building a docker image but also includes all the required steps, for instance, init
 workspace, build artifact from scratch. It builds two images, OAP, and UI.
 
