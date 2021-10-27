@@ -64,14 +64,14 @@ docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
 docker.oap: 
-	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^, $(OAP_NAME))
+	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^, $(OAP_NAME), Dockerfile.oap)
 
 docker.ui: $(CONTEXT)/$(DIST)
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
 docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
 docker.ui: 
-	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^, $(UI_NAME))
+	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^, $(UI_NAME), Dockerfile.ui)
 
 # $@ is the name of the target
 # $^ the name of the dependencies for the target
@@ -84,19 +84,27 @@ docker.ui:
 # 5. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
 
 # DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(NAME):$(TAG) -f Dockerfile$(suffix $@) .)
+ifeq ($(PUSH_DOCKER_IMAGE), true)
+	DOCKER_PUSH_OPTION=--push
+	DOCKER_PUSH_CMD=docker push 
+else
+	DOCKER_PUSH_OPTION=
+	DOCKER_PUSH_CMD=@echo docker image built:
+endif
+
+
 ifeq ($(INCLUDE_ARM_BUILD), true)
 define DOCKER_RULE
 	mkdir -p $(1)
 	cp -r $(2) $(1)
-	cd $(1) && \
-	$(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile.$(3) . --push
+	cd $(1) && docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f $(4) . $(DOCKER_PUSH_OPTION)
 endef
 else
 define DOCKER_RULE
 	mkdir -p $(1)
 	cp -r $(2) $(1)
-	cd $(1) && \
-	$(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile.$(3) .
+	cd $(1) && docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f $(4) .
+	$(DOCKER_PUSH_CMD) $(HUB)/$(3):$(TAG)
 endef
 endif
 
