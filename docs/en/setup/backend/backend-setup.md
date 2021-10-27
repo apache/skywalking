@@ -15,7 +15,7 @@ SkyWalking's backend distribution package consists of the following parts:
 
 ## Requirements and default settings
 
-Requirement: **JDK8 to JDK12 are tested**. Other versions are not tested and may or may not work.
+Requirement: **JDK8 to JDK17 are tested**. Other versions are not tested and may or may not work.
 
 Before you start, you should know that the main purpose of quickstart is to help you obtain a basic configuration for previews/demo. Performance and long-term running are not our goals.
 

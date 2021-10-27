@@ -36,7 +36,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.io.Files.getNameWithoutExtension;
-import static org.apache.skywalking.apm.util.StringUtil.isNotBlank;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isEmpty;
 
 @Data

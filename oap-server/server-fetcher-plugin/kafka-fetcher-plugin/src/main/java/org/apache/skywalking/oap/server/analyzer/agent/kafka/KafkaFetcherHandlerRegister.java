@@ -42,7 +42,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.KafkaHandler;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;

@@ -18,7 +18,7 @@
 package org.apache.skywalking.oap.server.configuration.etcd;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.configuration.api.AbstractConfigurationProvider;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;

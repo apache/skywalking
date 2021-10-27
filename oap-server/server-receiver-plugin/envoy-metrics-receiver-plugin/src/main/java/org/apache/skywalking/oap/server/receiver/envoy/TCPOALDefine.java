@@ -29,7 +29,7 @@ public class TCPOALDefine extends OALDefine {
         super(
             "oal/tcp.oal",
             "org.apache.skywalking.oap.server.core.source",
-            "org.apache.skywalking.oap.server.core.source.tcp"
+            "EnvoyTCP"
         );
     }
 }

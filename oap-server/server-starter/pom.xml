@@ -17,7 +17,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
@@ -26,6 +27,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>server-starter</artifactId>
+
+    <properties>
+        <generateGitPropertiesFilename>${project.basedir}/src/main/resources/version.properties
+        </generateGitPropertiesFilename>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -319,6 +325,33 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.9.10</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-information</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <verbose>false</verbose>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${generateGitPropertiesFilename}</generateGitPropertiesFilename>
+                    <dateFormatTimeZone>UTC</dateFormatTimeZone>
+                    <dateFormat>yyyyMMddHHmmss</dateFormat>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.version$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.build.time$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                </configuration>
             </plugin>
         </plugins>
     </build>

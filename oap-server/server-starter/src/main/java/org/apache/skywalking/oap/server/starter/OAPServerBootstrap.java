@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.starter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.RunningMode;
+import org.apache.skywalking.oap.server.core.version.Version;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.starter.config.ApplicationConfigLoader;
@@ -48,6 +49,8 @@ public class OAPServerBootstrap {
                    .createGauge("uptime", "oap server start up time", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE)
                    // Set uptime to second
                    .setValue(System.currentTimeMillis() / 1000d);
+
+            log.info("Version of OAP: {}", Version.CURRENT);
 
             if (RunningMode.isInitMode()) {
                 log.info("OAP starts up in init mode successfully, exit now...");

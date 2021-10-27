@@ -98,7 +98,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.skywalking</groupId>
-                <artifactId>apm-util</artifactId>
+                <artifactId>library-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

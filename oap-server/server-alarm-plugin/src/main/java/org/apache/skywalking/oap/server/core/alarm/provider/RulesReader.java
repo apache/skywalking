@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;

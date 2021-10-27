@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;

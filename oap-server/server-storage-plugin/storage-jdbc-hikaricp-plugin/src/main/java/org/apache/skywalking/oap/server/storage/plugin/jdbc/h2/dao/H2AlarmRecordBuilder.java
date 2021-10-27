@@ -17,7 +17,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;

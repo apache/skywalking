@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 final class KubernetesNodeRegistry implements ResourceEventHandler<V1Node> {
