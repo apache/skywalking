@@ -4,6 +4,7 @@ Release Notes.
 
 8.9.0
 ------------------
+
 #### Project
 
 * Replace e2e cases to e2e-v2:
@@ -56,6 +57,8 @@ Release Notes.
 * Fix unexpected deleting due to TTL mechanism bug for H2, MySQL, TiDB and PostgreSQL.
 * Add a GraphQL query to get OAP version, display OAP version in startup message and error logs.
 * Fix TimeBucket missing in H2, MySQL, TiDB and PostgreSQL bug, which causes TTL doesn't work for `service_traffic`.
+* Fix ElasticSearch implementation of `queryMetricsValues` and `readLabeledMetricsValues` doesn't fill default values
+  when no available data in the ElasticSearch server.
 
 #### UI
 

@@ -29,7 +29,8 @@
     <artifactId>server-starter</artifactId>
 
     <properties>
-        <generateGitPropertiesFilename>${project.build.outputDirectory}/version.properties</generateGitPropertiesFilename>
+        <generateGitPropertiesFilename>${project.basedir}/src/main/resources/version.properties
+        </generateGitPropertiesFilename>
     </properties>
 
     <dependencies>
@@ -265,22 +266,6 @@
 
     <build>
         <finalName>skywalking-oap</finalName>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>version.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>version.properties</exclude>
-                </excludes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
