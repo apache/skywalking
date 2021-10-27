@@ -66,4 +66,4 @@ jobs:
           echo "Platforms: ${{ steps.buildx1.outputs.platforms }}"
       - name: Build docker image
         run: |
-          make docker || make docker
+          make docker -DDOCKER_CROSS_BUILD=1 || make docker -DDOCKER_CROSS_BUILD=1

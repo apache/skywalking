@@ -63,15 +63,15 @@ docker.oap: $(CONTEXT)/$(DIST)
 docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
-docker.oap: NAME = $(OAP_NAME)
-	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^)
+docker.oap: 
+	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^, $(OAP_NAME))
 
 docker.ui: $(CONTEXT)/$(DIST)
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
 docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
-docker.ui: NAME = $(UI_NAME)
-	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^)
+docker.ui: 
+	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^, $(UI_NAME))
 
 # $@ is the name of the target
 # $^ the name of the dependencies for the target
@@ -87,8 +87,13 @@ docker.ui: NAME = $(UI_NAME)
 define DOCKER_RULE
     mkdir -p $(1)
     cp -r $(2) $(1)
-    cd $(1) && \
-    $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(NAME):$(TAG) -f Dockerfile$(suffix $@) .
+	ifeq ($(DOCKER_CROSS_BUILD), "1")
+        cd $(1) && \
+        $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile$(suffix $@) .
+	else
+	    cd $(1) && \
+	    $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile$(suffix $@) .
+	endif
 endef
 
 
