@@ -64,14 +64,14 @@ docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
 docker.oap: 
-	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^, $(OAP_NAME), Dockerfile.oap)
+	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@,$^,$(OAP_NAME),Dockerfile.oap)
 
 docker.ui: $(CONTEXT)/$(DIST)
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
 docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
 docker.ui: 
-	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^, $(UI_NAME), Dockerfile.ui)
+	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@,$^,$(UI_NAME),Dockerfile.ui)
 
 # $@ is the name of the target
 # $^ the name of the dependencies for the target
@@ -88,7 +88,7 @@ ifeq ($(PUSH_DOCKER_IMAGE), true)
 	DOCKER_PUSH_OPTION=--push
 	DOCKER_PUSH_CMD=docker push 
 else
-	DOCKER_PUSH_OPTION=
+	DOCKER_PUSH_OPTION=--load
 	DOCKER_PUSH_CMD=@echo docker image built:
 endif
 
