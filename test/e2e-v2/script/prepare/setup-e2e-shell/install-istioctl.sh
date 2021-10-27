@@ -19,8 +19,11 @@
 # under the License.
 # ----------------------------------------------------------------------------
 
-set -ex
+BASE_DIR=$1
+BIN_DIR=$2
 
-istioctl version || (curl -L https://istio.io/downloadIstio | sh - && sudo mv $PWD/istio-$ISTIO_VERSION/bin/istioctl /usr/local/bin/)
-istioctl install -y $@
-kubectl label namespace default istio-injection=enabled
+if ! command -v istioctl &> /dev/null; then
+  mkdir -p $BASE_DIR/istioctl && cd $BASE_DIR/istioctl
+  curl -L https://istio.io/downloadIstio | sh -
+  cp istio-$ISTIO_VERSION/bin/istioctl $BIN_DIR
+fi

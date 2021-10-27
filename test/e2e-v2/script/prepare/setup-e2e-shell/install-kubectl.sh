@@ -19,22 +19,11 @@
 # under the License.
 # ----------------------------------------------------------------------------
 
-set -ex
-
-HELMVERSION=${HELMVERSION:-'helm-v3.0.0'}
-MINIKUBEVERESION=${MINIKUBEVERESION:-'minikube-v1.13.1'}
+BASE_DIR=$1
+BIN_DIR=$2
 K8SVERSION=${K8SVERSION:-'k8s-v1.19.2'}
 
-curl -sSL https://get.helm.sh/${HELMVERSION}-linux-amd64.tar.gz | \
-    sudo tar xz -C /usr/local/bin --strip-components=1 linux-amd64/helm
-
-sudo mkdir -p /usr/local/bin
-curl -sSL "https://storage.googleapis.com/minikube/releases/${MINIKUBEVERESION#minikube-}/minikube-linux-amd64" -o /tmp/minikube
-chmod +x /tmp/minikube
-sudo mv /tmp/minikube /usr/local/bin/minikube
-
-curl -sSL "https://storage.googleapis.com/kubernetes-release/release/${K8SVERSION#k8s-}/bin/linux/amd64/kubectl" -o /tmp/kubectl
-chmod +x /tmp/kubectl
-sudo mv /tmp/kubectl /usr/local/bin/kubectl
-
-sudo apt-get install -y socat conntrack
+if ! command -v kubectl &> /dev/null; then
+  curl -sSL "https://storage.googleapis.com/kubernetes-release/release/${K8SVERSION#k8s-}/bin/linux/amd64/kubectl" -o $BIN_DIR/kubectl
+  chmod +x $BIN_DIR/kubectl
+fi

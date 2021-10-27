@@ -19,12 +19,12 @@
 # under the License.
 # ----------------------------------------------------------------------------
 
-set -ex
+BASE_DIR=$1
+BIN_DIR=$2
+HELMVERSION=${HELMVERSION:-'helm-v3.0.0'}
 
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/bookinfo-gateway.yaml
-
-sleep 3
-kubectl wait --for=condition=Ready pods --all --timeout=1200s
-kubectl get pods -A -o wide --show-labels
-kubectl get rs -A
+if ! command -v helm &> /dev/null; then
+  mkdir -p $BASE_DIR/helm && cd $BASE_DIR/helm
+  curl -sSL https://get.helm.sh/${HELMVERSION}-linux-amd64.tar.gz
+  tar xz -C $BIN_DIR --strip-components=1 linux-amd64/helm
+fi
