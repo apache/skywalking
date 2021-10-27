@@ -5,7 +5,7 @@ int result = 17;
         <#if sourceField.getTypeName() == "java.lang.String">
             result = 31 * result + ${sourceField.fieldName}.hashCode();
         <#else>
-            result += Const.ID_CONNECTOR + ${sourceField.fieldName};
+            result = 31 * result + ${sourceField.fieldName};
         </#if>
     </#if>
 </#list>

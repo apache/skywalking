@@ -21,12 +21,12 @@
     <parent>
         <artifactId>profile-exporter</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.8.0-SNAPSHOT</version>
+        <version>8.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>tool-profile-snapshot-exporter</artifactId>
-    <version>8.8.0-SNAPSHOT</version>
+    <version>8.9.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -34,11 +34,29 @@
             <artifactId>tool-profile-snapshot-bootstrap</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-elasticsearch-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
+
+    <build>
+        <finalName>skywalking-tools-exporter</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

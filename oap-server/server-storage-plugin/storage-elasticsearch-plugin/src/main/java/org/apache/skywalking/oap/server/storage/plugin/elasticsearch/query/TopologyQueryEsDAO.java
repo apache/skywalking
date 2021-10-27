@@ -187,7 +187,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             Query.term(
                 EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, destEndpointId
             ));
-        serviceIdBoolQuery.must(
+        serviceIdBoolQuery.should(
             Query.term(
                 EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId
             ));

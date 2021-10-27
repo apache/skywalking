@@ -21,18 +21,17 @@
     <parent>
         <artifactId>server-tools</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.8.0-SNAPSHOT</version>
+        <version>8.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>profile-exporter</artifactId>
-    <version>8.8.0-SNAPSHOT</version>
+    <version>8.9.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>tool-profile-snapshot-server-mock</module>
         <module>tool-profile-snapshot-bootstrap</module>
         <module>tool-profile-snapshot-exporter</module>
-        <module>tool-profile-snapshot-exporter-es</module>
     </modules>
 </project>

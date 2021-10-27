@@ -33,14 +33,14 @@ final class V7MappingsDeserializer extends JsonDeserializer<Mappings> {
         throws IOException {
 
         final Map<String, Object> m =
-            p.readValueAs(new TypeReference<Map<String, Object>>() {
+            p.getCodec().readValue(p, new TypeReference<Map<String, Object>>() {
             });
 
         final Iterator<Map.Entry<String, Object>> it = m.entrySet().iterator();
         if (it.hasNext()) {
             final Map.Entry<String, Object> first = it.next();
             final Mappings mappings = new Mappings();
-            mappings.setType(first.getKey());
+            mappings.setType("_doc");
             mappings.setProperties((Map<String, Object>) first.getValue());
             return mappings;
         }

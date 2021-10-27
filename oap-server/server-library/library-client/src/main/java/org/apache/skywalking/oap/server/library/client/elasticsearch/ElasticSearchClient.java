@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,9 +38,9 @@ import org.apache.skywalking.library.elasticsearch.ElasticSearch;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchBuilder;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
 import org.apache.skywalking.library.elasticsearch.bulk.BulkProcessor;
+import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.response.Document;
-import org.apache.skywalking.library.elasticsearch.response.Documents;
 import org.apache.skywalking.library.elasticsearch.response.Index;
 import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
@@ -116,6 +117,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
                 .endpoints(clusterNodes.split(","))
                 .protocol(protocol)
                 .connectTimeout(connectTimeout)
+                .socketTimeout(socketTimeout)
                 .numHttpClientThread(numHttpClientThread)
                 .healthyListener(healthy -> {
                     if (healthy) {
@@ -274,10 +276,13 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return es.get().documents().exists(indexName, TYPE, id);
     }
 
-    public Optional<Documents> ids(String indexName, Iterable<String> ids) {
+    public SearchResponse ids(String indexName, Iterable<String> ids) {
         indexName = indexNameConverter.apply(indexName);
 
-        return es.get().documents().mget(indexName, TYPE, ids);
+        return es.get().search(Search.builder()
+                                     .size(Iterables.size(ids))
+                                     .query(Query.ids(ids))
+                                     .build(), indexName);
     }
 
     public void forceInsert(String indexName, String id, Map<String, Object> source) {

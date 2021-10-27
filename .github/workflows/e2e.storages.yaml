@@ -36,9 +36,27 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['mysql', 'es6', 'es7.0', 'es7.10', 'es7.14', 'opensearch', 'influxdb', 'tidb', 'postgresql']
-    env:
-      SW_STORAGE: ${{ matrix.storage }}
+        config-file:
+          - storage/h2/e2e.yaml
+          - storage/opensearch/e2e.yaml
+          - storage/mysql/e2e.yaml
+          - storage/tidb/e2e.yaml
+          - storage/influxdb/e2e.yaml
+          - storage/postgres/e2e.yaml
+        include:
+          - es-version: 6.3.2
+            config-file: storage/es/e2e.yaml
+          - es-version: 7.0.0
+            config-file: storage/es/e2e.yaml
+          - es-version: 7.8.0
+            config-file: storage/es/e2e.yaml
+          - es-version: 7.10.1
+            config-file: storage/es/e2e.yaml
+          - es-version: 7.14.0
+            config-file: storage/es/e2e.yaml
+          - es-version: 7.15.0
+            config-file: storage/es/e2e.yaml
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -47,9 +65,11 @@ jobs:
         uses: ./.github/actions/skip
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
+        uses: ./.github/actions/infra-e2e-test
+        env:
+          ES_VERSION: ${{ matrix.es-version }}
         with:
-          test_class: org.apache.skywalking.e2e.storage.StorageE2E
+          config-file: ${{ matrix.config-file }}
 
   Storage:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')

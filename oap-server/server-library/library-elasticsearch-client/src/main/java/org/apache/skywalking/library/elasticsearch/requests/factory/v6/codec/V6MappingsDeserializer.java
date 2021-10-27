@@ -33,7 +33,7 @@ final class V6MappingsDeserializer extends JsonDeserializer<Mappings> {
         throws IOException {
 
         final Map<String, Object> m =
-            p.readValueAs(new TypeReference<Map<String, Object>>() {
+            p.getCodec().readValue(p, new TypeReference<Map<String, Object>>() {
             });
         final Optional<Map.Entry<String, Object>> typeMapping =
             m.entrySet()

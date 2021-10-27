@@ -84,9 +84,10 @@ public final class BulkProcessor {
         return this;
     }
 
+    @SneakyThrows
     private void internalAdd(Object request) {
         requireNonNull(request, "request");
-        requests.add(request);
+        requests.put(request);
         flushIfNeeded();
     }
 
@@ -119,6 +120,10 @@ public final class BulkProcessor {
 
     private CompletableFuture<Void> doFlush(final List<Object> batch) {
         log.debug("Executing bulk with {} requests", batch.size());
+
+        if (batch.isEmpty()) {
+            return CompletableFuture.completedFuture(null);
+        }
 
         final CompletableFuture<Void> future = es.get().version().thenCompose(v -> {
             try {

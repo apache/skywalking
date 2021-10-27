@@ -285,6 +285,10 @@ Here are some use cases:
    | `GET:/products/123` | serviceB | default | default | `${PATH}:<${METHOD}>` | true | `/products/{id}:<GET>` |
    | `/products/123:<GET>` | serviceB | default | `${PATH}:<${METHOD}>` | default | true | `GET:/products/{id}` |
 
+### Initialize and update the OpenAPI definitions dynamically
+Use [Dynamic Configuration](dynamic-config) to initialize and update OpenAPI definitions, the endpoint grouping rules from OpenAPI
+will re-create by new config.
+
 
 ## Endpoint name grouping by custom configuration
 Currently, a user could set up grouping rules through the static YAML file named `endpoint-name-grouping.yml`,

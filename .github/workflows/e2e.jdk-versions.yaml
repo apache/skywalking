@@ -35,7 +35,6 @@ jobs:
       matrix:
         jdk: [ 8, 11, 12, 13, 14, 15 ]
     env:
-      SW_SIMPLE_CASE: jdk
       SW_AGENT_JDK_VERSION: ${{ matrix.jdk }}
       SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk${{ matrix.jdk }}:alpine-jre
     steps:
@@ -52,9 +51,9 @@ jobs:
           java-version: ${{ matrix.jdk }}
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
+        uses: ./.github/actions/infra-e2e-test
         with:
-          test_class: org.apache.skywalking.e2e.simple.SimpleE2E
+          config-file: simple/jdk/e2e.yaml
 
   Single:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')

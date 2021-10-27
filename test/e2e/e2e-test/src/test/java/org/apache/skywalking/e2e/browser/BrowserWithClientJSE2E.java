@@ -55,8 +55,6 @@ import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_LOAD_PAGE_AVG;
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_LOAD_PAGE_PERCENTILE;
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_PV;
-import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_REDIRECT_AVG;
-import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_RES_AVG;
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PAGE_TTL_AVG;
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_PV;
 import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.BROWSER_APP_SINGLE_VERSION_ERROR_SUM;
@@ -181,11 +179,13 @@ public class BrowserWithClientJSE2E extends SkyWalkingTestAdapter {
         BROWSER_APP_PAGE_PV,
         BROWSER_APP_PAGE_ERROR_SUM,
         BROWSER_APP_PAGE_JS_ERROR_SUM,
-        BROWSER_APP_PAGE_REDIRECT_AVG,
+        // If the current document and the document that is redirected to are not from the same origin, set redirectStart, redirectEnd to 0
+        // BROWSER_APP_PAGE_REDIRECT_AVG,
         BROWSER_APP_PAGE_DOM_ANALYSIS_AVG,
         BROWSER_APP_PAGE_DOM_READY_AVG,
         BROWSER_APP_PAGE_LOAD_PAGE_AVG,
-        BROWSER_APP_PAGE_RES_AVG,
+        // Represents a synchronized load resource in pages
+        // BROWSER_APP_PAGE_RES_AVG,
         BROWSER_APP_PAGE_TTL_AVG,
         };
 

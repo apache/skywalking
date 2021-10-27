@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
@@ -31,8 +30,8 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.TermsAggregationBuilder;
-import org.apache.skywalking.library.elasticsearch.response.Document;
-import org.apache.skywalking.library.elasticsearch.response.Documents;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchHits;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.HistogramMetrics;
@@ -110,12 +109,12 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         }).collect(Collectors.toList());
         MetricsValues metricsValues = new MetricsValues();
 
-        Optional<Documents> response = getClient().ids(tableName, ids);
-        if (!response.isPresent()) {
+        SearchResponse response = getClient().ids(tableName, ids);
+        if (response.getHits().getHits().isEmpty()) {
             return metricsValues;
         }
 
-        Map<String, Map<String, Object>> idMap = toMap(response.get());
+        Map<String, Map<String, Object>> idMap = toMap(response.getHits());
 
         // Label is null, because in readMetricsValues, no label parameter.
         IntValues intValues = metricsValues.getValues();
@@ -158,15 +157,15 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             ids.add(id);
         });
 
-        Optional<Documents> response = getClient().ids(tableName, ids);
-        if (!response.isPresent()) {
+        SearchResponse response = getClient().ids(tableName, ids);
+        if (response.getHits().getHits().isEmpty()) {
             return Collections.emptyList();
         }
         Map<String, DataTable> idMap = new HashMap<>();
-        for (final Document document : response.get()) {
+        for (final SearchHit hit : response.getHits()) {
             idMap.put(
-                document.getId(),
-                new DataTable((String) document.getSource().getOrDefault(valueColumnName, ""))
+                hit.getId(),
+                new DataTable((String) hit.getSource().getOrDefault(valueColumnName, ""))
             );
         }
         return Util.composeLabelValue(condition, labels, ids, idMap);
@@ -191,11 +190,11 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         HeatMap heatMap = new HeatMap();
 
-        Optional<Documents> response = getClient().ids(tableName, ids);
-        if (!response.isPresent()) {
+        SearchResponse response = getClient().ids(tableName, ids);
+        if (response.getHits().getHits().isEmpty()) {
             return heatMap;
         }
-        Map<String, Map<String, Object>> idMap = toMap(response.get());
+        Map<String, Map<String, Object>> idMap = toMap(response.getHits());
 
         final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         for (String id : ids) {
@@ -271,10 +270,10 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         return sourceBuilder;
     }
 
-    private Map<String, Map<String, Object>> toMap(Documents documents) {
+    private Map<String, Map<String, Object>> toMap(SearchHits hits) {
         Map<String, Map<String, Object>> result = new HashMap<>();
-        for (final Document document : documents) {
-            result.put(document.getId(), document.getSource());
+        for (final SearchHit hit : hits) {
+            result.put(hit.getId(), hit.getSource());
         }
         return result;
     }
