@@ -91,9 +91,6 @@ setup:
           for: condition=Ready
   timeout: 25m
 
-cleanup:
-  on: always
-
 verify:
   retry:
     count: 20
