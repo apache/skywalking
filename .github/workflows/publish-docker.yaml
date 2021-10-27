@@ -27,7 +27,7 @@ env:
 
 jobs:
   build:
-    if: github.repository == 'apache/skywalking'
+    if: github.repository == 'mis98zb/skywalking'
     runs-on: ubuntu-latest
     permissions:
       contents: read
