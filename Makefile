@@ -89,10 +89,10 @@ define DOCKER_RULE
     cp -r $(2) $(1)
 	ifeq ($(DOCKER_CROSS_BUILD), "1")
         cd $(1) && \
-        $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile$(suffix $@) .
+        $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile.$(3) .
 	else
 	    cd $(1) && \
-	    $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile$(suffix $@) .
+	    $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile.$(3) .
 	endif
 endef
 
