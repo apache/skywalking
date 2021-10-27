@@ -72,6 +72,8 @@ Release Notes.
 * Implement a reminder to clear cache for dashboard templates.
 * Support +/- hh:mm in TimeZone setting.
 * Optimize global settings.
+* Fix current endpoint for endpoint dependency.
+* Add version in the global settings popup.
 
 #### Documentation
 
