@@ -70,7 +70,7 @@ docker.ui: $(CONTEXT)/$(DIST)
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
 docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
-docker.oap: NAME = $(UI_NAME)
+docker.ui: NAME = $(UI_NAME)
 	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@, $^)
 
 # $@ is the name of the target
