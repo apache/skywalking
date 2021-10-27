@@ -84,16 +84,20 @@ docker.ui:
 # 5. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
 
 # DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(NAME):$(TAG) -f Dockerfile$(suffix $@) .)
+ifeq ($(INCLUDE_ARM_BUILD), true)
 define DOCKER_RULE
-    mkdir -p $(1)
-    cp -r $(2) $(1)
-	ifeq ($(DOCKER_CROSS_BUILD), "1")
-        cd $(1) && \
-        $(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile.$(3) .
-	else
-	    cd $(1) && \
-	    $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile.$(3) .
-	endif
+	mkdir -p $(1)
+	cp -r $(2) $(1)
+	cd $(1) && \
+	$(BUILD_PRE) docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile.$(3) . --push
 endef
+else
+define DOCKER_RULE
+	mkdir -p $(1)
+	cp -r $(2) $(1)
+	cd $(1) && \
+	$(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f Dockerfile.$(3) .
+endef
+endif
 
 
