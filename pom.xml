@@ -32,7 +32,6 @@
     </parent>
 
     <modules>
-        <module>apm-commons</module>
         <module>apm-protocol</module>
     </modules>
     <packaging>pom</packaging>

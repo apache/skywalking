@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider.dingtalk;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;

@@ -37,11 +37,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.net.ssl.TrustManagerFactory;
 import lombok.SneakyThrows;
-import org.apache.skywalking.apm.util.StringUtil;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
-import static org.apache.skywalking.apm.util.StringUtil.isNotBlank;
+
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public final class ElasticSearchBuilder {
     private static final int NUM_PROC = Runtime.getRuntime().availableProcessors();
@@ -69,7 +69,7 @@ public final class ElasticSearchBuilder {
     private int numHttpClientThread;
 
     public ElasticSearchBuilder protocol(String protocol) {
-        checkArgument(isNotBlank(protocol), "protocol cannot be blank");
+        checkArgument(StringUtil.isNotBlank(protocol), "protocol cannot be blank");
         this.protocol = SessionProtocol.of(protocol);
         return this;
     }

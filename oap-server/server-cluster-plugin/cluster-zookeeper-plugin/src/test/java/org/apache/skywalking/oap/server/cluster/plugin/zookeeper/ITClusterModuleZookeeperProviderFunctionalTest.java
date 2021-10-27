@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 import java.util.Collections;
 import java.util.List;
 import org.apache.curator.x.discovery.ServiceDiscovery;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
