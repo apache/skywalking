@@ -57,6 +57,7 @@ Release Notes.
 * Fix unexpected deleting due to TTL mechanism bug for H2, MySQL, TiDB and PostgreSQL.
 * Add a GraphQL query to get OAP version, display OAP version in startup message and error logs.
 * Fix TimeBucket missing in H2, MySQL, TiDB and PostgreSQL bug, which causes TTL doesn't work for `service_traffic`.
+* Fix TimeBucket missing in ElasticSearch and provide compatible `storage2Entity` for previous versions.
 * Fix ElasticSearch implementation of `queryMetricsValues` and `readLabeledMetricsValues` doesn't fill default values
   when no available data in the ElasticSearch server.
 
