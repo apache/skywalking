@@ -26,6 +26,7 @@ Release Notes.
   - Kafka: Base, Meter, Log, Profile
   - Client-JS
   - Istio: ALS, Metrics
+  - TTL
 * Support JDK 16 and 17.
 
 #### OAP Server
