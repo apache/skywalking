@@ -100,7 +100,10 @@ public class ServiceTraffic extends Metrics {
             serviceTraffic.setName((String) dbMap.get(NAME));
             serviceTraffic.setNodeType(NodeType.valueOf(((Number) dbMap.get(NODE_TYPE)).intValue()));
             serviceTraffic.setGroup((String) dbMap.get(GROUP));
-            serviceTraffic.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            // TIME_BUCKET column could be null in old implementation, which is fixed in 8.9.0
+            if (dbMap.containsKey(TIME_BUCKET)) {
+                serviceTraffic.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            }
             return serviceTraffic;
         }
 
