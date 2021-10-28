@@ -86,10 +86,10 @@ docker.ui:
 # DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(NAME):$(TAG) -f Dockerfile$(suffix $@) .)
 ifeq ($(PUSH_DOCKER_IMAGE), true)
 	DOCKER_PUSH_OPTION=--push
-	DOCKER_PUSH_CMD=docker push 
+	DOCKER_PUSH_CMD=docker push $(HUB)/$(3):$(TAG)
 else
 	DOCKER_PUSH_OPTION=--load
-	DOCKER_PUSH_CMD=@echo docker image built:
+	DOCKER_PUSH_CMD=
 endif
 
 
@@ -104,7 +104,7 @@ define DOCKER_RULE
 	mkdir -p $(1)
 	cp -r $(2) $(1)
 	cd $(1) && docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f $(4) .
-	$(DOCKER_PUSH_CMD) $(HUB)/$(3):$(TAG)
+	$(DOCKER_PUSH_CMD)
 endef
 endif
 
