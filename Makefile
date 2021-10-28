@@ -71,7 +71,7 @@ ifeq ($(PUSH_DOCKER_IMAGE), true)
 	DOCKER_PUSH_OPTION=--push
 	DOCKER_PUSH_CMD=docker push $(HUB)/$(3):$(TAG)
 else
-	DOCKER_PUSH_OPTION=--load
+	DOCKER_PUSH_OPTION=
 	DOCKER_PUSH_CMD=
 endif
 
