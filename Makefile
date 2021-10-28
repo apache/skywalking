@@ -59,31 +59,14 @@ endif
 
 BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST) --build-arg SKYWALKING_CLI_VERSION=$(CLI_VERSION)
 
-docker.oap: $(CONTEXT)/$(DIST)
-docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
-docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
-docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
-docker.oap: 
-	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@,$^,$(OAP_NAME),Dockerfile.oap)
-
-docker.ui: $(CONTEXT)/$(DIST)
-docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
-docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
-docker.ui: $(SW_ROOT)/docker/ui/logback.xml
-docker.ui: 
-	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@,$^,$(UI_NAME),Dockerfile.ui)
-
-# $@ is the name of the target
-# $^ the name of the dependencies for the target
 # Rule Steps #
 ##############
 # 1. Make a directory $(DOCKER_BUILD_TOP)/%@
 # 2. This rule uses cp to copy all dependency filenames into into $(DOCKER_BUILD_TOP)/$@
 # 3. This rule then changes directories to $(DOCKER_BUID_TOP)/$@
-# 4. This rule runs $(BUILD_PRE) prior to any docker build and only if specified as a dependency variable
-# 5. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
-
-# DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(NAME):$(TAG) -f Dockerfile$(suffix $@) .)
+# 4. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
+# 5. If PUSH_DOCKER_IMAGE is set as true, docker image will be pushed to specified repository
+# 6. If INCLUDE_ARM_BUILD is set as true, both arm64 and amd64 docker image will be built, otherwise the docker image with be built with the arch of local environment
 ifeq ($(PUSH_DOCKER_IMAGE), true)
 	DOCKER_PUSH_OPTION=--push
 	DOCKER_PUSH_CMD=docker push $(HUB)/$(3):$(TAG)
@@ -91,7 +74,6 @@ else
 	DOCKER_PUSH_OPTION=--load
 	DOCKER_PUSH_CMD=
 endif
-
 
 ifeq ($(INCLUDE_ARM_BUILD), true)
 define DOCKER_RULE
@@ -107,5 +89,25 @@ define DOCKER_RULE
 	$(DOCKER_PUSH_CMD)
 endef
 endif
+
+
+# make rules for docker #
+#########################
+# $@ is the name of the target
+# $^ the name of the dependencies for the target
+
+docker.oap: $(CONTEXT)/$(DIST)
+docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
+docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
+docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
+docker.oap: 
+	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@,$^,$(OAP_NAME),Dockerfile.oap)
+
+docker.ui: $(CONTEXT)/$(DIST)
+docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
+docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
+docker.ui: $(SW_ROOT)/docker/ui/logback.xml
+docker.ui: 
+	$(call DOCKER_RULE, $(DOCKER_BUILD_TOP)/$@,$^,$(UI_NAME),Dockerfile.ui)
 
 
