@@ -27,7 +27,7 @@ env:
 
 jobs:
   build:
-    if: github.repository == 'mis98zb/skywalking'
+    if: github.repository == 'apache/skywalking'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -66,6 +66,4 @@ jobs:
           echo "Platforms: ${{ steps.buildx1.outputs.platforms }}"
       - name: Build docker image
         run: |
-          export HUB=mis98zb
-          export DOCKER_REPOSITORY_TOKEN=b4a4b74c-d8dd-4cfc-be6f-832741cbd43e
           make docker INCLUDE_ARM_BUILD=true PUSH_DOCKER_IMAGE=true || make docker INCLUDE_ARM_BUILD=true PUSH_DOCKER_IMAGE=true
