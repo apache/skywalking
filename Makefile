@@ -39,6 +39,7 @@ build.ui:
 DOCKER_BUILD_TOP:=${CONTEXT}/docker_build
 
 HUB ?= skywalking
+DOCKER_REPOSITORY_USER ?= $(HUB)
 OAP_NAME ?= oap
 UI_NAME ?= ui
 TAG ?= latest
@@ -68,23 +69,29 @@ BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST) --build-arg SKYWALKING_CLI_
 # 5. If PUSH_DOCKER_IMAGE is set as true, docker image will be pushed to specified repository
 # 6. If INCLUDE_ARM_BUILD is set as true, both arm64 and amd64 docker image will be built, otherwise the docker image with be built with the arch of local environment
 ifeq ($(PUSH_DOCKER_IMAGE), true)
+ifneq (DOCKER_REPOSITORY_TOKEN,)
+	DOCKER_LOGIN_CMD=docker login -u $(DOCKER_REPOSITORY_USER) -p $(DOCKER_REPOSITORY_TOKEN)
+else
+	DOCKER_LOGIN_CMD=docker login -u $(DOCKER_REPOSITORY_USER)
+endif
+	
 	DOCKER_PUSH_OPTION=--push
 	DOCKER_PUSH_CMD=docker push $(HUB)/$(3):$(TAG)
-else
-	DOCKER_PUSH_OPTION=
-	DOCKER_PUSH_CMD=
 endif
+
 
 ifeq ($(INCLUDE_ARM_BUILD), true)
 define DOCKER_RULE
 	mkdir -p $(1)
 	cp -r $(2) $(1)
+	$(DOCKER_LOGIN_CMD)
 	cd $(1) && docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f $(4) . $(DOCKER_PUSH_OPTION)
 endef
 else
 define DOCKER_RULE
 	mkdir -p $(1)
 	cp -r $(2) $(1)
+	$(DOCKER_LOGIN_CMD)
 	cd $(1) && docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f $(4) .
 	$(DOCKER_PUSH_CMD)
 endef
