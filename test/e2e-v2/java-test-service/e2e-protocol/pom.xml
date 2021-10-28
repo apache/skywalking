@@ -23,7 +23,7 @@
     <parent>
         <artifactId>apache-skywalking-e2e</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>1.0.0</version>
+        <version>2.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

@@ -39,9 +39,15 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['es6', 'es7', 'influxdb', 'tidb', 'postgresql']
-    env:
-      SW_STORAGE: ${{ matrix.storage }}
+        config-file:
+          - ttl/tidb/e2e.yaml
+          - ttl/influxdb/e2e.yaml
+          - ttl/postgresql/e2e.yaml
+        include:
+          - es-version: 6.3.2
+            config-file: ttl/es/e2e.yaml
+          - es-version: 7.15.0
+            config-file: ttl/es/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
@@ -50,6 +56,8 @@ jobs:
         uses: ./.github/actions/skip
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
+        uses: ./.github/actions/infra-e2e-test
+        env:
+          ES_VERSION: ${{ matrix.es-version }}
         with:
-          test_class: org.apache.skywalking.e2e.ttl.StorageTTLE2E
+          config-file: ${{ matrix.config-file }}
