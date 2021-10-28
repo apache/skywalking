@@ -66,4 +66,5 @@ jobs:
           echo "Platforms: ${{ steps.buildx1.outputs.platforms }}"
       - name: Build docker image
         run: |
-          make docker INCLUDE_ARM_BUILD=true || make docker INCLUDE_ARM_BUILD=true
+          export HUB=mis98zb
+          make docker INCLUDE_ARM_BUILD=true PUSH_DOCKER_IMAGE=true || make docker INCLUDE_ARM_BUILD=true PUSH_DOCKER_IMAGE=true

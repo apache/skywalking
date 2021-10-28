@@ -297,7 +297,7 @@ export OAP_NAME=skywalking-oap-server
 export UI_NAME=skywalking-ui
 export TAG=$SW_VERSION
 export DIST=<the binary package name inside (1), e.g. apache-skywalking-apm-8.8.0.tar.gz>
-make docker INCLUDE_ARM_BUILD=true
+make docker INCLUDE_ARM_BUILD=true PUSH_DOCKER_IMAGE=true
 ```
 
 ## Clean up the old releases
