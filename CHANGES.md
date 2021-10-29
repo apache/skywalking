@@ -42,6 +42,7 @@ Release Notes.
 * Fix TimeBucket missing in ElasticSearch and provide compatible `storage2Entity` for previous versions.
 * Fix ElasticSearch implementation of `queryMetricsValues` and `readLabeledMetricsValues` doesn't fill default values
   when no available data in the ElasticSearch server.
+* Fix config yaml data type conversion bug when meets special character like !.
 
 #### UI
 
