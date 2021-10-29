@@ -52,7 +52,7 @@ Since version 6.3.0, we have introduced more automatic tests to perform software
 
 The E2E test involves some/all of the OAP server, storage, coordinator, webapp, and the instrumented services, all of which are orchestrated by `docker-compose`. 
 Since version 8.9.0, we immigrate to e2e-v2 which leverage [skywalking-infra-e2e](https://github.com/apache/skywalking-infra-e2e) and [skywalking-cli](https://github.com/apache/skywalking-cli) to do the whole e2e process.
-`skywalking-infra-e2e` is using to control the e2e process and `skywalking-cli` is using to interact with the OAP such as request and get response metris from OAP.
+`skywalking-infra-e2e` is used to control the e2e process and `skywalking-cli` is used to interact with the OAP such as request and get response metris from OAP.
 
 #### Writing E2E Cases
 
