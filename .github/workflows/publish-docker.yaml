@@ -23,11 +23,11 @@ on:
 
 env:
   SKIP_TEST: true
-  HUB: ghcr.io/apache/skywalking
+  HUB: ghcr.io/mis98zb/skywalking
 
 jobs:
   build:
-    if: github.repository == 'apache/skywalking'
+    if: github.repository == 'mis98zb/skywalking'
     runs-on: ubuntu-latest
     permissions:
       contents: read
