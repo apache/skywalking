@@ -38,9 +38,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        storage: ['h2', 'mysql', 'es6', 'es7', 'influxdb', 'postgres']
-    env:
-      SW_STORAGE: ${{ matrix.storage }}
+        config-file:
+          - alarm/h2/e2e.yaml
+          - alarm/es/e2e.yaml
+          - alarm/mysql/e2e.yaml
+          - alarm/influxdb/e2e.yaml
+          - alarm/postgres/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
@@ -49,6 +52,6 @@ jobs:
         uses: ./.github/actions/skip
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
+        uses: ./.github/actions/infra-e2e-test
         with:
-          test_class: org.apache.skywalking.e2e.alarm.AlarmE2E
+          config-file: ${{ matrix.config-file }}

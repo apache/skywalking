@@ -7,26 +7,7 @@ Release Notes.
 
 #### Project
 
-* Replace e2e cases to e2e-v2:
-  - Simple: JDK, Auth, SSL, mTLS
-  - Lua Nginx
-  - SelfObservability
-  - Gateway
-  - Meter
-  - Nodejs
-  - PHP
-  - VM: Prometheus Node Exporter, Zabbix
-  - go2sky
-  - log
-  - Python
-  - Storage
-  - Cluster
-  - Event
-  - Profile
-  - Kafka: Base, Meter, Log, Profile
-  - Client-JS
-  - Istio: ALS, Metrics
-  - TTL
+* E2E tests immigrate to e2e-v2.
 * Support JDK 16 and 17.
 
 #### OAP Server
