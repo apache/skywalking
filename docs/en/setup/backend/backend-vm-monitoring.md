@@ -12,7 +12,7 @@ We define the VM entity as a `Service` in OAP, and use `vm::` as a prefix to ide
 ## Setup
 
 1. Setup [Prometheus node-exporter](https://prometheus.io/docs/guides/node-exporter/).
-2. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/). This is an example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../../../../test/e2e/e2e-test/docker/promOtelVM/otel-collector-config.yaml).
+2. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/). This is an example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../../../../test/e2e-v2/cases/vm/prometheus-node-exporter/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver).
    
 ## Supported Metrics
