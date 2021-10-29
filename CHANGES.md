@@ -27,6 +27,7 @@ Release Notes.
   - Client-JS
   - Istio: ALS, Metrics
   - TTL
+  - Alarm
 * Support JDK 16 and 17.
 
 #### OAP Server
