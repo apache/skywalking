@@ -14,20 +14,20 @@ or [HTTP JSON array](../../protocols/Log-Data-Protocol.md#http-api).
 Filebeat supports using Kafka to transport logs. Open [kafka-fetcher](backend-fetcher.md#kafka-fetcher) and enable configs `enableNativeJsonLog`.
 
 Take the following filebeat config yaml as an example to set up Filebeat:
-- [filebeat.yml](../../../../test/e2e/e2e-test/docker/kafka/filebeat.yml)
+- [filebeat.yml](../../../../test/e2e-v2/cases/kafka/log/filebeat.yml)
 
 #### Fluentd
 Fluentd supports using Kafka to transport logs. Open [kafka-fetcher](backend-fetcher.md#kafka-fetcher) and enable configs `enableNativeJsonLog`.
 
 Take the following fluentd config file as an example to set up Fluentd:
-- [fluentd.conf](../../../../test/e2e/e2e-test/docker/kafka/fluentd.conf)
+- [fluentd.conf](../../../../test/e2e-v2/cases/kafka/log/fluentd.conf)
 
 #### Fluent-bit
 Fluent-bit sends logs to OAP directly through HTTP(rest port). 
 Point the output address to `restHost`:`restPort` of `receiver-sharing-server` or `core`(if `receiver-sharing-server` is inactivated)
 
 Take the following fluent-bit config files as an example to set up Fluent-bit:
-- [fluent-bit.conf](../../../../test/e2e/e2e-test/docker/log/fluent-bit)
+- [fluent-bit.conf](../../../../test/e2e-v2/cases/log/fluent-bit/fluent-bit.conf)
 
 ### Java agent's toolkits
 Java agent provides toolkits for 
@@ -47,9 +47,9 @@ Java agent provides toolkits for
 to report logs through files with automatically injected trace context.
 
 Log framework config examples:
-- [log4j1.x fileAppender](../../../../test/e2e/e2e-service-provider/src/main/resources/log4j.properties)
-- [log4j2.x fileAppender](../../../../test/e2e/e2e-service-provider/src/main/resources/log4j2.xml)
-- [logback fileAppender](../../../../test/e2e/e2e-service-provider/src/main/resources/logback.xml)
+- [log4j1.x fileAppender](../../../../test/e2e-v2/java-test-service/e2e-service-provider/src/main/resources/log4j.properties)
+- [log4j2.x fileAppender](../../../../test/e2e-v2/java-test-service/e2e-service-provider/src/main/resources/log4j2.xml)
+- [logback fileAppender](../../../../test/e2e-v2/java-test-service/e2e-service-provider/src/main/resources/logback.xml)
 
 ### Python agent log reporter
 

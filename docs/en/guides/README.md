@@ -50,16 +50,15 @@ Since version 6.3.0, we have introduced more automatic tests to perform software
 > End-to-end testing is a methodology used to test whether the flow of an application is performing as designed from start to finish.
  The purpose of carrying out end-to-end tests is to identify system dependencies and to ensure that the right information is passed between various system components and systems.
 
-The E2E test involves some/all of the OAP server, storage, coordinator, webapp, and the instrumented services, all of which are orchestrated by `docker-compose`. Besides, there is a test controller (JUnit test) running outside of the container that sends traffic to the instrumented service,
-and then verifies the corresponding results after those requests have been made through GraphQL API of the SkyWalking Web App.
+The E2E test involves some/all of the OAP server, storage, coordinator, webapp, and the instrumented services, all of which are orchestrated by `docker-compose`. 
+Since version 8.9.0, we immigrate to e2e-v2 which leverage [skywalking-infra-e2e](https://github.com/apache/skywalking-infra-e2e) and [skywalking-cli](https://github.com/apache/skywalking-cli) to do the whole e2e process.
+`skywalking-infra-e2e` is using to control the e2e process and `skywalking-cli` is using to interact with the OAP such as request and get response metris from OAP.
 
 #### Writing E2E Cases
 
-- Set up the environment in IntelliJ IDEA
-
-The E2E test is a separate project under the SkyWalking root directory and the IDEA cannot recognize it by default. Right click
-on the file `test/e2e/pom.xml` and click `Add as Maven Project`. We recommend opening the directory `skywalking/test/e2e`
-in a separate IDE window for better experience, since there may be shaded classes issues.
+- Set up the environment
+1. Set up `skywalking-infra-e2e`
+1. Set up `skywalking-cli`, `yq` (generally these 2 are enough) and others tools if your cases need. Can reference the script under `skywalking/test/e2e-v2/script/prepare/setup-e2e-shell`.
 
 - Orchestrate the components
 
@@ -71,17 +70,15 @@ To make the orchestration process easier, we're using a [docker-compose](https:/
 Follow these steps:
 1. Decide what (and how many) containers will be needed. For example, for cluster testing, you'll need > 2 OAP nodes, coordinators (e.g. zookeeper), storage (e.g. ElasticSearch), and instrumented services;
 1. Define the containers in `docker-compose.yml`, and carefully specify the dependencies, starting orders, and most importantly, link them together, e.g. set the correct OAP address on the agent end, and set the correct coordinator address in OAP, etc.
-1. Write (or hopefully reuse) the test codes to verify that the results are correct.
+1. Define the e2e case [config](https://skywalking.apache.org/docs/skywalking-infra-e2e/latest/en/setup/configuration-file/) in `e2e.yaml`.
+1. Write the expected data(yml) for verify.
 
-As for the final step, we have a user-friendly framework to help you get started more quickly. This framework provides the annotation `@DockerCompose("docker-compose.yml")` to load/parse and start up all the containers in the proper order.
-`@ContainerHost`/`@ContainerPort` obtains the real host/port of the container. `@ContainerHostAndPort` obtains both. `@DockerContainer` obtains the running container.
+- [Run e2e test](https://skywalking.apache.org/docs/skywalking-infra-e2e/latest/en/setup/run-e2e-tests/)
 
-- Write test controller
-
-Put it simply, test controllers are tests that can be bound to the maven `integration-test/verify` phase.
-They send **design** requests to the instrumented services, and anticipate corresponding traces/metrics/metadata from the SkyWalking webapp GraphQL API.
-
-In the test framework, we provide a `TrafficController` that periodically sends traffic data to the instrumented services. You can simply enable it by providing a url and traffic data. Refer to [this](../../../test/e2e/e2e-test/src/test/java/org/apache/skywalking/e2e/base/TrafficController.java).
+All e2e cases should under `skywalking/test/e2e-v2/cases`, and under `skywalking/` execute e2e run command eg.
+```
+e2e run -c test/e2e-v2/cases/alarm/h2/e2e.yaml
+```
 
 - Troubleshooting
 
