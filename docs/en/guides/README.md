@@ -75,7 +75,7 @@ Follow these steps:
 
 - [Run e2e test](https://skywalking.apache.org/docs/skywalking-infra-e2e/latest/en/setup/run-e2e-tests/)
 
-All e2e cases should under `skywalking/test/e2e-v2/cases`, and under `skywalking/` execute e2e run command eg.
+All e2e cases should under `skywalking/test/e2e-v2/cases`. You could execute e2e run command in `skywalking/` e.g.
 ```
 e2e run -c test/e2e-v2/cases/alarm/h2/e2e.yaml
 ```
