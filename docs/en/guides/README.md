@@ -50,7 +50,7 @@ Since version 6.3.0, we have introduced more automatic tests to perform software
 > End-to-end testing is a methodology used to test whether the flow of an application is performing as designed from start to finish.
  The purpose of carrying out end-to-end tests is to identify system dependencies and to ensure that the right information is passed between various system components and systems.
 
-The E2E test involves some/all of the OAP server, storage, coordinator, webapp, and the instrumented services, all of which are orchestrated by `docker-compose`. 
+The E2E test involves some/all of the OAP server, storage, coordinator, webapp, and the instrumented services, all of which are orchestrated by `docker-compose` or `KinD`. 
 Since version 8.9.0, we immigrate to e2e-v2 which leverage [skywalking-infra-e2e](https://github.com/apache/skywalking-infra-e2e) and [skywalking-cli](https://github.com/apache/skywalking-cli) to do the whole e2e process.
 `skywalking-infra-e2e` is used to control the e2e process and `skywalking-cli` is used to interact with the OAP such as request and get response metris from OAP.
 
