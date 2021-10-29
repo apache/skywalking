@@ -60,7 +60,6 @@ public class ApplicationConfigLoaderTestCase {
         assertEquals(2, instanceNameRule.size());
     }
 
-
     @Test
     public void testLoadStringTypeConfig() {
         Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
@@ -84,6 +83,5 @@ public class ApplicationConfigLoaderTestCase {
         Boolean enableDataKeeperExecutor = (Boolean) providerConfig.get("enableDataKeeperExecutor");
         assertEquals(Boolean.TRUE, enableDataKeeperExecutor);
     }
-
 
 }
