@@ -7,7 +7,7 @@ Release Notes.
 
 #### Project
 
-* E2e immigrate to e2e-v2.
+* E2E tests immigrate to e2e-v2.
 * Support JDK 16 and 17.
 
 #### OAP Server
