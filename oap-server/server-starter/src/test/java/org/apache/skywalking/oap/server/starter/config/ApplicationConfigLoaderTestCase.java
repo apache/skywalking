@@ -60,4 +60,30 @@ public class ApplicationConfigLoaderTestCase {
         assertEquals(2, instanceNameRule.size());
     }
 
+
+    @Test
+    public void testLoadStringTypeConfig() {
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
+                .getProviderConfiguration("default");
+        String host = (String) providerConfig.get("host");
+        assertEquals("0.0.0.0", host);
+    }
+
+    @Test
+    public void testLoadIntegerTypeConfig() {
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
+                .getProviderConfiguration("default");
+        Integer port = (Integer) providerConfig.get("port");
+        assertEquals(Integer.valueOf(9941), port);
+    }
+
+    @Test
+    public void testLoadBooleanTypeConfig() {
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("core")
+                .getProviderConfiguration("default");
+        Boolean enableDataKeeperExecutor = (Boolean) providerConfig.get("enableDataKeeperExecutor");
+        assertEquals(Boolean.TRUE, enableDataKeeperExecutor);
+    }
+
+
 }
