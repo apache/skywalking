@@ -16,7 +16,7 @@ to carry the data with the RPC request. The remote agent will receive this in th
 [Cross Process Correlation Headers Protocol v1](Skywalking-Cross-Process-Correlation-Headers-Protocol-v1.md) is a new in-wire context propagation protocol which is additional and optional. 
 Please read SkyWalking language agents documentation to see whether it is supported.
 
-- **Trace Data Protocol** is an out-of-wire data format. Agent/SDK uses this to send traces to SSkyWalking OAP server.
+- **Trace Data Protocol** is an out-of-wire data format. Agent/SDK uses this to send traces to SkyWalking OAP server.
 
 [SkyWalking Trace Data Protocol v3](Trace-Data-Protocol-v3.md) defines the communication method and format between the agent and backend.
 
