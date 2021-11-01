@@ -139,7 +139,7 @@ extend type Query {
 }
 ```
 
-Log implementations have a little different with different database options. Search engine(s), e.g. ElasticSearch and OpenSearch, could support
+Log implementations have a little differences with different database options. Search engine(s), e.g. ElasticSearch and OpenSearch, could support
 full log text fuzzy query. Others would not support considering performance impact and end user experience.
 
 `test` API is provided for the debugger tool of native LAL parsing. 
