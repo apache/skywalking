@@ -172,7 +172,11 @@ catalog:
       - name: "Compiling Guide"
         path: "/en/guides/How-to-build"
   - name: "Protocols"
-    path: "/en/protocols/readme"
+    catalog:
+      - name: "Data Report(Probe/Agent) Protocol"
+        path: "/en/protocols/readme"
+      - name: "Query Protocol (GraphQL)"
+        path: "/en/protocols/query-protocol"
   - name: "FAQs"
     path: "/en/FAQ/readme"
   - name: "Changelog"

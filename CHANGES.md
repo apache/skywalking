@@ -61,6 +61,8 @@ Release Notes.
 
 #### Documentation
 
+* Enhance documents about the data report and query protocols.
+
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/101?closed=1)
 
 ------------------
