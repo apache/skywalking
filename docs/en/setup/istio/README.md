@@ -9,7 +9,7 @@ Istio should be installed in the Kubernetes cluster. Simply follow the steps in 
 ## Deploying SkyWalking backend
 
 Follow the steps in [deploying backend in Kubernetes](../backend/backend-k8s.md) to install the OAP server in the Kubernetes cluster.
-Refer to [OpenTelemetry receiver](../backend/backend-receivers.md#OpenTelemetry-receiver) to ingest metrics.
+Refer to [OpenTelemetry receiver](../backend/opentelemetry-receiver.md) to ingest metrics.
 `otel-receiver` is disabled by default. Set env var `SW_OTEL_RECEIVER` to `default` to enable it.
 
 

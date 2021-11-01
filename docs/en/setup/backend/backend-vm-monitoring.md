@@ -1,6 +1,6 @@
 # VMs monitoring 
 SkyWalking leverages Prometheus node-exporter to collect metrics data from the VMs, and leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver) and into the [Meter System](./../../concepts-and-designs/meter.md).  
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).  
 We define the VM entity as a `Service` in OAP, and use `vm::` as a prefix to identify it.  
 
 ## Data flow
@@ -13,7 +13,7 @@ We define the VM entity as a `Service` in OAP, and use `vm::` as a prefix to ide
 
 1. Setup [Prometheus node-exporter](https://prometheus.io/docs/guides/node-exporter/).
 2. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/). This is an example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../../../../test/e2e-v2/cases/vm/prometheus-node-exporter/otel-collector-config.yaml).
-3. Config SkyWalking [OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver).
+3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
    
 ## Supported Metrics
 

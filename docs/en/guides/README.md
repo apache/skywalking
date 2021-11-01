@@ -98,7 +98,7 @@ storage implementor in addition to the official one.
 - Customize analysis using OAL scripts. OAL scripts are located in `config/oal/*.oal`. You could modify them and reboot the OAP server. Read 
 [Observability Analysis Language Introduction](../concepts-and-designs/oal.md) to learn more about OAL scripts.
 - [Source and scope extension for new metrics](source-extension.md). For analysis of a new metric which SkyWalking
-hasn't yet provided. Add a new receiver, rather than choosing an [existing receiver](../setup/backend/backend-receivers.md).
+hasn't yet provided, add a new receiver.
 You would most likely have to add a new source and scope. To learn how to do this, read the document.
 
 ### UI developer
