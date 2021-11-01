@@ -33,7 +33,7 @@ Typically, agent meter plugin(e.g. [Java Meter Plugin](https://skywalking.apache
 Satellite [Prometheus fetcher](https://skywalking.apache.org/docs/skywalking-satellite/latest/en/setup/plugins/fetcher_prometheus-metrics-fetcher/)
 would transfer metrics into native format and forward to SkyWalking OAP server.
 
-About receiving 3rd party formats metrics, read [Meter receiver](../setup/backend/backend-meter.md) and [OpenTelemetry receiver](../setup/backend/backend-receivers.md#opentelemetry-receiver) docs for more details.
+About receiving 3rd party formats metrics, read [Meter receiver](../setup/backend/backend-meter.md) and [OpenTelemetry receiver](../setup/backend/opentelemetry-receiver.md) docs for more details.
 
 ### Browser probe protocol
 

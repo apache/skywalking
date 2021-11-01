@@ -68,7 +68,7 @@ Since `recevier-sharing-server` only receives data from an external source, it d
 
 ### Enable mTLS mode on gRPC receiver
 
-Since 8.8.0, SkyWalking supports enable mutual TLS authentication for transporting between clients and OAP servers. To enable `mTLS` mode for gRPC channel requires [Sharing gRPC Server](./backend-receivers.md/#grpchttp-server-for-receiver) enabled, as the following configuration.
+Since 8.8.0, SkyWalking supports enable mutual TLS authentication for transporting between clients and OAP servers. To enable `mTLS` mode for gRPC channel requires [Sharing gRPC Server](backend-expose.md) enabled, as the following configuration.
 
 ```yaml
 receiver-sharing-server:
