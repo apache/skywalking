@@ -1,10 +1,6 @@
 # Probe Protocols
 Probe protocols describe and define how agents send collected metrics, logs, traces, and events, as well as set out the format of each entity.
 
-## Probe protocols and probe groups
-Probe protocols are related to probe groups. For more information, see [Concepts and Designs](../concepts-and-designs/overview.md).
-These groups are **language-based native agent protocol**, **service mesh protocol**, and **3rd-party instrument protocol**.
-
 ### Tracing
 There are two types of protocols that help language agents work in distributed tracing.
 
