@@ -95,8 +95,7 @@ The required modules are listed here:
 capabilities. See [**Cluster Management**](backend-cluster.md) for more details.
 1. **Storage**. Makes the analysis result persistent. See [**Choose storage**](backend-storage.md) for more details
 1. **Query**. Provides query interfaces to UI.
-1. **Receiver** and **Fetcher**. Expose the service to the agents and probes, or read telemetry data from a channel. 
-See [Receiver](backend-receivers.md) and [Fetcher](backend-fetcher.md) documents for more details.
+1. **Receiver** and **Fetcher**. Expose the service to the agents and probes, or read telemetry data from a channel.
 
 ## FAQs
 #### Why do we need to set the timezone? And when do we do it?
