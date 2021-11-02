@@ -2,13 +2,11 @@
 Trace Data Protocol describes the data format between SkyWalking agent/sniffer and backend. 
 
 ## Overview
-Trace data protocol is defined and provided in [gRPC format](https://github.com/apache/skywalking-data-collect-protocol),
-also implemented in [HTTP 1.1](HTTP-API-Protocol.md)
+Trace data protocol is defined and provided in [gRPC format](https://github.com/apache/skywalking-data-collect-protocol), and implemented in [HTTP 1.1](HTTP-API-Protocol.md).
 
 ### Report service instance status
 1. Service Instance Properties 
-Service instance contains more information than just a name. Once the agent wants to report this, use `ManagementService#reportInstanceProperties` service
-to provide a string-key/string-value pair list as the parameter. `language` of target instance is expected at least.
+Service instance contains more information than just a name. In order for the agent to report service instance status, use `ManagementService#reportInstanceProperties` service to provide a string-key/string-value pair list as the parameter. The `language` of target instance must be provided as the minimum requirement.
 
 2. Service Ping
 Service instance should keep alive with the backend. The agent should set a scheduler using `ManagementService#keepAlive` service every minute.
@@ -17,7 +15,7 @@ Service instance should keep alive with the backend. The agent should set a sche
 After you have the service ID and service instance ID ready, you could send traces and metrics. Now we
 have 
 1. `TraceSegmentReportService#collect` for the SkyWalking native trace format
-1. `JVMMetricReportService#collect` for the SkyWalking native jvm format
+1. `JVMMetricReportService#collect` for the SkyWalking native JVM format
 
 For trace format, note that:
 1. The segment is a unique concept in SkyWalking. It should include all spans for each request in a single OS process, which is usually a single language-based thread.
