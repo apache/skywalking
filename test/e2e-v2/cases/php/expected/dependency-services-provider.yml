@@ -25,7 +25,7 @@ nodes:
   isreal: false
 - id: {{ b64enc "php" }}.1
   name: php
-  type: http
+  type: PHP
   isreal: true
 {{- end }}
 calls:
