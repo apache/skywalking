@@ -1,6 +1,6 @@
 # K8s monitoring 
 SkyWalking leverages K8s kube-state-metrics and cAdvisor for collecting metrics data from K8s, and leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver) and into the [Meter System](./../../concepts-and-designs/meter.md). This feature requires authorizing the OAP Server to access K8s's `API Server`.  
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md). This feature requires authorizing the OAP Server to access K8s's `API Server`.  
 We define the k8s-cluster as a `Service` in the OAP, and use `k8s-cluster::` as a prefix to identify it.  
 We define the k8s-node as an `Instance` in the OAP, and set its name as the K8s `node name`.  
 We define the k8s-service as an `Endpoint` in the OAP, and set its name as `$serviceName.$namespace`.  
@@ -14,7 +14,7 @@ We define the k8s-service as an `Endpoint` in the OAP, and set its name as `$ser
 1. Setup [kube-state-metric](https://github.com/kubernetes/kube-state-metrics#kubernetes-deployment).
 2. cAdvisor is integrated into `kubelet` by default.
 3. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). For details on Prometheus Receiver in OpenTelemetry Collector for K8s, refer to [here](https://github.com/prometheus/prometheus/blob/main/documentation/examples/prometheus-kubernetes.yml). For a quick start, we have provided a full example for OpenTelemetry Collector configuration [otel-collector-config.yaml](otel-collector-config.yaml).
-4. Config SkyWalking [OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver).
+4. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ## Supported Metrics
 From the different points of view to monitor K8s, there are 3 kinds of metrics: [Cluster](#cluster) / [Node](#node) / [Service](#service) 

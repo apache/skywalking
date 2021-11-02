@@ -12,7 +12,7 @@ is only used as an ingress of the whole cluster, but with the Service Mesh and s
  
 - **3rd-party instrument library**. SkyWalking accepts many widely used instrument libraries data formats. It analyzes the
 data, transfers it to SkyWalking's formats of trace, metrics or both. This feature starts with accepting Zipkin span data. See
-[Receiver for other tracers](../setup/backend/backend-receivers.md) for more information. 
+[Receiver for Zipkin traces](../setup/backend/zipkin-trace.md) for more information. 
 
 You don't need to use **Language based native agent** and **Service Mesh probe** at the same time, since they both serve to collect
 metrics data. Otherwise, your system will suffer twice the payload, and the analytic numbers will be doubled.
@@ -31,6 +31,6 @@ like logs. In other words, the backend saves them, and builds the links between 
 
 ## What is next?
 - Learn more about the probes supported by SkyWalking in [Service auto instrument agent](service-agent.md), [Manual instrument SDK](manual-sdk.md),
-[Service Mesh probe](service-mesh-probe.md) and [Zipkin receiver](../setup/backend/backend-receivers.md#zipkin-receiver).
+[Service Mesh probe](service-mesh-probe.md) and [Zipkin receiver](../setup/backend/zipkin-trace.md).
 - After understanding how the probe works, see the [backend overview](backend-overview.md) for more on analysis and persistence.
 

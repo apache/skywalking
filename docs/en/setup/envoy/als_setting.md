@@ -27,7 +27,12 @@ In Istio version 1.6.0+, if Istio is installed with [`demo` profile](https://ist
 
    Note: Replace `<skywalking-oap.skywalking.svc:11800>` with the real address where SkyWalking OAP is deployed.
     
-- Activate SkyWalking [Envoy Receiver](../backend/backend-receivers.md). This is activated by default. 
+- Activate SkyWalking Envoy Receiver. (activated in default)
+
+```yaml
+envoy-metric:
+  selector: ${SW_ENVOY_METRIC:default}
+```
 
 - Choose an ALS analyzer. There are two available analyzers for both HTTP access logs and TCP access logs: `k8s-mesh` and `mx-mesh`.
   Set the system environment variables **SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS** and **SW_ENVOY_METRIC_ALS_TCP_ANALYSIS**,
