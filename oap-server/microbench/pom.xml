@@ -12,8 +12,7 @@
 
     <properties>
         <jmh.version>1.25</jmh.version>
-        <junit.version>4.12</junit.version>
-        <exec-maven-plugin>1.6.0</exec-maven-plugin>
+        <slf4j.version>1.7.30</slf4j.version>
     </properties>
 
     <dependencies>
@@ -48,7 +47,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <!--JUNIT-->
         <dependency>
@@ -64,7 +63,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
+                <version>${exec-maven-plugin.version}</version>
                 <configuration>
                     <executable>java</executable>
                     <arguments>
