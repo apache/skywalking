@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.testing.microbench;
+package org.apache.skywalking.oap.server.microbench.base;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +24,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
 
 import org.junit.Test;
 import org.openjdk.jmh.annotations.Fork;
@@ -70,10 +69,10 @@ public abstract class AbstractMicrobenchmark {
                 //set jvm args
                 .jvmArgsAppend("-Xmx512m", "-Xms512m", "-XX:MaxDirectMemorySize=512m",
                         "-XX:BiasedLockingStartupDelay=0",
-                        "-Djmh.executor=CUSTOM", "-Djmh.executor.class=org.apache.skywalking.oap.server.testing.microbench.AbstractMicrobenchmark$JmhThreadExecutor");
+                        "-Djmh.executor=CUSTOM", "-Djmh.executor.class=org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark$JmhThreadExecutor");
 
         if (getMeasureIterations() > 0) {
-            optBuilder.warmupIterations(getMeasureIterations());
+            optBuilder.warmupIterations(getWarmupIterations());
         }
 
         if (getMeasureIterations() > 0) {

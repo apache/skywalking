@@ -16,9 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.config.group.openapi;
+package org.apache.skywalking.oap.server.microbench.core.config.group.openapi;
 
-import java.io.FileNotFoundException;
+import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRule4Openapi;
+import org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark;
 import lombok.SneakyThrows;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -26,15 +27,10 @@ import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Threads;
-import org.openjdk.jmh.profile.GCProfiler;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 @BenchmarkMode({Mode.Throughput})
 @Threads(4)
-public class EndpointGroupingBenchmark4Openapi {
+public class EndpointGroupingBenchmark4Openapi extends AbstractMicrobenchmark {
 
     @State(Scope.Benchmark)
     public static class FormatClassPaths20 {
@@ -115,17 +111,6 @@ public class EndpointGroupingBenchmark4Openapi {
         formatClass.format("serviceA", "GET:/products1/123");
     }
 
-    public static void main(String[] args) throws RunnerException, FileNotFoundException {
-
-        Options opt = new OptionsBuilder()
-            .include(EndpointGroupingBenchmark4Openapi.class.getName())
-            .addProfiler(GCProfiler.class)
-            .jvmArgsAppend("-Xmx512m", "-Xms512m")
-            .forks(1)
-            .build();
-
-        new Runner(opt).run();
-    }
 }
 
 /*
