@@ -51,4 +51,14 @@ public abstract class CountMetrics extends Metrics implements LongValueHolder {
     @Override
     public void calculate() {
     }
+
+    @Override
+    public boolean haveDefault() {
+        return true;
+    }
+
+    @Override
+    public boolean isDefaultValue() {
+        return value == 0;
+    }
 }

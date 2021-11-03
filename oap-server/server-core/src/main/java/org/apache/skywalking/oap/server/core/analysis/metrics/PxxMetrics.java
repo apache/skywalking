@@ -106,4 +106,14 @@ public abstract class PxxMetrics extends Metrics implements IntValueHolder {
             }
         }
     }
+
+    @Override
+    public boolean haveDefault() {
+        return true;
+    }
+
+    @Override
+    public boolean isDefaultValue() {
+        return value == 0;
+    }
 }
