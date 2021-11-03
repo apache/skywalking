@@ -476,16 +476,6 @@ public class RunningRuleTest {
         public int remoteHashCode() {
             return 0;
         }
-
-        @Override
-        public boolean haveDefault() {
-            return false;
-        }
-
-        @Override
-        public boolean isDefaultValue() {
-            return false;
-        }
     }
 
     private class MockMultipleValueMetrics extends Metrics implements MultiIntValuesHolder {
@@ -539,16 +529,6 @@ public class RunningRuleTest {
         public RemoteData.Builder serialize() {
             return null;
         }
-
-        @Override
-        public boolean haveDefault() {
-            return false;
-        }
-
-        @Override
-        public boolean isDefaultValue() {
-            return false;
-        }
     }
 
     private class MockLabeledValueMetrics extends Metrics implements LabeledValueHolder {
@@ -595,16 +575,6 @@ public class RunningRuleTest {
         @Override
         public RemoteData.Builder serialize() {
             return null;
-        }
-
-        @Override
-        public boolean haveDefault() {
-            return false;
-        }
-
-        @Override
-        public boolean isDefaultValue() {
-            return false;
         }
     }
 
