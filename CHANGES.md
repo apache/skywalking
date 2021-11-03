@@ -45,6 +45,7 @@ Release Notes.
 * Fix config yaml data type conversion bug when meets special character like !.
 * Optimize metrics of minute dimensionality persistence. The value of metrics, which has declaration of the default
   value and current value equals the default value logically, the whole row wouldn't be pushed into database.
+* Fix `max` function in OAL doesn't support negative long.
 
 #### UI
 
