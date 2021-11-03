@@ -29,6 +29,10 @@ Point the output address to `restHost`:`restPort` of `receiver-sharing-server` o
 Take the following fluent-bit config files as an example to set up Fluent-bit:
 - [fluent-bit.conf](../../../../test/e2e-v2/cases/log/fluent-bit/fluent-bit.conf)
 
+#### OpenTelemetry
+You can use OpenTelemetry Collector to transport the logs to SkyWalking OAP.
+Read the doc on [Skywalking Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/skywalkingexporter) for a detailed guide.
+
 ### Java agent's toolkits
 Java agent provides toolkits for 
 [log4j](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-1.x.md),
