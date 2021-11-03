@@ -170,39 +170,32 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | lalFiles | The LAL configuration file names (without file extension) to be activated. Read [LAL](../../concepts-and-designs/lal.md) for more details. | SW_LOG_LAL_FILES | default |
 | - | - | malFiles | The MAL configuration file names (without file extension) to be activated. Read [LAL](../../concepts-and-designs/lal.md) for more details. | SW_LOG_MAL_FILES | "" |
 | event-analyzer | default | Event Analyzer. | SW_EVENT_ANALYZER | default |
-| receiver-register|default| Read [receiver doc](backend-receivers.md) for more details. | - | - |
-| receiver-trace|default| Read [receiver doc](backend-receivers.md) for more details. | - | - |
-| receiver-jvm| default| Read [receiver doc](backend-receivers.md) for more details. | - | - |
-| receiver-clr| default| Read [receiver doc](backend-receivers.md) for more details. | - | - |
-| receiver-profile| default| Read [receiver doc](backend-receivers.md) for more details. | - | - |
-| receiver-zabbix| default| Read [receiver doc](backend-zabbix.md) for more details. | - | - |
+| receiver-register|default| gRPC and HTTPRestful services that provide service, service instance and endpoint register. | - | - |
+| receiver-trace|default| gRPC and HTTPRestful services that accept SkyWalking format traces. | - | - |
+| receiver-jvm| default| gRPC services that accept JVM metrics data. | - | - |
+| receiver-clr| default|gRPC services that accept .Net CLR metrics data. | - | - |
+| receiver-profile| default| gRPC services that accept profile task status and snapshot reporter. | - | - |
+| receiver-zabbix| default| TCP receiver accepts Zabbix format metrics. | - | - |
 | - | - | port| Exported TCP port. Zabbix agent could connect and transport data. | SW_RECEIVER_ZABBIX_PORT | 10051 |
 | - | - | host| Binds to host. | SW_RECEIVER_ZABBIX_HOST | 0.0.0.0 |
 | - | - | activeFiles| Enables config when agent request is received. | SW_RECEIVER_ZABBIX_ACTIVE_FILES | agent |
-| service-mesh| default| Read [receiver doc](backend-receivers.md) for more details. | - | - |
-| envoy-metric| default| Read [receiver doc](backend-receivers.md) for more details. | - | - |
+| service-mesh| default| gRPC services that accept data from inbound mesh probes. | - | - |
+| envoy-metric| default| Envoy `metrics_service` and `ALS(access log service)` are supported by this receiver. The OAL script supports all GAUGE type metrics. | - | - |
 | - | - | acceptMetricsService | Starts Envoy Metrics Service analysis. | SW_ENVOY_METRIC_SERVICE | true|
 | - | - | alsHTTPAnalysis | Starts Envoy HTTP Access Log Service analysis. Value = `k8s-mesh` means starting the analysis. | SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS | - |
 | - | - | alsTCPAnalysis | Starts Envoy TCP Access Log Service analysis. Value = `k8s-mesh` means starting the analysis. | SW_ENVOY_METRIC_ALS_TCP_ANALYSIS | - |
 | - | - | k8sServiceNameRule | `k8sServiceNameRule` allows you to customize the service name in ALS via Kubernetes metadata. The available variables are `pod` and `service`. E.g. you can use `${service.metadata.name}-${pod.metadata.labels.version}` to append the version number to the service name. Note that when using environment variables to pass this configuration, use single quotes(`''`) to avoid being evaluated by the shell. | - |
-| receiver-otel | default | Read [receiver doc](backend-receivers.md) for more details. | - | - |
+| receiver-otel | default | A receiver for analyzing metrics data from OpenTelemetry. | - | - |
 | - | - | enabledHandlers| Enabled handlers for otel. | SW_OTEL_RECEIVER_ENABLED_HANDLERS | - |
 | - | - | enabledOcRules| Enabled metric rules for OC handler. | SW_OTEL_RECEIVER_ENABLED_OC_RULES | - |
-| receiver_zipkin |default| Read [receiver doc](backend-receivers.md). | - | - |
+| receiver_zipkin |default|  A receiver for Zipkin traces. | - | - |
 | - | - | restHost| Binding IP of RESTful services. |SW_RECEIVER_ZIPKIN_HOST|0.0.0.0|
 | - | - | restPort | Binding port of RESTful services. | SW_RECEIVER_ZIPKIN_PORT|9411|
 | - | - | restContextPath| Web context path of RESTful services. | SW_RECEIVER_ZIPKIN_CONTEXT_PATH|/|
-| receiver_jaeger | default| Read [receiver doc](backend-receivers.md). | - | - |
-| - | - | gRPCHost|Binding IP of gRPC services. Services include gRPC data report and internal communication among OAP nodes. | SW_RECEIVER_JAEGER_HOST | - |
-| - | - | gRPCPort| Binding port of gRPC services. | SW_RECEIVER_JAEGER_PORT | - |
-| - | - | gRPCThreadPoolSize| Pool size of gRPC server. | - | CPU core * 4|
-| - | - | gRPCThreadPoolQueueSize| Queue size of gRPC server. | - | 10000|
-| - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | - | - |
-| - | - | maxMessageSize | Sets the maximum message size allowed to be received on the server. Empty means 4 MiB. | - | 4M(based on Netty) |
-| prometheus-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details. | - | - |
+| prometheus-fetcher | default | Prometheus fetcher reads metrics from Prometheus endpoint, and transfer the metrics into SkyWalking native format for the MAL engine. | - | - |
 | - | - | enabledRules | Enabled rules. | SW_PROMETHEUS_FETCHER_ENABLED_RULES | self |
 | - | - | maxConvertWorker | The maximize meter convert worker. | SW_PROMETHEUS_FETCHER_NUM_CONVERT_WORKER | -1(by default, half the number of CPU core(s)) |   
-| kafka-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details. | - | - |
+| kafka-fetcher | default | Read SkyWalking's native metrics/logs/traces through Kafka server. | - | - |
 | - | - | bootstrapServers | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | SW_KAFKA_FETCHER_SERVERS | localhost:9092 |
 | - | - | namespace | Namespace aims to isolate multi OAP cluster when using the same Kafka cluster. If you set a namespace for Kafka fetcher, OAP will add a prefix to topic name. You should also set namespace in `agent.config`. The property is named `plugin.kafka.namespace`. | SW_NAMESPACE | - |
 | - | - | groupId | A unique string that identifies the consumer group to which this consumer belongs.| - | skywalking-consumer |
@@ -222,7 +215,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | topicNameOfManagements | Kafka topic name for service instance reporting and registration. | - | skywalking-managements |
 | - | - | topicNameOfLogs | Kafka topic name for native proto log data. | - | skywalking-logs |
 | - | - | topicNameOfJsonLogs | Kafka topic name for native json log data. | - | skywalking-logs-json |
-| receiver-browser | default | Read [receiver doc](backend-receivers.md) for more details. | - | - | - |
+| receiver-browser | default | gRPC services that accept browser performance data and error log. | - | - | - |
 | - | - | sampleRate | Sampling rate for receiving trace. Precise to 1/10000. 10000 means sampling rate of 100% by default. | SW_RECEIVER_BROWSER_SAMPLE_RATE | 10000 |
 | query | graphql | - | GraphQL query implementation. | - |
 | - | - | path | Root path of GraphQL query and mutation. | SW_QUERY_GRAPHQL_PATH | /graphql|
@@ -271,7 +264,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | targetPort | The port of target gRPC server for receiving export data. | SW_EXPORTER_GRPC_PORT | 9870 |
 | health-checker | default | checkIntervalSeconds | The period of checking OAP internal health status (in seconds). | SW_HEALTH_CHECKER_INTERVAL_SECONDS | 5 |
 | configuration-discovery | default | disableMessageDigest | If true, agent receives the latest configuration every time, even without making any changes. By default, OAP uses the SHA512 message digest mechanism to detect changes in configuration. | SW_DISABLE_MESSAGE_DIGEST | false
-| receiver-event|default| Read [receiver doc](backend-receivers.md) for more details. | - | - |
+| receiver-event|default| gRPC services that handle events data. | - | - |
 
 ## Note
 ¹ System Environment Variable name could be declared and changed in `application.yml`. The names listed here are simply provided in the default `application.yml` file.

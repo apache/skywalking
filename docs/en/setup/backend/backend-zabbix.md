@@ -1,5 +1,5 @@
 # Zabbix Receiver
-The Zabbix receiver acceps metrics of [Zabbix Agent Active Checks protocol](https://www.zabbix.com/documentation/current/manual/appendix/items/activepassive#active_checks) format into the [Meter System](./../../concepts-and-designs/meter.md).
+The Zabbix receiver accepts metrics of [Zabbix Agent Active Checks protocol](https://www.zabbix.com/documentation/current/manual/appendix/items/activepassive#active_checks) format into the [Meter System](./../../concepts-and-designs/meter.md).
 Zabbix Agent is based on GPL-2.0 License.
 
 ## Module definition
@@ -24,7 +24,7 @@ are located at `$CLASSPATH/zabbix-rules`.
 
 The file is written in YAML format, defined by the scheme described below. Square brackets indicate that a parameter is optional.
 
-An example for Zabbix agent configuration could be found [here](../../../../test/e2e/e2e-test/docker/zabbix/zabbix_agentd.conf).
+An example for Zabbix agent configuration could be found [here](../../../../test/e2e-v2/cases/vm/zabbix/zabbix_agentd.conf).
 You could find details on Zabbix agent items from [Zabbix Agent documentation](https://www.zabbix.com/documentation/current/manual/config/items/itemtypes/zabbix_agent).
 
 ### Configuration file

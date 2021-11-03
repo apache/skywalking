@@ -27,7 +27,7 @@ spans:
     endpointname: /php/info
     type: Entry
     peer: {{ notEmpty .peer }}
-    component: http
+    component: PHP
     iserror: false
     layer: Http
     tags:
@@ -48,7 +48,7 @@ spans:
     endpointname: /info
     type: Exit
     peer: provider:9090
-    component: HttpClient
+    component: cURL
     iserror: false
     layer: Http
     tags:
@@ -87,3 +87,4 @@ spans:
       {{- end }}
     logs: []
   {{- end }}
+

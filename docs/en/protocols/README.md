@@ -1,31 +1,34 @@
-# Protocols
-There are two different types of protocols.
+# Probe Protocols
+Probe protocols describe and define how agents send collected metrics, logs, traces, and events, as well as set out the format of each entity.
 
-- [**Probe Protocol**](#probe-protocols). It includes descriptions and definitions on how agents send collected metrics data and traces, as well as the format of each entity.
+### Tracing
+There are two types of protocols that help language agents work in distributed tracing.
 
-- [**Query Protocol**](#query-protocol). The backend enables the query function in SkyWalking's own UI and other UIs. These queries are based on GraphQL.
-
-
-## Probe Protocols
-They also related to the probe group. For more information, see [Concepts and Designs](../concepts-and-designs/overview.md).
-These groups are **language-based native agent protocol**, **service mesh protocol** and **3rd-party instrument protocol**.
-
-### Language-based native agent protocol
-There are two types of protocols that help language agents work in distributed environments.
-1. **Cross Process Propagation Headers Protocol** and **Cross Process Correlation Headers Protocol** come in in-wire data format. Agent/SDK usually uses HTTP/MQ/HTTP2 headers
-to carry the data with the RPC request. The remote agent will receive this in the request handler, and bind the context with this specific request.
-1. **Trace Data Protocol** is in out-of-wire data format. Agent/SDK uses this to send traces and metrics to SkyWalking or other compatible backends. 
+- **Cross Process Propagation Headers Protocol** and **Cross Process Correlation Headers Protocol** come in in-wire data format. Agent/SDK usually uses HTTP/MQ/HTTP2 headers to carry the data with the RPC request. The remote agent will receive this in the request handler, and bind the context with this specific request. 
 
 [Cross Process Propagation Headers Protocol v3](Skywalking-Cross-Process-Propagation-Headers-Protocol-v3.md) has been the new protocol for in-wire context propagation since the version 8.0.0 release.
 
 [Cross Process Correlation Headers Protocol v1](Skywalking-Cross-Process-Correlation-Headers-Protocol-v1.md) is a new in-wire context propagation protocol which is additional and optional. 
-Please read SkyWalking language agents documentation to see whether it is supported. 
-This protocol defines the data format of transporting custom data with `Cross Process Propagation Headers Protocol`.
-It has been supported by the SkyWalking javaagent since 8.0.0, 
+Please read SkyWalking language agents documentation to see whether it is supported.
+
+- **Trace Data Protocol** is an out-of-wire data format. Agent/SDK uses this to send traces to SkyWalking OAP server.
 
 [SkyWalking Trace Data Protocol v3](Trace-Data-Protocol-v3.md) defines the communication method and format between the agent and backend.
 
+### Logging
+- **Log Data Protocol** is an out-of-wire data format. Agent/SDK and collector use this to send logs into SkyWalking OAP server.
 [SkyWalking Log Data Protocol](Log-Data-Protocol.md) defines the communication method and format between the agent and backend.
+
+### Metrics
+
+SkyWalking has a native metrics format, and supports widely used metric formats, such as Prometheus, OpenCensus, and Zabbix.
+
+The native metrics format definition could be found [here](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Meter.proto).
+Typically, the agent meter plugin (e.g. [Java Meter Plugin](https://skywalking.apache.org/docs/skywalking-java/latest/en/setup/service-agent/java-agent/java-plugin-development-guide/#meter-plugin)) and
+Satellite [Prometheus fetcher](https://skywalking.apache.org/docs/skywalking-satellite/latest/en/setup/plugins/fetcher_prometheus-metrics-fetcher/)
+would convert metrics into native format and forward them to SkyWalking OAP server.
+
+To learn more about receiving 3rd party formats metrics, see [Meter receiver](../setup/backend/backend-meter.md) and [OpenTelemetry receiver](../setup/backend/opentelemetry-receiver.md).
 
 ### Browser probe protocol
 
@@ -33,25 +36,12 @@ The browser probe, such as  [skywalking-client-js](https://github.com/apache/sky
 
 [SkyWalking Browser Protocol](Browser-Protocol.md) defines the communication method and format between `skywalking-client-js` and backend.
 
-### Service Mesh probe protocol
-The probe in sidecar or proxy could use this protocol to send data to the backend. This service provided by gRPC requires 
-the following key information:
-
-1. Service Name or ID on both sides.
-1. Service Instance Name or ID on both sides.
-1. Endpoint. URI in HTTP, service method full signature in gRPC.
-1. Latency. In milliseconds.
-1. Response code in HTTP
-1. Status. Success or fail.
-1. Protocol. HTTP, gRPC
-1. DetectPoint. In Service Mesh sidecar, `client` or `server`. In normal L7 proxy, value is `proxy`.
-
 ### Events Report Protocol
 
 The protocol is used to report events to the backend. The [doc](../concepts-and-designs/event.md) introduces the definition of an event, and [the protocol repository](https://github.com/apache/skywalking-data-collect-protocol/blob/master/event) defines gRPC services and message formats of events.
 
-Report `JSON` format events via HTTP API, the endpoint is `http://<oap-address>:12800/v3/events`.
-JSON event record example:
+`JSON` format events can be reported via HTTP API. The endpoint is `http://<oap-address>:12800/v3/events`.
+Example of a JSON event record:
 ```json
 [
     {
@@ -69,12 +59,3 @@ JSON event record example:
     }
 ]
 ```
-
-### 3rd-party instrument protocol
-3rd-party instrument protocols are not defined by SkyWalking. They are just protocols/formats with which SkyWalking is compatible, and SkyWalking could receive them from their existing libraries. SkyWalking starts with supporting Zipkin v1, v2 data formats.
-
-The backend has a modular design, so it is very easy to extend a new receiver to support a new protocol/format.
-
-## Query Protocol
-The query protocol follows GraphQL grammar, and provides data query capabilities, which depends on your analysis metrics.
-Read [query protocol doc](query-protocol.md) for more details.

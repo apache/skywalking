@@ -38,6 +38,7 @@ public class ApplicationConfigLoaderTestCase {
     public void setUp() throws ConfigFileNotFoundException {
         System.setProperty("SW_STORAGE", "mysql");
         System.setProperty("SW_RECEIVER_ZIPKIN", "default");
+        System.setProperty("SW_DATA_SOURCE_PASSWORD", "!AI!3B");
         ApplicationConfigLoader configLoader = new ApplicationConfigLoader();
         applicationConfiguration = configLoader.load();
     }
@@ -58,6 +59,39 @@ public class ApplicationConfigLoaderTestCase {
                 .getProviderConfiguration("default");
         List<String> instanceNameRule = (List<String>) providerConfig.get("instanceNameRule");
         assertEquals(2, instanceNameRule.size());
+    }
+
+    @Test
+    public void testLoadStringTypeConfig() {
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
+                .getProviderConfiguration("default");
+        String host = (String) providerConfig.get("host");
+        assertEquals("0.0.0.0", host);
+    }
+
+    @Test
+    public void testLoadIntegerTypeConfig() {
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
+                .getProviderConfiguration("default");
+        Integer port = (Integer) providerConfig.get("port");
+        assertEquals(Integer.valueOf(9411), port);
+    }
+
+    @Test
+    public void testLoadBooleanTypeConfig() {
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("core")
+                .getProviderConfiguration("default");
+        Boolean enableDataKeeperExecutor = (Boolean) providerConfig.get("enableDataKeeperExecutor");
+        assertEquals(Boolean.TRUE, enableDataKeeperExecutor);
+    }
+
+    @Test
+    public void testLoadSpecialStringTypeConfig() {
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("storage")
+                .getProviderConfiguration("mysql");
+        Properties properties = (Properties) providerConfig.get("properties");
+        String password = (String) properties.get("dataSource.password");
+        assertEquals("!AI!3B", password);
     }
 
 }
