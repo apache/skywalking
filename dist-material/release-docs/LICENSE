@@ -315,6 +315,7 @@ The text of each license is the standard Apache 2.0 license.
     converter-moshi 2.5.0: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-moshi, Apache 2.0
     vavr 0.10.3: https://github.com/vavr-io/vavr, Apache 2.0
     kafka-clients 2.4.1: https://github.com/apache/kafka, Apache 2.0
+    lz4 1.3.0: https://github.com/lz4/lz4-java, Apache 2.0
     lz4-java 1.6.0: https://github.com/jpountz/lz4-java, Apache 2.0
     snappy-java 1.1.7.3: https://github.com/xerial/snappy-java, Apache 2.0
     slf4j-api 1.7.30: http://www.slf4j.org, Apache 2.0
@@ -327,7 +328,11 @@ The text of each license is the standard Apache 2.0 license.
     Armeria 1.12.0, http://github.com/line/armeria, Apache 2.0
     Brotli4j 1.6.0, https://github.com/hyperxpro/Brotli4j, Apache 2.0
     micrometer 1.7.4, https://github.com/micrometer-metrics/micrometer, Apache 2.0
-    iotdb-session 0.13.0-SNAPSHOT, https://github.com/apache/iotdb, Apache 2.0
+    iotdb-session 0.13.0-SNAPSHOT: https://github.com/apache/iotdb, Apache 2.0
+    iotdb-thrift 0.13.0-SNAPSHOT: https://github.com/apache/iotdb, Apache 2.0
+    service-rpc 0.13.0-20211023.075542-1 https://github.com/apache/iotdb, Apache 2.0
+    tsfile 0.13.0-20211023.075542-1 https://github.com/apache/iotdb Apache 2.0
+    libthrift 0.14.1: https://github.com/apache/thrift, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -395,6 +400,8 @@ The following components are provided under the EPL License. See project link fo
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
     logback 1.1.11: https://github.com/qos-ch/logback: EPL 1.0
+    logback-classic 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
+    logback-core 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
 
 ========================================================================
 CDDL licenses
@@ -404,6 +411,22 @@ The following components are provided under the CDDL License. See project link f
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
     jsr311-api 1.1.1: http://central.maven.org/maven2/javax/ws/rs/jsr311-api/1.1.1/jsr311-api-1.1.1.pom ,  CDDL 1.1
+    javax.activation-api 1.2.0: https://github.com/javaee/activation, CDDL 1.1 or GPL 2.0
+    jaxb-api 2.4.0-b180725.0427: https://github.com/javaee/jaxb-v2, CDDL 1.1 or GPL 2.0
+
+========================================================================
+EDL licenses
+========================================================================
+
+The following components are provided under the EDL License. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
+
+    istack-commons-runtime 4.0.0: https://github.com/eclipse-ee4j/jaxb-istack-commons, EDL 1.0
+    jakarta.activation 2.0.0: https://github.com/eclipse-ee4j/jaf, EDL 1.0
+    jakarta.xml.bind-api 3.0.0: https://github.com/eclipse-ee4j/jaxb-api, EDL 1.0
+    jaxb-core 3.0.0: https://github.com/eclipse-ee4j/jaxb-ri, EDL 1.0
+    jaxb-runtime 3.0.0: https://github.com/eclipse-ee4j/jaxb-ri, EDL 1.0
+    txw2 3.0.0: https://github.com/eclipse-ee4j/jaxb-ri, EDL 1.0
 
 ========================================================================
 UI related licenses

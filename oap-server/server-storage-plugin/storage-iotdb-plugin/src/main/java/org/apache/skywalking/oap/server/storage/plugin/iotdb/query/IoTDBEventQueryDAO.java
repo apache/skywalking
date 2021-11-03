@@ -96,17 +96,14 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         EventQueryCondition condition = conditionList.get(0);
         int limitCount = 0;
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-        log.debug("page from: {}, limit: {}", page.getFrom(), page.getLimit());
         for (int i = 0; i < storageDataList.size(); i++) {
             if (i >= page.getFrom() && limitCount < page.getLimit()) {
                 limitCount++;
                 Event event = (Event) storageDataList.get(i);
-                log.debug("!!!! get event, its uuid: {}", event.getUuid());
                 events.getEvents().add(parseEvent(event));
             }
         }
         events.setTotal(storageDataList.size());
-        log.debug("!!!!events size: {}", events.getTotal());
         // resort by self, because of the select query result order by time.
         final Order order = Objects.isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
         if (Order.DES.equals(order)) {
@@ -182,7 +179,6 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         resultEvent.setParameters(event.getParameters());
         resultEvent.setStartTime(event.getStartTime());
         resultEvent.setEndTime(event.getEndTime());
-        log.debug("resultEvent: {}", resultEvent);
         return resultEvent;
     }
 }

@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
 import com.google.common.base.Strings;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
@@ -49,7 +48,6 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 @Slf4j
 @RequiredArgsConstructor
 public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
-    private static final Gson GSON = new Gson();
     private final IoTDBClient client;
     private final StorageHashMapBuilder<ServiceTraffic> serviceBuilder = new ServiceTraffic.Builder();
     private final StorageHashMapBuilder<EndpointTraffic> endpointBuilder = new EndpointTraffic.Builder();

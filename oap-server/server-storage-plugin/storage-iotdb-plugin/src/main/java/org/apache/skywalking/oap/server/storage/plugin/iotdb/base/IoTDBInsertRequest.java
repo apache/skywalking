@@ -62,7 +62,7 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
             }
         });
 
-        // time_bucket has changed to time before calling this method, so remove it from measurementList
+        // time_bucket has changed to time before calling this method, so remove it from measurements
         storageMap.remove(IoTDBClient.TIME_BUCKET);
         measurements = new ArrayList<>(storageMap.keySet());
         Map<String, TSDataType> columnTypeMap = IoTDBTableMetaInfo.get(modelName).getColumnTypeMap();

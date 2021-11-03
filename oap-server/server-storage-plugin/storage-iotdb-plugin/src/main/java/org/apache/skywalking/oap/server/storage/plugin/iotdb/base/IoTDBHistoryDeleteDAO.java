@@ -36,7 +36,7 @@ public class IoTDBHistoryDeleteDAO implements IHistoryDeleteDAO {
     @Override
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
         if (log.isDebugEnabled()) {
-            log.debug("TTL execution log, model: {}", model.getName());
+            log.debug("TTL execution log, model: {}, TTL: {}", model.getName(), ttl);
         }
         long deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmm"));
         client.deleteData(model.getName(), TimeBucket.getTimestamp(deadline));

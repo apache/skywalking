@@ -113,11 +113,10 @@ public class IoTDBClient implements Client, HealthCheckable {
      * @throws IOException IoTDBConnectionException or StatementExecutionException
      */
     public void write(IoTDBInsertRequest request) throws IOException {
-        log.debug(request.toString());
-        if (request.getModelName().equals("log")) {
-            log.debug("log model insert!!!!!");
+        if (log.isDebugEnabled()) {
             log.debug(request.toString());
         }
+
         StringBuilder devicePath = new StringBuilder();
         devicePath.append(storageGroup).append(IoTDBClient.DOT).append(request.getModelName());
         try {
@@ -142,13 +141,12 @@ public class IoTDBClient implements Client, HealthCheckable {
      * @throws IOException IoTDBConnectionException or StatementExecutionException
      */
     public void write(List<IoTDBInsertRequest> requestList) throws IOException {
-        for (IoTDBInsertRequest request : requestList) {
-            log.debug(request.toString());
-            if (request.getModelName().equals("log")) {
-                log.debug("log model insert!!!!!");
+        if (log.isDebugEnabled()) {
+            for (IoTDBInsertRequest request : requestList) {
                 log.debug(request.toString());
             }
         }
+
         List<String> devicePathList = new ArrayList<>();
         List<Long> timeList = new ArrayList<>();
         List<List<String>> timeseriesListList = new ArrayList<>();
