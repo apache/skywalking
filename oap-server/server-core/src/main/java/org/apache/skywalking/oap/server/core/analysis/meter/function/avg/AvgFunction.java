@@ -213,4 +213,14 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
     public int hashCode() {
         return Objects.hash(entityId, getTimeBucket());
     }
+
+    @Override
+    public boolean haveDefault() {
+        return true;
+    }
+
+    @Override
+    public boolean isDefaultValue() {
+        return value == 0;
+    }
 }
