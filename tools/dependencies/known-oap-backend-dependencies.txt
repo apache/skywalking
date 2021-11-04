@@ -155,7 +155,7 @@ snakeyaml-1.28.jar
 snappy-java-1.1.7.3.jar
 swagger-annotations-1.6.2.jar
 tsfile-0.13.0-SNAPSHOT.jar
-twx2-3.0.0.jar
+txw2-3.0.0.jar
 vavr-0.10.3.jar
 vavr-match-0.10.3.jar
 zipkin-2.9.1.jar
