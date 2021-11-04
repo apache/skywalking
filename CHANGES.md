@@ -43,6 +43,9 @@ Release Notes.
 * Fix ElasticSearch implementation of `queryMetricsValues` and `readLabeledMetricsValues` doesn't fill default values
   when no available data in the ElasticSearch server.
 * Fix config yaml data type conversion bug when meets special character like !.
+* Optimize metrics of minute dimensionality persistence. The value of metrics, which has declaration of the default
+  value and current value equals the default value logically, the whole row wouldn't be pushed into database.
+* Fix `max` function in OAL doesn't support negative long.
 
 #### UI
 
@@ -62,9 +65,9 @@ Release Notes.
 #### Documentation
 
 * Enhance documents about the data report and query protocols.
-* Restructure documents about receivers and fetchers. 
-  1. Remove general receiver and fetcher docs
-  2. Add more specific menu with docs to help users to find documents easier.
+* Restructure documents about receivers and fetchers.
+    1. Remove general receiver and fetcher docs
+    2. Add more specific menu with docs to help users to find documents easier.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/101?closed=1)
 
