@@ -68,3 +68,7 @@ kafka-fetcher:
       enable.auto.commit: true
       ...
 ```
+## Other Fetcher Plugins
+* [Pulsar Fetcher Plugin](https://github.com/SkyAPM/transporter-plugin-for-skywalking/blob/main/docs/en/pulsar/Pulsar-Fetcher.md)
+
+
