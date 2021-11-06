@@ -183,4 +183,14 @@ public abstract class SumFunction extends Metrics implements AcceptableValue<Lon
     public int hashCode() {
         return Objects.hash(getEntityId(), getTimeBucket());
     }
+
+    @Override
+    public boolean haveDefault() {
+        return true;
+    }
+
+    @Override
+    public boolean isDefaultValue() {
+        return value == 0;
+    }
 }

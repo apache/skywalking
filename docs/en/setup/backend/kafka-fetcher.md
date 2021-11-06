@@ -1,4 +1,4 @@
-## Kafka Fetcher
+# Kafka Fetcher
 
 The Kafka Fetcher pulls messages from the Kafka Broker to learn about what agent is delivered. Check the agent documentation for details. Typically, tracing segments, service/instance properties, JVM metrics, and meter system data are supported.  Kafka Fetcher can work with gRPC/HTTP Receivers at the same time for adopting different transport protocols.
 
@@ -68,3 +68,10 @@ kafka-fetcher:
       enable.auto.commit: true
       ...
 ```
+
+## Other Fetcher Plugins
+There are other transporter plugins. You could find these plugins from 3rd party repositories.
+
+* [Pulsar Fetcher Plugin](https://github.com/SkyAPM/transporter-plugin-for-skywalking/blob/main/docs/en/pulsar/Pulsar-Fetcher.md)
+
+
