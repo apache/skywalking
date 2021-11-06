@@ -71,18 +71,6 @@ public abstract class AbstractMicrobenchmark {
                         "-XX:BiasedLockingStartupDelay=0",
                         "-Djmh.executor=CUSTOM", "-Djmh.executor.class=org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark$JmhThreadExecutor");
 
-        if (getMeasureIterations() > 0) {
-            optBuilder.warmupIterations(getWarmupIterations());
-        }
-
-        if (getMeasureIterations() > 0) {
-            optBuilder.measurementIterations(getMeasureIterations());
-        }
-
-        if (getForks() > 0) {
-            optBuilder.forks(getForks());
-        }
-
         String output = getReportDir();
         if (output != null) {
             boolean writeFileStatus;
@@ -112,24 +100,8 @@ public abstract class AbstractMicrobenchmark {
         new Runner(newOptionsBuilder().build()).run();
     }
 
-    private int getWarmupIterations() {
-
-        String value = System.getProperty("warmupIterations");
-        return null != value ? Integer.parseInt(value) : -1;
-    }
-
-    private int getMeasureIterations() {
-        String value = System.getProperty("measureIterations");
-        return null != value ? Integer.parseInt(value) : -1;
-    }
-
     private static String getReportDir() {
         return System.getProperty("perfReportDir");
-    }
-
-    private static int getForks() {
-        String value = System.getProperty("forkCount");
-        return null != value ? Integer.parseInt(value) : -1;
     }
 
 }
