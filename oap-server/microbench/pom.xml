@@ -31,6 +31,8 @@
     <properties>
         <jmh.version>1.25</jmh.version>
         <slf4j.version>1.7.30</slf4j.version>
+        <uberjar.name>benchmarks</uberjar.name>
+        <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
     </properties>
 
     <dependencies>
@@ -75,26 +77,37 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${exec-maven-plugin.version}</version>
-                <configuration>
-                    <executable>java</executable>
-                    <arguments>
-                        <argument>-DwarmupIterations=10</argument>
-                        <argument>-DmeasureIterations=10</argument>
-                        <argument>-DforkCount=2</argument>
-                        <argument>-classpath</argument>
-                        <classpath/>
-                        <argument>org.openjdk.jmh.Main</argument>
-                        <argument>.*</argument>
-                    </arguments>
-                </configuration>
-
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven-shade-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${uberjar.name}</finalName>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>org.openjdk.jmh.Main</mainClass>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>**/Log4j2Plugins.dat</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
