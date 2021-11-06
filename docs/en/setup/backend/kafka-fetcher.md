@@ -70,7 +70,7 @@ kafka-fetcher:
 ```
 
 ## Other Fetcher Plugins
-There are other plugin implementations of transporter plugins. Please you prefer to use them rather than Kafka.
+There are other transporter plugins. You could find these plugins from 3rd party repositories.
 
 * [Pulsar Fetcher Plugin](https://github.com/SkyAPM/transporter-plugin-for-skywalking/blob/main/docs/en/pulsar/Pulsar-Fetcher.md)
 
