@@ -160,6 +160,17 @@ public class LinkedArrayBenchmark extends AbstractMicrobenchmark {
         }
     }
 
+    /**
+     * Test Data
+     */
+    public class SampleData {
+
+        private int intValue;
+
+        private String name;
+
+    }
+
     /*
         Environment:
 
