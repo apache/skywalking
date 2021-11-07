@@ -32,7 +32,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
-public class StringFormatGroupTest extends AbstractMicrobenchmark {
+public class StringFormatGroupBenchmark extends AbstractMicrobenchmark {
     @Benchmark
     @Test
     public void testMatch() {

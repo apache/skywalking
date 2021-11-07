@@ -40,11 +40,11 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * All JMH tests need to extend this class to make it easier for you to complete JMHTest,
- * you can also choose to customize runtime conditions (Measurement, Fork, Warmup, etc.)
+ * All JMH tests need to extend this class to make it easier for you to complete JMHTest, you can also choose to
+ * customize runtime conditions (Measurement, Fork, Warmup, etc.)
  *
- * You can run any of the JMH tests as a normal UT, or you can package it and get all the reported results via `java -jar benchmark.jar`,
- * or get the results of a particular Test via `java -jar /benchmarks.jar exampleClassName`.
+ * You can run any of the JMH tests as a normal UT, or you can package it and get all the reported results via `java
+ * -jar benchmark.jar`, or get the results of a particular Test via `java -jar /benchmarks.jar exampleClassName`.
  */
 @Warmup(iterations = AbstractMicrobenchmark.DEFAULT_WARMUP_ITERATIONS)
 @Measurement(iterations = AbstractMicrobenchmark.DEFAULT_MEASURE_ITERATIONS)
@@ -69,14 +69,16 @@ public abstract class AbstractMicrobenchmark {
         String className = getClass().getSimpleName();
 
         ChainedOptionsBuilder optBuilder = new OptionsBuilder()
-                // set benchmark class name
-                .include(".*" + className + ".*")
-                // add GC profiler
-                .addProfiler(GCProfiler.class)
-                //set jvm args
-                .jvmArgsAppend("-Xmx512m", "-Xms512m", "-XX:MaxDirectMemorySize=512m",
-                        "-XX:BiasedLockingStartupDelay=0",
-                        "-Djmh.executor=CUSTOM", "-Djmh.executor.class=org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark$JmhThreadExecutor");
+            // set benchmark class name
+            .include(".*" + className + ".*")
+            // add GC profiler
+            .addProfiler(GCProfiler.class)
+            //set jvm args
+            .jvmArgsAppend("-Xmx512m", "-Xms512m", "-XX:MaxDirectMemorySize=512m",
+                           "-XX:BiasedLockingStartupDelay=0",
+                           "-Djmh.executor=CUSTOM",
+                           "-Djmh.executor.class=org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark$JmhThreadExecutor"
+            );
 
         String output = getReportDir();
         if (output != null) {
@@ -91,12 +93,12 @@ public abstract class AbstractMicrobenchmark {
                 try {
                     writeFileStatus = file.createNewFile();
                 } catch (IOException e) {
-                    log.warn("jmh test create file error" + e);
+                    log.warn("jmh test create file error", e);
                 }
             }
             if (writeFileStatus) {
                 optBuilder.resultFormat(ResultFormatType.JSON)
-                        .result(filePath);
+                          .result(filePath);
             }
         }
         return optBuilder;

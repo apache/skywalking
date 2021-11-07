@@ -30,7 +30,7 @@ import org.openjdk.jmh.annotations.Threads;
 
 @BenchmarkMode({Mode.Throughput})
 @Threads(4)
-public class EndpointGroupingBenchmark4Openapi extends AbstractMicrobenchmark {
+public class EndpointGrouping4OpenapiBenchmark extends AbstractMicrobenchmark {
 
     @State(Scope.Benchmark)
     public static class FormatClassPaths20 {
