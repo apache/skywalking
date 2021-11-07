@@ -39,6 +39,13 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * All JMH tests need to extend this class to make it easier for you to complete JMHTest,
+ * you can also choose to customize runtime conditions (Measurement, Fork, Warmup, etc.)
+ *
+ * You can run any of the JMH tests as a normal UT, or you can package it and get all the reported results via `java -jar benchmark.jar`,
+ * or get the results of a particular Test via `java -jar /benchmarks.jar exampleClassName`.
+ */
 @Warmup(iterations = AbstractMicrobenchmark.DEFAULT_WARMUP_ITERATIONS)
 @Measurement(iterations = AbstractMicrobenchmark.DEFAULT_MEASURE_ITERATIONS)
 @Fork(AbstractMicrobenchmark.DEFAULT_FORKS)
