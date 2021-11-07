@@ -69,8 +69,6 @@ public abstract class AbstractMicrobenchmark {
         String className = getClass().getSimpleName();
 
         ChainedOptionsBuilder optBuilder = new OptionsBuilder()
-            // set benchmark class name
-            .include(".*" + className + ".*")
             // add GC profiler
             .addProfiler(GCProfiler.class)
             //set jvm args
