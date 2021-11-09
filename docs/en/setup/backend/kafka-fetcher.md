@@ -74,4 +74,4 @@ There are other transporter plugins. You could find these plugins from 3rd party
 
 * [Pulsar Fetcher Plugin](https://github.com/SkyAPM/transporter-plugin-for-skywalking/blob/main/docs/en/pulsar/Pulsar-Fetcher.md)
 
-
+* [Rocketmq Fetcher Plugin](https://github.com/SkyAPM/transporter-plugin-for-skywalking/blob/main/docs/en/rocketmq/Rocketmq-Fetcher.md)
