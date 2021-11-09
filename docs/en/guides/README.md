@@ -44,6 +44,21 @@ and if you would like to run all the ITs, simply run `./mvnw -Pall,CI-with-IT cl
 
 Please be advised that if you're writing integration tests, name it with the pattern `IT*` so they would only run with the `CI-with-IT` profile.
 
+### Java Microbenchmark Harness (JMH)
+JMH is a Java harness for building, running, and analysing nano/micro/milli/macro benchmarks written in Java and other languages targeting the JVM.
+
+We provide the `microbench` module, which provides `org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark`,
+
+all JMH tests need to extend this class to make it easier for you to complete JMHTest, you can also choose to
+customize runtime conditions (Measurement, Fork, Warmup, etc.)
+
+You can run any of the JMH tests as a normal UT, or you can package it and get all the reported results via `java
+-jar benchmark.jar`, or get the results of a particular Test via `java -jar /benchmarks.jar exampleClassName`.
+
+if you want to visualize your results, you can choose '-jar benchmark.jar -rf json' to export the report results in json format, there are many websites that publicly provide report analysis, you can find it yourself.
+
+More information about JMH can be found here: [jmh_docs](https://openjdk.java.net/projects/code-tools/jmh/)
+
 ### End to End Tests (E2E)
 Since version 6.3.0, we have introduced more automatic tests to perform software quality assurance. E2E is an integral part of it.
 

@@ -34,7 +34,7 @@ public class EndpointGroupingRule4Openapi {
         endpointNameLookup.put(endpointName, endpointGroupName);
     }
 
-    public void addGroupedRule(String serviceName, String endpointGroupName, String ruleRegex) {
+    void addGroupedRule(String serviceName, String endpointGroupName, String ruleRegex) {
         String rulesGroupkey = getGroupedRulesKey(ruleRegex);
         Map<String, StringFormatGroup> rules = groupedRules.computeIfAbsent(serviceName, name -> new HashMap<>());
         StringFormatGroup formatGroup = rules.computeIfAbsent(rulesGroupkey, name -> new StringFormatGroup());
