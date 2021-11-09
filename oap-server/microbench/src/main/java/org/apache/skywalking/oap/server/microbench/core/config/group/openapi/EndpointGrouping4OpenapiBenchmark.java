@@ -29,7 +29,6 @@ import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Benchmark;
 
 import java.io.File;
@@ -113,10 +112,9 @@ public class EndpointGrouping4OpenapiBenchmark extends AbstractMicrobenchmark {
     public static class FormatClassPaths20 {
         private EndpointGroupingRule4Openapi rule;
 
-        @Setup(Level.Iteration)
-        public void prepare() throws IOException {
+        @SneakyThrows
+        public FormatClassPaths20() {
             rule = new EndpointGroupingRuleReader4Openapi("openapi-definitions/20").read();
-
         }
 
         public void format(String serviceName, String endpointName) {
@@ -127,11 +125,6 @@ public class EndpointGrouping4OpenapiBenchmark extends AbstractMicrobenchmark {
     @State(Scope.Benchmark)
     public static class FormatClassPaths50 {
         private EndpointGroupingRule4Openapi rule;
-
-        @Setup(Level.Iteration)
-        public void prepare() {
-
-        }
 
         @SneakyThrows
         public FormatClassPaths50() {
