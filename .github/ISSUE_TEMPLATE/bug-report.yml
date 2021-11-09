@@ -69,6 +69,7 @@ body:
         - "Infra E2E (apache/skywalking-infra-e2e)"
         - "BanyanDB (apache/skywalking-banyandb)"
         - "Agent Test Tool (apache/skywalking-agent-test-tool)"
+        - "Showcase (apache/skywalking-showcase)"
     validations:
       required: true
 
