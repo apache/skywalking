@@ -47,17 +47,16 @@ Please be advised that if you're writing integration tests, name it with the pat
 ### Java Microbenchmark Harness (JMH)
 JMH is a Java harness for building, running, and analysing nano/micro/milli/macro benchmarks written in Java and other languages targeting the JVM.
 
-We provide the `microbench` module, which provides `org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark`,
+We have a module called 'microbench' which performs a series of micro-benchmark tests, when you want to write a JMH test, 
+you need to make your JMH test extend the `org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark`, 
+this can make it easier for you to complete JMHTest, you can also choose to customize runtime conditions (Measurement, Fork, Warmup, etc.).
 
-all JMH tests need to extend this class to make it easier for you to complete JMHTest, you can also choose to
-customize runtime conditions (Measurement, Fork, Warmup, etc.)
+You can run any of the JMH tests as a normal UT, or you can package it and get all the reported results via `java -jar benchmark.jar`, 
+or get the results of a particular Test via `java -jar /benchmarks.jar exampleClassName`.
 
-You can run any of the JMH tests as a normal UT, or you can package it and get all the reported results via `java
--jar benchmark.jar`, or get the results of a particular Test via `java -jar /benchmarks.jar exampleClassName`.
+If you want to visualize your results, you can choose `java -jar benchmarks.jar -rf json` to export the report results in json format. there are many websites that publicly provide report analysis, you can find it yourself.
 
-if you want to visualize your results, you can choose '-jar benchmark.jar -rf json' to export the report results in json format, there are many websites that publicly provide report analysis, you can find it yourself.
-
-More information about JMH can be found here: [jmh_docs](https://openjdk.java.net/projects/code-tools/jmh/)
+More information about JMH can be found here: [jmh docs](https://openjdk.java.net/projects/code-tools/jmh/).
 
 ### End to End Tests (E2E)
 Since version 6.3.0, we have introduced more automatic tests to perform software quality assurance. E2E is an integral part of it.
