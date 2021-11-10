@@ -52,11 +52,11 @@ import lombok.extern.slf4j.Slf4j;
 @State(Scope.Thread)
 @Slf4j
 public abstract class AbstractMicrobenchmark {
-    static final int DEFAULT_WARMUP_ITERATIONS = 1;
+    static final int DEFAULT_WARMUP_ITERATIONS = 10;
 
-    static final int DEFAULT_MEASURE_ITERATIONS = 1;
+    static final int DEFAULT_MEASURE_ITERATIONS = 10;
 
-    static final int DEFAULT_FORKS = 1;
+    static final int DEFAULT_FORKS = 12;
 
     public static class JmhThreadExecutor extends ThreadPoolExecutor {
         public JmhThreadExecutor(int size, String name) {
