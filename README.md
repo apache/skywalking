@@ -69,11 +69,8 @@ This project adheres to the Contributor Covenant [code of conduct](https://www.a
 Please follow the [REPORTING GUIDELINES](https://www.apache.org/foundation/policies/conduct#reporting-guidelines) to report unacceptable behavior.
 
 # Live Demo
-Find the [demo](https://skywalking.apache.org/#demo) and [screenshots](https://skywalking.apache.org/#arch) on our website.
-
-**Video on youtube.com**
-
-[![RocketBot UI](http://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
+- Find the [live demo](https://skywalking.apache.org/#demo) and [screenshots](https://skywalking.apache.org/#arch) on our website.
+- Follow the [showcase](https://skywalking.apache.org/docs/skywalking-showcase/latest/readme/) to set up preview deployment quickly.
 
 # Contact Us
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
