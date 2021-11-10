@@ -20,150 +20,76 @@ package org.apache.skywalking.oap.server.microbench.core.config.group.openapi;
 
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRule4Openapi;
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4Openapi;
+import org.apache.skywalking.oap.server.library.util.StringFormatGroup.FormatResult;
 import org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark;
-import lombok.SneakyThrows;
+
+import java.util.Collections;
+import java.util.Map;
+
+import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.Threads;
-import org.openjdk.jmh.annotations.TearDown;
-import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Threads;
+import org.openjdk.jmh.infra.Blackhole;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-/**
- * Can only be run from source code
- * <p>
- * Since the resource path cannot be obtained when packaged into a jar, this class will not work properly
- */
 @BenchmarkMode({Mode.Throughput})
 @Threads(4)
 public class EndpointGrouping4OpenapiBenchmark extends AbstractMicrobenchmark {
+    private static final String APT_TEST_DATA = "  /products1/{id}/%d:\n" + "    get:\n" + "    post:\n"
+        + "  /products2/{id}/%d:\n" + "    get:\n" + "    post:\n"
+        + "  /products3/{id}/%d:\n" + "    get:\n";
 
-    private static String APT_TEST_DATA = "  /products1/{id}/%d:\n" + "    get:\n" + "    post:\n"
-            + "  /products2/{id}/%d:\n" + "    get:\n" + "    post:\n"
-            + "  /products3/{id}/%d:\n" + "    get:\n";
-
-    Path source = Paths.get(this.getClass().getResource("/").getPath());
-
-    @Setup
-    public void prepare() throws IOException {
-        createTestFile("20", 3);
-        createTestFile("50", 9);
-        createTestFile("200", 39);
-    }
-
-    @TearDown
-    public void tearDown() {
-        File file = new File(source.toAbsolutePath() + "/openapi-definitions/");
-        deleteFile(file);
-    }
-
-    /**
-     * Recursively delete files and folders
-     *
-     * @param file file
-     */
-    private static void deleteFile(File file) {
-        if (file.isFile()) {
-            file.delete();
-            return;
-        }
-        if (file.isDirectory()) {
-            File[] subFiles = file.listFiles();
-            for (File subFile : subFiles) {
-                deleteFile(subFile);
-            }
-            file.delete();
-        }
-
-    }
-
-    private void createTestFile(String testParentDirectoryName, int size) throws IOException {
-        File file = new File(source.toAbsolutePath() + "/openapi-definitions/" + testParentDirectoryName + "/serviceA/productsTestAPI.yaml");
-
-        if (file.exists()) {
-            file.delete();
-        }
-        if (!file.getParentFile().exists()) {
-            file.getParentFile().mkdirs();
-        }
-
-        file.createNewFile();
+    private static Map<String, String> createTestFile(int size) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("paths:\n");
-
         for (int i = 0; i <= size; i++) {
             stringBuilder.append(String.format(APT_TEST_DATA, i, i, i));
         }
-        FileWriter fileWriter = new FileWriter(file.getAbsoluteFile().getAbsolutePath(), false);
-        fileWriter.write(stringBuilder.toString());
-        fileWriter.close();
-
+        return Collections.singletonMap("whatever", stringBuilder.toString());
     }
 
     @State(Scope.Benchmark)
     public static class FormatClassPaths20 {
-        private EndpointGroupingRule4Openapi rule;
+        private final EndpointGroupingRule4Openapi rule = new EndpointGroupingRuleReader4Openapi(createTestFile(3)).read();
 
-        @SneakyThrows
-        public FormatClassPaths20() {
-            rule = new EndpointGroupingRuleReader4Openapi("openapi-definitions/20").read();
-        }
-
-        public void format(String serviceName, String endpointName) {
-            rule.format(serviceName, endpointName);
+        public FormatResult format(String serviceName, String endpointName) {
+            return rule.format(serviceName, endpointName);
         }
     }
 
     @State(Scope.Benchmark)
     public static class FormatClassPaths50 {
-        private EndpointGroupingRule4Openapi rule;
+        private final EndpointGroupingRule4Openapi rule = new EndpointGroupingRuleReader4Openapi(createTestFile(9)).read();
 
-        @SneakyThrows
-        public FormatClassPaths50() {
-            rule = new EndpointGroupingRuleReader4Openapi("openapi-definitions/50").read();
-        }
-
-        public void format(String serviceName, String endpointName) {
-            rule.format(serviceName, endpointName);
+        public FormatResult format(String serviceName, String endpointName) {
+            return rule.format(serviceName, endpointName);
         }
     }
 
     @State(Scope.Benchmark)
     public static class FormatClassPaths200 {
-        private EndpointGroupingRule4Openapi rule;
+        private final EndpointGroupingRule4Openapi rule = new EndpointGroupingRuleReader4Openapi(createTestFile(39)).read();
 
-        @SneakyThrows
-        public FormatClassPaths200() {
-            rule = new EndpointGroupingRuleReader4Openapi("openapi-definitions/200").read();
+        public FormatResult format(String serviceName, String endpointName) {
+            return rule.format(serviceName, endpointName);
         }
-
-        public void format(String serviceName, String endpointName) {
-            rule.format(serviceName, endpointName);
-        }
-
     }
 
     @Benchmark
-    public void formatEndpointNameMatchedPaths20(FormatClassPaths20 formatClass) {
-        formatClass.format("serviceA", "GET:/products1/123");
+    public void formatEndpointNameMatchedPaths20(Blackhole bh, FormatClassPaths20 formatClass) {
+        bh.consume(formatClass.format("serviceA", "GET:/products1/123"));
     }
 
     @Benchmark
-    public void formatEndpointNameMatchedPaths50(FormatClassPaths50 formatClass) {
-        formatClass.format("serviceA", "GET:/products1/123");
+    public void formatEndpointNameMatchedPaths50(Blackhole bh, FormatClassPaths50 formatClass) {
+        bh.consume(formatClass.format("serviceA", "GET:/products1/123"));
     }
 
     @Benchmark
-    public void formatEndpointNameMatchedPaths200(FormatClassPaths200 formatClass) {
-        formatClass.format("serviceA", "GET:/products1/123");
+    public void formatEndpointNameMatchedPaths200(Blackhole bh, FormatClassPaths200 formatClass) {
+        bh.consume(formatClass.format("serviceA", "GET:/products1/123"));
     }
 
 }

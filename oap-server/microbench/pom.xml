@@ -102,7 +102,6 @@
                                     <artifact>*:*</artifact>
                                     <excludes>
                                         <exclude>**/Log4j2Plugins.dat</exclude>
-                                        <exclude>**/EndpointGrouping4OpenapiBenchmark.*</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
