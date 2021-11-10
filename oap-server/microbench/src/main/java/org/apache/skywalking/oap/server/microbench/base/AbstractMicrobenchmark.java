@@ -56,7 +56,7 @@ public abstract class AbstractMicrobenchmark {
 
     static final int DEFAULT_MEASURE_ITERATIONS = 10;
 
-    static final int DEFAULT_FORKS = 12;
+    static final int DEFAULT_FORKS = 2;
 
     public static class JmhThreadExecutor extends ThreadPoolExecutor {
         public JmhThreadExecutor(int size, String name) {
