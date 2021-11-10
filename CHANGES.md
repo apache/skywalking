@@ -61,6 +61,7 @@ Release Notes.
 * Optimize global settings.
 * Fix current endpoint for endpoint dependency.
 * Add version in the global settings popup.
+* Optimize Log page style.
 
 #### Documentation
 
