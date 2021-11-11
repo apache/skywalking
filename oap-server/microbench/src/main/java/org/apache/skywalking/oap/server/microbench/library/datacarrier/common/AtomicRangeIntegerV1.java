@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.datacarrier.common;
+package org.apache.skywalking.oap.server.microbench.library.datacarrier.common;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;

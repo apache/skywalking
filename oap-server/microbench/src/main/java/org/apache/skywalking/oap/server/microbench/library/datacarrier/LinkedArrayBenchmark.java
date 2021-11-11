@@ -16,16 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.datacarrier;
+package org.apache.skywalking.oap.server.microbench.library.datacarrier;
 
+import org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark;
 import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.profile.GCProfiler;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -34,8 +28,7 @@ import java.util.List;
 /**
  * ISSUE-3064
  */
-@BenchmarkMode({Mode.Throughput})
-public class LinkedArrayBenchmark {
+public class LinkedArrayBenchmark extends AbstractMicrobenchmark {
 
     @Benchmark
     public void testArrayCap1000() {
@@ -167,14 +160,17 @@ public class LinkedArrayBenchmark {
         }
     }
 
-    public static void main(String[] args) throws RunnerException {
-        Options opt = new OptionsBuilder().include(LinkedArrayBenchmark.class.getName())
-                                          .addProfiler(GCProfiler.class)
-                                          .jvmArgsAppend("-Xmx512m", "-Xms512m")
-                                          .forks(1)
-                                          .build();
-        new Runner(opt).run();
+    /**
+     * Test Data
+     */
+    public class SampleData {
+
+        private int intValue;
+
+        private String name;
+
     }
+
     /*
         Environment:
 
