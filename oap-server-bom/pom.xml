@@ -47,7 +47,7 @@
         <netty-tcnative-boringssl-static.version>2.0.43.Final</netty-tcnative-boringssl-static.version>
         <jetty.version>9.4.40.v20210413</jetty.version>
         <commons-io.version>2.6</commons-io.version>
-        <kubernetes.version>13.0.0</kubernetes.version>
+        <kubernetes.version>14.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.9.1</zipkin.version>
         <jackson-core.version>2.12.2</jackson-core.version>
