@@ -15,9 +15,9 @@ bcprov-jdk15on-1.69.jar
 bcutil-jdk15on-1.69.jar
 brotli4j-1.6.0.jar
 checker-qual-2.8.1.jar
-client-java-13.0.0.jar
-client-java-api-13.0.0.jar
-client-java-proto-13.0.0.jar
+client-java-14.0.0.jar
+client-java-api-14.0.0.jar
+client-java-proto-14.0.0.jar
 commons-beanutils-1.9.4.jar
 commons-codec-1.11.jar
 commons-collections4-4.4.jar
@@ -84,7 +84,7 @@ jetty-servlet-9.4.40.v20210413.jar
 jetty-util-9.4.40.v20210413.jar
 jetty-util-ajax-9.4.40.v20210413.jar
 joda-time-2.10.5.jar
-jose4j-0.7.8.jar
+jose4j-0.7.9.jar
 jsr305-3.0.2.jar
 kafka-clients-2.4.1.jar
 kotlin-reflect-1.1.1.jar
@@ -135,11 +135,11 @@ retrofit-2.5.0.jar
 simpleclient-0.6.0.jar
 simpleclient_common-0.6.0.jar
 simpleclient_hotspot-0.6.0.jar
-simpleclient_httpserver-0.11.0.jar
+simpleclient_httpserver-0.12.0.jar
 slf4j-api-1.7.30.jar
 snakeyaml-1.28.jar
 snappy-java-1.1.7.3.jar
-swagger-annotations-1.6.2.jar
+swagger-annotations-1.6.3.jar
 vavr-0.10.3.jar
 vavr-match-0.10.3.jar
 zipkin-2.9.1.jar

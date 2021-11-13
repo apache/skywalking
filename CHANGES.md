@@ -47,6 +47,7 @@ Release Notes.
   value and current value equals the default value logically, the whole row wouldn't be pushed into database.
 * Fix `max` function in OAL doesn't support negative long.
 * Add `MicroBench` module to make it easier for developers to write JMH test.
+* Upgrade Kubernetes Java client to 14.0.0, supports GCP token refreshing and fixes some bugs.
 
 #### UI
 

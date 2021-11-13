@@ -287,7 +287,7 @@ The text of each license is the standard Apache 2.0 license.
     HikariCP 3.1.0: https://github.com/brettwooldridge/HikariCP, Apache 2.0
     zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
-    kubernetes-client 13.0.0: https://github.com/kubernetes-client/java, Apache 2.0
+    kubernetes-client 14.0.0: https://github.com/kubernetes-client/java, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
     nacos 1.4.2: https://github.com/alibaba/nacos, Apache 2.0
@@ -310,8 +310,8 @@ The text of each license is the standard Apache 2.0 license.
     moshi 1.5.0: https://github.com/square/moshi, Apache 2.0
     logging-interceptor 3.13.1: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
     msgpack-core 0.8.16: https://github.com/msgpack/msgpack-java, Apache 2.0
-    swagger-annotations 1.6.2: https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations, Apache 2.0
-    jose4j 0.7.8: https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j, Apache 2.0
+    swagger-annotations 1.6.3: https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations, Apache 2.0
+    jose4j 0.7.9: https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j, Apache 2.0
     converter-moshi 2.5.0: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-moshi, Apache 2.0
     vavr 0.10.3: https://github.com/vavr-io/vavr, Apache 2.0
     kafka-clients 2.4.1: https://github.com/apache/kafka, Apache 2.0
@@ -321,7 +321,7 @@ The text of each license is the standard Apache 2.0 license.
     mvel 2.4.8: https://github.com/mvel/mvel, Apache 2.0
     okio 1.17.2: https://github.com/square/okio Apache 2.0
     caffeine 2.6.2: https://github.com/ben-manes/caffeine Apache 2.0
-    simpleclient_httpserver 0.11 from prometheus https://github.com/prometheus/client_java Apache 2.0
+    simpleclient_httpserver 0.12.0 from prometheus https://github.com/prometheus/client_java Apache 2.0
     jetcd 0.5.3, https://github.com/etcd-io/jetcd, Apache 2.0
     failasfe 2.3.4, https://github.com/jhalterman/failsafe, Apache 2.0
     Armeria 1.12.0, http://github.com/line/armeria, Apache 2.0
