@@ -9,6 +9,7 @@ Release Notes.
 
 * E2E tests immigrate to e2e-v2.
 * Support JDK 16 and 17.
+* Add Docker images for arm64 architecture.
 
 #### OAP Server
 

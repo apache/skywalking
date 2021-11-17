@@ -14,30 +14,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM adoptopenjdk/openjdk11:alpine-jre
+ARG BASE_IMAGE='adoptopenjdk/openjdk11:jre'
 
-ENV JAVA_OPTS=" -Xms256M " \
-    SW_OAP_ADDRESS="http://127.0.0.1:12800"
+ARG SKYWALKING_CLI_VERSION
 
-WORKDIR skywalking
+FROM apache/skywalking-cli:$SKYWALKING_CLI_VERSION as cli
 
-RUN set -ex; \
-    apk add --no-cache \
-    bash
+FROM $BASE_IMAGE
+
+WORKDIR /skywalking
+
+ENV JAVA_OPTS=" -Xms2G "
 
 ARG DIST
+
 COPY "$DIST" .
 
-RUN tar -xzf "$DIST" --strip 1; \
+RUN set -ex; \
+    tar -xzf "$DIST" --strip 1; \
     rm -rf "$DIST"; \
-    rm -rf "config"; \
+    rm -rf "config/log4j2.xml"; \
     rm -rf "bin"; \
-    rm -rf "oap-libs"; \
-    rm -rf "agent";
+    rm -rf "webapp"; \
+    rm -rf "agent"; \
+    mkdir "bin";
 
+COPY --from=cli /swctl ./bin
+
+COPY log4j2.xml config/
 COPY docker-entrypoint.sh .
-COPY logback.xml webapp/
 
-EXPOSE 8080
+RUN mkdir ext-config; \
+    mkdir ext-libs;
+
+EXPOSE 12800 11800 1234
 
 ENTRYPOINT ["bash", "docker-entrypoint.sh"]

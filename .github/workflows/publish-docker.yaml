@@ -52,7 +52,5 @@ jobs:
           registry: ${{ env.HUB }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build docker image
-        run: |
-          make docker || make docker
-          make docker.push || make docker.push
+      - name: Build and push docker images
+        run: make build.all docker.push

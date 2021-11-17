@@ -27,7 +27,6 @@ on:
 env:
   SKIP_TEST: true
   TAG: ${{ github.sha }}
-  SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk11:alpine-jre
 
 concurrency:
   group: e2e-istio-${{ github.event.pull_request.number || github.ref }}
