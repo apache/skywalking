@@ -67,18 +67,18 @@ BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST) --build-arg SKYWALKING_CLI_
 # 3. This rule then changes directories to $(DOCKER_BUID_TOP)/$@
 # 4. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
 # 5. If PUSH_DOCKER_IMAGE is set as true, docker image will be pushed to specified repository
-# 6. If INCLUDE_ARM_BUILD is set as true, both arm64 and amd64 docker image will be built, otherwise the docker image with be built with the arch of local environment
+# 6. If CROSS_BUILD is set as true, docker images for multiple platform/architecture will be built, otherwise the docker image will only be built with the same platform/architecture of local environment
 ifeq ($(PUSH_DOCKER_IMAGE), true)
 	DOCKER_PUSH_OPTION=--push
 	DOCKER_PUSH_CMD=docker push $(HUB)/$(3):$(TAG)
 endif
 
 
-ifeq ($(INCLUDE_ARM_BUILD), true)
+ifeq ($(CROSS_BUILD), true)
 define DOCKER_RULE
 	mkdir -p $(1)
 	cp -r $(2) $(1)
-	cd $(1) && docker buildx build --platform linux/arm64,linux/amd64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -f $(4) . $(DOCKER_PUSH_OPTION)
+	cd $(1) && docker buildx build --platform linux/386,linux/amd64,linux/arm64 --no-cache $(BUILD_ARGS) -t $(HUB)/$(3):$(TAG) -t $(HUB)/$(3):latest -f $(4) . $(DOCKER_PUSH_OPTION)
 endef
 else
 define DOCKER_RULE

@@ -19,7 +19,7 @@ It will build docker image with the same architecture as local environment.
 If you want to run a cross build for both amd64 and arm64 docker images, you need to setup docker experimental environment, and install QEMU to support the different architectures. After that, you can use below command to do cross build:
 
 ```shell
-make docker INCLUDE_ARM_BUILD=true
+make docker CROSS_BUILD=true
 ```
 
 It not only contains the process of building a docker image but also includes all the required steps, for instance, init
