@@ -18,7 +18,7 @@
 setup:
   env: compose
   file: docker-compose.yml
-  timeout: 1200
+  timeout: 20m
   init-system-environment: ../../../script/env
   steps:
     - name: install yq

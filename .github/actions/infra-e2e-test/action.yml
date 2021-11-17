@@ -58,3 +58,9 @@ runs:
       uses: apache/skywalking-infra-e2e@main
       with:
         e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/${{ inputs.config-file }}
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      name: Upload Logs
+      with:
+        name: logs
+        path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"

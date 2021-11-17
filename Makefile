@@ -43,15 +43,11 @@ OAP_NAME ?= oap
 UI_NAME ?= ui
 TAG ?= latest
 
-.SECONDEXPANSION: #allow $@ to be used in dependency list
-
-.PHONY: docker docker.all docker.oap
+.PHONY: docker docker.all
 
 docker: init build.all docker.all
 
 DOCKER_TARGETS:=docker.oap docker.ui
-
-docker.all: $(DOCKER_TARGETS)
 
 ifneq ($(SW_OAP_BASE_IMAGE),)
   BUILD_ARGS := $(BUILD_ARGS) --build-arg BASE_IMAGE=$(SW_OAP_BASE_IMAGE)
@@ -59,48 +55,35 @@ endif
 
 BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST) --build-arg SKYWALKING_CLI_VERSION=$(CLI_VERSION)
 
-docker.oap: $(CONTEXT)/$(DIST)
-docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
-docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
-docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
-docker.oap: NAME = $(OAP_NAME)
-docker.oap:
+%.ui: NAME = $(UI_NAME)
+%.oap: NAME = $(OAP_NAME)
+
+docker.%: PLATFORMS =
+docker.%: LOAD_OR_PUSH = --load
+push.%: PLATFORMS = --platform linux/amd64,linux/arm64
+push.%: LOAD_OR_PUSH = --push
+
+docker.% push.docker.%: $(CONTEXT)/$(DIST) $(SW_ROOT)/docker/%/*
 	$(DOCKER_RULE)
 
-docker.ui: $(CONTEXT)/$(DIST)
-docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
-docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
-docker.ui: $(SW_ROOT)/docker/ui/logback.xml
-docker.ui: NAME = $(UI_NAME)
-docker.ui:
-	$(DOCKER_RULE)
+docker.all: $(DOCKER_TARGETS)
+docker.push: $(DOCKER_TARGETS:%=push.%)
 
-# $@ is the name of the target
 # $^ the name of the dependencies for the target
 # Rule Steps #
 ##############
-# 1. Make a directory $(DOCKER_BUILD_TOP)/%@
-# 2. This rule uses cp to copy all dependency filenames into into $(DOCKER_BUILD_TOP/$@
-# 3. This rule then changes directories to $(DOCKER_BUID_TOP)/$@
-# 4. This rule runs $(BUILD_PRE) prior to any docker build and only if specified as a dependency variable
-# 5. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
+# 1. Make a directory $(DOCKER_BUILD_TOP)/$(NAME)
+# 2. This rule uses cp to copy all dependency filenames into into $(DOCKER_BUILD_TOP/$(NAME)
+# 3. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
 
-DOCKER_RULE=time (mkdir -p $(DOCKER_BUILD_TOP)/$@ && cp -r $^ $(DOCKER_BUILD_TOP)/$@ && cd $(DOCKER_BUILD_TOP)/$@ && $(BUILD_PRE) docker build --no-cache $(BUILD_ARGS) -t $(HUB)/$(NAME):$(TAG) -f Dockerfile$(suffix $@) .)
-
-# for each docker.XXX target create a push.docker.XXX target that pushes
-# the local docker image to another hub
-# a possible optimization is to use tag.$(TGT) as a dependency to do the tag for us
-push.docker.oap: NAME = $(OAP_NAME)
-push.docker.ui: NAME = $(UI_NAME)
-
-$(foreach TGT,$(DOCKER_TARGETS),push.$(TGT)): push.%: %
-	time (docker push $(HUB)/$(NAME):$(TAG))
-
-# create a DOCKER_PUSH_TARGETS that's each of DOCKER_TARGETS with a push. prefix
-DOCKER_PUSH_TARGETS:=
-$(foreach TGT,$(DOCKER_TARGETS),$(eval DOCKER_PUSH_TARGETS+=push.$(TGT)))
-
-# Will build and push docker images.
-docker.push: $(DOCKER_PUSH_TARGETS)
-
-
+define DOCKER_RULE
+	mkdir -p $(DOCKER_BUILD_TOP)/$(NAME)
+	cp -r $^ $(DOCKER_BUILD_TOP)/$(NAME)
+	docker buildx create --use --driver docker-container --name skywalking_main > /dev/null 2>&1 || true
+	docker buildx build $(PLATFORMS) $(LOAD_OR_PUSH) \
+		--no-cache $(BUILD_ARGS) \
+		-t $(HUB)/$(NAME):$(TAG) \
+		-t $(HUB)/$(NAME):latest \
+		$(DOCKER_BUILD_TOP)/$(NAME)
+	docker buildx rm skywalking_main || true
+endef

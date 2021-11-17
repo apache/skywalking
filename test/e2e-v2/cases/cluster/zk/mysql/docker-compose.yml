@@ -51,7 +51,7 @@ services:
     environment:
       SW_CLUSTER: zookeeper
       SW_STORAGE: mysql
-    entrypoint: ['sh', '-c', 'apk add --no-cache bash && /download-mysql.sh && /skywalking/docker-entrypoint.sh']
+    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
     depends_on:
       zk:
         condition: service_healthy
@@ -65,7 +65,7 @@ services:
     environment:
       SW_CLUSTER: zookeeper
       SW_STORAGE: mysql
-    entrypoint: ['sh', '-c', 'apk add --no-cache bash && /download-mysql.sh && /skywalking/docker-entrypoint.sh']
+    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
     depends_on:
       zk:
         condition: service_healthy

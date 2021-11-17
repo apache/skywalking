@@ -17,8 +17,6 @@
 
 set -ex
 
-apk add curl
-
 SW_HOME=/skywalking
 MYSQL_URL="https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
 MYSQL_DRIVER="mysql-connector-java-8.0.13.jar"
