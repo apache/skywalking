@@ -16,116 +16,82 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.config.group.openapi;
+package org.apache.skywalking.oap.server.microbench.core.config.group.openapi;
 
-import java.io.FileNotFoundException;
-import lombok.SneakyThrows;
+import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRule4Openapi;
+import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4Openapi;
+import org.apache.skywalking.oap.server.library.util.StringFormatGroup.FormatResult;
+import org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark;
+
+import java.util.Collections;
+import java.util.Map;
+
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Threads;
-import org.openjdk.jmh.profile.GCProfiler;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.openjdk.jmh.infra.Blackhole;
 
 @BenchmarkMode({Mode.Throughput})
 @Threads(4)
-public class EndpointGroupingBenchmark4Openapi {
+public class EndpointGrouping4OpenapiBenchmark extends AbstractMicrobenchmark {
+    private static final String APT_TEST_DATA = "  /products1/{id}/%d:\n" + "    get:\n" + "    post:\n"
+        + "  /products2/{id}/%d:\n" + "    get:\n" + "    post:\n"
+        + "  /products3/{id}/%d:\n" + "    get:\n";
+
+    private static Map<String, String> createTestFile(int size) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("paths:\n");
+        for (int i = 0; i <= size; i++) {
+            stringBuilder.append(String.format(APT_TEST_DATA, i, i, i));
+        }
+        return Collections.singletonMap("whatever", stringBuilder.toString());
+    }
 
     @State(Scope.Benchmark)
     public static class FormatClassPaths20 {
-        private EndpointGroupingRule4Openapi rule;
+        private final EndpointGroupingRule4Openapi rule = new EndpointGroupingRuleReader4Openapi(createTestFile(3)).read();
 
-        @SneakyThrows
-        public FormatClassPaths20() {
-            rule = new EndpointGroupingRule4Openapi();
-            for (int i = 0; i <= 3; i++) {
-                rule.addGroupedRule("serviceA", "GET:/products1/{id}/" + i, "GET:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products1/{id}/" + i, "POST:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products2/{id}/" + i, "GET:/products2/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products3/{id}/" + i, "POST:/products3/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products3/{id}/" + i, "GET:/products3/([^/]+)/" + i);
-            }
-        }
-
-        public void format(String serviceName, String endpointName) {
-            rule.format(serviceName, endpointName);
+        public FormatResult format(String serviceName, String endpointName) {
+            return rule.format(serviceName, endpointName);
         }
     }
 
     @State(Scope.Benchmark)
     public static class FormatClassPaths50 {
-        private EndpointGroupingRule4Openapi rule;
+        private final EndpointGroupingRule4Openapi rule = new EndpointGroupingRuleReader4Openapi(createTestFile(9)).read();
 
-        @SneakyThrows
-        public FormatClassPaths50() {
-            rule = new EndpointGroupingRule4Openapi();
-            for (int i = 0; i <= 9; i++) {
-                rule.addGroupedRule("serviceA", "GET:/products1/{id}/" + i, "GET:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products1/{id}/" + i, "POST:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products2/{id}/" + i, "GET:/products2/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products3/{id}/" + i, "POST:/products3/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products3/{id}/" + i, "GET:/products3/([^/]+)/" + i);
-            }
-        }
-
-        public void format(String serviceName, String endpointName) {
-            rule.format(serviceName, endpointName);
+        public FormatResult format(String serviceName, String endpointName) {
+            return rule.format(serviceName, endpointName);
         }
     }
 
     @State(Scope.Benchmark)
     public static class FormatClassPaths200 {
-        private EndpointGroupingRule4Openapi rule;
+        private final EndpointGroupingRule4Openapi rule = new EndpointGroupingRuleReader4Openapi(createTestFile(39)).read();
 
-        @SneakyThrows
-        public FormatClassPaths200() {
-            rule = new EndpointGroupingRule4Openapi();
-            for (int i = 0; i <= 39; i++) {
-                rule.addGroupedRule("serviceA", "GET:/products1/{id}/" + i, "GET:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products1/{id}/" + i, "POST:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products2/{id}/" + i, "GET:/products2/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products3/{id}/" + i, "POST:/products3/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products3/{id}/" + i, "GET:/products3/([^/]+)/" + i);
-            }
+        public FormatResult format(String serviceName, String endpointName) {
+            return rule.format(serviceName, endpointName);
         }
-
-        public void format(String serviceName, String endpointName) {
-            rule.format(serviceName, endpointName);
-        }
-
     }
 
     @Benchmark
-    public void formatEndpointNameMatchedPaths20(FormatClassPaths20 formatClass) {
-        formatClass.format("serviceA", "GET:/products1/123");
+    public void formatEndpointNameMatchedPaths20(Blackhole bh, FormatClassPaths20 formatClass) {
+        bh.consume(formatClass.format("serviceA", "GET:/products1/123"));
     }
 
     @Benchmark
-    public void formatEndpointNameMatchedPaths50(FormatClassPaths50 formatClass) {
-        formatClass.format("serviceA", "GET:/products1/123");
+    public void formatEndpointNameMatchedPaths50(Blackhole bh, FormatClassPaths50 formatClass) {
+        bh.consume(formatClass.format("serviceA", "GET:/products1/123"));
     }
 
     @Benchmark
-    public void formatEndpointNameMatchedPaths200(FormatClassPaths200 formatClass) {
-        formatClass.format("serviceA", "GET:/products1/123");
+    public void formatEndpointNameMatchedPaths200(Blackhole bh, FormatClassPaths200 formatClass) {
+        bh.consume(formatClass.format("serviceA", "GET:/products1/123"));
     }
 
-    public static void main(String[] args) throws RunnerException, FileNotFoundException {
-
-        Options opt = new OptionsBuilder()
-            .include(EndpointGroupingBenchmark4Openapi.class.getName())
-            .addProfiler(GCProfiler.class)
-            .jvmArgsAppend("-Xmx512m", "-Xms512m")
-            .forks(1)
-            .build();
-
-        new Runner(opt).run();
-    }
 }
 
 /*

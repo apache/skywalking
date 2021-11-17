@@ -1,15 +1,10 @@
-# Probe Protocol
-It includes descriptions and definitions on how agents send collected metrics, logs, traces and events, as well as the format of each entity.
-
-## Probe Protocols
-They also related to the probe group. For more information, see [Concepts and Designs](../concepts-and-designs/overview.md).
-These groups are **language-based native agent protocol**, **service mesh protocol** and **3rd-party instrument protocol**.
+# Probe Protocols
+Probe protocols describe and define how agents send collected metrics, logs, traces, and events, as well as set out the format of each entity.
 
 ### Tracing
 There are two types of protocols that help language agents work in distributed tracing.
 
-- **Cross Process Propagation Headers Protocol** and **Cross Process Correlation Headers Protocol** come in in-wire data format. Agent/SDK usually uses HTTP/MQ/HTTP2 headers
-to carry the data with the RPC request. The remote agent will receive this in the request handler, and bind the context with this specific request. 
+- **Cross Process Propagation Headers Protocol** and **Cross Process Correlation Headers Protocol** come in in-wire data format. Agent/SDK usually uses HTTP/MQ/HTTP2 headers to carry the data with the RPC request. The remote agent will receive this in the request handler, and bind the context with this specific request. 
 
 [Cross Process Propagation Headers Protocol v3](Skywalking-Cross-Process-Propagation-Headers-Protocol-v3.md) has been the new protocol for in-wire context propagation since the version 8.0.0 release.
 
@@ -26,14 +21,14 @@ Please read SkyWalking language agents documentation to see whether it is suppor
 
 ### Metrics
 
-SkyWalking has native metrics format, and support widely used metric formats such as Prometheus, OpenCensus, and Zabbix.
+SkyWalking has a native metrics format, and supports widely used metric formats, such as Prometheus, OpenCensus, and Zabbix.
 
 The native metrics format definition could be found [here](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Meter.proto).
-Typically, agent meter plugin(e.g. [Java Meter Plugin](https://skywalking.apache.org/docs/skywalking-java/latest/en/setup/service-agent/java-agent/java-plugin-development-guide/#meter-plugin)) and
+Typically, the agent meter plugin (e.g. [Java Meter Plugin](https://skywalking.apache.org/docs/skywalking-java/latest/en/setup/service-agent/java-agent/java-plugin-development-guide/#meter-plugin)) and
 Satellite [Prometheus fetcher](https://skywalking.apache.org/docs/skywalking-satellite/latest/en/setup/plugins/fetcher_prometheus-metrics-fetcher/)
-would transfer metrics into native format and forward to SkyWalking OAP server.
+would convert metrics into native format and forward them to SkyWalking OAP server.
 
-About receiving 3rd party formats metrics, read [Meter receiver](../setup/backend/backend-meter.md) and [OpenTelemetry receiver](../setup/backend/opentelemetry-receiver.md) docs for more details.
+To learn more about receiving 3rd party formats metrics, see [Meter receiver](../setup/backend/backend-meter.md) and [OpenTelemetry receiver](../setup/backend/opentelemetry-receiver.md).
 
 ### Browser probe protocol
 
@@ -45,8 +40,8 @@ The browser probe, such as  [skywalking-client-js](https://github.com/apache/sky
 
 The protocol is used to report events to the backend. The [doc](../concepts-and-designs/event.md) introduces the definition of an event, and [the protocol repository](https://github.com/apache/skywalking-data-collect-protocol/blob/master/event) defines gRPC services and message formats of events.
 
-Report `JSON` format events via HTTP API, the endpoint is `http://<oap-address>:12800/v3/events`.
-JSON event record example:
+`JSON` format events can be reported via HTTP API. The endpoint is `http://<oap-address>:12800/v3/events`.
+Example of a JSON event record:
 ```json
 [
     {

@@ -139,10 +139,10 @@ extend type Query {
 }
 ```
 
-Log implementations have a little differences with different database options. Search engine(s), e.g. ElasticSearch and OpenSearch, could support
-full log text fuzzy query. Others would not support considering performance impact and end user experience.
+Log implementations vary between different database options. Some search engines like ElasticSearch and OpenSearch can support
+full log text fuzzy queries, while others do not due to considerations related to performance impact and end user experience.
 
-`test` API is provided for the debugger tool of native LAL parsing. 
+`test` API serves as the debugging tool for native LAL parsing. 
 
 ### Trace
 ```graphql
@@ -152,7 +152,7 @@ extend type Query {
 }
 ```
 
-Trace query provides to fetch trace segment list, and spans of given trace id.
+Trace query fetches trace segment lists and spans of given trace IDs.
 
 ### Alarm
 ```graphql
@@ -162,7 +162,7 @@ extend type Query {
 }
 ```
 
-Alarm query provides to query detected alerting messages with relative events.
+Alarm query identifies alarms and related events.
 
 ### Event
 ```graphql
@@ -171,7 +171,7 @@ extend type Query {
 }
 ```
 
-Event query is fetching the event list according to given sources and time range conditions.
+Event query fetches the event list based on given sources and time range conditions.
 
 ## Condition
 ### Duration

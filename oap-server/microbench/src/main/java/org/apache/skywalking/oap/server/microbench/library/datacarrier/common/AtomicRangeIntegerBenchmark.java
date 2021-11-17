@@ -16,17 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.datacarrier.common;
+package org.apache.skywalking.oap.server.microbench.library.datacarrier.common;
 
+import org.apache.skywalking.oap.server.library.datacarrier.common.AtomicRangeInteger;
+import org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-public class AtomicRangeIntegerTest {
+public class AtomicRangeIntegerBenchmark extends AbstractMicrobenchmark {
 
     private static AtomicRangeInteger ATOMIC_V3 = new AtomicRangeInteger(0, 100);
     private static AtomicRangeIntegerV1 ATOMIC_V1 = new AtomicRangeIntegerV1(0, 100);
@@ -62,19 +60,6 @@ public class AtomicRangeIntegerTest {
     @Benchmark
     public void testGetAndIncrementV3Performance() {
         ATOMIC_V3.getAndIncrement();
-    }
-
-    public static void main(String[] args) throws RunnerException {
-        Options opt = new OptionsBuilder().include(AtomicRangeIntegerTest.class.getSimpleName())
-                                          .forks(1)
-                                          .warmupIterations(3)
-                                          .threads(128)
-                                          .syncIterations(false)
-                                          .output("/tmp/jmh.log")
-                                          .measurementIterations(5)
-                                          .build();
-
-        new Runner(opt).run();
     }
 
     /**

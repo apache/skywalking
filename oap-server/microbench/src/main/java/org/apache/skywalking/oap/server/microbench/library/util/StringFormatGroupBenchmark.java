@@ -16,7 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.util;
+package org.apache.skywalking.oap.server.microbench.library.util;
+
+import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
+import org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,12 +29,10 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-public class StringFormatGroupTest {
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
+public class StringFormatGroupBenchmark extends AbstractMicrobenchmark {
     @Benchmark
     @Test
     public void testMatch() {
@@ -53,21 +54,6 @@ public class StringFormatGroupTest {
             group.addRule("/name/*/add/{orderId}" + "/" + 1, "/name/.+/add/.*" + "/abc");
         }
         Assert.assertEquals("/name/*/add/{orderId}", group.format("/name/test/add/12323").getName());
-    }
-
-    /**
-     * The report below shows this pattern match performance is much about rule numbers. This is a single thread test.
-     */
-    @BenchmarkMode(Mode.AverageTime)
-    @OutputTimeUnit(TimeUnit.MICROSECONDS)
-    public void performanceBenchmark() throws RunnerException {
-        Options opt = new OptionsBuilder().include(StringFormatGroupTest.class.getSimpleName())
-                                          .forks(1)
-                                          .warmupIterations(0)
-                                          .measurementIterations(5)
-                                          .build();
-
-        new Runner(opt).run();
     }
 
     /*********************************
