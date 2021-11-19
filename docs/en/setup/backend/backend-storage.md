@@ -298,7 +298,7 @@ storage:
 ```
 All connection related settings, including host, rpcPort, username, and password are found in `application.yml`. Please ensure that iotdb version >= 0.12.3.
 
-**Notice**: Since IoTDB doesn't support insert null value now, it will transform null to empty string when preparing insert request. Therefore, you will never get null value in the response to your query request from IoTDB server.
+**Notice**: Since IoTDB doesn't support insert null value now, it will transform null to empty string when preparing insert request. Therefore, oap server will never get null value in the response to query requests from IoTDB server.
 
 ## More storage extension solutions
 Follow the [Storage extension development guide](../../guides/storage-extention.md) 
