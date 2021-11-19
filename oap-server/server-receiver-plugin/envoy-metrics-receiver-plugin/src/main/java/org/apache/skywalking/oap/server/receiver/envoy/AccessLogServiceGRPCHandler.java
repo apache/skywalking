@@ -103,8 +103,6 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
 
             @Override
             public void onNext(StreamAccessLogsMessage message) {
-                counter.inc();
-
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
                     if (isFirst) {
@@ -129,6 +127,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                     switch (logCase) {
                         case HTTP_LOGS:
                             StreamAccessLogsMessage.HTTPAccessLogEntries logs = message.getHttpLogs();
+                            counter.inc(logs.getLogEntryCount());
 
                             for (final HTTPAccessLogEntry log : logs.getLogEntryList()) {
                                 AccessLogAnalyzer.Result result = AccessLogAnalyzer.Result.builder().build();
@@ -143,6 +142,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                             break;
                         case TCP_LOGS:
                             StreamAccessLogsMessage.TCPAccessLogEntries tcpLogs = message.getTcpLogs();
+                            counter.inc(tcpLogs.getLogEntryCount());
 
                             for (final TCPAccessLogEntry tcpLog : tcpLogs.getLogEntryList()) {
                                 AccessLogAnalyzer.Result result = AccessLogAnalyzer.Result.builder().build();
