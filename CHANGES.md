@@ -9,6 +9,7 @@ Release Notes.
 
 * E2E tests immigrate to e2e-v2.
 * Support JDK 16 and 17.
+* Add Docker images for arm64 architecture.
 
 #### OAP Server
 
@@ -46,6 +47,9 @@ Release Notes.
 * Optimize metrics of minute dimensionality persistence. The value of metrics, which has declaration of the default
   value and current value equals the default value logically, the whole row wouldn't be pushed into database.
 * Fix `max` function in OAL doesn't support negative long.
+* Add `MicroBench` module to make it easier for developers to write JMH test.
+* Upgrade Kubernetes Java client to 14.0.0, supports GCP token refreshing and fixes some bugs.
+* Change `SO11Y` metric `envoy_als_in_count` to calculate the ALS message count.
 * Add IoTDB Storage Plugin
 
 #### UI
@@ -62,6 +66,7 @@ Release Notes.
 * Optimize global settings.
 * Fix current endpoint for endpoint dependency.
 * Add version in the global settings popup.
+* Optimize Log page style.
 
 #### Documentation
 

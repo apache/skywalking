@@ -27,12 +27,4 @@
 
     <artifactId>library-datacarrier-queue</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-generator-annprocess</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
 </project>
