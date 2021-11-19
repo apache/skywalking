@@ -118,11 +118,7 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
                 Log log = new Log();
                 log.setServiceId(logRecord.getServiceId());
                 log.setServiceInstanceId(logRecord.getServiceInstanceId());
-                if (!StringUtil.isEmpty(logRecord.getEndpointId())) {
-                    log.setEndpointId(logRecord.getEndpointId());
-                } else {
-                    log.setEndpointId(null);
-                }
+                log.setEndpointId(logRecord.getEndpointId());
                 log.setTraceId(logRecord.getTraceId());
                 log.setTimestamp(logRecord.getTimestamp());
                 log.setContentType(ContentType.instanceOf(logRecord.getContentType()));

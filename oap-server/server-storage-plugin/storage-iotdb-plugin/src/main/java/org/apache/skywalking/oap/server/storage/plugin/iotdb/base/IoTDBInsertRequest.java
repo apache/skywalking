@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -64,31 +65,31 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
 
         // time_bucket has changed to time before calling this method, so remove it from measurements
         storageMap.remove(IoTDBClient.TIME_BUCKET);
+        // processing illegal value
+        Iterator<Map.Entry<String, Object>> entryIterator = storageMap.entrySet().iterator();
+        while (entryIterator.hasNext()) {
+            Map.Entry<String, Object> entry = entryIterator.next();
+            if (entry.getValue() == null) {
+                entryIterator.remove();
+            }
+            if (entry.getValue() instanceof StorageDataComplexObject) {
+                storageMap.put(entry.getKey(), ((StorageDataComplexObject) entry.getValue()).toStorageData());
+            }
+        }
+
         measurements = new ArrayList<>(storageMap.keySet());
         Map<String, TSDataType> columnAndTypeMap = IoTDBTableMetaInfo.get(modelName).getColumnAndTypeMap();
         measurementTypes = new ArrayList<>(measurements.size());
-        measurements.forEach(measurement -> measurementTypes.add(columnAndTypeMap.get(measurement)));
+        for (String measurement : measurements) {
+            measurementTypes.add(columnAndTypeMap.get(measurement));
+        }
         measurementValues = new ArrayList<>(storageMap.values());
 
-        if (storageMap.containsKey(IoTDBClient.TIMESTAMP)) {
-            int idx = measurements.indexOf(IoTDBClient.TIMESTAMP);
-            measurements.set(idx, "\"" + IoTDBClient.TIMESTAMP + "\"");
-        }
-
-        storageMap.forEach((String key, Object value) -> {
-            if (key.contains(".")) {
+        // processing illegal measurement
+        for (String key : storageMap.keySet()) {
+            if (key.equals(IoTDBClient.TIMESTAMP) || key.contains(".")) {
                 int idx = measurements.indexOf(key);
                 measurements.set(idx, "\"" + key + "\"");
-            }
-        });
-
-        for (int i = 0; i < measurementValues.size(); i++) {
-            Object measurementValue = measurementValues.get(i);
-            if (measurementValues.get(i) == null) {
-                measurementValues.set(i, "");
-            }
-            if (measurementValue instanceof StorageDataComplexObject) {
-                measurementValues.set(i, ((StorageDataComplexObject) measurementValue).toStorageData());
             }
         }
     }
