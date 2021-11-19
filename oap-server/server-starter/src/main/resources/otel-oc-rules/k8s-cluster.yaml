@@ -28,11 +28,10 @@
 #    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
+filter: "{ tags -> tags.job_name in [ 'kubernetes-cadvisor', 'kube-state-metrics' ] }" # The OpenTelemetry job name
 expSuffix: tag({tags -> tags.cluster = 'k8s-cluster::' + tags.cluster}).service(['cluster'])
 metricPrefix: k8s_cluster
 metricsRules:
-
-
   - name: cpu_cores
     exp: (kube_node_status_capacity * 1000).tagEqual('resource' , 'cpu').sum(['cluster'])
   - name: cpu_cores_allocatable

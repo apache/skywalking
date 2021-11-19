@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -36,6 +37,7 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DownsamplingType;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Expression;
 import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext;
+import org.apache.skywalking.oap.meter.analyzer.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Result;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
@@ -56,6 +58,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileA
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -74,11 +77,17 @@ public class Analyzer {
 
     public static final Tuple2<String, SampleFamily> NIL = Tuple.of("", null);
 
-    public static Analyzer build(final String metricName, final String expression,
+    public static Analyzer build(final String metricName,
+                                 final String filterExpression,
+                                 final String expression,
                                  final MeterSystem meterSystem) {
         Expression e = DSL.parse(expression);
+        FilterExpression filter = null;
+        if (!Strings.isNullOrEmpty(filterExpression)) {
+            filter = new FilterExpression(filterExpression);
+        }
         ExpressionParsingContext ctx = e.parse();
-        Analyzer analyzer = new Analyzer(metricName, e, meterSystem);
+        Analyzer analyzer = new Analyzer(metricName, filter, e, meterSystem);
         analyzer.init(ctx);
         return analyzer;
     }
@@ -88,6 +97,8 @@ public class Analyzer {
     private List<String> samples;
 
     private final String metricName;
+
+    private final FilterExpression filterExpression;
 
     private final Expression expression;
 
@@ -103,15 +114,18 @@ public class Analyzer {
      * @param sampleFamilies input samples.
      */
     public void analyse(final ImmutableMap<String, SampleFamily> sampleFamilies) {
-        ImmutableMap<String, SampleFamily> input = samples.stream()
-                                                          .map(s -> Tuple.of(s, sampleFamilies.get(s)))
-                                                          .filter(t -> t._2 != null)
-                                                          .collect(ImmutableMap.toImmutableMap(t -> t._1, t -> t._2));
+        Map<String, SampleFamily> input = samples.stream()
+                                                 .map(s -> Tuple.of(s, sampleFamilies.get(s)))
+                                                 .filter(t -> t._2 != null)
+                                                 .collect(toImmutableMap(t -> t._1, t -> t._2));
         if (input.size() < 1) {
             if (log.isDebugEnabled()) {
                 log.debug("{} is ignored due to the lack of {}", expression, samples);
             }
             return;
+        }
+        if (filterExpression != null) {
+            input = filterExpression.filter(input);
         }
         Result r = expression.run(input);
         if (!r.isSuccess()) {

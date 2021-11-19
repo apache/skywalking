@@ -51,6 +51,7 @@ public class MetricConvert {
         this.analyzers = rule.getMetricsRules().stream().map(
             r -> Analyzer.build(
                 formatMetricName(rule, r.getName()),
+                rule.getFilter(),
                 Strings.isNullOrEmpty(rule.getExpSuffix()) ?
                     r.getExp() : String.format("(%s).%s", r.getExp(), rule.getExpSuffix()),
                 service
