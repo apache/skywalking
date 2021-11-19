@@ -117,7 +117,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         // Label is null, because in readMetricsValues, no label parameter.
         final IntValues intValues = metricsValues.getValues();
         try {
-            wrapper = sessionPool.executeQueryStatement(queryString, 0);
+            wrapper = sessionPool.executeQueryStatement(queryString);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }
@@ -176,7 +176,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         SessionDataSetWrapper wrapper = null;
         Map<String, DataTable> idMap = new HashMap<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(queryString, 0);
+            wrapper = sessionPool.executeQueryStatement(queryString);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }
@@ -225,7 +225,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         HeatMap heatMap = new HeatMap();
         final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         try {
-            wrapper = sessionPool.executeQueryStatement(queryString, 0);
+            wrapper = sessionPool.executeQueryStatement(queryString);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }

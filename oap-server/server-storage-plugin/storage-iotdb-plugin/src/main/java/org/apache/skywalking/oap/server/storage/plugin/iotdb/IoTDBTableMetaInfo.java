@@ -40,13 +40,13 @@ public class IoTDBTableMetaInfo {
     private static final Map<String, IoTDBTableMetaInfo> TABLE_META_INFOS = new HashMap<>();
 
     private final Model model;
-    private final Map<String, TSDataType> columnTypeMap;
+    private final Map<String, TSDataType> columnAndTypeMap;
     private final List<String> indexes;
 
     public static void addModel(Model model) {
         final List<ModelColumn> columns = model.getColumns();
         final Map<String, String> storageAndIndexMap = new HashMap<>();
-        final Map<String, TSDataType> columnTypeMap = new HashMap<>();
+        final Map<String, TSDataType> columnAndTypeMap = new HashMap<>();
         final List<String> indexes = new ArrayList<>();
 
         storageAndIndexMap.put(model.getName(), IoTDBClient.ID_IDX);
@@ -57,7 +57,7 @@ public class IoTDBTableMetaInfo {
                     columnName.equals(IoTDBClient.TRACE_ID_IDX)) {
                 storageAndIndexMap.put(column.getColumnName().getStorageName(), columnName);
             } else {
-                columnTypeMap.put(columnName, typeToTSDataType(column.getType()));
+                columnAndTypeMap.put(columnName, typeToTSDataType(column.getType()));
             }
         });
 
@@ -81,7 +81,7 @@ public class IoTDBTableMetaInfo {
         }
 
         final IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.builder().model(model)
-                .columnTypeMap(columnTypeMap).indexes(indexes).build();
+                .columnAndTypeMap(columnAndTypeMap).indexes(indexes).build();
 
         TABLE_META_INFOS.put(model.getName(), tableMetaInfo);
     }

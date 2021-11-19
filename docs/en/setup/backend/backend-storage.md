@@ -289,14 +289,16 @@ storage:
   selector: ${SW_STORAGE:iotdb}
   iotdb:
     host: ${SW_STORAGE_IOTDB_HOST:127.0.0.1}
-    rpcPort: ${SW_STORAGE_IOTDB_RPCPORT:6667}
+    rpcPort: ${SW_STORAGE_IOTDB_RPC_PORT:6667}
     username: ${SW_STORAGE_IOTDB_USERNAME:root}
     password: ${SW_STORAGE_IOTDB_PASSWORD:root}
-    storageGroup: ${SW_STORAGE_IOTDB_STORAGEGROUP:root.skywalking}
+    storageGroup: ${SW_STORAGE_IOTDB_STORAGE_GROUP:root.skywalking}
     sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:16}
     fetchTaskLogMaxSize: ${SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
 ```
 All connection related settings, including host, rpcPort, username, and password are found in `application.yml`. Please ensure that iotdb version >= 0.12.3.
+
+**Notice**: Since IoTDB doesn't support insert null value now, it will transform null to empty string when preparing insert request. Therefore, you will never get null value in the response to your query request from IoTDB server.
 
 ## More storage extension solutions
 Follow the [Storage extension development guide](../../guides/storage-extention.md) 

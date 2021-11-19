@@ -67,7 +67,7 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
         SessionDataSetWrapper wrapper = null;
         List<SelectedRecord> topEntities = new ArrayList<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(query.toString(), 0);
+            wrapper = sessionPool.executeQueryStatement(query.toString());
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
             }

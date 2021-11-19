@@ -76,7 +76,7 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         SessionDataSetWrapper wrapper = null;
         List<SelectedRecord> records = new ArrayList<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(queryString, 0);
+            wrapper = sessionPool.executeQueryStatement(queryString);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
             }

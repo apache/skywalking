@@ -46,6 +46,7 @@ Release Notes.
 * Optimize metrics of minute dimensionality persistence. The value of metrics, which has declaration of the default
   value and current value equals the default value logically, the whole row wouldn't be pushed into database.
 * Fix `max` function in OAL doesn't support negative long.
+* Add IoTDB Storage Plugin
 
 #### UI
 

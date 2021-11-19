@@ -328,10 +328,10 @@ The text of each license is the standard Apache 2.0 license.
     Armeria 1.12.0, http://github.com/line/armeria, Apache 2.0
     Brotli4j 1.6.0, https://github.com/hyperxpro/Brotli4j, Apache 2.0
     micrometer 1.7.4, https://github.com/micrometer-metrics/micrometer, Apache 2.0
-    iotdb-session 0.13.0-SNAPSHOT: https://github.com/apache/iotdb, Apache 2.0
-    iotdb-thrift 0.13.0-SNAPSHOT: https://github.com/apache/iotdb, Apache 2.0
-    service-rpc 0.13.0-20211023.075542-1 https://github.com/apache/iotdb, Apache 2.0
-    tsfile 0.13.0-20211023.075542-1 https://github.com/apache/iotdb Apache 2.0
+    iotdb-session 0.12.3: https://github.com/apache/iotdb, Apache 2.0
+    iotdb-thrift 0.12.3: https://github.com/apache/iotdb, Apache 2.0
+    service-rpc 0.12.3: https://github.com/apache/iotdb, Apache 2.0
+    tsfile 0.12.3 https://github.com/apache/iotdb Apache 2.0
     libthrift 0.14.1: https://github.com/apache/thrift, Apache 2.0
 
 ========================================================================

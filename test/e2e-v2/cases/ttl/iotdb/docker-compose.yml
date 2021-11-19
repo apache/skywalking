@@ -17,8 +17,7 @@ version: '2.1'
 
 services:
   iotdb:
-#    image: apache/iotdb:0.12.2-node
-    image: timcross0/iotdb
+    image: apache/iotdb:0.12.3-node
     expose:
       - 6667
     networks:

@@ -195,7 +195,7 @@ public class IoTDBClient implements Client, HealthCheckable {
         SessionDataSetWrapper wrapper = null;
         List<? super StorageData> storageDataList = new ArrayList<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(querySQL, 0);
+            wrapper = sessionPool.executeQueryStatement(querySQL);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", querySQL, wrapper.getColumnNames());
             }
@@ -268,7 +268,7 @@ public class IoTDBClient implements Client, HealthCheckable {
         SessionDataSetWrapper wrapper = null;
         List<Double> results = new ArrayList<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(querySQL, 0);
+            wrapper = sessionPool.executeQueryStatement(querySQL);
             if (log.isDebugEnabled()) {
                 log.debug("SQL: {}, columnNames: {}", querySQL, wrapper.getColumnNames());
             }

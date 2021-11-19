@@ -61,8 +61,8 @@ httpclient-4.5.13.jar
 httpcore-4.4.13.jar
 httpcore-nio-4.4.13.jar
 influxdb-java-2.15.jar
-iotdb-session-0.13.0-SNAPSHOT.jar
-iotdb-thrift-0.13.0-SNAPSHOT.jar
+iotdb-session-0.12.3.jar
+iotdb-thrift-0.12.3.jar
 istack-commons-runtime-4.0.0.jar
 jackson-annotations-2.12.2.jar
 jackson-core-2.12.2.jar
@@ -145,7 +145,7 @@ protobuf-java-util-3.12.4.jar
 reactive-streams-1.0.2.jar
 reflectasm-1.11.7.jar
 retrofit-2.5.0.jar
-service-rpc-0.13.0-SNAPSHOT.jar
+service-rpc-0.12.3.jar
 simpleclient-0.6.0.jar
 simpleclient_common-0.6.0.jar
 simpleclient_hotspot-0.6.0.jar
@@ -154,7 +154,7 @@ slf4j-api-1.7.30.jar
 snakeyaml-1.28.jar
 snappy-java-1.1.7.3.jar
 swagger-annotations-1.6.2.jar
-tsfile-0.13.0-SNAPSHOT.jar
+tsfile-0.12.3.jar
 txw2-3.0.0.jar
 vavr-0.10.3.jar
 vavr-match-0.10.3.jar
