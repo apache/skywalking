@@ -49,6 +49,7 @@ Release Notes.
 * Fix `max` function in OAL doesn't support negative long.
 * Add `MicroBench` module to make it easier for developers to write JMH test.
 * Upgrade Kubernetes Java client to 14.0.0, supports GCP token refreshing and fixes some bugs.
+* Change `SO11Y` metric `envoy_als_in_count` to calculate the ALS message count.
 
 #### UI
 
