@@ -315,7 +315,6 @@ The text of each license is the standard Apache 2.0 license.
     converter-moshi 2.5.0: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-moshi, Apache 2.0
     vavr 0.10.3: https://github.com/vavr-io/vavr, Apache 2.0
     kafka-clients 2.4.1: https://github.com/apache/kafka, Apache 2.0
-    lz4 1.3.0: https://github.com/lz4/lz4-java, Apache 2.0
     lz4-java 1.6.0: https://github.com/jpountz/lz4-java, Apache 2.0
     snappy-java 1.1.7.3: https://github.com/xerial/snappy-java, Apache 2.0
     slf4j-api 1.7.30: http://www.slf4j.org, Apache 2.0
