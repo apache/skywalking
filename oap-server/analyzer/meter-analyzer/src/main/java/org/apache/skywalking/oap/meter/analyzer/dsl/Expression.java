@@ -23,6 +23,7 @@ import groovy.lang.ExpandoMetaClass;
 import groovy.lang.GroovyObjectSupport;
 import groovy.util.DelegatingScript;
 import java.time.Instant;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class Expression {
 
     private final DelegatingScript expression;
 
-    private final ThreadLocal<ImmutableMap<String, SampleFamily>> propertyRepository = new ThreadLocal<>();
+    private final ThreadLocal<Map<String, SampleFamily>> propertyRepository = new ThreadLocal<>();
 
     public Expression(final String literal, final DelegatingScript expression) {
         this.literal = literal;
@@ -71,7 +72,7 @@ public class Expression {
      * @param sampleFamilies a data map includes all of candidates to be analysis.
      * @return The result of execution.
      */
-    public Result run(final ImmutableMap<String, SampleFamily> sampleFamilies) {
+    public Result run(final Map<String, SampleFamily> sampleFamilies) {
         propertyRepository.set(sampleFamilies);
         try {
             SampleFamily sf = (SampleFamily) expression.run();
@@ -114,7 +115,7 @@ public class Expression {
         public static final DownsamplingType LATEST = DownsamplingType.LATEST;
 
         private final String literal;
-        private final ThreadLocal<ImmutableMap<String, SampleFamily>> propertyRepository;
+        private final ThreadLocal<Map<String, SampleFamily>> propertyRepository;
 
         public SampleFamily propertyMissing(String metricName) {
             ExpressionParsingContext.get().ifPresent(ctx -> {
@@ -122,7 +123,7 @@ public class Expression {
                     ctx.samples.add(metricName);
                 }
             });
-            ImmutableMap<String, SampleFamily> sampleFamilies = propertyRepository.get();
+            Map<String, SampleFamily> sampleFamilies = propertyRepository.get();
             if (sampleFamilies == null) {
                 return SampleFamily.EMPTY;
             }

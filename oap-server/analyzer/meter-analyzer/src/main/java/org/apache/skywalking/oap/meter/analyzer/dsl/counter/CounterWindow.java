@@ -19,12 +19,12 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl.counter;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -42,16 +42,12 @@ public class CounterWindow {
 
     public static final CounterWindow INSTANCE = new CounterWindow();
 
-    private final Map<ID, Tuple2<Long, Double>> lastElementMap = Maps.newHashMap();
-    private final Map<ID, Queue<Tuple2<Long, Double>>> windows = Maps.newHashMap();
+    private final Map<ID, Tuple2<Long, Double>> lastElementMap = new ConcurrentHashMap<>();
+    private final Map<ID, Queue<Tuple2<Long, Double>>> windows = new ConcurrentHashMap<>();
 
     public Tuple2<Long, Double> increase(String name, ImmutableMap<String, String> labels, Double value, long windowSize, long now) {
         ID id = new ID(name, labels);
-        if (!windows.containsKey(id)) {
-            windows.put(id, new PriorityQueue<>());
-        }
-
-        Queue<Tuple2<Long, Double>> window = windows.get(id);
+        Queue<Tuple2<Long, Double>> window = windows.computeIfAbsent(id, unused -> new PriorityQueue<>());
         window.offer(Tuple.of(now, value));
         long waterLevel = now - windowSize;
         Tuple2<Long, Double> peek = window.peek();
@@ -77,8 +73,7 @@ public class CounterWindow {
         ID id = new ID(name, labels);
 
         Tuple2<Long, Double> element = Tuple.of(now, value);
-        Tuple2<Long, Double> result = lastElementMap.get(id);
-        lastElementMap.put(id, element);
+        Tuple2<Long, Double> result = lastElementMap.put(id, element);
         if (result == null) {
             return element;
         }

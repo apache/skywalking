@@ -37,6 +37,8 @@ staticConfig:
   # Labels assigned to all metrics fetched from the targets.
   labels:
     [ <labelname>: <labelvalue> ... ]
+# filter the metrics, only those metrics that satisfy this condition will be passed into the `metricsRules` below.
+filter: <closure> # example: '{ tags -> tags.job_name == "vm-monitoring" }'
 # expSuffix is appended to all expression in this file.
 expSuffix: <string>
 # insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>

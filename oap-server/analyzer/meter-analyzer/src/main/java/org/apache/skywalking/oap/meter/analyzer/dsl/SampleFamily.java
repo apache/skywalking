@@ -18,22 +18,13 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.AtomicDouble;
-import groovy.lang.Closure;
-import io.vavr.Function2;
-import io.vavr.Function3;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import static java.util.function.UnaryOperator.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EndpointEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.InstanceEntityDescription;
@@ -43,6 +34,7 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.K8sRetagType;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -57,13 +49,25 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static java.util.function.UnaryOperator.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.AtomicDouble;
+
+import groovy.lang.Closure;
+import io.vavr.Function2;
+import io.vavr.Function3;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * SampleFamily represents a collection of {@link Sample}.
@@ -71,13 +75,17 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 @ToString
+@Slf4j
 public class SampleFamily {
     public static final SampleFamily EMPTY = new SampleFamily(new Sample[0], RunningContext.EMPTY);
 
     static SampleFamily build(RunningContext ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
-        samples = Arrays.stream(samples).filter(sample -> !Double.isNaN(sample.getValue())).toArray(Sample[]::new);
         Preconditions.checkArgument(samples.length > 0);
+        samples = Arrays.stream(samples).filter(sample -> !Double.isNaN(sample.getValue())).toArray(Sample[]::new);
+        if (samples.length == 0) {
+            return EMPTY;
+        }
         return new SampleFamily(samples, Optional.ofNullable(ctx).orElseGet(RunningContext::instance));
     }
 
@@ -332,6 +340,19 @@ public class SampleFamily {
         );
     }
 
+    public SampleFamily filter(Closure<Boolean> filter) {
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        final Sample[] filtered = Arrays.stream(samples)
+                                        .filter(it -> filter.call(it.labels))
+                                        .toArray(Sample[]::new);
+        if (filtered.length == 0) {
+            return EMPTY;
+        }
+        return SampleFamily.build(context, filtered);
+    }
+
     /* k8s retags*/
     public SampleFamily retagByK8sMeta(String newLabelName,
                                        K8sRetagType type,
@@ -468,7 +489,8 @@ public class SampleFamily {
               ))
               .forEach((labels, samples) -> {
                   MeterEntity meterEntity = InternalOps.buildMeterEntity(samples, entityDescription);
-                  meterSamples.put(meterEntity, InternalOps.left(samples, entityDescription.getLabelKeys()));
+                  meterSamples.put(
+                      meterEntity, InternalOps.left(samples, entityDescription.getLabelKeys()));
               });
 
         this.context.setMeterSamples(meterSamples);
@@ -604,7 +626,7 @@ public class SampleFamily {
                     );
                 default:
                     throw new UnexpectedException(
-                        "Unexpected scope type of entityDescription " + entityDescription.toString());
+                        "Unexpected scope type of entityDescription " + entityDescription);
             }
         }
 
