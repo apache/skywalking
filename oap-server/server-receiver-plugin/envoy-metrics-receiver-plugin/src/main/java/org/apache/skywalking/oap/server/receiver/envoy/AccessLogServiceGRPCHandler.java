@@ -80,7 +80,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
 
         MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         counter = metricCreator.createCounter(
-            "envoy_als_in_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY,
+            "envoy_als_in_count", "The count of envoy ALS message received", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
         );
         histogram = metricCreator.createHistogramMetric(
