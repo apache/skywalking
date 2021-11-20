@@ -54,6 +54,7 @@ Release Notes.
 * Add filter mechanism in MAL core to filter metrics.
 * Fix concurrency bug in MAL `increase`-related calculation.
 * Fix a null pointer bug when building `SampleFamily`.
+* Fix the so11y latency of persistence execution latency not correct in ElasticSearch storage.
 
 #### UI
 
