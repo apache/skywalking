@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsPersistentWorker;
@@ -61,10 +62,11 @@ public class PersistenceTimerTest {
             }
 
             @Override
-            public void flush(final List<PrepareRequest> prepareRequests) {
+            public CompletableFuture<Void> flush(final List<PrepareRequest> prepareRequests) {
                 synchronized (result) {
                     result.addAll(prepareRequests);
                 }
+                return CompletableFuture.completedFuture(null);
             }
         };
         for (int i = 0; i < workCount; i++) {
@@ -79,7 +81,8 @@ public class PersistenceTimerTest {
         PersistenceTimer.INSTANCE.isStarted = true;
 
         PersistenceTimer.INSTANCE.start(moduleManager, moduleConfig);
-        Whitebox.invokeMethod(PersistenceTimer.INSTANCE, "extractDataAndSave", iBatchDAO);
+        CompletableFuture<Void> f = Whitebox.invokeMethod(PersistenceTimer.INSTANCE, "extractDataAndSave", iBatchDAO);
+        f.join();
 
         Assert.assertEquals(count * workCount * 2, result.size());
     }
