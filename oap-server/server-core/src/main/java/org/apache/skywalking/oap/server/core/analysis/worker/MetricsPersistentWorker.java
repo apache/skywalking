@@ -179,14 +179,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     @Override
     public List<PrepareRequest> buildBatchRequests() {
         if (persistentCounter++ % persistentMod != 0) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         final List<Metrics> lastCollection = getCache().read();
 
         long start = System.currentTimeMillis();
         if (lastCollection.size() == 0) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         /*

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -41,9 +42,9 @@ public class BatchDAO implements IBatchDAO {
     }
 
     @Override
-    public void flush(List<PrepareRequest> prepareRequests) {
+    public CompletableFuture<Void> flush(List<PrepareRequest> prepareRequests) {
         if (CollectionUtils.isEmpty(prepareRequests)) {
-            return;
+            return CompletableFuture.completedFuture(null);
         }
 
         if (log.isDebugEnabled()) {
@@ -51,10 +52,9 @@ public class BatchDAO implements IBatchDAO {
         }
 
         final BatchPoints.Builder builder = BatchPoints.builder();
-        prepareRequests.forEach(e -> {
-            builder.point(((InfluxInsertRequest) e).getPoint());
-        });
+        prepareRequests.forEach(e -> builder.point(((InfluxInsertRequest) e).getPoint()));
 
         client.write(builder.build());
+        return CompletableFuture.completedFuture(null);
     }
 }
