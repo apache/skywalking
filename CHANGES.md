@@ -51,6 +51,9 @@ Release Notes.
 * Upgrade Kubernetes Java client to 14.0.0, supports GCP token refreshing and fixes some bugs.
 * Change `SO11Y` metric `envoy_als_in_count` to calculate the ALS message count.
 * Support Istio `1.10.3`, `1.11.4`, `1.12.0` release.(Tested through e2e)
+* Add filter mechanism in MAL core to filter metrics.
+* Fix concurrency bug in MAL `increase`-related calculation.
+* Fix a null pointer bug when building `SampleFamily`.
 * Support using IoTDB as a new storage option.
 
 #### UI

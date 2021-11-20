@@ -128,7 +128,7 @@ Set this up following these steps:
   ```
 2. Set up OpenTelemetry Collector and config a scrape job:
 ``` yaml
-- job_name: 'skywalking'
+- job_name: 'skywalking-so11y' # make sure to use this in the so11y.yaml to filter only so11y metrics
   metrics_path: '/metrics'
   kubernetes_sd_configs:
   - role: pod
