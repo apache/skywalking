@@ -410,22 +410,6 @@ The following components are provided under the CDDL License. See project link f
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
     jsr311-api 1.1.1: http://central.maven.org/maven2/javax/ws/rs/jsr311-api/1.1.1/jsr311-api-1.1.1.pom ,  CDDL 1.1
-    javax.activation-api 1.2.0: https://github.com/javaee/activation, CDDL 1.1 or GPL 2.0
-    jaxb-api 2.4.0-b180830.0359: https://github.com/javaee/jaxb-v2, CDDL 1.1 or GPL 2.0
-
-========================================================================
-EDL licenses
-========================================================================
-
-The following components are provided under the EDL License. See project link for details.
-The text of each license is also included at licenses/LICENSE-[project].txt.
-
-    istack-commons-runtime 4.0.1: https://github.com/eclipse-ee4j/jaxb-istack-commons, EDL 1.0
-    jakarta.activation 2.0.1: https://github.com/eclipse-ee4j/jaf, EDL 1.0
-    jakarta.xml.bind-api 3.0.1: https://github.com/eclipse-ee4j/jaxb-api, EDL 1.0
-    jaxb-core 3.0.2: https://github.com/eclipse-ee4j/jaxb-ri, EDL 1.0
-    jaxb-runtime 3.0.2: https://github.com/eclipse-ee4j/jaxb-ri, EDL 1.0
-    txw2 3.0.2: https://github.com/eclipse-ee4j/jaxb-ri, EDL 1.0
 
 ========================================================================
 UI related licenses
