@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -44,9 +45,9 @@ public class IoTDBBatchDAO implements IBatchDAO {
     }
 
     @Override
-    public void flush(List<PrepareRequest> prepareRequests) {
+    public CompletableFuture<Void> flush(List<PrepareRequest> prepareRequests) {
         if (CollectionUtils.isEmpty(prepareRequests)) {
-            return;
+            return CompletableFuture.completedFuture(null);
         }
         if (log.isDebugEnabled()) {
             log.debug("batch sql statements execute, data size: {}", prepareRequests.size());
@@ -58,5 +59,6 @@ public class IoTDBBatchDAO implements IBatchDAO {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
+        return CompletableFuture.completedFuture(null);
     }
 }
