@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.bulk.BulkProcessor;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -56,19 +57,20 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     }
 
     @Override
-    public void flush(List<PrepareRequest> prepareRequests) {
+    public CompletableFuture<Void> flush(List<PrepareRequest> prepareRequests) {
         if (bulkProcessor == null) {
             this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
         }
 
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
-            for (PrepareRequest prepareRequest : prepareRequests) {
+            return CompletableFuture.allOf(prepareRequests.stream().map(prepareRequest -> {
                 if (prepareRequest instanceof InsertRequest) {
-                    this.bulkProcessor.add(((IndexRequestWrapper) prepareRequest).getRequest());
+                    return bulkProcessor.add(((IndexRequestWrapper) prepareRequest).getRequest());
                 } else {
-                    this.bulkProcessor.add(((UpdateRequestWrapper) prepareRequest).getRequest());
+                    return bulkProcessor.add(((UpdateRequestWrapper) prepareRequest).getRequest());
                 }
-            }
+            }).toArray(CompletableFuture[]::new));
         }
+        return CompletableFuture.completedFuture(null);
     }
 }
