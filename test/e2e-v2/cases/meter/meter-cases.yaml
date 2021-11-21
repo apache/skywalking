@@ -27,3 +27,8 @@
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_process_files_max --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
+    - query: |
+        curl -s -XPOST http://${sender_host}:${sender_9093}/sendBatchMetrics > /dev/null;
+        sleep 10;
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=batch_test --instance-name=test-instance --service-name=test-service |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
