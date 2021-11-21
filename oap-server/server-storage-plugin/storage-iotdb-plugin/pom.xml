@@ -28,10 +28,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>storage-iotdb-plugin</artifactId>
-    <packaging>jar</packaging>
-
-    <properties>
-    </properties>
 
     <dependencies>
         <dependency>
