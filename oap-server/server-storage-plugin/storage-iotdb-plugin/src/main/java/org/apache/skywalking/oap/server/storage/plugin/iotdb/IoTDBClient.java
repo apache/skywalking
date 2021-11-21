@@ -114,7 +114,7 @@ public class IoTDBClient implements Client, HealthCheckable {
      */
     public void write(IoTDBInsertRequest request) throws IOException {
         if (log.isDebugEnabled()) {
-            log.debug(request.toString());
+            log.debug("Writing data to IoTDB: {}", request);
         }
 
         StringBuilder devicePath = new StringBuilder();
