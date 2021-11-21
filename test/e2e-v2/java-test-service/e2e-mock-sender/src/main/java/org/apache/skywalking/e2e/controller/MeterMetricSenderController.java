@@ -73,7 +73,7 @@ public class MeterMetricSenderController {
 
         StreamObserver<MeterDataCollection> collect = grpcStub.collectBatch(new StreamObserver<Commands>() {
             @Override
-            public void onNext(final Commands Commands) {
+            public void onNext(final Commands commands) {
 
             }
 
