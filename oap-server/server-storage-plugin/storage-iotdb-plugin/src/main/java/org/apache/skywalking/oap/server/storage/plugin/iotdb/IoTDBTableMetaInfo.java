@@ -61,7 +61,6 @@ public class IoTDBTableMetaInfo {
             }
         });
 
-        // TODO optimize map to list
         // index order: id, entity_id, node_type, service_id, service_group, trace_id
         indexes.add(IoTDBClient.ID_IDX);
         if (storageAndIndexMap.containsValue(IoTDBClient.ENTITY_ID_IDX)) {

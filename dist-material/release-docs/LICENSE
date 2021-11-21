@@ -398,7 +398,7 @@ EPL licenses
 The following components are provided under the EPL License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-    logback 1.1.11: https://github.com/qos-ch/logback: EPL 1.0
+    logback 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
     logback-classic 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
     logback-core 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
 

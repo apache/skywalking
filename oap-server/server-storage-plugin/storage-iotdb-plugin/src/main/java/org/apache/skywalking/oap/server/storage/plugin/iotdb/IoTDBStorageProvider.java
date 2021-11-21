@@ -72,8 +72,6 @@ import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
-import java.io.IOException;
-
 @Slf4j
 public class IoTDBStorageProvider extends ModuleProvider {
     private final IoTDBStorageConfig config;
@@ -102,11 +100,7 @@ public class IoTDBStorageProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
-        try {
-            client = new IoTDBClient(config);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        client = new IoTDBClient(config);
 
         this.registerServiceImplementation(IBatchDAO.class, new IoTDBBatchDAO(client));
         this.registerServiceImplementation(IHistoryDeleteDAO.class, new IoTDBHistoryDeleteDAO(client));

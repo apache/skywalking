@@ -66,7 +66,7 @@ public class IoTDBClient implements Client, HealthCheckable {
     public static final String GROUP_IDX = "service_group";
     public static final String TRACE_ID_IDX = "trace_id";
 
-    public IoTDBClient(IoTDBStorageConfig config) throws IOException {
+    public IoTDBClient(IoTDBStorageConfig config) {
         this.config = config;
         storageGroup = config.getStorageGroup();
     }
@@ -143,7 +143,7 @@ public class IoTDBClient implements Client, HealthCheckable {
     public void write(List<IoTDBInsertRequest> requestList) throws IOException {
         if (log.isDebugEnabled()) {
             for (IoTDBInsertRequest request : requestList) {
-                log.debug(request.toString());
+                log.debug("Writing data to IoTDB: {}", request);
             }
         }
 

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
@@ -36,6 +37,7 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 
 @Getter
 @Setter
+@ToString
 @Slf4j
 public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
     private String modelName;
@@ -92,18 +94,5 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
                 measurements.set(idx, "\"" + key + "\"");
             }
         }
-    }
-
-    @Override
-    public String toString() {
-        return "IoTDBInsertRequest{" +
-                "modelName='" + modelName + '\'' +
-                ", time=" + time +
-                ", indexes=" + indexes.toString() +
-                ", indexValues=" + indexValues.toString() +
-                ", measurementList=" + measurements.toString() +
-                ", measurementTypes=" + measurementTypes.toString() +
-                ", measurementValues=" + measurementValues.toString() +
-                '}';
     }
 }
