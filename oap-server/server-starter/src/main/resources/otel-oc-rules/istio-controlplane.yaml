@@ -28,7 +28,6 @@
 #    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
-filter: "{ tags -> tags.job_name == 'kubernetes-pods' }" # The OpenTelemetry job name
 expSuffix: tag({tags -> tags.cluster = 'istio-ctrl::' + tags.cluster}).service(['cluster', 'app'])
 metricPrefix: meter_istio
 metricsRules:
@@ -99,11 +98,11 @@ metricsRules:
   ## Webhooks
   # Configuration Validation
   - name: galley_validation_passed
-    exp: galley_validation_passed.sum(['cluster', 'app']).rate('PT1M')
+    exp: galley_validation_passed.tagEqual('app', 'istiod').sum(['cluster', 'app']).rate('PT1M')
   - name: galley_validation_failed
-    exp: galley_validation_failed.sum(['cluster', 'app']).rate('PT1M')
+    exp: galley_validation_failed.tagEqual('app', 'istiod').sum(['cluster', 'app']).rate('PT1M')
   # Sidecar Injection
   - name: sidecar_injection_success_total
-    exp: sidecar_injection_success_total.sum(['cluster', 'app']).rate('PT1M')
+    exp: sidecar_injection_success_total.tagEqual('app', 'istiod').sum(['cluster', 'app']).rate('PT1M')
   - name: sidecar_injection_failure_total
-    exp: sidecar_injection_failure_total.sum(['cluster', 'app']).rate('PT1M')
+    exp: sidecar_injection_failure_total.tagEqual('app', 'istiod').sum(['cluster', 'app']).rate('PT1M')
