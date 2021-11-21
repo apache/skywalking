@@ -44,6 +44,16 @@
         <dependency>
             <groupId>org.apache.iotdb</groupId>
             <artifactId>iotdb-session</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.jpountz.lz4</groupId>
+                    <artifactId>lz4</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+                <groupId>org.lz4</groupId>
+                <artifactId>lz4-java</artifactId>
         </dependency>
     </dependencies>
 </project>
