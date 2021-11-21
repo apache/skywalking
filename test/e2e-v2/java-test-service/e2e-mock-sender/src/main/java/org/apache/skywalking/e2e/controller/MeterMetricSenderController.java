@@ -22,17 +22,15 @@ import io.grpc.ManagedChannel;
 import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import java.util.concurrent.CountDownLatch;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterDataCollection;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
 import org.apache.skywalking.e2e.E2EConfiguration;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.concurrent.CountDownLatch;
 
 @RestController
 public class MeterMetricSenderController {
