@@ -72,6 +72,8 @@ Release Notes.
 * Fix current endpoint for endpoint dependency.
 * Add version in the global settings popup.
 * Optimize Log page style.
+* Avoid some abnormal settings.
+* Fix query condition of events.
 
 #### Documentation
 
