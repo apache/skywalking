@@ -40,8 +40,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        analyzer: [k8s-mesh, mx-mesh]
-        istio_version: [1.7.1, 1.8.2, 1.9.1, 1.10.3, 1.11.4, 1.12.0]
+        analyzer: [ k8s-mesh, mx-mesh ]
+        istio_version: &istio-versions [ 1.7.1, 1.8.2, 1.9.1, 1.10.3, 1.11.4, 1.12.0 ]
     name: Istio(${{ matrix.istio_version }})+ALS(${{ matrix.analyzer }})
     env:
       ISTIO_VERSION: ${{ matrix.istio_version }}
@@ -50,10 +50,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
       - name: Run E2E Test
-        if: env.SKIP_CI != 'true'
         uses: ./.github/actions/infra-e2e-test
         with:
           config-file: istio/als/e2e.yaml
@@ -66,17 +63,14 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        istio_version: [1.8.2, 1.9.1]
+        istio_version: *istio-versions
     env:
       ISTIO_VERSION: ${{ matrix.istio_version }}
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
       - name: Run E2E Test
-        if: env.SKIP_CI != 'true'
         uses: ./.github/actions/infra-e2e-test
         with:
           config-file: istio/metrics/e2e.yaml
