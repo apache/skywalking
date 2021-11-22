@@ -55,6 +55,7 @@ Release Notes.
 * Fix concurrency bug in MAL `increase`-related calculation.
 * Fix a null pointer bug when building `SampleFamily`.
 * Fix the so11y latency of persistence execution latency not correct in ElasticSearch storage.
+* Add `MeterReportService` `collectBatch` method. 
 * Support using IoTDB as a new storage option.
 
 #### UI
@@ -72,6 +73,8 @@ Release Notes.
 * Fix current endpoint for endpoint dependency.
 * Add version in the global settings popup.
 * Optimize Log page style.
+* Avoid some abnormal settings.
+* Fix query condition of events.
 
 #### Documentation
 

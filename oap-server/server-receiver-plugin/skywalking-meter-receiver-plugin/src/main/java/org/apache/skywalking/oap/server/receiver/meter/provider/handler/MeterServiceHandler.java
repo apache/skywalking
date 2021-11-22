@@ -22,6 +22,7 @@ import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterDataCollection;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessor;
@@ -82,6 +83,35 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
             @Override
             public void onCompleted() {
                 processor.process();
+                responseObserver.onNext(Commands.newBuilder().build());
+                responseObserver.onCompleted();
+            }
+        };
+    }
+
+    @Override
+    public StreamObserver<MeterDataCollection> collectBatch(StreamObserver<Commands> responseObserver) {
+        return new StreamObserver<MeterDataCollection>() {
+            @Override
+            public void onNext(MeterDataCollection meterDataCollection) {
+                final MeterProcessor processor = processService.createProcessor();
+                try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                    meterDataCollection.getMeterDataList().forEach(processor::read);
+                    processor.process();
+                } catch (Exception e) {
+                    errorCounter.inc();
+                    log.error(e.getMessage(), e);
+                }
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                log.error(throwable.getMessage(), throwable);
+                responseObserver.onCompleted();
+            }
+
+            @Override
+            public void onCompleted() {
                 responseObserver.onNext(Commands.newBuilder().build());
                 responseObserver.onCompleted();
             }

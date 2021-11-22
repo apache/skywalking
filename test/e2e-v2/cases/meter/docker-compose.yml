@@ -18,10 +18,12 @@ version: '2.1'
 services:
   oap:
     environment:
-      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth
+      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth,batch-meter
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: oap
+    volumes:
+      - ./batch-meter.yaml:/skywalking/config/meter-analyzer-config/batch-meter.yaml
     ports:
       - 12800
 
@@ -36,6 +38,27 @@ services:
         condition: service_healthy
     ports:
       - 9090
+
+  sender:
+    image: "adoptopenjdk/openjdk8:alpine-jre"
+    volumes:
+      - ./../../java-test-service/e2e-mock-sender/target/e2e-mock-sender-2.0.0.jar:/e2e-mock-sender-2.0.0.jar
+    command: [ "java", "-jar", "/e2e-mock-sender-2.0.0.jar" ]
+    environment:
+      OAP_HOST: oap
+      OAP_GRPC_PORT: 11800
+    networks:
+      - e2e
+    ports:
+      - 9093
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 9093"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      oap:
+        condition: service_healthy
 
 networks:
   e2e:
