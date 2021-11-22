@@ -96,9 +96,7 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
             public void onNext(MeterDataCollection meterDataCollection) {
                 final MeterProcessor processor = processService.createProcessor();
                 try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
-                    for (MeterData meterData : meterDataCollection.getMeterDataList()) {
-                        processor.read(meterData);
-                    }
+                    meterDataCollection.getMeterDataList().forEach(processor::read);
                     processor.process();
                 } catch (Exception e) {
                     errorCounter.inc();
