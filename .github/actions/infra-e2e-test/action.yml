@@ -25,16 +25,21 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Cache local Maven repository
+    - name: Set Skip Env Var
+      uses: ./.github/actions/skip
+    - if: env.SKIP_CI != 'true'
+      name: Cache local Maven repository
       uses: actions/cache@v2
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-    - name: Check License
+    - if: env.SKIP_CI != 'true'
+      name: Check License
       uses: apache/skywalking-eyes@a63f4afcc287dfb3727ecc45a4afc55a5e69c15f
-    - name: Build Docker Image
+    - if: env.SKIP_CI != 'true'
+      name: Build Docker Image
       shell: bash
       env:
         SKIP_TEST: "true"
@@ -43,18 +48,21 @@ runs:
         # Retry one more time due to frequent "maven connection reset"
         make docker || make docker
         echo "::endgroup::"
-    - name: Build Java Test Services
+    - if: env.SKIP_CI != 'true'
+      name: Build Java Test Services
       shell: bash
       run: |
         echo "::group::build java test services"
         # Retry one more time due to frequent "maven connection reset"
         ./mvnw --batch-mode -f test/e2e-v2/java-test-service/pom.xml clean package
         echo "::endgroup::"
-    - name: Setup go
+    - if: env.SKIP_CI != 'true'
+      name: Setup go
       uses: actions/setup-go@v2
       with:
         go-version: '1.16'
-    - name: Run E2E Test
+    - if: env.SKIP_CI != 'true'
+      name: Run E2E Test
       uses: apache/skywalking-infra-e2e@main
       with:
         e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/${{ inputs.config-file }}
