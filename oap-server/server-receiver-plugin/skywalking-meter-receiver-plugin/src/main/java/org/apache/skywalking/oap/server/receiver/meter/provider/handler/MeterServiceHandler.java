@@ -99,11 +99,11 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
                     for (MeterData meterData : meterDataCollection.getMeterDataList()) {
                         processor.read(meterData);
                     }
+                    processor.process();
                 } catch (Exception e) {
                     errorCounter.inc();
                     log.error(e.getMessage(), e);
                 }
-                processor.process();
             }
 
             @Override
