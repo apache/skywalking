@@ -41,16 +41,12 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
       - name: Set Up Java
-        if: env.SKIP_CI != 'true'
         uses: actions/setup-java@v2
         with:
           distribution: adopt
           java-version: ${{ matrix.jdk }}
       - name: Run E2E Test
-        if: env.SKIP_CI != 'true'
         uses: ./.github/actions/infra-e2e-test
         with:
           config-file: simple/jdk/e2e.yaml
