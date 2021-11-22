@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MeterMetricSenderController {
     private static final int MAX_INBOUND_MESSAGE_SIZE = 1024 * 1024 * 50;
-    private static final boolean SUCCESS = true;
     private final MeterReportServiceGrpc.MeterReportServiceStub grpcStub;
 
     public MeterMetricSenderController(final E2EConfiguration configuration) {
@@ -50,7 +49,7 @@ public class MeterMetricSenderController {
     }
 
     @PostMapping("/sendBatchMetrics")
-    public String sendMetrics4TTL() throws Exception {
+    public String sendBatchMetrics() throws Exception {
         final MeterDataCollection.Builder builder =
             MeterDataCollection.newBuilder()
                                .addMeterData(MeterData.newBuilder()

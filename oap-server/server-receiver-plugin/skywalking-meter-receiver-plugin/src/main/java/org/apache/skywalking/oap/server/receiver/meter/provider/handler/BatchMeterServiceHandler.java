@@ -50,10 +50,10 @@ public class BatchMeterServiceHandler extends MeterReportServiceGrpc.MeterReport
                                                .provider()
                                                .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "meter_in_latency", "The process latency of meter",
+            "batch_meter_in_latency", "The process latency of batch meter",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
         );
-        errorCounter = metricsCreator.createCounter("meter_analysis_error_count", "The error number of meter analysis",
+        errorCounter = metricsCreator.createCounter("batch_meter_analysis_error_count", "The error number of batch meter analysis",
                                                     new MetricsTag.Keys("protocol"),
                                                     new MetricsTag.Values("grpc")
         );
@@ -65,13 +65,13 @@ public class BatchMeterServiceHandler extends MeterReportServiceGrpc.MeterReport
             @Override
             public void onNext(MeterDataCollection meterDataCollection) {
                 final MeterProcessor processor = processService.createProcessor();
-                for (MeterData meterData : meterDataCollection.getMeterDataList()) {
-                    try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                    for (MeterData meterData : meterDataCollection.getMeterDataList()) {
                         processor.read(meterData);
-                    } catch (Exception e) {
-                        errorCounter.inc();
-                        log.error(e.getMessage(), e);
                     }
+                } catch (Exception e) {
+                    errorCounter.inc();
+                    log.error(e.getMessage(), e);
                 }
                 processor.process();
             }
