@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.meter.module.MeterReceiverModule;
-import org.apache.skywalking.oap.server.receiver.meter.provider.handler.BatchMeterServiceHandler;
 import org.apache.skywalking.oap.server.receiver.meter.provider.handler.MeterServiceHandler;
 import org.apache.skywalking.oap.server.receiver.meter.provider.handler.MeterServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
@@ -65,10 +64,8 @@ public class MeterReceiverProvider extends ModuleProvider {
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);
         MeterServiceHandler meterServiceHandlerCompat = new MeterServiceHandler(getManager(), processService);
-        BatchMeterServiceHandler batchMeterServiceHandler = new BatchMeterServiceHandler(getManager(), processService);
         grpcHandlerRegister.addHandler(meterServiceHandlerCompat);
         grpcHandlerRegister.addHandler(new MeterServiceHandlerCompat(meterServiceHandlerCompat));
-        grpcHandlerRegister.addHandler(batchMeterServiceHandler);
     }
 
     @Override
