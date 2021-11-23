@@ -62,7 +62,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * | Non-indexed Value    | the value of Measurement                     |
  *
  * #### For general example
- * There are model1('column11', column12)，model2('column21', 'column22', column23)，model3(column31).
+ * There are model1('column11', column12), model2('column21', 'column22', column23), model3(column31).
  * Single quotation mark indicates that the column requires to be indexed.
  * In this example, `modelx_name` refers to the name of modelx,
  * `columnx_name` refers to the name of columnx and `columnx_value` refers to the value of columnx.
