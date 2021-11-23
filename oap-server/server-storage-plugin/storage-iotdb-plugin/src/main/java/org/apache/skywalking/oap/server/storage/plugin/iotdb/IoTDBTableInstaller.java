@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  *
  * 1. The Data Model of IoTDB
  * We can use the tree structure to understand the data model of iotdb.
- * If divided according to layers, from high to low is: `Storage Group` -> (`LayerName`) -> `Device` -> `Measurement`.
+ * If divided according to layers, from high to low is: `Storage Group` -- (`LayerName`) -- `Device` -- `Measurement`.
  * From the top layer to a certain layer below it is called a Path.
  * The top layer is `Storage Group` (must start with `root.`), the penultimate layer is `Device`,
  * and the bottom layer is `Measurement`. There can be many layers in the middle,
