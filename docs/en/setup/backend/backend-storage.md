@@ -15,6 +15,7 @@ Natively supported storage:
 - TiDB
 - InfluxDB
 - PostgreSQL
+- IoTDB
 
 
 ## H2
@@ -296,7 +297,7 @@ storage:
     sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:16}
     fetchTaskLogMaxSize: ${SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
 ```
-All connection related settings, including host, rpcPort, username, and password are found in `application.yml`. Please ensure that iotdb version >= 0.12.3.
+All connection related settings, including host, rpcPort, username, and password are found in `application.yml`. Please ensure the IoTDB version >= 0.12.3.
 
 ## More storage extension solutions
 Follow the [Storage extension development guide](../../guides/storage-extention.md) 

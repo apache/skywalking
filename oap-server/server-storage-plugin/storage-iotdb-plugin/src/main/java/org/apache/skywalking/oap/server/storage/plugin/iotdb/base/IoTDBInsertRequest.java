@@ -67,7 +67,7 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
 
         // time_bucket has changed to time before calling this method, so remove it from measurements
         storageMap.remove(IoTDBClient.TIME_BUCKET);
-        // processing illegal value
+        // processing value to make it suitable for storage
         Iterator<Map.Entry<String, Object>> entryIterator = storageMap.entrySet().iterator();
         while (entryIterator.hasNext()) {
             Map.Entry<String, Object> entry = entryIterator.next();
@@ -87,7 +87,7 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
         }
         measurementValues = new ArrayList<>(storageMap.values());
 
-        // processing illegal measurement
+        // IoTDB don't allow a measurement named `timestamp` or contains `.`
         for (String key : storageMap.keySet()) {
             if (key.equals(IoTDBClient.TIMESTAMP) || key.contains(".")) {
                 int idx = measurements.indexOf(key);
