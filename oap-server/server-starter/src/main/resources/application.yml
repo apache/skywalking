@@ -130,6 +130,7 @@ storage:
     password: ${SW_ES_PASSWORD:""}
     trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
     trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""}
+    skipHostVerify: ${SW_STORAGE_ES_SKIP_HOST_VERIFY:false}
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
     dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # Shard number of new indexes

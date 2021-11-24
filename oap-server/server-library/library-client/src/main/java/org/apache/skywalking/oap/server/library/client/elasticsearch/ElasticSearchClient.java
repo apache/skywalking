@@ -68,6 +68,9 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     private volatile String trustStorePass;
 
     @Setter
+    private boolean skipHostVerify;
+
+    @Setter
     private volatile String user;
 
     @Setter
@@ -133,6 +136,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         if (!Strings.isNullOrEmpty(trustStorePass)) {
             cb.trustStorePass(trustStorePass);
         }
+        cb.skipHostVerify(skipHostVerify);
         if (!Strings.isNullOrEmpty(user)) {
             cb.username(user);
         }

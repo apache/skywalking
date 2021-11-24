@@ -143,6 +143,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                     elasticSearchClient.setUser(config.getUser());
                     elasticSearchClient.setPassword(config.getPassword());
                     elasticSearchClient.setTrustStorePass(config.getTrustStorePass());
+                    elasticSearchClient.setSkipHostVerify(config.isSkipHostVerify());
                     elasticSearchClient.connect();
                 }
             }, config.getSecretsManagementFile(), config.getTrustStorePass());

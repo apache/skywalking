@@ -56,6 +56,7 @@ Release Notes.
 * Fix a null pointer bug when building `SampleFamily`.
 * Fix the so11y latency of persistence execution latency not correct in ElasticSearch storage.
 * Add `MeterReportService` `collectBatch` method. 
+* Add `SW_STORAGE_ES_SKIP_HOST_VERIFY` for ElasticSearch storage.
 
 #### UI
 

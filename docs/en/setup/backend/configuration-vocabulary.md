@@ -90,6 +90,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | password | Password of ElasticSearch cluster. | SW_ES_PASSWORD | - |
 | - | - | trustStorePath | Trust JKS file path. Only works when username and password are enabled. | SW_STORAGE_ES_SSL_JKS_PATH | - |
 | - | - | trustStorePass | Trust JKS file password. Only works when username and password are enabled. | SW_STORAGE_ES_SSL_JKS_PASS | - |
+| - | - | skipHostVerify | Skip TLS host verify on ElasticSearch(https) | SW_STORAGE_ES_SKIP_HOST_VERIFY | false |
 | - | - | secretsManagementFile| Secrets management file in the properties format, including username and password, which are managed by a 3rd party tool. Capable of being updated them at runtime. |SW_ES_SECRETS_MANAGEMENT_FILE | - |
 | - | - | dayStep| Represents the number of days in the one-minute/hour/day index. | SW_STORAGE_DAY_STEP | 1|
 | - | - | indexShardsNumber | Shard number of new indexes. | SW_STORAGE_ES_INDEX_SHARDS_NUMBER | 1 |

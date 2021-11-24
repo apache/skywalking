@@ -101,6 +101,12 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
      */
     private String trustStorePass;
+
+    /**
+     * @since 8.8.2 Skip tls host verify on elasticsearch server
+     */
+    private boolean skipHostVerify;
+
     private int resultWindowMaxSize = 10000;
     private int metadataQueryMaxSize = 5000;
     private int segmentQueryMaxSize = 200;

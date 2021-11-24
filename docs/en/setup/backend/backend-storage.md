@@ -61,6 +61,7 @@ storage:
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
     trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""}
+    skipHostVerify: ${SW_STORAGE_ES_SKIP_HOST_VERIFY:false}
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
@@ -103,6 +104,23 @@ storage:
 ```
 - File at `trustStorePath` is being monitored. Once it is changed, the ElasticSearch client will reconnect.
 - `trustStorePass` could be changed in the runtime through [**Secrets Management File Of ElasticSearch Authentication**](#secrets-management-file-of-elasticsearch-authentication).
+
+### ElasticSearch With Https SSL Encrypting communications(skip TLS server auth).
+
+Example: 
+
+```yaml
+storage:
+  selector: ${SW_STORAGE:elasticsearch}
+  elasticsearch:
+    namespace: ${SW_NAMESPACE:""}
+    user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
+    password: ${SW_ES_PASSWORD:""} # Password to be set when Http Basic authentication is enabled
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:443}
+    skipHostVerify: true
+    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"https"}
+    ...
+```
 
 ### Daily Index Step
 Daily index step(`storage/elasticsearch/dayStep`, default 1) represents the index creation period. In this period, metrics for several days (dayStep value) are saved.
