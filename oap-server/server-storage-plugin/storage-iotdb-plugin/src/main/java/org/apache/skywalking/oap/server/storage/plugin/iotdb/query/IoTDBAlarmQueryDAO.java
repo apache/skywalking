@@ -48,28 +48,32 @@ public class IoTDBAlarmQueryDAO implements IAlarmQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, AlarmRecord.INDEX_NAME);
         query = client.addQueryAsterisk(AlarmRecord.INDEX_NAME, query);
-        query.append(" where 1=1");
+
+        StringBuilder where = new StringBuilder(" where ");
         if (Objects.nonNull(scopeId)) {
-            query.append(" and ").append(AlarmRecord.SCOPE).append(" = ").append(scopeId);
+            where.append(AlarmRecord.SCOPE).append(" = ").append(scopeId).append(" and ");
         }
         if (startTB != 0 && endTB != 0) {
-            query.append(" and ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB));
-            query.append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
+            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB)).append(" and ");
+            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB)).append(" and ");
         }
         if (!Strings.isNullOrEmpty(keyword)) {
-            query.append(" and ").append(AlarmRecord.ALARM_MESSAGE).append(" like '%").append(keyword).append("%'");
+            where.append(AlarmRecord.ALARM_MESSAGE).append(" like '%").append(keyword).append("%'").append(" and ");
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             for (final Tag tag : tags) {
-                query.append(" and ").append(tag.getKey()).append(" = \"").append(tag.getValue()).append("\"");
+                where.append(tag.getKey()).append(" = \"").append(tag.getValue()).append("\"").append(" and ");
             }
         }
-        // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
-        String queryString = query.toString().replace("1=1 and ", "");
-        queryString = queryString + IoTDBClient.ALIGN_BY_DEVICE;
+        if (where.length() > 7) {
+            int length = where.length();
+            where.delete(length - 5, length);
+            query.append(where);
+        }
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         Alarms alarms = new Alarms();
-        List<? super StorageData> storageDataList = client.filterQuery(AlarmRecord.INDEX_NAME, queryString, storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(AlarmRecord.INDEX_NAME, query.toString(), storageBuilder);
         int limitCount = 0;
         for (int i = from; i < storageDataList.size(); i++) {
             if (limitCount < limit) {

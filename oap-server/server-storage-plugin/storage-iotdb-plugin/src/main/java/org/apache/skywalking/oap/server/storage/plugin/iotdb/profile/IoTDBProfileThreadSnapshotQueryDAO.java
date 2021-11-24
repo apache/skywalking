@@ -68,10 +68,9 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
         for (String segmentId : segmentIds) {
             query.append("\"").append(segmentId).append("\"").append(", ");
         }
-        String queryString = query.substring(0, query.length() - 2);
-        queryString = queryString + ")" + IoTDBClient.ALIGN_BY_DEVICE;
+        query.delete(query.length() - 2, query.length()).append(")").append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME, queryString, segmentRecordBuilder);
+        storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME, query.toString(), segmentRecordBuilder);
         List<SegmentRecord> segmentRecordList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> segmentRecordList.add((SegmentRecord) storageData));
         // resort by self, because of the select query result order by time.

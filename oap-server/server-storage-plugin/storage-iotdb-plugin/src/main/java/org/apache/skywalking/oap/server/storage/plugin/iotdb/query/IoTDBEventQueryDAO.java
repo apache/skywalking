@@ -51,7 +51,10 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, Event.INDEX_NAME);
         query = client.addQueryAsterisk(Event.INDEX_NAME, query);
-        query = whereSQL(condition, query);
+        StringBuilder where = whereSQL(condition);
+        if (where.length() > 0) {
+            query.append(" where ").append(where);
+        }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(Event.INDEX_NAME, query.toString(), storageBuilder);
@@ -88,7 +91,10 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, Event.INDEX_NAME);
         query = client.addQueryAsterisk(Event.INDEX_NAME, query);
-        query = whereSQL(conditionList, query);
+        StringBuilder where = whereSQL(conditionList);
+        if (where.length() > 0) {
+            query.append(" where ").append(where);
+        }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(Event.INDEX_NAME, query.toString(), storageBuilder);
@@ -118,55 +124,62 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         return events;
     }
 
-    private StringBuilder whereSQL(final EventQueryCondition condition, StringBuilder query) {
-        query.append(" where 1=1");
+    private StringBuilder whereSQL(final EventQueryCondition condition) {
+        StringBuilder where = new StringBuilder();
         if (!Strings.isNullOrEmpty(condition.getUuid())) {
-            query.append(" and ").append(Event.UUID).append(" = \"").append(condition.getUuid()).append("\"");
+            where.append(Event.UUID).append(" = \"").append(condition.getUuid()).append("\"").append(" and ");
         }
         final Source source = condition.getSource();
         if (source != null) {
             if (!Strings.isNullOrEmpty(source.getService())) {
-                query.append(" and ").append(Event.SERVICE).append(" = \"").append(source.getService()).append("\"");
+                where.append(Event.SERVICE).append(" = \"").append(source.getService()).append("\"").append(" and ");
             }
             if (!Strings.isNullOrEmpty(source.getServiceInstance())) {
-                query.append(" and ").append(Event.SERVICE_INSTANCE).append(" = \"").append(source.getServiceInstance()).append("\"");
+                where.append(Event.SERVICE_INSTANCE).append(" = \"").append(source.getServiceInstance()).append("\"").append(" and ");
             }
             if (!Strings.isNullOrEmpty(source.getEndpoint())) {
-                query.append(" and ").append(Event.ENDPOINT).append(" = \"").append(source.getEndpoint()).append("\"");
+                where.append(Event.ENDPOINT).append(" = \"").append(source.getEndpoint()).append("\"").append(" and ");
             }
         }
         if (!Strings.isNullOrEmpty(condition.getName())) {
-            query.append(" and ").append(Event.NAME).append(" = \"").append(condition.getName()).append("\"");
+            where.append(Event.NAME).append(" = \"").append(condition.getName()).append("\"").append(" and ");
         }
         if (condition.getType() != null) {
-            query.append(" and ").append(Event.TYPE).append(" = \"").append(condition.getType().name()).append("\"");
+            where.append(Event.TYPE).append(" = \"").append(condition.getType().name()).append("\"").append(" and ");
         }
         final Duration time = condition.getTime();
         if (time != null) {
             if (time.getStartTimestamp() > 0) {
-                query.append(" and ").append(Event.START_TIME).append(" > ").append(time.getStartTimestamp());
+                where.append(Event.START_TIME).append(" > ").append(time.getStartTimestamp()).append(" and ");
             }
             if (time.getEndTimestamp() > 0) {
-                query.append(" and ").append(Event.END_TIME).append(" < ").append(time.getEndTimestamp());
+                where.append(Event.END_TIME).append(" < ").append(time.getEndTimestamp()).append(" and ");
             }
         }
-        // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
-        String queryString = query.toString();
-        queryString = queryString.replace("1=1 and ", "");
-        return new StringBuilder(queryString);
+        if (where.length() > 0) {
+            int length = where.length();
+            where.delete(length - 5, length);
+            return where;
+        }
+        return new StringBuilder();
     }
 
-    private StringBuilder whereSQL(final List<EventQueryCondition> conditions, StringBuilder query) {
-        query.append(" where 1=1");
+    private StringBuilder whereSQL(final List<EventQueryCondition> conditions) {
+        StringBuilder where = new StringBuilder();
+        boolean isFirstCondition = true;
         for (EventQueryCondition condition : conditions) {
-            query.append(" or (");
-            query = whereSQL(condition, query);
-            query.append(")");
+            StringBuilder subWhere = whereSQL(condition);
+            if (subWhere.length() > 0) {
+                if (isFirstCondition) {
+                    where.append("(").append(subWhere).append(")");
+                    isFirstCondition = false;
+                } else {
+                    where.append(" or (").append(subWhere).append(")");
+
+                }
+            }
         }
-        String queryString = query.toString();
-        queryString = queryString.replace("( where ", "(");
-        queryString = queryString.replace("1=1 or ", "");
-        return new StringBuilder(queryString);
+        return where;
     }
 
     private org.apache.skywalking.oap.server.core.query.type.event.Event parseEvent(final Event event) {

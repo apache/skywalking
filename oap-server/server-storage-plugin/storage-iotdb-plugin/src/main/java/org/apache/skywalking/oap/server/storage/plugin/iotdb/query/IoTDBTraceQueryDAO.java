@@ -67,42 +67,46 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
             indexAndValueMap.put(IoTDBClient.TRACE_ID_IDX, traceId);
         }
         query = client.addQueryIndexValue(SegmentRecord.INDEX_NAME, query, indexAndValueMap);
-        query.append(" where 1=1");
+
+        StringBuilder where = new StringBuilder(" where ");
         if (startSecondTB != 0 && endSecondTB != 0) {
-            query.append(" and ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startSecondTB));
-            query.append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endSecondTB));
+            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startSecondTB)).append(" and ");
+            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endSecondTB)).append(" and ");
         }
         if (minDuration != 0) {
-            query.append(" and ").append(SegmentRecord.LATENCY).append(" >= ").append(minDuration);
+            where.append(SegmentRecord.LATENCY).append(" >= ").append(minDuration).append(" and ");
         }
         if (maxDuration != 0) {
-            query.append(" and ").append(SegmentRecord.LATENCY).append(" <= ").append(maxDuration);
+            where.append(SegmentRecord.LATENCY).append(" <= ").append(maxDuration).append(" and ");
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
-            query.append(" and ").append(SegmentRecord.SERVICE_INSTANCE_ID).append(" = \"").append(serviceInstanceId).append("\"");
+            where.append(SegmentRecord.SERVICE_INSTANCE_ID).append(" = \"").append(serviceInstanceId).append("\"").append(" and ");
         }
         if (!Strings.isNullOrEmpty(endpointId)) {
-            query.append(" and ").append(SegmentRecord.ENDPOINT_ID).append(" = \"").append(endpointId).append("\"");
+            where.append(SegmentRecord.ENDPOINT_ID).append(" = \"").append(endpointId).append("\"").append(" and ");
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             for (final Tag tag : tags) {
-                query.append(" and ").append(tag.getKey()).append(" = \"").append(tag.getValue()).append("\"");
+                where.append(tag.getKey()).append(" = \"").append(tag.getValue()).append("\"").append(" and ");
             }
         }
         switch (traceState) {
             case ERROR:
-                query.append(" and ").append(SegmentRecord.IS_ERROR).append(" = ").append(BooleanUtils.TRUE);
+                where.append(SegmentRecord.IS_ERROR).append(" = ").append(BooleanUtils.TRUE).append(" and ");
                 break;
             case SUCCESS:
-                query.append(" and ").append(SegmentRecord.IS_ERROR).append(" = ").append(BooleanUtils.FALSE);
+                where.append(SegmentRecord.IS_ERROR).append(" = ").append(BooleanUtils.FALSE).append(" and ");
                 break;
         }
-        // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
-        String queryString = query.toString().replace("1=1 and ", "");
-        queryString = queryString + IoTDBClient.ALIGN_BY_DEVICE;
+        if (where.length() > 7) {
+            int length = where.length();
+            where.delete(length - 5, length);
+            query.append(where);
+        }
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         TraceBrief traceBrief = new TraceBrief();
-        List<? super StorageData> storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME, queryString, storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME, query.toString(), storageBuilder);
         int limitCount = 0;
         for (int i = from; i < storageDataList.size(); i++) {
             if (limitCount < limit) {

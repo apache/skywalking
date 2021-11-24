@@ -241,7 +241,6 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 Call.CallDetail call = new Call.CallDetail();
                 String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
                 String entityId = client.layerName2IndexValue(layerNames[2]);
-                // TODO check DetectPoint
                 call.buildFromEndpointRelation(entityId, DetectPoint.SERVER);
                 calls.add(call);
             }

@@ -143,7 +143,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
                 intValues.addKVInt(kv);
             }
         } catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + queryString, e);
+            throw new IOException(e);
         } finally {
             sessionPool.closeResultSet(wrapper);
         }
@@ -192,7 +192,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
                 idMap.put(id, multipleValues);
             }
         } catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + queryString, e);
+            throw new IOException(e);
         } finally {
             sessionPool.closeResultSet(wrapper);
         }
@@ -239,7 +239,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
                 heatMap.buildColumn(id, fields.get(1).getStringValue(), defaultValue);
             }
         } catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + queryString, e);
+            throw new IOException(e);
         } finally {
             sessionPool.closeResultSet(wrapper);
         }

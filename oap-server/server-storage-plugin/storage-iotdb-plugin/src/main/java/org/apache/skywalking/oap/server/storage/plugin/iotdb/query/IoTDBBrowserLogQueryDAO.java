@@ -60,26 +60,29 @@ public class IoTDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
             indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
         }
         query = client.addQueryIndexValue(BrowserErrorLogRecord.INDEX_NAME, query, indexAndValueMap);
-        query.append(" where 1=1");
+
+        StringBuilder where = new StringBuilder(" where ");
         if (startSecondTB != 0 && endSecondTB != 0) {
-            query.append(" and ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startSecondTB));
-            query.append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endSecondTB));
+            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startSecondTB)).append(" and ");
+            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endSecondTB)).append(" and ");
         }
         if (StringUtil.isNotEmpty(serviceVersionId)) {
-            query.append(" and ").append(BrowserErrorLogRecord.SERVICE_VERSION_ID).append(" = \"").append(serviceVersionId).append("\"");
+            where.append(BrowserErrorLogRecord.SERVICE_VERSION_ID).append(" = \"").append(serviceVersionId).append("\"").append(" and ");
         }
         if (StringUtil.isNotEmpty(pagePathId)) {
-            query.append(" and ").append(BrowserErrorLogRecord.PAGE_PATH_ID).append(" = \"").append(pagePathId).append("\"");
+            where.append(BrowserErrorLogRecord.PAGE_PATH_ID).append(" = \"").append(pagePathId).append("\"").append(" and ");
         }
         if (Objects.nonNull(category)) {
-            query.append(" and ").append(BrowserErrorLogRecord.ERROR_CATEGORY).append(" = ").append(category.getValue());
+            where.append(BrowserErrorLogRecord.ERROR_CATEGORY).append(" = ").append(category.getValue()).append(" and ");
+        }
+        if (where.length() > 7) {
+            int length = where.length();
+            where.delete(length - 5, length);
+            query.append(where);
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
-        // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
-        String queryString = query.toString();
-        queryString = queryString.replace("1=1 and ", "");
 
-        List<? super StorageData> storageDataList = client.filterQuery(BrowserErrorLogRecord.INDEX_NAME, queryString, storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(BrowserErrorLogRecord.INDEX_NAME, query.toString(), storageBuilder);
         List<BrowserErrorLogRecord> browserErrorLogRecordList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> browserErrorLogRecordList.add((BrowserErrorLogRecord) storageData));
         // resort by self, because of the select query result order by time.

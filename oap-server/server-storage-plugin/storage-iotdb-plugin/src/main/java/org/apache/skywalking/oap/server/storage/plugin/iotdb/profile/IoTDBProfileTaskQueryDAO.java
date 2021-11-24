@@ -52,25 +52,27 @@ public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
         }
         query = client.addQueryIndexValue(ProfileTaskRecord.INDEX_NAME, query, indexAndValueMap);
 
-        query.append(" where 1=1");
+        StringBuilder where = new StringBuilder(" where ");
         if (StringUtil.isNotEmpty(endpointName)) {
-            query.append(" and ").append(ProfileTaskRecord.ENDPOINT_NAME).append(" = \"").append(endpointName).append("\"");
+            where.append(ProfileTaskRecord.ENDPOINT_NAME).append(" = \"").append(endpointName).append("\"").append(" and ");
         }
         if (Objects.nonNull(startTimeBucket)) {
-            query.append(" and ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTimeBucket));
+            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTimeBucket)).append(" and ");
         }
         if (Objects.nonNull(endTimeBucket)) {
-            query.append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTimeBucket));
+            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTimeBucket)).append(" and ");
+        }
+        if (where.length() > 7) {
+            int length = where.length();
+            where.delete(length - 5, length);
+            query.append(where);
         }
         if (Objects.nonNull(limit)) {
             query.append(" limit ").append(limit);
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
-        // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
-        String queryString = query.toString();
-        queryString = queryString.replace("1=1 and ", "");
 
-        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskRecord.INDEX_NAME, queryString, storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskRecord.INDEX_NAME, query.toString(), storageBuilder);
         List<ProfileTask> profileTaskList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> profileTaskList.add(record2ProfileTask((ProfileTaskRecord) storageData)));
         return profileTaskList;

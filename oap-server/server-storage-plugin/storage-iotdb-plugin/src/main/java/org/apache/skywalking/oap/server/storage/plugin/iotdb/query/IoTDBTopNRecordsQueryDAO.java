@@ -61,23 +61,24 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
             indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
         }
         query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
-        query.append(" where 1=1");
+
+        StringBuilder where = new StringBuilder(" where ");
         if (Objects.nonNull(duration)) {
-            query.append(" and ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(duration.getStartTimeBucketInSec()));
-            query.append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(duration.getEndTimeBucketInSec()));
+            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(duration.getStartTimeBucketInSec())).append(" and ");
+            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(duration.getEndTimeBucketInSec()));
+        }
+        if (where.length() > 7) {
+            query.append(where);
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
-        // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
-        String queryString = query.toString();
-        queryString = queryString.replace("1=1 and ", "");
 
         SessionPool sessionPool = client.getSessionPool();
         SessionDataSetWrapper wrapper = null;
         List<SelectedRecord> records = new ArrayList<>();
         try {
-            wrapper = sessionPool.executeQueryStatement(queryString);
+            wrapper = sessionPool.executeQueryStatement(query.toString());
             if (log.isDebugEnabled()) {
-                log.debug("SQL: {}, columnNames: {}", queryString, wrapper.getColumnNames());
+                log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
             }
 
             while (wrapper.hasNext()) {
@@ -91,7 +92,7 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
                 records.add(record);
             }
         } catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + queryString, e);
+            throw new IOException(e);
         } finally {
             sessionPool.closeResultSet(wrapper);
         }

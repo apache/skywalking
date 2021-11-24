@@ -69,36 +69,40 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
             indexAndValueMap.put(IoTDBClient.TRACE_ID_IDX, relatedTrace.getTraceId());
         }
         query = client.addQueryIndexValue(LogRecord.INDEX_NAME, query, indexAndValueMap);
-        query.append(" where 1=1");
+
+        StringBuilder where = new StringBuilder(" where ");
         if (startTB != 0 && endTB != 0) {
-            query.append(" and ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB));
-            query.append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
+            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB)).append(" and ");
+            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB)).append(" and ");
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
-            query.append(" and ").append(AbstractLogRecord.SERVICE_INSTANCE_ID).append(" = \"").append(serviceInstanceId).append("\"");
+            where.append(AbstractLogRecord.SERVICE_INSTANCE_ID).append(" = \"").append(serviceInstanceId).append("\"").append(" and ");
         }
         if (StringUtil.isNotEmpty(endpointId)) {
-            query.append(" and ").append(AbstractLogRecord.ENDPOINT_ID).append(" = \"").append(endpointId).append("\"");
+            where.append(AbstractLogRecord.ENDPOINT_ID).append(" = \"").append(endpointId).append("\"").append(" and ");
         }
         if (Objects.nonNull(relatedTrace)) {
             if (StringUtil.isNotEmpty(relatedTrace.getSegmentId())) {
-                query.append(" and ").append(AbstractLogRecord.TRACE_SEGMENT_ID).append(" = \"").append(relatedTrace.getSegmentId()).append("\"");
+                where.append(AbstractLogRecord.TRACE_SEGMENT_ID).append(" = \"").append(relatedTrace.getSegmentId()).append("\"").append(" and ");
             }
             if (Objects.nonNull(relatedTrace.getSpanId())) {
-                query.append(" and ").append(AbstractLogRecord.SPAN_ID).append(" = ").append(relatedTrace.getSpanId());
+                where.append(AbstractLogRecord.SPAN_ID).append(" = ").append(relatedTrace.getSpanId()).append(" and ");
             }
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             for (final Tag tag : tags) {
-                query.append(" and ").append(tag.getKey()).append(" = \"").append(tag.getValue()).append("\"");
+                where.append(tag.getKey()).append(" = \"").append(tag.getValue()).append("\"").append(" and ");
             }
         }
-        // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
-        String queryString = query.toString().replace("1=1 and ", "");
-        queryString = queryString + IoTDBClient.ALIGN_BY_DEVICE;
+        if (where.length() > 7) {
+            int length = where.length();
+            where.delete(length - 5, length);
+            query.append(where);
+        }
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         Logs logs = new Logs();
-        List<? super StorageData> storageDataList = client.filterQuery(LogRecord.INDEX_NAME, queryString, storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(LogRecord.INDEX_NAME, query.toString(), storageBuilder);
         int limitCount = 0;
         for (int i = from; i < storageDataList.size(); i++) {
             if (limitCount < limit) {
