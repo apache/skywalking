@@ -71,8 +71,8 @@ public class IoTDBAlarmQueryDAO implements IAlarmQueryDAO {
         Alarms alarms = new Alarms();
         List<? super StorageData> storageDataList = client.filterQuery(AlarmRecord.INDEX_NAME, queryString, storageBuilder);
         int limitCount = 0;
-        for (int i = 0; i < storageDataList.size(); i++) {
-            if (i >= from && limitCount < limit) {
+        for (int i = from; i < storageDataList.size(); i++) {
+            if (limitCount < limit) {
                 limitCount++;
                 AlarmRecord alarmRecord = (AlarmRecord) storageDataList.get(i);
                 alarms.getMsgs().add(parseMessage(alarmRecord));

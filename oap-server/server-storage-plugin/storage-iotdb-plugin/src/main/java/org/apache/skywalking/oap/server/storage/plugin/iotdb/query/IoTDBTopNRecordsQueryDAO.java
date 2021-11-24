@@ -63,7 +63,6 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
         query.append(" where 1=1");
         if (Objects.nonNull(duration)) {
-            // TODO should confirm use "TimeBucket.getTimestamp(duration.getStartTimeBucketInSec())" or "duration.getTimestamp"
             query.append(" and ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(duration.getStartTimeBucketInSec()));
             query.append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(duration.getEndTimeBucketInSec()));
         }

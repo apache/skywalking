@@ -58,8 +58,8 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         final Events events = new Events();
         int limitCount = 0;
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-        for (int i = 0; i < storageDataList.size(); i++) {
-            if (i >= page.getFrom() && limitCount < page.getLimit()) {
+        for (int i = page.getFrom(); i < storageDataList.size(); i++) {
+            if (limitCount < page.getLimit()) {
                 limitCount++;
                 Event event = (Event) storageDataList.get(i);
                 events.getEvents().add(parseEvent(event));
@@ -96,8 +96,8 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         EventQueryCondition condition = conditionList.get(0);
         int limitCount = 0;
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-        for (int i = 0; i < storageDataList.size(); i++) {
-            if (i >= page.getFrom() && limitCount < page.getLimit()) {
+        for (int i = page.getFrom(); i < storageDataList.size(); i++) {
+            if (limitCount < page.getLimit()) {
                 limitCount++;
                 Event event = (Event) storageDataList.get(i);
                 events.getEvents().add(parseEvent(event));

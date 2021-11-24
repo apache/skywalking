@@ -104,8 +104,8 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
         TraceBrief traceBrief = new TraceBrief();
         List<? super StorageData> storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME, queryString, storageBuilder);
         int limitCount = 0;
-        for (int i = 0; i < storageDataList.size(); i++) {
-            if (i >= from && limitCount < limit) {
+        for (int i = from; i < storageDataList.size(); i++) {
+            if (limitCount < limit) {
                 limitCount++;
                 SegmentRecord segmentRecord = (SegmentRecord) storageDataList.get(i);
                 BasicTrace basicTrace = new BasicTrace();

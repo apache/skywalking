@@ -93,17 +93,6 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
                 query.append(" and ").append(tag.getKey()).append(" = \"").append(tag.getValue()).append("\"");
             }
         }
-        // The fuzzy query efficiency is poor.
-//        if (CollectionUtils.isNotEmpty(keywordsOfContent)) {
-//            for (String keyword : keywordsOfContent) {
-//                query.append(" and ").append(AbstractLogRecord.CONTENT).append(" like '%").append(keyword).append("%'");
-//            }
-//        }
-//        if (CollectionUtils.isNotEmpty(excludingKeywordsOfContent)) {
-//            for (String keyword : excludingKeywordsOfContent) {
-//                query.append(" and ").append(AbstractLogRecord.CONTENT).append(" regexp '^((?!").append(keyword).append(").)*$'");
-//            }
-//        }
         // IoTDB doesn't support the query contains "1=1" and "*" at the meantime.
         String queryString = query.toString().replace("1=1 and ", "");
         queryString = queryString + IoTDBClient.ALIGN_BY_DEVICE;
@@ -111,8 +100,8 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
         Logs logs = new Logs();
         List<? super StorageData> storageDataList = client.filterQuery(LogRecord.INDEX_NAME, queryString, storageBuilder);
         int limitCount = 0;
-        for (int i = 0; i < storageDataList.size(); i++) {
-            if (i >= from && limitCount < limit) {
+        for (int i = from; i < storageDataList.size(); i++) {
+            if (limitCount < limit) {
                 limitCount++;
                 LogRecord logRecord = (LogRecord) storageDataList.get(i);
                 Log log = new Log();

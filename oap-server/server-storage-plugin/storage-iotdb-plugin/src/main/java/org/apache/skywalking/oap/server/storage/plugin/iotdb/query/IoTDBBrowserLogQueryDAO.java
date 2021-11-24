@@ -86,8 +86,8 @@ public class IoTDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
         browserErrorLogRecordList.sort((BrowserErrorLogRecord b1, BrowserErrorLogRecord b2) -> Long.compare(b2.getTimestamp(), b1.getTimestamp()));
         BrowserErrorLogs logs = new BrowserErrorLogs();
         int limitCount = 0;
-        for (int i = 0; i < browserErrorLogRecordList.size(); i++) {
-            if (i >= from && limitCount < limit) {
+        for (int i = from; i < browserErrorLogRecordList.size(); i++) {
+            if (limitCount < limit) {
                 limitCount++;
                 BrowserErrorLogRecord record = browserErrorLogRecordList.get(i);
                 if (CollectionUtils.isNotEmpty(record.getDataBinary())) {
