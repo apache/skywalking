@@ -78,7 +78,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
- * The storage provider for ElasticSearch 6.
+ * The storage provider for ElasticSearch 6/7 and OpenSearch 1.x.
  */
 @Slf4j
 public class StorageModuleElasticsearchProvider extends ModuleProvider {
