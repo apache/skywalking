@@ -104,8 +104,8 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     public void fetchSubscriptionList() {
         final long currentTimeMillis = System.currentTimeMillis();
         if (currentTimeMillis - lastFetchTimestamp > FETCH_SUBSCRIPTION_PERIOD) {
+            fetchListLock.lock();
             try {
-                fetchListLock.lock();
                 if (currentTimeMillis - lastFetchTimestamp > FETCH_SUBSCRIPTION_PERIOD) {
                     lastFetchTimestamp = currentTimeMillis;
                     SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS)
