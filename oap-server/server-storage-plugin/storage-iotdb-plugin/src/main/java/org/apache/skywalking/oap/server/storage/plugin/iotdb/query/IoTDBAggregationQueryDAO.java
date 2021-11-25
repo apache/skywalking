@@ -89,7 +89,7 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
                 double avg = sum / count;
                 SelectedRecord topNEntity = new SelectedRecord();
                 topNEntity.setId(entityId);
-                topNEntity.setValue(String.valueOf(avg));
+                topNEntity.setValue(String.valueOf((long) avg));
                 topEntities.add(topNEntity);
             });
         } catch (IoTDBConnectionException | StatementExecutionException e) {
