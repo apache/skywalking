@@ -54,7 +54,7 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
         query.append(String.format("select %s from ", valueColumnName));
         query = client.addModelPath(query, condition.getName());
         query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(duration.getStartTimestamp())
-                .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(duration.getStartTimestamp());
+                .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(duration.getEndTimestamp());
         if (additionalConditions != null) {
             for (KeyValue additionalCondition : additionalConditions) {
                 query.append(" and ").append(additionalCondition.getKey()).append(" = \"")
