@@ -56,6 +56,7 @@ Release Notes.
 * Fix a null pointer bug when building `SampleFamily`.
 * Fix the so11y latency of persistence execution latency not correct in ElasticSearch storage.
 * Add `MeterReportService` `collectBatch` method. 
+* Add OpenSearch 1.2.0 to test and verify it works.
 
 #### UI
 
