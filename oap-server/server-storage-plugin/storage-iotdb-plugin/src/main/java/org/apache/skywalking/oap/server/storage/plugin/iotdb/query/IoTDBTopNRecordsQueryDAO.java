@@ -43,6 +43,7 @@ import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,7 +53,7 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
     @Override
     public List<SelectedRecord> readSampledRecords(TopNCondition condition, String valueColumnName, Duration duration) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select ").append(TopN.STATEMENT).append(", ").append(TopN.TRACE_ID).append(", ").append(valueColumnName)
+        query.append("select ").append(TopN.STATEMENT).append(", ").append(valueColumnName)
                 .append(" from ");
         query = client.addModelPath(query, condition.getName());
         Map<String, String> indexAndValueMap = new HashMap<>();
@@ -81,20 +82,29 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
                 log.debug("SQL: {}, columnNames: {}", query, wrapper.getColumnNames());
             }
 
+            List<String> indexes = IoTDBTableMetaInfo.get(condition.getName()).getIndexes();
+            int traceIdIdx = indexes.indexOf(IoTDBClient.TRACE_ID_IDX);
+
             while (wrapper.hasNext()) {
                 SelectedRecord record = new SelectedRecord();
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 record.setName(fields.get(1).getStringValue());
-                record.setRefId(fields.get(2).getStringValue());
+
+                String traceId = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"")[traceIdIdx + 1];
+                traceId = client.layerName2IndexValue(traceId);
+                record.setRefId(traceId);
+
                 record.setId(record.getId());
-                record.setValue(String.valueOf(fields.get(3).getObjectValue(fields.get(1).getDataType())));
+                record.setValue(String.valueOf(fields.get(2).getObjectValue(fields.get(2).getDataType())));
                 records.add(record);
             }
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
         } finally {
-            sessionPool.closeResultSet(wrapper);
+            if (wrapper != null) {
+                sessionPool.closeResultSet(wrapper);
+            }
         }
 
         // resort by self, because of the select query result order by time.

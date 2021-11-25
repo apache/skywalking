@@ -53,12 +53,31 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
         StringBuilder query = new StringBuilder();
         query.append(String.format("select %s from ", valueColumnName));
         query = client.addModelPath(query, condition.getName());
-        query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(duration.getStartTimestamp())
-                .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(duration.getEndTimestamp());
+
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        List<KeyValue> measurementConditions = new ArrayList<>();
         if (additionalConditions != null) {
             for (KeyValue additionalCondition : additionalConditions) {
-                query.append(" and ").append(additionalCondition.getKey()).append(" = \"")
-                        .append(additionalCondition.getValue()).append("\"");
+                String key = additionalCondition.getKey();
+                if (IoTDBClient.isIndex(key)) {
+                    indexAndValueMap.put(key, additionalCondition.getValue());
+                } else {
+                    measurementConditions.add(additionalCondition);
+                }
+            }
+        }
+        if (!indexAndValueMap.isEmpty()) {
+            query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
+        } else {
+            query = client.addQueryAsterisk(condition.getName(), query);
+        }
+
+        query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(duration.getStartTimestamp())
+                .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(duration.getEndTimestamp());
+        if (!measurementConditions.isEmpty()) {
+            for (KeyValue measurementCondition : measurementConditions) {
+                query.append(" and ").append(measurementCondition.getKey()).append(" = \"")
+                        .append(measurementCondition.getValue()).append("\"");
             }
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
@@ -95,7 +114,9 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
         } finally {
-            sessionPool.closeResultSet(wrapper);
+            if (wrapper != null) {
+                sessionPool.closeResultSet(wrapper);
+            }
         }
 
         if (condition.getOrder().equals(Order.DES)) {

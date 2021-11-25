@@ -145,7 +145,9 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
         } finally {
-            sessionPool.closeResultSet(wrapper);
+            if (wrapper != null) {
+                sessionPool.closeResultSet(wrapper);
+            }
         }
         metricsValues.setValues(Util.sortValues(intValues, ids, ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())));
         return metricsValues;
@@ -194,7 +196,9 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
         } finally {
-            sessionPool.closeResultSet(wrapper);
+            if (wrapper != null) {
+                sessionPool.closeResultSet(wrapper);
+            }
         }
         return Util.composeLabelValue(condition, labels, ids, idMap);
     }
@@ -241,7 +245,9 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
         } finally {
-            sessionPool.closeResultSet(wrapper);
+            if (wrapper != null) {
+                sessionPool.closeResultSet(wrapper);
+            }
         }
         heatMap.fixMissingColumns(ids, defaultValue);
         return heatMap;

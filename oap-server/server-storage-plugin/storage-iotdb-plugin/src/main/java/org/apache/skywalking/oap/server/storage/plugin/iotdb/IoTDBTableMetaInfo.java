@@ -52,9 +52,7 @@ public class IoTDBTableMetaInfo {
         storageAndIndexMap.put(model.getName(), IoTDBClient.ID_IDX);
         columns.forEach(column -> {
             String columnName = column.getColumnName().getName();
-            if (columnName.equals(IoTDBClient.ENTITY_ID_IDX) || columnName.equals(IoTDBClient.NODE_TYPE_IDX) ||
-                    columnName.equals(IoTDBClient.SERVICE_ID_IDX) || columnName.equals(IoTDBClient.GROUP_IDX) ||
-                    columnName.equals(IoTDBClient.TRACE_ID_IDX)) {
+            if (IoTDBClient.isIndex(columnName)) {
                 storageAndIndexMap.put(column.getColumnName().getStorageName(), columnName);
             } else {
                 columnAndTypeMap.put(columnName, typeToTSDataType(column.getType()));

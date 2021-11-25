@@ -166,7 +166,9 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
         } finally {
-            sessionPool.closeResultSet(wrapper);
+            if (wrapper != null) {
+                sessionPool.closeResultSet(wrapper);
+            }
         }
         return calls;
     }
@@ -209,7 +211,9 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
         } finally {
-            sessionPool.closeResultSet(wrapper);
+            if (wrapper != null) {
+                sessionPool.closeResultSet(wrapper);
+            }
         }
         return calls;
     }
@@ -247,7 +251,9 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new IOException(e);
         } finally {
-            sessionPool.closeResultSet(wrapper);
+            if (wrapper != null) {
+                sessionPool.closeResultSet(wrapper);
+            }
         }
         return calls;
     }
