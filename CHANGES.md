@@ -57,6 +57,7 @@ Release Notes.
 * Fix the so11y latency of persistence execution latency not correct in ElasticSearch storage.
 * Add `MeterReportService` `collectBatch` method. 
 * Add OpenSearch 1.2.0 to test and verify it works.
+* Upgrade grpc-java to 1.42.1 and protoc to 3.19.1 to allow using native Mac osx-aarch_64 artifacts.
 * Fix TopologyQuery.loadEndpointRelation bug.
 
 #### UI
