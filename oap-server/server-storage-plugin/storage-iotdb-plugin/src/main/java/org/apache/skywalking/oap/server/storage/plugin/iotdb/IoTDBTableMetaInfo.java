@@ -79,7 +79,6 @@ public class IoTDBTableMetaInfo {
 
         final IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.builder().model(model)
                 .columnAndTypeMap(columnAndTypeMap).indexes(indexes).build();
-
         TABLE_META_INFOS.put(model.getName(), tableMetaInfo);
     }
 

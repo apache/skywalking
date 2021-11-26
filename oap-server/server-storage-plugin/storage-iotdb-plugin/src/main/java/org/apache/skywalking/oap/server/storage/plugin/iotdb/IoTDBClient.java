@@ -254,12 +254,11 @@ public class IoTDBClient implements Client, HealthCheckable {
     /**
      * Query with aggregation function: count, sum, avg, last_value, first_value, min_time, max_time, min_value, max_value
      *
-     * @param modelName model name
      * @param querySQL  the SQL for query which should contain aggregation function
      * @return the result of aggregation function
      * @throws IOException IoTDBConnectionException or StatementExecutionException
      */
-    public List<Double> queryWithAgg(String modelName, String querySQL) throws IOException {
+    public List<Double> queryWithAgg(String querySQL) throws IOException {
         SessionDataSetWrapper wrapper = null;
         List<Double> results = new ArrayList<>();
         try {

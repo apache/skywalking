@@ -49,9 +49,9 @@ public class IoTDBProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
         List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskLogRecord.INDEX_NAME, query.toString(), storageBuilder);
         List<ProfileTaskLogRecord> profileTaskLogRecordList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> profileTaskLogRecordList.add((ProfileTaskLogRecord) storageData));
-        // resort by self, because of the select query result order by time.
-        profileTaskLogRecordList.sort((ProfileTaskLogRecord r1, ProfileTaskLogRecord r2) -> Long.compare(r2.getOperationTime(), r1.getOperationTime()));
-
+        // resort by self, because of the query result order by time.
+        profileTaskLogRecordList.sort((ProfileTaskLogRecord r1, ProfileTaskLogRecord r2) ->
+                Long.compare(r2.getOperationTime(), r1.getOperationTime()));
         List<ProfileTaskLog> profileTaskLogList = new ArrayList<>(profileTaskLogRecordList.size());
         profileTaskLogRecordList.forEach(profileTaskLogRecord -> profileTaskLogList.add(parseLog(profileTaskLogRecord)));
         return profileTaskLogList;

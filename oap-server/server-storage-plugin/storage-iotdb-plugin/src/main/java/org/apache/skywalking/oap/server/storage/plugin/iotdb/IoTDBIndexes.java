@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.iotdb;
 
 public interface IoTDBIndexes {
+    // Here is the indexes we choose and their order in storage path.
     String ID_IDX = "id";
     String ENTITY_ID_IDX = "entity_id";
     String NODE_TYPE_IDX = "node_type";
@@ -27,8 +28,7 @@ public interface IoTDBIndexes {
     String TRACE_ID_IDX = "trace_id";
 
     static boolean isIndex(String key) {
-        return key.equals(ENTITY_ID_IDX) || key.equals(NODE_TYPE_IDX) ||
-                key.equals(SERVICE_ID_IDX) || key.equals(GROUP_IDX) ||
-                key.equals(TRACE_ID_IDX);
+        return key.equals(ID_IDX) || key.equals(ENTITY_ID_IDX) || key.equals(NODE_TYPE_IDX) ||
+                key.equals(SERVICE_ID_IDX) || key.equals(GROUP_IDX) || key.equals(TRACE_ID_IDX);
     }
 }

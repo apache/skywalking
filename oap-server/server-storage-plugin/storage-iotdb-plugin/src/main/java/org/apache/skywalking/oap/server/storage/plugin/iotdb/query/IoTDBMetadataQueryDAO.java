@@ -123,6 +123,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
             query.append(" where ").append(ServiceTraffic.NAME).append(" like '%").append(keyword).append("%'");
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
         List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
         List<Service> serviceList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> serviceList.add(buildService((ServiceTraffic) storageData)));
@@ -139,6 +140,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(" where ").append(ServiceTraffic.NAME).append(" = \"").append(serviceCode).append("\"")
                 .append(IoTDBClient.ALIGN_BY_DEVICE);
+
         List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
         if (storageDataList.isEmpty()) {
             return null;

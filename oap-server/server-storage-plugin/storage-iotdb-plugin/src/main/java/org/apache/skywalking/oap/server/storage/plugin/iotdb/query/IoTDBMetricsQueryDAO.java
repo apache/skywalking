@@ -80,7 +80,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
                         IoTDBClient.TIME, duration.getStartTimestamp(), IoTDBClient.TIME, duration.getEndTimestamp()))
                 .append(" group by level = 3");
 
-        List<Double> results = client.queryWithAgg(condition.getName(), query.toString());
+        List<Double> results = client.queryWithAgg(query.toString());
         if (results.size() > 0) {
             double result = results.get(0);
             return (long) result;

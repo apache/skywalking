@@ -77,6 +77,7 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
         Iterator<Map.Entry<String, Object>> entryIterator = storageMap.entrySet().iterator();
         while (entryIterator.hasNext()) {
             Map.Entry<String, Object> entry = entryIterator.next();
+            // IoTDB doesn't allow insert null value.
             if (entry.getValue() == null) {
                 entryIterator.remove();
             }
@@ -93,7 +94,7 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
         }
         measurementValues = new ArrayList<>(storageMap.values());
 
-        // IoTDB don't allow a measurement named `timestamp` or contains `.`
+        // IoTDB doesn't allow a measurement named `timestamp` or contains `.`
         for (String key : storageMap.keySet()) {
             if (key.equals(IoTDBClient.TIMESTAMP) || key.contains(".")) {
                 int idx = measurements.indexOf(key);
