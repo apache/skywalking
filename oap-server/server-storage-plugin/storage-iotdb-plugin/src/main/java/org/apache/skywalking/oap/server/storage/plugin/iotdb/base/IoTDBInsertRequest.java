@@ -60,7 +60,12 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
             if (index.equals(IoTDBClient.ID_IDX)) {
                 indexValues.add(storageData.id());
             } else if (storageMap.containsKey(index)) {
-                indexValues.add(String.valueOf(storageMap.get(index)));
+                // avoid `service_group` be "null" when inserting
+                if (index.equals(IoTDBClient.GROUP_IDX) && storageMap.get(index) == null) {
+                    indexValues.add("");
+                } else {
+                    indexValues.add(String.valueOf(storageMap.get(index)));
+                }
                 storageMap.remove(index);
             }
         });
