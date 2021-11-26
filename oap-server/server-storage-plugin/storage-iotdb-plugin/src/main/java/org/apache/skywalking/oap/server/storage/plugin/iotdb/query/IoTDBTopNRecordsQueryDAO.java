@@ -95,7 +95,7 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
                 traceId = client.layerName2IndexValue(traceId);
                 record.setRefId(traceId);
 
-                record.setId(record.getId());
+                record.setId(record.getRefId());
                 record.setValue(String.valueOf(fields.get(2).getObjectValue(fields.get(2).getDataType())));
                 records.add(record);
             }

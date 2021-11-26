@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -59,7 +60,7 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
         if (additionalConditions != null) {
             for (KeyValue additionalCondition : additionalConditions) {
                 String key = additionalCondition.getKey();
-                if (IoTDBClient.isIndex(key)) {
+                if (IoTDBTableMetaInfo.isIndex(key)) {
                     indexAndValueMap.put(key, additionalCondition.getValue());
                 } else {
                     measurementConditions.add(additionalCondition);

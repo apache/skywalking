@@ -52,7 +52,7 @@ public class IoTDBTableMetaInfo {
         storageAndIndexMap.put(model.getName(), IoTDBClient.ID_IDX);
         columns.forEach(column -> {
             String columnName = column.getColumnName().getName();
-            if (IoTDBClient.isIndex(columnName)) {
+            if (isIndex(columnName)) {
                 storageAndIndexMap.put(column.getColumnName().getStorageName(), columnName);
             } else {
                 columnAndTypeMap.put(columnName, typeToTSDataType(column.getType()));
@@ -111,5 +111,11 @@ public class IoTDBTableMetaInfo {
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }
+    }
+
+    public static boolean isIndex(String key) {
+        return key.equals(IoTDBClient.ENTITY_ID_IDX) || key.equals(IoTDBClient.NODE_TYPE_IDX) ||
+                key.equals(IoTDBClient.SERVICE_ID_IDX) || key.equals(IoTDBClient.GROUP_IDX) ||
+                key.equals(IoTDBClient.TRACE_ID_IDX);
     }
 }

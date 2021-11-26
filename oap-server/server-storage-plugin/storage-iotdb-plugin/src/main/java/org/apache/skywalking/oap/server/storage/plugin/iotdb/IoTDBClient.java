@@ -343,10 +343,4 @@ public class IoTDBClient implements Client, HealthCheckable {
     public StringBuilder addModelPath(StringBuilder query, String modelName) {
         return query.append(storageGroup).append(IoTDBClient.DOT).append(modelName);
     }
-
-    public static boolean isIndex(String key) {
-        return key.equals(IoTDBClient.ENTITY_ID_IDX) || key.equals(IoTDBClient.NODE_TYPE_IDX) ||
-                key.equals(IoTDBClient.SERVICE_ID_IDX) || key.equals(IoTDBClient.GROUP_IDX) ||
-                key.equals(IoTDBClient.TRACE_ID_IDX);
-    }
 }
