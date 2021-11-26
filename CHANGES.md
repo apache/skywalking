@@ -57,6 +57,7 @@ Release Notes.
 * Fix the so11y latency of persistence execution latency not correct in ElasticSearch storage.
 * Add `MeterReportService` `collectBatch` method. 
 * Add OpenSearch 1.2.0 to test and verify it works.
+* Fix TopologyQuery.loadEndpointRelation bug.
 
 #### UI
 
