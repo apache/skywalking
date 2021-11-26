@@ -169,9 +169,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
         );
         subQuery2.and(eq(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, destEndpointId));
 
-        final List<Call.CallDetail> calls = buildEndpointCalls(buildQuery(subQuery), DetectPoint.SERVER);
-        calls.addAll(buildEndpointCalls(buildQuery(subQuery), DetectPoint.CLIENT));
-        return calls;
+        return buildEndpointCalls(buildQuery(subQuery), DetectPoint.SERVER);
     }
 
     private WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> buildServiceCallsQuery(
