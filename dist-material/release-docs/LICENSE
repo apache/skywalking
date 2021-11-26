@@ -225,11 +225,11 @@ The following components are provided under the Apache License. See project link
 The text of each license is the standard Apache 2.0 license.
 
     raphw (byte-buddy) 1.10.19: http://bytebuddy.net/ , Apache 2.0
-    Google: grpc-java 1.32.1: https://github.com/grpc/grpc-java, Apache 2.0
+    Google: grpc-java 1.42.1: https://github.com/grpc/grpc-java, Apache 2.0
     Google: guava 28.1: https://github.com/google/guava , Apache 2.0
     Google: guice 4.1.0: https://github.com/google/guice , Apache 2.0
     Google: gson 2.8.6: https://github.com/google/gson , Apache 2.0
-    Google: proto-google-common-protos 1.17.0: https://github.com/googleapis/googleapis , Apache 2.0
+    Google: proto-google-common-protos 2.0.1: https://github.com/googleapis/googleapis , Apache 2.0
     Google: jsr305 3.0.2: http://central.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.0/jsr305-3.0.0.pom , Apache 2.0
     Google: flatbuffers-java 1.12.0: https://github.com/google/flatbuffers/ , Apache 2.0
     Eclipse (Jetty) 9.4.40.v20210413: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
@@ -306,7 +306,7 @@ The text of each license is the standard Apache 2.0 license.
     Ctripcorp: apollo 1.8.0: https://github.com/ctripcorp/apollo Apache 2.0
     javaassist 3.25.0-GA: https://github.com/jboss-javassist/javassist Apache 2.0
     jackson-module-afterburner 2.12.2: https://github.com/FasterXML/jackson-modules-base, Apache 2.0
-    perfmark-api 0.19.0: https://github.com/perfmark/perfmark, Apache 2.0
+    perfmark-api 0.23.0: https://github.com/perfmark/perfmark, Apache 2.0
     moshi 1.5.0: https://github.com/square/moshi, Apache 2.0
     logging-interceptor 3.13.1: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
     msgpack-core 0.8.16: https://github.com/msgpack/msgpack-java, Apache 2.0
@@ -362,8 +362,8 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
     asm 9.0:https://gitlab.ow2.org , BSD-3-Clause
     antlr4-runtime 4.5.1: http://www.antlr.org/license.html, BSD-3-Clause
-    Google: protobuf-java 3.13.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
-    Google: protobuf-java-util 3.12.4: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
+    Google: protobuf-java 3.17.3: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
+    Google: protobuf-java-util 3.17.3: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     reflectasm 1.11.7: https://github.com/EsotericSoftware/reflectasm , BSD-3-Clause
 
     zstd-jni 1.4.3-1: https://github.com/luben/zstd-jni, BSD-3-Clause
