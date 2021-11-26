@@ -49,10 +49,10 @@ public class IoTDBTableMetaInfo {
         final Map<String, TSDataType> columnAndTypeMap = new HashMap<>();
         final List<String> indexes = new ArrayList<>();
 
-        storageAndIndexMap.put(model.getName(), IoTDBClient.ID_IDX);
+        storageAndIndexMap.put(model.getName(), IoTDBIndexes.ID_IDX);
         columns.forEach(column -> {
             String columnName = column.getColumnName().getName();
-            if (isIndex(columnName)) {
+            if (IoTDBIndexes.isIndex(columnName)) {
                 storageAndIndexMap.put(column.getColumnName().getStorageName(), columnName);
             } else {
                 columnAndTypeMap.put(columnName, typeToTSDataType(column.getType()));
@@ -60,21 +60,21 @@ public class IoTDBTableMetaInfo {
         });
 
         // index order: id, entity_id, node_type, service_id, service_group, trace_id
-        indexes.add(IoTDBClient.ID_IDX);
-        if (storageAndIndexMap.containsValue(IoTDBClient.ENTITY_ID_IDX)) {
-            indexes.add(IoTDBClient.ENTITY_ID_IDX);
+        indexes.add(IoTDBIndexes.ID_IDX);
+        if (storageAndIndexMap.containsValue(IoTDBIndexes.ENTITY_ID_IDX)) {
+            indexes.add(IoTDBIndexes.ENTITY_ID_IDX);
         }
-        if (storageAndIndexMap.containsValue(IoTDBClient.NODE_TYPE_IDX)) {
-            indexes.add(IoTDBClient.NODE_TYPE_IDX);
+        if (storageAndIndexMap.containsValue(IoTDBIndexes.NODE_TYPE_IDX)) {
+            indexes.add(IoTDBIndexes.NODE_TYPE_IDX);
         }
-        if (storageAndIndexMap.containsValue(IoTDBClient.SERVICE_ID_IDX)) {
-            indexes.add(IoTDBClient.SERVICE_ID_IDX);
+        if (storageAndIndexMap.containsValue(IoTDBIndexes.SERVICE_ID_IDX)) {
+            indexes.add(IoTDBIndexes.SERVICE_ID_IDX);
         }
-        if (storageAndIndexMap.containsValue(IoTDBClient.GROUP_IDX)) {
-            indexes.add(IoTDBClient.GROUP_IDX);
+        if (storageAndIndexMap.containsValue(IoTDBIndexes.GROUP_IDX)) {
+            indexes.add(IoTDBIndexes.GROUP_IDX);
         }
-        if (storageAndIndexMap.containsValue(IoTDBClient.TRACE_ID_IDX)) {
-            indexes.add(IoTDBClient.TRACE_ID_IDX);
+        if (storageAndIndexMap.containsValue(IoTDBIndexes.TRACE_ID_IDX)) {
+            indexes.add(IoTDBIndexes.TRACE_ID_IDX);
         }
 
         final IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.builder().model(model)
@@ -111,11 +111,5 @@ public class IoTDBTableMetaInfo {
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }
-    }
-
-    public static boolean isIndex(String key) {
-        return key.equals(IoTDBClient.ENTITY_ID_IDX) || key.equals(IoTDBClient.NODE_TYPE_IDX) ||
-                key.equals(IoTDBClient.SERVICE_ID_IDX) || key.equals(IoTDBClient.GROUP_IDX) ||
-                key.equals(IoTDBClient.TRACE_ID_IDX);
     }
 }

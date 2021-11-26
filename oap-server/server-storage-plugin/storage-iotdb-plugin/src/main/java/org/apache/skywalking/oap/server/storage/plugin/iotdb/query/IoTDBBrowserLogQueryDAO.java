@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -57,7 +58,7 @@ public class IoTDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
         query = client.addModelPath(query, BrowserErrorLogRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
-            indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
+            indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         }
         query = client.addQueryIndexValue(BrowserErrorLogRecord.INDEX_NAME, query, indexAndValueMap);
 

@@ -59,13 +59,6 @@ public class IoTDBClient implements Client, HealthCheckable {
     public static final String TIME = "Time";
     public static final String TIMESTAMP = "timestamp";
 
-    public static final String ID_IDX = "id";
-    public static final String ENTITY_ID_IDX = "entity_id";
-    public static final String NODE_TYPE_IDX = "node_type";
-    public static final String SERVICE_ID_IDX = "service_id";
-    public static final String GROUP_IDX = "service_group";
-    public static final String TRACE_ID_IDX = "trace_id";
-
     public IoTDBClient(IoTDBStorageConfig config) {
         this.config = config;
         storageGroup = config.getStorageGroup();
@@ -229,9 +222,9 @@ public class IoTDBClient implements Client, HealthCheckable {
                         map.put(columnName, field.getObjectValue(field.getDataType()));
                     }
                 }
-                if (map.containsKey(IoTDBClient.NODE_TYPE_IDX)) {
-                    String nodeType = (String) map.get(IoTDBClient.NODE_TYPE_IDX);
-                    map.put(IoTDBClient.NODE_TYPE_IDX, Integer.valueOf(nodeType));
+                if (map.containsKey(IoTDBIndexes.NODE_TYPE_IDX)) {
+                    String nodeType = (String) map.get(IoTDBIndexes.NODE_TYPE_IDX);
+                    map.put(IoTDBIndexes.NODE_TYPE_IDX, Integer.valueOf(nodeType));
                 }
                 if (modelName.equals(BrowserErrorLogRecord.INDEX_NAME) || modelName.equals(LogRecord.INDEX_NAME)) {
                     map.put(IoTDBClient.TIMESTAMP, map.get("\"" + IoTDBClient.TIMESTAMP + "\""));

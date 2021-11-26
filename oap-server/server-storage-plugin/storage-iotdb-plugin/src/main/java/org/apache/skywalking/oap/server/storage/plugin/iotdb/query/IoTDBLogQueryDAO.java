@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -63,10 +64,10 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
         query = client.addModelPath(query, LogRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
-            indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
+            indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         }
         if (Objects.nonNull(relatedTrace) && StringUtil.isNotEmpty(relatedTrace.getTraceId())) {
-            indexAndValueMap.put(IoTDBClient.TRACE_ID_IDX, relatedTrace.getTraceId());
+            indexAndValueMap.put(IoTDBIndexes.TRACE_ID_IDX, relatedTrace.getTraceId());
         }
         query = client.addQueryIndexValue(LogRecord.INDEX_NAME, query, indexAndValueMap);
 

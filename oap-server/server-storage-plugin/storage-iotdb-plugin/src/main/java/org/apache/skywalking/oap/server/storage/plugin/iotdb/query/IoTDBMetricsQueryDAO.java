@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -70,7 +71,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         final String entityId = condition.getEntity().buildId();
         if (entityId != null) {
             Map<String, String> indexAndValueMap = new HashMap<>();
-            indexAndValueMap.put(IoTDBClient.ENTITY_ID_IDX, entityId);
+            indexAndValueMap.put(IoTDBIndexes.ENTITY_ID_IDX, entityId);
             query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
         } else {
             query = client.addQueryAsterisk(condition.getName(), query);
@@ -101,7 +102,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         for (String id : ids) {
             query = client.addModelPath(query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
-            indexAndValueMap.put(IoTDBClient.ID_IDX, id);
+            indexAndValueMap.put(IoTDBIndexes.ID_IDX, id);
             query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
             query.append(", ");
         }
@@ -164,7 +165,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         for (String id : ids) {
             query = client.addModelPath(query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
-            indexAndValueMap.put(IoTDBClient.ID_IDX, id);
+            indexAndValueMap.put(IoTDBIndexes.ID_IDX, id);
             query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
             query.append(", ");
         }
@@ -214,7 +215,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         for (String id : ids) {
             query = client.addModelPath(query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
-            indexAndValueMap.put(IoTDBClient.ID_IDX, id);
+            indexAndValueMap.put(IoTDBIndexes.ID_IDX, id);
             query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
             query.append(", ");
         }

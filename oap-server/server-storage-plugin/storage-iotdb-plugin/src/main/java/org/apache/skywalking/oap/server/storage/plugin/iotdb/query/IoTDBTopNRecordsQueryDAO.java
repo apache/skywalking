@@ -33,7 +33,6 @@ import org.apache.iotdb.session.pool.SessionDataSetWrapper;
 import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
@@ -42,7 +41,9 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 
 @Slf4j
@@ -59,7 +60,7 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(condition.getParentService())) {
             final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
-            indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
+            indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         }
         query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
 
@@ -83,7 +84,7 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
             }
 
             List<String> indexes = IoTDBTableMetaInfo.get(condition.getName()).getIndexes();
-            int traceIdIdx = indexes.indexOf(IoTDBClient.TRACE_ID_IDX);
+            int traceIdIdx = indexes.indexOf(IoTDBIndexes.TRACE_ID_IDX);
 
             while (wrapper.hasNext()) {
                 SelectedRecord record = new SelectedRecord();

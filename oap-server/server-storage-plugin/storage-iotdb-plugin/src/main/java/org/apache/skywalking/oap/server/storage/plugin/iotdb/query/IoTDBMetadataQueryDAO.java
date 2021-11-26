@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -59,9 +60,9 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Normal.value()));
+        indexAndValueMap.put(IoTDBIndexes.NODE_TYPE_IDX, String.valueOf(NodeType.Normal.value()));
         if (StringUtil.isNotEmpty(group)) {
-            indexAndValueMap.put(IoTDBClient.GROUP_IDX, group);
+            indexAndValueMap.put(IoTDBIndexes.GROUP_IDX, group);
         }
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
@@ -78,7 +79,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Browser.value()));
+        indexAndValueMap.put(IoTDBIndexes.NODE_TYPE_IDX, String.valueOf(NodeType.Browser.value()));
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
@@ -94,7 +95,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(NodeType.Database.value()));
+        indexAndValueMap.put(IoTDBIndexes.NODE_TYPE_IDX, String.valueOf(NodeType.Database.value()));
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
@@ -116,7 +117,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(nodeType.value()));
+        indexAndValueMap.put(IoTDBIndexes.NODE_TYPE_IDX, String.valueOf(nodeType.value()));
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         if (!Strings.isNullOrEmpty(keyword)) {
             query.append(" where ").append(ServiceTraffic.NAME).append(" like '%").append(keyword).append("%'");
@@ -134,7 +135,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBClient.NODE_TYPE_IDX, String.valueOf(nodeType.value()));
+        indexAndValueMap.put(IoTDBIndexes.NODE_TYPE_IDX, String.valueOf(nodeType.value()));
         query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(" where ").append(ServiceTraffic.NAME).append(" = \"").append(serviceCode).append("\"")
                 .append(IoTDBClient.ALIGN_BY_DEVICE);
@@ -151,7 +152,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, EndpointTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
+        indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         query = client.addQueryIndexValue(EndpointTraffic.INDEX_NAME, query, indexAndValueMap);
         if (!Strings.isNullOrEmpty(keyword)) {
             query.append(" where ").append(EndpointTraffic.NAME).append(" like '%").append(keyword).append("%'");
@@ -177,7 +178,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, InstanceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
+        indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         query = client.addQueryIndexValue(InstanceTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(" where ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ").append(minuteTimeBucket)
                 .append(IoTDBClient.ALIGN_BY_DEVICE);

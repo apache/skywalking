@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,7 +49,7 @@ public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
         query = client.addModelPath(query, ProfileTaskRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
-            indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
+            indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         }
         query = client.addQueryIndexValue(ProfileTaskRecord.INDEX_NAME, query, indexAndValueMap);
 
@@ -87,7 +88,7 @@ public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, ProfileTaskRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBClient.ID_IDX, id);
+        indexAndValueMap.put(IoTDBIndexes.ID_IDX, id);
         query = client.addQueryIndexValue(ProfileTaskRecord.INDEX_NAME, query, indexAndValueMap);
         query.append(" limit 1").append(IoTDBClient.ALIGN_BY_DEVICE);
 

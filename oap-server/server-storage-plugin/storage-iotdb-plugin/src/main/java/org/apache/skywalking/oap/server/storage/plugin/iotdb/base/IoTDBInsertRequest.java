@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObje
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 
 @Getter
@@ -57,11 +58,11 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
         Map<String, Object> storageMap = storageBuilder.entity2Storage(storageData);
 
         indexes.forEach(index -> {
-            if (index.equals(IoTDBClient.ID_IDX)) {
+            if (index.equals(IoTDBIndexes.ID_IDX)) {
                 indexValues.add(storageData.id());
             } else if (storageMap.containsKey(index)) {
                 // avoid `service_group` be "null" when inserting
-                if (index.equals(IoTDBClient.GROUP_IDX) && storageMap.get(index) == null) {
+                if (index.equals(IoTDBIndexes.GROUP_IDX) && storageMap.get(index) == null) {
                     indexValues.add("");
                 } else {
                     indexValues.add(String.valueOf(storageMap.get(index)));

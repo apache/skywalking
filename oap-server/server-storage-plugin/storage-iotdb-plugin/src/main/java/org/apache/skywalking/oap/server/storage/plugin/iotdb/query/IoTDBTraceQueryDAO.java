@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 
 @RequiredArgsConstructor
 public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
@@ -61,10 +62,10 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
         query = client.addModelPath(query, SegmentRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
-            indexAndValueMap.put(IoTDBClient.SERVICE_ID_IDX, serviceId);
+            indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         }
         if (!Strings.isNullOrEmpty(traceId)) {
-            indexAndValueMap.put(IoTDBClient.TRACE_ID_IDX, traceId);
+            indexAndValueMap.put(IoTDBIndexes.TRACE_ID_IDX, traceId);
         }
         query = client.addQueryIndexValue(SegmentRecord.INDEX_NAME, query, indexAndValueMap);
 
@@ -143,7 +144,7 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
         query.append("select * from ");
         query = client.addModelPath(query, SegmentRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBClient.TRACE_ID_IDX, traceId);
+        indexAndValueMap.put(IoTDBIndexes.TRACE_ID_IDX, traceId);
         query = client.addQueryIndexValue(SegmentRecord.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
