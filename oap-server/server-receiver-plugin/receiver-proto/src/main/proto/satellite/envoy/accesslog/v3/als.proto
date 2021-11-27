@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package satellite.envoy.accesslog.v3;
+
+import "envoy/service/accesslog/v3/als.proto";
+
+option java_package = "org.apache.skywalking.satellite.envoy.accesslog.v3";
+option java_outer_classname = "SatelliteAlsProto";
+option java_multiple_files = true;
+option java_generic_services = true;
+
+// [#protodoc-title: Satellite gRPC Access Log Service (ALS)]
+
+// Duplicate the Envoy ALS protocol, work for satellite transmit the ALS message to oap.
+service SatelliteAccessLogService {
+  // Use the same parameters to transmit access log messages.
+  // The only difference is that the identity information (StreamAccessLogsMessage#identity) may occur on each message.
+  // Rely on the streaming messages are orderly, so there will be no problems with message processing.
+  // Therefore, when the satellite transmits the ALS message, it does not need to open, send and close the stream for each different identity (envoy).
+  // As a result, unnecessary streaming operation requests could be reduced, and the satellite becomes more stable when the satellite sends requests to the upstream.
+  // Especially when the number of envoys increases, the optimization becomes more obvious.
+  rpc StreamAccessLogs(stream .envoy.service.accesslog.v3.StreamAccessLogsMessage) returns (.envoy.service.accesslog.v3.StreamAccessLogsResponse) {
+  }
+}

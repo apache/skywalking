@@ -95,7 +95,12 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
 
     @Override
     public StreamObserver<StreamAccessLogsMessage> streamAccessLogs(
-        StreamObserver<StreamAccessLogsResponse> responseObserver) {
+            StreamObserver<StreamAccessLogsResponse> responseObserver) {
+        return streamAccessLogs(responseObserver, false);
+    }
+
+    public StreamObserver<StreamAccessLogsMessage> streamAccessLogs(
+        StreamObserver<StreamAccessLogsResponse> responseObserver, boolean alwaysAnalyzeIdentity) {
         return new StreamObserver<StreamAccessLogsMessage>() {
             private volatile boolean isFirst = true;
             private Role role;
@@ -105,7 +110,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             public void onNext(StreamAccessLogsMessage message) {
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
-                    if (isFirst) {
+                    if (isFirst || (alwaysAnalyzeIdentity && message.getIdentifier() != null)) {
                         identifier = message.getIdentifier();
                         isFirst = false;
                         role = Role.NONE;
