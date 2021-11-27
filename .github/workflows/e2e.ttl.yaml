@@ -43,6 +43,7 @@ jobs:
           - ttl/tidb/e2e.yaml
           - ttl/influxdb/e2e.yaml
           - ttl/postgresql/e2e.yaml
+          - ttl/iotdb/e2e.yaml
         include:
           - es-version: 6.3.2
             config-file: ttl/es/e2e.yaml

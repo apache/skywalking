@@ -327,6 +327,11 @@ The text of each license is the standard Apache 2.0 license.
     Armeria 1.12.0, http://github.com/line/armeria, Apache 2.0
     Brotli4j 1.6.0, https://github.com/hyperxpro/Brotli4j, Apache 2.0
     micrometer 1.7.4, https://github.com/micrometer-metrics/micrometer, Apache 2.0
+    iotdb-session 0.12.3: https://github.com/apache/iotdb, Apache 2.0
+    iotdb-thrift 0.12.3: https://github.com/apache/iotdb, Apache 2.0
+    service-rpc 0.12.3: https://github.com/apache/iotdb, Apache 2.0
+    tsfile 0.12.3 https://github.com/apache/iotdb Apache 2.0
+    libthrift 0.14.1: https://github.com/apache/thrift, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -393,7 +398,9 @@ EPL licenses
 The following components are provided under the EPL License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-    logback 1.1.11: https://github.com/qos-ch/logback: EPL 1.0
+    logback 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
+    logback-classic 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
+    logback-core 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
 
 ========================================================================
 CDDL licenses

@@ -43,6 +43,7 @@ jobs:
           - event/es/e2e.yaml
           - event/mysql/e2e.yaml
           - event/influxdb/e2e.yaml
+          - event/iotdb/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:

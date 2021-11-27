@@ -44,6 +44,7 @@ jobs:
           - profile/es/e2e.yaml
           - profile/mysql/e2e.yaml
           - profile/influxdb/e2e.yaml
+          - profile/iotdb/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
