@@ -11,7 +11,7 @@ option java_generic_services = true;
 
 // [#protodoc-title: Satellite gRPC Access Log Service (ALS)]
 
-// Duplicate the Envoy ALS protocol, work for satellite transmit the ALS message to oap.
+// The new Envoy ALS protocol, work for satellite transmit the ALS message to oap.
 service SatelliteAccessLogService {
   // Use the same parameters to transmit access log messages.
   // The only difference is that the identity information (StreamAccessLogsMessage#identity) may occur on each message.
