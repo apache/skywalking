@@ -84,7 +84,6 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
         final AccessLogServiceGRPCHandler handler = new AccessLogServiceGRPCHandler(getManager(), config);
         service.addHandler(handler);
         service.addHandler(new AccessLogServiceGRPCHandlerV3(handler));
-        service.addHandler(new SatelliteAccessLogServiceGRPCHandler(handler));
         service.addHandler(new SatelliteAccessLogServiceGRPCHandlerV3(handler));
     }
 
