@@ -110,7 +110,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             public void onNext(StreamAccessLogsMessage message) {
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
-                    if (isFirst || (alwaysAnalyzeIdentity && message.getIdentifier() != null)) {
+                    if (isFirst || (alwaysAnalyzeIdentity && message.hasIdentifier())) {
                         identifier = message.getIdentifier();
                         isFirst = false;
                         role = Role.NONE;
