@@ -103,7 +103,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private String trustStorePass;
 
     /**
-     * @since 8.8.2 Skip tls host verify on elasticsearch server
+     * @since 8.9.0 Skip tls host verify on ElasticSearch server host
      */
     private boolean skipHostVerify;
 
