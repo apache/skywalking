@@ -68,7 +68,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     private volatile String trustStorePass;
 
     @Setter
-    private boolean skipHostVerify;
+    private volatile boolean skipHostVerify;
 
     @Setter
     private volatile String user;
