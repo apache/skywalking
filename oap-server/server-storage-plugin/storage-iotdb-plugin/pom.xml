@@ -49,6 +49,18 @@
                     <groupId>net.jpountz.lz4</groupId>
                     <artifactId>lz4</artifactId>
                 </exclusion>
+                <!-- When logback + log4j2 + slf4j co-existed in OAP server classpath at the runtime, -->
+                <!-- SkyWalking so11y reported a runtime negative impact about performance. -->
+                <!-- Disable this, and use slf4j-log4j instead of. -->
+                <!-- Ref original discussion, https://github.com/apache/skywalking/pull/8194 -->
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

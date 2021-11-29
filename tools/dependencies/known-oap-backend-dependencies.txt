@@ -97,8 +97,6 @@ log4j-api-2.14.1.jar
 log4j-core-2.14.1.jar
 log4j-over-slf4j-1.7.30.jar
 log4j-slf4j-impl-2.14.1.jar
-logback-classic-1.2.3.jar
-logback-core-1.2.3.jar
 logging-interceptor-3.13.1.jar
 lz4-java-1.6.0.jar
 micrometer-core-1.7.4.jar
