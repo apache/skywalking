@@ -44,7 +44,6 @@ jobs:
           - alarm/mysql/e2e.yaml
           - alarm/influxdb/e2e.yaml
           - alarm/postgres/e2e.yaml
-          - alarm/iotdb/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:

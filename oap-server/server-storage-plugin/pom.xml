@@ -33,7 +33,6 @@
         <module>storage-zipkin-elasticsearch-plugin</module>
         <module>storage-influxdb-plugin</module>
         <module>storage-tidb-plugin</module>
-        <module>storage-iotdb-plugin</module>
     </modules>
 
 </project>

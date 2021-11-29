@@ -44,7 +44,6 @@ jobs:
           - log/mysql/e2e.yaml
           - log/influxdb/e2e.yaml
           - log/postgres/e2e.yaml
-          - log/iotdb/e2e.yaml
         include:
           - es-version: 6.3.2
             config-file: log/es/e2e.yaml

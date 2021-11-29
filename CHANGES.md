@@ -59,7 +59,6 @@ Release Notes.
 * Add OpenSearch 1.2.0 to test and verify it works.
 * Upgrade grpc-java to 1.42.1 and protoc to 3.19.1 to allow using native Mac osx-aarch_64 artifacts.
 * Fix TopologyQuery.loadEndpointRelation bug.
-* Support using IoTDB as a new storage option.
 * Add customized envoy ALS protocol receiver for satellite transmit batch data.
 
 #### UI

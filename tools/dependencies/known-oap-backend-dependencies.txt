@@ -61,8 +61,6 @@ httpclient-4.5.13.jar
 httpcore-4.4.13.jar
 httpcore-nio-4.4.13.jar
 influxdb-java-2.15.jar
-iotdb-session-0.12.3.jar
-iotdb-thrift-0.12.3.jar
 jackson-annotations-2.12.2.jar
 jackson-core-2.12.2.jar
 jackson-databind-2.12.2.jar
@@ -91,14 +89,11 @@ jsr305-3.0.2.jar
 kafka-clients-2.4.1.jar
 kotlin-reflect-1.1.1.jar
 kotlin-stdlib-1.1.60.jar
-libthrift-0.14.1.jar
 listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
 log4j-api-2.14.1.jar
 log4j-core-2.14.1.jar
 log4j-over-slf4j-1.7.30.jar
 log4j-slf4j-impl-2.14.1.jar
-logback-classic-1.2.3.jar
-logback-core-1.2.3.jar
 logging-interceptor-3.13.1.jar
 lz4-java-1.6.0.jar
 micrometer-core-1.7.4.jar
@@ -137,7 +132,6 @@ protobuf-java-util-3.17.3.jar
 reactive-streams-1.0.2.jar
 reflectasm-1.11.7.jar
 retrofit-2.5.0.jar
-service-rpc-0.12.3.jar
 simpleclient-0.6.0.jar
 simpleclient_common-0.6.0.jar
 simpleclient_hotspot-0.6.0.jar
@@ -146,7 +140,6 @@ slf4j-api-1.7.30.jar
 snakeyaml-1.28.jar
 snappy-java-1.1.7.3.jar
 swagger-annotations-1.6.3.jar
-tsfile-0.12.3.jar
 vavr-0.10.3.jar
 vavr-match-0.10.3.jar
 zipkin-2.9.1.jar

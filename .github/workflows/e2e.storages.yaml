@@ -42,7 +42,6 @@ jobs:
           - storage/tidb/e2e.yaml
           - storage/influxdb/e2e.yaml
           - storage/postgres/e2e.yaml
-          - storage/iotdb/e2e.yaml
         include:
           - opensearch-version: 1.1.0
             config-file: storage/opensearch/e2e.yaml
