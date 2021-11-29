@@ -30,6 +30,9 @@ import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.converter.BasicTraceMapper;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.converter.RowEntityMapper;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.converter.SegmentRecordMapper;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -40,6 +43,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> implements ITraceQueryDAO {
+    private static final RowEntityMapper<SegmentRecord> SEGMENT_RECORD_MAPPER = new SegmentRecordMapper();
+    private static final RowEntityMapper<BasicTrace> BASIC_TRACE_MAPPER = new BasicTraceMapper();
+
     private static final DateTimeFormatter YYYYMMDDHHMMSS = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
     private static final List<String> BASIC_QUERY_PROJ = ImmutableList.of("trace_id", "state", "endpoint_id", "duration", "start_time");
@@ -114,19 +120,7 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
         StreamQueryResponse response = this.getClient().query(query);
         TraceBrief brief = new TraceBrief();
         brief.setTotal(response.size());
-        brief.getTraces().addAll(response.getElements().stream().map(elem -> {
-            BasicTrace trace = new BasicTrace();
-            trace.setSegmentId(elem.getId());
-            final List<TagAndValue<?>> searchable = elem.getTagFamilies().get(0);
-            trace.getTraceIds().add((String) searchable.get(0).getValue());
-            trace.setError(((Long) searchable.get(1).getValue()).intValue() == 1);
-            trace.getEndpointNames().add(IDManager.EndpointID.analysisId(
-                    (String) searchable.get(2).getValue()
-            ).getEndpointName());
-            trace.setDuration(((Long) searchable.get(3).getValue()).intValue());
-            trace.setStart(String.valueOf(searchable.get(4).getValue()));
-            return trace;
-        }).collect(Collectors.toList()));
+        brief.getTraces().addAll(response.getElements().stream().map(BASIC_TRACE_MAPPER::map).collect(Collectors.toList()));
         return brief;
     }
 
@@ -136,22 +130,7 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
         query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "trace_id", traceId));
         query.setDataBinary(true);
         StreamQueryResponse response = this.getClient().query(query);
-        return response.getElements().stream().map(elem -> {
-            SegmentRecord record = new SegmentRecord();
-            final List<TagAndValue<?>> searchable = elem.getTagFamilies().get(0);
-            record.setSegmentId(elem.getId());
-            record.setTraceId((String) searchable.get(0).getValue());
-            record.setIsError(((Number) searchable.get(1).getValue()).intValue());
-            record.setServiceId((String) searchable.get(2).getValue());
-            record.setServiceInstanceId((String) searchable.get(3).getValue());
-            record.setEndpointId((String) searchable.get(4).getValue());
-            record.setLatency(((Number) searchable.get(5).getValue()).intValue());
-            record.setStartTime(((Number) searchable.get(6).getValue()).longValue());
-            final List<TagAndValue<?>> data = elem.getTagFamilies().get(1);
-            // TODO: support binary data in the client SDK
-            record.setDataBinary((byte[]) data.get(0).getValue());
-            return record;
-        }).collect(Collectors.toList());
+        return response.getElements().stream().map(SEGMENT_RECORD_MAPPER::map).collect(Collectors.toList());
     }
 
     @Override

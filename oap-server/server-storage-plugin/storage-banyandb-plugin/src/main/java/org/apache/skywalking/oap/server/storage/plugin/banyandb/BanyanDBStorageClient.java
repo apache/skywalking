@@ -44,6 +44,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
+    public void write() {
+        this.client
+    }
+
     public StreamBulkWriteProcessor createBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
         return this.client.buildStreamWriteProcessor(maxBulkSize, flushInterval, concurrency);
     }
