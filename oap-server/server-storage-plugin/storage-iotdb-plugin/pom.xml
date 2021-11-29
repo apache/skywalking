@@ -49,6 +49,8 @@
                     <groupId>net.jpountz.lz4</groupId>
                     <artifactId>lz4</artifactId>
                 </exclusion>
+               <!-- logback has runtime negative impact about performance, -->
+               <!-- Disable this, and use slf4j-sl4j instead of. -->
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-classic</artifactId>
