@@ -392,6 +392,17 @@ HdrHistogram 2.1.12:	https://github.com/HdrHistogram/HdrHistogram , CC0-1.0 and 
 reactive-streams 1.0.2:	https://github.com/reactive-streams/reactive-streams-jvm , CC0-1.0
 
 ========================================================================
+EPL licenses
+========================================================================
+
+The following components are provided under the EPL License. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
+
+    logback 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
+    logback-classic 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
+    logback-core 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
+
+========================================================================
 CDDL licenses
 ========================================================================
 
