@@ -101,6 +101,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
      */
     private String trustStorePass;
+    private String insecureHosts;
     private int resultWindowMaxSize = 10000;
     private int metadataQueryMaxSize = 5000;
     private int segmentQueryMaxSize = 200;

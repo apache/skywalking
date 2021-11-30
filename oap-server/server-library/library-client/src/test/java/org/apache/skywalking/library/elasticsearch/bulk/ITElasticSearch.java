@@ -80,7 +80,7 @@ public class ITElasticSearch {
             server.getHttpHostAddress(),
             "http", "", "", "test", "test",
             indexNameConverter(namespace), 500, 6000,
-            0
+            0, ""
         );
         client.connect();
     }

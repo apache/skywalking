@@ -37,11 +37,10 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.net.ssl.TrustManagerFactory;
 import lombok.SneakyThrows;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
-
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public final class ElasticSearchBuilder {
     private static final int NUM_PROC = Runtime.getRuntime().availableProcessors();
@@ -59,6 +58,8 @@ public final class ElasticSearchBuilder {
     private String trustStorePath;
 
     private String trustStorePass;
+
+    private String insecureHosts;
 
     private Duration connectTimeout = Duration.ofMillis(500);
 
@@ -92,6 +93,11 @@ public final class ElasticSearchBuilder {
 
     public ElasticSearchBuilder endpoints(String... endpoints) {
         return endpoints(Arrays.asList(endpoints));
+    }
+
+    public ElasticSearchBuilder insecureHosts(String insecureHosts) {
+        this.insecureHosts = insecureHosts;
+        return this;
     }
 
     public ElasticSearchBuilder healthCheckRetryInterval(Duration healthCheckRetryInterval) {
@@ -148,6 +154,10 @@ public final class ElasticSearchBuilder {
                          .idleTimeout(socketTimeout)
                          .useHttp2Preface(false)
                          .workerGroup(numHttpClientThread > 0 ? numHttpClientThread : NUM_PROC);
+
+        if (StringUtil.isNotBlank(insecureHosts)) {
+            factoryBuilder.tlsNoVerifyHosts(insecureHosts.split(","));
+        }
 
         if (StringUtil.isNotBlank(trustStorePath)) {
             final TrustManagerFactory trustManagerFactory =

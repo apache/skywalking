@@ -33,7 +33,6 @@ import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.library.elasticsearch.ElasticSearch;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchBuilder;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
@@ -49,6 +48,7 @@ import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * ElasticSearchClient connects to the ES server by using ES client APIs.
@@ -66,6 +66,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     @Setter
     private volatile String trustStorePass;
+
+    private final String insecureHosts;
 
     @Setter
     private volatile String user;
@@ -94,7 +96,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
                                Function<String, String> indexNameConverter,
                                int connectTimeout,
                                int socketTimeout,
-                               int numHttpClientThread) {
+                               int numHttpClientThread,
+                               String insecureHosts) {
         this.clusterNodes = clusterNodes;
         this.protocol = protocol;
         this.trustStorePath = trustStorePath;
@@ -105,6 +108,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         this.connectTimeout = connectTimeout;
         this.socketTimeout = socketTimeout;
         this.numHttpClientThread = numHttpClientThread;
+        this.insecureHosts = insecureHosts;
     }
 
     @Override
@@ -138,6 +142,9 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         }
         if (!Strings.isNullOrEmpty(password)) {
             cb.password(password);
+        }
+        if (!Strings.isNullOrEmpty(insecureHosts)) {
+            cb.insecureHosts(insecureHosts);
         }
 
         final ElasticSearch newOne = cb.build();
