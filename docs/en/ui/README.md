@@ -91,6 +91,9 @@ Since SkyWalking provides distributed agents, trace query is a key feature.
 ## Profile
 Profile is an interactive feature. It provides method-level performance diagnoses. 
 
+Make sure you have read the blog [**Apache SkyWalking: Use Profiling to Fix the Blind Spot of Distributed Tracing**](https://skywalking.apache.org/blog/2020-04-13-apache-skywalking-profiling/) first.
+If you are using Python agent, the blog [**Python Agent Supports Profiling**](https://skywalking.apache.org/blog/2021-09-12-skywalking-python-profiling/) should be read too.
+
 To start profile analysis, you need to create a profile task:
 
 <img src="https://skywalking.apache.org/ui-doc/7.0.0/profile-create.png" width="440px"/>
