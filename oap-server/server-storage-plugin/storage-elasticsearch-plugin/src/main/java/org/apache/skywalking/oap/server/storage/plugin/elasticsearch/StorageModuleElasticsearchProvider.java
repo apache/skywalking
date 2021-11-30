@@ -145,7 +145,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                     elasticSearchClient.setTrustStorePass(config.getTrustStorePass());
                     elasticSearchClient.connect();
                 }
-            }, config.getSecretsManagementFile(), config.getTrustStorePass());
+            }, config.getSecretsManagementFile(), config.getTrustStorePath());
             /*
              * By leveraging the sync update check feature when startup.
              */

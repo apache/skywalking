@@ -62,6 +62,7 @@ Release Notes.
 * Support using IoTDB as a new storage option.
 * Add customized envoy ALS protocol receiver for satellite transmit batch data.
 * Remove `logback` dependencies in IoTDB plugin.
+* Fix `StorageModuleElasticsearchProvider` doesn't watch on `trustStorePath`.
 
 #### UI
 
