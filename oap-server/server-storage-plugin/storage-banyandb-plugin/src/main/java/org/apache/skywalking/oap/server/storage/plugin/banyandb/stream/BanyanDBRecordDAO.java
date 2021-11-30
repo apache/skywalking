@@ -45,11 +45,11 @@ public class BanyanDBRecordDAO implements IRecordDAO {
         if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
             SegmentRecord segmentRecord = (SegmentRecord) record;
             StreamWrite streamWrite = StreamWrite.builder()
-                    .name(BanyanDBSchema.NAME)
-                    .binary(segmentRecord.getDataBinary())
+                    .name(SegmentRecord.INDEX_NAME)
+                    .dataTag(Tag.binaryField(segmentRecord.getDataBinary()))
                     .timestamp(segmentRecord.getStartTime())
                     .elementId(segmentRecord.getSegmentId())
-                    .tags(buildFieldObjects(this.storageBuilder.entity2Storage(segmentRecord)))
+                    .searchableTags(buildFieldObjects(this.storageBuilder.entity2Storage(segmentRecord)))
                     .build();
             return new BanyanDBStreamInsertRequest(streamWrite);
         }
