@@ -1,9 +1,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.converter;
 
+import com.google.common.collect.ImmutableList;
+import com.google.protobuf.ByteString;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 
+import java.util.Collections;
 import java.util.List;
 
 public class SegmentRecordMapper implements RowEntityMapper<SegmentRecord> {
@@ -20,8 +23,17 @@ public class SegmentRecordMapper implements RowEntityMapper<SegmentRecord> {
         record.setLatency(((Number) searchable.get(5).getValue()).intValue());
         record.setStartTime(((Number) searchable.get(6).getValue()).longValue());
         final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
-        // TODO: support binary data in the client SDK
-        record.setDataBinary((byte[]) data.get(0).getValue());
+        record.setDataBinary(((ByteString) data.get(0).getValue()).toByteArray());
         return record;
+    }
+
+    @Override
+    public List<String> searchableProjection() {
+        return ImmutableList.of("trace_id", "state", "service_id", "service_instance_id", "endpoint_id", "duration", "start_time");
+    }
+
+    @Override
+    public List<String> dataProjection() {
+        return Collections.singletonList("data_binary");
     }
 }
