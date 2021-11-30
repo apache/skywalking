@@ -88,6 +88,7 @@ Release Notes.
 * Restructure documents about receivers and fetchers.
     1. Remove general receiver and fetcher docs
     2. Add more specific menu with docs to help users to find documents easier.
+* Add a guidance doc about the logic endpoint. 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/101?closed=1)
 
