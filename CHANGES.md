@@ -63,6 +63,7 @@ Release Notes.
 * Add customized envoy ALS protocol receiver for satellite transmit batch data.
 * Remove `logback` dependencies in IoTDB plugin.
 * Fix `StorageModuleElasticsearchProvider` doesn't watch on `trustStorePath`.
+* Fix a wrong check about entity if GraphQL at the endpoint relation level.
 
 #### UI
 
