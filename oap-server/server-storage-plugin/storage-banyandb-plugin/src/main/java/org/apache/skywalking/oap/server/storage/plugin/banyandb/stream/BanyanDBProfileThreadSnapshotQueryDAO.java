@@ -9,10 +9,10 @@ import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.converter.BasicTraceMapper;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.converter.ProfileThreadSnapshotRecordMapper;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.converter.RowEntityMapper;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.converter.SegmentRecordMapper;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.BasicTraceMapper;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.ProfileThreadSnapshotRecordMapper;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.RowEntityMapper;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.SegmentRecordMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
