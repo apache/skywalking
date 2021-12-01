@@ -10,8 +10,8 @@ import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.converter.ProfileTaskMapper;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.converter.RowEntityMapper;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.ProfileTaskMapper;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.RowEntityMapper;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,26 +34,30 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractDAO<BanyanDBStorageClie
         query.setDataProjections(MAPPER.dataProjection());
 
         if (StringUtil.isNotEmpty(serviceId)) {
-            query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", ProfileTaskRecord.SERVICE_ID, serviceId));
+            query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable",
+                    ProfileTaskRecord.SERVICE_ID, serviceId));
         }
 
         if (StringUtil.isNotEmpty(endpointName)) {
-            query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", ProfileTaskRecord.ENDPOINT_NAME, endpointName));
+            query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable",
+                    ProfileTaskRecord.ENDPOINT_NAME, endpointName));
         }
 
         if (Objects.nonNull(startTimeBucket)) {
-            query.appendCondition(PairQueryCondition.LongQueryCondition.ge("searchable", ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(startTimeBucket)));
+            query.appendCondition(PairQueryCondition.LongQueryCondition.ge("searchable",
+                    ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(startTimeBucket)));
         }
 
         if (Objects.nonNull(endTimeBucket)) {
-            query.appendCondition(PairQueryCondition.LongQueryCondition.le("searchable", ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(endTimeBucket)));
+            query.appendCondition(PairQueryCondition.LongQueryCondition.le("searchable",
+                    ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(endTimeBucket)));
         }
-
-        // TODO: why delete?
 
         if (Objects.nonNull(limit)) {
             query.setLimit(limit);
         }
+
+        query.setOrderBy(new StreamQuery.OrderBy(ProfileTaskRecord.START_TIME, StreamQuery.OrderBy.Type.DESC));
 
         StreamQueryResponse resp = getClient().query(query);
         return resp.getElements().stream().map(MAPPER::map).collect(Collectors.toList());
@@ -61,7 +65,15 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractDAO<BanyanDBStorageClie
 
     @Override
     public ProfileTask getById(String id) throws IOException {
-        // TODO: support id query
-        throw new UnsupportedOperationException("element id get is not supported");
+        if (StringUtil.isEmpty(id)) {
+            return null;
+        }
+
+        final StreamQuery query = new StreamQuery(ProfileTaskRecord.INDEX_NAME, MAPPER.searchableProjection());
+        query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", ProfileTaskMapper.ID, id));
+        query.setLimit(1);
+
+        StreamQueryResponse resp = getClient().query(query);
+        return resp.getElements().stream().map(MAPPER::map).findAny().orElse(null);
     }
 }

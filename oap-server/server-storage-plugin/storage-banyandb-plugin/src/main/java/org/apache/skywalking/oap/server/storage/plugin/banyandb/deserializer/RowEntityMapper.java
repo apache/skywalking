@@ -1,4 +1,4 @@
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.converter;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer;
 
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 
