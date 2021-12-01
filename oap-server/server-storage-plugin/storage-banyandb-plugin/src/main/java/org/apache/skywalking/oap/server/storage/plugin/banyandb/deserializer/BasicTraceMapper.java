@@ -1,4 +1,4 @@
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.converter;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;

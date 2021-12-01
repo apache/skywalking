@@ -1,4 +1,4 @@
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.converter;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
