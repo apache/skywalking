@@ -103,7 +103,7 @@ catalog:
               path: "/en/setup/backend/dynamical-logging"
             - name: "Security(SSL/TLS/mTLS)"
               path: "/en/setup/backend/grpc-security"
-            - name: "Backend Load Balancer"
+            - name: "Setup Native Load Balancer"
               path: "/en/setup/backend/backend-load-balancer"
           - name: "Tracing"
             catalog:
