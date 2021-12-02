@@ -8,29 +8,19 @@ import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 
 import java.util.List;
 
-public class LogMapper implements RowEntityMapper<Log> {
-    @Override
-    public List<String> searchableProjection() {
-        return ImmutableList.of(
-                AbstractLogRecord.SERVICE_ID, // 0
-                AbstractLogRecord.SERVICE_INSTANCE_ID, // 1
-                AbstractLogRecord.ENDPOINT_ID, // 2
-                AbstractLogRecord.TRACE_ID, // 3
-                AbstractLogRecord.TRACE_SEGMENT_ID,
-                AbstractLogRecord.SPAN_ID,
-                AbstractLogRecord.TIMESTAMP); // 6
-    }
-
-    @Override
-    public List<String> dataProjection() {
-        return ImmutableList.of(AbstractLogRecord.CONTENT_TYPE,
-                AbstractLogRecord.CONTENT,
-                AbstractLogRecord.TAGS_RAW_DATA); // 2
+public class LogMapper extends AbstractBanyanDBDeserializer<Log> {
+    public LogMapper() {
+        super(LogRecord.INDEX_NAME, ImmutableList.of(
+                        AbstractLogRecord.SERVICE_ID, AbstractLogRecord.SERVICE_INSTANCE_ID,
+                        AbstractLogRecord.ENDPOINT_ID, AbstractLogRecord.TRACE_ID, AbstractLogRecord.TRACE_SEGMENT_ID,
+                        AbstractLogRecord.SPAN_ID, AbstractLogRecord.TIMESTAMP),
+                ImmutableList.of(AbstractLogRecord.CONTENT_TYPE, AbstractLogRecord.CONTENT, AbstractLogRecord.TAGS_RAW_DATA));
     }
 
     @Override

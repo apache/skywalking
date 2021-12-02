@@ -9,16 +9,12 @@ import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord
 import java.util.Collections;
 import java.util.List;
 
-public class ProfileThreadSnapshotRecordMapper implements RowEntityMapper<ProfileThreadSnapshotRecord> {
-    @Override
-    public List<String> searchableProjection() {
-        return ImmutableList.of(ProfileThreadSnapshotRecord.TASK_ID, ProfileThreadSnapshotRecord.SEGMENT_ID,
-                ProfileThreadSnapshotRecord.DUMP_TIME, ProfileThreadSnapshotRecord.SEQUENCE);
-    }
-
-    @Override
-    public List<String> dataProjection() {
-        return Collections.singletonList(ProfileThreadSnapshotRecord.STACK_BINARY);
+public class ProfileThreadSnapshotRecordMapper extends AbstractBanyanDBDeserializer<ProfileThreadSnapshotRecord> {
+    public ProfileThreadSnapshotRecordMapper() {
+        super(ProfileThreadSnapshotRecord.INDEX_NAME,
+                ImmutableList.of(ProfileThreadSnapshotRecord.TASK_ID, ProfileThreadSnapshotRecord.SEGMENT_ID,
+                        ProfileThreadSnapshotRecord.DUMP_TIME, ProfileThreadSnapshotRecord.SEQUENCE),
+                Collections.singletonList(ProfileThreadSnapshotRecord.STACK_BINARY));
     }
 
     @Override

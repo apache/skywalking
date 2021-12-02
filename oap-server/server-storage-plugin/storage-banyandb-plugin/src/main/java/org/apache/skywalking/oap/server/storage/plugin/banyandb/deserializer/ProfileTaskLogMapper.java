@@ -9,16 +9,12 @@ import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationT
 
 import java.util.List;
 
-public class ProfileTaskLogMapper implements RowEntityMapper<ProfileTaskLog> {
-    @Override
-    public List<String> searchableProjection() {
-        return ImmutableList.of(ProfileTaskLogRecord.OPERATION_TIME);
-    }
-
-    @Override
-    public List<String> dataProjection() {
-        return ImmutableList.of(ProfileTaskLogRecord.TASK_ID, ProfileTaskLogRecord.INSTANCE_ID,
-                ProfileTaskLogRecord.OPERATION_TYPE);
+public class ProfileTaskLogMapper extends AbstractBanyanDBDeserializer<ProfileTaskLog> {
+    public ProfileTaskLogMapper() {
+        super(ProfileTaskLogRecord.INDEX_NAME,
+                ImmutableList.of(ProfileTaskLogRecord.OPERATION_TIME),
+                ImmutableList.of(ProfileTaskLogRecord.TASK_ID, ProfileTaskLogRecord.INSTANCE_ID,
+                        ProfileTaskLogRecord.OPERATION_TYPE));
     }
 
     @Override

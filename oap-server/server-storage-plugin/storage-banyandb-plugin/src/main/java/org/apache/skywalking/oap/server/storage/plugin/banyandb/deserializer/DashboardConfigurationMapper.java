@@ -10,7 +10,13 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
 import java.util.List;
 
-public class DashboardConfigurationMapper implements RowEntityMapper<DashboardConfiguration> {
+public class DashboardConfigurationMapper extends AbstractBanyanDBDeserializer<DashboardConfiguration> {
+    public DashboardConfigurationMapper() {
+        super(UITemplate.INDEX_NAME,
+                ImmutableList.of(UITemplate.NAME, UITemplate.DISABLED),
+                ImmutableList.of(UITemplate.ACTIVATED, UITemplate.CONFIGURATION, UITemplate.TYPE));
+    }
+
     @Override
     public DashboardConfiguration map(RowEntity row) {
         DashboardConfiguration dashboardConfiguration = new DashboardConfiguration();
@@ -27,15 +33,5 @@ public class DashboardConfigurationMapper implements RowEntityMapper<DashboardCo
         // type
         dashboardConfiguration.setType(TemplateType.forName((String) data.get(2).getValue()));
         return dashboardConfiguration;
-    }
-
-    @Override
-    public List<String> searchableProjection() {
-        return ImmutableList.of(UITemplate.NAME, UITemplate.DISABLED);
-    }
-
-    @Override
-    public List<String> dataProjection() {
-        return ImmutableList.of(UITemplate.ACTIVATED, UITemplate.CONFIGURATION, UITemplate.TYPE);
     }
 }

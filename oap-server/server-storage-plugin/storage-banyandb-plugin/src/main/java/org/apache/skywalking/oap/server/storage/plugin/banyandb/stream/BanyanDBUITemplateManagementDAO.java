@@ -2,30 +2,23 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
-import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.Tag;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
-import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.DashboardConfigurationMapper;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.RowEntityMapper;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.management.ui.template.UITemplate} is a stream
  */
-public class BanyanDBUITemplateManagementDAO extends AbstractDAO<BanyanDBStorageClient> implements UITemplateManagementDAO {
-    private static final RowEntityMapper<DashboardConfiguration> MAPPER = new DashboardConfigurationMapper();
-
+public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO implements UITemplateManagementDAO {
     private static final long UI_TEMPLATE_TIMESTAMP = 1L;
 
     public BanyanDBUITemplateManagementDAO(BanyanDBStorageClient client) {
@@ -34,14 +27,15 @@ public class BanyanDBUITemplateManagementDAO extends AbstractDAO<BanyanDBStorage
 
     @Override
     public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException {
-        StreamQuery query = new StreamQuery(UITemplate.INDEX_NAME, MAPPER.dataProjection());
-        query.setLimit(10000);
-        if (!includingDisabled) {
-            query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", UITemplate.DISABLED, (long) BooleanUtils.FALSE));
-        }
-        query.setDataProjections(MAPPER.dataProjection());
-        StreamQueryResponse resp = this.getClient().query(query);
-        return resp.getElements().stream().map(MAPPER::map).collect(Collectors.toList());
+        return query(DashboardConfiguration.class, new QueryBuilder() {
+            @Override
+            public void apply(StreamQuery query) {
+                query.setLimit(10000);
+                if (!includingDisabled) {
+                    query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", UITemplate.DISABLED, (long) BooleanUtils.FALSE));
+                }
+            }
+        });
     }
 
     @Override
