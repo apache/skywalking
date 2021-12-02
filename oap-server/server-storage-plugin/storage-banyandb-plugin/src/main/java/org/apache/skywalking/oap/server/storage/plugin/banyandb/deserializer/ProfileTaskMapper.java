@@ -6,22 +6,16 @@ import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 
-import java.util.Collections;
 import java.util.List;
 
-public class ProfileTaskMapper implements RowEntityMapper<ProfileTask> {
+public class ProfileTaskMapper extends AbstractBanyanDBDeserializer<ProfileTask> {
     public static final String ID = "profile_task_query_id";
 
-    @Override
-    public List<String> searchableProjection() {
-        return ImmutableList.of(ID, ProfileTaskRecord.SERVICE_ID, ProfileTaskRecord.ENDPOINT_NAME,
-                ProfileTaskRecord.START_TIME, ProfileTaskRecord.DURATION, ProfileTaskRecord.MIN_DURATION_THRESHOLD,
-                ProfileTaskRecord.DUMP_PERIOD, ProfileTaskRecord.CREATE_TIME, ProfileTaskRecord.MAX_SAMPLING_COUNT);
-    }
-
-    @Override
-    public List<String> dataProjection() {
-        return Collections.emptyList();
+    public ProfileTaskMapper() {
+        super(ProfileTaskRecord.INDEX_NAME,
+                ImmutableList.of(ID, ProfileTaskRecord.SERVICE_ID, ProfileTaskRecord.ENDPOINT_NAME,
+                        ProfileTaskRecord.START_TIME, ProfileTaskRecord.DURATION, ProfileTaskRecord.MIN_DURATION_THRESHOLD,
+                        ProfileTaskRecord.DUMP_PERIOD, ProfileTaskRecord.CREATE_TIME, ProfileTaskRecord.MAX_SAMPLING_COUNT));
     }
 
     @Override

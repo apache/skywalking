@@ -9,7 +9,13 @@ import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentReco
 import java.util.Collections;
 import java.util.List;
 
-public class SegmentRecordMapper implements RowEntityMapper<SegmentRecord> {
+public class SegmentRecordMapper extends AbstractBanyanDBDeserializer<SegmentRecord> {
+    public SegmentRecordMapper() {
+        super(SegmentRecord.INDEX_NAME,
+                ImmutableList.of("trace_id", "state", "service_id", "service_instance_id", "endpoint_id", "duration", "start_time"),
+                Collections.singletonList("data_binary"));
+    }
+
     @Override
     public SegmentRecord map(RowEntity row) {
         SegmentRecord record = new SegmentRecord();
@@ -25,15 +31,5 @@ public class SegmentRecordMapper implements RowEntityMapper<SegmentRecord> {
         final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
         record.setDataBinary(((ByteString) data.get(0).getValue()).toByteArray());
         return record;
-    }
-
-    @Override
-    public List<String> searchableProjection() {
-        return ImmutableList.of("trace_id", "state", "service_id", "service_instance_id", "endpoint_id", "duration", "start_time");
-    }
-
-    @Override
-    public List<String> dataProjection() {
-        return Collections.singletonList("data_binary");
     }
 }
