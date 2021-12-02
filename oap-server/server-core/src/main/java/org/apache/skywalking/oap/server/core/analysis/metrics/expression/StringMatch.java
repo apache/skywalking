@@ -25,12 +25,12 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterM
 public class StringMatch {
 
     public boolean match(String left, String right) {
-        if (left.startsWith("\"") && left.endsWith("\"")) {
+        if (left != null && left.startsWith("\"") && left.endsWith("\"")) {
             left = left.substring(1, left.length() - 1);
         }
 
-        if (right.startsWith("\"") && right.endsWith("\"")) {
-            right = left.substring(1, right.length() - 1);
+        if (right != null && right.startsWith("\"") && right.endsWith("\"")) {
+            right = right.substring(1, right.length() - 1);
         }
 
         return Objects.equals(left, right);
