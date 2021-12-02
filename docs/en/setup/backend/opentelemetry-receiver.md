@@ -10,7 +10,7 @@ Supported handlers:
 
 **Notice:**  Set `SW_OTEL_RECEIVER=default` through system environment or change `receiver-otel/selector=${SW_OTEL_RECEIVER:default}` to activate the OpenTelemetry receiver.
 
-The rule file should be in YAML format, defined by the scheme described in [prometheus-fetcher](./kafka-fetcher.md).
+The rule file should be in YAML format, defined by the scheme described in [prometheus-fetcher](./prometheus-metrics.md).
 Note: `receiver-otel` only supports the `group`, `defaultMetricLevel`, and `metricsRules` nodes of the scheme due to its push mode.
 
 To activate the `oc` handler and relevant rules of `istio`:
