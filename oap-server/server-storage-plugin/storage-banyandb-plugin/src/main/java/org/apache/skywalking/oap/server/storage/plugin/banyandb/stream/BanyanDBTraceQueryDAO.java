@@ -21,12 +21,14 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 import com.google.common.base.Strings;
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
-import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.query.type.*;
-import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
+import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
+import org.apache.skywalking.oap.server.core.query.type.Span;
+import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
+import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
@@ -34,16 +36,14 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.BasicTraceMapper;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.RowEntityMapper;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.SegmentRecordMapper;
-import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> implements ITraceQueryDAO {
+public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITraceQueryDAO {
     private static final RowEntityMapper<SegmentRecord> SEGMENT_RECORD_MAPPER = new SegmentRecordMapper();
     private static final RowEntityMapper<BasicTrace> BASIC_TRACE_MAPPER = new BasicTraceMapper();
 
@@ -55,110 +55,89 @@ public class BanyanDBTraceQueryDAO extends AbstractDAO<BanyanDBStorageClient> im
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
-        StreamQuery query;
-        if (startSecondTB != 0 && endSecondTB != 0) {
-            query = new StreamQuery(BanyanDBSchema.NAME, new TimestampRange(parseMillisFromStartSecondTB(startSecondTB),
-                    parseMillisFromEndSecondTB(endSecondTB)), BASIC_TRACE_MAPPER.searchableProjection());
-        } else {
-            query = new StreamQuery(BanyanDBSchema.NAME, BASIC_TRACE_MAPPER.searchableProjection());
-        }
-        if (minDuration != 0) {
-            // duration >= minDuration
-            query.appendCondition(PairQueryCondition.LongQueryCondition.ge("searchable", "duration", minDuration));
-        }
-        if (maxDuration != 0) {
-            // duration <= maxDuration
-            query.appendCondition(PairQueryCondition.LongQueryCondition.le("searchable", "duration", maxDuration));
-        }
-
-        if (!Strings.isNullOrEmpty(serviceId)) {
-            query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "service_id", serviceId));
-        }
-
-        if (!Strings.isNullOrEmpty(serviceInstanceId)) {
-            query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "service_instance_id", serviceInstanceId));
-        }
-
-        if (!Strings.isNullOrEmpty(endpointId)) {
-            query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "endpoint_id", endpointId));
-        }
-
-        switch (traceState) {
-            case ERROR:
-                query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) BanyanDBSchema.TraceState.ERROR.getState()));
-                break;
-            case SUCCESS:
-                query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) BanyanDBSchema.TraceState.SUCCESS.getState()));
-                break;
-            default:
-                query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) BanyanDBSchema.TraceState.ALL.getState()));
-                break;
-        }
-
-        switch (queryOrder) {
-            case BY_START_TIME:
-                query.setOrderBy(new StreamQuery.OrderBy("start_time", StreamQuery.OrderBy.Type.DESC));
-                break;
-            case BY_DURATION:
-                query.setOrderBy(new StreamQuery.OrderBy("duration", StreamQuery.OrderBy.Type.DESC));
-                break;
-        }
-
-        if (CollectionUtils.isNotEmpty(tags)) {
-            for (final Tag tag : tags) {
-                if (BanyanDBSchema.INDEX_FIELDS.contains(tag.getKey())) {
-                    query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", tag.getKey(), tag.getValue()));
+        final QueryBuilder builder = new QueryBuilder() {
+            @Override
+            public void apply(StreamQuery query) {
+                if (minDuration != 0) {
+                    // duration >= minDuration
+                    query.appendCondition(PairQueryCondition.LongQueryCondition.ge("searchable", "duration", minDuration));
                 }
+                if (maxDuration != 0) {
+                    // duration <= maxDuration
+                    query.appendCondition(PairQueryCondition.LongQueryCondition.le("searchable", "duration", maxDuration));
+                }
+
+                if (!Strings.isNullOrEmpty(serviceId)) {
+                    query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "service_id", serviceId));
+                }
+
+                if (!Strings.isNullOrEmpty(serviceInstanceId)) {
+                    query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "service_instance_id", serviceInstanceId));
+                }
+
+                if (!Strings.isNullOrEmpty(endpointId)) {
+                    query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "endpoint_id", endpointId));
+                }
+
+                switch (traceState) {
+                    case ERROR:
+                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) BanyanDBSchema.TraceState.ERROR.getState()));
+                        break;
+                    case SUCCESS:
+                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) BanyanDBSchema.TraceState.SUCCESS.getState()));
+                        break;
+                    default:
+                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) BanyanDBSchema.TraceState.ALL.getState()));
+                        break;
+                }
+
+                switch (queryOrder) {
+                    case BY_START_TIME:
+                        query.setOrderBy(new StreamQuery.OrderBy("start_time", StreamQuery.OrderBy.Type.DESC));
+                        break;
+                    case BY_DURATION:
+                        query.setOrderBy(new StreamQuery.OrderBy("duration", StreamQuery.OrderBy.Type.DESC));
+                        break;
+                }
+
+                if (CollectionUtils.isNotEmpty(tags)) {
+                    for (final Tag tag : tags) {
+                        if (BanyanDBSchema.INDEX_FIELDS.contains(tag.getKey())) {
+                            query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", tag.getKey(), tag.getValue()));
+                        }
+                    }
+                }
+
+                query.setLimit(limit);
+                query.setOffset(from);
             }
+        };
+
+        final List<BasicTrace> basicTraces;
+        if (startSecondTB != 0 && endSecondTB != 0) {
+            basicTraces = query(BasicTrace.class, builder, TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
+        } else {
+            basicTraces = query(BasicTrace.class, builder);
         }
 
-        query.setLimit(limit);
-        query.setOffset(from);
-
-        // build request
-        StreamQueryResponse response = this.getClient().query(query);
         TraceBrief brief = new TraceBrief();
-        brief.setTotal(response.size());
-        brief.getTraces().addAll(response.getElements().stream().map(BASIC_TRACE_MAPPER::map).collect(Collectors.toList()));
+        brief.setTotal(basicTraces.size());
+        brief.getTraces().addAll(basicTraces);
         return brief;
     }
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        StreamQuery query = new StreamQuery(BanyanDBSchema.NAME, SEGMENT_RECORD_MAPPER.searchableProjection());
-        query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "trace_id", traceId));
-        query.setDataProjections(SEGMENT_RECORD_MAPPER.dataProjection());
-        StreamQueryResponse response = this.getClient().query(query);
-        return response.getElements().stream().map(SEGMENT_RECORD_MAPPER::map).collect(Collectors.toList());
+        return query(SegmentRecord.class, new QueryBuilder() {
+            @Override
+            public void apply(StreamQuery query) {
+                query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "trace_id", traceId));
+            }
+        });
     }
 
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
         return Collections.emptyList();
-    }
-
-    static long parseMillisFromStartSecondTB(long startSecondTB) {
-        return YYYYMMDDHHMMSS.withZone(DateTimeZone.UTC).parseMillis(String.valueOf(startSecondTB));
-    }
-
-    static long parseMillisFromEndSecondTB(long endSecondTB) {
-        long t = endSecondTB;
-        long second = t % 100;
-        if (second > 59) {
-            second = 0;
-        }
-        t = t / 100;
-        long minute = t % 100;
-        if (minute > 59) {
-            minute = 0;
-        }
-        t = t / 100;
-        long hour = t % 100;
-        if (hour > 23) {
-            hour = 0;
-        }
-        t = t / 100;
-        return YYYYMMDDHHMMSS.withZone(DateTimeZone.UTC)
-                .parseMillis(String.valueOf(((t * 100 + hour) * 100 + minute) * 100 + second));
     }
 }
