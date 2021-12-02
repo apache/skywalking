@@ -3,7 +3,7 @@
 This folder contains Dockerfiles that are used to **build**
 our [OAP Docker images](https://hub.docker.com/r/apache/skywalking-oap-server)
 and [UI Docker image](https://hub.docker.com/r/apache/skywalking-ui). If you want to use the Docker images, please
-check [the user guide for OAP](../docs/en/setup/backend/docker.md)
+check [the user guide for OAP](../docs/en/setup/backend/backend-docker.md)
 and [the user guide for UI](../docs/en/setup/backend/ui-setup.md#start-with-docker-image).
 
 ## Quickstart
