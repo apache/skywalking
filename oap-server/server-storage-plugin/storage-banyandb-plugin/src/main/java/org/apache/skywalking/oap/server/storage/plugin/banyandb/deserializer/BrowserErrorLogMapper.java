@@ -9,22 +9,18 @@ import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErro
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
 
+import java.util.Collections;
 import java.util.List;
 
-public class BrowserErrorLogMapper implements RowEntityMapper<BrowserErrorLog> {
-    @Override
-    public List<String> searchableProjection() {
-        return ImmutableList.of(BrowserErrorLogRecord.SERVICE_ID,
-                BrowserErrorLogRecord.SERVICE_VERSION_ID,
-                BrowserErrorLogRecord.PAGE_PATH_ID,
-                BrowserErrorLogRecord.ERROR_CATEGORY,
-                BrowserErrorLogRecord.TIMESTAMP
-        );
-    }
-
-    @Override
-    public List<String> dataProjection() {
-        return ImmutableList.of(BrowserErrorLogRecord.DATA_BINARY);
+public class BrowserErrorLogMapper extends AbstractBanyanDBDeserializer<BrowserErrorLog> {
+    public BrowserErrorLogMapper() {
+        super(BrowserErrorLogRecord.INDEX_NAME,
+                ImmutableList.of(BrowserErrorLogRecord.SERVICE_ID,
+                        BrowserErrorLogRecord.SERVICE_VERSION_ID,
+                        BrowserErrorLogRecord.PAGE_PATH_ID,
+                        BrowserErrorLogRecord.ERROR_CATEGORY,
+                        BrowserErrorLogRecord.TIMESTAMP),
+                Collections.singletonList(BrowserErrorLogRecord.DATA_BINARY));
     }
 
     @Override
