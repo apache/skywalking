@@ -66,9 +66,13 @@ catalog:
       - name: "Backend"
         catalog:
           - name: "Quick Start"
-            path: "/en/setup/backend/backend-setup"
-          - name: "Quick Start with Docker"
-            path: "/en/setup/backend/docker"
+            catalog:
+              - name: "Introduction"
+                path: "/en/setup/backend/backend-setup"
+              - name: "Run with Docker"
+                path: "/en/setup/backend/backend-docker"
+              - name: "Run with Kubernetes"
+                path: "/en/setup/backend/backend-k8s"
           - name: "Configuration Vocabulary"
             path: "/en/setup/backend/configuration-vocabulary"
           - name: "Advanced Setup"
@@ -99,8 +103,8 @@ catalog:
               path: "/en/setup/backend/dynamical-logging"
             - name: "Security(SSL/TLS/mTLS)"
               path: "/en/setup/backend/grpc-security"
-          - name: "Deploy In Kubernetes"
-            path: "/en/setup/backend/backend-k8s"
+            - name: "Setup Native Load Balancer"
+              path: "/en/setup/backend/backend-load-balancer"
           - name: "Tracing"
             catalog:
               - name: "Trace Sampling"
