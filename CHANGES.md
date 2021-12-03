@@ -11,6 +11,7 @@ Release Notes.
 #### OAP Server
 
 * Fix potential NPE in OAL string match and a bug when right-hand-side variable includes double quotes.
+* Bump up Armeria version to fix CVE.
 
 #### UI
 
