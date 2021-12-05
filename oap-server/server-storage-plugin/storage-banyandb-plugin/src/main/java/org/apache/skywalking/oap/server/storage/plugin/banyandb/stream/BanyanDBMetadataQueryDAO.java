@@ -87,7 +87,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
             public void apply(StreamQuery query) {
                 query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", ServiceTraffic.NODE_TYPE, (long) nodeType.value()));
             }
-        }).stream().filter((s) -> s.getName().contains(keyword)) // TODO: support analyzer in database
+        }).stream().filter(s -> s.getName().contains(keyword)) // TODO: support analyzer in database
                 .collect(Collectors.toList());
     }
 
@@ -111,7 +111,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
             public void apply(StreamQuery query) {
                 query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", EndpointTraffic.SERVICE_ID, serviceId));
             }
-        }).stream().filter((e) -> e.getName().contains(keyword))
+        }).stream().filter(e -> e.getName().contains(keyword))
                 .limit(limit).collect(Collectors.toList());
     }
 
