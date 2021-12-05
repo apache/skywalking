@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer;
 
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
@@ -26,21 +44,21 @@ public enum BanyanDBDeserializerFactory {
 
     BanyanDBDeserializerFactory() {
         registry = new HashMap<>(10);
-        register(AlarmMessage.class, new AlarmMessageMapper());
-        register(BasicTrace.class, new BasicTraceMapper());
-        register(BrowserErrorLog.class, new BrowserErrorLogMapper());
-        register(DashboardConfiguration.class, new DashboardConfigurationMapper());
-        register(Database.class, new DatabaseMapper());
-        register(Endpoint.class, new EndpointMapper());
-        register(Event.class, new EventMapper());
-        register(Log.class, new LogMapper());
-        register(NetworkAddressAlias.class, new NetworkAddressAliasMapper());
-        register(ProfileTaskLog.class, new ProfileTaskLogMapper());
-        register(ProfileTask.class, new ProfileTaskMapper());
-        register(ProfileThreadSnapshotRecord.class, new ProfileThreadSnapshotRecordMapper());
-        register(SegmentRecord.class, new SegmentRecordMapper());
-        register(ServiceInstance.class, new ServiceInstanceMapper());
-        register(Service.class, new ServiceMapper());
+        register(AlarmMessage.class, new AlarmMessageDeserializer());
+        register(BasicTrace.class, new BasicTraceDeserializer());
+        register(BrowserErrorLog.class, new BrowserErrorLogDeserializer());
+        register(DashboardConfiguration.class, new DashboardConfigurationDeserializer());
+        register(Database.class, new DatabaseDeserializer());
+        register(Endpoint.class, new EndpointDeserializer());
+        register(Event.class, new EventDeserializer());
+        register(Log.class, new LogDeserializer());
+        register(NetworkAddressAlias.class, new NetworkAddressAliasDeserializer());
+        register(ProfileTaskLog.class, new ProfileTaskLogDeserializer());
+        register(ProfileTask.class, new ProfileTaskDeserializer());
+        register(ProfileThreadSnapshotRecord.class, new ProfileThreadSnapshotRecordDeserializer());
+        register(SegmentRecord.class, new SegmentRecordDeserializer());
+        register(ServiceInstance.class, new ServiceInstanceDeserializer());
+        register(Service.class, new ServiceDeserializer());
     }
 
     private <T> void register(Class<T> clazz, AbstractBanyanDBDeserializer<T> mapper) {

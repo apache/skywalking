@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.base.Strings;
+import lombok.Getter;
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -31,24 +32,14 @@ import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBSchema;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.BasicTraceMapper;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.RowEntityMapper;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.SegmentRecordMapper;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.SegmentRecordBuilder;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITraceQueryDAO {
-    private static final RowEntityMapper<SegmentRecord> SEGMENT_RECORD_MAPPER = new SegmentRecordMapper();
-    private static final RowEntityMapper<BasicTrace> BASIC_TRACE_MAPPER = new BasicTraceMapper();
-
-    private static final DateTimeFormatter YYYYMMDDHHMMSS = DateTimeFormat.forPattern("yyyyMMddHHmmss");
-
     public BanyanDBTraceQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -81,13 +72,13 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
                 switch (traceState) {
                     case ERROR:
-                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) BanyanDBSchema.TraceState.ERROR.getState()));
+                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) TraceStateStorage.ERROR.getState()));
                         break;
                     case SUCCESS:
-                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) BanyanDBSchema.TraceState.SUCCESS.getState()));
+                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) TraceStateStorage.SUCCESS.getState()));
                         break;
                     default:
-                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) BanyanDBSchema.TraceState.ALL.getState()));
+                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) TraceStateStorage.ALL.getState()));
                         break;
                 }
 
@@ -102,7 +93,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
                 if (CollectionUtils.isNotEmpty(tags)) {
                     for (final Tag tag : tags) {
-                        if (BanyanDBSchema.INDEX_FIELDS.contains(tag.getKey())) {
+                        if (SegmentRecordBuilder.INDEXED_TAGS.contains(tag.getKey())) {
                             query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", tag.getKey(), tag.getValue()));
                         }
                     }
@@ -139,5 +130,16 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
         return Collections.emptyList();
+    }
+
+    public enum TraceStateStorage {
+        ALL(0), SUCCESS(1), ERROR(2);
+
+        @Getter
+        private final int state;
+
+        TraceStateStorage(int state) {
+            this.state = state;
+        }
     }
 }
