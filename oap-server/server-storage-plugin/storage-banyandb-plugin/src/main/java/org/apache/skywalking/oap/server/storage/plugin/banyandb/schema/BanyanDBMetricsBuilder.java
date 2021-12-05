@@ -16,15 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 
-@RequiredArgsConstructor
-public class BanyanDBStreamInsertRequest implements InsertRequest {
-    @Getter
-    private final StreamWrite streamWrite;
+public abstract class BanyanDBMetricsBuilder<T extends Metrics> extends BanyanDBStorageDataBuilder<T> {
+    @Override
+    protected long timestamp(Model model, T entity) {
+        return TimeBucket.getTimestamp(entity.getTimeBucket(), model.getDownsampling());
+    }
 }

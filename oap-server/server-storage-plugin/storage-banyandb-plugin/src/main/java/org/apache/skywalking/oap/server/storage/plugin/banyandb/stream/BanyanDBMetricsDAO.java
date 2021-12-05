@@ -20,22 +20,34 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBRecordBuilder;
+import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBMetricsBuilder;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
-public class BanyanDBRecordDAO<T extends Record> implements IRecordDAO {
-    private final BanyanDBRecordBuilder<T> storageBuilder;
+public class BanyanDBMetricsDAO<T extends Metrics> implements IMetricsDAO {
+    private final BanyanDBMetricsBuilder<T> storageBuilder;
 
     @Override
-    public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        StreamWrite streamWrite = storageBuilder.entity2Storage(model, (T) record);
+    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
+        return Collections.emptyList();
+    }
 
+    @Override
+    public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
+        StreamWrite streamWrite = this.storageBuilder.entity2Storage(model, (T) metrics);
         return new BanyanDBStreamInsertRequest(streamWrite);
+    }
+
+    @Override
+    public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
+        return null;
     }
 }
