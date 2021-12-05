@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
@@ -25,16 +43,12 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
 
     @Override
     public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId, BrowserErrorCategory category, long startSecondTB, long endSecondTB, int limit, int from) throws IOException {
-        final BrowserErrorLogs logs = new BrowserErrorLogs();
-        List<BrowserErrorLog> browserErrorLogs = query(BrowserErrorLog.class, new QueryBuilder() {
+
+        final QueryBuilder qb = new QueryBuilder() {
             @Override
             public void apply(StreamQuery query) {
                 query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", BrowserErrorLogRecord.SERVICE_ID, serviceId));
 
-                if (startSecondTB != 0 && endSecondTB != 0) {
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.ge("searchable", BrowserErrorLogRecord.TIMESTAMP, TimeBucket.getTimestamp(startSecondTB)));
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.le("searchable", BrowserErrorLogRecord.TIMESTAMP, TimeBucket.getTimestamp(endSecondTB)));
-                }
                 if (StringUtil.isNotEmpty(serviceVersionId)) {
                     query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", BrowserErrorLogRecord.SERVICE_VERSION_ID, serviceVersionId));
                 }
@@ -48,7 +62,15 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
                 query.setOffset(from);
                 query.setLimit(limit);
             }
-        });
+        };
+
+        final BrowserErrorLogs logs = new BrowserErrorLogs();
+        final List<BrowserErrorLog> browserErrorLogs;
+        if (startSecondTB != 0 && endSecondTB != 0) {
+            browserErrorLogs = query(BrowserErrorLog.class, qb, TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
+        } else {
+            browserErrorLogs = query(BrowserErrorLog.class, qb);
+        }
         logs.getLogs().addAll(browserErrorLogs);
         logs.setTotal(logs.getLogs().size());
         return logs;

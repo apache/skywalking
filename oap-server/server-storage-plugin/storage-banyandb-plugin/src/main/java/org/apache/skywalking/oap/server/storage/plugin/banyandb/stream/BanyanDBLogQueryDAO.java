@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
@@ -10,8 +28,10 @@ import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.LogRecordBuilder;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,16 +50,11 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
                           TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit,
                           long startTB, long endTB, List<Tag> tags, List<String> keywordsOfContent,
                           List<String> excludingKeywordsOfContent) throws IOException {
-        List<Log> entities = query(Log.class, new QueryBuilder() {
+        final QueryBuilder query = new QueryBuilder() {
             @Override
             public void apply(StreamQuery query) {
                 if (StringUtil.isNotEmpty(serviceId)) {
                     query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", AbstractLogRecord.SERVICE_ID, serviceId));
-                }
-
-                if (startTB != 0 && endTB != 0) {
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.ge("searchable", AbstractLogRecord.TIMESTAMP, TimeBucket.getTimestamp(startTB)));
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.le("searchable", AbstractLogRecord.TIMESTAMP, TimeBucket.getTimestamp(endTB)));
                 }
 
                 if (StringUtil.isNotEmpty(serviceInstanceId)) {
@@ -60,14 +75,22 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
                     }
                 }
 
-                // TODO: if we allow to index tags?
-//        if (CollectionUtils.isNotEmpty(tags)) {
-//            for (final Tag tag : tags) {
-//                query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", tag.getKey(), tag.getValue()));
-//            }
-//        }
+                if (CollectionUtils.isNotEmpty(tags)) {
+                    for (final Tag tag : tags) {
+                        if (LogRecordBuilder.INDEXED_TAGS.contains(tag.getKey())) {
+                            query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", tag.getKey(), tag.getValue()));
+                        }
+                    }
+                }
             }
-        });
+        };
+
+        final List<Log> entities;
+        if (startTB != 0 && endTB != 0) {
+            entities = query(Log.class, query, TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
+        } else {
+            entities = query(Log.class, query);
+        }
         Logs logs = new Logs();
         logs.getLogs().addAll(entities);
         logs.setTotal(entities.size());
