@@ -31,7 +31,6 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      * Group of the schema in BanyanDB
      */
     private String group = "default";
-
     /**
      * The maximum size of write entities in a single batch write call.
      */
@@ -44,4 +43,9 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      * Concurrent consumer threads for batch writing.
      */
     private int concurrentWriteThreads = 2;
+    /**
+     * Max size of {@link org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog} to be fetched
+     * in a single request.
+     */
+    private int fetchTaskLogMaxSize;
 }
