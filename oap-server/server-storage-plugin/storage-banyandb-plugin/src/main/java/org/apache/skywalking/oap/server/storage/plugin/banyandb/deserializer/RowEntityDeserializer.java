@@ -16,15 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.banyandb.v1.client.RowEntity;
 
-@RequiredArgsConstructor
-public class BanyanDBStreamInsertRequest implements InsertRequest {
-    @Getter
-    private final StreamWrite streamWrite;
+@FunctionalInterface
+public interface RowEntityDeserializer<T> {
+    T map(RowEntity row);
 }
