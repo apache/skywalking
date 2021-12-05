@@ -53,7 +53,6 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return resp.getElements().stream().map(deserializer::map).collect(Collectors.toList());
     }
 
-
     interface QueryBuilder {
         void apply(final StreamQuery query);
     }

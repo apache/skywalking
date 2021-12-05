@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import java.util.List;
 
 public class AlarmMessageDeserializer extends AbstractBanyanDBDeserializer<AlarmMessage> {
-    private final Gson GSON = new Gson();
+    private static final Gson GSON = new Gson();
 
     public AlarmMessageDeserializer() {
         super(AlarmRecord.INDEX_NAME,
