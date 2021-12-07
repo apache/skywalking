@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
+import org.apache.skywalking.oap.server.library.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;

@@ -28,10 +28,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
@@ -41,6 +37,10 @@ import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -68,6 +68,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     private final boolean supportUpdate;
     private long sessionTimeout;
     private CounterMetrics aggregationCounter;
+    private CounterMetrics skippedMetricsCounter;
     /**
      * The counter for the round of persistent.
      */
@@ -82,6 +83,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      * @since 8.7.0 TTL settings from {@link org.apache.skywalking.oap.server.core.CoreModuleConfig#getMetricsDataTTL()}
      */
     private int metricsDataTTL;
+    /**
+     * @since 8.9.0 The persistence of minute dimensionality metrics will be skipped if the value of the metric is the
+     * default.
+     */
+    private boolean skipDefaultValueMetric;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
@@ -100,6 +106,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         this.persistentCounter = 0;
         this.persistentMod = 1;
         this.metricsDataTTL = metricsDataTTL;
+        this.skipDefaultValueMetric = true;
 
         String name = "METRICS_L2_AGGREGATION";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -124,6 +131,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             new MetricsTag.Keys("metricName", "level", "dimensionality"),
             new MetricsTag.Values(model.getName(), "2", model.getDownsampling().getName())
         );
+        skippedMetricsCounter = metricsCreator.createCounter(
+            "metrics_persistence_skipped", "The number of metrics skipped in persistence due to be in default value",
+            new MetricsTag.Keys("metricName", "dimensionality"),
+            new MetricsTag.Values(model.getName(), model.getDownsampling().getName())
+        );
         SESSION_TIMEOUT_OFFSITE_COUNTER++;
     }
 
@@ -141,6 +153,12 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
              null, null, null,
              enableDatabaseSession, supportUpdate, storageSessionTimeout, metricsDataTTL
         );
+
+        // Skipping default value mechanism only works for minute dimensionality.
+        // Metrics in hour and day dimensionalities would not apply this as duration is too long,
+        // applying this could make precision of hour/day metrics to be lost easily.
+        this.skipDefaultValueMetric = false;
+
         // For a down-sampling metrics, we prolong the session timeout for 4 times, nearly 5 minutes.
         // And add offset according to worker creation sequence, to avoid context clear overlap,
         // eventually optimize load of IDs reading.
@@ -161,14 +179,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     @Override
     public List<PrepareRequest> buildBatchRequests() {
         if (persistentCounter++ % persistentMod != 0) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         final List<Metrics> lastCollection = getCache().read();
 
         long start = System.currentTimeMillis();
         if (lastCollection.size() == 0) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         /*
@@ -225,12 +243,22 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                         continue;
                     }
                     cachedMetrics.calculate();
-                    prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cachedMetrics));
+                    if (skipDefaultValueMetric && cachedMetrics.haveDefault() && cachedMetrics.isDefaultValue()) {
+                        // Skip metrics in default value
+                        skippedMetricsCounter.inc();
+                    } else {
+                        prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cachedMetrics));
+                    }
                     nextWorker(cachedMetrics);
                     cachedMetrics.setLastUpdateTimestamp(timestamp);
                 } else {
                     metrics.calculate();
-                    prepareRequests.add(metricsDAO.prepareBatchInsert(model, metrics));
+                    if (skipDefaultValueMetric && metrics.haveDefault() && metrics.isDefaultValue()) {
+                        // Skip metrics in default value
+                        skippedMetricsCounter.inc();
+                    } else {
+                        prepareRequests.add(metricsDAO.prepareBatchInsert(model, metrics));
+                    }
                     nextWorker(metrics);
                     metrics.setLastUpdateTimestamp(timestamp);
                 }

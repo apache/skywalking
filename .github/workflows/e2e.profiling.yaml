@@ -44,14 +44,12 @@ jobs:
           - profile/es/e2e.yaml
           - profile/mysql/e2e.yaml
           - profile/influxdb/e2e.yaml
+          - profile/iotdb/e2e.yaml
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
       - name: Run E2E Test
-        if: env.SKIP_CI != 'true'
         uses: ./.github/actions/infra-e2e-test
         with:
           config-file: ${{ matrix.config-file }}

@@ -91,7 +91,7 @@ staticConfig:
 ...
 ```
 ### Service discovery (k8s)
-If you deploy an oap-server cluster on k8s, the oap-server instance (pod) would not have a static IP or hostname. We can leverage [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes) to discover the oap-server instance, and scrape & transfer the metrics to OAP [OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver). 
+If you deploy an oap-server cluster on k8s, the oap-server instance (pod) would not have a static IP or hostname. We can leverage [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes) to discover the oap-server instance, and scrape & transfer the metrics to OAP [OpenTelemetry receiver](opentelemetry-receiver.md). 
 
 On how to install SkyWalking on k8s, you can refer to [Apache SkyWalking Kubernetes](https://github.com/apache/skywalking-kubernetes).
 
@@ -128,7 +128,7 @@ Set this up following these steps:
   ```
 2. Set up OpenTelemetry Collector and config a scrape job:
 ``` yaml
-- job_name: 'skywalking'
+- job_name: 'skywalking-so11y' # make sure to use this in the so11y.yaml to filter only so11y metrics
   metrics_path: '/metrics'
   kubernetes_sd_configs:
   - role: pod

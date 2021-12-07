@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import javax.net.ssl.SSLException;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.library.server.ssl.AbstractSslContext;
 import org.apache.skywalking.oap.server.library.server.ssl.PrivateKeyUtil;
 

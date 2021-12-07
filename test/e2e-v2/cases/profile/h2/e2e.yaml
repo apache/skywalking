@@ -18,15 +18,13 @@
 setup:
   env: compose
   file: docker-compose.yml
-  timeout: 1200
+  timeout: 20m
   init-system-environment: ../../../script/env
   steps:
     - name: install yq
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
     - name: install swctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
-    - name: install etcdctl
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
 
 verify:
   retry:

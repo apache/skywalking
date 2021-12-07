@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPInfo;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
-import static org.apache.skywalking.apm.util.StringUtil.isBlank;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isBlank;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.formatAsLong;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.parseInternalErrorCode;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.parseTLS;

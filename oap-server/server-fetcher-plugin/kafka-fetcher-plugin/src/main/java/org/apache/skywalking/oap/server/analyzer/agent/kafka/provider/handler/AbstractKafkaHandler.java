@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 

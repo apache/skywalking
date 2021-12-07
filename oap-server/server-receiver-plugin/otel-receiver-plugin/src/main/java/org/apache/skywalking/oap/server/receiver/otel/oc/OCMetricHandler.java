@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.otel.oc;
 
+import com.google.common.base.Strings;
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.proto.agent.common.v1.Node;
@@ -35,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
@@ -74,6 +75,10 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
                         if (node.getIdentifier().getPid() > 0) {
                             nodeLabels.put("node_identifier_pid", String.valueOf(node.getIdentifier().getPid()));
                         }
+                    }
+                    final String name = node.getServiceInfo().getName();
+                    if (!Strings.isNullOrEmpty(name)) {
+                        nodeLabels.put("job_name", name);
                     }
                 }
                 metrics.forEach(m -> m.toMeter(request.getMetricsList().stream()

@@ -18,15 +18,13 @@
 setup:
   env: compose
   file: docker-compose.yml
-  timeout: 1200
+  timeout: 20m
   init-system-environment: ../../script/env
   steps:
     - name: install yq
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
     - name: install swctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
-    - name: install etcdctl
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh etcdctl
 
 trigger:
   action: http
@@ -43,16 +41,5 @@ verify:
     count: 20
     interval: 3s
   cases:
-    # service list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
-      expected: expected/service.yml
-    # service instance list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
-      expected: expected/service-instance.yml
-    # service instance metrics linear
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_jvm_memory_max --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_jvm_threads_live --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_process_files_max --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
+    - includes:
+        - meter-cases.yaml

@@ -80,7 +80,6 @@ public class ServiceTraffic extends Metrics {
     public void deserialize(final RemoteData remoteData) {
         setName(remoteData.getDataStrings(0));
         setNodeType(NodeType.valueOf(remoteData.getDataIntegers(0)));
-        // Time bucket is not a part of persistent, but still is required in the first time insert.
         setTimeBucket(remoteData.getDataLongs(0));
     }
 
@@ -89,7 +88,6 @@ public class ServiceTraffic extends Metrics {
         final RemoteData.Builder builder = RemoteData.newBuilder();
         builder.addDataStrings(name);
         builder.addDataIntegers(nodeType.value());
-        // Time bucket is not a part of persistent, but still is required in the first time insert.
         builder.addDataLongs(getTimeBucket());
         return builder;
     }
@@ -102,6 +100,10 @@ public class ServiceTraffic extends Metrics {
             serviceTraffic.setName((String) dbMap.get(NAME));
             serviceTraffic.setNodeType(NodeType.valueOf(((Number) dbMap.get(NODE_TYPE)).intValue()));
             serviceTraffic.setGroup((String) dbMap.get(GROUP));
+            // TIME_BUCKET column could be null in old implementation, which is fixed in 8.9.0
+            if (dbMap.containsKey(TIME_BUCKET)) {
+                serviceTraffic.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            }
             return serviceTraffic;
         }
 
@@ -118,6 +120,7 @@ public class ServiceTraffic extends Metrics {
             map.put(NAME, serviceName);
             map.put(NODE_TYPE, storageData.getNodeType().value());
             map.put(GROUP, storageData.getGroup());
+            map.put(TIME_BUCKET, storageData.getTimeBucket());
             return map;
         }
     }

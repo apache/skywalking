@@ -2,18 +2,9 @@
 The SkyWalking official UI provides the default and powerful visualization capabilities for SkyWalking to observe distributed
 clusters.
 
-Watch the latest introduction video on Youtube:
+<img src="https://skywalking.apache.org/ui-doc/8.9.0/dashboard.png"/>
 
-[![RocketBot UI](https://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
-
-The SkyWalking dashboard includes these parts:
-
-<img src="https://skywalking.apache.org/ui-doc/7.0.0/dashboard.png"/>
-
-1. **Feature Tab Selector Zone**. The key features are listed there. More details will be introduced below.
-1. **Reload Zone**. It controls the reload mechanism, including the option to reload periodically or manually.
-1. **Time Selector Zone**. It controls the timezone and time range, and comes with a Chinese/English language switch button. By default, the UI
-uses the language setting of the browser. We also welcome translation contributions to extend our reach into more languages.
+The right top has the setup zone. User could set time range, time zone, auto refresh and language from there.
 
 ## Dashboard
 The dashboard provides metrics of services, service instances, and endpoints. Here's a quick terminology guide on metrics:
@@ -22,15 +13,8 @@ The dashboard provides metrics of services, service instances, and endpoints. He
 * **Response Time Percentile**: Includes `p99`, `p95`, `p90`, `p75`, and `p50`. See [percentile on Wiki](https://en.wikipedia.org/wiki/Percentile).
 * **SLA**: Represents the success rate. For HTTP, the response status code is default to 200.
 
-The Service, Instance and Dashboard selectors can be reloaded manually, so it's not necessary to always reload the whole page. Note that the **Reload Zone** does not reload these selectors.
-
-<img src="https://skywalking.apache.org/ui-doc/7.0.0/dashboard-reload.png"/>
-
-Two default dashboards are provided to visualize the metrics of service and database.
-
-<img src="https://skywalking.apache.org/ui-doc/7.0.0/dashboard-default.png"/>
-
-Click the `Lock` button on the left of the `Service/Instance/Endpoint Reload` button to customize your dashboard.
+The UI would check the local dashboard settings with the OAP backend in every 3 days, once inconsistent detected, a notification
+box would pop up asking for reload.
 
 ### Custom Dashboard
 Users may customize their dashboards. The default dashboards are provided in the default templates located in the `/ui-initialized-templates` folders.
@@ -106,6 +90,9 @@ Since SkyWalking provides distributed agents, trace query is a key feature.
 
 ## Profile
 Profile is an interactive feature. It provides method-level performance diagnoses. 
+
+Make sure you have read the blog [**Apache SkyWalking: Use Profiling to Fix the Blind Spot of Distributed Tracing**](https://skywalking.apache.org/blog/2020-04-13-apache-skywalking-profiling/) first.
+If you are using Python agent, the blog [**Python Agent Supports Profiling**](https://skywalking.apache.org/blog/2021-09-12-skywalking-python-profiling/) should be read too.
 
 To start profile analysis, you need to create a profile task:
 

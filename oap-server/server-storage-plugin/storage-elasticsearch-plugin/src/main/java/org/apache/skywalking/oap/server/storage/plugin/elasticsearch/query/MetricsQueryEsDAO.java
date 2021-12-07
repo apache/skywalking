@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,33 +106,31 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             }
             return id;
         }).collect(Collectors.toList());
+
         MetricsValues metricsValues = new MetricsValues();
 
         SearchResponse response = getClient().ids(tableName, ids);
-        if (response.getHits().getHits().isEmpty()) {
-            return metricsValues;
-        }
+        if (!response.getHits().getHits().isEmpty()) {
+            Map<String, Map<String, Object>> idMap = toMap(response.getHits());
 
-        Map<String, Map<String, Object>> idMap = toMap(response.getHits());
-
-        // Label is null, because in readMetricsValues, no label parameter.
-        IntValues intValues = metricsValues.getValues();
-        for (String id : ids) {
-            KVInt kvInt = new KVInt();
-            kvInt.setId(id);
-            kvInt.setValue(0);
-            if (idMap.containsKey(id)) {
-                Map<String, Object> source = idMap.get(id);
-                kvInt.setValue(((Number) source.getOrDefault(valueColumnName, 0)).longValue());
-            } else {
-                kvInt.setValue(ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()));
+            // Label is null, because in readMetricsValues, no label parameter.
+            IntValues intValues = metricsValues.getValues();
+            for (String id : ids) {
+                KVInt kvInt = new KVInt();
+                kvInt.setId(id);
+                kvInt.setValue(0);
+                if (idMap.containsKey(id)) {
+                    Map<String, Object> source = idMap.get(id);
+                    kvInt.setValue(((Number) source.getOrDefault(valueColumnName, 0)).longValue());
+                } else {
+                    kvInt.setValue(ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()));
+                }
+                intValues.addKVInt(kvInt);
             }
-            intValues.addKVInt(kvInt);
         }
-
         metricsValues.setValues(
             Util.sortValues(
-                intValues, ids, ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()))
+                metricsValues.getValues(), ids, ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()))
         );
 
         return metricsValues;
@@ -158,15 +155,15 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         });
 
         SearchResponse response = getClient().ids(tableName, ids);
-        if (response.getHits().getHits().isEmpty()) {
-            return Collections.emptyList();
-        }
         Map<String, DataTable> idMap = new HashMap<>();
-        for (final SearchHit hit : response.getHits()) {
-            idMap.put(
-                hit.getId(),
-                new DataTable((String) hit.getSource().getOrDefault(valueColumnName, ""))
-            );
+
+        if (!response.getHits().getHits().isEmpty()) {
+            for (final SearchHit hit : response.getHits()) {
+                idMap.put(
+                    hit.getId(),
+                    new DataTable((String) hit.getSource().getOrDefault(valueColumnName, ""))
+                );
+            }
         }
         return Util.composeLabelValue(condition, labels, ids, idMap);
     }

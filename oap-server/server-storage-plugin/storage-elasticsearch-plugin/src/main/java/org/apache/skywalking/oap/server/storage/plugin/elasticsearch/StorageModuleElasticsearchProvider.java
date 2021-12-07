@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Properties;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -78,7 +78,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
- * The storage provider for ElasticSearch 6.
+ * The storage provider for ElasticSearch 6/7 and OpenSearch 1.x.
  */
 @Slf4j
 public class StorageModuleElasticsearchProvider extends ModuleProvider {
@@ -145,7 +145,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                     elasticSearchClient.setTrustStorePass(config.getTrustStorePass());
                     elasticSearchClient.connect();
                 }
-            }, config.getSecretsManagementFile(), config.getTrustStorePass());
+            }, config.getSecretsManagementFile(), config.getTrustStorePath());
             /*
              * By leveraging the sync update check feature when startup.
              */

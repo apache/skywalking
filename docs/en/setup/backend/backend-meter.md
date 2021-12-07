@@ -20,10 +20,14 @@ kafka-fetcher:
 
 ## Meter collection
 
-Metrics named in OAL script could be used in MAL, as described in [Official OAL script](../../guides/backend-oal-scripts.md)
-
-Custom metrics may be collected by Manual Meter API. You may find correct APIs diving into [Server Agents](../service-agent/server-agents.md).
+Custom metrics may be collected by Manual Meter API.
 Custom metrics collected cannot be used directly, they should be configured in `meter-analyzer-config` configuration files, which is described in next part.
+
+The receiver adds labels with `key = service` and `key = instance` to the collected data samples,
+and values from service and service instance name defined in SkyWalking Agent,
+for identification of the metric data.
+
+A typical manual meter API set is [Spring Sleuth APIs](spring-sleuth-setup.md)
 
 ## Configuration file
 The meter receiver is configured via a configuration file. The configuration file defines everything related to receiving 
@@ -53,6 +57,8 @@ If you're using Spring Sleuth, see [Spring Sleuth Setup](spring-sleuth-setup.md)
 ### Meters configuration
 
 ```yaml
+# filter the metrics, only those metrics that satisfy this condition will be passed into the `metricsRules` below.
+filter: <closure> # example: '{ tags -> tags.job_name == "vm-monitoring" }'
 # expSuffix is appended to all expression in this file.
 expSuffix: <string>
 # insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>

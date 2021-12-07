@@ -20,11 +20,12 @@ package org.apache.skywalking.oap.server.starter.config;
 
 import java.io.FileNotFoundException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
+import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -111,7 +112,7 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                 log.info("Provider={} config={} has been set as an empty string", providerName, propertyName);
             } else {
                 // Use YAML to do data type conversion.
-                final Object replaceValue = yaml.load(valueString);
+                final Object replaceValue = convertValueString(valueString);
                 if (replaceValue != null) {
                     target.replace(propertyName, replaceValue);
                     log.info(
@@ -122,6 +123,20 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                     );
                 }
             }
+        }
+    }
+
+    private Object convertValueString(String valueString) {
+        try {
+            Object replaceValue = yaml.load(valueString);
+            if (replaceValue instanceof String || replaceValue instanceof Integer || replaceValue instanceof Long || replaceValue instanceof Boolean || replaceValue instanceof ArrayList) {
+                return replaceValue;
+            } else {
+                return valueString;
+            }
+        } catch (Exception e) {
+            log.warn("yaml convert value type error, use origin values string. valueString={}", valueString, e);
+            return valueString;
         }
     }
 

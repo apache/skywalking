@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.9.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -39,15 +39,15 @@
         <zookeeper.version>3.5.7</zookeeper.version>
         <guava.version>28.1-jre</guava.version>
         <snakeyaml.version>1.28</snakeyaml.version>
-        <protobuf-java.version>3.13.0</protobuf-java.version>
-        <protobuf-java-util.version>3.12.4</protobuf-java-util.version>
+        <protobuf-java.version>3.17.3</protobuf-java.version>
+        <protobuf-java-util.version>3.17.3</protobuf-java-util.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <netty-tcnative-boringssl-static.version>2.0.43.Final</netty-tcnative-boringssl-static.version>
         <jetty.version>9.4.40.v20210413</jetty.version>
         <commons-io.version>2.6</commons-io.version>
-        <kubernetes.version>13.0.0</kubernetes.version>
+        <kubernetes.version>14.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.9.1</zipkin.version>
         <jackson-core.version>2.12.2</jackson-core.version>
@@ -73,10 +73,12 @@
         <postgresql.version>42.2.18</postgresql.version>
         <jetcd.version>0.5.3</jetcd.version>
         <testcontainers.version>1.15.3</testcontainers.version>
-        <armeria.version>1.12.0</armeria.version>
+        <armeria.version>1.13.4</armeria.version>
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
         <commons-compress.version>1.21</commons-compress.version>
+        <iotdb-session.version>0.12.3</iotdb-session.version>
+        <lz4-java.version>1.6.0</lz4-java.version>
     </properties>
 
     <dependencyManagement>
@@ -534,11 +536,21 @@
                 <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
-             <dependency>
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commons-compress.version}</version>
-             </dependency>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.iotdb</groupId>
+                <artifactId>iotdb-session</artifactId>
+                <version>${iotdb-session.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.lz4</groupId>
+                <artifactId>lz4-java</artifactId>
+                <version>${lz4-java.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

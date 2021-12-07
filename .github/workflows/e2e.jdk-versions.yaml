@@ -33,24 +33,20 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        jdk: [ 8, 11, 12, 13, 14, 15 ]
+        jdk: [ 8, 11, 12, 13, 14, 15, 16 ]
     env:
       SW_AGENT_JDK_VERSION: ${{ matrix.jdk }}
-      SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk${{ matrix.jdk }}:alpine-jre
+      SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk${{ matrix.jdk }}:jre
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
       - name: Set Up Java
-        if: env.SKIP_CI != 'true'
         uses: actions/setup-java@v2
         with:
           distribution: adopt
           java-version: ${{ matrix.jdk }}
       - name: Run E2E Test
-        if: env.SKIP_CI != 'true'
         uses: ./.github/actions/infra-e2e-test
         with:
           config-file: simple/jdk/e2e.yaml

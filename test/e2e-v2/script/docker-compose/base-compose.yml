@@ -33,11 +33,12 @@ services:
       SW_STORAGE_ES_CLUSTER_NODES: es:9200
       SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
       SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
+      SW_STORAGE_IOTDB_HOST: iotdb
       SW_CONFIG_ETCD_PERIOD: 1
       SW_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
       SW_CLUSTER_ETCD_ENDPOINTS: http://etcd:2379
     healthcheck:
-      test: ["CMD", "sh", "-c", "nc -zn 127.0.0.1 11800"]
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
       interval: 5s
       timeout: 60s
       retries: 120

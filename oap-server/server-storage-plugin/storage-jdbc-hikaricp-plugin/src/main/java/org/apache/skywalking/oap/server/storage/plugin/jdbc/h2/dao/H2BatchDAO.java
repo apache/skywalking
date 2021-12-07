@@ -23,11 +23,12 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
@@ -54,9 +55,9 @@ public class H2BatchDAO implements IBatchDAO {
     }
 
     @Override
-    public void flush(List<PrepareRequest> prepareRequests) {
+    public CompletableFuture<Void> flush(List<PrepareRequest> prepareRequests) {
         if (CollectionUtils.isEmpty(prepareRequests)) {
-            return;
+            return CompletableFuture.completedFuture(null);
         }
         if (log.isDebugEnabled()) {
             log.debug("to execute sql statements execute, data size: {}, maxBatchSqlSize: {}", prepareRequests.size(), maxBatchSqlSize);
@@ -80,6 +81,7 @@ public class H2BatchDAO implements IBatchDAO {
         if (log.isDebugEnabled()) {
             log.debug("execute sql statements done, data size: {}, maxBatchSqlSize: {}", prepareRequests.size(), maxBatchSqlSize);
         }
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override

@@ -22,7 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

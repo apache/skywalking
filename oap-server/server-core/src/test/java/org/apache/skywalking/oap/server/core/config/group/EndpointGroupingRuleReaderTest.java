@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.config.group;
 
-import org.apache.skywalking.apm.util.StringFormatGroup;
+import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -16,8 +16,8 @@
 version: '2.1'
 
 services:
-  es:
-    image: opensearchproject/opensearch:1.1.0
+  opensearch:
+    image: opensearchproject/opensearch:${OPENSEARCH_VERSION}
     expose:
       - 9200
     networks:
@@ -38,13 +38,13 @@ services:
       service: oap
     environment:
       SW_STORAGE: elasticsearch
-      SW_STORAGE_ES_CLUSTER_NODES: es:9200
+      SW_STORAGE_ES_CLUSTER_NODES: opensearch:9200
       SW_ES_USER: admin
       SW_ES_PASSWORD: admin
     ports:
       - 12800
     depends_on:
-      es:
+      opensearch:
         condition: service_healthy
     networks:
       - e2e

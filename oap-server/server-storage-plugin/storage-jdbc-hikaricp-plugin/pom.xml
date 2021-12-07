@@ -21,7 +21,7 @@
     <parent>
         <artifactId>server-storage-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.9.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -37,6 +37,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>library-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-datacarrier-queue</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

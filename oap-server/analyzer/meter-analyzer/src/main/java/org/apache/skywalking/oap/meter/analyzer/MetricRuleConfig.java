@@ -40,6 +40,8 @@ public interface MetricRuleConfig {
      */
     List<? extends RuleConfig> getMetricsRules();
 
+    String getFilter();
+
     interface RuleConfig {
         /**
          * Get definition metrics name

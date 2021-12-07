@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.9.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,12 +33,7 @@
         <module>library-util</module>
         <module>library-client</module>
         <module>library-elasticsearch-client</module>
+        <module>library-datacarrier-queue</module>
     </modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-util</artifactId>
-        </dependency>
-    </dependencies>
 </project>

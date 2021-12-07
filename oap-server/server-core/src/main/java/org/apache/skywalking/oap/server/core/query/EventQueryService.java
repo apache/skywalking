@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.Objects.isNull;
-import static org.apache.skywalking.apm.util.StringUtil.isBlank;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isBlank;
 
 public class EventQueryService implements Service {
 
