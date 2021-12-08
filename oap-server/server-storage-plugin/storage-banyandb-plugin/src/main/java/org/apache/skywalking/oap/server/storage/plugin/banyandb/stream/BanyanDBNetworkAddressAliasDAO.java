@@ -18,13 +18,18 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
+import com.google.common.collect.ImmutableList;
+import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * {@link NetworkAddressAlias} is a stream
@@ -36,11 +41,36 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
 
     @Override
     public List<NetworkAddressAlias> loadLastUpdate(long timeBucket) {
-        return query(NetworkAddressAlias.class, new QueryBuilder() {
-            @Override
-            public void apply(StreamQuery query) {
-                query.appendCondition(PairQueryCondition.LongQueryCondition.ge("searchable", NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET, timeBucket));
-            }
-        });
+        StreamQueryResponse resp = query(NetworkAddressAlias.INDEX_NAME,
+                ImmutableList.of(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET),
+                new QueryBuilder() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        query.setDataProjections(ImmutableList.of(Metrics.TIME_BUCKET, "address", "represent_service_id", "represent_service_instance_id"));
+                        query.appendCondition(gte(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET, timeBucket));
+                    }
+                });
+
+        return resp.getElements().stream().map(new NetworkAddressAliasDeserializer()).collect(Collectors.toList());
+    }
+
+    public static class NetworkAddressAliasDeserializer implements RowEntityDeserializer<NetworkAddressAlias> {
+        @Override
+        public NetworkAddressAlias apply(RowEntity row) {
+            NetworkAddressAlias model = new NetworkAddressAlias();
+            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
+            // searchable - last_update_time_bucket
+            model.setLastUpdateTimeBucket(((Number) searchable.get(0).getValue()).longValue());
+            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
+            // data - time_bucket
+            model.setTimeBucket(((Number) data.get(0).getValue()).longValue());
+            // data - address
+            model.setAddress((String) data.get(1).getValue());
+            // data - represent_service_id
+            model.setRepresentServiceId((String) data.get(2).getValue());
+            // data - represent_service_instance_id
+            model.setRepresentServiceInstanceId((String) data.get(3).getValue());
+            return model;
+        }
     }
 }

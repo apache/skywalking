@@ -21,28 +21,64 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 import org.apache.skywalking.banyandb.v1.Banyandb;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
+import org.apache.skywalking.banyandb.v1.client.TagAndValue;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public abstract class BanyanDBStorageDataBuilder<T extends StorageData> {
-    public StreamWrite entity2Storage(Model model, T entity) {
-        return StreamWrite.builder()
+public abstract class BanyanDBStorageDataBuilder<T extends StorageData> implements StorageBuilder<T, StreamWrite.StreamWriteBuilder> {
+    @Override
+    public T storage2Entity(StreamWrite.StreamWriteBuilder storageData) {
+        return null;
+    }
+
+    @Override
+    public StreamWrite.StreamWriteBuilder entity2Storage(T entity) {
+        StreamWrite.StreamWriteBuilder b = StreamWrite.builder()
                 .elementId(this.elementID(entity))
-                .name(model.getName())
-                .timestamp(this.timestamp(model, entity))
                 .searchableTags(this.searchableTags(entity))
-                .dataTags(this.dataTags(entity))
-                .build();
+                .dataTags(this.dataTags(entity));
+        Long ts = this.extractTimestamp(entity);
+        if (ts != null) {
+            b.timestamp(ts);
+        }
+        return b;
+    }
+
+    protected Long extractTimestamp(T entity) {
+        return null;
+    }
+
+    protected List<SerializableTag<Banyandb.TagValue>> filterSearchableTags(List<Tag> rawTags, List<String> indexTags) {
+        if (rawTags == null) {
+            return Collections.emptyList();
+        }
+        Map<String, SerializableTag<Banyandb.TagValue>> map = new HashMap<>();
+        for (final Tag tag : rawTags) {
+            map.put(tag.getKey().toLowerCase(), TagAndValue.stringField(tag.getValue()));
+        }
+        final List<SerializableTag<Banyandb.TagValue>> tags = new ArrayList<>();
+        for (String indexedTag : indexTags) {
+            SerializableTag<Banyandb.TagValue> tag = map.get(indexedTag);
+            if (tag == null) {
+                tags.add(TagAndValue.nullField());
+            } else {
+                tags.add(tag);
+            }
+        }
+
+        return tags;
     }
 
     protected String elementID(T entity) {
         return entity.id();
     }
-
-    abstract protected long timestamp(Model model, T entity);
 
     abstract protected List<SerializableTag<Banyandb.TagValue>> searchableTags(T entity);
 

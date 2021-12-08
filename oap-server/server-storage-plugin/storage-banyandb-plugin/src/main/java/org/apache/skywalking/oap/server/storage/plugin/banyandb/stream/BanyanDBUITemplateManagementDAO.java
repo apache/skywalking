@@ -18,21 +18,25 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
+import com.google.common.collect.ImmutableList;
+import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.Tag;
+import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
+import org.apache.skywalking.oap.server.core.query.enumeration.TemplateType;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.UITemplateBuilder;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.management.ui.template.UITemplate} is a stream
@@ -44,15 +48,19 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
 
     @Override
     public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException {
-        return query(DashboardConfiguration.class, new QueryBuilder() {
-            @Override
-            public void apply(StreamQuery query) {
-                query.setLimit(10000);
-                if (!includingDisabled) {
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", UITemplate.DISABLED, (long) BooleanUtils.FALSE));
-                }
-            }
-        });
+        StreamQueryResponse resp = query(UITemplate.INDEX_NAME, ImmutableList.of(UITemplate.NAME, UITemplate.DISABLED),
+                new QueryBuilder() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        query.setDataProjections(ImmutableList.of(UITemplate.ACTIVATED, UITemplate.CONFIGURATION, UITemplate.TYPE));
+                        query.setLimit(10000);
+                        if (!includingDisabled) {
+                            query.appendCondition(eq(UITemplate.DISABLED, BooleanUtils.FALSE));
+                        }
+                    }
+                });
+
+        return resp.getElements().stream().map(new DashboardConfigurationDeserializer()).collect(Collectors.toList());
     }
 
     @Override
@@ -71,7 +79,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
                 .dataTag(Tag.stringField(uiTemplate.getConfiguration()))
                 // data - activated
                 .dataTag(Tag.longField(uiTemplate.getActivated()))
-                .timestamp(UITemplateBuilder.UI_TEMPLATE_TIMESTAMP)
+                .timestamp(1L)
                 .elementId(uiTemplate.id())
                 .build();
         getClient().write(request);
@@ -86,5 +94,25 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
     @Override
     public TemplateChangeStatus disableTemplate(String name) throws IOException {
         return TemplateChangeStatus.builder().status(false).message("Can't disable the template").build();
+    }
+
+    public static class DashboardConfigurationDeserializer implements RowEntityDeserializer<DashboardConfiguration> {
+        @Override
+        public DashboardConfiguration apply(RowEntity row) {
+            DashboardConfiguration dashboardConfiguration = new DashboardConfiguration();
+            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
+            // name
+            dashboardConfiguration.setName((String) searchable.get(0).getValue());
+            // disabled
+            dashboardConfiguration.setDisabled(BooleanUtils.valueToBoolean(((Number) searchable.get(1).getValue()).intValue()));
+            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
+            // activated
+            dashboardConfiguration.setActivated(BooleanUtils.valueToBoolean(((Number) data.get(0).getValue()).intValue()));
+            // configuration
+            dashboardConfiguration.setConfiguration((String) data.get(1).getValue());
+            // type
+            dashboardConfiguration.setType(TemplateType.forName((String) data.get(2).getValue()));
+            return dashboardConfiguration;
+        }
     }
 }

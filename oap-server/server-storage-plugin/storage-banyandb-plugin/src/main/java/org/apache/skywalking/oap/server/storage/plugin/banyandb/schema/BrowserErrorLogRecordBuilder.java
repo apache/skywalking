@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class BrowserErrorLogRecordBuilder extends BanyanDBRecordBuilder<BrowserErrorLogRecord> {
+public class BrowserErrorLogRecordBuilder extends BanyanDBStorageDataBuilder<BrowserErrorLogRecord> {
     @Override
     protected List<SerializableTag<Banyandb.TagValue>> searchableTags(BrowserErrorLogRecord entity) {
         List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>();

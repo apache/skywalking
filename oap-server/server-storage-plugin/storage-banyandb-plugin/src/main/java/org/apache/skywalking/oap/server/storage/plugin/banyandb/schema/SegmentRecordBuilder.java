@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SegmentRecordBuilder extends BanyanDBRecordBuilder<SegmentRecord> {
+public class SegmentRecordBuilder extends BanyanDBStorageDataBuilder<SegmentRecord> {
     public static final List<String> INDEXED_TAGS = ImmutableList.of(
             "http.method",
             "status_code",
