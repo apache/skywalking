@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LogRecordBuilder extends BanyanDBRecordBuilder<LogRecord> {
+public class LogRecordBuilder extends BanyanDBStorageDataBuilder<LogRecord> {
     public static final List<String> INDEXED_TAGS = ImmutableList.of(
             "level"
     );

@@ -20,22 +20,25 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBRecordBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBStorageDataBuilder;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor
 public class BanyanDBRecordDAO<T extends Record> implements IRecordDAO {
-    private final BanyanDBRecordBuilder<T> storageBuilder;
+    private final BanyanDBStorageDataBuilder<T> storageBuilder;
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        StreamWrite streamWrite = storageBuilder.entity2Storage(model, (T) record);
+        StreamWrite.StreamWriteBuilder builder = storageBuilder.entity2Storage((T) record)
+                .name(model.getName())
+                .timestamp(TimeBucket.getTimeBucket(record.getTimeBucket(), model.getDownsampling()));
 
-        return new BanyanDBStreamInsertRequest(streamWrite);
+        return new BanyanDBStreamInsertRequest(builder.build());
     }
 }

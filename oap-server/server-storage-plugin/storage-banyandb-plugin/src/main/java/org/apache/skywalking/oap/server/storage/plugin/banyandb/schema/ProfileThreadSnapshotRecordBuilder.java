@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ProfileThreadSnapshotRecordBuilder extends BanyanDBRecordBuilder<ProfileThreadSnapshotRecord> {
+public class ProfileThreadSnapshotRecordBuilder extends BanyanDBStorageDataBuilder<ProfileThreadSnapshotRecord> {
     @Override
     protected List<SerializableTag<Banyandb.TagValue>> searchableTags(ProfileThreadSnapshotRecord entity) {
         List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(4);

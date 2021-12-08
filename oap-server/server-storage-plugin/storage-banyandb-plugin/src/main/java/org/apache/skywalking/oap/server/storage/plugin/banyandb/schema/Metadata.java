@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Metadata {
-    public static class ServiceTrafficBuilder extends BanyanDBMetricsBuilder<ServiceTraffic> {
+    public static class ServiceTrafficBuilder extends BanyanDBStorageDataBuilder<ServiceTraffic> {
         @Override
         protected List<SerializableTag<Banyandb.TagValue>> searchableTags(ServiceTraffic entity) {
             List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(3);
@@ -41,7 +41,7 @@ public class Metadata {
         }
     }
 
-    public static class EndpointTrafficBuilder extends BanyanDBMetricsBuilder<EndpointTraffic> {
+    public static class EndpointTrafficBuilder extends BanyanDBStorageDataBuilder<EndpointTraffic> {
         @Override
         protected List<SerializableTag<Banyandb.TagValue>> searchableTags(EndpointTraffic entity) {
             List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(2);
@@ -51,7 +51,7 @@ public class Metadata {
         }
     }
 
-    public static class InstanceTrafficBuilder extends BanyanDBMetricsBuilder<InstanceTraffic> {
+    public static class InstanceTrafficBuilder extends BanyanDBStorageDataBuilder<InstanceTraffic> {
         @Override
         protected List<SerializableTag<Banyandb.TagValue>> searchableTags(InstanceTraffic entity) {
             List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(2);
