@@ -20,12 +20,13 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBMetricsBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBStorageDataBuilder;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -33,7 +34,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class BanyanDBMetricsDAO<T extends Metrics> implements IMetricsDAO {
-    private final BanyanDBMetricsBuilder<T> storageBuilder;
+    private final BanyanDBStorageDataBuilder<T> storageBuilder;
 
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
@@ -42,12 +43,15 @@ public class BanyanDBMetricsDAO<T extends Metrics> implements IMetricsDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
-        StreamWrite streamWrite = this.storageBuilder.entity2Storage(model, (T) metrics);
-        return new BanyanDBStreamInsertRequest(streamWrite);
+        StreamWrite.StreamWriteBuilder builder = this.storageBuilder.entity2Storage((T) metrics)
+                .name(model.getName())
+                .timestamp(TimeBucket.getTimeBucket(metrics.getTimeBucket(), model.getDownsampling()));
+        return new BanyanDBStreamInsertRequest(builder.build());
     }
 
     @Override
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
-        return null;
+        return new UpdateRequest() {
+        };
     }
 }

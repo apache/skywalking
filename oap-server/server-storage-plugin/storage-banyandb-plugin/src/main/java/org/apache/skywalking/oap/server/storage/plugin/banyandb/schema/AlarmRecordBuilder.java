@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AlarmRecordBuilder extends BanyanDBRecordBuilder<AlarmRecord> {
+public class AlarmRecordBuilder extends BanyanDBStorageDataBuilder<AlarmRecord> {
     public static final List<String> INDEXED_TAGS = ImmutableList.of(
             "level"
     );

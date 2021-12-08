@@ -18,60 +18,66 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
+import com.google.common.collect.ImmutableList;
+import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.ProfileTaskDeserializer;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord} is a stream
  */
 public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements IProfileTaskQueryDAO {
+    public static final String ID = "profile_task_query_id";
+
     public BanyanDBProfileTaskQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
 
     @Override
     public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
-        return query(ProfileTask.class, new QueryBuilder() {
-            @Override
-            public void apply(StreamQuery query) {
-                if (StringUtil.isNotEmpty(serviceId)) {
-                    query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable",
-                            ProfileTaskRecord.SERVICE_ID, serviceId));
-                }
+        StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME,
+                ImmutableList.of(ID, ProfileTaskRecord.SERVICE_ID, ProfileTaskRecord.ENDPOINT_NAME,
+                        ProfileTaskRecord.START_TIME, ProfileTaskRecord.DURATION, ProfileTaskRecord.MIN_DURATION_THRESHOLD,
+                        ProfileTaskRecord.DUMP_PERIOD, ProfileTaskRecord.CREATE_TIME, ProfileTaskRecord.MAX_SAMPLING_COUNT), new QueryBuilder() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        if (StringUtil.isNotEmpty(serviceId)) {
+                            query.appendCondition(eq(ProfileTaskRecord.SERVICE_ID, serviceId));
+                        }
 
-                if (StringUtil.isNotEmpty(endpointName)) {
-                    query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable",
-                            ProfileTaskRecord.ENDPOINT_NAME, endpointName));
-                }
+                        if (StringUtil.isNotEmpty(endpointName)) {
+                            query.appendCondition(eq(ProfileTaskRecord.ENDPOINT_NAME, endpointName));
+                        }
 
-                if (Objects.nonNull(startTimeBucket)) {
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.ge("searchable",
-                            ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(startTimeBucket)));
-                }
+                        if (Objects.nonNull(startTimeBucket)) {
+                            query.appendCondition(gte(ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(startTimeBucket)));
+                        }
 
-                if (Objects.nonNull(endTimeBucket)) {
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.le("searchable",
-                            ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(endTimeBucket)));
-                }
+                        if (Objects.nonNull(endTimeBucket)) {
+                            query.appendCondition(lte(ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(endTimeBucket)));
+                        }
 
-                if (Objects.nonNull(limit)) {
-                    query.setLimit(limit);
-                }
+                        if (Objects.nonNull(limit)) {
+                            query.setLimit(limit);
+                        }
 
-                query.setOrderBy(new StreamQuery.OrderBy(ProfileTaskRecord.START_TIME, StreamQuery.OrderBy.Type.DESC));
-            }
-        });
+                        query.setOrderBy(new StreamQuery.OrderBy(ProfileTaskRecord.START_TIME, StreamQuery.OrderBy.Type.DESC));
+                    }
+                });
+
+        return resp.getElements().stream().map(new ProfileTaskDeserializer()).collect(Collectors.toList());
     }
 
     @Override
@@ -80,12 +86,36 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
             return null;
         }
 
-        return query(ProfileTask.class, new QueryBuilder() {
-            @Override
-            public void apply(StreamQuery query) {
-                query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", ProfileTaskDeserializer.ID, id));
-                query.setLimit(1);
-            }
-        }).stream().findAny().orElse(null);
+        StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME,
+                ImmutableList.of(ID, ProfileTaskRecord.SERVICE_ID, ProfileTaskRecord.ENDPOINT_NAME,
+                        ProfileTaskRecord.START_TIME, ProfileTaskRecord.DURATION, ProfileTaskRecord.MIN_DURATION_THRESHOLD,
+                        ProfileTaskRecord.DUMP_PERIOD, ProfileTaskRecord.CREATE_TIME, ProfileTaskRecord.MAX_SAMPLING_COUNT),
+                new QueryBuilder() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        query.appendCondition(eq(ID, id));
+                        query.setLimit(1);
+                    }
+                });
+
+        return resp.getElements().stream().map(new ProfileTaskDeserializer()).findAny().orElse(null);
+    }
+
+    public static class ProfileTaskDeserializer implements RowEntityDeserializer<ProfileTask> {
+        @Override
+        public ProfileTask apply(RowEntity row) {
+            ProfileTask profileTask = new ProfileTask();
+            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
+            profileTask.setId((String) searchable.get(0).getValue());
+            profileTask.setServiceId((String) searchable.get(1).getValue());
+            profileTask.setEndpointName((String) searchable.get(2).getValue());
+            profileTask.setStartTime(((Number) searchable.get(3).getValue()).longValue());
+            profileTask.setDuration(((Number) searchable.get(4).getValue()).intValue());
+            profileTask.setMinDurationThreshold(((Number) searchable.get(5).getValue()).intValue());
+            profileTask.setDumpPeriod(((Number) searchable.get(6).getValue()).intValue());
+            profileTask.setCreateTime(((Number) searchable.get(7).getValue()).intValue());
+            profileTask.setMaxSamplingCount(((Number) searchable.get(8).getValue()).intValue());
+            return profileTask;
+        }
     }
 }

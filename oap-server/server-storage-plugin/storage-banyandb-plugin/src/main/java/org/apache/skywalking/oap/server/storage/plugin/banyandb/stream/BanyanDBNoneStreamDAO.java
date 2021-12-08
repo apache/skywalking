@@ -20,22 +20,32 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBRecordBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBStorageDataBuilder;
 
 import java.io.IOException;
 
+/**
+ * DAO for NoneStream, specifically ProfileTaskRecord
+ *
+ * @param <T> For NoneStream, we only have {@link org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord}
+ */
 @RequiredArgsConstructor
 public class BanyanDBNoneStreamDAO<T extends NoneStream> implements INoneStreamDAO {
     private final BanyanDBStorageClient client;
-    private final BanyanDBRecordBuilder<T> storageBuilder;
+    private final BanyanDBStorageDataBuilder<T> storageBuilder;
 
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
-        StreamWrite streamWrite = this.storageBuilder.entity2Storage(model, (T) noneStream);
-        this.client.write(streamWrite);
+        final long timestamp = TimeBucket.getTimeBucket(noneStream.getTimeBucket(), model.getDownsampling());
+        StreamWrite.StreamWriteBuilder builder =
+                this.storageBuilder.entity2Storage((T) noneStream)
+                        .name(model.getName())
+                        .timestamp(timestamp);
+        this.client.write(builder.build());
     }
 }

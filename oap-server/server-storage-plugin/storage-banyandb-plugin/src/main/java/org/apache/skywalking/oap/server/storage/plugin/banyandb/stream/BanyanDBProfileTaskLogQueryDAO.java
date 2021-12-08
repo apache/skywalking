@@ -18,8 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
+import com.google.common.collect.ImmutableList;
+import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TagAndValue;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
+import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
@@ -41,12 +47,38 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
 
     @Override
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
-        return query(ProfileTaskLog.class, new QueryBuilder() {
-            @Override
-            public void apply(StreamQuery query) {
-                query.setLimit(BanyanDBProfileTaskLogQueryDAO.this.queryMaxSize);
-            }
-        }).stream().sorted(Comparator.comparingLong(ProfileTaskLog::getOperationTime))
+        StreamQueryResponse resp = query(ProfileTaskLogRecord.INDEX_NAME,
+                ImmutableList.of(ProfileTaskLogRecord.OPERATION_TIME),
+                new QueryBuilder() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        query.setDataProjections(ImmutableList.of(ProfileTaskLogRecord.TASK_ID,
+                                ProfileTaskLogRecord.INSTANCE_ID,
+                                ProfileTaskLogRecord.OPERATION_TYPE));
+                        query.setLimit(BanyanDBProfileTaskLogQueryDAO.this.queryMaxSize);
+                    }
+                });
+
+        return resp.getElements().stream().map(new ProfileTaskLogDeserializer())
+                .sorted(Comparator.comparingLong(ProfileTaskLog::getOperationTime))
                 .collect(Collectors.toList());
+    }
+
+    public static class ProfileTaskLogDeserializer implements RowEntityDeserializer<ProfileTaskLog> {
+        @Override
+        public ProfileTaskLog apply(RowEntity row) {
+            ProfileTaskLog profileTaskLog = new ProfileTaskLog();
+            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
+            // searchable - operation_time
+            profileTaskLog.setOperationTime(((Number) searchable.get(0).getValue()).longValue());
+            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
+            // searchable - task_id
+            profileTaskLog.setTaskId((String) data.get(0).getValue());
+            // searchable - instance_id
+            profileTaskLog.setInstanceId((String) data.get(1).getValue());
+            // searchable - operation_type
+            profileTaskLog.setOperationType(ProfileTaskLogOperationType.parse(((Number) data.get(2).getValue()).intValue()));
+            return profileTaskLog;
+        }
     }
 }

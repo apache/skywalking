@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class NetworkAddressAliasBuilder extends BanyanDBMetricsBuilder<NetworkAddressAlias> {
+public class NetworkAddressAliasBuilder extends BanyanDBStorageDataBuilder<NetworkAddressAlias> {
     @Override
     protected List<SerializableTag<Banyandb.TagValue>> searchableTags(NetworkAddressAlias entity) {
         return Collections.singletonList(TagAndValue.longField(entity.getLastUpdateTimeBucket()));
