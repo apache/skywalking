@@ -18,13 +18,22 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
+import com.google.gson.reflect.TypeToken;
+import com.google.protobuf.ByteString;
+import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TagAndValue;
+import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
@@ -33,6 +42,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.AlarmReco
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.alarm.AlarmRecord} is a stream,
@@ -45,34 +55,70 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
 
     @Override
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB, long endTB, List<Tag> tags) throws IOException {
-        List<AlarmMessage> messages = query(AlarmMessage.class, new QueryBuilder() {
-            @Override
-            public void apply(StreamQuery query) {
-                if (Objects.nonNull(scopeId)) {
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", AlarmRecord.SCOPE, (long) scopeId));
-                }
-                if (startTB != 0 && endTB != 0) {
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.ge("searchable", AlarmRecord.START_TIME, TimeBucket.getTimestamp(startTB)));
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.le("searchable", AlarmRecord.START_TIME, TimeBucket.getTimestamp(endTB)));
-                }
+        TimestampRange tsRange = null;
+        if (startTB > 0 && endTB > 0) {
+            tsRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
+        }
 
-                // TODO: support keyword search
+        StreamQueryResponse resp = query(AlarmRecord.INDEX_NAME,
+                ImmutableList.of(AlarmRecord.SCOPE, AlarmRecord.START_TIME),
+                tsRange,
+                new QueryBuilder() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        query.setDataProjections(ImmutableList.of(AlarmRecord.ID0, AlarmRecord.ID1, AlarmRecord.ALARM_MESSAGE, AlarmRecord.TAGS_RAW_DATA));
 
-                if (CollectionUtils.isNotEmpty(tags)) {
-                    for (final Tag tag : tags) {
-                        if (AlarmRecordBuilder.INDEXED_TAGS.contains(tag.getKey())) {
-                            query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", tag.getKey(), tag.getValue()));
+                        if (Objects.nonNull(scopeId)) {
+                            query.appendCondition(eq(AlarmRecord.SCOPE, (long) scopeId));
                         }
+
+                        // TODO: support keyword search
+
+                        if (CollectionUtils.isNotEmpty(tags)) {
+                            for (final Tag tag : tags) {
+                                if (AlarmRecordBuilder.INDEXED_TAGS.contains(tag.getKey())) {
+                                    query.appendCondition(eq(tag.getKey(), tag.getValue()));
+                                }
+                            }
+                        }
+                        query.setLimit(limit);
+                        query.setOffset(from);
                     }
-                }
-                query.setLimit(limit);
-                query.setOffset(from);
-            }
-        });
+                });
+
+        List<AlarmMessage> messages = resp.getElements().stream().map(new AlarmMessageDeserializer())
+                .collect(Collectors.toList());
 
         Alarms alarms = new Alarms();
         alarms.setTotal(messages.size());
         alarms.getMsgs().addAll(messages);
         return alarms;
+    }
+
+    public static class AlarmMessageDeserializer implements RowEntityDeserializer<AlarmMessage> {
+        @Override
+        public AlarmMessage apply(RowEntity row) {
+            AlarmMessage alarmMessage = new AlarmMessage();
+            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
+            int scopeID = ((Number) searchable.get(0).getValue()).intValue();
+            alarmMessage.setScopeId(scopeID);
+            alarmMessage.setScope(Scope.Finder.valueOf(scopeID));
+            alarmMessage.setStartTime(((Number) searchable.get(1).getValue()).longValue());
+            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
+            alarmMessage.setId((String) data.get(0).getValue());
+            alarmMessage.setId1((String) data.get(1).getValue());
+            alarmMessage.setMessage((String) data.get(2).getValue());
+            Object o = data.get(3).getValue();
+            if (o instanceof ByteString && !((ByteString) o).isEmpty()) {
+                this.parseDataBinary(((ByteString) o).toByteArray(), alarmMessage.getTags());
+            }
+            return alarmMessage;
+        }
+
+        void parseDataBinary(byte[] dataBinary, List<KeyValue> tags) {
+            List<Tag> tagList = GSON.fromJson(new String(dataBinary, Charsets.UTF_8), new TypeToken<List<Tag>>() {
+            }.getType());
+            tagList.forEach(pair -> tags.add(new KeyValue(pair.getKey(), pair.getValue())));
+        }
     }
 }

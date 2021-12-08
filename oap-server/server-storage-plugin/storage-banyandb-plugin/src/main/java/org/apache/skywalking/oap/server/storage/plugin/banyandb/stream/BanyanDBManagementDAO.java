@@ -18,24 +18,54 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
+import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
+import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBStorageDataBuilder;
 
 import java.io.IOException;
+import java.util.Collections;
 
-@RequiredArgsConstructor
-public class BanyanDBManagementDAO<T extends ManagementData> implements IManagementDAO {
-    private final BanyanDBStorageClient client;
+/**
+ * UITemplate insertion DAO
+ *
+ * @param <T> The only ManagementData we have now is {@link UITemplate}
+ */
+public class BanyanDBManagementDAO<T extends ManagementData> extends AbstractBanyanDBDAO implements IManagementDAO {
     private final BanyanDBStorageDataBuilder<T> storageBuilder;
+
+    public BanyanDBManagementDAO(BanyanDBStorageClient client, BanyanDBStorageDataBuilder<T> storageBuilder) {
+        super(client);
+        this.storageBuilder = storageBuilder;
+    }
 
     @Override
     public void insert(Model model, ManagementData storageData) throws IOException {
-        StreamWrite streamWrite = this.storageBuilder.entity2Storage(model, (T) storageData);
-        client.write(streamWrite);
+        // ensure only insert once
+        StreamQueryResponse resp = query(UITemplate.INDEX_NAME,
+                Collections.singletonList(UITemplate.NAME),
+                new TimestampRange(0L, 2L),
+                new QueryBuilder() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        query.appendCondition(eq(UITemplate.NAME, storageData.id()));
+                    }
+                });
+
+        if (resp != null && resp.getElements().size() > 0) {
+            return;
+        }
+
+        StreamWrite.StreamWriteBuilder streamWrite = this.storageBuilder
+                .entity2Storage((T) storageData)
+                .name(model.getName())
+                .timestamp(1L);
+        getClient().write(streamWrite.build());
     }
 }

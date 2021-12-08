@@ -23,19 +23,11 @@ import org.apache.skywalking.banyandb.v1.Banyandb;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UITemplateBuilder extends BanyanDBStorageDataBuilder<UITemplate> {
-    public static final long UI_TEMPLATE_TIMESTAMP = 1L;
-
-    @Override
-    protected long timestamp(Model model, UITemplate entity) {
-        return UI_TEMPLATE_TIMESTAMP;
-    }
-
     @Override
     protected List<SerializableTag<Banyandb.TagValue>> searchableTags(UITemplate entity) {
         return ImmutableList.of(

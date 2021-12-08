@@ -18,42 +18,62 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
+import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
+import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.AbstractBanyanDBDeserializer;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.deserializer.BanyanDBDeserializerFactory;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageClient> {
     protected AbstractBanyanDBDAO(BanyanDBStorageClient client) {
         super(client);
     }
 
-    protected <T> List<T> query(Class<T> clazz, QueryBuilder builder) {
-        return this.query(clazz, builder, 0, 0);
+    protected StreamQueryResponse query(String indexName, List<String> searchableTags, QueryBuilder builder) {
+        return this.query(indexName, searchableTags, null, builder);
     }
 
-    protected <T> List<T> query(Class<T> clazz, QueryBuilder builder, long startTimestamp, long endTimestamp) {
-        AbstractBanyanDBDeserializer<T> deserializer = BanyanDBDeserializerFactory.INSTANCE.findDeserializer(clazz);
-
+    protected StreamQueryResponse query(String indexName, List<String> searchableTags, TimestampRange timestampRange,
+                                        QueryBuilder builder) {
         final StreamQuery query;
-        if (startTimestamp != 0 && endTimestamp != 0) {
-            query = deserializer.buildStreamQuery();
+        if (timestampRange == null) {
+            query = new StreamQuery(indexName, searchableTags);
         } else {
-            query = deserializer.buildStreamQuery(startTimestamp, endTimestamp);
+            query = new StreamQuery(indexName, timestampRange, searchableTags);
         }
 
         builder.apply(query);
 
-        final StreamQueryResponse resp = getClient().query(query);
-        return resp.getElements().stream().map(deserializer::map).collect(Collectors.toList());
+        return getClient().query(query);
     }
 
-    interface QueryBuilder {
-        void apply(final StreamQuery query);
+    protected abstract static class QueryBuilder {
+        protected static final String SEARCHABLE = "searchable";
+
+        abstract void apply(final StreamQuery query);
+
+        protected PairQueryCondition<Long> eq(String name, long value) {
+            return PairQueryCondition.LongQueryCondition.eq(SEARCHABLE, name, value);
+        }
+
+        protected PairQueryCondition<Long> lte(String name, long value) {
+            return PairQueryCondition.LongQueryCondition.le(SEARCHABLE, name, value);
+        }
+
+        protected PairQueryCondition<Long> gte(String name, long value) {
+            return PairQueryCondition.LongQueryCondition.ge(SEARCHABLE, name, value);
+        }
+
+        protected PairQueryCondition<String> eq(String name, String value) {
+            return PairQueryCondition.StringQueryCondition.eq(SEARCHABLE, name, value);
+        }
+    }
+
+    interface RowEntityDeserializer<T> extends Function<RowEntity, T> {
     }
 }

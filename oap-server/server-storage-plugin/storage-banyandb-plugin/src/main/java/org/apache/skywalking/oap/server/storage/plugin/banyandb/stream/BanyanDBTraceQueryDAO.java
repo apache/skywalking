@@ -19,9 +19,15 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.protobuf.ByteString;
 import lombok.Getter;
-import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
+import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TagAndValue;
+import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
@@ -38,6 +44,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.SegmentRe
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITraceQueryDAO {
     public BanyanDBTraceQueryDAO(BanyanDBStorageClient client) {
@@ -46,39 +53,39 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
-        final QueryBuilder builder = new QueryBuilder() {
+        final QueryBuilder q = new QueryBuilder() {
             @Override
             public void apply(StreamQuery query) {
                 if (minDuration != 0) {
                     // duration >= minDuration
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.ge("searchable", "duration", minDuration));
+                    query.appendCondition(gte("duration", minDuration));
                 }
                 if (maxDuration != 0) {
                     // duration <= maxDuration
-                    query.appendCondition(PairQueryCondition.LongQueryCondition.le("searchable", "duration", maxDuration));
+                    query.appendCondition(lte("duration", maxDuration));
                 }
 
                 if (!Strings.isNullOrEmpty(serviceId)) {
-                    query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "service_id", serviceId));
+                    query.appendCondition(eq("service_id", serviceId));
                 }
 
                 if (!Strings.isNullOrEmpty(serviceInstanceId)) {
-                    query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "service_instance_id", serviceInstanceId));
+                    query.appendCondition(eq("service_instance_id", serviceInstanceId));
                 }
 
                 if (!Strings.isNullOrEmpty(endpointId)) {
-                    query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "endpoint_id", endpointId));
+                    query.appendCondition(eq("endpoint_id", endpointId));
                 }
 
                 switch (traceState) {
                     case ERROR:
-                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) TraceStateStorage.ERROR.getState()));
+                        query.appendCondition(eq("state", TraceStateStorage.ERROR.getState()));
                         break;
                     case SUCCESS:
-                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) TraceStateStorage.SUCCESS.getState()));
+                        query.appendCondition(eq("state", TraceStateStorage.SUCCESS.getState()));
                         break;
                     default:
-                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", "state", (long) TraceStateStorage.ALL.getState()));
+                        query.appendCondition(eq("state", TraceStateStorage.ALL.getState()));
                         break;
                 }
 
@@ -94,7 +101,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                 if (CollectionUtils.isNotEmpty(tags)) {
                     for (final Tag tag : tags) {
                         if (SegmentRecordBuilder.INDEXED_TAGS.contains(tag.getKey())) {
-                            query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", tag.getKey(), tag.getValue()));
+                            query.appendCondition(eq(tag.getKey(), tag.getValue()));
                         }
                     }
                 }
@@ -104,12 +111,16 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             }
         };
 
-        final List<BasicTrace> basicTraces;
-        if (startSecondTB != 0 && endSecondTB != 0) {
-            basicTraces = query(BasicTrace.class, builder, TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
-        } else {
-            basicTraces = query(BasicTrace.class, builder);
+        TimestampRange tsRange = null;
+
+        if (startSecondTB > 0 && endSecondTB > 0) {
+            tsRange = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
         }
+
+        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
+                ImmutableList.of("trace_id", "state", "endpoint_id", "duration", "start_time"), tsRange, q);
+
+        List<BasicTrace> basicTraces = resp.getElements().stream().map(new BasicTraceDeserializer()).collect(Collectors.toList());
 
         TraceBrief brief = new TraceBrief();
         brief.setTotal(basicTraces.size());
@@ -119,12 +130,17 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        return query(SegmentRecord.class, new QueryBuilder() {
-            @Override
-            public void apply(StreamQuery query) {
-                query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", "trace_id", traceId));
-            }
-        });
+        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
+                ImmutableList.of("trace_id", "state", "service_id", "service_instance_id", "endpoint_id", "duration", "start_time"),
+                new QueryBuilder() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        query.setDataProjections(Collections.singletonList("data_binary"));
+                        query.appendCondition(eq(SegmentRecord.TRACE_ID, traceId));
+                    }
+                });
+
+        return resp.getElements().stream().map(new SegmentRecordDeserializer()).collect(Collectors.toList());
     }
 
     @Override
@@ -140,6 +156,42 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
         TraceStateStorage(int state) {
             this.state = state;
+        }
+    }
+
+    public static class BasicTraceDeserializer implements RowEntityDeserializer<BasicTrace> {
+        @Override
+        public BasicTrace apply(RowEntity row) {
+            BasicTrace trace = new BasicTrace();
+            trace.setSegmentId(row.getId());
+            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
+            trace.getTraceIds().add((String) searchable.get(0).getValue());
+            trace.setError(((Long) searchable.get(1).getValue()).intValue() == 1);
+            trace.getEndpointNames().add(IDManager.EndpointID.analysisId(
+                    (String) searchable.get(2).getValue()
+            ).getEndpointName());
+            trace.setDuration(((Long) searchable.get(3).getValue()).intValue());
+            trace.setStart(String.valueOf(searchable.get(4).getValue()));
+            return trace;
+        }
+    }
+
+    public static class SegmentRecordDeserializer implements RowEntityDeserializer<SegmentRecord> {
+        @Override
+        public SegmentRecord apply(RowEntity row) {
+            SegmentRecord record = new SegmentRecord();
+            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
+            record.setSegmentId(row.getId());
+            record.setTraceId((String) searchable.get(0).getValue());
+            record.setIsError(((Number) searchable.get(1).getValue()).intValue());
+            record.setServiceId((String) searchable.get(2).getValue());
+            record.setServiceInstanceId((String) searchable.get(3).getValue());
+            record.setEndpointId((String) searchable.get(4).getValue());
+            record.setLatency(((Number) searchable.get(5).getValue()).intValue());
+            record.setStartTime(((Number) searchable.get(6).getValue()).longValue());
+            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
+            record.setDataBinary(((ByteString) data.get(0).getValue()).toByteArray());
+            return record;
         }
     }
 }

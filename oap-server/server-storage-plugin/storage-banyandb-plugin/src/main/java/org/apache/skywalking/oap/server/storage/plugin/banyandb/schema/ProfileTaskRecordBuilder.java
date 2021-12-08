@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProfileTaskRecordBuilder extends BanyanDBRecordBuilder<ProfileTaskRecord> {
+public class ProfileTaskRecordBuilder extends BanyanDBStorageDataBuilder<ProfileTaskRecord> {
     @Override
     protected List<SerializableTag<Banyandb.TagValue>> searchableTags(ProfileTaskRecord entity) {
         List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(9);

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ProfileTaskLogRecordBuilder extends BanyanDBRecordBuilder<ProfileTaskLogRecord> {
+public class ProfileTaskLogRecordBuilder extends BanyanDBStorageDataBuilder<ProfileTaskLogRecord> {
     @Override
     protected List<SerializableTag<Banyandb.TagValue>> searchableTags(ProfileTaskLogRecord entity) {
         return Collections.singletonList(TagAndValue.longField(entity.getOperationTime()));
