@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
@@ -5,12 +23,17 @@ import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
+import org.apache.skywalking.banyandb.v1.client.metadata.IndexRule;
+import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 /**
  * BanyanDBStorageClient is a simple wrapper for the underlying {@link BanyanDBClient},
@@ -42,6 +65,16 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         } catch (Throwable t) {
             healthChecker.unHealth(t);
             throw t;
+        }
+    }
+
+    public void createStream(StreamMetaInfo streamMetaInfo) {
+        Stream stm = this.client.define(streamMetaInfo.getStream());
+        if (stm != null) {
+            // TODO: should be fixed in SDK
+            this.client.defineIndexRules(stm, ZonedDateTime.from(Instant.now()),
+                    ZonedDateTime.of(2099, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+                    streamMetaInfo.getIndexRules().toArray(new IndexRule[]{}));
         }
     }
 
