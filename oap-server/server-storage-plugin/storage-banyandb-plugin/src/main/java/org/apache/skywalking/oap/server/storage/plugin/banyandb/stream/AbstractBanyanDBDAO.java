@@ -25,6 +25,7 @@ import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetaInfo;
 
 import java.util.List;
 import java.util.function.Function;
@@ -53,24 +54,22 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
     }
 
     protected abstract static class QueryBuilder {
-        protected static final String SEARCHABLE = "searchable";
-
         abstract void apply(final StreamQuery query);
 
         protected PairQueryCondition<Long> eq(String name, long value) {
-            return PairQueryCondition.LongQueryCondition.eq(SEARCHABLE, name, value);
+            return PairQueryCondition.LongQueryCondition.eq(StreamMetaInfo.TAG_FAMILY_SEARCHABLE, name, value);
         }
 
         protected PairQueryCondition<Long> lte(String name, long value) {
-            return PairQueryCondition.LongQueryCondition.le(SEARCHABLE, name, value);
+            return PairQueryCondition.LongQueryCondition.le(StreamMetaInfo.TAG_FAMILY_SEARCHABLE, name, value);
         }
 
         protected PairQueryCondition<Long> gte(String name, long value) {
-            return PairQueryCondition.LongQueryCondition.ge(SEARCHABLE, name, value);
+            return PairQueryCondition.LongQueryCondition.ge(StreamMetaInfo.TAG_FAMILY_SEARCHABLE, name, value);
         }
 
         protected PairQueryCondition<String> eq(String name, String value) {
-            return PairQueryCondition.StringQueryCondition.eq(SEARCHABLE, name, value);
+            return PairQueryCondition.StringQueryCondition.eq(StreamMetaInfo.TAG_FAMILY_SEARCHABLE, name, value);
         }
     }
 
