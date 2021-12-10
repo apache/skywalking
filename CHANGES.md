@@ -7,6 +7,8 @@ Release Notes.
 
 #### Project
 
+* Upgrade log4j2 to 2.15.0 for easing the CVE concern. Officially, unless users open `level=DEBUG` for gRPC/HTTP
+  handler(s), no security error.
 
 #### OAP Server
 
@@ -16,9 +18,7 @@ Release Notes.
 
 #### UI
 
-
 #### Documentation
-
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/112?closed=1)
 
