@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-protocol</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.9.0</version>
+        <version>8.9.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
