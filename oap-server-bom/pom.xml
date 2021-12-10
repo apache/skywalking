@@ -29,7 +29,7 @@
 
     <properties>
         <slf4j.version>1.7.30</slf4j.version>
-        <log4j.version>2.14.1</log4j.version>
+        <log4j.version>2.15.0</log4j.version>
         <graphql-java-tools.version>5.2.3</graphql-java-tools.version>
         <graphql-java.version>8.0</graphql-java.version>
         <okhttp.version>3.14.9</okhttp.version>
