@@ -18,8 +18,6 @@ Release Notes.
 
 #### UI
 
-* (UI Web Server)Upgrade log4j2 to 2.15.0 for CVE-2021-44228. This CVE only effects on JDK if JDNI is opened in default.
-  Notice, using JVM option `-Dlog4j2.formatMsgNoLookups=true` also avoids CVE if your JRE opened JNDI in default.
 
 #### Documentation
 
