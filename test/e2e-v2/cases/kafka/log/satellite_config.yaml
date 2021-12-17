@@ -24,6 +24,7 @@ telemetry:
   cluster: cluster1
   service: service1
   instance: instance1
+  export_type: none
 
 sharing:
   common_config:
