@@ -23,6 +23,7 @@ services:
     environment:
       SW_PROMETHEUS_FETCHER: "default"
       SW_TELEMETRY: prometheus
+      SW_METER_ANALYZER_ACTIVE_FILES: satellite
     ports:
       - 12800
 
@@ -32,8 +33,12 @@ services:
       service: provider
     ports:
       - 9090
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: satellite:11800
     depends_on:
       oap:
+        condition: service_healthy
+      satellite:
         condition: service_healthy
 
   consumer:
@@ -42,8 +47,36 @@ services:
       service: consumer
     ports:
       - 9092
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: satellite:11800
     depends_on:
       provider:
+        condition: service_healthy
+
+  satellite:
+    build:
+      context: ../satellite
+      dockerfile: Dockerfile.satellite
+      args:
+        - SW_AGENT_SATELLITE_COMMIT=${SW_AGENT_SATELLITE_COMMIT}
+    expose:
+      - 11800
+    environment:
+      SATELLITE_GRPC_CLIENT: oap:11800
+      SATELLITE_LOGPIPE_SENDER_MIN_FLUSH_EVENTS: 1
+      SW_AGENT_SATELLITE_COMMIT: ${SW_AGENT_SATELLITE_COMMIT}
+      SATELLITE_TELEMETRY_EXPORT_TYPE: metrics_service
+      SATELLITE_TELEMETRY_METRICS_SERVICE_INTERVAL: 2
+      SATELLITE_GRPC_ACCEPT_LIMIT_CPU_UTILIZATION: 100
+    networks:
+      - e2e
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -zn 127.0.0.1 11800" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      oap:
         condition: service_healthy
 
 networks:
