@@ -596,6 +596,12 @@ ajax:
   id: 10001
   languages: JavaScript
 
+# Rust components
+# [11000, 12000) for Rust agent
+Rust:
+  id: 11000
+  languages: Rust
+
 # Component Server mapping defines the server display names of some components
 # e.g.
 # Jedis is a client library in Java for Redis server
