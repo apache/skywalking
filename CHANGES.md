@@ -16,6 +16,7 @@ Release Notes.
 * Fix potential NPE in OAL string match and a bug when right-hand-side variable includes double quotes.
 * Bump up Armeria version to fix CVE.
 * Polish ETCD cluster config environment variables.
+* Add the analysis of metrics in Satellite MetricsService.
 
 #### UI
 

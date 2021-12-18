@@ -67,8 +67,7 @@ services:
       SATELLITE_GRPC_CLIENT: oap:11800
       SATELLITE_LOGPIPE_SENDER_MIN_FLUSH_EVENTS: 1
       SW_AGENT_SATELLITE_COMMIT: ${SW_AGENT_SATELLITE_COMMIT}
-    volumes:
-      - ./satellite_config.yaml:/skywalking/configs/satellite_config.yaml
+      SATELLITE_GRPC_ACCEPT_LIMIT_CPU_UTILIZATION: 100
     networks:
       - e2e
     healthcheck:
