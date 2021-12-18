@@ -7,7 +7,7 @@ Release Notes.
 
 #### Project
 
-* Upgrade log4j2 to 2.16.0 for CVE-2021-44228 and CVE-2021-45046. This CVE only effects on JDK if JDNI is opened in
+* Upgrade log4j2 to 2.17.0 for CVE-2021-44228, CVE-2021-45046 and CVE-2021-45105. This CVE only effects on JDK if JNDI is opened in
   default. Notice, using JVM option `-Dlog4j2.formatMsgNoLookups=true` or setting
   the `LOG4J_FORMAT_MSG_NO_LOOKUPS=”true”` environment variable also avoids CVEs.
 
