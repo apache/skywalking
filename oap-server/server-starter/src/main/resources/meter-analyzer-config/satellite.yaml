@@ -13,22 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-expSuffix: tag({tags -> tags.service = 'satellite::' + tags.service}).instance(['service'], ['instance'])
+expSuffix: tag({tags -> tags.service = 'satellite::' + tags.service}).service(['service'])
 metricPrefix: satellite
 metricsRules:
-  - name: instance_receive_event_count
-    exp: sw_stl_gatherer_receive_count.sum(["pipe", "status", "service", "instance"]).increase("PT1M")
-  - name: instance_fetch_event_count
-    exp: sw_stl_gatherer_fetch_count.sum(["pipe", "status", "service", "instance"]).increase("PT1M")
-  - name: instance_queue_input_count
-    exp: sw_stl_queue_output_count.sum(["pipe", "status", "service", "instance"]).increase("PT1M")
-  - name: instance_send_event_count
-    exp: sw_stl_sender_output_count.sum(["pipe", "status", "service", "instance"]).increase("PT1M")
-  - name: instance_queue_total_capacity
-    exp: sw_stl_pipeline_queue_total_capacity.sum(["pipeline", "service", "instance"])
-  - name: instance_queue_used_count
-    exp: sw_stl_pipeline_queue_partition_size.sum(["pipeline", "service", "instance"])
-  - name: instance_server_cpu_utilization
+  - name: service_receive_event_count
+    exp: sw_stl_gatherer_receive_count.sum(["pipe", "status", "service"]).increase("PT1M")
+  - name: service_fetch_event_count
+    exp: sw_stl_gatherer_fetch_count.sum(["pipe", "status", "service"]).increase("PT1M")
+  - name: service_queue_input_count
+    exp: sw_stl_queue_output_count.sum(["pipe", "status", "service"]).increase("PT1M")
+  - name: service_send_event_count
+    exp: sw_stl_sender_output_count.sum(["pipe", "status", "service"]).increase("PT1M")
+  - name: service_queue_total_capacity
+    exp: sw_stl_pipeline_queue_total_capacity.sum(["pipeline", "service"])
+  - name: service_queue_used_count
+    exp: sw_stl_pipeline_queue_partition_size.sum(["pipeline", "service"])
+  - name: service_server_cpu_utilization
     exp: sw_stl_grpc_server_cpu_gauge
-  - name: instance_grpc_connect_count
+  - name: service_grpc_connect_count
     exp: sw_stl_grpc_server_connection_count
