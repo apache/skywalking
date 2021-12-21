@@ -17,11 +17,8 @@
     # service list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
       expected: expected/satellite-service.yml
-    # service instance list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=satellite::satellite-service
-      expected: expected/satellite-service-instance.yml
-    # service instance metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=satellite_instance_server_cpu_utilization --instance-name=satellite-instance --service-name=satellite::satellite-service |yq e 'to_entries' -
+    # service metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=satellite_service_server_cpu_utilization --service-name=satellite::satellite-service |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=satellite_instance_grpc_connect_count --instance-name=satellite-instance --service-name=satellite::satellite-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=satellite_service_grpc_connect_count --service-name=satellite::satellite-service |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
