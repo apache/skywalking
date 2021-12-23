@@ -21,7 +21,6 @@ package org.apache.skywalking.aop.server.receiver.mesh;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
@@ -37,6 +36,7 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
@@ -226,6 +226,9 @@ public class TelemetryDataDispatcher {
     }
 
     private static void toEndpoint(ServiceMeshMetric.Builder metrics, long minuteTimeBucket) {
+        if (StringUtil.isEmpty(metrics.getEndpoint())) {
+            return;
+        }
         Endpoint endpoint = new Endpoint();
         endpoint.setTimeBucket(minuteTimeBucket);
         endpoint.setName(metrics.getEndpoint());
