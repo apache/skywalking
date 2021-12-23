@@ -56,6 +56,7 @@ public class H2TableInstaller extends ModelInstaller {
         super(client, moduleManager);
         this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
         this.numOfSearchableValuesPerTag = numOfSearchableValuesPerTag;
+        overrideColumnName("value", "value_");
     }
 
     @Override
