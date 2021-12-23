@@ -18,8 +18,8 @@ Release Notes.
 * Bump up Armeria version to fix CVE.
 * Polish ETCD cluster config environment variables.
 * Add the analysis of metrics in Satellite MetricsService.
-* Fix `Can't split endpoint id into 2 parts` bug for endpoint. In the TCP in service mesh observability, endpoint name
-  doesn't exist in TCP traffic.
+* Fix `Can't split endpoint id into 2 parts` bug for endpoint ID. In the TCP in service mesh observability, endpoint
+  name doesn't exist in TCP traffic.
 
 #### UI
 
