@@ -23,7 +23,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2Aggregation
 
 public class MySQLAggregationQueryDAO extends H2AggregationQueryDAO {
 
-    public MySQLAggregationQueryDAO(JDBCHikariCPClient client) {
-        super(client);
+    public MySQLAggregationQueryDAO(MySQLStorageConfig config, JDBCHikariCPClient client) {
+        super(config, client);
     }
 }

@@ -75,7 +75,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao.Postg
  */
 @Slf4j
 public class PostgreSQLStorageProvider extends ModuleProvider {
-    private PostgreSQLStorageConfig config;
+    private final PostgreSQLStorageConfig config;
     private JDBCHikariCPClient postgresqlClient;
 
     public PostgreSQLStorageProvider() {
@@ -104,53 +104,39 @@ public class PostgreSQLStorageProvider extends ModuleProvider {
         postgresqlClient = new JDBCHikariCPClient(config.getProperties());
 
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(postgresqlClient, config.getMaxSizeOfBatchSql(), config.getAsyncBatchPersistentPoolSize()));
+        this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(getManager(), postgresqlClient, config));
         this.registerServiceImplementation(
-                StorageDAO.class,
-                new H2StorageDAO(
-                        getManager(), postgresqlClient, config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag())
-        );
-        this.registerServiceImplementation(
-                INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(postgresqlClient));
+                INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(config, postgresqlClient));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(IMetricsQueryDAO.class, new PostgreSQLMetricsQueryDAO(postgresqlClient));
+        this.registerServiceImplementation(IMetricsQueryDAO.class, new PostgreSQLMetricsQueryDAO(config, postgresqlClient));
         this.registerServiceImplementation(
                 ITraceQueryDAO.class,
-                new PostgreSQLTraceQueryDAO(
-                        getManager(),
-                        postgresqlClient,
-                        config.getMaxSizeOfArrayColumn(),
-                        config.getNumOfSearchableValuesPerTag()
-                )
+                new PostgreSQLTraceQueryDAO(getManager(), postgresqlClient, config)
         );
         this.registerServiceImplementation(IBrowserLogQueryDAO.class, new PostgreSQLBrowserLogQueryDAO(postgresqlClient));
         this.registerServiceImplementation(
-                IMetadataQueryDAO.class, new H2MetadataQueryDAO(postgresqlClient, config.getMetadataQueryMaxSize()));
-        this.registerServiceImplementation(IAggregationQueryDAO.class, new PostgreSQLAggregationQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new PostgreSQLAlarmQueryDAO(
-                postgresqlClient,
-                getManager(),
-                config.getMaxSizeOfArrayColumn(),
-                config.getNumOfSearchableValuesPerTag()
-        ));
+                IMetadataQueryDAO.class,
+                new H2MetadataQueryDAO(postgresqlClient, config.getMetadataQueryMaxSize()));
+        this.registerServiceImplementation(IAggregationQueryDAO.class, new PostgreSQLAggregationQueryDAO(config, postgresqlClient));
+        this.registerServiceImplementation(
+            IAlarmQueryDAO.class,
+            new PostgreSQLAlarmQueryDAO(postgresqlClient, getManager(), config)
+        );
         this.registerServiceImplementation(
                 IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(postgresqlClient));
-        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(postgresqlClient));
+        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(
+            config, postgresqlClient));
         this.registerServiceImplementation(
                 ILogQueryDAO.class,
-                new PostgreSQLLogQueryDAO(
-                        postgresqlClient,
-                        getManager(),
-                        config.getMaxSizeOfArrayColumn(),
-                        config.getNumOfSearchableValuesPerTag()
-                )
+                new PostgreSQLLogQueryDAO(postgresqlClient, getManager(), config)
         );
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(postgresqlClient));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(postgresqlClient));
         this.registerServiceImplementation(
                 IProfileThreadSnapshotQueryDAO.class, new H2ProfileThreadSnapshotQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(UITemplateManagementDAO.class, new H2UITemplateManagementDAO(postgresqlClient));
+        this.registerServiceImplementation(UITemplateManagementDAO.class, new H2UITemplateManagementDAO(config, postgresqlClient));
         this.registerServiceImplementation(IEventQueryDAO.class, new H2EventQueryDAO(postgresqlClient));
     }
 
@@ -184,9 +170,7 @@ public class PostgreSQLStorageProvider extends ModuleProvider {
         try {
             postgresqlClient.connect();
 
-            MySQLTableInstaller installer = new PostgreSQLTableInstaller(
-                    postgresqlClient, getManager(), config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag()
-            );
+            MySQLTableInstaller installer = new PostgreSQLTableInstaller(postgresqlClient, getManager(), config);
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);

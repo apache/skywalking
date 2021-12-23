@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -45,22 +44,23 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 public class H2TraceQueryDAO implements ITraceQueryDAO {
-    private ModuleManager manager;
-    private JDBCHikariCPClient h2Client;
+    private final ModuleManager manager;
+    private final JDBCHikariCPClient h2Client;
     private List<String> searchableTagKeys;
-    private int maxSizeOfArrayColumn;
-    private int numOfSearchableValuesPerTag;
+    private final int maxSizeOfArrayColumn;
+    private final int numOfSearchableValuesPerTag;
 
     public H2TraceQueryDAO(ModuleManager manager,
                            JDBCHikariCPClient h2Client,
-                           final int maxSizeOfArrayColumn,
-                           final int numOfSearchableValuesPerTag) {
+                           H2StorageConfig config) {
         this.h2Client = h2Client;
         this.manager = manager;
-        this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
-        this.numOfSearchableValuesPerTag = numOfSearchableValuesPerTag;
+        this.maxSizeOfArrayColumn = config.getMaxSizeOfArrayColumn();
+        this.numOfSearchableValuesPerTag = config.getNumOfSearchableValuesPerTag();
     }
 
     @Override

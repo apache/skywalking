@@ -21,12 +21,14 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.PostgreSQLStorageConfig;
 
 public class PostgreSQLTraceQueryDAO extends H2TraceQueryDAO {
     
-    public PostgreSQLTraceQueryDAO(ModuleManager manager, JDBCHikariCPClient h2Client, int maxSizeOfArrayColumn,
-            int numOfSearchableValuesPerTag) {
-        super(manager, h2Client, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
+    public PostgreSQLTraceQueryDAO(ModuleManager manager,
+                                   JDBCHikariCPClient h2Client,
+                                   PostgreSQLStorageConfig config) {
+        super(manager, h2Client, config);
     }
     
     @Override

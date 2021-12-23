@@ -39,18 +39,20 @@ import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO {
+    private final JDBCHikariCPClient h2Client;
 
-    private JDBCHikariCPClient h2Client;
-
-    public H2MetricsQueryDAO(JDBCHikariCPClient h2Client) {
+    public H2MetricsQueryDAO(final H2StorageConfig config,
+                             final JDBCHikariCPClient h2Client) {
+        super(config);
         this.h2Client = h2Client;
     }
 
     @Override
     public long readMetricsValue(final MetricsCondition condition,
-                                String valueColumnName,
+                                final String valueColumnName,
                                 final Duration duration) throws IOException {
         int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         final Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
@@ -67,7 +69,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         }
         StringBuilder sql = buildMetricsValueSql(op, valueColumnName, condition.getName());
         final String entityId = condition.getEntity().buildId();
-        List<Object> parameters = new ArrayList();
+        List<Object> parameters = new ArrayList<>();
         if (entityId != null) {
             sql.append(Metrics.ENTITY_ID + " = ? and ");
             parameters.add(entityId);
@@ -82,8 +84,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                 sql.toString(),
                 parameters.toArray(new Object[0])
             )) {
-                while (resultSet.next()) {
-                    return resultSet.getLong("value");
+                if (resultSet.next()) {
+                    return resultSet.getLong("result");
                 }
             }
         } catch (SQLException e) {
@@ -94,7 +96,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
 
     protected StringBuilder buildMetricsValueSql(String op, String valueColumnName, String conditionName) {
         return new StringBuilder(
-                "select " + Metrics.ENTITY_ID + " id, " + op + "(" + valueColumnName + ") value from " + conditionName + " where ");
+                "select " + Metrics.ENTITY_ID + " id, " + op + "(" +
+                    config.keywordEscaper().apply(valueColumnName) + ") result from " + conditionName + " where ");
     }
 
     @Override
@@ -108,8 +111,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         });
 
         StringBuilder sql = new StringBuilder(
-            "select id, " + valueColumnName + " from " + condition.getName() + " where id in (");
-        List<Object> parameters = new ArrayList();
+            "select id, " + config.keywordEscaper().apply(valueColumnName) + " from " + condition.getName() + " where id in (");
+        List<Object> parameters = new ArrayList<>();
         for (int i = 0; i < ids.size(); i++) {
             if (i == 0) {
                 sql.append("?");
@@ -157,9 +160,9 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         });
 
         StringBuilder sql = new StringBuilder(
-            "select id, " + valueColumnName + " from " + condition.getName() + " where id in (");
+            "select id, " + config.keywordEscaper().apply(valueColumnName) + " from " + condition.getName() + " where id in (");
 
-        List<Object> parameters = new ArrayList();
+        List<Object> parameters = new ArrayList<>();
         for (int i = 0; i < ids.size(); i++) {
             if (i == 0) {
                 sql.append("?");
@@ -200,8 +203,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         });
 
         StringBuilder sql = new StringBuilder(
-            "select id, " + valueColumnName + " dataset, id from " + condition.getName() + " where id in (");
-        List<Object> parameters = new ArrayList();
+            "select id, " + config.keywordEscaper().apply(valueColumnName) + " dataset, id from " + condition.getName() + " where id in (");
+        List<Object> parameters = new ArrayList<>();
         for (int i = 0; i < ids.size(); i++) {
             if (i == 0) {
                 sql.append("?");

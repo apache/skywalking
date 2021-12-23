@@ -28,16 +28,20 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 /**
  * Synchronize storage H2 implements
  */
 public class H2NoneStreamDAO extends H2SQLExecutor implements INoneStreamDAO {
 
-    private JDBCHikariCPClient h2Client;
-    private StorageHashMapBuilder<NoneStream> storageBuilder;
+    private final JDBCHikariCPClient h2Client;
+    private final StorageHashMapBuilder<NoneStream> storageBuilder;
 
-    public H2NoneStreamDAO(JDBCHikariCPClient h2Client, StorageHashMapBuilder<NoneStream> storageBuilder) {
+    public H2NoneStreamDAO(H2StorageConfig config,
+                           JDBCHikariCPClient h2Client,
+                           StorageHashMapBuilder<NoneStream> storageBuilder) {
+        super(config);
         this.h2Client = h2Client;
         this.storageBuilder = storageBuilder;
     }

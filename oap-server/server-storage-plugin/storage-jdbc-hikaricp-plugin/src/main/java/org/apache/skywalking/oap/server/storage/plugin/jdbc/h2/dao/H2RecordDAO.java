@@ -35,56 +35,55 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
-    private JDBCHikariCPClient h2Client;
-    private StorageHashMapBuilder<Record> storageBuilder;
+    private final JDBCHikariCPClient h2Client;
+    private final StorageHashMapBuilder<Record> storageBuilder;
     private final int maxSizeOfArrayColumn;
 
-    public H2RecordDAO(ModuleManager manager,
+    public H2RecordDAO(H2StorageConfig config,
+                       ModuleManager manager,
                        JDBCHikariCPClient h2Client,
-                       StorageHashMapBuilder<Record> storageBuilder,
-                       final int maxSizeOfArrayColumn,
-                       final int numOfSearchableValuesPerTag) {
+                       StorageHashMapBuilder<Record> storageBuilder) {
+        super(config);
         this.h2Client = h2Client;
         try {
-            if (SegmentRecord.class
-                .equals(
-                    storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType()
-                )
-            ) {
-                this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
+            if (SegmentRecord.class.equals(
+                storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType()
+            )) {
+                this.maxSizeOfArrayColumn = config.getMaxSizeOfArrayColumn();
                 final ConfigService configService = manager.find(CoreModule.NAME)
                                                            .provider()
                                                            .getService(ConfigService.class);
                 this.storageBuilder = new H2SegmentRecordBuilder(
                     maxSizeOfArrayColumn,
-                    numOfSearchableValuesPerTag,
+                    config.getNumOfSearchableValuesPerTag(),
                     Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA))
                 );
             } else if (LogRecord.class.equals(
                 storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType())) {
-                this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
+                this.maxSizeOfArrayColumn = config.getMaxSizeOfArrayColumn();
                 final ConfigService configService = manager.find(CoreModule.NAME)
                                                            .provider()
                                                            .getService(ConfigService.class);
                 this.storageBuilder = new H2LogRecordBuilder(
                     maxSizeOfArrayColumn,
-                    numOfSearchableValuesPerTag,
+                    config.getNumOfSearchableValuesPerTag(),
                     Arrays.asList(configService.getSearchableLogsTags()
                                                .split(Const.COMMA))
                 );
             } else if (AlarmRecord.class.equals(
-                    storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType())) {
-                this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
+                storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType())) {
+                this.maxSizeOfArrayColumn = config.getMaxSizeOfArrayColumn();
                 final ConfigService configService = manager.find(CoreModule.NAME)
-                        .provider()
-                        .getService(ConfigService.class);
+                                                           .provider()
+                                                           .getService(ConfigService.class);
                 this.storageBuilder = new H2AlarmRecordBuilder(
-                        maxSizeOfArrayColumn,
-                        numOfSearchableValuesPerTag,
-                        Arrays.asList(configService.getSearchableAlarmTags()
-                                .split(Const.COMMA))
+                    maxSizeOfArrayColumn,
+                    config.getNumOfSearchableValuesPerTag(),
+                    Arrays.asList(configService.getSearchableAlarmTags()
+                                               .split(Const.COMMA))
                 );
             } else {
                 this.maxSizeOfArrayColumn = 1;

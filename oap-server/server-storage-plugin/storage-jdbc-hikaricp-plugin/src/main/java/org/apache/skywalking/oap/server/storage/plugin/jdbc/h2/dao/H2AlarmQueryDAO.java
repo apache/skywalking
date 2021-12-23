@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 public class H2AlarmQueryDAO implements IAlarmQueryDAO {
 
@@ -51,12 +52,11 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
 
     public H2AlarmQueryDAO(JDBCHikariCPClient client,
                            final ModuleManager manager,
-                           final int maxSizeOfArrayColumn,
-                           final int numOfSearchValuesPerTag) {
+                           final H2StorageConfig config) {
         this.client = client;
         this.manager = manager;
-        this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
-        this.numOfSearchValuesPerTag = numOfSearchValuesPerTag;
+        this.maxSizeOfArrayColumn = config.getMaxSizeOfArrayColumn();
+        this.numOfSearchValuesPerTag = config.getNumOfSearchableValuesPerTag();
     }
 
     @Override
@@ -123,7 +123,7 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
 
             this.buildLimit(sql, from, limit);
 
-            try (ResultSet resultSet = client.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = client.executeQuery(connection, "select * " + sql, parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     AlarmMessage message = new AlarmMessage();
                     message.setId(resultSet.getString(AlarmRecord.ID0));

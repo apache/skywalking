@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
@@ -37,9 +38,13 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.ArrayParamBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 @Slf4j
+@RequiredArgsConstructor
 public class H2SQLExecutor {
+    protected final H2StorageConfig config;
+
     protected <T extends StorageData> List<StorageData> getByIDs(JDBCHikariCPClient h2Client,
                                                                  String modelName,
                                                                  String[] ids,
@@ -73,17 +78,6 @@ public class H2SQLExecutor {
                                                           StorageHashMapBuilder<T> storageBuilder) throws IOException {
         try (Connection connection = h2Client.getConnection();
              ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id = ?", id)) {
-            return toStorageData(rs, modelName, storageBuilder);
-        } catch (SQLException | JDBCClientException e) {
-            throw new IOException(e.getMessage(), e);
-        }
-    }
-
-    protected StorageData getByColumn(JDBCHikariCPClient h2Client, String modelName, String columnName, Object value,
-                                      StorageHashMapBuilder<? extends StorageData> storageBuilder) throws IOException {
-        try (Connection connection = h2Client.getConnection();
-             ResultSet rs = h2Client.executeQuery(
-                 connection, "SELECT * FROM " + modelName + " WHERE " + columnName + " = ?", value)) {
             return toStorageData(rs, modelName, storageBuilder);
         } catch (SQLException | JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
@@ -149,7 +143,7 @@ public class H2SQLExecutor {
     }
 
     protected <T extends StorageData> SQLExecutor getUpdateExecutor(String modelName, T metrics,
-                                                                    StorageHashMapBuilder<T> storageBuilder) throws IOException {
+                                                                    StorageHashMapBuilder<T> storageBuilder) {
         Map<String, Object> objectMap = storageBuilder.entity2Storage(metrics);
 
         SQLBuilder sqlBuilder = new SQLBuilder("UPDATE " + modelName + " SET ");
@@ -157,7 +151,7 @@ public class H2SQLExecutor {
         List<Object> param = new ArrayList<>();
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
-            sqlBuilder.append(column.getColumnName().getStorageName() + "= ?");
+            sqlBuilder.append(config.keywordEscaper().apply(column.getColumnName().getStorageName())).append(" = ?");
             if (i != columns.size() - 1) {
                 sqlBuilder.append(",");
             }

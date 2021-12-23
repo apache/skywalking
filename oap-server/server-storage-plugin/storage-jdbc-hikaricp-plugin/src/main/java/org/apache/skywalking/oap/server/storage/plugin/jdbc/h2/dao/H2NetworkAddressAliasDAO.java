@@ -27,14 +27,16 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class H2NetworkAddressAliasDAO extends H2SQLExecutor implements INetworkAddressAliasDAO {
     private static final Logger LOGGER = LoggerFactory.getLogger(H2NetworkAddressAliasDAO.class);
-    private JDBCHikariCPClient h2Client;
+    private final JDBCHikariCPClient h2Client;
 
-    public H2NetworkAddressAliasDAO(JDBCHikariCPClient h2Client) {
+    public H2NetworkAddressAliasDAO(H2StorageConfig config, JDBCHikariCPClient h2Client) {
+        super(config);
         this.h2Client = h2Client;
     }
 

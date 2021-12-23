@@ -44,9 +44,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstal
 public class MySQLTableInstaller extends H2TableInstaller {
     public MySQLTableInstaller(Client client,
                                ModuleManager moduleManager,
-                               int maxSizeOfArrayColumn,
-                               int numOfSearchableValuesPerTag) {
-        super(client, moduleManager, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
+                               MySQLStorageConfig config) {
+        super(client, moduleManager, config);
         /*
          * Override column because the default column names in core have syntax conflict with MySQL.
          */

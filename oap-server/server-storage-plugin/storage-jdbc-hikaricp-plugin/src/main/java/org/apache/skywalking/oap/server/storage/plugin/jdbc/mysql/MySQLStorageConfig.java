@@ -21,35 +21,15 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 import java.util.Properties;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 @Setter
 @Getter
-public class MySQLStorageConfig extends ModuleConfig {
-    private int metadataQueryMaxSize = 5000;
-    /**
-     * Inherit from {@link org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig#getMaxSizeOfArrayColumn()}
-     *
-     * @since 8.2.0
-     */
-    private int maxSizeOfArrayColumn = 20;
-    /**
-     * Inherit from {@link org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig#getNumOfSearchableValuesPerTag()}
-     *
-     * @since 8.2.0
-     */
-    private int numOfSearchableValuesPerTag = 2;
-    /**
-     * The maximum size of batch size of SQL execution
-     *
-     * @since 8.8.0
-     */
-    private int maxSizeOfBatchSql = 2000;
-    /**
-     * async batch execute pool size
-     *
-     * @since 8.8.0
-     */
-    private int asyncBatchPersistentPoolSize  = 4;
+public class MySQLStorageConfig extends H2StorageConfig {
     private Properties properties;
+
+    public MySQLStorageConfig() {
+        maxSizeOfBatchSql = 2000;
+        asyncBatchPersistentPoolSize = 4;
+    }
 }

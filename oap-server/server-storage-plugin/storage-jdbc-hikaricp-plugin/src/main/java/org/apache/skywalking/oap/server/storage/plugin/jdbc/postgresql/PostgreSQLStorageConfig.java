@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql;
 
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLStorageConfig;
@@ -25,4 +26,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLStorageCo
 @Setter
 @Getter
 public class PostgreSQLStorageConfig extends MySQLStorageConfig {
+    @Override
+    public Function<String, String> keywordEscaper() {
+        return columName -> String.format("\"%s\"", columName);
+    }
 }

@@ -28,16 +28,20 @@ import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 /**
  * Synchronize storage H2 implements
  */
 public class H2ManagementDAO extends H2SQLExecutor implements IManagementDAO {
 
-    private JDBCHikariCPClient h2Client;
-    private StorageHashMapBuilder<ManagementData> storageBuilder;
+    private final JDBCHikariCPClient h2Client;
+    private final StorageHashMapBuilder<ManagementData> storageBuilder;
 
-    public H2ManagementDAO(JDBCHikariCPClient h2Client, StorageHashMapBuilder<ManagementData> storageBuilder) {
+    public H2ManagementDAO(H2StorageConfig config,
+                           JDBCHikariCPClient h2Client,
+                           StorageHashMapBuilder<ManagementData> storageBuilder) {
+        super(config);
         this.h2Client = h2Client;
         this.storageBuilder = storageBuilder;
     }

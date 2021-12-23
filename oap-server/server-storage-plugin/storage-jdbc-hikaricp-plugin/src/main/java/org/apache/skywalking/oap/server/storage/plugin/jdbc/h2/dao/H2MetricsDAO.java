@@ -29,13 +29,16 @@ import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO {
+    private final JDBCHikariCPClient h2Client;
+    private final StorageHashMapBuilder<Metrics> storageBuilder;
 
-    private JDBCHikariCPClient h2Client;
-    private StorageHashMapBuilder<Metrics> storageBuilder;
-
-    public H2MetricsDAO(JDBCHikariCPClient h2Client, StorageHashMapBuilder<Metrics> storageBuilder) {
+    public H2MetricsDAO(H2StorageConfig config,
+                        JDBCHikariCPClient h2Client,
+                        StorageHashMapBuilder<Metrics> storageBuilder) {
+        super(config);
         this.h2Client = h2Client;
         this.storageBuilder = storageBuilder;
     }

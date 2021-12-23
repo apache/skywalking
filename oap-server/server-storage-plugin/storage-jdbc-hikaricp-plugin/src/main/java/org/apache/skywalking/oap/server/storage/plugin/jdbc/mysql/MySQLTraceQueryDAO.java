@@ -26,9 +26,8 @@ public class MySQLTraceQueryDAO extends H2TraceQueryDAO {
 
     public MySQLTraceQueryDAO(ModuleManager manager,
                               JDBCHikariCPClient h2Client,
-                              final int maxSizeOfArrayColumn,
-                              final int numOfSearchableValuesPerTag) {
-        super(manager, h2Client, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
+                              MySQLStorageConfig config) {
+        super(manager, h2Client, config);
     }
 
     @Override

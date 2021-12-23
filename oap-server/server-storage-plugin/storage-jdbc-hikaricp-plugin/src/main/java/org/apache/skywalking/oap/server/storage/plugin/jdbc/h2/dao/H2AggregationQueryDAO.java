@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -34,15 +35,14 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
+@RequiredArgsConstructor
 public class H2AggregationQueryDAO implements IAggregationQueryDAO {
-
+    @Getter
+    private final H2StorageConfig config;
     @Getter(AccessLevel.PROTECTED)
-    private JDBCHikariCPClient h2Client;
-
-    public H2AggregationQueryDAO(JDBCHikariCPClient h2Client) {
-        this.h2Client = h2Client;
-    }
+    private final JDBCHikariCPClient h2Client;
 
     @Override
     public List<SelectedRecord> sortMetrics(final TopNCondition metrics,
@@ -61,7 +61,8 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
             });
         }
         sql.append(" group by ").append(Metrics.ENTITY_ID);
-        sql.append(")  as T order by value ")
+        sql.append(")  as T order by ")
+           .append(config.keywordEscaper().apply(valueColumnName))
            .append(metrics.getOrder().equals(Order.ASC) ? "asc" : "desc")
            .append(" limit ")
            .append(metrics.getTopN());
@@ -72,7 +73,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
             while (resultSet.next()) {
                 SelectedRecord topNEntity = new SelectedRecord();
                 topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
-                topNEntity.setValue(resultSet.getString("value"));
+                topNEntity.setValue(String.valueOf(resultSet.getLong("result")));
                 topNEntities.add(topNEntity);
             }
         } catch (SQLException e) {
@@ -84,8 +85,8 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
     protected StringBuilder buildMetricsValueSql(String valueColumnName, String metricsName) {
         StringBuilder sql = new StringBuilder();
         sql.append("select * from (select avg(")
-                .append(valueColumnName)
-                .append(") value,")
+                .append(config.keywordEscaper().apply(valueColumnName))
+                .append(") result,")
                 .append(Metrics.ENTITY_ID)
                 .append(" from ")
                 .append(metricsName)

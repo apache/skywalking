@@ -43,6 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
@@ -65,12 +66,11 @@ public class H2LogQueryDAO implements ILogQueryDAO {
 
     public H2LogQueryDAO(final JDBCHikariCPClient h2Client,
                          final ModuleManager manager,
-                         final int maxSizeOfArrayColumn,
-                         final int numOfSearchValuesPerTag) {
+                         final H2StorageConfig config) {
         this.h2Client = h2Client;
         this.manager = manager;
-        this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
-        this.numOfSearchValuesPerTag = numOfSearchValuesPerTag;
+        this.maxSizeOfArrayColumn = config.getMaxSizeOfArrayColumn();
+        this.numOfSearchValuesPerTag = config.getNumOfSearchableValuesPerTag();
     }
 
     @Override

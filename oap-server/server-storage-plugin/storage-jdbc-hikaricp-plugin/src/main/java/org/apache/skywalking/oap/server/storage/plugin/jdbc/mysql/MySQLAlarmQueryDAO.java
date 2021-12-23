@@ -23,11 +23,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AlarmQueryDAO;
 
 public class MySQLAlarmQueryDAO extends H2AlarmQueryDAO {
-
     public MySQLAlarmQueryDAO(final JDBCHikariCPClient client,
-                            final ModuleManager manager,
-                            final int maxSizeOfArrayColumn, final int numOfSearchValuesPerTag) {
-        super(client, manager, maxSizeOfArrayColumn, numOfSearchValuesPerTag);
+                              final ModuleManager manager,
+                              final MySQLStorageConfig config) {
+        super(client, manager, config);
     }
 
     @Override

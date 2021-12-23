@@ -78,7 +78,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MysqlBrowserLo
 @Slf4j
 public class TiDBStorageProvider extends ModuleProvider {
 
-    private TiDBStorageConfig config;
+    private final TiDBStorageConfig config;
     private JDBCHikariCPClient mysqlClient;
 
     public TiDBStorageProvider() {
@@ -107,52 +107,37 @@ public class TiDBStorageProvider extends ModuleProvider {
         mysqlClient = new JDBCHikariCPClient(config.getProperties());
 
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient, config.getMaxSizeOfBatchSql(), config.getAsyncBatchPersistentPoolSize()));
+        this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(getManager(), mysqlClient, config));
         this.registerServiceImplementation(
-            StorageDAO.class,
-            new H2StorageDAO(
-                getManager(), mysqlClient, config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag())
-        );
-        this.registerServiceImplementation(
-            INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(mysqlClient));
+            INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(config, mysqlClient));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(mysqlClient));
-        this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(config, mysqlClient));
         this.registerServiceImplementation(
             ITraceQueryDAO.class,
-            new MySQLTraceQueryDAO(
-                getManager(),
-                mysqlClient,
-                config.getMaxSizeOfArrayColumn(),
-                config.getNumOfSearchableValuesPerTag()
-            )
+            new MySQLTraceQueryDAO(getManager(), mysqlClient, config)
         );
         this.registerServiceImplementation(IBrowserLogQueryDAO.class, new MysqlBrowserLogQueryDAO(mysqlClient));
         this.registerServiceImplementation(
             IMetadataQueryDAO.class, new H2MetadataQueryDAO(mysqlClient, config.getMetadataQueryMaxSize()));
-        this.registerServiceImplementation(IAggregationQueryDAO.class, new MySQLAggregationQueryDAO(mysqlClient));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new MySQLAlarmQueryDAO(
-                mysqlClient,
-                getManager(),
-                config.getMaxSizeOfArrayColumn(),
-                config.getNumOfSearchableValuesPerTag()));
+        this.registerServiceImplementation(IAggregationQueryDAO.class, new MySQLAggregationQueryDAO(config, mysqlClient));
+        this.registerServiceImplementation(
+            IAlarmQueryDAO.class,
+            new MySQLAlarmQueryDAO(mysqlClient, getManager(), config)
+        );
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(mysqlClient));
-        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(mysqlClient));
+        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(config, mysqlClient));
         this.registerServiceImplementation(
             ILogQueryDAO.class,
-            new MySQLLogQueryDAO(
-                mysqlClient,
-                getManager(),
-                config.getMaxSizeOfArrayColumn(),
-                config.getNumOfSearchableValuesPerTag()
-            )
+            new MySQLLogQueryDAO(mysqlClient, getManager(), config)
         );
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(mysqlClient));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(mysqlClient));
         this.registerServiceImplementation(
             IProfileThreadSnapshotQueryDAO.class, new H2ProfileThreadSnapshotQueryDAO(mysqlClient));
-        this.registerServiceImplementation(UITemplateManagementDAO.class, new H2UITemplateManagementDAO(mysqlClient));
+        this.registerServiceImplementation(UITemplateManagementDAO.class, new H2UITemplateManagementDAO(config, mysqlClient));
 
         this.registerServiceImplementation(IHistoryDeleteDAO.class, new TiDBHistoryDeleteDAO(mysqlClient));
 
@@ -189,9 +174,7 @@ public class TiDBStorageProvider extends ModuleProvider {
         try {
             mysqlClient.connect();
 
-            MySQLTableInstaller installer = new MySQLTableInstaller(
-                mysqlClient, getManager(), config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag()
-            );
+            MySQLTableInstaller installer = new MySQLTableInstaller(mysqlClient, getManager(), config);
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);

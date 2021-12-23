@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
 
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -29,7 +30,7 @@ public class H2StorageConfig extends ModuleConfig {
     private String url = "jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1";
     private String user = "";
     private String password = "";
-    private int metadataQueryMaxSize = 5000;
+    protected int metadataQueryMaxSize = 5000;
     /**
      * Some entities, such as trace segment, include the logic column with multiple values. Some storage support this
      * kind of data structure, but H2 doesn't.
@@ -49,7 +50,7 @@ public class H2StorageConfig extends ModuleConfig {
      *
      * @since 8.2.0
      */
-    private int maxSizeOfArrayColumn = 20;
+    protected int maxSizeOfArrayColumn = 20;
     /**
      * In a trace segment, it includes multiple spans with multiple tags. Different spans could have same tag keys, such
      * as multiple HTTP exit spans all have their own `http.method` tag.
@@ -58,17 +59,24 @@ public class H2StorageConfig extends ModuleConfig {
      *
      * @since 8.2.0
      */
-    private int numOfSearchableValuesPerTag = 2;
+    protected int numOfSearchableValuesPerTag = 2;
     /**
      * The maximum size of batch size of SQL execution
      *
      * @since 8.8.0
      */
-    private int maxSizeOfBatchSql = 100;
+    protected int maxSizeOfBatchSql = 100;
     /**
      * async batch execute pool size
      *
      * @since 8.8.0
      */
-    private int asyncBatchPersistentPoolSize  = 1;
+    protected int asyncBatchPersistentPoolSize  = 1;
+
+    /**
+     * Escape the column names that are reserved words in database implementation.
+     */
+    public Function<String, String> keywordEscaper() {
+        return columName -> String.format("`%s`", columName);
+    }
 }

@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 /**
  * H2 table initialization. Create tables without Indexes. H2 is for the demonstration only, so, keep the logic as
@@ -48,14 +49,15 @@ public class H2TableInstaller extends ModelInstaller {
 
     protected final int maxSizeOfArrayColumn;
     protected final int numOfSearchableValuesPerTag;
+    protected final H2StorageConfig config;
 
     public H2TableInstaller(Client client,
                             ModuleManager moduleManager,
-                            int maxSizeOfArrayColumn,
-                            int numOfSearchableValuesPerTag) {
+                            H2StorageConfig config) {
         super(client, moduleManager);
-        this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
-        this.numOfSearchableValuesPerTag = numOfSearchableValuesPerTag;
+        this.config = config;
+        this.maxSizeOfArrayColumn = config.getMaxSizeOfArrayColumn();
+        this.numOfSearchableValuesPerTag = config.getNumOfSearchableValuesPerTag();
     }
 
     @Override
@@ -102,28 +104,29 @@ public class H2TableInstaller extends ModelInstaller {
     protected String transform(ModelColumn column, Class<?> type, Type genericType) {
         final String storageName = column.getColumnName().getStorageName();
         if (Integer.class.equals(type) || int.class.equals(type) || NodeType.class.equals(type)) {
-            return storageName + " INT";
+            return config.keywordEscaper().apply(storageName) + " INT";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
-            return storageName + " BIGINT";
+            return config.keywordEscaper().apply(storageName) + " BIGINT";
         } else if (Double.class.equals(type) || double.class.equals(type)) {
-            return storageName + " DOUBLE";
+            return config.keywordEscaper().apply(storageName) + " DOUBLE";
         } else if (String.class.equals(type)) {
-            return storageName + " VARCHAR(" + column.getLength() + ")";
+            return config.keywordEscaper().apply(storageName) + " VARCHAR(" + column.getLength() + ")";
         } else if (StorageDataComplexObject.class.isAssignableFrom(type)) {
-            return storageName + " VARCHAR(20000)";
+            return config.keywordEscaper().apply(storageName) + " VARCHAR(20000)";
         } else if (byte[].class.equals(type)) {
-            return storageName + " MEDIUMTEXT";
+            return config.keywordEscaper().apply(storageName) + " MEDIUMTEXT";
         } else if (JsonObject.class.equals(type)) {
-            return storageName + " VARCHAR(" + column.getLength() + ")";
+            return config.keywordEscaper().apply(storageName) + " VARCHAR(" + column.getLength() + ")";
         } else if (List.class.isAssignableFrom(type)) {
             final Type elementType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
             String oneColumnType = transform(column, (Class<?>) elementType, elementType);
             // Remove the storageName as prefix
-            oneColumnType = oneColumnType.substring(storageName.length());
+            oneColumnType = oneColumnType.split("\\s+")[1];
             StringBuilder columns = new StringBuilder();
             for (int i = 0; i < maxSizeOfArrayColumn; i++) {
-                columns.append(storageName).append("_").append(i).append(oneColumnType)
-                       .append(i == maxSizeOfArrayColumn - 1 ? "" : ",");
+                columns.append(config.keywordEscaper().apply(storageName + "_" + i))
+                       .append(" ").append(oneColumnType)
+                       .append(i == maxSizeOfArrayColumn - 1 ? "" : ", ");
             }
             return columns.toString();
         } else {

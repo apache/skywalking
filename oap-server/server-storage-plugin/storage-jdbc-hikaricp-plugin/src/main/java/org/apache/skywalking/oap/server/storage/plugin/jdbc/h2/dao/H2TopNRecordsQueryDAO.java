@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
@@ -33,13 +34,12 @@ import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
+@RequiredArgsConstructor
 public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
-    private JDBCHikariCPClient h2Client;
-
-    public H2TopNRecordsQueryDAO(JDBCHikariCPClient h2Client) {
-        this.h2Client = h2Client;
-    }
+    private final H2StorageConfig config;
+    private final JDBCHikariCPClient h2Client;
 
     @Override
     public List<SelectedRecord> readSampledRecords(final TopNCondition condition,
@@ -59,7 +59,7 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         sql.append(" and ").append(TopN.TIME_BUCKET).append(" <= ?");
         parameters.add(duration.getEndTimeBucketInSec());
 
-        sql.append(" order by ").append(valueColumnName);
+        sql.append(" order by ").append(config.keywordEscaper().apply(valueColumnName));
         if (condition.getOrder().equals(Order.DES)) {
             sql.append(" desc ");
         } else {

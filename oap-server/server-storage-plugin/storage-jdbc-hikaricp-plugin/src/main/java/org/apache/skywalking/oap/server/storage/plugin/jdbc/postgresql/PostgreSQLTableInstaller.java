@@ -31,9 +31,10 @@ import java.util.List;
 
 public class PostgreSQLTableInstaller extends MySQLTableInstaller {
 
-    public PostgreSQLTableInstaller(Client client, ModuleManager moduleManager, int maxSizeOfArrayColumn,
-                                    int numOfSearchableValuesPerTag) {
-        super(client, moduleManager, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
+    public PostgreSQLTableInstaller(Client client,
+                                    ModuleManager moduleManager,
+                                    PostgreSQLStorageConfig config) {
+        super(client, moduleManager, config);
     }
 
     @Override

@@ -21,12 +21,14 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2LogQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.PostgreSQLStorageConfig;
 
 public class PostgreSQLLogQueryDAO extends H2LogQueryDAO {
     
-    public PostgreSQLLogQueryDAO(JDBCHikariCPClient h2Client, ModuleManager manager, int maxSizeOfArrayColumn,
-            int numOfSearchValuesPerTag) {
-        super(h2Client, manager, maxSizeOfArrayColumn, numOfSearchValuesPerTag);
+    public PostgreSQLLogQueryDAO(JDBCHikariCPClient h2Client,
+                                 ModuleManager manager,
+                                 PostgreSQLStorageConfig config) {
+        super(h2Client, manager, config);
     }
     
     @Override

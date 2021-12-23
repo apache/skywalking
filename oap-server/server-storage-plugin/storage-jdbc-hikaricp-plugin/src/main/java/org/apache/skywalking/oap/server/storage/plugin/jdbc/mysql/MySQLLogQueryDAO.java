@@ -26,8 +26,8 @@ public class MySQLLogQueryDAO extends H2LogQueryDAO {
 
     public MySQLLogQueryDAO(final JDBCHikariCPClient h2Client,
                             final ModuleManager manager,
-                            final int maxSizeOfArrayColumn, final int numOfSearchValuesPerTag) {
-        super(h2Client, manager, maxSizeOfArrayColumn, numOfSearchValuesPerTag);
+                            final MySQLStorageConfig config) {
+        super(h2Client, manager, config);
     }
 
     @Override

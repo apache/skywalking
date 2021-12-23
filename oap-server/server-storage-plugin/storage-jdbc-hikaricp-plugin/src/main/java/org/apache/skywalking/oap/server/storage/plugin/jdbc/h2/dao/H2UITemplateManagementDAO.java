@@ -24,7 +24,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
@@ -35,11 +34,17 @@ import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 
 @Slf4j
-@RequiredArgsConstructor
 public class H2UITemplateManagementDAO extends H2SQLExecutor implements UITemplateManagementDAO {
     private final JDBCHikariCPClient h2Client;
+
+    public H2UITemplateManagementDAO(final H2StorageConfig config,
+                                     final JDBCHikariCPClient h2Client) {
+        super(config);
+        this.h2Client = h2Client;
+    }
 
     @Override
     public List<DashboardConfiguration> getAllTemplates(final Boolean includingDisabled) throws IOException {

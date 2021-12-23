@@ -20,6 +20,7 @@ Release Notes.
 * Add the analysis of metrics in Satellite MetricsService.
 * Fix `Can't split endpoint id into 2 parts` bug for endpoint ID. In the TCP in service mesh observability, endpoint
   name doesn't exist in TCP traffic.
+* Upgrade H2 version to 2.0.202 to fix CVE-2021-23463.
 
 #### UI
 

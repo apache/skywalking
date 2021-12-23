@@ -84,7 +84,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @Slf4j
 public class H2StorageProvider extends ModuleProvider {
 
-    private H2StorageConfig config;
+    private final H2StorageConfig config;
     private JDBCHikariCPClient h2Client;
 
     public H2StorageProvider() {
@@ -118,52 +118,27 @@ public class H2StorageProvider extends ModuleProvider {
         h2Client = new JDBCHikariCPClient(settings);
 
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(h2Client, config.getMaxSizeOfBatchSql(), config.getAsyncBatchPersistentPoolSize()));
-        this.registerServiceImplementation(
-            StorageDAO.class,
-            new H2StorageDAO(
-                getManager(), h2Client, config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag())
-        );
+        this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(getManager(), h2Client, config));
 
-        this.registerServiceImplementation(
-            INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(h2Client));
+        this.registerServiceImplementation(INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(config, h2Client));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(h2Client));
-        this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(h2Client));
-        this.registerServiceImplementation(
-            ITraceQueryDAO.class, new H2TraceQueryDAO(
-                getManager(),
-                h2Client,
-                config.getMaxSizeOfArrayColumn(),
-                config.getNumOfSearchableValuesPerTag()
-            ));
+        this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(config, h2Client));
+        this.registerServiceImplementation(ITraceQueryDAO.class, new H2TraceQueryDAO(getManager(), h2Client, config));
         this.registerServiceImplementation(IBrowserLogQueryDAO.class, new H2BrowserLogQueryDAO(h2Client));
         this.registerServiceImplementation(
             IMetadataQueryDAO.class, new H2MetadataQueryDAO(h2Client, config.getMetadataQueryMaxSize()));
-        this.registerServiceImplementation(IAggregationQueryDAO.class, new H2AggregationQueryDAO(h2Client));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO(
-                h2Client,
-                getManager(),
-                config.getMaxSizeOfArrayColumn(),
-                config.getNumOfSearchableValuesPerTag()
-        ));
-        this.registerServiceImplementation(
-            IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
-        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(h2Client));
-        this.registerServiceImplementation(
-            ILogQueryDAO.class,
-            new H2LogQueryDAO(
-                h2Client,
-                getManager(),
-                config.getMaxSizeOfArrayColumn(),
-                config.getNumOfSearchableValuesPerTag()
-            )
-        );
+        this.registerServiceImplementation(IAggregationQueryDAO.class, new H2AggregationQueryDAO(config, h2Client));
+        this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO(h2Client, getManager(), config));
+        this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
+        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(config, h2Client));
+        this.registerServiceImplementation(ILogQueryDAO.class, new H2LogQueryDAO(h2Client, getManager(), config));
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(h2Client));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(h2Client));
         this.registerServiceImplementation(
             IProfileThreadSnapshotQueryDAO.class, new H2ProfileThreadSnapshotQueryDAO(h2Client));
-        this.registerServiceImplementation(UITemplateManagementDAO.class, new H2UITemplateManagementDAO(h2Client));
+        this.registerServiceImplementation(UITemplateManagementDAO.class, new H2UITemplateManagementDAO(config, h2Client));
 
         this.registerServiceImplementation(IEventQueryDAO.class, new H2EventQueryDAO(h2Client));
     }
@@ -197,8 +172,7 @@ public class H2StorageProvider extends ModuleProvider {
         try {
             h2Client.connect();
 
-            H2TableInstaller installer = new H2TableInstaller(
-                h2Client, getManager(), config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag());
+            H2TableInstaller installer = new H2TableInstaller(h2Client, getManager(), config);
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
