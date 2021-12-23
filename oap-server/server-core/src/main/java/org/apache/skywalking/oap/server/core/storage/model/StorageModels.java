@@ -166,6 +166,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     public void overrideColumnName(String columnName, String newName) {
         columnNameOverrideRule.put(columnName, newName);
         models.forEach(this::followColumnNameRules);
+        ValueColumnMetadata.INSTANCE.overrideColumnName(columnName, newName);
     }
 
     private void followColumnNameRules(Model model) {

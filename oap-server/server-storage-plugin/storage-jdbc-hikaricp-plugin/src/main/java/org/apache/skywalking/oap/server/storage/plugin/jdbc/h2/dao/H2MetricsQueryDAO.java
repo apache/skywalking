@@ -82,8 +82,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                 sql.toString(),
                 parameters.toArray(new Object[0])
             )) {
-                while (resultSet.next()) {
-                    return resultSet.getLong("value");
+                if (resultSet.next()) {
+                    return resultSet.getLong("result");
                 }
             }
         } catch (SQLException e) {
@@ -94,7 +94,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
 
     protected StringBuilder buildMetricsValueSql(String op, String valueColumnName, String conditionName) {
         return new StringBuilder(
-                "select " + Metrics.ENTITY_ID + " id, " + op + "(" + valueColumnName + ") value from " + conditionName + " where ");
+                "select " + Metrics.ENTITY_ID + " id, " + op + "(" + valueColumnName + ") result from " + conditionName + " where ");
     }
 
     @Override
