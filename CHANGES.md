@@ -22,7 +22,6 @@ Release Notes.
   name doesn't exist in TCP traffic.
 * Upgrade H2 version to 2.0.202 to fix CVE-2021-23463.
 * Extend column name override mechanism working for `ValueColumnMetadata`.
-* update backend-alarm.md doc, support op "=" to "=="
 
 #### UI
 
@@ -30,6 +29,8 @@ Release Notes.
 * Bump up netty version to fix CVE.
 
 #### Documentation
+
+* update backend-alarm.md doc, support op "=" to "==".
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/112?closed=1)
 
