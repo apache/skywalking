@@ -30,6 +30,8 @@ Release Notes.
 
 #### Documentation
 
+* update backend-alarm.md doc, support op "=" to "==".
+
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/112?closed=1)
 
 ------------------
