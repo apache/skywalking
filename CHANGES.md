@@ -22,6 +22,7 @@ Release Notes.
   name doesn't exist in TCP traffic.
 * Upgrade H2 version to 2.0.202 to fix CVE-2021-23463.
 * Extend column name override mechanism working for `ValueColumnMetadata`.
+* update backend-alarm.md doc, support op "=" to "=="
 
 #### UI
 
