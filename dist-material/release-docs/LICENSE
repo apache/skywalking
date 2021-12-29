@@ -249,7 +249,7 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-lang 3.6: https://github.com/apache/commons-lang, Apache 2.0
     Apache: commons-text 1.8: https://github.com/apache/commons-text, Apache 2.0
     Apache: commons-beanutils 1.9.4: https://github.com/apache/commons-beanutils, Apache 2.0
-    Apache: log4j2 2.17.0: https://github.com/apache/logging-log4j2, Apache 2.0
+    Apache: log4j2 2.17.1: https://github.com/apache/logging-log4j2, Apache 2.0
     Apache: zookeeper 3.5.7: https://github.com/apache/zookeeper, Apache 2.0
     Apache: commons-collections 3.2.2: https://github.com/apache/commons-collections, Apache 2.0
     Apache: commons-configuration 1.8: https://github.com/apache/commons-configuration, Apache 2.0
