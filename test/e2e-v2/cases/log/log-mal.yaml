@@ -29,7 +29,7 @@
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
 
-expSuffix: instance(['service'], ['instance'])
+expSuffix: instance(['service'], ['instance'], Layer.general)
 metricPrefix: log
 metricsRules:
   - name: count_info
