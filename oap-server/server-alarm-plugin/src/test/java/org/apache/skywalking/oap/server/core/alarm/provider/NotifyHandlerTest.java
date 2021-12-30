@@ -34,7 +34,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
@@ -91,7 +90,7 @@ public class NotifyHandlerTest {
         when(endpointTraffic.getName()).thenReturn(endpointInventoryName);
 
         String serviceInventoryName = "service-inventory-name";
-        final String serviceId = IDManager.ServiceID.buildId(serviceInventoryName, NodeType.Normal);
+        final String serviceId = IDManager.ServiceID.buildId(serviceInventoryName, true);
         final String endpointId = IDManager.EndpointID.buildId(serviceId, endpointInventoryName);
         when(metadata.getId()).thenReturn(endpointId);
 
@@ -122,7 +121,7 @@ public class NotifyHandlerTest {
         when(DefaultScopeDefine.inServiceInstanceCatalog(0)).thenReturn(true);
 
         String instanceInventoryName = "instance-inventory-name";
-        final String serviceId = IDManager.ServiceID.buildId("service", NodeType.Normal);
+        final String serviceId = IDManager.ServiceID.buildId("service", true);
         final String instanceId = IDManager.ServiceInstanceID.buildId(serviceId, instanceInventoryName);
         when(metadata.getId()).thenReturn(instanceId);
 
@@ -148,7 +147,7 @@ public class NotifyHandlerTest {
         String metricsName = "service-metrics";
         when(metadata.getMetricsName()).thenReturn(metricsName);
         when(DefaultScopeDefine.inServiceCatalog(0)).thenReturn(true);
-        final String serviceId = IDManager.ServiceID.buildId("service", NodeType.Normal);
+        final String serviceId = IDManager.ServiceID.buildId("service", true);
         when(metadata.getId()).thenReturn(serviceId);
 
         ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);

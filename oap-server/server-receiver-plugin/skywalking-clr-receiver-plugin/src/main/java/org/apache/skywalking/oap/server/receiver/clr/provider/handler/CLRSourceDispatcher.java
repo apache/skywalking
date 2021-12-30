@@ -25,7 +25,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.ClrThread;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceCLRCPU;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceCLRGC;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceCLRThread;
@@ -34,9 +33,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- **/
 public class CLRSourceDispatcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CLRSourceDispatcher.class);
@@ -47,7 +43,7 @@ public class CLRSourceDispatcher {
     }
 
     void sendMetric(String service, String serviceInstance, long minuteTimeBucket, CLRMetric metrics) {
-        final String serviceId = IDManager.ServiceID.buildId(service, NodeType.Normal);
+        final String serviceId = IDManager.ServiceID.buildId(service, true);
         final String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, serviceInstance);
 
         CPU cpu = metrics.getCpu();

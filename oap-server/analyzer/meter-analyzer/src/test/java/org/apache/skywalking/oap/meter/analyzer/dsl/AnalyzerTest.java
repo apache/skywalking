@@ -88,7 +88,7 @@ public class AnalyzerTest {
         analyzer = Analyzer.build(
             "sum_service_instance",
             null,
-            "http_success_request.sum(['region', 'idc']).instance(['idc'] , ['region'])",
+            "http_success_request.sum(['region', 'idc']).instance(['idc'] , ['region'], Layer.general)",
             meterSystem
         );
         ImmutableMap<String, SampleFamily> input = ImmutableMap.of(
@@ -132,7 +132,7 @@ public class AnalyzerTest {
         analyzer = Analyzer.build(
             "sum_service_instance_labels",
             null,
-            "http_success_request.sum(['region', 'idc' , 'instance']).instance(['idc'] , ['region'])",
+            "http_success_request.sum(['region', 'idc' , 'instance']).instance(['idc'] , ['region'], Layer.general)",
             meterSystem
         );
         ImmutableMap<String, SampleFamily> input = ImmutableMap.of(
@@ -181,7 +181,7 @@ public class AnalyzerTest {
         analyzer = Analyzer.build(
             "instance_cpu_percentage",
             null,
-            "instance_cpu_percentage.sum(['le' , 'service' , 'instance']).histogram().histogram_percentile([75,99]).service(['service'])",
+            "instance_cpu_percentage.sum(['le' , 'service' , 'instance']).histogram().histogram_percentile([75,99]).service(['service'], Layer.general)",
             meterSystem
         );
         ImmutableMap<String, SampleFamily> input = ImmutableMap.of(

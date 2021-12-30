@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
@@ -35,6 +36,7 @@ public class ServiceRelationEntityDescription implements EntityDescription {
     private final List<String> sourceServiceKeys;
     private final List<String> destServiceKeys;
     private final DetectPoint detectPoint;
+    private final Layer layer;
 
     @Override
     public List<String> getLabelKeys() {

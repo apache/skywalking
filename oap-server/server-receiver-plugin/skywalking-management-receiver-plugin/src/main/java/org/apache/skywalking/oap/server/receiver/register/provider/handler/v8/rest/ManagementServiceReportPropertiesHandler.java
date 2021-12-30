@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -63,8 +63,9 @@ public class ManagementServiceReportPropertiesHandler extends JettyJsonHandler {
         final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
 
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
-        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
+        serviceInstanceUpdate.setLayer(Layer.general);
 
         JsonObject properties = new JsonObject();
         List<String> ipv4List = new ArrayList<>();

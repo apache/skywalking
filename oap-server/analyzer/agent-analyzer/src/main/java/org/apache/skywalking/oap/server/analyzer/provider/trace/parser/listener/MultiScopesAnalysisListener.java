@@ -32,6 +32,8 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
@@ -39,7 +41,6 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
@@ -108,16 +109,17 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
                     sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(networkAddressUsedAtPeer);
-                    sourceBuilder.setSourceNodeType(NodeType.fromSpanLayerValue(span.getSpanLayer()));
+                    sourceBuilder.setSourceLayer(Layer.virtual_mq);
+                    sourceBuilder.setSourceNormal(false);
                 } else {
                     sourceBuilder.setSourceServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(reference.getParentServiceInstance());
-                    sourceBuilder.setSourceNodeType(NodeType.Normal);
+                    sourceBuilder.setSourceLayer(Layer.general);
                 }
                 sourceBuilder.setDestEndpointName(span.getOperationName());
                 sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
                 sourceBuilder.setDestServiceName(segmentObject.getService());
-                sourceBuilder.setDestNodeType(NodeType.Normal);
+                sourceBuilder.setDestLayer(Layer.general);
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(span.getComponentId());
                 setPublicAttrs(sourceBuilder, span);
@@ -128,10 +130,10 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setSourceServiceName(Const.USER_SERVICE_NAME);
             sourceBuilder.setSourceServiceInstanceName(Const.USER_INSTANCE_NAME);
             sourceBuilder.setSourceEndpointName(Const.USER_ENDPOINT_NAME);
-            sourceBuilder.setSourceNodeType(NodeType.User);
+            sourceBuilder.setSourceNormal(false);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
-            sourceBuilder.setDestNodeType(NodeType.Normal);
+            sourceBuilder.setDestLayer(Layer.general);
             sourceBuilder.setDestEndpointName(span.getOperationName());
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
             sourceBuilder.setComponentId(span.getComponentId());
@@ -161,14 +163,14 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         }
 
         sourceBuilder.setSourceServiceName(segmentObject.getService());
-        sourceBuilder.setSourceNodeType(NodeType.Normal);
         sourceBuilder.setSourceServiceInstanceName(segmentObject.getServiceInstance());
 
         final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(networkAddress);
         if (networkAddressAlias == null) {
             sourceBuilder.setDestServiceName(networkAddress);
             sourceBuilder.setDestServiceInstanceName(networkAddress);
-            sourceBuilder.setDestNodeType(NodeType.fromSpanLayerValue(span.getSpanLayer()));
+            sourceBuilder.setDestLayer(fromSpanLayerValue(span.getSpanLayer()));
+            sourceBuilder.setDestNormal(false);
         } else {
             /*
              * If alias exists, mean this network address is representing a real service.
@@ -186,7 +188,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             if (!config.shouldIgnorePeerIPDue2Virtual(span.getComponentId())) {
                 sourceBuilder.setDestServiceInstanceName(instanceIDDefinition.getName());
             }
-            sourceBuilder.setDestNodeType(NodeType.Normal);
+            sourceBuilder.setDestLayer(Layer.general);
         }
 
         sourceBuilder.setDetectPoint(DetectPoint.CLIENT);
@@ -359,7 +361,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     sourceBuilder.setDestServiceName(segmentObject.getService());
                     sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
                     sourceBuilder.setDestEndpointName(logicEndpointName);
-                    sourceBuilder.setDestNodeType(NodeType.Normal);
+                    sourceBuilder.setDestLayer(Layer.general);
                     sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                     sourceBuilder.setLatency(latency);
                     sourceBuilder.setStatus(status);
@@ -370,6 +372,27 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     break;
             }
         });
+    }
+
+    private Layer fromSpanLayerValue(SpanLayer spanLayer) {
+        switch (spanLayer) {
+            case Unknown:
+                return Layer.undefined;
+            case Database:
+                return Layer.virtual_database;
+            case RPCFramework:
+                return Layer.general;
+            case Http:
+                return Layer.general;
+            case MQ:
+                return Layer.mq;
+            case Cache:
+                return Layer.cache;
+            case UNRECOGNIZED:
+                return Layer.undefined;
+            default:
+                throw new UnexpectedException("Can't transfer to the Layer. SpanLayer=" + spanLayer);
+        }
     }
 
     public static class Factory implements AnalysisListenerFactory {

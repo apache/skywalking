@@ -30,6 +30,7 @@ public class InstanceTrafficDispatcher implements SourceDispatcher<ServiceInstan
         traffic.setName(source.getName());
         traffic.setServiceId(source.getServiceId());
         traffic.setLastPingTimestamp(source.getTimeBucket());
+        traffic.setLayer(source.getLayer());
         MetricsStreamProcessor.getInstance().in(traffic);
     }
 }

@@ -222,9 +222,9 @@ public class IoTDBClient implements Client, HealthCheckable {
                         map.put(columnName, field.getObjectValue(field.getDataType()));
                     }
                 }
-                if (map.containsKey(IoTDBIndexes.NODE_TYPE_IDX)) {
-                    String nodeType = (String) map.get(IoTDBIndexes.NODE_TYPE_IDX);
-                    map.put(IoTDBIndexes.NODE_TYPE_IDX, Integer.valueOf(nodeType));
+                if (map.containsKey(IoTDBIndexes.LAYER_IDX)) {
+                    String layer = (String) map.get(IoTDBIndexes.LAYER_IDX);
+                    map.put(IoTDBIndexes.LAYER_IDX, Integer.valueOf(layer));
                 }
                 if (modelName.equals(BrowserErrorLogRecord.INDEX_NAME) || modelName.equals(LogRecord.INDEX_NAME)) {
                     map.put(IoTDBClient.TIMESTAMP, map.get("\"" + IoTDBClient.TIMESTAMP + "\""));

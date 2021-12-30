@@ -35,19 +35,19 @@ public class IDManager {
      * Service ID related functions.
      */
     public static class ServiceID {
-        /**
-         * @return encoded service id
-         */
-        public static String buildId(String name, NodeType type) {
-            return buildId(name, type.equals(NodeType.Normal) || type.equals(NodeType.Browser));
-        }
+//        /**
+//         * @return encoded service id
+//         */
+//        public static String buildId(String name, NodeType type) {
+//            return buildId(name, type.equals(NodeType.Normal) || type.equals(NodeType.Browser));
+//        }
 
         public static String buildId(String name, boolean isNormal) {
             return encode(name) + Const.SERVICE_ID_CONNECTOR + BooleanUtils.booleanToValue(isNormal);
         }
 
         /**
-         * @return service ID object decoded from {@link #buildId(String, NodeType)} result
+         * @return service ID object decoded from {@link #buildId(String, boolean)} result
          */
         public static ServiceIDDefinition analysisId(String id) {
             final String[] strings = id.split(Const.SERVICE_ID_PARSER_SPLIT);
@@ -103,7 +103,7 @@ public class IDManager {
      */
     public static class ServiceInstanceID {
         /**
-         * @param serviceId built by {@link ServiceID#buildId(String, NodeType)}
+         * @param serviceId built by {@link ServiceID#buildId(String, boolean)}
          * @return service instance id
          */
         public static String buildId(String serviceId, String instanceName) {
@@ -149,7 +149,7 @@ public class IDManager {
         @Getter
         public static class InstanceIDDefinition {
             /**
-             * Built by {@link ServiceID#buildId(String, NodeType)}
+             * Built by {@link ServiceID#buildId(String, boolean)}
              */
             private final String serviceId;
             private final String name;
@@ -175,7 +175,7 @@ public class IDManager {
      */
     public static class EndpointID {
         /**
-         * @param serviceId built by {@link ServiceID#buildId(String, NodeType)}
+         * @param serviceId built by {@link ServiceID#buildId(String, boolean)}
          * @return endpoint id
          */
         public static String buildId(String serviceId, String endpointName) {
@@ -231,7 +231,7 @@ public class IDManager {
         @Getter
         public static class EndpointIDDefinition {
             /**
-             * Built by {@link ServiceID#buildId(String, NodeType)}
+             * Built by {@link ServiceID#buildId(String, boolean)}
              */
             private final String serviceId;
             private final String endpointName;
@@ -242,12 +242,12 @@ public class IDManager {
         @EqualsAndHashCode
         public static class EndpointRelationDefine {
             /**
-             * Built by {@link ServiceID#buildId(String, NodeType)}
+             * Built by {@link ServiceID#buildId(String, boolean)}
              */
             private final String sourceServiceId;
             private final String source;
             /**
-             * Built by {@link ServiceID#buildId(String, NodeType)}
+             * Built by {@link ServiceID#buildId(String, boolean)}
              */
             private final String destServiceId;
             private final String dest;

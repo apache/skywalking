@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
@@ -65,7 +66,7 @@ public class PercentileFunctionTest {
     public void testFunction() {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.general),
             new PercentileFunction.PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -81,7 +82,7 @@ public class PercentileFunctionTest {
         );
 
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.general),
             new PercentileFunction.PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -117,7 +118,7 @@ public class PercentileFunctionTest {
     public void testIncompatible() {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.general),
             new PercentileFunction.PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -133,7 +134,7 @@ public class PercentileFunctionTest {
         );
 
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.general),
             new PercentileFunction.PercentileArgument(
                 new BucketedValues(
                     BUCKETS_2ND,
@@ -153,7 +154,7 @@ public class PercentileFunctionTest {
     public void testSerialization() {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.general),
             new PercentileFunction.PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -182,7 +183,7 @@ public class PercentileFunctionTest {
     public void testBuilder() throws IllegalAccessException, InstantiationException {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.general),
             new PercentileFunction.PercentileArgument(
                 new BucketedValues(
                     BUCKETS,

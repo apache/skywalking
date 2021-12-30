@@ -179,6 +179,16 @@ public class ExtractorSpec extends AbstractSpec {
         }
     }
 
+    public void layer(final String layer) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        if (nonNull(layer)) {
+            final LogData.Builder logData = BINDING.get().log();
+            logData.setLayer(layer);
+        }
+    }
+
     @SuppressWarnings("unused")
     public void metrics(@DelegatesTo(SampleBuilder.class) final Closure<?> cl) {
         if (BINDING.get().shouldAbort()) {

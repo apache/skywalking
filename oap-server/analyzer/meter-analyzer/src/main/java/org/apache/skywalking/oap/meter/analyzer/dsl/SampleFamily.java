@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceEnt
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceRelationEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.K8sRetagType;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
@@ -427,7 +428,7 @@ public class SampleFamily {
         return this;
     }
 
-    public SampleFamily service(List<String> labelKeys) {
+    public SampleFamily service(List<String> labelKeys, Layer layer) {
         Preconditions.checkArgument(labelKeys.size() > 0);
         ExpressionParsingContext.get().ifPresent(ctx -> {
             ctx.scopeType = ScopeType.SERVICE;
@@ -436,10 +437,10 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new ServiceEntityDescription(labelKeys));
+        return createMeterSamples(new ServiceEntityDescription(labelKeys, layer));
     }
 
-    public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys) {
+    public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys, Layer layer) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(instanceKeys.size() > 0);
         ExpressionParsingContext.get().ifPresent(ctx -> {
@@ -450,10 +451,10 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new InstanceEntityDescription(serviceKeys, instanceKeys));
+        return createMeterSamples(new InstanceEntityDescription(serviceKeys, instanceKeys, layer));
     }
 
-    public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys) {
+    public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys, Layer layer) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(endpointKeys.size() > 0);
         ExpressionParsingContext.get().ifPresent(ctx -> {
@@ -464,10 +465,10 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new EndpointEntityDescription(serviceKeys, endpointKeys));
+        return createMeterSamples(new EndpointEntityDescription(serviceKeys, endpointKeys, layer));
     }
 
-    public SampleFamily serviceRelation(DetectPoint detectPoint, List<String> sourceServiceKeys, List<String> destServiceKeys) {
+    public SampleFamily serviceRelation(DetectPoint detectPoint, List<String> sourceServiceKeys, List<String> destServiceKeys, Layer layer) {
         Preconditions.checkArgument(sourceServiceKeys.size() > 0);
         Preconditions.checkArgument(destServiceKeys.size() > 0);
         ExpressionParsingContext.get().ifPresent(ctx -> {
@@ -478,7 +479,7 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint));
+        return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint, layer));
     }
 
     private SampleFamily createMeterSamples(EntityDescription entityDescription) {
@@ -604,25 +605,30 @@ public class SampleFamily {
             switch (entityDescription.getScopeType()) {
                 case SERVICE:
                     ServiceEntityDescription serviceEntityDescription = (ServiceEntityDescription) entityDescription;
-                    return MeterEntity.newService(InternalOps.dim(samples, serviceEntityDescription.getServiceKeys()));
+                    return MeterEntity.newService(
+                        InternalOps.dim(samples, serviceEntityDescription.getServiceKeys()),
+                        serviceEntityDescription.getLayer()
+                    );
                 case SERVICE_INSTANCE:
                     InstanceEntityDescription instanceEntityDescription = (InstanceEntityDescription) entityDescription;
                     return MeterEntity.newServiceInstance(
                         InternalOps.dim(samples, instanceEntityDescription.getServiceKeys()),
-                        InternalOps.dim(samples, instanceEntityDescription.getInstanceKeys())
+                        InternalOps.dim(samples, instanceEntityDescription.getInstanceKeys()),
+                        instanceEntityDescription.getLayer()
                     );
                 case ENDPOINT:
                     EndpointEntityDescription endpointEntityDescription = (EndpointEntityDescription) entityDescription;
                     return MeterEntity.newEndpoint(
                         InternalOps.dim(samples, endpointEntityDescription.getServiceKeys()),
-                        InternalOps.dim(samples, endpointEntityDescription.getEndpointKeys())
+                        InternalOps.dim(samples, endpointEntityDescription.getEndpointKeys()),
+                        endpointEntityDescription.getLayer()
                     );
                 case SERVICE_RELATION:
                     ServiceRelationEntityDescription serviceRelationEntityDescription = (ServiceRelationEntityDescription) entityDescription;
                     return MeterEntity.newServiceRelation(
                         InternalOps.dim(samples, serviceRelationEntityDescription.getSourceServiceKeys()),
                         InternalOps.dim(samples, serviceRelationEntityDescription.getDestServiceKeys()),
-                        serviceRelationEntityDescription.getDetectPoint()
+                        serviceRelationEntityDescription.getDetectPoint(), serviceRelationEntityDescription.getLayer()
                     );
                 default:
                     throw new UnexpectedException(

@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,5 +30,7 @@ import lombok.Setter;
 public class Service {
     private String id;
     private String name;
+    private String shortName;
     private String group;
+    private List<String> layers = new ArrayList<>();
 }

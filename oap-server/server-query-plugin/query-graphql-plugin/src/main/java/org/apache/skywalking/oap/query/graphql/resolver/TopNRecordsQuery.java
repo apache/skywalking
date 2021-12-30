@@ -46,7 +46,6 @@ public class TopNRecordsQuery implements GraphQLQueryResolver {
         final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
             condition.getServiceId());
         topNCondition.setParentService(serviceIDDefinition.getName());
-        topNCondition.setNormal(serviceIDDefinition.isReal());
         // Scope is not required in topN record query.
         // topNCondition.setScope();
         topNCondition.setOrder(condition.getOrder());

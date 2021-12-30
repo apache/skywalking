@@ -34,7 +34,6 @@ import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
@@ -74,7 +73,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
 
         // service
         String serviceName = namingControl.formatServiceName(logData.getService());
-        String serviceId = IDManager.ServiceID.buildId(serviceName, NodeType.Normal);
+        String serviceId = IDManager.ServiceID.buildId(serviceName, true);
         log.setServiceId(serviceId);
         // service instance
         if (StringUtil.isNotEmpty(logData.getServiceInstance())) {

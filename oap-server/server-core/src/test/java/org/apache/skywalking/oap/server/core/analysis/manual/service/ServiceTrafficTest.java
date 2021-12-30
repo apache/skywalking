@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class ServiceTrafficTest {
     public void testGrouping() {
         ServiceTraffic traffic = new ServiceTraffic();
         traffic.setName("group-name::service-name");
-        traffic.setNodeType(NodeType.Normal);
+        traffic.setLayer(Layer.undefined);
         final Map<String, Object> stringObjectMap = new ServiceTraffic.Builder().entity2Storage(traffic);
         Assert.assertEquals("group-name", stringObjectMap.get(ServiceTraffic.GROUP));
     }
@@ -37,7 +37,7 @@ public class ServiceTrafficTest {
     public void testNoGrouping() {
         ServiceTraffic traffic = new ServiceTraffic();
         traffic.setName("group-name:service-name:no");
-        traffic.setNodeType(NodeType.Normal);
+        traffic.setLayer(Layer.undefined);
         final Map<String, Object> stringObjectMap = new ServiceTraffic.Builder().entity2Storage(traffic);
         Assert.assertNull(stringObjectMap.get(ServiceTraffic.GROUP));
     }

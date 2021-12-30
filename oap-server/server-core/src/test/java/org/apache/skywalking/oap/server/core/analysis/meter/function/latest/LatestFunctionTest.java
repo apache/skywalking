@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.meter.function.latest;
 
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
@@ -54,10 +55,10 @@ public class LatestFunctionTest {
     @Test
     public void testAccept() {
         long time = 1597113318673L;
-        function.accept(MeterEntity.newService("latest_sync_time"), time);
+        function.accept(MeterEntity.newService("latest_sync_time", Layer.general), time);
         assertThat(function.getValue(), is(time));
         time = 1597113447737L;
-        function.accept(MeterEntity.newService("latest_sync_time"), time);
+        function.accept(MeterEntity.newService("latest_sync_time", Layer.general), time);
         assertThat(function.getValue(), is(time));
     }
 
@@ -65,8 +66,8 @@ public class LatestFunctionTest {
     public void testCalculate() {
         long time1 = 1597113318673L;
         long time2 = 1597113447737L;
-        function.accept(MeterEntity.newService("latest_sync_time"), time1);
-        function.accept(MeterEntity.newService("latest_sync_time"), time2);
+        function.accept(MeterEntity.newService("latest_sync_time", Layer.general), time1);
+        function.accept(MeterEntity.newService("latest_sync_time", Layer.general), time2);
         function.calculate();
         assertThat(function.getValue(), is(time2));
     }
@@ -74,7 +75,7 @@ public class LatestFunctionTest {
     @Test
     public void testSerialize() {
         long time = 1597113447737L;
-        function.accept(MeterEntity.newService("latest_sync_time"), time);
+        function.accept(MeterEntity.newService("latest_sync_time", Layer.general), time);
         LatestFunction function2 = Mockito.spy(LatestFunction.class);
         function2.deserialize(function.serialize().build());
         assertThat(function2.getEntityId(), is(function.getEntityId()));
@@ -84,7 +85,7 @@ public class LatestFunctionTest {
     @Test
     public void testBuilder() throws IllegalAccessException, InstantiationException {
         long time = 1597113447737L;
-        function.accept(MeterEntity.newService("latest_sync_time"), time);
+        function.accept(MeterEntity.newService("latest_sync_time", Layer.general), time);
         function.calculate();
         StorageHashMapBuilder<LatestFunction> storageBuilder = function.builder().newInstance();
 

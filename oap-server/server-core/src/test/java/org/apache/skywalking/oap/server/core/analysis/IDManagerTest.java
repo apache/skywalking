@@ -31,7 +31,7 @@ public class IDManagerTest {
         final IDManager.ServiceID.ServiceIDDefinition relationDefine = IDManager.ServiceID.analysisId(
             IDManager.ServiceID.buildId(
                 "Service",
-                NodeType.Normal
+                true
             ));
         Assert.assertEquals(define, relationDefine);
     }
@@ -39,8 +39,8 @@ public class IDManagerTest {
     @Test
     public void testServiceRelationID() {
         IDManager.ServiceID.ServiceRelationDefine define = new IDManager.ServiceID.ServiceRelationDefine(
-            IDManager.ServiceID.buildId("ServiceSource", NodeType.Normal),
-            IDManager.ServiceID.buildId("ServiceDest", NodeType.Normal)
+            IDManager.ServiceID.buildId("ServiceSource", true),
+            IDManager.ServiceID.buildId("ServiceDest", true)
         );
 
         final String relationId = IDManager.ServiceID.buildRelationId(define);

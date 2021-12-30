@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.storage.model.DataTypeMapping;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
@@ -30,7 +30,7 @@ public class ColumnTypeEsMapping implements DataTypeMapping {
 
     @Override
     public String transform(Class<?> type, Type genericType) {
-        if (Integer.class.equals(type) || int.class.equals(type) || NodeType.class.equals(type)) {
+        if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type)) {
             return "integer";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
             return "long";

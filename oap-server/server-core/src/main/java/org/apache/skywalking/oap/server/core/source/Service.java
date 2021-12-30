@@ -23,7 +23,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
@@ -41,7 +41,7 @@ public class Service extends Source {
     @Override
     public String getEntityId() {
         if (entityId == null) {
-            entityId = IDManager.ServiceID.buildId(name, nodeType);
+            entityId = IDManager.ServiceID.buildId(name, isNormal);
         }
         return entityId;
     }
@@ -52,7 +52,10 @@ public class Service extends Source {
     private String name;
     @Setter
     @Getter
-    private NodeType nodeType;
+    private Layer layer;
+    @Setter
+    @Getter
+    private boolean isNormal;
     @Getter
     @Setter
     private String serviceInstanceName;

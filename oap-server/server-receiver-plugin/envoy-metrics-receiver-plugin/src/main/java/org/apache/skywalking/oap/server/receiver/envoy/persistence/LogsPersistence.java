@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
@@ -88,6 +89,7 @@ public class LogsPersistence implements ALSHTTPAnalysis {
             .setService(service.getServiceName())
             .setServiceInstance(service.getServiceInstanceName())
             .setTimestamp(metrics.getEndTime())
+            .setLayer(Layer.mesh.name())
             .build();
     }
 }

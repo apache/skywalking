@@ -25,8 +25,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
+import static org.apache.logging.log4j.util.Base64Util.encode;
 import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
 
 @Stream(name = ServiceTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE,
@@ -42,14 +43,20 @@ import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
 @EqualsAndHashCode(of = {
     "name",
-    "nodeType"
+    "layer"
 })
 public class ServiceTraffic extends Metrics {
     public static final String INDEX_NAME = "service_traffic";
 
     public static final String NAME = "name";
-    public static final String NODE_TYPE = "node_type";
+
+    public static final String SHORT_NAME = "short_name";
+
+    public static final String SERVICE_ID = "service_id";
+
     public static final String GROUP = "service_group";
+
+    public static final String LAYER = "layer";
 
     @Setter
     @Getter
@@ -58,17 +65,33 @@ public class ServiceTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = NODE_TYPE)
-    private NodeType nodeType;
+    @Column(columnName = SHORT_NAME)
+    private String shortName = Const.EMPTY_STRING;
+
+    @Setter
+    @Column(columnName = SERVICE_ID)
+    private String serviceId;
 
     @Setter
     @Getter
     @Column(columnName = GROUP)
     private String group;
 
+    @Setter
+    @Getter
+    @Column(columnName = LAYER)
+    private Layer layer = Layer.undefined;
+
+    @Setter
+    private boolean isNormal = true;
+
     @Override
     protected String id0() {
-        return IDManager.ServiceID.buildId(name, nodeType);
+        if (layer != null) {
+            return encode(name) + Const.POINT + layer.value();
+        } else {
+            return encode(name) + Const.POINT + Layer.undefined.value();
+        }
     }
 
     @Override
@@ -79,7 +102,7 @@ public class ServiceTraffic extends Metrics {
     @Override
     public void deserialize(final RemoteData remoteData) {
         setName(remoteData.getDataStrings(0));
-        setNodeType(NodeType.valueOf(remoteData.getDataIntegers(0)));
+        setLayer(Layer.valueOf(remoteData.getDataIntegers(0)));
         setTimeBucket(remoteData.getDataLongs(0));
     }
 
@@ -87,7 +110,7 @@ public class ServiceTraffic extends Metrics {
     public RemoteData.Builder serialize() {
         final RemoteData.Builder builder = RemoteData.newBuilder();
         builder.addDataStrings(name);
-        builder.addDataIntegers(nodeType.value());
+        builder.addDataIntegers(layer.value());
         builder.addDataLongs(getTimeBucket());
         return builder;
     }
@@ -98,8 +121,11 @@ public class ServiceTraffic extends Metrics {
         public ServiceTraffic storage2Entity(final Map<String, Object> dbMap) {
             ServiceTraffic serviceTraffic = new ServiceTraffic();
             serviceTraffic.setName((String) dbMap.get(NAME));
-            serviceTraffic.setNodeType(NodeType.valueOf(((Number) dbMap.get(NODE_TYPE)).intValue()));
+            serviceTraffic.setShortName((String) dbMap.get(SHORT_NAME));
             serviceTraffic.setGroup((String) dbMap.get(GROUP));
+            if (dbMap.get(LAYER) != null) {
+                serviceTraffic.setLayer(Layer.valueOf(((Number) dbMap.get(LAYER)).intValue()));
+            }
             // TIME_BUCKET column could be null in old implementation, which is fixed in 8.9.0
             if (dbMap.containsKey(TIME_BUCKET)) {
                 serviceTraffic.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
@@ -110,16 +136,20 @@ public class ServiceTraffic extends Metrics {
         @Override
         public Map<String, Object> entity2Storage(final ServiceTraffic storageData) {
             final String serviceName = storageData.getName();
-            if (NodeType.Normal.equals(storageData.getNodeType())) {
-                int groupIdx = serviceName.indexOf(DOUBLE_COLONS_SPLIT);
-                if (groupIdx > 0) {
-                    storageData.setGroup(serviceName.substring(0, groupIdx));
-                }
+            int groupIdx = serviceName.indexOf(DOUBLE_COLONS_SPLIT);
+            if (groupIdx > 0) {
+                storageData.setGroup(serviceName.substring(0, groupIdx));
+                storageData.setShortName(serviceName.substring(groupIdx + 2));
+            } else {
+                storageData.setShortName(serviceName);
             }
             Map<String, Object> map = new HashMap<>();
             map.put(NAME, serviceName);
-            map.put(NODE_TYPE, storageData.getNodeType().value());
+            map.put(SHORT_NAME, storageData.getShortName());
+            map.put(SERVICE_ID, storageData.getServiceId());
             map.put(GROUP, storageData.getGroup());
+            Layer layer = storageData.getLayer();
+            map.put(LAYER, layer != null ? layer.value() : Layer.undefined.value());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             return map;
         }
@@ -143,6 +173,13 @@ public class ServiceTraffic extends Metrics {
     @Override
     public Metrics toDay() {
         return null;
+    }
+
+    public String getServiceId() {
+        if (serviceId == null) {
+            serviceId = IDManager.ServiceID.buildId(name, isNormal);
+        }
+        return serviceId;
     }
 }
 

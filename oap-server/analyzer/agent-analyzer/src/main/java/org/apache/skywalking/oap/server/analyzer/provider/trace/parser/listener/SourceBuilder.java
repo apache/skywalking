@@ -26,8 +26,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
@@ -50,7 +50,10 @@ class SourceBuilder {
     private String sourceServiceName;
     @Getter
     @Setter
-    private NodeType sourceNodeType;
+    private Layer sourceLayer;
+    @Getter
+    @Setter
+    private boolean isSourceNormal = true;
     @Getter
     @Setter
     private String sourceServiceInstanceName;
@@ -69,7 +72,10 @@ class SourceBuilder {
     private String destServiceName;
     @Getter
     @Setter
-    private NodeType destNodeType;
+    private Layer destLayer;
+    @Getter
+    @Setter
+    private boolean isDestNormal = true;
     @Getter
     @Setter
     private String destServiceInstanceName;
@@ -147,7 +153,8 @@ class SourceBuilder {
         service.setName(destServiceName);
         service.setServiceInstanceName(destServiceInstanceName);
         service.setEndpointName(destEndpointName);
-        service.setNodeType(destNodeType);
+        service.setLayer(destLayer);
+        service.setNormal(isDestNormal);
         service.setLatency(latency);
         service.setStatus(status);
         service.setResponseCode(responseCode);
@@ -166,10 +173,10 @@ class SourceBuilder {
     ServiceRelation toServiceRelation() {
         ServiceRelation serviceRelation = new ServiceRelation();
         serviceRelation.setSourceServiceName(sourceServiceName);
-        serviceRelation.setSourceServiceNodeType(sourceNodeType);
+        serviceRelation.setSourceNormal(isSourceNormal);
         serviceRelation.setSourceServiceInstanceName(sourceServiceInstanceName);
         serviceRelation.setDestServiceName(destServiceName);
-        serviceRelation.setDestServiceNodeType(destNodeType);
+        serviceRelation.setDestNormal(isDestNormal);
         serviceRelation.setDestServiceInstanceName(destServiceInstanceName);
         serviceRelation.setEndpoint(destEndpointName);
         serviceRelation.setComponentId(componentId);
@@ -192,7 +199,8 @@ class SourceBuilder {
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setName(destServiceInstanceName);
         serviceInstance.setServiceName(destServiceName);
-        serviceInstance.setNodeType(destNodeType);
+        serviceInstance.setServiceNormal(isDestNormal);
+        serviceInstance.setLayer(destLayer);
         serviceInstance.setEndpointName(destEndpointName);
         serviceInstance.setLatency(latency);
         serviceInstance.setStatus(status);
@@ -215,10 +223,10 @@ class SourceBuilder {
         }
         ServiceInstanceRelation serviceInstanceRelation = new ServiceInstanceRelation();
         serviceInstanceRelation.setSourceServiceName(sourceServiceName);
-        serviceInstanceRelation.setSourceServiceNodeType(sourceNodeType);
+        serviceInstanceRelation.setSourceServiceNormal(isSourceNormal);
         serviceInstanceRelation.setSourceServiceInstanceName(sourceServiceInstanceName);
         serviceInstanceRelation.setDestServiceName(destServiceName);
-        serviceInstanceRelation.setDestServiceNodeType(destNodeType);
+        serviceInstanceRelation.setDestServiceNormal(isDestNormal);
         serviceInstanceRelation.setDestServiceInstanceName(destServiceInstanceName);
         serviceInstanceRelation.setEndpoint(destEndpointName);
         serviceInstanceRelation.setComponentId(componentId);
@@ -240,7 +248,7 @@ class SourceBuilder {
         Endpoint endpoint = new Endpoint();
         endpoint.setName(destEndpointName);
         endpoint.setServiceName(destServiceName);
-        endpoint.setServiceNodeType(destNodeType);
+        endpoint.setServiceNormal(isDestNormal);
         endpoint.setServiceInstanceName(destServiceInstanceName);
         endpoint.setLatency(latency);
         endpoint.setStatus(status);
@@ -265,15 +273,15 @@ class SourceBuilder {
         endpointRelation.setEndpoint(sourceEndpointName);
         if (sourceEndpointOwnerServiceName == null) {
             endpointRelation.setServiceName(sourceServiceName);
-            endpointRelation.setServiceNodeType(sourceNodeType);
+            endpointRelation.setServiceNormal(isSourceNormal);
         } else {
             endpointRelation.setServiceName(sourceEndpointOwnerServiceName);
-            endpointRelation.setServiceNodeType(NodeType.Normal);
+            endpointRelation.setServiceNormal(true);
         }
         endpointRelation.setServiceInstanceName(sourceServiceInstanceName);
         endpointRelation.setChildEndpoint(destEndpointName);
         endpointRelation.setChildServiceName(destServiceName);
-        endpointRelation.setChildServiceNodeType(destNodeType);
+        endpointRelation.setChildServiceNormal(isDestNormal);
         endpointRelation.setChildServiceInstanceName(destServiceInstanceName);
         endpointRelation.setComponentId(componentId);
         endpointRelation.setRpcLatency(latency);
@@ -294,7 +302,8 @@ class SourceBuilder {
     ServiceMeta toServiceMeta() {
         ServiceMeta service = new ServiceMeta();
         service.setName(destServiceName);
-        service.setNodeType(destNodeType);
+        service.setLayer(destLayer);
+        service.setNormal(isDestNormal);
         service.setTimeBucket(timeBucket);
         return service;
     }

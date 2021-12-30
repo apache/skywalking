@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
 @Getter
@@ -33,6 +34,7 @@ public class InstanceEntityDescription implements EntityDescription {
     private final ScopeType scopeType = ScopeType.SERVICE_INSTANCE;
     private final List<String> serviceKeys;
     private final List<String> instanceKeys;
+    private final Layer layer;
 
     @Override
     public List<String> getLabelKeys() {

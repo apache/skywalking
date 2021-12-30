@@ -34,6 +34,6 @@ public class BrowserAppTraffic extends BrowserAppTrafficSource {
 
     @Override
     public String getEntityId() {
-        return IDManager.ServiceID.buildId(name, nodeType);
+        return IDManager.ServiceID.buildId(name, true);
     }
 }
