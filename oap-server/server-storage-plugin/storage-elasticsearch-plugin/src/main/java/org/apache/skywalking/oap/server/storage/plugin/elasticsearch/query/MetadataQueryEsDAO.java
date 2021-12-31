@@ -120,7 +120,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         final BoolQueryBuilder query =
             Query.bool()
                  .must(Query.term(ServiceTraffic.SERVICE_ID, serviceId));
-        final SearchBuilder search = Search.builder().query(query).size(1);
+        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
 
         final SearchResponse response = getClient().search(index, search.build());
         final List<Service> services = buildServices(response);

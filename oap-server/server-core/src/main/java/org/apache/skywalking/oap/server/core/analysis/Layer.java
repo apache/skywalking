@@ -18,43 +18,66 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
+/**
+ * Layer represents an abstract framework in the computer science, such as operation system(OS_LINUX layer), Kubernetes(k8s layer)
+ */
 public enum Layer {
 
-    undefined(0),
+    UNDEFINED(0),
+    /**
+     * Envoy Access Log Service
+     */
+    MESH(1),
+    /**
+     * Agent-installed Service
+     */
+    GENERAL(2),
 
-    mesh(1),
+    OS_LINUX(3),
 
-    general(2),
+    K8S(4),
 
-    os_linux(3),
+    FAAS(5),
+    /**
+     * Mesh control plane, eg. Istio control plane
+     */
+    MESH_CP(6),
+    /**
+     * Mesh data plane, eg. Envoy
+     */
+    MESH_DP(7),
 
-    k8s(4),
+    DATABASE(8),
 
-    faas(5),
+    CACHE(9),
 
-    mesh_cp(6),
+    BROWSER(10),
+    /**
+     * Self Observability of OAP
+     */
+    SO11Y_OAP(11),
+    /**
+     * Self Observability of Satellite
+     */
+    SO11Y_SATELLITE(12),
 
-    mesh_dp(7),
-
-    database(8),
-
-    cache(9),
-
-    browser(10),
-
-    so11y_oap(11),
-
-    so11y_satellite(12),
-
-    mq(13),
-
-    virtual_database(14),
-
-    virtual_mq(15);
+    MQ(13),
+    /**
+     * Database conjectured by client side plugin
+     */
+    VIRTUAL_DATABASE(14),
+    /**
+     * MQ conjectured by client side plugin
+     */
+    VIRTUAL_MQ(15);
 
     private final int value;
+    private static Map<Integer, Layer> DICTIONARY;
 
     Layer(int value) {
         this.value = value;
@@ -65,41 +88,13 @@ public enum Layer {
     }
 
     public static Layer valueOf(int value) {
-        switch (value) {
-            case 0:
-                return undefined;
-            case 1:
-                return mesh;
-            case 2:
-                return general;
-            case 3:
-                return os_linux;
-            case 4:
-                return k8s;
-            case 5:
-                return faas;
-            case 6:
-                return mesh_cp;
-            case 7:
-                return mesh_dp;
-            case 8:
-                return database;
-            case 9:
-                return cache;
-            case 10:
-                return browser;
-            case 11:
-                return so11y_oap;
-            case 12:
-                return so11y_satellite;
-            case 13:
-                return mq;
-            case 14:
-                return virtual_database;
-            case 16:
-                return virtual_mq;
-            default:
-                throw new UnexpectedException("Unknown Layer value");
+        if (DICTIONARY == null) {
+            DICTIONARY = Arrays.stream(Layer.values()).collect(Collectors.toMap(Layer::value, layer -> layer));
         }
+        Layer layer = DICTIONARY.get(value);
+        if (layer == null) {
+            throw new UnexpectedException("Unknown Layer value");
+        }
+        return layer;
     }
 }

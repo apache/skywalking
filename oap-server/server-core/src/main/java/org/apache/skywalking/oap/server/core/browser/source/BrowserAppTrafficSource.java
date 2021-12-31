@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.source.Source;
 @Getter
 public abstract class BrowserAppTrafficSource extends Source {
     protected String name;
-    protected final Layer layer = Layer.browser;
+    protected final Layer layer = Layer.BROWSER;
 
     private final int count = 1;
 

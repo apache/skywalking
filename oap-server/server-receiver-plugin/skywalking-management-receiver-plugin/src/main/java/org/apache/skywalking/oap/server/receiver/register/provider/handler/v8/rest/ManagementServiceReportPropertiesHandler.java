@@ -65,7 +65,7 @@ public class ManagementServiceReportPropertiesHandler extends JettyJsonHandler {
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
-        serviceInstanceUpdate.setLayer(Layer.general);
+        serviceInstanceUpdate.setLayer(Layer.GENERAL);
 
         JsonObject properties = new JsonObject();
         List<String> ipv4List = new ArrayList<>();

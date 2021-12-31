@@ -28,7 +28,7 @@ public class ServiceTrafficTest {
     public void testGrouping() {
         ServiceTraffic traffic = new ServiceTraffic();
         traffic.setName("group-name::service-name");
-        traffic.setLayer(Layer.undefined);
+        traffic.setLayer(Layer.UNDEFINED);
         final Map<String, Object> stringObjectMap = new ServiceTraffic.Builder().entity2Storage(traffic);
         Assert.assertEquals("group-name", stringObjectMap.get(ServiceTraffic.GROUP));
     }
@@ -37,7 +37,7 @@ public class ServiceTrafficTest {
     public void testNoGrouping() {
         ServiceTraffic traffic = new ServiceTraffic();
         traffic.setName("group-name:service-name:no");
-        traffic.setLayer(Layer.undefined);
+        traffic.setLayer(Layer.UNDEFINED);
         final Map<String, Object> stringObjectMap = new ServiceTraffic.Builder().entity2Storage(traffic);
         Assert.assertNull(stringObjectMap.get(ServiceTraffic.GROUP));
     }

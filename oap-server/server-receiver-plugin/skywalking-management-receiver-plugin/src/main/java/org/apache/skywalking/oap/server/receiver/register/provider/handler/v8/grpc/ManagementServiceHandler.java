@@ -59,7 +59,7 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
         final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
-        serviceInstanceUpdate.setLayer(Layer.general);
+        serviceInstanceUpdate.setLayer(Layer.GENERAL);
 
         JsonObject properties = new JsonObject();
         List<String> ipv4List = new ArrayList<>();
@@ -90,14 +90,14 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
         serviceInstanceUpdate.setTimeBucket(timeBucket);
-        serviceInstanceUpdate.setLayer(Layer.general);
+        serviceInstanceUpdate.setLayer(Layer.GENERAL);
         sourceReceiver.receive(serviceInstanceUpdate);
 
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setName(serviceName);
         serviceMeta.setNormal(true);
         serviceMeta.setTimeBucket(timeBucket);
-        serviceMeta.setLayer(Layer.general);
+        serviceMeta.setLayer(Layer.GENERAL);
         sourceReceiver.receive(serviceMeta);
 
         responseObserver.onNext(Commands.newBuilder().build());

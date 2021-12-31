@@ -41,7 +41,7 @@ public class DatabaseSlowStatementBuilder {
     private String serviceName;
     @Getter
     @Setter
-    private Layer layer = Layer.virtual_database;
+    private Layer layer = Layer.VIRTUAL_DATABASE;
     @Getter
     @Setter
     private String statement;

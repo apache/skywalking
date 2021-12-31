@@ -38,7 +38,7 @@ staticConfig:
       sslCaFilePath:
   labels:
     service: oap-server
-expSuffix: tag({tags -> tags.service = 'oap::' + tags.service}).instance(['service'], ['instance'], Layer.so11y_oap)
+expSuffix: tag({tags -> tags.service = 'oap::' + tags.service}).instance(['service'], ['instance'], Layer.SO11Y_OAP)
 metricPrefix: meter_oap
 metricsRules:
   - name: instance_cpu_percentage

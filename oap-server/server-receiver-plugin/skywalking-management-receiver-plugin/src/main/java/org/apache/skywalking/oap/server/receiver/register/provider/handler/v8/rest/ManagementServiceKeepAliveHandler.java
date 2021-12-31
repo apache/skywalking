@@ -63,14 +63,14 @@ public class ManagementServiceKeepAliveHandler extends JettyJsonHandler {
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
         serviceInstanceUpdate.setTimeBucket(timeBucket);
-        serviceInstanceUpdate.setLayer(Layer.general);
+        serviceInstanceUpdate.setLayer(Layer.GENERAL);
         sourceReceiver.receive(serviceInstanceUpdate);
 
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setName(serviceName);
         serviceMeta.setNormal(true);
         serviceMeta.setTimeBucket(timeBucket);
-        serviceMeta.setLayer(Layer.general);
+        serviceMeta.setLayer(Layer.GENERAL);
         sourceReceiver.receive(serviceMeta);
 
         return gson.fromJson(ProtoBufJsonUtils.toJSON(Commands.newBuilder().build()), JsonElement.class);

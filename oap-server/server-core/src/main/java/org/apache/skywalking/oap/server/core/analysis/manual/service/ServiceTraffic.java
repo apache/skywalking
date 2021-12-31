@@ -68,6 +68,10 @@ public class ServiceTraffic extends Metrics {
     @Column(columnName = SHORT_NAME)
     private String shortName = Const.EMPTY_STRING;
 
+    /**
+     * `normal` Base64 encode(serviceName) + ".1"
+     * `un-normal` Base64 encode(serviceName) + ".0"
+     */
     @Setter
     @Column(columnName = SERVICE_ID)
     private String serviceId;
@@ -80,17 +84,26 @@ public class ServiceTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = LAYER)
-    private Layer layer = Layer.undefined;
+    private Layer layer = Layer.UNDEFINED;
 
+    /**
+     * The `normal` status represents this service is detected by an agent.
+     * The `un-normal` service is conjectured by telemetry data collected from agents on/in the `normal` service.
+     */
     @Setter
     private boolean isNormal = true;
 
+    /**
+     * Primary key(id), to identify a service with different layers, a service could have more than one layer and be
+     * saved as different records.
+     * @return Base64 encode(serviceName) + "." + layer.value
+     */
     @Override
     protected String id0() {
         if (layer != null) {
             return encode(name) + Const.POINT + layer.value();
         } else {
-            return encode(name) + Const.POINT + Layer.undefined.value();
+            return encode(name) + Const.POINT + Layer.UNDEFINED.value();
         }
     }
 
@@ -125,6 +138,8 @@ public class ServiceTraffic extends Metrics {
             serviceTraffic.setGroup((String) dbMap.get(GROUP));
             if (dbMap.get(LAYER) != null) {
                 serviceTraffic.setLayer(Layer.valueOf(((Number) dbMap.get(LAYER)).intValue()));
+            } else {
+                serviceTraffic.setLayer(Layer.UNDEFINED);
             }
             // TIME_BUCKET column could be null in old implementation, which is fixed in 8.9.0
             if (dbMap.containsKey(TIME_BUCKET)) {
@@ -136,12 +151,13 @@ public class ServiceTraffic extends Metrics {
         @Override
         public Map<String, Object> entity2Storage(final ServiceTraffic storageData) {
             final String serviceName = storageData.getName();
-            int groupIdx = serviceName.indexOf(DOUBLE_COLONS_SPLIT);
-            if (groupIdx > 0) {
-                storageData.setGroup(serviceName.substring(0, groupIdx));
-                storageData.setShortName(serviceName.substring(groupIdx + 2));
-            } else {
-                storageData.setShortName(serviceName);
+            storageData.setShortName(serviceName);
+            if (storageData.isNormal) {
+                int groupIdx = serviceName.indexOf(DOUBLE_COLONS_SPLIT);
+                if (groupIdx > 0) {
+                    storageData.setGroup(serviceName.substring(0, groupIdx));
+                    storageData.setShortName(serviceName.substring(groupIdx + 2));
+                }
             }
             Map<String, Object> map = new HashMap<>();
             map.put(NAME, serviceName);
@@ -149,7 +165,7 @@ public class ServiceTraffic extends Metrics {
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(GROUP, storageData.getGroup());
             Layer layer = storageData.getLayer();
-            map.put(LAYER, layer != null ? layer.value() : Layer.undefined.value());
+            map.put(LAYER, layer != null ? layer.value() : Layer.UNDEFINED.value());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             return map;
         }

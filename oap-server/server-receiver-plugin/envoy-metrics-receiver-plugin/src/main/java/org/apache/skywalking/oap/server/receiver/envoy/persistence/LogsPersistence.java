@@ -89,7 +89,7 @@ public class LogsPersistence implements ALSHTTPAnalysis {
             .setService(service.getServiceName())
             .setServiceInstance(service.getServiceInstanceName())
             .setTimestamp(metrics.getEndTime())
-            .setLayer(Layer.mesh.name())
+            .setLayer(Layer.MESH.name())
             .build();
     }
 }

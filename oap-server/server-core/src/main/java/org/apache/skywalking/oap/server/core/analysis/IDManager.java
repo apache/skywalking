@@ -35,13 +35,11 @@ public class IDManager {
      * Service ID related functions.
      */
     public static class ServiceID {
-//        /**
-//         * @return encoded service id
-//         */
-//        public static String buildId(String name, NodeType type) {
-//            return buildId(name, type.equals(NodeType.Normal) || type.equals(NodeType.Browser));
-//        }
-
+        /**
+         * @param name     service name
+         * @param isNormal `true` represents this service is detected by an agent. `false` represents this service is
+         *                 conjectured by telemetry data collected from agents on/in the `normal` service.
+         */
         public static String buildId(String name, boolean isNormal) {
             return encode(name) + Const.SERVICE_ID_CONNECTOR + BooleanUtils.booleanToValue(isNormal);
         }

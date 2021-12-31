@@ -68,7 +68,7 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
         if (StringUtil.isNotEmpty(logData.getLayer())) {
             layer = Layer.valueOf(logData.getLayer());
         } else {
-            layer = Layer.general;
+            layer = Layer.GENERAL;
         }
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         // to service traffic

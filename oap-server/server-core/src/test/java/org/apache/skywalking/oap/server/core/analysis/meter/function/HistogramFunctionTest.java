@@ -72,7 +72,7 @@ public class HistogramFunctionTest {
     public void testFunction() {
         HistogramFunctionInst inst = new HistogramFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new BucketedValues(
                 BUCKETS, new long[] {
                 0,
@@ -83,7 +83,7 @@ public class HistogramFunctionTest {
         );
 
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new BucketedValues(
                 BUCKETS, new long[] {
                 1,
@@ -108,7 +108,7 @@ public class HistogramFunctionTest {
     public void testFunctionWithInfinite() {
         HistogramFunctionInst inst = new HistogramFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new BucketedValues(
                 INFINITE_BUCKETS, new long[] {
                 0,
@@ -119,7 +119,7 @@ public class HistogramFunctionTest {
         );
 
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new BucketedValues(
                 INFINITE_BUCKETS, new long[] {
                 1,
@@ -136,7 +136,7 @@ public class HistogramFunctionTest {
     public void testIncompatible() {
         HistogramFunctionInst inst = new HistogramFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new BucketedValues(
                 BUCKETS, new long[] {
                 0,
@@ -147,7 +147,7 @@ public class HistogramFunctionTest {
         );
 
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new BucketedValues(
                 BUCKETS_2ND, new long[] {
                 1,
@@ -162,7 +162,7 @@ public class HistogramFunctionTest {
     public void testSerialization() {
         HistogramFunctionInst inst = new HistogramFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new BucketedValues(
                 BUCKETS, new long[] {
                 1,
@@ -184,7 +184,7 @@ public class HistogramFunctionTest {
     public void testSerializationInInfinite() {
         HistogramFunctionInst inst = new HistogramFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new BucketedValues(
                 INFINITE_BUCKETS, new long[] {
                 1,
@@ -206,7 +206,7 @@ public class HistogramFunctionTest {
     public void testBuilder() throws IllegalAccessException, InstantiationException {
         HistogramFunctionInst inst = new HistogramFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new BucketedValues(
                 BUCKETS, new long[] {
                 1,

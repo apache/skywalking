@@ -30,7 +30,7 @@ public class BrowserAppTrafficDispatcher extends BrowserAppTrafficSourceDispatch
         ServiceTraffic traffic = new ServiceTraffic();
         traffic.setTimeBucket(source.getTimeBucket());
         traffic.setName(source.getName());
-        traffic.setLayer(Layer.browser);
+        traffic.setLayer(Layer.BROWSER);
         MetricsStreamProcessor.getInstance().in(traffic);
     }
 }

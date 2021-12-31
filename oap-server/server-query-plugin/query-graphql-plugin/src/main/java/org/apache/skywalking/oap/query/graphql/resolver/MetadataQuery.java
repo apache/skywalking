@@ -33,6 +33,10 @@ import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+/**
+ * @since 9.0.0 This query is replaced by {@link MetadataQueryV2}
+ */
+@Deprecated
 public class MetadataQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
@@ -57,7 +61,7 @@ public class MetadataQuery implements GraphQLQueryResolver {
     }
 
     public List<Service> getAllBrowserServices(final Duration duration) throws IOException {
-        return getMetadataQueryService().listServices(Layer.browser.name(), null);
+        return getMetadataQueryService().listServices(Layer.BROWSER.name(), null);
     }
 
     public List<Service> searchServices(final Duration duration,
@@ -72,7 +76,7 @@ public class MetadataQuery implements GraphQLQueryResolver {
 
     public List<Service> searchBrowserServices(final Duration duration,
                                                final String keyword) throws IOException {
-        List<Service> services = getMetadataQueryService().listServices(Layer.browser.name(), null);
+        List<Service> services = getMetadataQueryService().listServices(Layer.BROWSER.name(), null);
         return services.stream().filter(service -> service.getName().contains(keyword)).collect(Collectors.toList());
     }
 
@@ -92,7 +96,7 @@ public class MetadataQuery implements GraphQLQueryResolver {
     }
 
     public List<Database> getAllDatabases(final Duration duration) throws IOException {
-        final List<Service> serviceList = getMetadataQueryService().listServices(Layer.virtual_database.name(), null);
+        final List<Service> serviceList = getMetadataQueryService().listServices(Layer.VIRTUAL_DATABASE.name(), null);
         return serviceList.stream().map(service -> {
             Database database = new Database();
             database.setId(service.getId());

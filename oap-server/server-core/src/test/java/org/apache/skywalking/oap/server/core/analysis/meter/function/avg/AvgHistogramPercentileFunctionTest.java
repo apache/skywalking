@@ -65,7 +65,7 @@ public class AvgHistogramPercentileFunctionTest {
     public void testFunction() {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -81,7 +81,7 @@ public class AvgHistogramPercentileFunctionTest {
         );
 
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -117,7 +117,7 @@ public class AvgHistogramPercentileFunctionTest {
     public void testSerialization() {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -146,7 +146,7 @@ public class AvgHistogramPercentileFunctionTest {
     public void testBuilder() throws IllegalAccessException, InstantiationException {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -210,7 +210,7 @@ public class AvgHistogramPercentileFunctionTest {
 
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 valuesA,
                 RANKS
@@ -228,7 +228,7 @@ public class AvgHistogramPercentileFunctionTest {
         valuesA.setGroup("localhost:3306/swtest");
 
         inst.accept(
-            MeterEntity.newService("service-test", Layer.general),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 valuesB,
                 RANKS

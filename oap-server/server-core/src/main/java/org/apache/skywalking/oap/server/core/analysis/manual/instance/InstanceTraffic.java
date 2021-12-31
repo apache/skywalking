@@ -79,7 +79,7 @@ public class InstanceTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = LAYER)
-    private Layer layer = Layer.undefined;
+    private Layer layer = Layer.UNDEFINED;
 
     @Override
     public boolean combine(final Metrics metrics) {
@@ -165,7 +165,7 @@ public class InstanceTraffic extends Metrics {
             map.put(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             Layer layer = storageData.getLayer();
-            map.put(LAYER, layer != null ? layer.value() : Layer.undefined.value());
+            map.put(LAYER, layer != null ? layer.value() : Layer.UNDEFINED.value());
             return map;
         }
     }

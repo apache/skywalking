@@ -61,16 +61,16 @@ public class AvgLabeledFunctionTest {
 
     @Test
     public void testAccept() {
-        function.accept(MeterEntity.newService("request_count", Layer.general), build(asList("200", "404"), asList(10L, 2L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "404"), asList(10L, 2L)));
         assertResult(asList("200", "404"), asList(10L, 2L), asList(1L, 1L));
-        function.accept(MeterEntity.newService("request_count", Layer.general), build(asList("200", "500"), asList(2L, 3L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "500"), asList(2L, 3L)));
         assertResult(asList("200", "404", "500"), asList(12L, 2L, 3L), asList(2L, 1L, 1L));
     }
 
     @Test
     public void testCalculate() {
-        function.accept(MeterEntity.newService("request_count", Layer.general), build(asList("200", "404"), asList(10L, 2L)));
-        function.accept(MeterEntity.newService("request_count", Layer.general), build(asList("200", "500"), asList(2L, 3L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "404"), asList(10L, 2L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "500"), asList(2L, 3L)));
         function.calculate();
 
         assertThat(function.getValue().sortedKeys(Comparator.naturalOrder()), is(asList("200", "404", "500")));
@@ -79,7 +79,7 @@ public class AvgLabeledFunctionTest {
 
     @Test
     public void testSerialize() {
-        function.accept(MeterEntity.newService("request_count", Layer.general), build(asList("200", "404"), asList(10L, 2L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "404"), asList(10L, 2L)));
         AvgLabeledFunction function2 = Mockito.spy(AvgLabeledFunction.class);
         function2.deserialize(function.serialize().build());
         assertThat(function2.getEntityId(), is(function.getEntityId()));
@@ -88,7 +88,7 @@ public class AvgLabeledFunctionTest {
 
     @Test
     public void testBuilder() throws IllegalAccessException, InstantiationException {
-        function.accept(MeterEntity.newService("request_count", Layer.general), build(asList("200", "404"), asList(10L, 2L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "404"), asList(10L, 2L)));
         function.calculate();
         StorageHashMapBuilder<AvgLabeledFunction> storageBuilder = function.builder().newInstance();
 

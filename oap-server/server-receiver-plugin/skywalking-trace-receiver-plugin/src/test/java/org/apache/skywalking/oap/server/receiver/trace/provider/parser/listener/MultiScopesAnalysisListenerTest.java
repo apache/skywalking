@@ -434,7 +434,7 @@ public class MultiScopesAnalysisListenerTest {
         Assert.assertEquals("mock-instance", serviceInstanceRelation.getSourceServiceInstanceName());
         Assert.assertEquals("127.0.0.1:8080", serviceInstanceRelation.getDestServiceInstanceName());
         Assert.assertEquals("127.0.0.1:8080", serviceMeta.getName());
-        Assert.assertEquals(Layer.virtual_database, serviceMeta.getLayer());
+        Assert.assertEquals(Layer.VIRTUAL_DATABASE, serviceMeta.getLayer());
         Assert.assertEquals("127.0.0.1:8080", databaseAccess.getName());
     }
 

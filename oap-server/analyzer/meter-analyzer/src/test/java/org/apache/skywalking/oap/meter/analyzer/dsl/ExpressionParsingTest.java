@@ -54,7 +54,7 @@ public class ExpressionParsingTest {
         return Arrays.asList(new Object[][] {
             {
                 "all",
-                "(foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'], Layer.general).downsampling(LATEST)",
+                "(foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'], Layer.GENERAL).downsampling(LATEST)",
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("foo"))
                                         .scopeType(ScopeType.SERVICE)
@@ -67,7 +67,7 @@ public class ExpressionParsingTest {
             },
             {
                 "sumThenAvg",
-                "(foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'], Layer.general).avg(['tt'])",
+                "(foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'], Layer.GENERAL).avg(['tt'])",
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("foo"))
                                         .scopeType(ScopeType.SERVICE)
@@ -80,7 +80,7 @@ public class ExpressionParsingTest {
             },
             {
                 "avgThenOthersThenSum",
-                "(foo - 1).tagEqual('bar', '1').avg(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'], Layer.general).sum(['tt']).downsampling(SUM)",
+                "(foo - 1).tagEqual('bar', '1').avg(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'], Layer.GENERAL).sum(['tt']).downsampling(SUM)",
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("foo"))
                                         .scopeType(ScopeType.SERVICE)
@@ -93,7 +93,7 @@ public class ExpressionParsingTest {
             },
             {
                 "sameSamples",
-                "(node_cpu_seconds_total.sum(['node_identifier_host_name']) - node_cpu_seconds_total.tagEqual('mode', 'idle').sum(['node_identifier_host_name'])).service(['node_identifier_host_name'], Layer.general) ",
+                "(node_cpu_seconds_total.sum(['node_identifier_host_name']) - node_cpu_seconds_total.tagEqual('mode', 'idle').sum(['node_identifier_host_name'])).service(['node_identifier_host_name'], Layer.GENERAL) ",
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("node_cpu_seconds_total"))
                                         .scopeType(ScopeType.SERVICE)

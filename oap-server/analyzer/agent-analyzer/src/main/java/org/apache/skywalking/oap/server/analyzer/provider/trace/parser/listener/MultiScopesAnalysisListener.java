@@ -109,17 +109,17 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
                     sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(networkAddressUsedAtPeer);
-                    sourceBuilder.setSourceLayer(Layer.virtual_mq);
+                    sourceBuilder.setSourceLayer(Layer.VIRTUAL_MQ);
                     sourceBuilder.setSourceNormal(false);
                 } else {
                     sourceBuilder.setSourceServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(reference.getParentServiceInstance());
-                    sourceBuilder.setSourceLayer(Layer.general);
+                    sourceBuilder.setSourceLayer(Layer.GENERAL);
                 }
                 sourceBuilder.setDestEndpointName(span.getOperationName());
                 sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
                 sourceBuilder.setDestServiceName(segmentObject.getService());
-                sourceBuilder.setDestLayer(Layer.general);
+                sourceBuilder.setDestLayer(Layer.GENERAL);
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(span.getComponentId());
                 setPublicAttrs(sourceBuilder, span);
@@ -133,7 +133,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setSourceNormal(false);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
-            sourceBuilder.setDestLayer(Layer.general);
+            sourceBuilder.setDestLayer(Layer.GENERAL);
             sourceBuilder.setDestEndpointName(span.getOperationName());
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
             sourceBuilder.setComponentId(span.getComponentId());
@@ -188,7 +188,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             if (!config.shouldIgnorePeerIPDue2Virtual(span.getComponentId())) {
                 sourceBuilder.setDestServiceInstanceName(instanceIDDefinition.getName());
             }
-            sourceBuilder.setDestLayer(Layer.general);
+            sourceBuilder.setDestLayer(Layer.GENERAL);
         }
 
         sourceBuilder.setDetectPoint(DetectPoint.CLIENT);
@@ -361,7 +361,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     sourceBuilder.setDestServiceName(segmentObject.getService());
                     sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
                     sourceBuilder.setDestEndpointName(logicEndpointName);
-                    sourceBuilder.setDestLayer(Layer.general);
+                    sourceBuilder.setDestLayer(Layer.GENERAL);
                     sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                     sourceBuilder.setLatency(latency);
                     sourceBuilder.setStatus(status);
@@ -377,19 +377,19 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     private Layer fromSpanLayerValue(SpanLayer spanLayer) {
         switch (spanLayer) {
             case Unknown:
-                return Layer.undefined;
+                return Layer.UNDEFINED;
             case Database:
-                return Layer.virtual_database;
+                return Layer.VIRTUAL_DATABASE;
             case RPCFramework:
-                return Layer.general;
+                return Layer.GENERAL;
             case Http:
-                return Layer.general;
+                return Layer.GENERAL;
             case MQ:
-                return Layer.mq;
+                return Layer.MQ;
             case Cache:
-                return Layer.cache;
+                return Layer.CACHE;
             case UNRECOGNIZED:
-                return Layer.undefined;
+                return Layer.UNDEFINED;
             default:
                 throw new UnexpectedException("Can't transfer to the Layer. SpanLayer=" + spanLayer);
         }

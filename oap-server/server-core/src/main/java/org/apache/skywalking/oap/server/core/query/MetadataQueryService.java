@@ -70,30 +70,6 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         return getMetadataQueryDAO().getInstance(instanceId);
     }
 
-//    public List<Service> getAllBrowserServices() throws IOException {
-//        return getMetadataQueryDAO().getAllBrowserServices().stream().distinct().collect(Collectors.toList());
-//    }
-//
-//    public List<Database> getAllDatabases() throws IOException {
-//        return getMetadataQueryDAO().getAllDatabases().stream().distinct().collect(Collectors.toList());
-//    }
-//
-//    public List<Service> searchServices(final long startTimestamp, final long endTimestamp,
-//                                        final String keyword) throws IOException {
-//        return getMetadataQueryDAO().searchServices(NodeType.Normal, keyword)
-//                                    .stream()
-//                                    .distinct()
-//                                    .collect(Collectors.toList());
-//    }
-//
-//    public List<Service> searchBrowserServices(final long startTimestamp, final long endTimestamp,
-//                                               final String keyword) throws IOException {
-//        return getMetadataQueryDAO().searchServices(NodeType.Browser, keyword)
-//                                    .stream()
-//                                    .distinct()
-//                                    .collect(Collectors.toList());
-//    }
-
     public List<ServiceInstance> listInstances(final long startTimestamp, final long endTimestamp,
                                                      final String serviceId) throws IOException {
         return getMetadataQueryDAO().listInstances(startTimestamp, endTimestamp, serviceId)
@@ -105,14 +81,6 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         return getMetadataQueryDAO().findEndpoint(keyword, serviceId, limit)
                                     .stream().distinct().collect(Collectors.toList());
     }
-
-//    public Service searchService(final String serviceCode) throws IOException {
-//        return getMetadataQueryDAO().searchService(NodeType.Normal, serviceCode);
-//    }
-//
-//    public Service searchBrowserService(final String serviceCode) throws IOException {
-//        return getMetadataQueryDAO().searchService(NodeType.Browser, serviceCode);
-//    }
 
     public EndpointInfo getEndpointInfo(final String endpointId) throws IOException {
         final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(

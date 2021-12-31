@@ -28,7 +28,7 @@
 #    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
-expSuffix: tag({tags -> tags.cluster = 'istio-ctrl::' + tags.cluster}).service(['cluster', 'app'], Layer.mesh_cp)
+expSuffix: tag({tags -> tags.cluster = 'istio-ctrl::' + tags.cluster}).service(['cluster', 'app'], Layer.MESH_CP)
 metricPrefix: meter_istio
 metricsRules:
   ## Resource usage

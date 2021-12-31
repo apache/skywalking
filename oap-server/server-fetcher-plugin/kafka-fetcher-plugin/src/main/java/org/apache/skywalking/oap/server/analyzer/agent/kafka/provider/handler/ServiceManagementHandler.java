@@ -77,7 +77,7 @@ public class ServiceManagementHandler extends AbstractKafkaHandler {
         final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
-        serviceInstanceUpdate.setLayer(Layer.general);
+        serviceInstanceUpdate.setLayer(Layer.GENERAL);
 
         if (log.isDebugEnabled()) {
             log.debug("Service[{}] instance[{}] registered.", serviceName, instanceName);
@@ -112,14 +112,14 @@ public class ServiceManagementHandler extends AbstractKafkaHandler {
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
         serviceInstanceUpdate.setTimeBucket(timeBucket);
-        serviceInstanceUpdate.setLayer(Layer.general);
+        serviceInstanceUpdate.setLayer(Layer.GENERAL);
         sourceReceiver.receive(serviceInstanceUpdate);
 
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setName(serviceName);
         serviceMeta.setNormal(true);
         serviceMeta.setTimeBucket(timeBucket);
-        serviceMeta.setLayer(Layer.general);
+        serviceMeta.setLayer(Layer.GENERAL);
         sourceReceiver.receive(serviceMeta);
     }
 

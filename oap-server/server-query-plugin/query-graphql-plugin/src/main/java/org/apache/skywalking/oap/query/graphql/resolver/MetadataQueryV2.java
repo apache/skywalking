@@ -34,6 +34,11 @@ import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+/**
+ * Metadata v2 query protocol implementation.
+ *
+ * @since 9.0.0
+ */
 public class MetadataQueryV2 implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;

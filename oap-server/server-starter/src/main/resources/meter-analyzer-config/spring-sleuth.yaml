@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-expSuffix: instance(['service'], ['instance'], Layer.general)
+expSuffix: instance(['service'], ['instance'], Layer.GENERAL)
 metricPrefix: meter
 metricsRules:
   - name: http_server_requests_count

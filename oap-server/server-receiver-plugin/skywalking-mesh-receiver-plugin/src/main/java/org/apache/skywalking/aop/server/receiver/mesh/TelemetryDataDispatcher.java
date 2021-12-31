@@ -141,7 +141,7 @@ public class TelemetryDataDispatcher {
         Service service = new Service();
         service.setTimeBucket(minuteTimeBucket);
         service.setName(metrics.getDestServiceName());
-        service.setLayer(Layer.mesh);
+        service.setLayer(Layer.MESH);
         service.setNormal(true);
         service.setServiceInstanceName(metrics.getDestServiceInstance());
         service.setEndpointName(metrics.getEndpoint());
@@ -187,7 +187,7 @@ public class TelemetryDataDispatcher {
         serviceInstance.setTimeBucket(minuteTimeBucket);
         serviceInstance.setName(metrics.getDestServiceInstance());
         serviceInstance.setServiceName(metrics.getDestServiceName());
-        serviceInstance.setLayer(Layer.mesh);
+        serviceInstance.setLayer(Layer.MESH);
         serviceInstance.setServiceNormal(true);
         serviceInstance.setEndpointName(metrics.getEndpoint());
         serviceInstance.setLatency(metrics.getLatency());
