@@ -57,8 +57,8 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
         return metadataQueryService;
     }
 
-    public List<String> listLayers() {
-        return null;
+    public List<String> listLayers() throws IOException {
+        return getMetadataQueryService().listLayers();
     }
 
     public List<Service> listServices(final String layer) throws IOException {

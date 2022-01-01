@@ -27,7 +27,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -53,60 +52,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     public H2MetadataQueryDAO(JDBCHikariCPClient h2Client, int metadataQueryMaxSize) {
         this.h2Client = h2Client;
         this.metadataQueryMaxSize = metadataQueryMaxSize;
-    }
-
-    @Override
-    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) throws IOException {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        sql.append("select * from ").append(EndpointTraffic.INDEX_NAME).append(" where ");
-        sql.append(EndpointTraffic.SERVICE_ID).append("=?");
-        condition.add(serviceId);
-        if (!Strings.isNullOrEmpty(keyword)) {
-            sql.append(" and ").append(EndpointTraffic.NAME).append(" like concat('%',?,'%') ");
-            condition.add(keyword);
-        }
-        sql.append(" limit ").append(limit);
-
-        List<Endpoint> endpoints = new ArrayList<>();
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-
-                while (resultSet.next()) {
-                    Endpoint endpoint = new Endpoint();
-                    endpoint.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
-                    endpoint.setName(resultSet.getString(EndpointTraffic.NAME));
-                    endpoints.add(endpoint);
-                }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return endpoints;
-    }
-
-    @Override
-    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp,
-                                               String serviceId) throws IOException {
-        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
-
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        sql.append("select * from ").append(InstanceTraffic.INDEX_NAME).append(" where ");
-        sql.append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
-        condition.add(minuteTimeBucket);
-        sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
-        condition.add(serviceId);
-
-        try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]));
-            return buildInstances(resultSet);
-
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
     }
 
     @Override
@@ -143,18 +88,42 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public Service findService(final String serviceId) throws IOException {
+    public List<Service> getServices(final String serviceId) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceTraffic.INDEX_NAME).append(" where ");
         sql.append(ServiceTraffic.SERVICE_ID).append(" = ?");
         condition.add(serviceId);
+        sql.append(" limit ").append(metadataQueryMaxSize);
 
         try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(
                 connection, sql.toString(), condition.toArray(new Object[0]));
-            final List<Service> services = buildServices(resultSet);
-            return services.size() > 0 ? services.get(0) : null;
+            return buildServices(resultSet);
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp,
+                                               String serviceId) throws IOException {
+        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
+
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(5);
+        sql.append("select * from ").append(InstanceTraffic.INDEX_NAME).append(" where ");
+        sql.append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
+        condition.add(minuteTimeBucket);
+        sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
+        condition.add(serviceId);
+        sql.append(" limit ").append(metadataQueryMaxSize);
+
+        try (Connection connection = h2Client.getConnection()) {
+            ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]));
+            return buildInstances(resultSet);
+
         } catch (SQLException e) {
             throw new IOException(e);
         }
@@ -167,6 +136,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append("select * from ").append(InstanceTraffic.INDEX_NAME).append(" where ");
         sql.append(H2TableInstaller.ID_COLUMN).append(" = ?");
         condition.add(instanceId);
+        sql.append(" limit ").append(metadataQueryMaxSize);
 
         try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(
@@ -178,18 +148,50 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         }
     }
 
+    @Override
+    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(5);
+        sql.append("select * from ").append(EndpointTraffic.INDEX_NAME).append(" where ");
+        sql.append(EndpointTraffic.SERVICE_ID).append("=?");
+        condition.add(serviceId);
+        if (!Strings.isNullOrEmpty(keyword)) {
+            sql.append(" and ").append(EndpointTraffic.NAME).append(" like concat('%',?,'%') ");
+            condition.add(keyword);
+        }
+        sql.append(" limit ").append(limit);
+
+        List<Endpoint> endpoints = new ArrayList<>();
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]))) {
+
+                while (resultSet.next()) {
+                    Endpoint endpoint = new Endpoint();
+                    endpoint.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
+                    endpoint.setName(resultSet.getString(EndpointTraffic.NAME));
+                    endpoints.add(endpoint);
+                }
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+        return endpoints;
+    }
+
     private List<Service> buildServices(ResultSet resultSet) throws SQLException {
-        Map<String, Service> serviceMap = new HashMap<>();
+        List<Service> services = new ArrayList<>();
         while (resultSet.next()) {
             String serviceName = resultSet.getString(ServiceTraffic.NAME);
-            Service service = serviceMap.computeIfAbsent(serviceName, name -> new Service());
+            Service service = new Service();
             service.setId(resultSet.getString(ServiceTraffic.SERVICE_ID));
             service.setName(serviceName);
             service.setShortName(resultSet.getString(ServiceTraffic.SHORT_NAME));
             service.setGroup(resultSet.getString(ServiceTraffic.GROUP));
             service.getLayers().add(Layer.valueOf(resultSet.getInt(ServiceTraffic.LAYER)).name());
+            services.add(service);
         }
-        return new ArrayList<>(serviceMap.values());
+        return services;
     }
 
     private List<ServiceInstance> buildInstances(ResultSet resultSet) throws SQLException {

@@ -33,7 +33,10 @@ public interface IMetadataQueryDAO extends DAO {
      */
     List<Service> listServices(final String layer, final String group) throws IOException;
 
-    Service findService(final String serviceId) throws IOException;
+    /**
+     * Service could have more than one record by a different layer and have the same serviceId.
+     */
+    List<Service> getServices(final String serviceId) throws IOException;
 
     /**
      * @param startTimestamp The instance is required to be live after this timestamp

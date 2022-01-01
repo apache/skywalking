@@ -53,6 +53,70 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     private final StorageHashMapBuilder<InstanceTraffic> instanceBuilder = new InstanceTraffic.Builder();
 
     @Override
+    public List<Service> listServices(final String layer, final String group) throws IOException {
+        StringBuilder query = new StringBuilder();
+        query.append("select * from ");
+        query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        if (StringUtil.isNotEmpty(layer)) {
+            indexAndValueMap.put(IoTDBIndexes.LAYER_IDX, layer);
+        }
+        if (StringUtil.isNotEmpty(group)) {
+            indexAndValueMap.put(IoTDBIndexes.GROUP_IDX, group);
+        }
+        query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        return buildServices(storageDataList);
+    }
+
+    @Override
+    public List<Service> getServices(final String serviceId) throws IOException {
+        StringBuilder query = new StringBuilder();
+        query.append("select * from ");
+        query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
+        query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        return buildServices(storageDataList);
+    }
+
+    @Override
+    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp, String serviceId) throws IOException {
+        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
+        StringBuilder query = new StringBuilder();
+        query.append("select * from ");
+        query = client.addModelPath(query, InstanceTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
+        query = client.addQueryIndexValue(InstanceTraffic.INDEX_NAME, query, indexAndValueMap);
+        query.append(" where ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ").append(minuteTimeBucket)
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(InstanceTraffic.INDEX_NAME, query.toString(), instanceBuilder);
+        return buildInstances(storageDataList);
+    }
+
+    @Override
+    public ServiceInstance getInstance(final String instanceId) throws IOException {
+        StringBuilder query = new StringBuilder();
+        query.append("select * from ");
+        query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBIndexes.ID_IDX, instanceId);
+        query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        final List<ServiceInstance> instances = buildInstances(storageDataList);
+        return instances.size() > 0 ? instances.get(0) : null;
+    }
+
+    @Override
     public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
@@ -77,94 +141,20 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         return endpointList;
     }
 
-    @Override
-    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp, String serviceId) throws IOException {
-        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
-        StringBuilder query = new StringBuilder();
-        query.append("select * from ");
-        query = client.addModelPath(query, InstanceTraffic.INDEX_NAME);
-        Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
-        query = client.addQueryIndexValue(InstanceTraffic.INDEX_NAME, query, indexAndValueMap);
-        query.append(" where ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ").append(minuteTimeBucket)
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
-
-        List<? super StorageData> storageDataList = client.filterQuery(InstanceTraffic.INDEX_NAME, query.toString(), instanceBuilder);
-        return buildInstances(storageDataList);
-    }
-
-    @Override
-    public List<Service> listServices(final String layer, final String group) throws IOException {
-        StringBuilder query = new StringBuilder();
-        query.append("select * from ");
-        query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
-        Map<String, String> indexAndValueMap = new HashMap<>();
-        if (StringUtil.isNotEmpty(layer)) {
-            indexAndValueMap.put(IoTDBIndexes.LAYER_IDX, layer);
-        }
-        if (StringUtil.isNotEmpty(group)) {
-            indexAndValueMap.put(IoTDBIndexes.GROUP_IDX, group);
-        }
-        query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
-        query.append(IoTDBClient.ALIGN_BY_DEVICE);
-
-        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
-        return buildServices(storageDataList);
-    }
-
-    @Override
-    public Service findService(final String serviceId) throws IOException {
-        StringBuilder query = new StringBuilder();
-        query.append("select * from ");
-        query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
-        Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
-        query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
-        query.append(IoTDBClient.ALIGN_BY_DEVICE);
-
-        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
-        final List<Service> services = buildServices(storageDataList);
-        return services.size() > 0 ? services.get(0) : null;
-    }
-
-    @Override
-    public ServiceInstance getInstance(final String instanceId) throws IOException {
-        StringBuilder query = new StringBuilder();
-        query.append("select * from ");
-        query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
-        Map<String, String> indexAndValueMap = new HashMap<>();
-        indexAndValueMap.put(IoTDBIndexes.ID_IDX, instanceId);
-        query = client.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
-        query.append(IoTDBClient.ALIGN_BY_DEVICE);
-
-        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
-        final List<ServiceInstance> instances = buildInstances(storageDataList);
-        return instances.size() > 0 ? instances.get(0) : null;
-    }
-
-    private Service buildService(ServiceTraffic serviceTraffic) {
-        Service service = new Service();
-        service.setId(serviceTraffic.id());
-        service.setName(serviceTraffic.getName());
-        service.setGroup(serviceTraffic.getGroup());
-        service.setShortName(serviceTraffic.getShortName());
-        return service;
-    }
-
     private List<Service> buildServices(List<? super StorageData> storageDataList) {
-        Map<String, Service> serviceMap = new HashMap<>();
+        List<Service> services = new ArrayList<>();
         storageDataList.forEach(storageData -> {
             ServiceTraffic serviceTraffic = (ServiceTraffic) storageData;
             String serviceName = serviceTraffic.getName();
-            Service service = serviceMap.computeIfAbsent(serviceName, name -> new Service());
+            Service service = new Service();
             service.setId(serviceTraffic.getServiceId());
             service.setName(serviceName);
             service.setShortName(serviceTraffic.getShortName());
             service.setGroup(serviceTraffic.getGroup());
             service.getLayers().add(serviceTraffic.getLayer().name());
+            services.add(service);
         });
-
-        return new ArrayList<>(serviceMap.values());
+        return services;
     }
 
     private List<ServiceInstance> buildInstances(List<? super StorageData> storageDataList) {

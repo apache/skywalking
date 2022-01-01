@@ -23,7 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
@@ -57,6 +56,69 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     public MetadataQueryEsDAO(ElasticSearchClient client, int queryMaxSize) {
         super(client);
         this.queryMaxSize = queryMaxSize;
+    }
+
+    @Override
+    public List<Service> listServices(final String layer, final String group) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME);
+
+        final BoolQueryBuilder query =
+            Query.bool();
+        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+        if (StringUtil.isNotEmpty(layer)) {
+            query.must(Query.term(ServiceTraffic.LAYER, Layer.valueOf(layer).value()));
+        }
+        if (StringUtil.isNotEmpty(group)) {
+            query.must(Query.term(ServiceTraffic.GROUP, group));
+        }
+        final SearchResponse results = getClient().search(index, search.build());
+
+        return buildServices(results);
+    }
+
+    @Override
+    public List<Service> getServices(final String serviceId) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME);
+        final BoolQueryBuilder query =
+            Query.bool()
+                 .must(Query.term(ServiceTraffic.SERVICE_ID, serviceId));
+        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+
+        final SearchResponse response = getClient().search(index, search.build());
+        return buildServices(response);
+    }
+
+    @Override
+    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp,
+                                               String serviceId) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(InstanceTraffic.INDEX_NAME);
+
+        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
+        final BoolQueryBuilder query =
+            Query.bool()
+                 .must(Query.range(InstanceTraffic.LAST_PING_TIME_BUCKET).gte(minuteTimeBucket))
+                 .must(Query.term(InstanceTraffic.SERVICE_ID, serviceId));
+        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+
+        final SearchResponse response = getClient().search(index, search.build());
+        return buildInstances(response);
+    }
+
+    @Override
+    public ServiceInstance getInstance(final String instanceId) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(InstanceTraffic.INDEX_NAME);
+        final BoolQueryBuilder query =
+            Query.bool()
+                 .must(Query.term("_id", instanceId));
+        final SearchBuilder search = Search.builder().query(query).size(1);
+
+        final SearchResponse response = getClient().search(index, search.build());
+        final List<ServiceInstance> instances = buildInstances(response);
+        return instances.size() > 0 ? instances.get(0) : null;
     }
 
     @Override
@@ -94,86 +156,22 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         return endpoints;
     }
 
-    @Override
-    public List<Service> listServices(final String layer, final String group) throws IOException {
-        final String index =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME);
-
-        final BoolQueryBuilder query =
-            Query.bool();
-        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
-        if (StringUtil.isNotEmpty(layer)) {
-            query.must(Query.term(ServiceTraffic.LAYER, Layer.valueOf(layer).value()));
-        }
-        if (StringUtil.isNotEmpty(group)) {
-            query.must(Query.term(ServiceTraffic.GROUP, group));
-        }
-        final SearchResponse results = getClient().search(index, search.build());
-
-        return buildServices(results);
-    }
-
-    @Override
-    public Service findService(final String serviceId) throws IOException {
-        final String index =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME);
-        final BoolQueryBuilder query =
-            Query.bool()
-                 .must(Query.term(ServiceTraffic.SERVICE_ID, serviceId));
-        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
-
-        final SearchResponse response = getClient().search(index, search.build());
-        final List<Service> services = buildServices(response);
-        return services.size() > 0 ? services.get(0) : null;
-    }
-
-    @Override
-    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp,
-                                               String serviceId) throws IOException {
-        final String index =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(InstanceTraffic.INDEX_NAME);
-
-        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
-        final BoolQueryBuilder query =
-            Query.bool()
-                 .must(Query.range(InstanceTraffic.LAST_PING_TIME_BUCKET).gte(minuteTimeBucket))
-                 .must(Query.term(InstanceTraffic.SERVICE_ID, serviceId));
-        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
-
-        final SearchResponse response = getClient().search(index, search.build());
-        return buildInstances(response);
-    }
-
-    @Override
-    public ServiceInstance getInstance(final String instanceId) throws IOException {
-        final String index =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(InstanceTraffic.INDEX_NAME);
-        final BoolQueryBuilder query =
-            Query.bool()
-                 .must(Query.term("_id", instanceId));
-        final SearchBuilder search = Search.builder().query(query).size(1);
-
-        final SearchResponse response = getClient().search(index, search.build());
-        final List<ServiceInstance> instances = buildInstances(response);
-        return instances.size() > 0 ? instances.get(0) : null;
-    }
-
     private List<Service> buildServices(SearchResponse response) {
-        Map<String, Service> serviceMap = new HashMap<>();
+        List<Service> services = new ArrayList<>();
         for (SearchHit hit : response.getHits()) {
             final Map<String, Object> sourceAsMap = hit.getSource();
             final ServiceTraffic.Builder builder = new ServiceTraffic.Builder();
             final ServiceTraffic serviceTraffic = builder.storage2Entity(sourceAsMap);
             String serviceName = serviceTraffic.getName();
-            Service service = serviceMap.computeIfAbsent(serviceName, name -> new Service());
+            Service service = new Service();
             service.setId(serviceTraffic.getServiceId());
             service.setName(serviceName);
             service.setShortName(serviceTraffic.getShortName());
             service.setGroup(serviceTraffic.getGroup());
             service.getLayers().add(serviceTraffic.getLayer().name());
+            services.add(service);
         }
-
-        return new ArrayList<>(serviceMap.values());
+        return services;
     }
 
     private List<ServiceInstance> buildInstances(SearchResponse response) {

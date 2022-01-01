@@ -19,7 +19,10 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -47,23 +50,22 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         return metadataQueryDAO;
     }
 
+    public List<String> listLayers() throws IOException {
+        Set<String> layers = new HashSet<>();
+        getMetadataQueryDAO().listServices(null, null).forEach(service -> {
+            layers.addAll(service.getLayers());
+
+        });
+        return new ArrayList<>(layers);
+    }
+
     public List<Service> listServices(final String layer, final String group) throws IOException {
-        return getMetadataQueryDAO().listServices(layer, group).stream()
-                                    .peek(service -> {
-                                        if (service.getGroup() == null) {
-                                            service.setGroup(Const.EMPTY_STRING);
-                                        }
-                                    })
-                                    .distinct()
-                                    .collect(Collectors.toList());
+        return this.combineServices(getMetadataQueryDAO().listServices(layer, group));
     }
 
     public Service getService(final String serviceId) throws IOException {
-        Service service = getMetadataQueryDAO().findService(serviceId);
-        if (service.getGroup() == null) {
-            service.setGroup(Const.EMPTY_STRING);
-        }
-        return service;
+        final List<Service> services = this.combineServices(getMetadataQueryDAO().getServices(serviceId));
+        return services.size() > 0 ? services.get(0) : null;
     }
 
     public ServiceInstance getInstance(final String instanceId) throws IOException {
@@ -94,5 +96,20 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         endpointInfo.setServiceId(endpointIDDefinition.getServiceId());
         endpointInfo.setServiceName(serviceIDDefinition.getName());
         return endpointInfo;
+    }
+
+    private List<Service> combineServices(List<Service> services) {
+        return new ArrayList<>(services.stream()
+                                                    .peek(service -> {
+                                                        if (service.getGroup() == null) {
+                                                            service.setGroup(Const.EMPTY_STRING);
+                                                        }
+                                                    })
+                                                    .collect(Collectors.toMap(Service::getName, service -> service,
+                                                                              (s1, s2) -> {
+                                                                                  s1.getLayers().addAll(s2.getLayers());
+                                                                                  return s1;
+                                                                              }
+                                                    )).values());
     }
 }
