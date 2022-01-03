@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import org.apache.skywalking.oap.query.graphql.type.TimeInfo;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -57,7 +58,7 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
         return metadataQueryService;
     }
 
-    public List<String> listLayers() throws IOException {
+    public Set<String> listLayers() throws IOException {
         return getMetadataQueryService().listLayers();
     }
 

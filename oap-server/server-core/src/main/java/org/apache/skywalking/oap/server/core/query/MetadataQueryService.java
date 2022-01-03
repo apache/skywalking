@@ -50,13 +50,13 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         return metadataQueryDAO;
     }
 
-    public List<String> listLayers() throws IOException {
+    public Set<String> listLayers() throws IOException {
         Set<String> layers = new HashSet<>();
         getMetadataQueryDAO().listServices(null, null).forEach(service -> {
             layers.addAll(service.getLayers());
 
         });
-        return new ArrayList<>(layers);
+        return layers;
     }
 
     public List<Service> listServices(final String layer, final String group) throws IOException {
@@ -100,16 +100,16 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     private List<Service> combineServices(List<Service> services) {
         return new ArrayList<>(services.stream()
-                                                    .peek(service -> {
-                                                        if (service.getGroup() == null) {
-                                                            service.setGroup(Const.EMPTY_STRING);
-                                                        }
-                                                    })
-                                                    .collect(Collectors.toMap(Service::getName, service -> service,
-                                                                              (s1, s2) -> {
-                                                                                  s1.getLayers().addAll(s2.getLayers());
-                                                                                  return s1;
-                                                                              }
-                                                    )).values());
+                                       .peek(service -> {
+                                           if (service.getGroup() == null) {
+                                               service.setGroup(Const.EMPTY_STRING);
+                                           }
+                                       })
+                                       .collect(Collectors.toMap(Service::getName, service -> service,
+                                                                 (s1, s2) -> {
+                                                                     s1.getLayers().addAll(s2.getLayers());
+                                                                     return s1;
+                                                                 }
+                                       )).values());
     }
 }
