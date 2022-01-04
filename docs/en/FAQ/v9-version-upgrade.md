@@ -3,7 +3,7 @@ Starting from v9, SkyWalking introduces the new core concept [**Layer**]().
 A layer represents an abstract framework in computer science, such as Operating System(OS_LINUX layer),
 Kubernetes(k8s layer). This kind of layer would-be owners of different services/instances detected from different technology.
 The query-protocol [metadata-v2](https://github.com/apache/skywalking-query-protocol/blob/master/metadata-v2.graphqls) has been used.
-The compatibility with previous releases as below.
+The compatibility with previous releases is as below.
 
 ## Compatibility from previous version 
 1. The query-protocol [metadata-v1](https://github.com/apache/skywalking-query-protocol/blob/master/metadata.graphqls) is provided on the top of the v2 implementation.
