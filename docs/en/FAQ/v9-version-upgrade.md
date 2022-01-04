@@ -1,5 +1,5 @@
 # V9 upgrade
-Starting from v9, SkyWalking introduces the new core concept [**Layer**]().
+Starting from v9, SkyWalking introduces the new core concept [**Layer**](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java).
 A layer represents an abstract framework in computer science, such as Operating System(OS_LINUX layer),
 Kubernetes(k8s layer). This kind of layer would-be owners of different services/instances detected from different technology.
 The query-protocol [metadata-v2](https://github.com/apache/skywalking-query-protocol/blob/master/metadata-v2.graphqls) has been used.
