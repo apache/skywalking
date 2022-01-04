@@ -41,7 +41,7 @@ public interface InfluxConstants {
 
         String TIME_BUCKET = "_time_bucket";
 
-        String NODE_TYPE = "_node_type";
+        String LAYER = "_layer";
 
         String SERVICE_GROUP = "_service_group";
 

@@ -29,7 +29,7 @@
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
 filter: "{ tags -> tags.job_name == 'vm-monitoring' }" # The OpenTelemetry job name
-expSuffix: tag({tags -> tags.node_identifier_host_name = 'vm::' + tags.node_identifier_host_name}).service(['node_identifier_host_name'])
+expSuffix: tag({tags -> tags.node_identifier_host_name = 'vm::' + tags.node_identifier_host_name}).service(['node_identifier_host_name'] , Layer.OS_LINUX)
 metricPrefix: meter_vm
 metricsRules:
 

@@ -42,7 +42,7 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.Result;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
@@ -264,17 +264,17 @@ public class Analyzer {
             switch (entity.getDetectPoint()) {
                 case SERVER:
                     entity.setServiceName(entity.getDestServiceName());
-                    toService(requireNonNull(entity.getDestServiceName()));
+                    toService(requireNonNull(entity.getDestServiceName()), entity.getLayer());
                     serverSide(entity);
                     break;
                 case CLIENT:
                     entity.setServiceName(entity.getSourceServiceName());
-                    toService(requireNonNull(entity.getSourceServiceName()));
+                    toService(requireNonNull(entity.getSourceServiceName()), entity.getLayer());
                     clientSide(entity);
                     break;
             }
         } else {
-            toService(requireNonNull(entity.getServiceName()));
+            toService(requireNonNull(entity.getServiceName()), entity.getLayer());
         }
 
         if (!com.google.common.base.Strings.isNullOrEmpty(entity.getInstanceName())) {
@@ -283,6 +283,7 @@ public class Analyzer {
             instanceTraffic.setServiceId(entity.serviceId());
             instanceTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
             instanceTraffic.setLastPingTimestamp(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+            instanceTraffic.setLayer(entity.getLayer());
             MetricsStreamProcessor.getInstance().in(instanceTraffic);
         }
         if (!com.google.common.base.Strings.isNullOrEmpty(entity.getEndpointName())) {
@@ -294,11 +295,12 @@ public class Analyzer {
         }
     }
 
-    private void toService(String serviceName) {
+    private void toService(String serviceName, Layer layer) {
         ServiceTraffic s = new ServiceTraffic();
         s.setName(requireNonNull(serviceName));
-        s.setNodeType(NodeType.Normal);
+        s.setNormal(true);
         s.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        s.setLayer(layer);
         MetricsStreamProcessor.getInstance().in(s);
     }
 

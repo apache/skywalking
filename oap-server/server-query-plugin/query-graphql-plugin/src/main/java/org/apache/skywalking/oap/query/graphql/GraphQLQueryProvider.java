@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.query.graphql.resolver.HealthQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.LogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.LogTestQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetadataQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.MetadataQueryV2;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.Mutation;
@@ -112,6 +113,8 @@ public class GraphQLQueryProvider extends ModuleProvider {
                                            .resolvers(new BrowserLogQuery(getManager()))
                                            .file("query-protocol/event.graphqls")
                                            .resolvers(new EventQuery(getManager()))
+                                           .file("query-protocol/metadata-v2.graphqls")
+                                           .resolvers(new MetadataQueryV2(getManager()))
                                            .build()
                                            .makeExecutableSchema();
         this.graphQL = GraphQL.newGraphQL(schema).build();

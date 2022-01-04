@@ -37,6 +37,8 @@ public class ServiceInstance {
     private Language language = Language.UNKNOWN;
     @Setter
     private String instanceUUID;
+    @Setter
+    private String layer;
 
     public ServiceInstance() {
         this.attributes = new ArrayList<>();

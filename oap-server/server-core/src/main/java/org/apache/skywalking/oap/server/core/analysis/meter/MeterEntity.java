@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
@@ -42,6 +43,7 @@ public class MeterEntity {
     private String sourceServiceName;
     private String destServiceName;
     private DetectPoint detectPoint;
+    private Layer layer;
 
     private MeterEntity() {
 
@@ -90,43 +92,47 @@ public class MeterEntity {
     /**
      * Create a service level meter entity.
      */
-    public static MeterEntity newService(String serviceName) {
+    public static MeterEntity newService(String serviceName, Layer layer) {
         final MeterEntity meterEntity = new MeterEntity();
         meterEntity.scopeType = ScopeType.SERVICE;
         meterEntity.serviceName = NAMING_CONTROL.formatServiceName(serviceName);
+        meterEntity.layer = layer;
         return meterEntity;
     }
 
     /**
      * Create a service instance level meter entity.
      */
-    public static MeterEntity newServiceInstance(String serviceName, String serviceInstance) {
+    public static MeterEntity newServiceInstance(String serviceName, String serviceInstance, Layer layer) {
         final MeterEntity meterEntity = new MeterEntity();
         meterEntity.scopeType = ScopeType.SERVICE_INSTANCE;
         meterEntity.serviceName = NAMING_CONTROL.formatServiceName(serviceName);
         meterEntity.instanceName = NAMING_CONTROL.formatInstanceName(serviceInstance);
+        meterEntity.layer = layer;
         return meterEntity;
     }
 
     /**
      * Create an endpoint level meter entity.
      */
-    public static MeterEntity newEndpoint(String serviceName, String endpointName) {
+    public static MeterEntity newEndpoint(String serviceName, String endpointName, Layer layer) {
         final MeterEntity meterEntity = new MeterEntity();
         meterEntity.scopeType = ScopeType.ENDPOINT;
         meterEntity.serviceName = NAMING_CONTROL.formatServiceName(serviceName);
         meterEntity.endpointName = NAMING_CONTROL.formatEndpointName(serviceName, endpointName);
+        meterEntity.layer = layer;
         return meterEntity;
     }
 
     public static MeterEntity newServiceRelation(String sourceServiceName,
                                                  String destServiceName,
-                                                 DetectPoint detectPoint) {
+                                                 DetectPoint detectPoint, Layer layer) {
         final MeterEntity meterEntity = new MeterEntity();
         meterEntity.scopeType = ScopeType.SERVICE_RELATION;
         meterEntity.sourceServiceName = NAMING_CONTROL.formatServiceName(sourceServiceName);
         meterEntity.destServiceName = NAMING_CONTROL.formatServiceName(destServiceName);
         meterEntity.detectPoint = detectPoint;
+        meterEntity.layer = layer;
         return meterEntity;
     }
 }

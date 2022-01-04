@@ -25,6 +25,7 @@ import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -51,6 +52,7 @@ public class InstanceTraffic extends Metrics {
     public static final String NAME = "name";
     public static final String LAST_PING_TIME_BUCKET = "last_ping";
     public static final String PROPERTIES = "properties";
+    public static final String LAYER = "layer";
 
     private static final Gson GSON = new Gson();
 
@@ -63,14 +65,21 @@ public class InstanceTraffic extends Metrics {
     @Getter
     @Column(columnName = NAME, storageOnly = true)
     private String name;
+
     @Setter
     @Getter
     @Column(columnName = LAST_PING_TIME_BUCKET)
     private long lastPingTimestamp;
+
     @Setter
     @Getter
     @Column(columnName = PROPERTIES, storageOnly = true, length = 50000)
     private JsonObject properties;
+
+    @Setter
+    @Getter
+    @Column(columnName = LAYER)
+    private Layer layer = Layer.UNDEFINED;
 
     @Override
     public boolean combine(final Metrics metrics) {
@@ -137,6 +146,9 @@ public class InstanceTraffic extends Metrics {
             }
             instanceTraffic.setLastPingTimestamp(((Number) dbMap.get(LAST_PING_TIME_BUCKET)).longValue());
             instanceTraffic.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            if (dbMap.get(LAYER) != null) {
+                instanceTraffic.setLayer(Layer.valueOf(((Number) dbMap.get(LAYER)).intValue()));
+            }
             return instanceTraffic;
         }
 
@@ -152,6 +164,8 @@ public class InstanceTraffic extends Metrics {
             }
             map.put(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
+            Layer layer = storageData.getLayer();
+            map.put(LAYER, layer != null ? layer.value() : Layer.UNDEFINED.value());
             return map;
         }
     }

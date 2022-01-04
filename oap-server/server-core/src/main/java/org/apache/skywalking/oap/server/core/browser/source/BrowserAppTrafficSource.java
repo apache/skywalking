@@ -19,7 +19,7 @@ package org.apache.skywalking.oap.server.core.browser.source;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.source.Source;
 
 /**
@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.source.Source;
 @Getter
 public abstract class BrowserAppTrafficSource extends Source {
     protected String name;
-    protected final NodeType nodeType = NodeType.Browser;
+    protected final Layer layer = Layer.BROWSER;
 
     private final int count = 1;
 

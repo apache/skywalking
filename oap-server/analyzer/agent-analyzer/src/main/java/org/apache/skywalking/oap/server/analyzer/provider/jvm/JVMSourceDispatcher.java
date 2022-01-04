@@ -29,7 +29,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
 import org.apache.skywalking.apm.network.language.agent.v3.Thread;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.GCPhrase;
 import org.apache.skywalking.oap.server.core.source.MemoryPoolType;
@@ -53,7 +52,7 @@ public class JVMSourceDispatcher {
     public void sendMetric(String service, String serviceInstance, JVMMetric metrics) {
         long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getTime());
 
-        final String serviceId = IDManager.ServiceID.buildId(service, NodeType.Normal);
+        final String serviceId = IDManager.ServiceID.buildId(service, true);
         final String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, serviceInstance);
 
         this.sendToCpuMetricProcess(

@@ -23,7 +23,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.EndpointMeta;
@@ -53,7 +52,7 @@ public class SpanForward {
                 serviceName = "Unknown";
             }
             serviceName = namingControl.formatServiceName(serviceName);
-            String serviceId = IDManager.ServiceID.buildId(serviceName, NodeType.Normal);
+            String serviceId = IDManager.ServiceID.buildId(serviceName, true);
             zipkinSpan.setServiceId(serviceId);
             String serviceInstanceName = this.getServiceInstanceName(span);
             serviceInstanceName = namingControl.formatInstanceName(serviceInstanceName);
@@ -73,7 +72,6 @@ public class SpanForward {
                 //Create endpoint meta for the server side span
                 EndpointMeta endpointMeta = new EndpointMeta();
                 endpointMeta.setServiceName(serviceName);
-                endpointMeta.setServiceNodeType(NodeType.Normal);
                 endpointMeta.setEndpoint(endpointName);
                 endpointMeta.setTimeBucket(timeBucket);
                 receiver.receive(endpointMeta);
@@ -96,7 +94,6 @@ public class SpanForward {
             // No instance name is required in the Zipkin model.
             ServiceMeta serviceMeta = new ServiceMeta();
             serviceMeta.setName(serviceName);
-            serviceMeta.setNodeType(NodeType.Normal);
             serviceMeta.setTimeBucket(timeBucket);
             receiver.receive(serviceMeta);
         });

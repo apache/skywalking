@@ -49,6 +49,6 @@ public class BrowserAppSingleVersionTraffic extends BrowserAppTrafficSource {
 
     @Override
     public void prepare() {
-        serviceId = IDManager.ServiceID.buildId(serviceName, nodeType);
+        serviceId = IDManager.ServiceID.buildId(serviceName, true);
     }
 }

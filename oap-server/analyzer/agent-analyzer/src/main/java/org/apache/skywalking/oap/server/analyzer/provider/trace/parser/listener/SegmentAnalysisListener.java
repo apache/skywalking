@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
@@ -80,7 +79,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
             serviceName = namingControl.formatServiceName(segmentObject.getService());
             serviceId = IDManager.ServiceID.buildId(
                 serviceName,
-                NodeType.Normal
+                true
             );
         }
 
@@ -110,7 +109,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         if (StringUtil.isEmpty(serviceId)) {
             serviceName = namingControl.formatServiceName(segmentObject.getService());
             serviceId = IDManager.ServiceID.buildId(
-                serviceName, NodeType.Normal);
+                serviceName, true);
         }
 
         endpointName = namingControl.formatEndpointName(serviceName, span.getOperationName());

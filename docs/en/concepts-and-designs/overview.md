@@ -23,9 +23,16 @@ Instance and Endpoint are used everywhere today, so it is worth defining their s
 SkyWalking allows users to understand the topology relationship between Services and Endpoints, to view the metrics of every 
 Service/Service Instance/Endpoint and to set alarm rules.
 
+Starting from v9, SkyWalking introduces the new core concept **Layer**.
+A **layer** represents an abstract framework in computer science, such as Operating System(OS_LINUX layer),
+Kubernetes(k8s layer). All detected instances belong to a layer to represent the running environment of this instance, 
+the service would have one or multiple layer definitions according to its instances.
+
 In addition, you can integrate 
 1. Other distributed tracing using SkyWalking native agents and SDKs with Zipkin, Jaeger and OpenCensus.
 1. Other metrics systems, such as Prometheus, Sleuth(Micrometer), OpenTelemetry.
+
+
 
 ## Architecture
 SkyWalking is logically split into four parts: Probes, Platform backend, Storage and UI.

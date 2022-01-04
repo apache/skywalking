@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
@@ -90,16 +91,16 @@ public class ScopeTest {
                           .name("http_success_request")
                           .build()
                 ).build()),
-                "http_success_request.sum(['idc']).service(['idc'])",
+                "http_success_request.sum(['idc']).service(['idc'], Layer.GENERAL)",
                 false,
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newService("t1"),
+                            MeterEntity.newService("t1", Layer.GENERAL),
                             new Sample[] {Sample.builder().labels(of()).value(200).name("http_success_request").build()}
                         );
                         put(
-                            MeterEntity.newService("t3"),
+                            MeterEntity.newService("t3", Layer.GENERAL),
                             new Sample[] {Sample.builder().labels(of()).value(54).name("http_success_request").build()}
                         );
                     }
@@ -130,12 +131,12 @@ public class ScopeTest {
                           .name("http_success_request")
                           .build()
                 ).build()),
-                "http_success_request.sum(['region', 'idc']).service(['idc'])",
+                "http_success_request.sum(['region', 'idc']).service(['idc'], Layer.GENERAL)",
                 false,
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newService("t1"),
+                            MeterEntity.newService("t1", Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("region", ""))
@@ -148,7 +149,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newService("t3"),
+                            MeterEntity.newService("t3", Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("region", "cn"))
@@ -184,20 +185,20 @@ public class ScopeTest {
                           .name("http_success_request")
                           .build()
                 ).build()),
-                "http_success_request.sum(['idc', 'region']).service(['idc' , 'region'])",
+                "http_success_request.sum(['idc', 'region']).service(['idc' , 'region'], Layer.GENERAL)",
                 false,
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newService("t1.us"),
+                            MeterEntity.newService("t1.us", Layer.GENERAL),
                             new Sample[] {Sample.builder().labels(of()).value(150).name("http_success_request").build()}
                         );
                         put(
-                            MeterEntity.newService("t3.cn"),
+                            MeterEntity.newService("t3.cn", Layer.GENERAL),
                             new Sample[] {Sample.builder().labels(of()).value(54).name("http_success_request").build()}
                         );
                         put(
-                            MeterEntity.newService("t1"),
+                            MeterEntity.newService("t1", Layer.GENERAL),
                             new Sample[] {Sample.builder().labels(of()).value(50).name("http_success_request").build()}
                         );
                     }
@@ -228,20 +229,20 @@ public class ScopeTest {
                           .name("http_success_request")
                           .build()
                 ).build()),
-                "http_success_request.sum(['region', 'idc']).endpoint(['idc'] , ['region'])",
+                "http_success_request.sum(['region', 'idc']).endpoint(['idc'] , ['region'], Layer.GENERAL)",
                 false,
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newEndpoint("t1", "us"),
+                            MeterEntity.newEndpoint("t1", "us", Layer.GENERAL),
                             new Sample[] {Sample.builder().labels(of()).value(150).name("http_success_request").build()}
                         );
                         put(
-                            MeterEntity.newEndpoint("t3", "cn"),
+                            MeterEntity.newEndpoint("t3", "cn", Layer.GENERAL),
                             new Sample[] {Sample.builder().labels(of()).value(54).name("http_success_request").build()}
                         );
                         put(
-                            MeterEntity.newEndpoint("t1", ""),
+                            MeterEntity.newEndpoint("t1", "", Layer.GENERAL),
                             new Sample[] {Sample.builder().labels(of()).value(50).name("http_success_request").build()}
                         );
                     }
@@ -273,12 +274,12 @@ public class ScopeTest {
                           .name("http_success_request")
                           .build()
                 ).build()),
-                "http_success_request.sum(['region', 'idc' , 'instance']).endpoint(['idc'] , ['region'])",
+                "http_success_request.sum(['region', 'idc' , 'instance']).endpoint(['idc'] , ['region'], Layer.GENERAL)",
                 false,
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newEndpoint("t1", "us"),
+                            MeterEntity.newEndpoint("t1", "us", Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -291,7 +292,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newEndpoint("t3", "cn"),
+                            MeterEntity.newEndpoint("t3", "cn", Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -304,7 +305,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newEndpoint("t1", ""),
+                            MeterEntity.newEndpoint("t1", "", Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -340,12 +341,12 @@ public class ScopeTest {
                           .name("http_success_request")
                           .build()
                 ).build()),
-                "http_success_request.sum(['region', 'idc' , 'svc' , 'instance']).endpoint(['idc'] , ['region','svc'])",
+                "http_success_request.sum(['region', 'idc' , 'svc' , 'instance']).endpoint(['idc'] , ['region','svc'], Layer.GENERAL)",
                 false,
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newEndpoint("t1", "us.catalog"),
+                            MeterEntity.newEndpoint("t1", "us.catalog", Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -358,7 +359,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newEndpoint("t3", "cn.product"),
+                            MeterEntity.newEndpoint("t3", "cn.product", Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -371,7 +372,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newEndpoint("t1", ""),
+                            MeterEntity.newEndpoint("t1", "", Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -407,20 +408,20 @@ public class ScopeTest {
                           .name("http_success_request")
                           .build()
                 ).build()),
-                "http_success_request.sum(['region', 'idc']).instance(['idc'] , ['region'])",
+                "http_success_request.sum(['region', 'idc']).instance(['idc'] , ['region'], Layer.GENERAL)",
                 false,
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newServiceInstance("t1", "us"),
+                            MeterEntity.newServiceInstance("t1", "us", Layer.GENERAL),
                             new Sample[] {Sample.builder().labels(of()).value(150).name("http_success_request").build()}
                         );
                         put(
-                            MeterEntity.newServiceInstance("t3", "cn"),
+                            MeterEntity.newServiceInstance("t3", "cn", Layer.GENERAL),
                             new Sample[] {Sample.builder().labels(of()).value(54).name("http_success_request").build()}
                         );
                         put(
-                            MeterEntity.newServiceInstance("t1", ""),
+                            MeterEntity.newServiceInstance("t1", "", Layer.GENERAL),
                             new Sample[] {Sample.builder().labels(of()).value(50).name("http_success_request").build()}
                         );
                     }
@@ -451,12 +452,12 @@ public class ScopeTest {
                           .name("http_success_request")
                           .build()
                 ).build()),
-                "http_success_request.sum(['region', 'idc' , 'instance']).instance(['idc'] , ['region'])",
+                "http_success_request.sum(['region', 'idc' , 'instance']).instance(['idc'] , ['region'], Layer.GENERAL)",
                 false,
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newServiceInstance("t1", "us"),
+                            MeterEntity.newServiceInstance("t1", "us", Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -469,7 +470,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newServiceInstance("t3", "cn"),
+                            MeterEntity.newServiceInstance("t3", "cn", Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -482,7 +483,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newServiceInstance("t1", ""),
+                            MeterEntity.newServiceInstance("t1", "", Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -507,12 +508,12 @@ public class ScopeTest {
                           .name("envoy_cluster_metrics_up_cx_active")
                           .build()
                 ).build()),
-                "envoy_cluster_metrics_up_cx_active.sum(['app' ,'cluster_name']).serviceRelation(DetectPoint.CLIENT, ['app'], ['cluster_name'])",
+                "envoy_cluster_metrics_up_cx_active.sum(['app' ,'cluster_name']).serviceRelation(DetectPoint.CLIENT, ['app'], ['cluster_name'], Layer.GENERAL)",
                 false,
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newServiceRelation("productpage", "details", DetectPoint.CLIENT),
+                            MeterEntity.newServiceRelation("productpage", "details", DetectPoint.CLIENT, Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of())
@@ -521,7 +522,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newServiceRelation("productpage", "reviews", DetectPoint.CLIENT),
+                            MeterEntity.newServiceRelation("productpage", "reviews", DetectPoint.CLIENT, Layer.GENERAL),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of())

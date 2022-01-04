@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
@@ -50,7 +49,7 @@ class ServiceTopologyBuilder {
         this.networkAddressAliasCache = moduleManager.find(CoreModule.NAME)
                                                      .provider()
                                                      .getService(NetworkAddressAliasCache.class);
-        this.userID = IDManager.ServiceID.buildId(Const.USER_SERVICE_NAME, NodeType.User);
+        this.userID = IDManager.ServiceID.buildId(Const.USER_SERVICE_NAME, false);
     }
 
     Topology build(List<Call.CallDetail> serviceRelationClientCalls, List<Call.CallDetail> serviceRelationServerCalls) {
@@ -78,7 +77,7 @@ class ServiceTopologyBuilder {
                 final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(destService.getName());
                 destService = IDManager.ServiceID.analysisId(
                     networkAddressAlias.getRepresentServiceId());
-                targetServiceId = IDManager.ServiceID.buildId(destService.getName(), NodeType.Normal);
+                targetServiceId = IDManager.ServiceID.buildId(destService.getName(), true);
             }
 
             /*

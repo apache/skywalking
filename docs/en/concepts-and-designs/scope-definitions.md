@@ -24,7 +24,7 @@ This calculates the metrics data from each request of the service.
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
 | name | The name of the service. | | string |
-| nodeType | The kind of node to which the Service or Network address belongs, such as Normal, Database, MQ, or Cache. | | enum |
+| layer | Layer represents an abstract framework in the computer science, such as operation system(OS_LINUX layer), Kubernetes(k8s layer) | | enum |
 | serviceInstanceName | The name of the service instance ID. | | string |
 | endpointName | The name of the endpoint, such as a full path of HTTP URI. | | string |
 | latency | The time taken by each request. | | int |
@@ -47,7 +47,7 @@ This calculates the metrics data from each request of the service instance.
 |---|---|---|---|
 | name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
 | serviceName | The name of the service. | | string |
-| nodeType | The kind of node to which the Service or Network address belongs, such as Normal, Database, MQ, or Cache. | | enum |
+| layer | Layer represents an abstract framework in the computer science, such as operation system(OS_LINUX layer), Kubernetes(k8s layer)| | enum |
 | endpointName | The name of the endpoint, such as a full path of the HTTP URI. | | string|
 | latency | The time taken by each request. | | int |
 | status | Indicates the success or failure of the request. | | bool(true for success) |

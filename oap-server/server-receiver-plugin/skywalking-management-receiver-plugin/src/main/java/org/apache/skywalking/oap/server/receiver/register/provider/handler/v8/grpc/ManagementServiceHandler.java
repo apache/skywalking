@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.network.management.v3.ManagementServiceGrpc;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -57,8 +57,9 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         final String serviceName = namingControl.formatServiceName(request.getService());
         final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
-        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
+        serviceInstanceUpdate.setLayer(Layer.GENERAL);
 
         JsonObject properties = new JsonObject();
         List<String> ipv4List = new ArrayList<>();
@@ -86,15 +87,17 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
         final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
 
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
-        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
         serviceInstanceUpdate.setTimeBucket(timeBucket);
+        serviceInstanceUpdate.setLayer(Layer.GENERAL);
         sourceReceiver.receive(serviceInstanceUpdate);
 
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setName(serviceName);
-        serviceMeta.setNodeType(NodeType.Normal);
+        serviceMeta.setNormal(true);
         serviceMeta.setTimeBucket(timeBucket);
+        serviceMeta.setLayer(Layer.GENERAL);
         sourceReceiver.receive(serviceMeta);
 
         responseObserver.onNext(Commands.newBuilder().build());

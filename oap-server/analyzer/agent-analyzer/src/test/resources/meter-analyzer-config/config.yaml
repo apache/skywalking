@@ -17,8 +17,8 @@ expSuffix:
 metricPrefix: meter
 metricsRules:
   - name: build_test1
-    exp: test_count1.tagEqual("k1", "v1").service(["service"])
+    exp: test_count1.tagEqual("k1", "v1").service(["service"], Layer.GENERAL)
   - name: build_test2
-    exp: test_histogram.instance(["service"], ["instance"]).histogram()
+    exp: test_histogram.instance(["service"], ["instance"], Layer.GENERAL).histogram()
   - name: build_test3
-    exp: test_histogram.endpoint(["service"], ["endpoint"]).histogram().histogram_percentile([50, 90, 99])
+    exp: test_histogram.endpoint(["service"], ["endpoint"], Layer.GENERAL).histogram().histogram_percentile([50, 90, 99])

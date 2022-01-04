@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
-import org.apache.skywalking.oap.server.core.query.type.Database;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
@@ -29,42 +27,16 @@ import org.apache.skywalking.oap.server.core.storage.DAO;
 
 public interface IMetadataQueryDAO extends DAO {
     /**
-     * @param group group name for filtering.
-     * @return list of the all available normal services
+     * @param layer layer name for filtering
+     * @param group group name for filtering
+     * @return list of the all available services
      */
-    List<Service> getAllServices(final String group) throws IOException;
+    List<Service> listServices(final String layer, final String group) throws IOException;
 
     /**
-     * @return list of the all available browser services
+     * Service could have more than one record by a different layer and have the same serviceId.
      */
-    List<Service> getAllBrowserServices() throws IOException;
-
-    /**
-     * @return list of all conjecture database services.
-     */
-    List<Database> getAllDatabases() throws IOException;
-
-    /**
-     * @param nodeType describe which kind of node of Service
-     * @param keyword  to filter the normal service
-     * @return the list of normal services matching the given keyword
-     */
-    List<Service> searchServices(final NodeType nodeType, final String keyword) throws IOException;
-
-    /**
-     * @param nodeType    describe which kind of node of Service
-     * @param serviceCode to literal match
-     * @return the service matching the given full name.
-     */
-    Service searchService(final NodeType nodeType, final String serviceCode) throws IOException;
-
-    /**
-     * @param keyword   to filter the endpoints
-     * @param serviceId the owner of the endpoints
-     * @param limit     max match size.
-     * @return list of services matching the given conditions.
-     */
-    List<Endpoint> searchEndpoint(final String keyword, final String serviceId, final int limit) throws IOException;
+    List<Service> getServices(final String serviceId) throws IOException;
 
     /**
      * @param startTimestamp The instance is required to be live after this timestamp
@@ -72,6 +44,16 @@ public interface IMetadataQueryDAO extends DAO {
      * @param serviceId      the owner of the instances.
      * @return list of instances matching the given conditions.
      */
-    List<ServiceInstance> getServiceInstances(final long startTimestamp, final long endTimestamp,
-                                              final String serviceId) throws IOException;
+    List<ServiceInstance> listInstances(final long startTimestamp, final long endTimestamp,
+                                        final String serviceId) throws IOException;
+
+    ServiceInstance getInstance(final String instanceId) throws IOException;
+
+    /**
+     * @param keyword   to filter the endpoints
+     * @param serviceId the owner of the endpoints
+     * @param limit     max match size.
+     * @return list of endpoint matching the given conditions.
+     */
+    List<Endpoint> findEndpoint(final String keyword, final String serviceId, final int limit) throws IOException;
 }

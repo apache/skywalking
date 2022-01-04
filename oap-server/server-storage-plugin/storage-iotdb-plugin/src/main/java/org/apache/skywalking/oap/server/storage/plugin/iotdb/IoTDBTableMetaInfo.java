@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
@@ -64,8 +64,8 @@ public class IoTDBTableMetaInfo {
         if (storageAndIndexMap.containsValue(IoTDBIndexes.ENTITY_ID_IDX)) {
             indexes.add(IoTDBIndexes.ENTITY_ID_IDX);
         }
-        if (storageAndIndexMap.containsValue(IoTDBIndexes.NODE_TYPE_IDX)) {
-            indexes.add(IoTDBIndexes.NODE_TYPE_IDX);
+        if (storageAndIndexMap.containsValue(IoTDBIndexes.LAYER_IDX)) {
+            indexes.add(IoTDBIndexes.LAYER_IDX);
         }
         if (storageAndIndexMap.containsValue(IoTDBIndexes.SERVICE_ID_IDX)) {
             indexes.add(IoTDBIndexes.SERVICE_ID_IDX);
@@ -87,7 +87,7 @@ public class IoTDBTableMetaInfo {
     }
 
     private static TSDataType typeToTSDataType(Class<?> type) {
-        if (Integer.class.equals(type) || int.class.equals(type) || NodeType.class.equals(type)) {
+        if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type)) {
             return TSDataType.INT32;
         } else if (Long.class.equals(type) || long.class.equals(type)) {
             return TSDataType.INT64;

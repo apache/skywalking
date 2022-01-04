@@ -22,7 +22,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_RELATION;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_RELATION_CATALOG_NAME;
@@ -57,7 +56,7 @@ public class ServiceRelation extends Source {
     @ScopeDefaultColumn.DefinedByField(columnName = "source_name", requireDynamicActive = true)
     private String sourceServiceName;
     @Setter
-    private NodeType sourceServiceNodeType;
+    private boolean isSourceNormal;
     @Getter
     @Setter
     private String sourceServiceInstanceName;
@@ -68,7 +67,7 @@ public class ServiceRelation extends Source {
     @ScopeDefaultColumn.DefinedByField(columnName = "dest_name", requireDynamicActive = true)
     private String destServiceName;
     @Setter
-    private NodeType destServiceNodeType;
+    private boolean isDestNormal;
     @Getter
     @Setter
     private String destServiceInstanceName;
@@ -112,7 +111,7 @@ public class ServiceRelation extends Source {
 
     @Override
     public void prepare() {
-        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, sourceServiceNodeType);
-        destServiceId = IDManager.ServiceID.buildId(destServiceName, destServiceNodeType);
+        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, isSourceNormal);
+        destServiceId = IDManager.ServiceID.buildId(destServiceName, isDestNormal);
     }
 }

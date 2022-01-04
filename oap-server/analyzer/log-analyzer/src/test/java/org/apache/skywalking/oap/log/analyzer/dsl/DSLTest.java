@@ -67,6 +67,7 @@ public class DSLTest {
                     "    service \"test\"\n" +
                     "    instance \"test\"\n" +
                     "    endpoint \"test\"\n" +
+                    "    layer \"mesh\"\n" +
                     "    traceId \"123\"\n" +
                     "    segmentId \"123\"\n" +
                     "    spanId \"123\"\n" +
