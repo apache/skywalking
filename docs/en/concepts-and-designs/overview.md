@@ -27,6 +27,10 @@ In addition, you can integrate
 1. Other distributed tracing using SkyWalking native agents and SDKs with Zipkin, Jaeger and OpenCensus.
 1. Other metrics systems, such as Prometheus, Sleuth(Micrometer), OpenTelemetry.
 
+Starting from v9, SkyWalking introduces the new core concept **Layer**. 
+A layer represents an abstract framework in computer science, such as Operating System(OS_LINUX layer), 
+Kubernetes(k8s layer). This kind of layer would-be owners of different services/instances detected from different technology.
+
 ## Architecture
 SkyWalking is logically split into four parts: Probes, Platform backend, Storage and UI.
 

@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
- * Layer represents an abstract framework in the computer science, such as operation system(OS_LINUX layer),
- * Kubernetes(k8s layer)
+ * Layer represents an abstract framework in computer science, such as Operating System(OS_LINUX layer),
+ * Kubernetes(k8s layer). This kind of layer would be owners of different services/instances detected from different technology.
  */
 public enum Layer {
     /**

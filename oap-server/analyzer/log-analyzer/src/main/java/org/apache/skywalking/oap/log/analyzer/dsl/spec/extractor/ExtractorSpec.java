@@ -179,6 +179,7 @@ public class ExtractorSpec extends AbstractSpec {
         }
     }
 
+    @SuppressWarnings("unused")
     public void layer(final String layer) {
         if (BINDING.get().shouldAbort()) {
             return;

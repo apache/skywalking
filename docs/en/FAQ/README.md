@@ -11,6 +11,7 @@ These are known and frequently asked questions about SkyWalking. We welcome you 
 * [Compiling issues on Mac's M1 chip](How-to-build-with-mac-m1.md)
 
 ## Runtime
+* [Version 9.x+ upgrade](v9-version-upgrade.md)
 * [Elasticsearch exception `type=version_conflict_engine_exception` since 8.7.0](es-version-conflict.md)
 * [Version 8.x+ upgrade](v8-version-upgrade.md)
 * [Why do metrics indexes with Hour and Day precisions stop updating after upgrade to 7.x?](Hour-Day-Metrics-Stopping.md)

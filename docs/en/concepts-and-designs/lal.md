@@ -152,17 +152,25 @@ not dropped) and is used to associate with traces / metrics.
 
 The unit of `timestamp` is millisecond.
 
+- `layer`
+
+`layer` extracts the [layer](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java) from the `parsed` result, and set it into the `LogData`, which will be persisted (if
+not dropped) and is used to associate with service / instance.
+
 - `tag`
 
 `tag` extracts the tags from the `parsed` result, and set them into the `LogData`. The form of this extractor should look something like this: `tag key1: value, key2: value2`. You may use the properties of `parsed` as both keys and values.
 
 ```groovy
+import javax.swing.text.LayeredHighlighter
+
 filter {
     // ... parser
 
     extractor {
         tag level: parsed.level, (parsed.statusCode): parsed.statusMsg
         tag anotherKey: "anotherConstantValue"
+        layer 'GENERAL'
     }
 }
 ```
