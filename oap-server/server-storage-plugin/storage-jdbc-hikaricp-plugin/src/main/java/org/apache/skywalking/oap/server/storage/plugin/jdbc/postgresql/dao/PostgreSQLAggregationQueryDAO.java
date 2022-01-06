@@ -33,7 +33,7 @@ public class PostgreSQLAggregationQueryDAO extends H2AggregationQueryDAO {
         StringBuilder sql = new StringBuilder();
         sql.append("select * from (select avg(")
                 .append(valueColumnName)
-                .append(") as value,")
+                .append(") as result,")
                 .append(Metrics.ENTITY_ID)
                 .append(" from ")
                 .append(metricsName)
