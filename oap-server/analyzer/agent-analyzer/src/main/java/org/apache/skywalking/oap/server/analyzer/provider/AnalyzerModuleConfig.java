@@ -30,8 +30,9 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy.FROM_SPAN_STATUS;
 
@@ -50,7 +51,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
      * Read component-libraries.yml for more details.
      */
     @Getter
-    private String noUpstreamRealAddressAgents = Const.EMPTY_STRING;
+    private final String noUpstreamRealAddressAgents = Const.EMPTY_STRING;
     /**
      * The threshold used to check the slow database access. Unit, millisecond.
      */
@@ -111,7 +112,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Getter
     private String segmentStatusAnalysisStrategy = FROM_SPAN_STATUS.name();
 
-    private List<Integer> virtualPeers;
+    private Set<Integer> virtualPeers;
 
     /**
      * @param componentId of the exit span
@@ -119,7 +120,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
      */
     public boolean shouldIgnorePeerIPDue2Virtual(int componentId) {
         if (virtualPeers == null) {
-            virtualPeers = new ArrayList<>(20);
+            virtualPeers = new HashSet<>(20);
             for (final String component : noUpstreamRealAddressAgents.split(",")) {
                 try {
                     virtualPeers.add(Integer.parseInt(component));
