@@ -20,7 +20,7 @@ Release Notes.
 * Add the analysis of metrics in Satellite MetricsService.
 * Fix `Can't split endpoint id into 2 parts` bug for endpoint ID. In the TCP in service mesh observability, endpoint
   name doesn't exist in TCP traffic.
-* Upgrade H2 version to 2.0.202 to fix CVE-2021-23463.
+* Upgrade H2 version to 2.0.206 to fix CVE-2021-23463 and GHSA-h376-j262-vhq6.
 * Extend column name override mechanism working for `ValueColumnMetadata`.
 * Introduce new concept `Layer` and removed `NodeType`. More details refer to [v9-version-upgrade](https://skywalking.apache.org/docs/main/latest/en/faq/v9-version-upgrade/).
 * Fix query sort metrics failure in H2 Storage.
