@@ -23,6 +23,7 @@ Release Notes.
 * Upgrade H2 version to 2.0.202 to fix CVE-2021-23463.
 * Extend column name override mechanism working for `ValueColumnMetadata`.
 * Introduce new concept `Layer` and removed `NodeType`. More details refer to [v9-version-upgrade](https://skywalking.apache.org/docs/main/latest/en/faq/v9-version-upgrade/).
+* `AnalyzerModuleConfig` code improvement.
 
 #### UI
 
