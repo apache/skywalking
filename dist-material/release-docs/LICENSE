@@ -229,7 +229,7 @@ The text of each license is the standard Apache 2.0 license.
     Google: guava 28.1: https://github.com/google/guava , Apache 2.0
     Google: guice 4.1.0: https://github.com/google/guice , Apache 2.0
     Google: gson 2.8.6: https://github.com/google/gson , Apache 2.0
-    Google: proto-google-common-protos 2.0.1: https://github.com/googleapis/googleapis , Apache 2.0
+    Google: proto-google-common-protos 2.0.1: https://github.com/googleapis/java-common-protos , Apache 2.0
     Google: jsr305 3.0.2: http://central.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.0/jsr305-3.0.0.pom , Apache 2.0
     Google: flatbuffers-java 1.12.0: https://github.com/google/flatbuffers/ , Apache 2.0
     Eclipse (Jetty) 9.4.40.v20210413: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
@@ -330,7 +330,8 @@ The text of each license is the standard Apache 2.0 license.
     iotdb-thrift 0.12.3: https://github.com/apache/iotdb, Apache 2.0
     service-rpc 0.12.3: https://github.com/apache/iotdb, Apache 2.0
     tsfile 0.12.3 https://github.com/apache/iotdb Apache 2.0
-    libthrift 0.14.1: https://github.com/apache/thrift, Apache 2.0
+    libthrift 0.14.1: https://github.com/apache/thrift Apache 2.0
+    j2objc 1.3: https://github.com/google/j2objc Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -366,8 +367,8 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
     asm 9.0:https://gitlab.ow2.org , BSD-3-Clause
     antlr4-runtime 4.5.1: http://www.antlr.org/license.html, BSD-3-Clause
-    Google: protobuf-java 3.17.3: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
-    Google: protobuf-java-util 3.17.3: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
+    Google: protobuf-java 3.19.2: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
+    Google: protobuf-java-util 3.19.2: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     reflectasm 1.11.7: https://github.com/EsotericSoftware/reflectasm , BSD-3-Clause
 
     zstd-jni 1.4.3-1: https://github.com/luben/zstd-jni, BSD-3-Clause
@@ -400,6 +401,18 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     logback 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
     logback-classic 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
     logback-core 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
+    jakarta.activation 2.0.1: https://github.com/eclipse-ee4j/jaf: EPL 1.0
+    jaxb-istack-commons 4.0.1: https://github.com/eclipse-ee4j/jaxb-istack-commons: EPL 1.0
+    jaxb-api 2.4.0: https://github.com/eclipse-ee4j/jaxb-api: EPL 1.0
+
+========================================================================
+EDL licenses
+========================================================================
+
+The following components are provided under the EPL License. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
+
+    jaxb 3.0.2 https://github.com/eclipse-ee4j/jaxb-ri： EDL 1.0
 
 ========================================================================
 CDDL licenses
