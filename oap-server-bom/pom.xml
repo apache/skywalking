@@ -39,8 +39,8 @@
         <zookeeper.version>3.5.7</zookeeper.version>
         <guava.version>28.1-jre</guava.version>
         <snakeyaml.version>1.28</snakeyaml.version>
-        <protobuf-java.version>3.17.3</protobuf-java.version>
-        <protobuf-java-util.version>3.17.3</protobuf-java-util.version>
+        <protobuf-java.version>3.19.2</protobuf-java.version>
+        <protobuf-java-util.version>3.19.2</protobuf-java-util.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
