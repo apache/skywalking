@@ -175,9 +175,11 @@ class SourceBuilder {
         serviceRelation.setSourceServiceName(sourceServiceName);
         serviceRelation.setSourceNormal(isSourceNormal);
         serviceRelation.setSourceServiceInstanceName(sourceServiceInstanceName);
+        serviceRelation.setSourceLayer(sourceLayer);
         serviceRelation.setDestServiceName(destServiceName);
         serviceRelation.setDestNormal(isDestNormal);
         serviceRelation.setDestServiceInstanceName(destServiceInstanceName);
+        serviceRelation.setDestLayer(destLayer);
         serviceRelation.setEndpoint(destEndpointName);
         serviceRelation.setComponentId(componentId);
         serviceRelation.setLatency(latency);
@@ -225,9 +227,11 @@ class SourceBuilder {
         serviceInstanceRelation.setSourceServiceName(sourceServiceName);
         serviceInstanceRelation.setSourceServiceNormal(isSourceNormal);
         serviceInstanceRelation.setSourceServiceInstanceName(sourceServiceInstanceName);
+        serviceInstanceRelation.setSourceServiceLayer(sourceLayer);
         serviceInstanceRelation.setDestServiceName(destServiceName);
         serviceInstanceRelation.setDestServiceNormal(isDestNormal);
         serviceInstanceRelation.setDestServiceInstanceName(destServiceInstanceName);
+        serviceInstanceRelation.setDestServiceLayer(destLayer);
         serviceInstanceRelation.setEndpoint(destEndpointName);
         serviceInstanceRelation.setComponentId(componentId);
         serviceInstanceRelation.setLatency(latency);
