@@ -123,6 +123,12 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(span.getComponentId());
                 setPublicAttrs(sourceBuilder, span);
+                if (SpanLayer.FAAS.equals(span.getSpanLayer())) {
+                    // Function as a Service
+                    sourceBuilder.setDestLayer(Layer.FAAS);
+                } else {
+                    sourceBuilder.setDestLayer(Layer.GENERAL);
+                }
                 entrySourceBuilders.add(sourceBuilder);
             }
         } else {
@@ -133,12 +139,16 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setSourceNormal(false);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
-            sourceBuilder.setDestLayer(fromSpanLayerValue(span.getSpanLayer()));
             sourceBuilder.setDestEndpointName(span.getOperationName());
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
             sourceBuilder.setComponentId(span.getComponentId());
-
             setPublicAttrs(sourceBuilder, span);
+            if (SpanLayer.FAAS.equals(span.getSpanLayer())) {
+                // Function as a Service
+                sourceBuilder.setDestLayer(Layer.FAAS);
+            } else {
+                sourceBuilder.setDestLayer(Layer.GENERAL);
+            }
             entrySourceBuilders.add(sourceBuilder);
         }
 
