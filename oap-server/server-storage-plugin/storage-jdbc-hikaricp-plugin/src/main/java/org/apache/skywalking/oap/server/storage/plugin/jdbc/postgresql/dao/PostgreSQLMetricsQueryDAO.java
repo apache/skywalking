@@ -31,6 +31,6 @@ public class PostgreSQLMetricsQueryDAO extends H2MetricsQueryDAO {
     @Override
     protected StringBuilder buildMetricsValueSql(String op, String valueColumnName, String conditionName) {
         return new StringBuilder(
-                "select " + Metrics.ENTITY_ID + " id, " + op + "(" + valueColumnName + ") as value from " + conditionName + " where ");
+                "select " + Metrics.ENTITY_ID + " id, " + op + "(" + valueColumnName + ") as result from " + conditionName + " where ");
     }
 }
