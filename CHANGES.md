@@ -25,6 +25,7 @@ Release Notes.
 * Introduce new concept `Layer` and removed `NodeType`. More details refer to [v9-version-upgrade](https://skywalking.apache.org/docs/main/latest/en/faq/v9-version-upgrade/).
 * Fix query sort metrics failure in H2 Storage.
 * Bump up grpc to 1.43.2 and protobuf to 3.19.2 to fix CVE-2021-22569.
+* Support zgc gc time and count metric collect
 
 #### UI
 
