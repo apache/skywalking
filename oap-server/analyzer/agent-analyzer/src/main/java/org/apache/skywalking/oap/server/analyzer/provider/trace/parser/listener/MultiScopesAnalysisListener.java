@@ -119,7 +119,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 sourceBuilder.setDestEndpointName(span.getOperationName());
                 sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
                 sourceBuilder.setDestServiceName(segmentObject.getService());
-                sourceBuilder.setDestLayer(Layer.GENERAL);
+                sourceBuilder.setDestLayer(fromSpanLayerValue(span.getSpanLayer()));
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(span.getComponentId());
                 setPublicAttrs(sourceBuilder, span);
@@ -133,7 +133,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setSourceNormal(false);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
-            sourceBuilder.setDestLayer(Layer.GENERAL);
+            sourceBuilder.setDestLayer(fromSpanLayerValue(span.getSpanLayer()));
             sourceBuilder.setDestEndpointName(span.getOperationName());
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
             sourceBuilder.setComponentId(span.getComponentId());
@@ -390,6 +390,8 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 return Layer.CACHE;
             case UNRECOGNIZED:
                 return Layer.UNDEFINED;
+            case FAAS:
+                return Layer.FAAS;
             default:
                 throw new UnexpectedException("Can't transfer to the Layer. SpanLayer=" + spanLayer);
         }
