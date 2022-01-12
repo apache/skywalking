@@ -18,6 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-public enum GCPhrase {
+public enum GCPhase {
     NEW, OLD
 }

@@ -26,6 +26,7 @@ Release Notes.
 * Fix query sort metrics failure in H2 Storage.
 * Bump up grpc to 1.43.2 and protobuf to 3.19.2 to fix CVE-2021-22569.
 * Add source layer and dest layer to relation.
+* Follow protocol grammar fix `GCPhrase -> GCPhase`.
 
 #### UI
 

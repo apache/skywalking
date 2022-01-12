@@ -103,7 +103,7 @@ This calculates the metrics data if the service instance is a JVM and collects t
 |---|---|---|---|
 | name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
 | serviceName | The name of the service. | | string |
-| phrase | Includes both NEW and OLD. | | Enum |
+| phase | Includes both NEW and OLD. | | Enum |
 | time | The time spent in GC. | | long |
 | count | The count in GC operations. | | long |
 
