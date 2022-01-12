@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.Thread;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.source.GCPhrase;
+import org.apache.skywalking.oap.server.core.source.GCPhase;
 import org.apache.skywalking.oap.server.core.source.MemoryPoolType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMCPU;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMClass;
@@ -100,12 +100,12 @@ public class JVMSourceDispatcher {
             serviceInstanceJVMGC.setServiceId(serviceId);
             serviceInstanceJVMGC.setServiceName(service);
 
-            switch (gc.getPhrase()) {
+            switch (gc.getPhase()) {
                 case NEW:
-                    serviceInstanceJVMGC.setPhrase(GCPhrase.NEW);
+                    serviceInstanceJVMGC.setPhase(GCPhase.NEW);
                     break;
                 case OLD:
-                    serviceInstanceJVMGC.setPhrase(GCPhrase.OLD);
+                    serviceInstanceJVMGC.setPhase(GCPhase.OLD);
                     break;
             }
 
