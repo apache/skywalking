@@ -119,7 +119,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 sourceBuilder.setDestEndpointName(span.getOperationName());
                 sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
                 sourceBuilder.setDestServiceName(segmentObject.getService());
-                sourceBuilder.setDestLayer(fromSpanLayerValue(span.getSpanLayer()));
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(span.getComponentId());
                 setPublicAttrs(sourceBuilder, span);
