@@ -399,7 +399,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "instance_jvm_young_gc_time, instance_jvm_old_gc_time",
+                  "metricName": "instance_jvm_young_gc_time, instance_jvm_old_gc_time, instance_jvm_normal_gc_time",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
                   "unit": "ms"
@@ -413,7 +413,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
-                  "metricName": "instance_jvm_young_gc_count, instance_jvm_old_gc_count"
+                  "metricName": "instance_jvm_young_gc_count, instance_jvm_old_gc_count, instance_jvm_normal_gc_count"
                 },
                 {
                   "width": 3,

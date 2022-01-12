@@ -106,6 +106,8 @@ public class JVMSourceDispatcher {
                     break;
                 case OLD:
                     serviceInstanceJVMGC.setPhrase(GCPhrase.OLD);
+                case NORMAL:
+                    serviceInstanceJVMGC.setPhrase(GCPhrase.NORMAL);
                     break;
             }
 
