@@ -401,18 +401,6 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     logback 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
     logback-classic 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
     logback-core 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
-    jakarta.activation 2.0.1: https://github.com/eclipse-ee4j/jaf: EPL 1.0
-    jaxb-istack-commons 4.0.1: https://github.com/eclipse-ee4j/jaxb-istack-commons: EPL 1.0
-    jaxb-api 2.4.0: https://github.com/eclipse-ee4j/jaxb-api: EPL 1.0
-
-========================================================================
-EDL licenses
-========================================================================
-
-The following components are provided under the EPL License. See project link for details.
-The text of each license is also included at licenses/LICENSE-[project].txt.
-
-    jaxb 3.0.2 https://github.com/eclipse-ee4j/jaxb-ri： EDL 1.0
 
 ========================================================================
 CDDL licenses
