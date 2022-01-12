@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 
@@ -61,11 +62,17 @@ public class ServiceRelation extends Source {
     @Setter
     private String sourceServiceInstanceName;
     @Getter
+    @Setter
+    private Layer sourceLayer;
+    @Getter
     private String destServiceId;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "dest_name", requireDynamicActive = true)
     private String destServiceName;
+    @Getter
+    @Setter
+    private Layer destLayer;
     @Setter
     private boolean isDestNormal;
     @Getter

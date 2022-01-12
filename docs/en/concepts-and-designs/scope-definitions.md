@@ -157,53 +157,53 @@ This calculates the metrics data from each request of the endpoint in the servic
 
 This calculates the metrics data from each request between services.
 
-| Name | Remarks | Group Key | Type | 
-|---|---|---|---|
-| sourceServiceName | The name of the source service. | | string |
-| sourceServiceNodeType | The type of node to which the Service or Network address belongs, such as Normal, Database, MQ, or Cache. | | enum |
-| sourceServiceInstanceName | The name of the source service instance. | | string |
-| destServiceName | The name of the destination service. | | string |
-| destServiceNodeType | The type of node of to which the Service or Network address belongs. | | enum |
-| destServiceInstanceName | The name of the destination service instance.| | string|
-| endpoint | The endpoint used in this call. | | string
-| componentId | The ID of component used in this call. | yes | string
-| latency | The time taken by each request. | | int |
-| status | Indicates the success or failure of the request.| | bool(true for success) |
-| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
-| httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
-| rpcStatusCode | The string value of the rpc response code. | | string |
-| type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
-| detectPoint | Where the relation is detected. The value may be client, server, or proxy. | yes | enum|
-| tlsMode | The TLS mode between source and destination services, such as `service_relation_mtls_cpm = from(ServiceRelation.*).filter(tlsMode == "mTLS").cpm()` || string|
-| sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
-| tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
-| tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
+| Name                      | Remarks                                                                                                                                             | Group Key | Type                   | 
+|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|-----------|------------------------|
+| sourceServiceName         | The name of the source service.                                                                                                                     |           | string                 |
+| sourceServiceInstanceName | The name of the source service instance.                                                                                                            |           | string                 |
+| sourceLayer               | The layer of the source service.                                                                                                                    |           | enum                   |
+| destServiceName           | The name of the destination service.                                                                                                                |           | string                 |
+| destServiceInstanceName   | The name of the destination service instance.                                                                                                       |           | string                 |
+| destLayer                 | The layer of the destination service.                                                                                                               |           | enum                   |
+| endpoint                  | The endpoint used in this call.                                                                                                                     |           | string                 |
+| componentId               | The ID of component used in this call.                                                                                                              | yes       | string                 |
+| latency                   | The time taken by each request.                                                                                                                     |           | int                    |
+| status                    | Indicates the success or failure of the request.                                                                                                    |           | bool(true for success) |
+| ~~responseCode~~          | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302                                         |           | int                    |
+| httpResponseStatusCode    | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302                                                    |           | int                    |
+| rpcStatusCode             | The string value of the rpc response code.                                                                                                          |           | string                 |
+| type                      | The type of each request, such as Database, HTTP, RPC, or gRPC.                                                                                     |           | enum                   |
+| detectPoint               | Where the relation is detected. The value may be client, server, or proxy.                                                                          | yes       | enum                   |
+| tlsMode                   | The TLS mode between source and destination services, such as `service_relation_mtls_cpm = from(ServiceRelation.*).filter(tlsMode == "mTLS").cpm()` |           | string                 |
+| sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation.                                                            |           | string                 |
+| tcpInfo.receivedBytes     | The received bytes of the TCP traffic, if this request is a TCP call.                                                                               |           | long                   |
+| tcpInfo.sentBytes         | The sent bytes of the TCP traffic, if this request is a TCP call.                                                                                   |           | long                   |
 
 ### SCOPE `ServiceInstanceRelation`
 
 This calculates the metrics data from each request between service instances.
 
-| Name | Remarks | Group Key | Type | 
-|---|---|---|---|
-| sourceServiceName | The name of the source service. | | string |
-| sourceServiceNodeType | The type of node to which the Service or Network address belongs, such as Normal, Database, MQ, or Cache. | | enum |
-| sourceServiceInstanceName | The name of the source service instance. | | string |
-| destServiceName | The name of the destination service. | | |
-| destServiceNodeType | The type of node to which the Service or Network address belongs, such as Normal, Database, MQ, or Cache. | | string |
-| destServiceInstanceName | The name of the destination service instance. | | string |
-| endpoint | The endpoint used in this call. | | string
-| componentId | The ID of the component used in this call. | yes | string
-| latency | The time taken by each request. | | int |
-| status | Indicates the success or failure of the request.| | bool(true for success) |
-| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
-| httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
-| rpcStatusCode | The string value of the rpc response code. | | string |
-| type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
-| detectPoint | Where the relation is detected. The value may be client, server, or proxy. | yes | enum|
-| tlsMode | The TLS mode between source and destination service instances, such as `service_instance_relation_mtls_cpm = from(ServiceInstanceRelation.*).filter(tlsMode == "mTLS").cpm()` || string|
-| sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
-| tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
-| tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
+| Name                      | Remarks                                                                                                                                                                       | Group Key | Type                   | 
+|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|------------------------|
+| sourceServiceName         | The name of the source service.                                                                                                                                               |           | string                 |
+| sourceServiceInstanceName | The name of the source service instance.                                                                                                                                      |           | string                 |
+| sourceServiceLayer        | The layer of the source service.                                                                                                                                              |           | enum                   |
+| destServiceName           | The name of the destination service.                                                                                                                                          |           |                        |
+| destServiceInstanceName   | The name of the destination service instance.                                                                                                                                 |           | string                 |
+| destServiceLayer          | The layer of the destination service.                                                                                                                                         |           | enum                   |
+| endpoint                  | The endpoint used in this call.                                                                                                                                               |           | string                 |
+| componentId               | The ID of the component used in this call.                                                                                                                                    | yes       | string                 |
+| latency                   | The time taken by each request.                                                                                                                                               |           | int                    |
+| status                    | Indicates the success or failure of the request.                                                                                                                              |           | bool(true for success) |
+| ~~responseCode~~          | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302                                                                   |           | int                    |
+| httpResponseStatusCode    | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302                                                                              |           | int                    |
+| rpcStatusCode             | The string value of the rpc response code.                                                                                                                                    |           | string                 |
+| type                      | The type of each request, such as Database, HTTP, RPC, or gRPC.                                                                                                               |           | enum                   |
+| detectPoint               | Where the relation is detected. The value may be client, server, or proxy.                                                                                                    | yes       | enum                   |
+| tlsMode                   | The TLS mode between source and destination service instances, such as `service_instance_relation_mtls_cpm = from(ServiceInstanceRelation.*).filter(tlsMode == "mTLS").cpm()` || string    |     |
+| sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation.                                                                                      |           | string                 |
+| tcpInfo.receivedBytes     | The received bytes of the TCP traffic, if this request is a TCP call.                                                                                                         |           | long                   |
+| tcpInfo.sentBytes         | The sent bytes of the TCP traffic, if this request is a TCP call.                                                                                                             |           | long                   |
 
 ### SCOPE `EndpointRelation`
 
