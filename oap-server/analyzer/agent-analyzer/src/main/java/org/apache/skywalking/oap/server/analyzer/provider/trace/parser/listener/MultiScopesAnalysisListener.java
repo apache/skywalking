@@ -171,7 +171,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         if (networkAddressAlias == null) {
             sourceBuilder.setDestServiceName(networkAddress);
             sourceBuilder.setDestServiceInstanceName(networkAddress);
-            sourceBuilder.setDestLayer(fromSpanLayerValue(span.getSpanLayer()));
+            sourceBuilder.setDestLayer(identifyRemoteServiceLayer(span.getSpanLayer()));
             sourceBuilder.setDestNormal(false);
         } else {
             /*
@@ -376,7 +376,10 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         });
     }
 
-    private Layer fromSpanLayerValue(SpanLayer spanLayer) {
+    /**
+     * Identify the layer of span remote service owner. Such as  ${@link Layer#DATABASE} and ${@link Layer#CACHE}.
+     */
+    private Layer identifyRemoteServiceLayer(SpanLayer spanLayer) {
         switch (spanLayer) {
             case Unknown:
                 return Layer.UNDEFINED;
