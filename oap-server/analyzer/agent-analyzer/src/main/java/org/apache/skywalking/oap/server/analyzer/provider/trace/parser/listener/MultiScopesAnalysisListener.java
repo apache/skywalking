@@ -400,9 +400,9 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     }
 
     /**
-     * Simple logic, only judge ${@link Layer#FAAS} and ${@link Layer#GENERAL}.
+     * Identify the layer of span service/instance owner. Such as  ${@link Layer#FAAS} and ${@link Layer#GENERAL}.
      */
-    private Layer fromSpanLayer(SpanLayer spanLayer) {
+    private Layer identifyServiceLayer(SpanLayer spanLayer) {
         if (SpanLayer.FAAS.equals(spanLayer)) {
             // function as a Service
             return Layer.FAAS;
