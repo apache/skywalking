@@ -19,5 +19,5 @@
 package org.apache.skywalking.oap.server.core.source;
 
 public enum GCPhase {
-    NEW, OLD
+    NEW, OLD, NORMAL
 }

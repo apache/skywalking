@@ -29,6 +29,7 @@ Release Notes.
 * Follow protocol grammar fix `GCPhrase -> GCPhase`.
 * Set layer to mesh relation.
 * Add `FAAS` to SpanLayer.
+* Support ZGC GC time and count metric collecting
 
 #### UI
 

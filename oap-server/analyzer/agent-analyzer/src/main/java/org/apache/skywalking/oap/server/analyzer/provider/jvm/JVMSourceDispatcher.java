@@ -107,6 +107,9 @@ public class JVMSourceDispatcher {
                 case OLD:
                     serviceInstanceJVMGC.setPhase(GCPhase.OLD);
                     break;
+                case NORMAL:
+                    serviceInstanceJVMGC.setPhase(GCPhase.NORMAL);
+                    break;
             }
 
             serviceInstanceJVMGC.setTime(gc.getTime());
