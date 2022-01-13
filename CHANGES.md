@@ -28,7 +28,7 @@ Release Notes.
 * Add source layer and dest layer to relation.
 * Follow protocol grammar fix `GCPhrase -> GCPhase`.
 * Set layer to mesh relation.
-* Support zgc gc time and count metric collect
+* Support ZGC GC time and count metric collecting
 
 #### UI
 
