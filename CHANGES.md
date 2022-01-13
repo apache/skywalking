@@ -27,7 +27,8 @@ Release Notes.
 * Bump up grpc to 1.43.2 and protobuf to 3.19.2 to fix CVE-2021-22569.
 * Add source layer and dest layer to relation.
 * Follow protocol grammar fix `GCPhrase -> GCPhase`.
-* Support zgc gc time and count metric collect
+* Set layer to mesh relation.
+* Support ZGC GC time and count metric collecting
 
 #### UI
 
