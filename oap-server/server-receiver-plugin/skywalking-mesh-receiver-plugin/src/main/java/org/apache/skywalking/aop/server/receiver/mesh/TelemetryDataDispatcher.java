@@ -161,9 +161,11 @@ public class TelemetryDataDispatcher {
         ServiceRelation serviceRelation = new ServiceRelation();
         serviceRelation.setTimeBucket(minuteTimeBucket);
         serviceRelation.setSourceServiceName(metrics.getSourceServiceName());
+        serviceRelation.setSourceLayer(Layer.MESH);
         serviceRelation.setSourceNormal(true);
         serviceRelation.setSourceServiceInstanceName(metrics.getSourceServiceInstance());
         serviceRelation.setDestServiceName(metrics.getDestServiceName());
+        serviceRelation.setDestLayer(Layer.MESH);
         serviceRelation.setDestNormal(true);
         serviceRelation.setDestServiceInstanceName(metrics.getDestServiceInstance());
         serviceRelation.setEndpoint(metrics.getEndpoint());
@@ -207,8 +209,10 @@ public class TelemetryDataDispatcher {
         serviceRelation.setTimeBucket(minuteTimeBucket);
         serviceRelation.setSourceServiceInstanceName(metrics.getSourceServiceInstance());
         serviceRelation.setSourceServiceName(metrics.getSourceServiceName());
+        serviceRelation.setSourceServiceLayer(Layer.MESH);
         serviceRelation.setSourceServiceNormal(true);
         serviceRelation.setDestServiceInstanceName(metrics.getDestServiceInstance());
+        serviceRelation.setDestServiceLayer(Layer.MESH);
         serviceRelation.setDestServiceNormal(true);
         serviceRelation.setDestServiceName(metrics.getDestServiceName());
         serviceRelation.setEndpoint(metrics.getEndpoint());
