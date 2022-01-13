@@ -130,6 +130,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setSourceServiceName(Const.USER_SERVICE_NAME);
             sourceBuilder.setSourceServiceInstanceName(Const.USER_INSTANCE_NAME);
             sourceBuilder.setSourceEndpointName(Const.USER_ENDPOINT_NAME);
+            sourceBuilder.setSourceLayer(Layer.UNDEFINED);
             sourceBuilder.setSourceNormal(false);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
@@ -164,6 +165,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
 
         sourceBuilder.setSourceServiceName(segmentObject.getService());
         sourceBuilder.setSourceServiceInstanceName(segmentObject.getServiceInstance());
+        sourceBuilder.setSourceLayer(Layer.GENERAL);
 
         final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(networkAddress);
         if (networkAddressAlias == null) {

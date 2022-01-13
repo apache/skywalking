@@ -54,7 +54,7 @@ public class ServiceInstanceJVMGC extends Source {
     private String serviceId;
     @Getter
     @Setter
-    private GCPhrase phrase;
+    private GCPhase phase;
     @Getter
     @Setter
     private long time;
