@@ -377,7 +377,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     }
 
     /**
-     * Identify the layer of span remote service owner. Such as  ${@link Layer#DATABASE} and ${@link Layer#CACHE}.
+     * Identify the layer of remote service. Such as  ${@link Layer#DATABASE} and ${@link Layer#CACHE}.
      */
     private Layer identifyRemoteServiceLayer(SpanLayer spanLayer) {
         switch (spanLayer) {
@@ -403,7 +403,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     }
 
     /**
-     * Identify the layer of span service/instance owner. Such as  ${@link Layer#FAAS} and ${@link Layer#GENERAL}.
+     * Identify the layer of span's service/instance owner. Such as  ${@link Layer#FAAS} and ${@link Layer#GENERAL}.
      */
     private Layer identifyServiceLayer(SpanLayer spanLayer) {
         if (SpanLayer.FAAS.equals(spanLayer)) {
