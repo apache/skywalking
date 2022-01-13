@@ -119,15 +119,10 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 sourceBuilder.setDestEndpointName(span.getOperationName());
                 sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
                 sourceBuilder.setDestServiceName(segmentObject.getService());
+                sourceBuilder.setDestLayer(fromSpanLayer(span.getSpanLayer()));
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(span.getComponentId());
                 setPublicAttrs(sourceBuilder, span);
-                if (SpanLayer.FAAS.equals(span.getSpanLayer())) {
-                    // Function as a Service
-                    sourceBuilder.setDestLayer(Layer.FAAS);
-                } else {
-                    sourceBuilder.setDestLayer(Layer.GENERAL);
-                }
                 entrySourceBuilders.add(sourceBuilder);
             }
         } else {
@@ -139,16 +134,12 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setSourceNormal(false);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
+            sourceBuilder.setDestLayer(fromSpanLayer(span.getSpanLayer()));
             sourceBuilder.setDestEndpointName(span.getOperationName());
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
             sourceBuilder.setComponentId(span.getComponentId());
+
             setPublicAttrs(sourceBuilder, span);
-            if (SpanLayer.FAAS.equals(span.getSpanLayer())) {
-                // Function as a Service
-                sourceBuilder.setDestLayer(Layer.FAAS);
-            } else {
-                sourceBuilder.setDestLayer(Layer.GENERAL);
-            }
             entrySourceBuilders.add(sourceBuilder);
         }
 
@@ -174,7 +165,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
 
         sourceBuilder.setSourceServiceName(segmentObject.getService());
         sourceBuilder.setSourceServiceInstanceName(segmentObject.getServiceInstance());
-        sourceBuilder.setSourceLayer(Layer.GENERAL);
+        sourceBuilder.setSourceLayer(fromSpanLayer(span.getSpanLayer()));
 
         final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(networkAddress);
         if (networkAddressAlias == null) {
@@ -405,6 +396,18 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 return Layer.FAAS;
             default:
                 throw new UnexpectedException("Can't transfer to the Layer. SpanLayer=" + spanLayer);
+        }
+    }
+
+    /**
+     * Simple logic, only judge ${@link Layer#FAAS} and ${@link Layer#GENERAL}.
+     */
+    private Layer fromSpanLayer(SpanLayer spanLayer) {
+        if (SpanLayer.FAAS.equals(spanLayer)) {
+            // function as a Service
+            return Layer.FAAS;
+        } else {
+            return Layer.GENERAL;
         }
     }
 
