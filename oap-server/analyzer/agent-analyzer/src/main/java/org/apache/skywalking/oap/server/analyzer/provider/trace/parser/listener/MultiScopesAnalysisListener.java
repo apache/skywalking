@@ -119,7 +119,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 sourceBuilder.setDestEndpointName(span.getOperationName());
                 sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
                 sourceBuilder.setDestServiceName(segmentObject.getService());
-                sourceBuilder.setDestLayer(fromSpanLayer(span.getSpanLayer()));
+                sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer()));
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(span.getComponentId());
                 setPublicAttrs(sourceBuilder, span);
@@ -134,7 +134,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setSourceNormal(false);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
-            sourceBuilder.setDestLayer(fromSpanLayer(span.getSpanLayer()));
+            sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer()));
             sourceBuilder.setDestEndpointName(span.getOperationName());
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
             sourceBuilder.setComponentId(span.getComponentId());
@@ -165,7 +165,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
 
         sourceBuilder.setSourceServiceName(segmentObject.getService());
         sourceBuilder.setSourceServiceInstanceName(segmentObject.getServiceInstance());
-        sourceBuilder.setSourceLayer(fromSpanLayer(span.getSpanLayer()));
+        sourceBuilder.setSourceLayer(identifyServiceLayer(span.getSpanLayer()));
 
         final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(networkAddress);
         if (networkAddressAlias == null) {
