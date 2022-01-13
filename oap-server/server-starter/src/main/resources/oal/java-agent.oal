@@ -24,10 +24,10 @@ instance_jvm_memory_heap_max = from(ServiceInstanceJVMMemory.max).filter(heapSta
 instance_jvm_memory_noheap_max = from(ServiceInstanceJVMMemory.max).filter(heapStatus == false).longAvg();
 instance_jvm_young_gc_time = from(ServiceInstanceJVMGC.time).filter(phase == GCPhase.NEW).sum();
 instance_jvm_old_gc_time = from(ServiceInstanceJVMGC.time).filter(phase == GCPhase.OLD).sum();
-instance_jvm_normal_gc_time = from(ServiceInstanceJVMGC.time).filter(phrase == GCPhase.NORMAL).sum();
+instance_jvm_normal_gc_time = from(ServiceInstanceJVMGC.time).filter(phase == GCPhase.NORMAL).sum();
 instance_jvm_young_gc_count = from(ServiceInstanceJVMGC.count).filter(phase == GCPhase.NEW).sum();
 instance_jvm_old_gc_count = from(ServiceInstanceJVMGC.count).filter(phase == GCPhase.OLD).sum();
-instance_jvm_normal_gc_count = from(ServiceInstanceJVMGC.count).filter(phrase == GCPhase.NORMAL).sum();
+instance_jvm_normal_gc_count = from(ServiceInstanceJVMGC.count).filter(phase == GCPhase.NORMAL).sum();
 instance_jvm_thread_live_count = from(ServiceInstanceJVMThread.liveCount).longAvg();
 instance_jvm_thread_daemon_count = from(ServiceInstanceJVMThread.daemonCount).longAvg();
 instance_jvm_thread_peak_count = from(ServiceInstanceJVMThread.peakCount).longAvg();
