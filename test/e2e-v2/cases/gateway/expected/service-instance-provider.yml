@@ -58,4 +58,5 @@
   {{- end}}
   language: JAVA
   instanceuuid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider2" }}
+  layer: GENERAL
 {{- end}}

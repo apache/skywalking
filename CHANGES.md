@@ -30,6 +30,7 @@ Release Notes.
 * Set layer to mesh relation.
 * Add `FAAS` to SpanLayer.
 * Support ZGC GC time and count metric collecting
+* Adjust e2e case for V9 core.
 
 #### UI
 

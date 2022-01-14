@@ -16,20 +16,38 @@
 {{- contains . }}
 - id: {{ b64enc "istio-dp::e2e::istio-egressgateway" }}.1
   name: istio-dp::e2e::istio-egressgateway
-  group: ""
+  group: "istio-dp"
+  shortname: e2e::istio-egressgateway
+  layers:
+    - GENERAL
 - id: {{ b64enc "istio-dp::e2e::istio-ingressgateway" }}.1
   name: istio-dp::e2e::istio-ingressgateway
-  group: ""
+  group: "istio-dp"
+  shortname: e2e::istio-ingressgateway
+  layers:
+    - GENERAL
 - id: {{ b64enc "istio-dp::e2e::reviews" }}.1
   name: istio-dp::e2e::reviews
-  group: ""
+  group: "istio-dp"
+  shortname: e2e::reviews
+  layers:
+    - GENERAL
 - id: {{ b64enc "istio-dp::e2e::productpage" }}.1
   name: istio-dp::e2e::productpage
-  group: ""
+  group: "istio-dp"
+  shortname: e2e::productpage
+  layers:
+    - GENERAL
 - id: {{ b64enc "istio-dp::e2e::details" }}.1
   name: istio-dp::e2e::details
-  group: ""
+  group: "istio-dp"
+  shortname: e2e::details
+  layers:
+    - GENERAL
 - id: {{ b64enc "istio-dp::e2e::ratings" }}.1
   name: istio-dp::e2e::ratings
-  group: ""
+  group: "istio-dp"
+  shortname: e2e::ratings
+  layers:
+    - GENERAL
 {{- end }}
