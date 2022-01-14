@@ -18,3 +18,4 @@
   attributes: []
   language: UNKNOWN
   instanceuuid: {{ b64enc "test-ui" }}.1_{{ b64enc "v1.0.0" }}
+  layer: BROWSER
