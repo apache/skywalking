@@ -31,6 +31,7 @@ public class BrowserAppSingleVersionTrafficDispatcher extends BrowserAppTrafficS
         traffic.setName(source.getName());
         traffic.setServiceId(source.getServiceId());
         traffic.setLastPingTimestamp(source.getTimeBucket());
+        traffic.setLayer(source.getLayer());
         MetricsStreamProcessor.getInstance().in(traffic);
     }
 }
