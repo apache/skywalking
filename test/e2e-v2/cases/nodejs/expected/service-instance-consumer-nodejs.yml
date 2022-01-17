@@ -29,4 +29,5 @@
   {{- end}}
   language: UNKNOWN
   instanceuuid: {{ b64enc "consumer" }}.1_{{ b64enc "consumer-instance" }}
+  layer: GENERAL
 {{- end}}

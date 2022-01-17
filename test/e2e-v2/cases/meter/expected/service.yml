@@ -17,4 +17,7 @@
 - id: {{ b64enc "e2e-service-provider" }}.1
   name: e2e-service-provider
   group: ""
+  shortname: e2e-service-provider
+  layers:
+    - GENERAL
 {{- end }}

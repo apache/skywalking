@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
@@ -59,7 +60,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         query = client.addModelPath(query, ServiceTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(layer)) {
-            indexAndValueMap.put(IoTDBIndexes.LAYER_IDX, layer);
+            indexAndValueMap.put(IoTDBIndexes.LAYER_IDX, String.valueOf(Layer.valueOf(layer).value()));
         }
         if (StringUtil.isNotEmpty(group)) {
             indexAndValueMap.put(IoTDBIndexes.GROUP_IDX, group);
@@ -168,7 +169,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
             serviceInstance.setId(instanceTraffic.id());
             serviceInstance.setName(instanceTraffic.getName());
             serviceInstance.setInstanceUUID(serviceInstance.getId());
-            serviceInstance.setLayer(serviceInstance.getLayer());
+            serviceInstance.setLayer(instanceTraffic.getLayer().name());
 
             JsonObject properties = instanceTraffic.getProperties();
             if (properties != null) {

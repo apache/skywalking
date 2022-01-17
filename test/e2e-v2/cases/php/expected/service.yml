@@ -17,7 +17,13 @@
 - id: {{ b64enc "e2e-service-provider" }}.1
   name: e2e-service-provider
   group: ""
+  shortname: e2e-service-provider
+  layers:
+    - GENERAL
 - id: {{ b64enc "php" }}.1
   name: php
   group: ""
+  shortname: php
+  layers:
+    - GENERAL
 {{- end }}

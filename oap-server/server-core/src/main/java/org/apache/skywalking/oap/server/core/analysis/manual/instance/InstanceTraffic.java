@@ -106,6 +106,7 @@ public class InstanceTraffic extends Metrics {
     public void deserialize(final RemoteData remoteData) {
         setServiceId(remoteData.getDataStrings(0));
         setName(remoteData.getDataStrings(1));
+        setLayer(Layer.valueOf(remoteData.getDataIntegers(0)));
         final String propString = remoteData.getDataStrings(2);
         if (StringUtil.isNotEmpty(propString)) {
             setProperties(GSON.fromJson(propString, JsonObject.class));
@@ -119,6 +120,7 @@ public class InstanceTraffic extends Metrics {
         final RemoteData.Builder builder = RemoteData.newBuilder();
         builder.addDataStrings(serviceId);
         builder.addDataStrings(name);
+        builder.addDataIntegers(layer.value());
         if (properties == null) {
             builder.addDataStrings(Const.EMPTY_STRING);
         } else {

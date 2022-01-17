@@ -16,5 +16,8 @@
 {{- contains . }}
 - id: {{ b64enc "vm::vm-service" }}.1
   name: vm::vm-service
-  group: ""
+  shortname: vm-service
+  group: vm
+  layers:
+    - OS_LINUX
 {{- end }}

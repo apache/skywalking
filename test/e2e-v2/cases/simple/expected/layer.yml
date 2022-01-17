@@ -14,10 +14,6 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ notEmpty .id }}
-  name: {{ notEmpty .name }}
-  attributes: []
-  language: UNKNOWN
-  instanceuuid: {{ notEmpty .instanceuuid }}
-  layer: GENERAL
+- GENERAL
+- VIRTUAL_DATABASE
 {{- end }}
