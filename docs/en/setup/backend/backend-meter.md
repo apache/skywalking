@@ -18,7 +18,9 @@ kafka-fetcher:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
 ```
 
-## Meter collection
+## Report Meter Telemetry Data
+
+### Manual Meter API
 
 Custom metrics may be collected by Manual Meter API.
 Custom metrics collected cannot be used directly, they should be configured in `meter-analyzer-config` configuration files, which is described in next part.
@@ -28,6 +30,23 @@ and values from service and service instance name defined in SkyWalking Agent,
 for identification of the metric data.
 
 A typical manual meter API set is [Spring Sleuth APIs](spring-sleuth-setup.md)
+
+### OpenTelemetry Exporter
+
+You can use OpenTelemetry Collector to transport the metrics to SkyWalking OAP.
+Read the doc on [Skywalking Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/skywalkingexporter/README.md) for a detailed guide.
+
+The following is the correspondence between the OpenTelemetry Metric Data Type and the Skywalking Data Collect Protocol: 
+
+| OpenTelemetry Metric Data Type | Skywalking Data Collect Protocol |
+|-----|-----|
+|MetricDataTypeGauge| MeterSingleValue |
+|MetricDataTypeSum| MeterSingleValue |
+|MetricDataTypeHistogram| MeterHistogram and two MeterSingleValues containing `$name_sum` and `$name_count` metrics. |
+|MetricDataTypeSummary| A series of MeterSingleValue containing tag `quantile` and two MeterSingleValues containing `$name_sum` and `$name_count` metrics. |
+|MetricDataTypeExponentialHistogram| Not Supported|
+
+Note: `$name` is the original metric name.
 
 ## Configuration file
 The meter receiver is configured via a configuration file. The configuration file defines everything related to receiving 
