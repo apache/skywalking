@@ -119,7 +119,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 sourceBuilder.setDestEndpointName(span.getOperationName());
                 sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
                 sourceBuilder.setDestServiceName(segmentObject.getService());
-                sourceBuilder.setDestLayer(Layer.GENERAL);
+                sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer()));
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(span.getComponentId());
                 setPublicAttrs(sourceBuilder, span);
@@ -130,10 +130,11 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setSourceServiceName(Const.USER_SERVICE_NAME);
             sourceBuilder.setSourceServiceInstanceName(Const.USER_INSTANCE_NAME);
             sourceBuilder.setSourceEndpointName(Const.USER_ENDPOINT_NAME);
+            sourceBuilder.setSourceLayer(Layer.UNDEFINED);
             sourceBuilder.setSourceNormal(false);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
-            sourceBuilder.setDestLayer(Layer.GENERAL);
+            sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer()));
             sourceBuilder.setDestEndpointName(span.getOperationName());
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
             sourceBuilder.setComponentId(span.getComponentId());
@@ -164,12 +165,13 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
 
         sourceBuilder.setSourceServiceName(segmentObject.getService());
         sourceBuilder.setSourceServiceInstanceName(segmentObject.getServiceInstance());
+        sourceBuilder.setSourceLayer(identifyServiceLayer(span.getSpanLayer()));
 
         final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(networkAddress);
         if (networkAddressAlias == null) {
             sourceBuilder.setDestServiceName(networkAddress);
             sourceBuilder.setDestServiceInstanceName(networkAddress);
-            sourceBuilder.setDestLayer(fromSpanLayerValue(span.getSpanLayer()));
+            sourceBuilder.setDestLayer(identifyRemoteServiceLayer(span.getSpanLayer()));
             sourceBuilder.setDestNormal(false);
         } else {
             /*
@@ -374,7 +376,10 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         });
     }
 
-    private Layer fromSpanLayerValue(SpanLayer spanLayer) {
+    /**
+     * Identify the layer of remote service. Such as  ${@link Layer#DATABASE} and ${@link Layer#CACHE}.
+     */
+    private Layer identifyRemoteServiceLayer(SpanLayer spanLayer) {
         switch (spanLayer) {
             case Unknown:
                 return Layer.UNDEFINED;
@@ -390,8 +395,22 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 return Layer.CACHE;
             case UNRECOGNIZED:
                 return Layer.UNDEFINED;
+            case FAAS:
+                return Layer.FAAS;
             default:
                 throw new UnexpectedException("Can't transfer to the Layer. SpanLayer=" + spanLayer);
+        }
+    }
+
+    /**
+     * Identify the layer of span's service/instance owner. Such as  ${@link Layer#FAAS} and ${@link Layer#GENERAL}.
+     */
+    private Layer identifyServiceLayer(SpanLayer spanLayer) {
+        if (SpanLayer.FAAS.equals(spanLayer)) {
+            // function as a Service
+            return Layer.FAAS;
+        } else {
+            return Layer.GENERAL;
         }
     }
 

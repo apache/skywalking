@@ -15,7 +15,7 @@
 
   cases:
     # service list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer SO11Y_SATELLITE
       expected: expected/satellite-service.yml
     # service metrics
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=satellite_service_server_cpu_utilization --service-name=satellite::satellite-service |yq e 'to_entries' -

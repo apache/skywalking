@@ -41,8 +41,11 @@ verify:
     # the interval between two retries, in millisecond.
     interval: 3s
   cases:
+    # layer list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql layer ls
+      expected: expected/layer.yml
     # service list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
       expected: expected/service.yml
     # service instance list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=php

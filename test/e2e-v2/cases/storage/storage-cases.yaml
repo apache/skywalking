@@ -14,8 +14,11 @@
 # limitations under the License.
 
 cases:
+  # layer list
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql layer ls
+    expected: expected/layer.yml
   # service list
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
     expected: expected/service.yml
   # service metrics
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name service_sla --service-name=e2e-service-provider | yq e 'to_entries' -

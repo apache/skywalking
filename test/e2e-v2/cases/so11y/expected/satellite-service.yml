@@ -16,5 +16,8 @@
 {{- contains . }}
 - id: {{ b64enc "satellite::satellite-service" }}.1
   name: satellite::satellite-service
-  group: ""
+  group: satellite
+  shortname: satellite-service
+  layers:
+    - SO11Y_SATELLITE
 {{- end }}
