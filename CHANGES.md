@@ -11,6 +11,7 @@ Release Notes.
   on JDK if JNDI is opened in default. Notice, using JVM option `-Dlog4j2.formatMsgNoLookups=true` or setting
   the `LOG4J_FORMAT_MSG_NO_LOOKUPS=”true”` environment variable also avoids CVEs.
 * Upgrade maven-wrapper to 3.1.0, maven to 3.8.4 for performance improvements and ARM more native support.
+* Exclude unnecessary libs when building under JDK 9+.
 
 #### OAP Server
 

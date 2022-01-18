@@ -73,12 +73,12 @@
             <outputDirectory>config</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../oap-server/server-starter/target/skywalking-oap-assembly/skywalking-oap/libs</directory>
+            <directory>${project.basedir}/../oap-server/server-starter/target/oap-libs</directory>
             <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
 
         <fileSet>
-            <directory>${project.basedir}/../oap-server/server-tools/profile-exporter/tool-profile-snapshot-exporter/target/skywalking-tools-exporter-assembly/skywalking-tools-exporter/libs</directory>
+            <directory>${project.basedir}/../oap-server/server-tools/profile-exporter/tool-profile-snapshot-exporter/target/oap-libs</directory>
             <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
 
