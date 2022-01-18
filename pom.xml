@@ -303,6 +303,18 @@
                 <version>${jmh.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <!-- These dependencies will be bundled in JDK9+ but we don't need them, just exclude them. -->
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

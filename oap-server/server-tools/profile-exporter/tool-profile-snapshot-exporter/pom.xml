@@ -37,22 +37,20 @@
     </dependencies>
 
     <build>
-        <finalName>skywalking-tools-exporter</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>assembly</id>
-                        <phase>package</phase>
+                        <id>copy-dependencies</id>
+                        <phase>process-resources</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/assembly.xml</descriptor>
-                            </descriptors>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>${project.build.directory}/oap-libs</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
