@@ -48,8 +48,12 @@
             <artifactId>graphql-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.graphql-java</groupId>
+            <groupId>com.graphql-java-kickstart</groupId>
             <artifactId>graphql-java-tools</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphql-java-extended-scalars</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

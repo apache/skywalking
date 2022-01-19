@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.query.graphql;
 
-import com.coxautodev.graphql.tools.SchemaParser;
 import graphql.GraphQL;
+import graphql.kickstart.tools.SchemaParser;
+import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLSchema;
 import org.apache.skywalking.oap.query.graphql.resolver.AggregationQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.AlarmQuery;
@@ -115,6 +116,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
                                            .resolvers(new EventQuery(getManager()))
                                            .file("query-protocol/metadata-v2.graphqls")
                                            .resolvers(new MetadataQueryV2(getManager()))
+                                           .scalars(ExtendedScalars.GraphQLLong)
                                            .build()
                                            .makeExecutableSchema();
         this.graphQL = GraphQL.newGraphQL(schema).build();

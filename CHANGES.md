@@ -33,6 +33,7 @@ Release Notes.
 * Adjust e2e case for V9 core.
 * Support ZGC GC time and count metric collecting.
 * Sync proto buffers files from upstream Envoy (Related to https://github.com/envoyproxy/envoy/pull/18955).
+* Bump up GraphQL related dependencies to latest versions.
 
 #### UI
 
