@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver;
+import graphql.kickstart.tools.GraphQLMutationResolver;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.query.input.ProfileTaskCreationRequest;
 import org.apache.skywalking.oap.server.core.CoreModule;

@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.EventQueryService;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;

@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.query.type.HealthStatus;

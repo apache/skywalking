@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-
+import graphql.kickstart.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +98,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
         Alarms alarms = getQueryService().getAlarm(
             scopeId, keyword, paging, startSecondTB, endSecondTB, tags);
 
-        final boolean selectEvents = env.getSelectionSet().get().entrySet().stream().anyMatch(it -> it.getKey().contains("/events/"));
+        final boolean selectEvents = env.getSelectionSet().contains("**/events/**");
 
         if (selectEvents) {
             return findRelevantEvents(alarms, conditionPrototype);
