@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 
-import org.apache.skywalking.banyandb.v1.Banyandb;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
@@ -29,8 +29,8 @@ import java.util.List;
 
 public class ProfileThreadSnapshotRecordBuilder extends BanyanDBStorageDataBuilder<ProfileThreadSnapshotRecord> {
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> searchableTags(ProfileThreadSnapshotRecord entity) {
-        List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(4);
+    protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(ProfileThreadSnapshotRecord entity) {
+        List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(4);
         searchable.add(TagAndValue.stringField(entity.getTaskId()));
         searchable.add(TagAndValue.stringField(entity.getSegmentId()));
         searchable.add(TagAndValue.longField(entity.getDumpTime()));
@@ -39,7 +39,7 @@ public class ProfileThreadSnapshotRecordBuilder extends BanyanDBStorageDataBuild
     }
 
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> dataTags(ProfileThreadSnapshotRecord entity) {
+    protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(ProfileThreadSnapshotRecord entity) {
         return Collections.singletonList(TagAndValue.binaryField(entity.getStackBinary()));
     }
 }

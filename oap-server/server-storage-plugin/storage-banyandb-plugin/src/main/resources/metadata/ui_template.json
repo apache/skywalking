@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "name": "ui_template",
+    "group": "default"
+  },
+  "tag_families": [
+    {
+      "name": "data",
+      "tags": [
+        {
+          "name": "type",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "configuration",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "activated",
+          "type": "TAG_TYPE_INT"
+        }
+      ]
+    },
+    {
+      "name": "searchable",
+      "tags": [
+        {
+          "name": "name",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "disabled",
+          "type": "TAG_TYPE_INT"
+        }
+      ]
+    }
+  ],
+  "entity": {
+    "tag_names": [
+    ]
+  },
+  "opts": {
+    "shard_num": 2,
+    "ttl": {
+      "val": 52000,
+      "unit": "DURATION_UNIT_WEEK"
+    }
+  },
+  "updated_at_nanoseconds": "2021-04-15T01:30:15.01Z"
+}

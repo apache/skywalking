@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "name": "segment_db.instance",
+    "name": "segment_status_code",
     "group": "default"
   },
   "tags": [
-    "db.instance"
+    "status_code"
   ],
   "type": "TYPE_INVERTED",
   "location": "LOCATION_SERIES",

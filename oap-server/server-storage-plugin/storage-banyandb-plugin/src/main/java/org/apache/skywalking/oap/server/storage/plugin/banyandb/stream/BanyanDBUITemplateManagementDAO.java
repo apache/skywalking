@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,7 +80,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
                 .dataTag(Tag.stringField(uiTemplate.getConfiguration()))
                 // data - activated
                 .dataTag(Tag.longField(uiTemplate.getActivated()))
-                .timestamp(1L)
+                .timestamp(Instant.now().toEpochMilli())
                 .elementId(uiTemplate.id())
                 .build();
         getClient().write(request);

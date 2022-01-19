@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 
-import org.apache.skywalking.banyandb.v1.Banyandb;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
@@ -55,17 +55,17 @@ public abstract class BanyanDBStorageDataBuilder<T extends StorageData> implemen
         return null;
     }
 
-    protected List<SerializableTag<Banyandb.TagValue>> filterSearchableTags(List<Tag> rawTags, List<String> indexTags) {
+    protected List<SerializableTag<BanyandbModel.TagValue>> filterSearchableTags(List<Tag> rawTags, List<String> indexTags) {
         if (rawTags == null) {
             return Collections.emptyList();
         }
-        Map<String, SerializableTag<Banyandb.TagValue>> map = new HashMap<>();
+        Map<String, SerializableTag<BanyandbModel.TagValue>> map = new HashMap<>();
         for (final Tag tag : rawTags) {
             map.put(tag.getKey().toLowerCase(), TagAndValue.stringField(tag.getValue()));
         }
-        final List<SerializableTag<Banyandb.TagValue>> tags = new ArrayList<>();
+        final List<SerializableTag<BanyandbModel.TagValue>> tags = new ArrayList<>();
         for (String indexedTag : indexTags) {
-            SerializableTag<Banyandb.TagValue> tag = map.get(indexedTag);
+            SerializableTag<BanyandbModel.TagValue> tag = map.get(indexedTag);
             if (tag == null) {
                 tags.add(TagAndValue.nullField());
             } else {
@@ -80,9 +80,9 @@ public abstract class BanyanDBStorageDataBuilder<T extends StorageData> implemen
         return entity.id();
     }
 
-    abstract protected List<SerializableTag<Banyandb.TagValue>> searchableTags(T entity);
+    abstract protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(T entity);
 
-    protected List<SerializableTag<Banyandb.TagValue>> dataTags(T entity) {
+    protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(T entity) {
         return Collections.emptyList();
     }
 }
