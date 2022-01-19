@@ -18,11 +18,17 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
@@ -37,6 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.AlarmRecordBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BrowserErrorLogRecordBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.EndpointRelationServerSideMetricsBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.EventBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.LogRecordBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.Metadata;
@@ -45,9 +52,16 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.ProfileTa
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.ProfileTaskRecordBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.ProfileThreadSnapshotRecordBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.SegmentRecordBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.ServiceInstanceRelationClientSideMetricsBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.ServiceInstanceRelationServerSideMetricsBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.ServiceRelationClientSideMetricsBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.ServiceRelationServerSideMetricsBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.UITemplateBuilder;
 
+@Slf4j
 public class BanyanDBStorageBuilderFactory implements StorageBuilderFactory {
+    private static final StorageBuilderFactory FALLBACK = new StorageBuilderFactory.Default();
+
     @Override
     public BuilderTemplateDefinition builderTemplate() {
         return new BuilderTemplateDefinition(StorageHashMapBuilder.class.getName(), "metrics-builder");
@@ -81,8 +95,18 @@ public class BanyanDBStorageBuilderFactory implements StorageBuilderFactory {
             return Metadata.EndpointTrafficBuilder.class;
         } else if (NetworkAddressAlias.class.equals(dataType)) {
             return NetworkAddressAliasBuilder.class;
+        } else if (EndpointRelationServerSideMetrics.class.equals(dataType)) {
+            return EndpointRelationServerSideMetricsBuilder.class;
+        } else if (ServiceRelationServerSideMetrics.class.equals(dataType)) {
+            return ServiceRelationServerSideMetricsBuilder.class;
+        } else if (ServiceRelationClientSideMetrics.class.equals(dataType)) {
+            return ServiceRelationClientSideMetricsBuilder.class;
+        } else if (ServiceInstanceRelationServerSideMetrics.class.equals(dataType)) {
+            return ServiceInstanceRelationServerSideMetricsBuilder.class;
+        } else if (ServiceInstanceRelationClientSideMetrics.class.equals(dataType)) {
+            return ServiceInstanceRelationClientSideMetricsBuilder.class;
         }
 
-        throw new UnsupportedOperationException("unsupported storage type");
+        return FALLBACK.builderOf(dataType, defaultBuilder);
     }
 }

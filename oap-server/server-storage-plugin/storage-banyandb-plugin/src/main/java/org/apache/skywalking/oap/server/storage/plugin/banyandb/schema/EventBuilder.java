@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.skywalking.banyandb.v1.Banyandb;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.source.Event;
@@ -29,8 +29,8 @@ import java.util.List;
 
 public class EventBuilder extends BanyanDBStorageDataBuilder<Event> {
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> searchableTags(Event entity) {
-        List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(8);
+    protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(Event entity) {
+        List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(8);
         searchable.add(TagAndValue.stringField(entity.getUuid()));
         searchable.add(TagAndValue.stringField(entity.getService()));
         searchable.add(TagAndValue.stringField(entity.getServiceInstance()));
@@ -43,7 +43,7 @@ public class EventBuilder extends BanyanDBStorageDataBuilder<Event> {
     }
 
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> dataTags(Event entity) {
+    protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(Event entity) {
         return ImmutableList.of(
                 TagAndValue.stringField(entity.getMessage()),
                 TagAndValue.stringField(entity.getParameters())

@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "name": "segment_db.instance",
+    "name": "segment_mq.topic",
     "group": "default"
   },
   "tags": [
-    "db.instance"
+    "mq.topic"
   ],
   "type": "TYPE_INVERTED",
   "location": "LOCATION_SERIES",

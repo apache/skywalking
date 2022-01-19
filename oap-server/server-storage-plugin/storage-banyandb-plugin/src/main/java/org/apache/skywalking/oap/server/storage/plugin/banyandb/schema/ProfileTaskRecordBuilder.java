@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 
-import org.apache.skywalking.banyandb.v1.Banyandb;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
@@ -28,8 +28,8 @@ import java.util.List;
 
 public class ProfileTaskRecordBuilder extends BanyanDBStorageDataBuilder<ProfileTaskRecord> {
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> searchableTags(ProfileTaskRecord entity) {
-        List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(9);
+    protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(ProfileTaskRecord entity) {
+        List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(9);
         searchable.add(TagAndValue.stringField(entity.id()));
         searchable.add(TagAndValue.stringField(entity.getServiceId()));
         searchable.add(TagAndValue.stringField(entity.getEndpointName()));
