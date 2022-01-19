@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+@Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
     public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
@@ -38,6 +40,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     protected void createTable(Model model) throws StorageException {
         StreamMetaInfo metaInfo = StreamMetaInfo.addModel(model);
         if (metaInfo != null) {
+            log.info("install index {}", model.getName());
             ((BanyanDBStorageClient) client).createStream(metaInfo);
         }
     }

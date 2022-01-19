@@ -22,19 +22,17 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.enumeration.Language;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
-import org.apache.skywalking.oap.server.core.query.type.Database;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
@@ -42,6 +40,7 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetaInfo;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -61,12 +60,15 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public List<Service> getAllServices(String group) throws IOException {
+    public List<Service> listServices(final String layer, final String group) throws IOException {
         StreamQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
-                ImmutableList.of(ServiceTraffic.NAME, ServiceTraffic.NODE_TYPE, ServiceTraffic.GROUP),
+                ImmutableList.of(ServiceTraffic.NAME, ServiceTraffic.LAYER, ServiceTraffic.GROUP),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
+                        if (StringUtil.isNotEmpty(layer)) {
+                            query.appendCondition(eq(ServiceTraffic.LAYER, Layer.valueOf(layer).value()));
+                        }
                         if (StringUtil.isNotEmpty(group)) {
                             query.appendCondition(eq(ServiceTraffic.GROUP, group));
                         }
@@ -77,13 +79,13 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public List<Service> getAllBrowserServices() throws IOException {
+    public List<Service> getServices(String serviceId) throws IOException {
         StreamQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
-                ImmutableList.of(ServiceTraffic.NAME, ServiceTraffic.NODE_TYPE, ServiceTraffic.GROUP),
+                ImmutableList.of(ServiceTraffic.NAME, ServiceTraffic.LAYER, ServiceTraffic.GROUP),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.appendCondition(eq(ServiceTraffic.NODE_TYPE, NodeType.Browser.value()));
+                        query.appendCondition(eq(ServiceTraffic.SERVICE_ID, serviceId));
                     }
                 });
 
@@ -91,67 +93,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public List<Database> getAllDatabases() throws IOException {
-        StreamQueryResponse resp = query(ServiceTraffic.INDEX_NAME, ImmutableList.of(ServiceTraffic.NAME, ServiceTraffic.NODE_TYPE),
-                new QueryBuilder() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.appendCondition(eq(ServiceTraffic.NODE_TYPE, (long) NodeType.Database.value()));
-                    }
-                });
-
-        return resp.getElements().stream().map(new DatabaseDeserializer()).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Service> searchServices(NodeType nodeType, String keyword) throws IOException {
-        StreamQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
-                ImmutableList.of(ServiceTraffic.NAME, ServiceTraffic.NODE_TYPE, ServiceTraffic.GROUP),
-                new QueryBuilder() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.appendCondition(eq(ServiceTraffic.NODE_TYPE, nodeType.value()));
-                    }
-                });
-
-        return resp.getElements().stream().map(new ServiceDeserializer())
-                .filter(s -> s.getName().contains(keyword)) // TODO: support analyzer in database
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Service searchService(NodeType nodeType, String serviceCode) throws IOException {
-        StreamQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
-                ImmutableList.of(ServiceTraffic.NAME, ServiceTraffic.NODE_TYPE, ServiceTraffic.GROUP),
-                new QueryBuilder() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.appendCondition(PairQueryCondition.StringQueryCondition.eq("searchable", ServiceTraffic.NAME, serviceCode));
-                        query.appendCondition(PairQueryCondition.LongQueryCondition.eq("searchable", ServiceTraffic.NODE_TYPE, (long) nodeType.value()));
-                        // only get one
-                        query.setLimit(1);
-                    }
-                });
-
-        return resp.getElements().stream().map(new ServiceDeserializer()).findAny().orElse(null);
-    }
-
-    @Override
-    public List<Endpoint> searchEndpoint(String keyword, String serviceId, int limit) throws IOException {
-        StreamQueryResponse resp = query(EndpointTraffic.INDEX_NAME,
-                ImmutableList.of(EndpointTraffic.NAME, EndpointTraffic.SERVICE_ID), new QueryBuilder() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.appendCondition(eq(EndpointTraffic.SERVICE_ID, serviceId));
-                    }
-                });
-
-        return resp.getElements().stream().map(new EndpointDeserializer()).filter(e -> e.getName().contains(keyword))
-                .limit(limit).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ServiceInstance> getServiceInstances(long startTimestamp, long endTimestamp, String serviceId) throws IOException {
+    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp, String serviceId) throws IOException {
         StreamQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
                 ImmutableList.of(InstanceTraffic.SERVICE_ID, InstanceTraffic.LAST_PING_TIME_BUCKET),
                 new QueryBuilder() {
@@ -171,15 +113,31 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         return resp.getElements().stream().map(new ServiceInstanceDeserializer()).collect(Collectors.toList());
     }
 
-    public static class DatabaseDeserializer implements RowEntityDeserializer<Database> {
-        @Override
-        public Database apply(RowEntity row) {
-            Database database = new Database();
-            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
-            database.setId(row.getId());
-            database.setName((String) searchable.get(0).getValue());
-            return database;
-        }
+    @Override
+    public ServiceInstance getInstance(String instanceId) throws IOException {
+        StreamQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
+                ImmutableList.of(InstanceTraffic.NAME, InstanceTraffic.SERVICE_ID), new QueryBuilder() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        query.appendCondition(eq(StreamMetaInfo.ID, instanceId));
+                    }
+                });
+
+        return resp.getElements().stream().map(new ServiceInstanceDeserializer()).findFirst().orElse(null);
+    }
+
+    @Override
+    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) throws IOException {
+        StreamQueryResponse resp = query(EndpointTraffic.INDEX_NAME,
+                ImmutableList.of(EndpointTraffic.NAME, EndpointTraffic.SERVICE_ID), new QueryBuilder() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        query.appendCondition(eq(EndpointTraffic.SERVICE_ID, serviceId));
+                    }
+                });
+
+        return resp.getElements().stream().map(new EndpointDeserializer()).filter(e -> e.getName().contains(keyword))
+                .limit(limit).collect(Collectors.toList());
     }
 
     public static class EndpointDeserializer implements RowEntityDeserializer<Endpoint> {
@@ -198,9 +156,13 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         public Service apply(RowEntity row) {
             Service service = new Service();
             final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
-            service.setId(row.getId());
             service.setName((String) searchable.get(0).getValue());
-            service.setGroup((String) searchable.get(2).getValue());
+            service.setId((String) searchable.get(1).getValue());
+            String layerName = Layer.valueOf(((Number) searchable.get(2).getValue()).intValue()).name();
+            service.getLayers().add(layerName);
+            service.setGroup((String) searchable.get(3).getValue());
+            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
+            service.setShortName((String) data.get(0).getValue());
             return service;
         }
     }
@@ -218,6 +180,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                     instanceTraffic.deserialize(remoteData);
                     serviceInstance.setName(instanceTraffic.getName());
                     serviceInstance.setId(instanceTraffic.getServiceId());
+                    serviceInstance.setLayer(instanceTraffic.getLayer().name());
 
                     if (instanceTraffic.getProperties() != null) {
                         for (Map.Entry<String, JsonElement> property : instanceTraffic.getProperties().entrySet()) {

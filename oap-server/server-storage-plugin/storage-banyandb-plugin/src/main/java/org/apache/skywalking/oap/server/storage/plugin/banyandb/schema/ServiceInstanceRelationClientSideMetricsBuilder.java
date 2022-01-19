@@ -21,26 +21,26 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
-import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class BrowserErrorLogRecordBuilder extends BanyanDBStorageDataBuilder<BrowserErrorLogRecord> {
+public class ServiceInstanceRelationClientSideMetricsBuilder extends BanyanDBStorageDataBuilder<ServiceInstanceRelationClientSideMetrics> {
     @Override
-    protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(BrowserErrorLogRecord entity) {
+    protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(ServiceInstanceRelationClientSideMetrics entity) {
         List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>();
-        searchable.add(TagAndValue.stringField(entity.getUniqueId()));
-        searchable.add(TagAndValue.stringField(entity.getServiceId()));
-        searchable.add(TagAndValue.stringField(entity.getServiceVersionId()));
-        searchable.add(TagAndValue.stringField(entity.getPagePathId()));
-        searchable.add(TagAndValue.longField(entity.getErrorCategory()));
+        searchable.add(TagAndValue.stringField(entity.getSourceServiceId()));
+        searchable.add(TagAndValue.stringField(entity.getSourceServiceInstanceId()));
+        searchable.add(TagAndValue.stringField(entity.getDestServiceId()));
+        searchable.add(TagAndValue.stringField(entity.getDestServiceInstanceId()));
+        searchable.add(TagAndValue.stringField(entity.getEntityId()));
         return searchable;
     }
 
     @Override
-    protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(BrowserErrorLogRecord entity) {
-        return Collections.singletonList(TagAndValue.binaryField(entity.getDataBinary()));
+    protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(ServiceInstanceRelationClientSideMetrics entity) {
+        return Collections.singletonList(TagAndValue.longField(entity.getComponentId()));
     }
 }

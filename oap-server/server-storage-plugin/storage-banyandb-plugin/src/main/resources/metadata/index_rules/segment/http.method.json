@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "name": "segment_db.instance",
+    "name": "segment_http.method",
     "group": "default"
   },
   "tags": [
-    "db.instance"
+    "http.method"
   ],
   "type": "TYPE_INVERTED",
   "location": "LOCATION_SERIES",

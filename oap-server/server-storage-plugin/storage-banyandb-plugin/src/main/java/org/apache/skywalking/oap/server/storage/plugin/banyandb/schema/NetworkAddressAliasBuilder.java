@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 
-import org.apache.skywalking.banyandb.v1.Banyandb;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
@@ -29,13 +29,13 @@ import java.util.List;
 
 public class NetworkAddressAliasBuilder extends BanyanDBStorageDataBuilder<NetworkAddressAlias> {
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> searchableTags(NetworkAddressAlias entity) {
+    protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(NetworkAddressAlias entity) {
         return Collections.singletonList(TagAndValue.longField(entity.getLastUpdateTimeBucket()));
     }
 
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> dataTags(NetworkAddressAlias entity) {
-        List<SerializableTag<Banyandb.TagValue>> data = new ArrayList<>();
+    protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(NetworkAddressAlias entity) {
+        List<SerializableTag<BanyandbModel.TagValue>> data = new ArrayList<>();
         data.add(TagAndValue.stringField(entity.getAddress()));
         data.add(TagAndValue.stringField(entity.getRepresentServiceId()));
         data.add(TagAndValue.stringField(entity.getRepresentServiceInstanceId()));

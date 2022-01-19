@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "name": "segment_db.instance",
+    "name": "ui_template_name",
     "group": "default"
   },
   "tags": [
-    "db.instance"
+    "name"
   ],
   "type": "TYPE_INVERTED",
   "location": "LOCATION_SERIES",
