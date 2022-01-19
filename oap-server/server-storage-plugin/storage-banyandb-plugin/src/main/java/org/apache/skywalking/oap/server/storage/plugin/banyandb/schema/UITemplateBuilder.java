@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.skywalking.banyandb.v1.Banyandb;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
@@ -29,7 +29,7 @@ import java.util.List;
 
 public class UITemplateBuilder extends BanyanDBStorageDataBuilder<UITemplate> {
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> searchableTags(UITemplate entity) {
+    protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(UITemplate entity) {
         return ImmutableList.of(
                 TagAndValue.stringField(entity.getName()),
                 TagAndValue.longField(entity.getDisabled())
@@ -37,8 +37,8 @@ public class UITemplateBuilder extends BanyanDBStorageDataBuilder<UITemplate> {
     }
 
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> dataTags(UITemplate entity) {
-        List<SerializableTag<Banyandb.TagValue>> data = new ArrayList<>();
+    protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(UITemplate entity) {
+        List<SerializableTag<BanyandbModel.TagValue>> data = new ArrayList<>();
         data.add(TagAndValue.stringField(entity.getType()));
         data.add(TagAndValue.stringField(entity.getConfiguration()));
         data.add(TagAndValue.longField(entity.getActivated()));

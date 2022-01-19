@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 
-import org.apache.skywalking.banyandb.v1.Banyandb;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
@@ -29,39 +30,68 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
+
 public class Metadata {
     public static class ServiceTrafficBuilder extends BanyanDBStorageDataBuilder<ServiceTraffic> {
         @Override
-        protected List<SerializableTag<Banyandb.TagValue>> searchableTags(ServiceTraffic entity) {
-            List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(3);
-            searchable.add(TagAndValue.stringField(entity.getName()));
-            searchable.add(TagAndValue.longField(entity.getNodeType().value()));
+        protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(ServiceTraffic entity) {
+            final String serviceName = entity.getName();
+            entity.setShortName(serviceName);
+            if (entity.isNormal()) {
+                int groupIdx = serviceName.indexOf(DOUBLE_COLONS_SPLIT);
+                if (groupIdx > 0) {
+                    entity.setGroup(serviceName.substring(0, groupIdx));
+                    entity.setShortName(serviceName.substring(groupIdx + 2));
+                }
+            }
+            List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(4);
+            // 0 - serviceName
+            searchable.add(TagAndValue.stringField(serviceName));
+            // 1 - serviceID
+            searchable.add(TagAndValue.stringField(entity.getServiceId()));
+            // 2 - layer
+            Layer layer = entity.getLayer();
+            searchable.add(TagAndValue.longField(layer != null ? layer.value() : Layer.UNDEFINED.value()));
+            // 3 - group
             searchable.add(TagAndValue.stringField(entity.getGroup()));
             return searchable;
+        }
+
+        @Override
+        protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(ServiceTraffic entity) {
+            // shortName
+            return Collections.singletonList(TagAndValue.stringField(entity.getShortName()));
         }
     }
 
     public static class EndpointTrafficBuilder extends BanyanDBStorageDataBuilder<EndpointTraffic> {
         @Override
-        protected List<SerializableTag<Banyandb.TagValue>> searchableTags(EndpointTraffic entity) {
-            List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(2);
-            searchable.add(TagAndValue.stringField(entity.getServiceId()));
+        protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(EndpointTraffic entity) {
+            List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(2);
+            // 0 - name
             searchable.add(TagAndValue.stringField(entity.getName()));
+            // 1 - serviceID
+            searchable.add(TagAndValue.stringField(entity.getServiceId()));
             return searchable;
         }
     }
 
     public static class InstanceTrafficBuilder extends BanyanDBStorageDataBuilder<InstanceTraffic> {
         @Override
-        protected List<SerializableTag<Banyandb.TagValue>> searchableTags(InstanceTraffic entity) {
-            List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(2);
+        protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(InstanceTraffic entity) {
+            List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(3);
+            // serviceID
             searchable.add(TagAndValue.stringField(entity.getServiceId()));
+            // lastPingTimestamp
             searchable.add(TagAndValue.longField(entity.getLastPingTimestamp()));
+            // ID: we have to duplicate "ID" here for query
+            searchable.add(TagAndValue.stringField(entity.id()));
             return searchable;
         }
 
         @Override
-        protected List<SerializableTag<Banyandb.TagValue>> dataTags(InstanceTraffic entity) {
+        protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(InstanceTraffic entity) {
             return Collections.singletonList(TagAndValue.binaryField(
                     entity.serialize().build().toByteArray()
             ));

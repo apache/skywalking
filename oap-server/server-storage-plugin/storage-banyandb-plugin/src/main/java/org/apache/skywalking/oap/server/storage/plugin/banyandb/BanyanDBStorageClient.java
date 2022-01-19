@@ -31,9 +31,6 @@ import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckab
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 
 /**
  * BanyanDBStorageClient is a simple wrapper for the underlying {@link BanyanDBClient},
@@ -71,10 +68,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     public void createStream(StreamMetaInfo streamMetaInfo) {
         Stream stm = this.client.define(streamMetaInfo.getStream());
         if (stm != null) {
-            // TODO: should be fixed in SDK
-            this.client.defineIndexRules(stm, ZonedDateTime.from(Instant.now()),
-                    ZonedDateTime.of(2099, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
-                    streamMetaInfo.getIndexRules().toArray(new IndexRule[]{}));
+            this.client.defineIndexRules(stm, streamMetaInfo.getIndexRules().toArray(new IndexRule[]{}));
         }
     }
 

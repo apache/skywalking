@@ -30,6 +30,9 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBStorageDataBuilder;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 
 /**
@@ -38,6 +41,9 @@ import java.util.Collections;
  * @param <T> The only ManagementData we have now is {@link UITemplate}
  */
 public class BanyanDBManagementDAO<T extends ManagementData> extends AbstractBanyanDBDAO implements IManagementDAO {
+    private final static long START_TIME_MILLI =
+            ZonedDateTime.of(2022, 1, 1, 0, 0, 0, 0,
+                    ZoneOffset.UTC).toInstant().toEpochMilli();
     private final BanyanDBStorageDataBuilder<T> storageBuilder;
 
     public BanyanDBManagementDAO(BanyanDBStorageClient client, BanyanDBStorageDataBuilder<T> storageBuilder) {
@@ -50,7 +56,7 @@ public class BanyanDBManagementDAO<T extends ManagementData> extends AbstractBan
         // ensure only insert once
         StreamQueryResponse resp = query(UITemplate.INDEX_NAME,
                 Collections.singletonList(UITemplate.NAME),
-                new TimestampRange(0L, 2L),
+                new TimestampRange(START_TIME_MILLI, Instant.now().toEpochMilli()),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
@@ -65,7 +71,7 @@ public class BanyanDBManagementDAO<T extends ManagementData> extends AbstractBan
         StreamWrite.StreamWriteBuilder streamWrite = this.storageBuilder
                 .entity2Storage((T) storageData)
                 .name(model.getName())
-                .timestamp(1L);
+                .timestamp(Instant.now().toEpochMilli());
         getClient().write(streamWrite.build());
     }
 }

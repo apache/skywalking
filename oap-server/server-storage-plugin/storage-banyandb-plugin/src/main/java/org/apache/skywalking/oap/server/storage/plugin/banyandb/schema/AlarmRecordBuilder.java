@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.skywalking.banyandb.v1.Banyandb;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
@@ -33,8 +33,8 @@ public class AlarmRecordBuilder extends BanyanDBStorageDataBuilder<AlarmRecord> 
     );
 
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> searchableTags(AlarmRecord entity) {
-        List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(2);
+    protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(AlarmRecord entity) {
+        List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(2);
         searchable.add(TagAndValue.longField(entity.getScope()));
         searchable.add(TagAndValue.longField(entity.getStartTime()));
         searchable.addAll(filterSearchableTags(entity.getTags(), INDEXED_TAGS));
@@ -42,8 +42,8 @@ public class AlarmRecordBuilder extends BanyanDBStorageDataBuilder<AlarmRecord> 
     }
 
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> dataTags(AlarmRecord entity) {
-        List<SerializableTag<Banyandb.TagValue>> data = new ArrayList<>(6);
+    protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(AlarmRecord entity) {
+        List<SerializableTag<BanyandbModel.TagValue>> data = new ArrayList<>(6);
         data.add(TagAndValue.stringField(entity.getName()));
         data.add(TagAndValue.stringField(entity.getId0()));
         data.add(TagAndValue.stringField(entity.getId1()));

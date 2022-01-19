@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.skywalking.banyandb.v1.Banyandb;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
@@ -40,8 +40,8 @@ public class SegmentRecordBuilder extends BanyanDBStorageDataBuilder<SegmentReco
     );
 
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> searchableTags(SegmentRecord segmentRecord) {
-        List<SerializableTag<Banyandb.TagValue>> searchable = new ArrayList<>(10);
+    protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(SegmentRecord segmentRecord) {
+        List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(10);
         searchable.add(TagAndValue.stringField(segmentRecord.getTraceId()));
         searchable.add(TagAndValue.stringField(segmentRecord.getServiceId()));
         searchable.add(TagAndValue.stringField(segmentRecord.getServiceInstanceId()));
@@ -54,7 +54,7 @@ public class SegmentRecordBuilder extends BanyanDBStorageDataBuilder<SegmentReco
     }
 
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> dataTags(SegmentRecord entity) {
+    protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(SegmentRecord entity) {
         return Collections.singletonList(TagAndValue.binaryField(entity.getDataBinary()));
     }
 }

@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.schema;
 
-import org.apache.skywalking.banyandb.v1.Banyandb;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.SerializableTag;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
@@ -29,13 +29,13 @@ import java.util.List;
 
 public class ProfileTaskLogRecordBuilder extends BanyanDBStorageDataBuilder<ProfileTaskLogRecord> {
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> searchableTags(ProfileTaskLogRecord entity) {
+    protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(ProfileTaskLogRecord entity) {
         return Collections.singletonList(TagAndValue.longField(entity.getOperationTime()));
     }
 
     @Override
-    protected List<SerializableTag<Banyandb.TagValue>> dataTags(ProfileTaskLogRecord entity) {
-        List<SerializableTag<Banyandb.TagValue>> data = new ArrayList<>();
+    protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(ProfileTaskLogRecord entity) {
+        List<SerializableTag<BanyandbModel.TagValue>> data = new ArrayList<>();
         data.add(TagAndValue.stringField(entity.getTaskId()));
         data.add(TagAndValue.stringField(entity.getInstanceId()));
         data.add(TagAndValue.longField(entity.getOperationType()));

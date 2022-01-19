@@ -91,6 +91,7 @@ public class ServiceTraffic extends Metrics {
      * The `un-normal` service is conjectured by telemetry data collected from agents on/in the `normal` service.
      */
     @Setter
+    @Getter
     private boolean isNormal = true;
 
     /**
