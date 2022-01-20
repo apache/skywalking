@@ -450,6 +450,17 @@ templates:
                 },
                 {
                   "width": 3,
+                  "title": "Thread Pool(Java Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_thread_pool",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine"
+                },      
+                {
+                  "width": 3,
                   "title": "CLR CPU  (.NET Service)",
                   "height": "250",
                   "entityType": "ServiceInstance",
