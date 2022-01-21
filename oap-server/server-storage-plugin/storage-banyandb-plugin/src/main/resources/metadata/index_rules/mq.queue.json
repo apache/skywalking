@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "name": "segment_mq.queue",
+    "name": "mq.queue",
     "group": "default"
   },
   "tags": [

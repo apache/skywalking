@@ -62,9 +62,10 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
 
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
             return CompletableFuture.allOf(prepareRequests.stream().map(prepareRequest -> {
-                if (prepareRequest instanceof InsertRequest) {
+                if (prepareRequest instanceof BanyanDBStreamInsertRequest) {
                     // TODO: return CompletableFuture<Void>
                     this.bulkProcessor.add(((BanyanDBStreamInsertRequest) prepareRequest).getStreamWrite());
+                } else {
                 }
                 return CompletableFuture.completedFuture(null);
             }).toArray(CompletableFuture[]::new));

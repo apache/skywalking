@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "name": "network_address_alias",
+    "group": "default"
+  },
+  "tag_families": [
+    {
+      "name": "data",
+      "tags": [
+        {
+          "name": "time_bucket",
+          "type": "TAG_TYPE_INT"
+        },
+        {
+          "name": "address",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "represent_service_id",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "represent_service_instance_id",
+          "type": "TAG_TYPE_STRING"
+        }
+      ]
+    },
+    {
+      "name": "searchable",
+      "tags": [
+        {
+          "name": "last_update_time_bucket",
+          "type": "TAG_TYPE_INT"
+        }
+      ]
+    }
+  ],
+  "entity": {
+    "tag_names": [
+    ]
+  },
+  "opts": {
+    "shard_num": 2,
+    "ttl": {
+      "val": 52000,
+      "unit": "DURATION_UNIT_WEEK"
+    }
+  },
+  "updated_at_nanoseconds": "2021-04-15T01:30:15.01Z"
+}

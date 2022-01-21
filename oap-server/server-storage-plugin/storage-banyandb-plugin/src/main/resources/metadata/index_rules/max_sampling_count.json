@@ -1,12 +1,12 @@
 {
   "metadata": {
-    "name": "segment_http.method",
+    "name": "max_sampling_count",
     "group": "default"
   },
   "tags": [
-    "http.method"
+    "max_sampling_count"
   ],
-  "type": "TYPE_INVERTED",
+  "type": "TYPE_TREE",
   "location": "LOCATION_SERIES",
   "updated_at": "2021-04-15T01:30:15.01Z"
 }

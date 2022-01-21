@@ -30,14 +30,23 @@ public class ProfileTaskRecordBuilder extends BanyanDBStorageDataBuilder<Profile
     @Override
     protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(ProfileTaskRecord entity) {
         List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(9);
+        // 0 - id
         searchable.add(TagAndValue.stringField(entity.id()));
+        // 1 - service_id
         searchable.add(TagAndValue.stringField(entity.getServiceId()));
+        // 2 - endpoint_name
         searchable.add(TagAndValue.stringField(entity.getEndpointName()));
+        // 3 - start_time
         searchable.add(TagAndValue.longField(entity.getStartTime()));
+        // 4 - duration
         searchable.add(TagAndValue.longField(entity.getDuration()));
+        // 5 - min_duration_threshold
         searchable.add(TagAndValue.longField(entity.getMinDurationThreshold()));
-        searchable.add(TagAndValue.longField(entity.getDuration()));
+        // 6 - dump_period
+        searchable.add(TagAndValue.longField(entity.getDumpPeriod()));
+        // 7 - create_time
         searchable.add(TagAndValue.longField(entity.getCreateTime()));
+        // 8 - max_sampling_count
         searchable.add(TagAndValue.longField(entity.getMaxSamplingCount()));
         return searchable;
     }

@@ -1,12 +1,12 @@
 {
   "metadata": {
-    "name": "segment_trace_id",
+    "name": "mq.broker",
     "group": "default"
   },
   "tags": [
-    "trace_id"
+    "mq.broker"
   ],
-  "type": "TYPE_TREE",
-  "location": "LOCATION_GLOBAL",
+  "type": "TYPE_INVERTED",
+  "location": "LOCATION_SERIES",
   "updated_at": "2021-04-15T01:30:15.01Z"
 }

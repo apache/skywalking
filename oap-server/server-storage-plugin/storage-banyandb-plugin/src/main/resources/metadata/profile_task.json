@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "name": "profile_task",
+    "group": "default"
+  },
+  "tag_families": [
+    {
+      "name": "searchable",
+      "tags": [
+        {
+          "name": "id",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "service_id",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "endpoint_name",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "start_time",
+          "type": "TAG_TYPE_INT"
+        },
+        {
+          "name": "duration",
+          "type": "TAG_TYPE_INT"
+        },
+        {
+          "name": "min_duration_threshold",
+          "type": "TAG_TYPE_INT"
+        },
+        {
+          "name": "dump_period",
+          "type": "TAG_TYPE_INT"
+        },
+        {
+          "name": "create_time",
+          "type": "TAG_TYPE_INT"
+        },
+        {
+          "name": "max_sampling_count",
+          "type": "TAG_TYPE_INT"
+        }
+      ]
+    }
+  ],
+  "entity": {
+    "tag_names": [
+    ]
+  },
+  "opts": {
+    "shard_num": 2,
+    "ttl": {
+      "val": 7,
+      "unit": "DURATION_UNIT_DAY"
+    }
+  },
+  "updated_at_nanoseconds": "2021-04-15T01:30:15.01Z"
+}

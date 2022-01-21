@@ -62,13 +62,13 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
             // searchable - last_update_time_bucket
             model.setLastUpdateTimeBucket(((Number) searchable.get(0).getValue()).longValue());
             final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
-            // data - time_bucket
+            // data 0 - time_bucket
             model.setTimeBucket(((Number) data.get(0).getValue()).longValue());
-            // data - address
+            // data 1 - address
             model.setAddress((String) data.get(1).getValue());
-            // data - represent_service_id
+            // data 2 - represent_service_id
             model.setRepresentServiceId((String) data.get(2).getValue());
-            // data - represent_service_instance_id
+            // data 3 - represent_service_instance_id
             model.setRepresentServiceInstanceId((String) data.get(3).getValue());
             return model;
         }

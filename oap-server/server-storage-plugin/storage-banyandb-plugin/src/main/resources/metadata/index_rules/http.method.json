@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "name": "segment_mq.broker",
+    "name": "http.method",
     "group": "default"
   },
   "tags": [
-    "mq.broker"
+    "http.method"
   ],
   "type": "TYPE_INVERTED",
   "location": "LOCATION_SERIES",

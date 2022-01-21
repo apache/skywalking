@@ -1,12 +1,12 @@
 {
   "metadata": {
-    "name": "segment_db.type",
+    "name": "trace_id",
     "group": "default"
   },
   "tags": [
-    "db.type"
+    "trace_id"
   ],
-  "type": "TYPE_INVERTED",
-  "location": "LOCATION_SERIES",
+  "type": "TYPE_TREE",
+  "location": "LOCATION_GLOBAL",
   "updated_at": "2021-04-15T01:30:15.01Z"
 }
