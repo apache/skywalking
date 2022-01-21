@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetaInfo;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,8 +40,6 @@ import java.util.stream.Collectors;
  * {@link org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord} is a stream
  */
 public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements IProfileTaskQueryDAO {
-    public static final String ID = "profile_task_query_id";
-
     public BanyanDBProfileTaskQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -48,7 +47,7 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
     @Override
     public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
         StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME,
-                ImmutableList.of(ID, ProfileTaskRecord.SERVICE_ID, ProfileTaskRecord.ENDPOINT_NAME,
+                ImmutableList.of(StreamMetaInfo.ID, ProfileTaskRecord.SERVICE_ID, ProfileTaskRecord.ENDPOINT_NAME,
                         ProfileTaskRecord.START_TIME, ProfileTaskRecord.DURATION, ProfileTaskRecord.MIN_DURATION_THRESHOLD,
                         ProfileTaskRecord.DUMP_PERIOD, ProfileTaskRecord.CREATE_TIME, ProfileTaskRecord.MAX_SAMPLING_COUNT), new QueryBuilder() {
                     @Override
@@ -87,13 +86,13 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
         }
 
         StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME,
-                ImmutableList.of(ID, ProfileTaskRecord.SERVICE_ID, ProfileTaskRecord.ENDPOINT_NAME,
+                ImmutableList.of(StreamMetaInfo.ID, ProfileTaskRecord.SERVICE_ID, ProfileTaskRecord.ENDPOINT_NAME,
                         ProfileTaskRecord.START_TIME, ProfileTaskRecord.DURATION, ProfileTaskRecord.MIN_DURATION_THRESHOLD,
                         ProfileTaskRecord.DUMP_PERIOD, ProfileTaskRecord.CREATE_TIME, ProfileTaskRecord.MAX_SAMPLING_COUNT),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.appendCondition(eq(ID, id));
+                        query.appendCondition(eq(StreamMetaInfo.ID, id));
                         query.setLimit(1);
                     }
                 });

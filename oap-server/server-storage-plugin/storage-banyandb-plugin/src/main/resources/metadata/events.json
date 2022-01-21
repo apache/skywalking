@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "name": "events",
+    "group": "default"
+  },
+  "tag_families": [
+    {
+      "name": "data",
+      "tags": [
+        {
+          "name": "message",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "parameters",
+          "type": "TAG_TYPE_STRING"
+        }
+      ]
+    },
+    {
+      "name": "searchable",
+      "tags": [
+        {
+          "name": "uuid",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "service",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "service_instance",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "endpoint",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "name",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "type",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "start_time",
+          "type": "TAG_TYPE_INT"
+        },
+        {
+          "name": "end_time",
+          "type": "TAG_TYPE_INT"
+        }
+      ]
+    }
+  ],
+  "entity": {
+    "tag_names": [
+    ]
+  },
+  "opts": {
+    "shard_num": 2,
+    "ttl": {
+      "val": 7,
+      "unit": "DURATION_UNIT_DAY"
+    }
+  },
+  "updated_at_nanoseconds": "2021-04-15T01:30:15.01Z"
+}

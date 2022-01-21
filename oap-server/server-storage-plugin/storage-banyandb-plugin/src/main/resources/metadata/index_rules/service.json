@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "name": "ui_template_disabled",
+    "name": "service",
     "group": "default"
   },
   "tags": [
-    "disabled"
+    "service"
   ],
   "type": "TYPE_INVERTED",
   "location": "LOCATION_SERIES",

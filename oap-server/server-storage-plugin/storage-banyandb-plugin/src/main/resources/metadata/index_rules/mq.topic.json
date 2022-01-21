@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "name": "segment_mq.topic",
+    "name": "mq.topic",
     "group": "default"
   },
   "tags": [

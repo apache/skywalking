@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "status_code",
+    "group": "default"
+  },
+  "tags": [
+    "status_code"
+  ],
+  "type": "TYPE_INVERTED",
+  "location": "LOCATION_SERIES",
+  "updated_at": "2021-04-15T01:30:15.01Z"
+}
