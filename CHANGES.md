@@ -35,6 +35,7 @@ Release Notes.
 * Sync proto buffers files from upstream Envoy (Related to https://github.com/envoyproxy/envoy/pull/18955).
 * Bump up GraphQL related dependencies to latest versions.
 * Add `normal` to V9 service meta query.
+* Support `scope=ALL` catalog for metrics.
 
 #### UI
 
