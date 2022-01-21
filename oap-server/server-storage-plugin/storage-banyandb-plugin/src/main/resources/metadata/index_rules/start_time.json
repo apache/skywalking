@@ -1,12 +1,12 @@
 {
   "metadata": {
-    "name": "segment_endpoint_id",
+    "name": "start_time",
     "group": "default"
   },
   "tags": [
-    "endpoint_id"
+    "start_time"
   ],
-  "type": "TYPE_INVERTED",
+  "type": "TYPE_TREE",
   "location": "LOCATION_SERIES",
   "updated_at": "2021-04-15T01:30:15.01Z"
 }

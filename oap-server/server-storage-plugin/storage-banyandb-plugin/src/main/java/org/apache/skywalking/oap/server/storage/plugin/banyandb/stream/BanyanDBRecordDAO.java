@@ -37,7 +37,7 @@ public class BanyanDBRecordDAO<T extends Record> implements IRecordDAO {
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
         StreamWrite.StreamWriteBuilder builder = storageBuilder.entity2Storage((T) record)
                 .name(model.getName())
-                .timestamp(TimeBucket.getTimeBucket(record.getTimeBucket(), model.getDownsampling()));
+                .timestamp(TimeBucket.getTimestamp(record.getTimeBucket(), model.getDownsampling()));
 
         return new BanyanDBStreamInsertRequest(builder.build());
     }

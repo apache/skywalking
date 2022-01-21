@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "name": "ui_template_name",
+    "name": "endpoint_name",
     "group": "default"
   },
   "tags": [
-    "name"
+    "endpoint_name"
   ],
   "type": "TYPE_INVERTED",
   "location": "LOCATION_SERIES",

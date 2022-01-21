@@ -103,6 +103,7 @@ public class StreamMetaInfo {
         try {
             InputStream is = StreamMetaInfo.class.getClassLoader().getResourceAsStream("metadata/" + name + ".json");
             if (is == null) {
+                log.warn("fail to find definition for {}", name);
                 return null;
             }
             String result = CharStreams.toString(new InputStreamReader(is, Charsets.UTF_8));
@@ -118,8 +119,9 @@ public class StreamMetaInfo {
     private static BanyandbDatabase.IndexRule parseIndexRulesFromJSON(String streamName, String name) {
         try {
             InputStream is = StreamMetaInfo.class.getClassLoader().getResourceAsStream(String.join("/",
-                    new String[]{"metadata", "index_rules", streamName, name + ".json"}));
+                    new String[]{"metadata", "index_rules", name + ".json"}));
             if (is == null) {
+                log.warn("fail to find index rules for {}", streamName);
                 return null;
             }
             String result = CharStreams.toString(new InputStreamReader(is, Charsets.UTF_8));

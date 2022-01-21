@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "last_update_time_bucket",
+    "group": "default"
+  },
+  "tags": [
+    "last_update_time_bucket"
+  ],
+  "type": "TYPE_TREE",
+  "location": "LOCATION_SERIES",
+  "updated_at": "2021-04-15T01:30:15.01Z"
+}

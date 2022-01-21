@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "name": "segment_db.instance",
+    "name": "db.instance",
     "group": "default"
   },
   "tags": [

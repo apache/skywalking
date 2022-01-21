@@ -45,7 +45,7 @@ public class BanyanDBMetricsDAO<T extends Metrics> implements IMetricsDAO {
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         StreamWrite.StreamWriteBuilder builder = this.storageBuilder.entity2Storage((T) metrics)
                 .name(model.getName())
-                .timestamp(TimeBucket.getTimeBucket(metrics.getTimeBucket(), model.getDownsampling()));
+                .timestamp(TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling()));
         return new BanyanDBStreamInsertRequest(builder.build());
     }
 
