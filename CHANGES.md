@@ -36,6 +36,7 @@ Release Notes.
 * Bump up GraphQL related dependencies to latest versions.
 * Add `normal` to V9 service meta query.
 * Support `scope=ALL` catalog for metrics.
+* Bump up H2 to 2.1.210 to fix CVE-2022-23221.
 
 #### UI
 
