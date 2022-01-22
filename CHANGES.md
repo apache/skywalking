@@ -36,6 +36,7 @@ Release Notes.
 * Bump up GraphQL related dependencies to latest versions.
 * Add `normal` to V9 service meta query.
 * Support `scope=ALL` catalog for metrics.
+* Fix CVE-2022-23221. H2 Console before 2.1.210 allows remote attackers to execute arbitrary code via a jdbc:h2:mem JDBC URL containing the IGNORE_UNKNOWN_SETTINGS=TRUE;FORBID_CREATION=FALSE;INIT=RUNSCRIPT substring.
 
 #### UI
 
