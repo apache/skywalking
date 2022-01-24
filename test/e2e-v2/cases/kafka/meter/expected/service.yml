@@ -18,6 +18,7 @@
   name: e2e-service-provider
   group: ""
   shortname: e2e-service-provider
+  normal: true
   layers:
     - GENERAL
 {{- end }}
