@@ -230,7 +230,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | port | DCS server binding port. | SW_DCS_SERVER_PORT | 80 |
 | - | - | clusterName | Cluster name when reading the latest configuration from DSC server. | SW_DCS_CLUSTER_NAME | SkyWalking|
 | - | - | period | The period of reading data from DSC server by the OAP (in seconds). | SW_DCS_PERIOD | 20 |
-| - | apollo| apolloMeta| `apollo.meta` in Apollo. | SW_CONFIG_APOLLO | http://106.12.25.204:8080 | 
+| - | apollo| apolloMeta| `apollo.meta` in Apollo. | SW_CONFIG_APOLLO | http://localhost:8080 | 
 | - | - | apolloCluster | `apollo.cluster` in Apollo. | SW_CONFIG_APOLLO_CLUSTER | default|
 | - | - | apolloEnv | `env` in Apollo. | SW_CONFIG_APOLLO_ENV | - |
 | - | - | appId | `app.id` in Apollo. | SW_CONFIG_APOLLO_APP_ID | skywalking |
