@@ -17,5 +17,6 @@
   name: test-ui
   group: ""
   shortname: test-ui
+  normal: true
   layers:
     - BROWSER
