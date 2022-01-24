@@ -18,6 +18,7 @@
   name: vm::vm-service
   shortname: vm-service
   group: vm
+  normal: true
   layers:
     - OS_LINUX
 {{- end }}

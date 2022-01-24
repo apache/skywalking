@@ -18,24 +18,28 @@
   name: e2e-service-provider
   group: ""
   shortname: e2e-service-provider
+  normal: true
   layers:
     - GENERAL
 - id: {{ b64enc "e2e-service-consumer" }}.1
   name: e2e-service-consumer
   group: ""
   shortname: e2e-service-consumer
+  normal: true
   layers:
     - GENERAL
 - id: {{ b64enc "localhost:-1" }}.0
   name: localhost:-1
   group: ""
   shortname: localhost:-1
+  normal: false
   layers:
     - VIRTUAL_DATABASE
 - id: {{ b64enc "oap::oap-server" }}.1
   name: oap::oap-server
   group: oap
   shortname: oap-server
+  normal: true
   layers:
     - SO11Y_OAP
 {{- end }}
