@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v2
-      - run: sudo npm install -g markdown-link-check
+      - run: sudo npm install -g markdown-link-check@3.8.7
       - run: |
           for file in $(find . -name "*.md"); do
             markdown-link-check -c .dlc.json -q "$file"
