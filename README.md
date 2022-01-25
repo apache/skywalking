@@ -41,7 +41,7 @@ including
 1. Go and C++ SDKs.
 1. LUA agent especially for Nginx, OpenResty and Apache APISIX.
 1. Browser agent.
-1. Service Mesh Observability. Control panel and data panel. 
+1. Service Mesh Observability. Control plane and data plane. 
 1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer), Zabbix.
 1. Logs.
 1. Zipkin v1/v2 trace.(No Analysis)
