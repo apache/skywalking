@@ -12,6 +12,8 @@ Release Notes.
   the `LOG4J_FORMAT_MSG_NO_LOOKUPS=”true”` environment variable also avoids CVEs.
 * Upgrade maven-wrapper to 3.1.0, maven to 3.8.4 for performance improvements and ARM more native support.
 * Exclude unnecessary libs when building under JDK 9+.
+* Migrate base Docker image to eclipse-temurin as adoptopenjdk is deprecated.
+* Add E2E test under Java 17.
 
 #### OAP Server
 
