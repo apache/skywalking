@@ -81,10 +81,11 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
 
     private JsonObject execute(String request, Map<String, Object> variables) {
         try {
-            ExecutionInput executionInput = ExecutionInput.newExecutionInput()
-                                                          .query(request)
-                                                          .variables(variables)
-                                                          .build();
+            final ExecutionInput.Builder queryBuilder = ExecutionInput.newExecutionInput().query(request);
+            if (CollectionUtils.isNotEmpty(variables)) {
+                queryBuilder.variables(variables);
+            }
+            final ExecutionInput executionInput = queryBuilder.build();
             ExecutionResult executionResult = graphQL.execute(executionInput);
             LOGGER.debug("Execution result is {}", executionResult);
             Object data = executionResult.getData();
