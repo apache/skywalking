@@ -12,6 +12,8 @@ Release Notes.
   the `LOG4J_FORMAT_MSG_NO_LOOKUPS=”true”` environment variable also avoids CVEs.
 * Upgrade maven-wrapper to 3.1.0, maven to 3.8.4 for performance improvements and ARM more native support.
 * Exclude unnecessary libs when building under JDK 9+.
+* Migrate base Docker image to eclipse-temurin as adoptopenjdk is deprecated.
+* Add E2E test under Java 17.
 
 #### OAP Server
 
@@ -33,6 +35,11 @@ Release Notes.
 * Adjust e2e case for V9 core.
 * Support ZGC GC time and count metric collecting.
 * Sync proto buffers files from upstream Envoy (Related to https://github.com/envoyproxy/envoy/pull/18955).
+* Bump up GraphQL related dependencies to latest versions.
+* Add `normal` to V9 service meta query.
+* Support `scope=ALL` catalog for metrics.
+* Bump up H2 to 2.1.210 to fix CVE-2022-23221.
+* E2e: Add `normal` field to Service.
 
 #### UI
 

@@ -18,6 +18,7 @@
   name: satellite::satellite-service
   group: satellite
   shortname: satellite-service
+  normal: true
   layers:
     - SO11Y_SATELLITE
 {{- end }}

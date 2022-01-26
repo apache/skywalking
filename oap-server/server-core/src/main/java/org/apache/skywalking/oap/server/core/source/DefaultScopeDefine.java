@@ -306,7 +306,7 @@ public class DefaultScopeDefine {
      * Get the catalog string name of the given scope
      *
      * @param scope id of the source scope.
-     * @return literal string name of the catalog owning the scope.
+     * @return literal string name of the catalog owning the scope. Return `ALL` by default.
      */
     public static String catalogOf(int scope) {
         if (inServiceCatalog(scope)) {
@@ -327,7 +327,7 @@ public class DefaultScopeDefine {
         if (inEndpointRelationCatalog(scope)) {
             return ENDPOINT_RELATION_CATALOG_NAME;
         }
-        return "UNKNOWN";
+        return "ALL";
     }
 
     /**

@@ -25,7 +25,7 @@ services:
     expose:
       - 1521
     healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 1521"]
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/1521"]
       interval: 5s
       timeout: 60s
       retries: 120
