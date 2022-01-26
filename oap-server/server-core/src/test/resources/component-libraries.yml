@@ -335,6 +335,9 @@ AspNet:
 SmartSql:
   id: 3016
   languages: C#
+FreeSql:
+  id: 3017
+  languages: C#
 
 # NoeJS components
 # [4000, 5000) for Node.js agent
