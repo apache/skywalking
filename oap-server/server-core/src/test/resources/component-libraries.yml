@@ -336,7 +336,6 @@ SmartSql:
   id: 3016
   languages: C#
 
-
 # NoeJS components
 # [4000, 5000) for Node.js agent
 HttpServer:
