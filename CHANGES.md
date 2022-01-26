@@ -34,10 +34,12 @@ Release Notes.
 * Support ZGC GC time and count metric collecting.
 * Sync proto buffers files from upstream Envoy (Related to https://github.com/envoyproxy/envoy/pull/18955).
 
+
 #### UI
 
 * Remove unused jars (log4j-api.jar) in classpath.
 * Bump up netty version to fix CVE.
+* Add FreeSql dotnet component
 
 #### Documentation
 
