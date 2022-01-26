@@ -40,6 +40,7 @@ Release Notes.
 * Support `scope=ALL` catalog for metrics.
 * Bump up H2 to 2.1.210 to fix CVE-2022-23221.
 * E2e: Add `normal` field to Service.
+* Add FreeSql component ID(3017) of dotnet agent.
 
 #### UI
 
