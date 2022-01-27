@@ -33,7 +33,6 @@ services:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
-      SW_STORAGE: iotdb
       SW_SEARCHABLE_ALARM_TAG_KEYS: level,receivers
     ports:
       - 12800
