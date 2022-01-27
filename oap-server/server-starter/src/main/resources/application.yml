@@ -39,6 +39,8 @@ cluster:
     # Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
     hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
     aclToken: ${SW_CLUSTER_CONSUL_ACLTOKEN:""}
+    internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:""}
+    internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:-1}
   etcd:
     # etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
     endpoints: ${SW_CLUSTER_ETCD_ENDPOINTS:localhost:2379}
@@ -47,6 +49,8 @@ cluster:
     authentication: ${SW_CLUSTER_ETCD_AUTHENTICATION:false}
     user: ${SW_CLUSTER_ETCD_USER:}
     password: ${SW_CLUSTER_ETCD_PASSWORD:}
+    internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:""}
+    internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:-1}
   nacos:
     serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
     hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
@@ -58,6 +62,8 @@ cluster:
     # Nacos auth accessKey
     accessKey: ${SW_CLUSTER_NACOS_ACCESSKEY:""}
     secretKey: ${SW_CLUSTER_NACOS_SECRETKEY:""}
+    internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:""}
+    internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:-1}
 core:
   selector: ${SW_CORE:default}
   default:

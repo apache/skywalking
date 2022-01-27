@@ -57,6 +57,10 @@ services:
       SW_CLUSTER_ZK_HOST_PORT: zk:2181
       SW_CLUSTER_INTERNAL_COM_HOST: oap1
       SW_CLUSTER_INTERNAL_COM_PORT: 11800
+      SW_CORE_DATA_KEEPER_EXECUTE_PERIOD: 100
+      SW_TELEMETRY: prometheus
+    ports:
+      - 1234
     depends_on:
       zk:
         condition: service_healthy
@@ -77,6 +81,10 @@ services:
       SW_CLUSTER_ZK_HOST_PORT: zk:2181
       SW_CLUSTER_INTERNAL_COM_HOST: oap2
       SW_CLUSTER_INTERNAL_COM_PORT: 11800
+      SW_CORE_DATA_KEEPER_EXECUTE_PERIOD: 100
+      SW_TELEMETRY: prometheus
+    ports:
+      - 1234
     depends_on:
       zk:
         condition: service_healthy

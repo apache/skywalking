@@ -43,6 +43,8 @@ Release Notes.
 * Add FreeSql component ID(3017) of dotnet agent.
 * E2E: verify OAP cluster model data aggregation.
 * Fix `SelfRemoteClient` self observing metrics.
+* Add env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT` for cluster selectors `zookeeper`,`consul`,`etcd` and `nacos`.
+* Doc update: `configuration-vocabulary`,`backend-cluster` about env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT`.
 
 #### UI
 

@@ -63,19 +63,21 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | consul| serviceName| Service name for SkyWalking cluster. |SW_SERVICE_NAME|SkyWalking_OAP_Cluster|
 | - | - | hostPort| Hosts and ports for Consul cluster.| SW_CLUSTER_CONSUL_HOST_PORT|localhost:8500|
 | - | - | aclToken| ACL Token of Consul. Empty string means `without ALC token`. | SW_CLUSTER_CONSUL_ACLTOKEN | - |
-| - | - | internalComHost| The hostname registered in Consul for internal communications of the OAP cluster. | - | -|
-| - | - | internalComPort| The port registered in Consul for internal communications of the OAP cluster. | - | -1|
+| - | - | internalComHost| The hostname registered in Consul for internal communications of the OAP cluster. | SW_CLUSTER_INTERNAL_COM_HOST | -|
+| - | - | internalComPort| The port registered in Consul for internal communications of the OAP cluster. | SW_CLUSTER_INTERNAL_COM_PORT | -1|
 | - | etcd| serviceName| Service name for SkyWalking cluster. |SW_CLUSTER_ETCD_SERVICE_NAME|SkyWalking_OAP_Cluster|
 | - | - | endpoints| Hosts and ports for etcd cluster. | SW_CLUSTER_ETCD_ENDPOINTS|localhost:2379|
 | - | - | namespace | Namespace for SkyWalking cluster. |SW_CLUSTER_ETCD_NAMESPACE | /skywalking |
 | - | - | authentication | Indicates whether there is authentication. | SW_CLUSTER_ETCD_AUTHENTICATION | false |
 | - | - | user | Etcd auth username. | SW_CLUSTER_ETCD_USER | |
 | - | - | password | Etcd auth password. | SW_CLUSTER_ETCD_PASSWORD | |
+| - | - | internalComHost| The hostname registered in etcd for internal communications of the OAP cluster. | SW_CLUSTER_INTERNAL_COM_HOST | -|
+| - | - | internalComPort| The port registered in etcd for internal communications of the OAP cluster. | SW_CLUSTER_INTERNAL_COM_PORT | -1|
 | - | Nacos| serviceName| Service name for SkyWalking cluster. |SW_SERVICE_NAME|SkyWalking_OAP_Cluster|
 | - | - | hostPort| Hosts and ports for Nacos cluster.| SW_CLUSTER_NACOS_HOST_PORT|localhost:8848|
 | - | - | namespace| Namespace used by SkyWalking node coordination. | SW_CLUSTER_NACOS_NAMESPACE|public|
-| - | - | internalComHost| The hostname registered in Nacos for internal communications of the OAP cluster. | - | -|
-| - | - | internalComPort| The port registered in Nacos for internal communications of the OAP cluster. | - | -1|
+| - | - | internalComHost| The hostname registered in Nacos for internal communications of the OAP cluster. | SW_CLUSTER_INTERNAL_COM_HOST | -|
+| - | - | internalComPort| The port registered in Nacos for internal communications of the OAP cluster. | SW_CLUSTER_INTERNAL_COM_PORT | -1|
 | - | - | username | Nacos Auth username. | SW_CLUSTER_NACOS_USERNAME | - |
 | - | - | password | Nacos Auth password. | SW_CLUSTER_NACOS_PASSWORD | - |
 | - | - | accessKey | Nacos Auth accessKey. | SW_CLUSTER_NACOS_ACCESSKEY | - |
