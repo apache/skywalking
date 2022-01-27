@@ -13,15 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-traces:
-{{- contains .traces }}
-- segmentid: {{ notEmpty .segmentid }}
-  endpointnames:
-    - POST:/users
-  duration: {{ ge .duration 0 }}
-  start: "{{ notEmpty .start}}"
-  iserror: false
-  traceids:
-    - {{ index .traceids 0 }}
-{{- end }}
-total: {{ gt .total 0 }}
+- key: 2022-01-26 0259
+  value: 0
+- key: 2022-01-26 0300
+  value: 200
+- key: 2022-01-26 0301
+  value: 0

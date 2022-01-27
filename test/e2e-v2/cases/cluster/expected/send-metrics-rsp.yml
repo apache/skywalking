@@ -13,7 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- key: {{ notEmpty .key }}
-  value: {{ ge .value 1 }}
-{{- end }}
+Metrics send success!Metrics send success!

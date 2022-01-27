@@ -12,36 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-{{- contains . }}
-- key: 0
-  value:
-  {{- contains .value }}
-  - key: {{ notEmpty .key }}
-    value: {{ ge .value 1 }}
-  {{- end }}
-- key: 1
-  value:
-  {{- contains .value }}
-  - key: {{ notEmpty .key }}
-    value: {{ ge .value 1 }}
-  {{- end }}
-- key: 2
-  value:
-  {{- contains .value }}
-  - key: {{ notEmpty .key }}
-    value: {{ ge .value 1 }}
-  {{- end }}
-- key: 3
-  value:
-  {{- contains .value }}
-  - key: {{ notEmpty .key }}
-    value: {{ ge .value 1 }}
-  {{- end }}
-- key: 4
-  value:
-  {{- contains .value }}
-  - key: {{ notEmpty .key }}
-    value: {{ ge .value 1 }}
-  {{- end }}
-{{- end }}
+- key: 2022-01-26
+  value: 200
+- key: 2022-01-27
+  value: 0

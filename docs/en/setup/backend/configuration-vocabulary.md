@@ -27,6 +27,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | metricsDataTTL| The lifecycle of metrics data (in days), including metadata. We recommend setting metricsDataTTL >= recordDataTTL. Minimum value is 2. | SW_CORE_METRICS_DATA_TTL|7|
 | - | - | l1FlushPeriod| The period of L1 aggregation flush to L2 aggregation (in milliseconds). | SW_CORE_L1_AGGREGATION_FLUSH_PERIOD | 500 |
 | - | - | storageSessionTimeout| The threshold of session time (in milliseconds). Default value is 70000. | SW_CORE_STORAGE_SESSION_TIMEOUT | 70000 |
+| - | - | persistentPeriod| The period of doing data persistence. Unit is second.Default value is 25s | SW_CORE_PERSISTENT_PERIOD | 25 |
 | - | - | enableDatabaseSession| Cache metrics data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute. |SW_CORE_ENABLE_DATABASE_SESSION|true|
 | - | - | topNReportPeriod|The execution period (in minutes) of top N sampler, which saves sampled data into the storage. |SW_CORE_TOPN_REPORT_PERIOD|10|
 | - | - | activeExtraModelColumns|Appends entity names (e.g. service names) into metrics storage entities. |SW_CORE_ACTIVE_EXTRA_MODEL_COLUMNS|false|
@@ -54,8 +55,8 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | enableACL| Opens ACL using `schema` and `expression`. |SW_ZK_ENABLE_ACL| false|
 | - | - | schema | Schema for the authorization. |SW_ZK_SCHEMA|digest|
 | - | - | expression | Expression for the authorization. |SW_ZK_EXPRESSION|skywalking:skywalking|
-| - | - | internalComHost| The hostname registered in Zookeeper for the internal communication of OAP cluster. | - | -|
-| - | - | internalComPort| The port registered in Zookeeper for the internal communication of OAP cluster. | - | -1|
+| - | - | internalComHost| The hostname registered in Zookeeper for the internal communication of OAP cluster. | SW_CLUSTER_INTERNAL_COM_HOST | -|
+| - | - | internalComPort| The port registered in Zookeeper for the internal communication of OAP cluster. | SW_CLUSTER_INTERNAL_COM_PORT | -1|
 | - | kubernetes| namespace| Namespace deployed by SkyWalking in k8s. |SW_CLUSTER_K8S_NAMESPACE|default|
 | - | - | labelSelector| Labels used for filtering OAP deployment in k8s. |SW_CLUSTER_K8S_LABEL| app=collector,release=skywalking|
 | - | - | uidEnvName| Environment variable name for reading uid. | SW_CLUSTER_K8S_UID|SKYWALKING_COLLECTOR_UID|

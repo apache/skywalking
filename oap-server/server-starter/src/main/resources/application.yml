@@ -28,6 +28,8 @@ cluster:
     enableACL: ${SW_ZK_ENABLE_ACL:false} # disable ACL in default
     schema: ${SW_ZK_SCHEMA:digest} # only support digest schema
     expression: ${SW_ZK_EXPRESSION:skywalking:skywalking}
+    internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:""}
+    internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:-1}
   kubernetes:
     namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
     labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
@@ -94,6 +96,8 @@ core:
     l1FlushPeriod: ${SW_CORE_L1_AGGREGATION_FLUSH_PERIOD:500}
     # The threshold of session time. Unit is ms. Default value is 70s.
     storageSessionTimeout: ${SW_CORE_STORAGE_SESSION_TIMEOUT:70000}
+    # The period of doing data persistence. Unit is second.Default value is 25s
+    persistentPeriod: ${SW_CORE_PERSISTENT_PERIOD:25}
     # Cache metrics data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
     # the metrics may not be accurate within that minute.
     enableDatabaseSession: ${SW_CORE_ENABLE_DATABASE_SESSION:true}

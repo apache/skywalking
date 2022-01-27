@@ -47,9 +47,16 @@ services:
     extends:
       file: ../../../../script/docker-compose/base-compose.yml
       service: oap
+    volumes:
+      - ../../test-downsampling.yaml:/skywalking/config/meter-analyzer-config/test-downsampling.yaml
     environment:
       SW_CLUSTER: zookeeper
       SW_STORAGE: elasticsearch
+      SW_CORE_PERSISTENT_PERIOD: 5
+      SW_METER_ANALYZER_ACTIVE_FILES: test-downsampling
+      SW_CLUSTER_ZK_HOST_PORT: zk:2181
+      SW_CLUSTER_INTERNAL_COM_HOST: oap1
+      SW_CLUSTER_INTERNAL_COM_PORT: 11800
     depends_on:
       zk:
         condition: service_healthy
@@ -60,9 +67,16 @@ services:
     extends:
       file: ../../../../script/docker-compose/base-compose.yml
       service: oap
+    volumes:
+      - ../../test-downsampling.yaml:/skywalking/config/meter-analyzer-config/test-downsampling.yaml
     environment:
       SW_CLUSTER: zookeeper
       SW_STORAGE: elasticsearch
+      SW_CORE_PERSISTENT_PERIOD: 5
+      SW_METER_ANALYZER_ACTIVE_FILES: test-downsampling
+      SW_CLUSTER_ZK_HOST_PORT: zk:2181
+      SW_CLUSTER_INTERNAL_COM_HOST: oap2
+      SW_CLUSTER_INTERNAL_COM_PORT: 11800
     depends_on:
       zk:
         condition: service_healthy
@@ -85,30 +99,50 @@ services:
     ports:
     - 8080
 
-  provider1:
-    extends:
-      file: ../../../../script/docker-compose/base-compose.yml
-      service: provider
+  sender1:
+    image: "eclipse-temurin:8-jre"
+    volumes:
+      - ../../../../java-test-service/e2e-mock-sender/target/e2e-mock-sender-2.0.0.jar:/e2e-mock-sender-2.0.0.jar
+    command: [ "java", "-jar", "/e2e-mock-sender-2.0.0.jar" ]
     environment:
-      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap2:11800
-      SW_AGENT_INSTANCE_NAME: provider1
-    depends_on:
-      oap2:
-        condition: service_healthy
-
-  consumer:
-    extends:
-      file: ../../../../script/docker-compose/base-compose.yml
-      service: consumer
-    environment:
-      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap1:11800
-      PROVIDER_URL: http://provider1:9090
+      OAP_HOST: oap1
+      OAP_GRPC_PORT: 11800
+    networks:
+      - e2e
+    ports:
+      - 9093
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 9093" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
     depends_on:
       oap1:
         condition: service_healthy
-      provider1:
+      oap2:
         condition: service_healthy
+
+  sender2:
+    image: "eclipse-temurin:8-jre"
+    volumes:
+      - ../../../../java-test-service/e2e-mock-sender/target/e2e-mock-sender-2.0.0.jar:/e2e-mock-sender-2.0.0.jar
+    command: [ "java", "-jar", "/e2e-mock-sender-2.0.0.jar" ]
+    environment:
+      OAP_HOST: oap2
+      OAP_GRPC_PORT: 11800
+    networks:
+      - e2e
     ports:
-      - 9092
+      - 9093
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 9093" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      oap1:
+        condition: service_healthy
+      oap2:
+        condition: service_healthy
 networks:
   e2e:
