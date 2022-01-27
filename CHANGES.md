@@ -38,6 +38,8 @@ Release Notes.
 * Support `scope=ALL` catalog for metrics.
 * Bump up H2 to 2.1.210 to fix CVE-2022-23221.
 * E2e: Add `normal` field to Service.
+* Fix IoTDB Storage Option insert null index value.
+* Set the default value of SW_STORAGE_IOTDB_SESSIONPOOL_SIZE to 2 * CPU_Cores
 
 #### UI
 
