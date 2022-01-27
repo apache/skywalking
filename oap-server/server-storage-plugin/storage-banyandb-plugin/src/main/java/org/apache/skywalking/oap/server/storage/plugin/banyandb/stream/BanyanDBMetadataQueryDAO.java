@@ -145,8 +145,8 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         public Endpoint apply(RowEntity row) {
             Endpoint endpoint = new Endpoint();
             final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
-            endpoint.setName((String) searchable.get(0).getValue());
-            endpoint.setId((String) searchable.get(1).getValue());
+            endpoint.setId((String) searchable.get(0).getValue());
+            endpoint.setName((String) searchable.get(1).getValue());
             return endpoint;
         }
     }
@@ -158,9 +158,9 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
             final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
             service.setName((String) searchable.get(0).getValue());
             service.setId((String) searchable.get(1).getValue());
-            String layerName = Layer.valueOf(((Number) searchable.get(2).getValue()).intValue()).name();
+            service.setGroup((String) searchable.get(2).getValue());
+            String layerName = Layer.valueOf(((Number) searchable.get(3).getValue()).intValue()).name();
             service.getLayers().add(layerName);
-            service.setGroup((String) searchable.get(3).getValue());
             final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
             service.setShortName((String) data.get(0).getValue());
             return service;

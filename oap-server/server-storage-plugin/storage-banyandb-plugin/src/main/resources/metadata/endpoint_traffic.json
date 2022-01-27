@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "name": "endpoint_traffic",
+    "group": "default"
+  },
+  "tag_families": [
+    {
+      "name": "data",
+      "tags": []
+    },
+    {
+      "name": "searchable",
+      "tags": [
+        {
+          "name": "service_id",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "name",
+          "type": "TAG_TYPE_STRING"
+        }
+      ]
+    }
+  ],
+  "entity": {
+    "tag_names": [
+    ]
+  },
+  "opts": {
+    "shard_num": 2,
+    "ttl": {
+      "val": 7,
+      "unit": "DURATION_UNIT_DAY"
+    }
+  },
+  "updated_at_nanoseconds": "2021-04-15T01:30:15.01Z"
+}

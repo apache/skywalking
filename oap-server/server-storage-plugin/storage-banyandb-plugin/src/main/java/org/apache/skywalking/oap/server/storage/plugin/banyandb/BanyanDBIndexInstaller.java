@@ -41,7 +41,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         StreamMetaInfo metaInfo = StreamMetaInfo.addModel(model);
         if (metaInfo != null) {
             log.info("install index {}", model.getName());
-//            ((BanyanDBStorageClient) client).createStream(metaInfo);
+            ((BanyanDBStorageClient) client).createStream(metaInfo);
         }
     }
 }

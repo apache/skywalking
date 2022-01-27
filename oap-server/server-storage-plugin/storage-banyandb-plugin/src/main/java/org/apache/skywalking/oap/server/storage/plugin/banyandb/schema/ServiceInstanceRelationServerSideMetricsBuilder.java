@@ -24,7 +24,6 @@ import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ServiceInstanceRelationServerSideMetricsBuilder extends BanyanDBStorageDataBuilder<ServiceInstanceRelationServerSideMetrics> {
@@ -32,15 +31,17 @@ public class ServiceInstanceRelationServerSideMetricsBuilder extends BanyanDBSto
     protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(ServiceInstanceRelationServerSideMetrics entity) {
         List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>();
         searchable.add(TagAndValue.stringField(entity.getSourceServiceId()));
-        searchable.add(TagAndValue.stringField(entity.getSourceServiceInstanceId()));
         searchable.add(TagAndValue.stringField(entity.getDestServiceId()));
-        searchable.add(TagAndValue.stringField(entity.getDestServiceInstanceId()));
         searchable.add(TagAndValue.stringField(entity.getEntityId()));
         return searchable;
     }
 
     @Override
     protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(ServiceInstanceRelationServerSideMetrics entity) {
-        return Collections.singletonList(TagAndValue.longField(entity.getComponentId()));
+        List<SerializableTag<BanyandbModel.TagValue>> data = new ArrayList<>();
+        data.add(TagAndValue.longField(entity.getComponentId()));
+        data.add(TagAndValue.stringField(entity.getSourceServiceInstanceId()));
+        data.add(TagAndValue.stringField(entity.getDestServiceInstanceId()));
+        return data;
     }
 }

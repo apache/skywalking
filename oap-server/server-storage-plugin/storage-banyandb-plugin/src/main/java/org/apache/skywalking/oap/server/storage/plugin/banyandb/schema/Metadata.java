@@ -50,17 +50,17 @@ public class Metadata {
             searchable.add(TagAndValue.stringField(serviceName));
             // 1 - serviceID
             searchable.add(TagAndValue.stringField(entity.getServiceId()));
-            // 2 - layer
+            // 2 - group
+            searchable.add(TagAndValue.stringField(entity.getGroup()));
+            // 3 - layer
             Layer layer = entity.getLayer();
             searchable.add(TagAndValue.longField(layer != null ? layer.value() : Layer.UNDEFINED.value()));
-            // 3 - group
-            searchable.add(TagAndValue.stringField(entity.getGroup()));
             return searchable;
         }
 
         @Override
         protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(ServiceTraffic entity) {
-            // shortName
+            // 0 - shortName
             return Collections.singletonList(TagAndValue.stringField(entity.getShortName()));
         }
     }
@@ -69,10 +69,10 @@ public class Metadata {
         @Override
         protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(EndpointTraffic entity) {
             List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(2);
-            // 0 - name
-            searchable.add(TagAndValue.stringField(entity.getName()));
-            // 1 - serviceID
+            // 0 - serviceID
             searchable.add(TagAndValue.stringField(entity.getServiceId()));
+            // 1 - name
+            searchable.add(TagAndValue.stringField(entity.getName()));
             return searchable;
         }
     }
