@@ -16,26 +16,10 @@
 # under the License.
 
 {{- contains . }}
-- id: {{ b64enc "e2e-service-consumer" }}.1_{{ b64enc "consumer1" }}
-  name: consumer1
-  attributes:
-  {{- contains .attributes }}
-  - name: OS Name
-    value: Linux
-  - name: hostname
-    value: {{ notEmpty .value }}
-  - name: Process No.
-    value: "1"
-  - name: Start Time
-    value: {{ notEmpty .value }}
-  - name: JVM Arguments
-    value: '{{ notEmpty .value }}'
-  - name: Jar Dependencies
-    value: '{{ notEmpty .value }}'
-  - name: ipv4s
-    value: {{ notEmpty .value }}
-  {{- end}}
-  language: JAVA
-  instanceuuid: {{ b64enc "e2e-service-consumer" }}.1_{{ b64enc "consumer1" }}
+- id: {{ b64enc "test-service" }}.1_{{ b64enc "test-instance" }}
+  name: test-instance
+  attributes: []
+  language: UNKNOWN
+  instanceuuid: {{ b64enc "test-service" }}.1_{{ b64enc "test-instance" }}
   layer: GENERAL
 {{- end}}

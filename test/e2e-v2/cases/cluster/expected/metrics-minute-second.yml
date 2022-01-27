@@ -13,12 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "test-service" }}.1
-  name: test-service
-  group: ""
-  shortname: test-service
-  normal: true
-  layers:
-    - GENERAL
-{{- end }}
+- key: 2022-01-26 0309
+  value: 0
+- key: 2022-01-26 0310
+  value: 200
+- key: 2022-01-26 0311
+  value: 0
