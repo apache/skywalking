@@ -58,43 +58,43 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             public void apply(StreamQuery query) {
                 if (minDuration != 0) {
                     // duration >= minDuration
-                    query.appendCondition(gte("duration", minDuration));
+                    query.appendCondition(gte(SegmentRecord.LATENCY, minDuration));
                 }
                 if (maxDuration != 0) {
                     // duration <= maxDuration
-                    query.appendCondition(lte("duration", maxDuration));
+                    query.appendCondition(lte(SegmentRecord.LATENCY, maxDuration));
                 }
 
                 if (!Strings.isNullOrEmpty(serviceId)) {
-                    query.appendCondition(eq("service_id", serviceId));
+                    query.appendCondition(eq(SegmentRecord.SERVICE_ID, serviceId));
                 }
 
                 if (!Strings.isNullOrEmpty(serviceInstanceId)) {
-                    query.appendCondition(eq("service_instance_id", serviceInstanceId));
+                    query.appendCondition(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
                 }
 
                 if (!Strings.isNullOrEmpty(endpointId)) {
-                    query.appendCondition(eq("endpoint_id", endpointId));
+                    query.appendCondition(eq(SegmentRecord.ENDPOINT_ID, endpointId));
                 }
 
                 switch (traceState) {
                     case ERROR:
-                        query.appendCondition(eq("state", TraceStateStorage.ERROR.getState()));
+                        query.appendCondition(eq(SegmentRecord.IS_ERROR, TraceStateStorage.ERROR.getState()));
                         break;
                     case SUCCESS:
-                        query.appendCondition(eq("state", TraceStateStorage.SUCCESS.getState()));
+                        query.appendCondition(eq(SegmentRecord.IS_ERROR, TraceStateStorage.SUCCESS.getState()));
                         break;
                     default:
-                        query.appendCondition(eq("state", TraceStateStorage.ALL.getState()));
+                        query.appendCondition(eq(SegmentRecord.IS_ERROR, TraceStateStorage.ALL.getState()));
                         break;
                 }
 
                 switch (queryOrder) {
                     case BY_START_TIME:
-                        query.setOrderBy(new StreamQuery.OrderBy("start_time", StreamQuery.OrderBy.Type.DESC));
+                        query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.START_TIME, StreamQuery.OrderBy.Type.DESC));
                         break;
                     case BY_DURATION:
-                        query.setOrderBy(new StreamQuery.OrderBy("duration", StreamQuery.OrderBy.Type.DESC));
+                        query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.LATENCY, StreamQuery.OrderBy.Type.DESC));
                         break;
                 }
 
@@ -118,7 +118,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
         }
 
         StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
-                ImmutableList.of("trace_id", "state", "endpoint_id", "duration", "start_time"), tsRange, q);
+                ImmutableList.of("trace_id", "is_error", "endpoint_id", "latency", "start_time"), tsRange, q);
 
         List<BasicTrace> basicTraces = resp.getElements().stream().map(new BasicTraceDeserializer()).collect(Collectors.toList());
 
@@ -131,7 +131,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
-                ImmutableList.of("trace_id", "state", "service_id", "service_instance_id", "endpoint_id", "duration", "start_time"),
+                ImmutableList.of("trace_id", "is_error", "service_id", "service_instance_id", "endpoint_id", "latency", "start_time"),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
