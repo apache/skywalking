@@ -69,6 +69,7 @@ public class IoTDBClient implements Client, HealthCheckable {
         try {
             final int sessionPoolSize = config.getSessionPoolSize() == 0 ?
                     Runtime.getRuntime().availableProcessors() * 2 : config.getSessionPoolSize();
+            log.info("SessionPool Size: {}", sessionPoolSize);
             sessionPool = new SessionPool(config.getHost(), config.getRpcPort(), config.getUsername(),
                     config.getPassword(), sessionPoolSize);
             sessionPool.setStorageGroup(storageGroup);
