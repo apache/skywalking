@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterDataCollection;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
 import org.apache.skywalking.e2e.E2EConfiguration;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,6 +60,25 @@ public class MeterMetricSenderController {
                                                       .setSingleValue(MeterSingleValue.newBuilder()
                                                                                       .setName("batch_test")
                                                                                       .setValue(100)
+                                                                                      .build())
+                                                      .build());
+
+        sendMetrics(builder.build());
+
+        return "Metrics send success!";
+    }
+
+    @PostMapping("/sendBatchMetrics/{timestamp}/{value}")
+    public String sendBatchMetrics(@PathVariable("timestamp") long timestamp, @PathVariable("value") double value) throws Exception {
+        final MeterDataCollection.Builder builder =
+            MeterDataCollection.newBuilder()
+                               .addMeterData(MeterData.newBuilder()
+                                                      .setService("test-service")
+                                                      .setTimestamp(timestamp)
+                                                      .setServiceInstance("test-instance")
+                                                      .setSingleValue(MeterSingleValue.newBuilder()
+                                                                                      .setName("batch_test")
+                                                                                      .setValue(value)
                                                                                       .build())
                                                       .build());
 

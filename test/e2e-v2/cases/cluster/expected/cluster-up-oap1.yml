@@ -13,12 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "test-service" }}.1
-  name: test-service
-  group: ""
-  shortname: test-service
-  normal: true
-  layers:
-    - GENERAL
-{{- end }}
+remote_out_count{sw_backend_instance="0.0.0.0_11800",dest="oap1_11800",self="Y",}
+remote_out_count{sw_backend_instance="0.0.0.0_11800",dest="oap2_11800",self="N",}

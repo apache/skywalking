@@ -12,13 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-{{- contains . }}
-- id: {{ b64enc "test-service" }}.1
-  name: test-service
-  group: ""
-  shortname: test-service
-  normal: true
-  layers:
-    - GENERAL
-{{- end }}
+- key: 2022-01-26
+  value: 400
+- key: 2022-01-27
+  value: 0

@@ -33,10 +33,10 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        jdk: [ 8, 11, 12, 13, 14, 15, 16 ]
+        jdk: [ 8, 11, 17 ]
     env:
       SW_AGENT_JDK_VERSION: ${{ matrix.jdk }}
-      SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk${{ matrix.jdk }}:jre
+      SW_OAP_BASE_IMAGE: eclipse-temurin:${{ matrix.jdk }}-jre
     steps:
       - uses: actions/checkout@v2
         with:
@@ -44,7 +44,7 @@ jobs:
       - name: Set Up Java
         uses: actions/setup-java@v2
         with:
-          distribution: adopt
+          distribution: temurin
           java-version: ${{ matrix.jdk }}
       - name: Run E2E Test
         uses: ./.github/actions/infra-e2e-test
