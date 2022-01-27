@@ -42,13 +42,21 @@ public class SegmentRecordBuilder extends BanyanDBStorageDataBuilder<SegmentReco
     @Override
     protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(SegmentRecord segmentRecord) {
         List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(10);
+        // 0 - trace_id
         searchable.add(TagAndValue.stringField(segmentRecord.getTraceId()));
-        searchable.add(TagAndValue.stringField(segmentRecord.getServiceId()));
-        searchable.add(TagAndValue.stringField(segmentRecord.getServiceInstanceId()));
-        searchable.add(TagAndValue.stringField(segmentRecord.getEndpointId()));
-        searchable.add(TagAndValue.longField(segmentRecord.getStartTime()));
-        searchable.add(TagAndValue.longField(segmentRecord.getLatency()));
+        // 1 - is_error
         searchable.add(TagAndValue.longField(segmentRecord.getIsError()));
+        // 2 - service_id
+        searchable.add(TagAndValue.stringField(segmentRecord.getServiceId()));
+        // 3 - service_instance_id
+        searchable.add(TagAndValue.stringField(segmentRecord.getServiceInstanceId()));
+        // 4 - endpoint_id
+        searchable.add(TagAndValue.stringField(segmentRecord.getEndpointId()));
+        // 5 - latency
+        searchable.add(TagAndValue.longField(segmentRecord.getLatency()));
+        // 6 - start_time
+        searchable.add(TagAndValue.longField(segmentRecord.getStartTime()));
+        // 7 ~ 13: indexed tags
         searchable.addAll(filterSearchableTags(segmentRecord.getTagsRawData(), INDEXED_TAGS));
         return searchable;
     }

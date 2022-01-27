@@ -31,14 +31,18 @@ public class EndpointRelationServerSideMetricsBuilder extends BanyanDBStorageDat
     @Override
     protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(EndpointRelationServerSideMetrics entity) {
         List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>();
+        // 0 - source_endpoint
         searchable.add(TagAndValue.stringField(entity.getSourceEndpoint()));
+        // 1 - dest_endpoint
         searchable.add(TagAndValue.stringField(entity.getDestEndpoint()));
+        // 2 - entity_id
         searchable.add(TagAndValue.stringField(entity.getEntityId()));
         return searchable;
     }
 
     @Override
     protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(EndpointRelationServerSideMetrics entity) {
+        // 0 - component_id
         return Collections.singletonList(TagAndValue.longField(entity.getComponentId()));
     }
 }

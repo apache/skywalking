@@ -21,7 +21,7 @@
           "type": "TAG_TYPE_STRING"
         },
         {
-          "name": "state",
+          "name": "is_error",
           "type": "TAG_TYPE_INT"
         },
         {
@@ -37,7 +37,7 @@
           "type": "TAG_TYPE_STRING"
         },
         {
-          "name": "duration",
+          "name": "latency",
           "type": "TAG_TYPE_INT"
         },
         {
@@ -79,7 +79,7 @@
     "tag_names": [
       "service_id",
       "service_instance_id",
-      "state"
+      "is_error"
     ]
   },
   "opts": {

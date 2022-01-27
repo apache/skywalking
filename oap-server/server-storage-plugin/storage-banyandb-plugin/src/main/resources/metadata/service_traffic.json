@@ -1,18 +1,23 @@
 {
   "metadata": {
-    "name": "profile_task",
+    "name": "endpoint_traffic",
     "group": "default"
   },
   "tag_families": [
     {
       "name": "data",
-      "tags": []
+      "tags": [
+        {
+          "name": "short_name",
+          "type": "TAG_TYPE_STRING"
+        }
+      ]
     },
     {
       "name": "searchable",
       "tags": [
         {
-          "name": "id",
+          "name": "name",
           "type": "TAG_TYPE_STRING"
         },
         {
@@ -20,31 +25,11 @@
           "type": "TAG_TYPE_STRING"
         },
         {
-          "name": "endpoint_name",
+          "name": "service_group",
           "type": "TAG_TYPE_STRING"
         },
         {
-          "name": "start_time",
-          "type": "TAG_TYPE_INT"
-        },
-        {
-          "name": "duration",
-          "type": "TAG_TYPE_INT"
-        },
-        {
-          "name": "min_duration_threshold",
-          "type": "TAG_TYPE_INT"
-        },
-        {
-          "name": "dump_period",
-          "type": "TAG_TYPE_INT"
-        },
-        {
-          "name": "create_time",
-          "type": "TAG_TYPE_INT"
-        },
-        {
-          "name": "max_sampling_count",
+          "name": "layer",
           "type": "TAG_TYPE_INT"
         }
       ]
