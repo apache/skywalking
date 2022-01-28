@@ -17,4 +17,4 @@ expSuffix: instance(['service'], ['instance'], Layer.GENERAL)
 metricPrefix: meter
 metricsRules:
   - name: datasource
-    exp:  datasource.sum(['service', 'instance', 'name'])
+    exp:  datasource.sum(['service', 'instance', 'name', 'status'])

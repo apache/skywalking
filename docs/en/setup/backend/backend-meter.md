@@ -66,12 +66,14 @@ New meter-analyzer-config files is **NOT** enabled by default, you should make m
 
 Meter-analyzer-config file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
 
+An default can be found [here](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/datasource.yaml).
 An example can be found [here](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
 If you're using Spring Sleuth, see [Spring Sleuth Setup](spring-sleuth-setup.md).
 
 | Rule Name | Description | Configuration File | Data Source |
 |-----|-----|-----|-----|
 |spring-sleuth| Metrics of Spring Sleuth Application | meter-analyzer-config/spring-sleuth.yaml | Sprign Sleuth Application --meter format--> SkyWalking OAP Server |
+|datasource| Metrics of DataSource metrics | meter-analyzer-config/datasource.yaml | Datasource --meter format--> SkyWalking OAP Server |
 
 ### Meters configuration
 
