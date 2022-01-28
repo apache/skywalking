@@ -46,7 +46,8 @@ Release Notes.
 * Add env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT` for cluster selectors `zookeeper`,`consul`,`etcd` and `nacos`.
 * Doc update: `configuration-vocabulary`,`backend-cluster` about env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT`.
 * Fix IoTDB Storage Option insert null index value.
-* Set the default value of SW_STORAGE_IOTDB_SESSIONPOOL_SIZE to 2 * CPU_Cores
+* Set the default value of SW_STORAGE_IOTDB_SESSIONPOOL_SIZE to 2 * CPU_Cores.
+* Bump up iotdb-session to 0.12.4.
 
 #### UI
 
