@@ -51,7 +51,7 @@ Note: `$name` is the original metric name.
 ## Configuration file
 The meter receiver is configured via a configuration file. The configuration file defines everything related to receiving 
  from agents, as well as which rule files to load.
- 
+
 The OAP can load the configuration at bootstrap. If the new configuration is not well-formed, the OAP may fail to start up. The files
 are located at `$CLASSPATH/meter-analyzer-config`.
 
@@ -72,6 +72,7 @@ If you're using Spring Sleuth, see [Spring Sleuth Setup](spring-sleuth-setup.md)
 | Rule Name | Description | Configuration File | Data Source |
 |-----|-----|-----|-----|
 |spring-sleuth| Metrics of Spring Sleuth Application | meter-analyzer-config/spring-sleuth.yaml | Sprign Sleuth Application --meter format--> SkyWalking OAP Server |
+|threadpool| Metrics of Thread Pool | meter-analyzer-config/threadpool.yaml | Thread Pool --meter format--> SkyWalking OAP Server |
 
 ### Meters configuration
 
