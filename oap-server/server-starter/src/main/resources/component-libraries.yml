@@ -562,6 +562,9 @@ Celery:
 Falcon:
   id: 7012
   languages: Python
+MysqlClient:
+  id: 7013
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
