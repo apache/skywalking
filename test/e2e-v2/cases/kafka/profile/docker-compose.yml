@@ -122,11 +122,6 @@ services:
       SW_AGENT_INSTANCE_NAME: provider1
       SW_LOGGING_OUTPUT: CONSOLE
       SW_METER_REPORT_INTERVAL: 5
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 9090"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
     depends_on:
       oap:
         condition: service_healthy

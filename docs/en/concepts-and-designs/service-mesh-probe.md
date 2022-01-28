@@ -9,13 +9,13 @@ Its requirements can include discovery, load balancing, failure recovery, metric
 such as A/B testing, canary releases, rate limiting, access control, and end-to-end authentication.
 
 ## Where does the probe collect data from?
-Istio is a typical Service Mesh design and implementor. It defines **Control Panel** and **Data Panel**,
+Istio is a typical Service Mesh design and implementor. It defines **Control Plane** and **Data Plane**,
 which are widely used. Here is the Istio Architecture:
 
 ![Istio Architecture](https://istio.io/latest/docs/ops/deployment/architecture/arch.svg)
 
-The Service Mesh probe can choose to collect data from **Data Panel**. In Istio, it means collecting telemetry data from 
-Envoy sidecar (Data Panel). The probe collects two telemetry entities from the client end and the server end per request.
+The Service Mesh probe can choose to collect data from **Data Plane**. In Istio, it means collecting telemetry data from 
+Envoy sidecar (Data Plane). The probe collects two telemetry entities from the client end and the server end per request.
 
 ## How does Service Mesh make backend work?
 In this kind of probes, you can see that there is no trace related to them. So how does the SkyWalking

@@ -13,26 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1
-  name: e2e-service-provider
-  group: ""
-  shortname: e2e-service-provider
-  normal: true
-  layers:
-    - GENERAL
-- id: {{ b64enc "e2e-service-consumer" }}.1
-  name: e2e-service-consumer
-  group: ""
-  shortname: e2e-service-consumer
-  normal: true
-  layers:
-    - GENERAL
-- id: {{ b64enc "localhost:-1" }}.0
-  name: localhost:-1
-  group: ""
-  shortname: localhost:-1
-  normal: false
-  layers:
-    - VIRTUAL_DATABASE
-{{- end }}
+remote_out_count{sw_backend_instance="0.0.0.0_11800",dest="oap1_11800",self="Y",}
+remote_out_count{sw_backend_instance="0.0.0.0_11800",dest="oap2_11800",self="N",}

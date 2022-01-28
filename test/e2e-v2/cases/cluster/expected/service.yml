@@ -14,16 +14,11 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1
-  name: e2e-service-provider
+- id: {{ b64enc "test-service" }}.1
+  name: test-service
   group: ""
-  shortname: e2e-service-provider
-  layers:
-    - GENERAL
-- id: {{ b64enc "e2e-service-consumer" }}.1
-  name: e2e-service-consumer
-  group: ""
-  shortname: e2e-service-consumer
+  shortname: test-service
+  normal: true
   layers:
     - GENERAL
 {{- end }}

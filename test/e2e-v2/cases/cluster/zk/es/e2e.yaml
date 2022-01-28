@@ -26,16 +26,6 @@ setup:
     - name: install swctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
 
-trigger:
-  action: http
-  interval: 3s
-  times: 10
-  url: http://${consumer_host}:${consumer_9092}/users
-  method: POST
-  body: '{"id":"123","name":"skywalking"}'
-  headers:
-    "Content-Type": "application/json"
-
 verify:
   # verify with retry strategy
   retry:
