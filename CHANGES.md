@@ -45,7 +45,8 @@ Release Notes.
 * Fix `SelfRemoteClient` self observing metrics.
 * Add env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT` for cluster selectors `zookeeper`,`consul`,`etcd` and `nacos`.
 * Doc update: `configuration-vocabulary`,`backend-cluster` about env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT`.
-* Support Java thread pool metric collect.
+* Add Python MysqlClient component ID(7013) with mapping information.
+* Support Java thread pool metrics analysis.
 
 #### UI
 
