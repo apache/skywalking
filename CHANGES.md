@@ -45,8 +45,9 @@ Release Notes.
 * Fix `SelfRemoteClient` self observing metrics.
 * Add env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT` for cluster selectors `zookeeper`,`consul`,`etcd` and `nacos`.
 * Doc update: `configuration-vocabulary`,`backend-cluster` about env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT`.
+* Add Python MysqlClient component ID(7013) with mapping information.
 * Fix IoTDB Storage Option insert null index value.
-* Set the default value of SW_STORAGE_IOTDB_SESSIONPOOL_SIZE to 2 * CPU_Cores.
+* Set the default value of SW_STORAGE_IOTDB_SESSIONPOOL_SIZE to 8.
 * Bump up iotdb-session to 0.12.4.
 
 #### UI
