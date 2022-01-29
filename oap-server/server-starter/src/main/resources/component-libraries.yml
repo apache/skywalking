@@ -656,3 +656,4 @@ Component-Server-Mappings:
   GoMysql: Mysql
   ClickHouse-jdbc-driver: ClickHouse
   Apache-Kylin-jdbc-driver: Apache-Kylin
+  MysqlClient: Mysql
