@@ -34,6 +34,7 @@ services:
       SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
       SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
       SW_STORAGE_IOTDB_HOST: iotdb
+      SW_STORAGE_IOTDB_SESSIONPOOL_SIZE: 2
       SW_CONFIG_ETCD_PERIOD: 1
       SW_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
       SW_CLUSTER_ETCD_ENDPOINTS: http://etcd:2379

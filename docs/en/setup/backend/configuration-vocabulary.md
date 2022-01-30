@@ -143,6 +143,14 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | batchEnabled | If true, write points with batch API. | SW_STORAGE_INFLUXDB_BATCH_ENABLED | true|
 | - | - | fetchTaskLogMaxSize | The maximum number of fetch task log in a request. | SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE | 5000|
 | - | - | connectionResponseFormat | The response format of connection to influxDB. It can only be MSGPACK or JSON. | SW_STORAGE_INFLUXDB_CONNECTION_RESPONSE_FORMAT | MSGPACK |
+| - | iotdb | - | IoTDB storage. | - | - |
+| - | - | host | The host of IoTDB server. | SW_STORAGE_IOTDB_HOST | 127.0.0.1 |
+| - | - | rpcPort | The port listened by IoTDB server. | SW_STORAGE_IOTDB_RPC_PORT | 6667 |
+| - | - | username | The username of IoTDB | SW_STORAGE_IOTDB_USERNAME | root |
+| - | - | password | The password of IoTDB | SW_STORAGE_IOTDB_PASSWORD | root |
+| - | - | storageGroup | The path of Storage Group and it must start with `root.` | SW_STORAGE_IOTDB_STORAGE_GROUP | root.skywalking |
+| - | - | sessionPoolSize | The connection pool size for IoTDB. If the value is 0, the size of SessionPool will be 2 * CPU_Cores | SW_STORAGE_IOTDB_SESSIONPOOL_SIZE | 8 |
+| - | - | fetchTaskLogMaxSize | the max number of fetch task log in a request | SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE | 1000 |
 | agent-analyzer | default | Agent Analyzer. | SW_AGENT_ANALYZER | default |
 | - | - | traceSamplingPolicySettingsFile | The sampling policy including `sampling rate` and `the threshold of trace segment latency` can be configured by the `traceSamplingPolicySettingsFile` file. | SW_TRACE_SAMPLING_POLICY_SETTINGS_FILE | `trace-sampling-policy-settings.yml` |
 | - | - |slowDBAccessThreshold| The slow database access threshold (in milliseconds). |SW_SLOW_DB_THRESHOLD|default:200,mongodb:100|

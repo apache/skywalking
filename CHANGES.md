@@ -47,6 +47,9 @@ Release Notes.
 * Doc update: `configuration-vocabulary`,`backend-cluster` about env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT`.
 * Add Python MysqlClient component ID(7013) with mapping information.
 * Support Java thread pool metrics analysis.
+* Fix IoTDB Storage Option insert null index value.
+* Set the default value of SW_STORAGE_IOTDB_SESSIONPOOL_SIZE to 8.
+* Bump up iotdb-session to 0.12.4.
 
 #### UI
 
