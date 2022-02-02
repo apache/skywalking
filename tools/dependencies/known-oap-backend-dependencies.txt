@@ -138,7 +138,7 @@ netty-transport-native-unix-common-4.1.68.Final-linux-x86_64.jar
 okhttp-3.14.9.jar
 okio-1.17.2.jar
 perfmark-api-0.23.0.jar
-postgresql-42.2.18.jar
+postgresql-42.3.2.jar
 proto-google-common-protos-2.0.1.jar
 protobuf-java-3.19.2.jar
 protobuf-java-util-3.19.2.jar

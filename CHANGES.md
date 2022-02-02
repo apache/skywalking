@@ -50,6 +50,7 @@ Release Notes.
 * Fix IoTDB Storage Option insert null index value.
 * Set the default value of SW_STORAGE_IOTDB_SESSIONPOOL_SIZE to 8.
 * Bump up iotdb-session to 0.12.4.
+* Bump up PostgreSQL driver to fix CVE.
 
 #### UI
 
