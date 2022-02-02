@@ -257,7 +257,7 @@ storage:
 All connection related settings, including URL link, username, and password are found in `application.yml`. For metadata storage provider settings, refer to the configurations of **H2/MySQL** above.
 
 ## PostgreSQL
-PostgreSQL jdbc driver uses version 42.2.18. It supports PostgreSQL 8.2 or newer.
+PostgreSQL jdbc driver uses version 42.3.2. It supports PostgreSQL 8.2 or newer.
 Activate PostgreSQL as storage, and set storage provider to **postgresql**. 
 
 ```yaml
