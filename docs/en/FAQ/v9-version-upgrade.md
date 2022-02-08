@@ -5,9 +5,14 @@ Kubernetes(k8s layer). This kind of layer would be catalogs on the new [booster 
 The query-protocol [metadata-v2](https://github.com/apache/skywalking-query-protocol/blob/master/metadata-v2.graphqls) has been used.
 The compatibility with previous releases is as below.
 
-## Compatibility from previous version 
+## Query compatibility from previous version 
 1. The query-protocol [metadata-v1](https://github.com/apache/skywalking-query-protocol/blob/master/metadata.graphqls) is provided on the top of the v2 implementation.
-   All query-protocol could be compatible with previous query.
+2. All metrics are compatible with the previous data format, so you wouldn't lose metrics.
+
+Notice **Incompatibility (1)**, the UI template configuration protocol is incompatible.
+
+## Incompatibility
+1. The [UI configuration protocol](https://github.com/apache/skywalking-query-protocol/blob/master/ui-configuration.graphqls) has been changed by following the design of new [booster UI](https://github.com/apache/skywalking-booster-ui). So, the RocketBot UI can't work with the v9 backend. You need to remove `ui_template` index/template/table in your chosen storage, and reboot OAP in `default` or `init` mode.
 2. MAL: [metric level function](../../../docs/en/concepts-and-designs/mal.md) add an required argument `Layer`. Previous MAL expressions should add this argument.
 3. LAL: [Extractor](../../../docs/en/concepts-and-designs/lal.md) add function `layer`. If don't set it manual, the default layer is `GENERAL` and the logs from `ALS` the
    default layer is `mesh`.
@@ -15,7 +20,3 @@ The compatibility with previous releases is as below.
    These data would be incompatible with previous in some storage, including H2/MySQL/TiDB/InfluxDB/PostgreSQL/IoTDB.
    Make sure to remove the older `ServiceTraffic` and `InstanceTraffic` tables before OAP(v9) starts. 
    OAP would generate the new table in the start procedure, and recreate all existing services and instances when traffic comes.
-5. All other metrics are compatible with the previous data format, so you wouldn't lose metrics.
-
-## Incompatibility
-1. The [UI configuration protocol](https://github.com/apache/skywalking-query-protocol/blob/master/ui-configuration.graphqls) has been changed by following the design of new [booster UI](https://github.com/apache/skywalking-booster-ui). So, the RocketBot UI can't work with the v9 backend.
