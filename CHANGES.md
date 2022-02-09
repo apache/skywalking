@@ -53,6 +53,7 @@ Release Notes.
 * Bump up iotdb-session to 0.12.4.
 * Bump up PostgreSQL driver to fix CVE.
 * Add Guava EventBus component ID(123) of Java agent.
+* Add OpenFunction component ID(5013).
 
 #### UI
 
