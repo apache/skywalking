@@ -512,6 +512,9 @@ Kratos:
 GoMysql:
   id: 5012
   languages: Golang
+OpenFunction:
+  id: 5013
+  languages: Golang,Node.js,Python,Java
 
 # Lua components
 # [6000, 7000) for Lua agent
