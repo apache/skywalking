@@ -449,6 +449,9 @@ AspNet:
 SmartSql:
   id: 3016
   languages: C#
+FreeSql:
+  id: 3017
+  languages: C#
 
 # NoeJS components
 # [4000, 5000) for Node.js agent
@@ -559,6 +562,9 @@ Celery:
 Falcon:
   id: 7012
   languages: Python
+MysqlClient:
+  id: 7013
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
@@ -650,3 +656,4 @@ Component-Server-Mappings:
   GoMysql: Mysql
   ClickHouse-jdbc-driver: ClickHouse
   Apache-Kylin-jdbc-driver: Apache-Kylin
+  MysqlClient: Mysql

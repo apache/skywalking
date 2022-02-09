@@ -13,12 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "test-service" }}.1
-  name: test-service
-  group: ""
-  shortname: test-service
-  normal: true
-  layers:
-    - GENERAL
-{{- end }}
+expSuffix: instance(['service'], ['instance'], Layer.GENERAL)
+metricPrefix: meter
+metricsRules:
+  - name: thread_pool
+    exp: thread_pool.avg(['metric_type', 'pool_name', 'instance', 'service'])

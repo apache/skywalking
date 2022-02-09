@@ -7,7 +7,7 @@ On a high level, there are three typical categories in all SkyWalking probes.
 the SkyWalking Java agent uses the `-javaagent` command line argument to manipulate codes in runtime, where `manipulate` means to change and inject
 user's codes. Another kind of agents uses certain hook or intercept mechanism provided by target libraries. As you can see, these agents are based on languages and libraries.
  
-- **Service Mesh probes**. Service Mesh probes collect data from sidecar, control panel in service mesh or proxy. In the old days, proxy
+- **Service Mesh probes**. Service Mesh probes collect data from sidecar, control plane in service mesh or proxy. In the old days, proxy
 is only used as an ingress of the whole cluster, but with the Service Mesh and sidecar, we can now perform observability functions.
  
 - **3rd-party instrument library**. SkyWalking accepts many widely used instrument libraries data formats. It analyzes the

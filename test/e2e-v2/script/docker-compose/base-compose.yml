@@ -34,6 +34,7 @@ services:
       SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
       SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
       SW_STORAGE_IOTDB_HOST: iotdb
+      SW_STORAGE_IOTDB_SESSIONPOOL_SIZE: 2
       SW_CONFIG_ETCD_PERIOD: 1
       SW_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
       SW_CLUSTER_ETCD_ENDPOINTS: http://etcd:2379
@@ -70,7 +71,7 @@ services:
       SW_AGENT_COLLECTOR_GET_PROFILE_TASK_INTERVAL: 1
       SW_AGENT_COLLECTOR_GET_AGENT_DYNAMIC_CONFIG_INTERVAL: 1
     healthcheck:
-      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 9090"]
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9090"]
       interval: 5s
       timeout: 60s
       retries: 120
@@ -94,7 +95,7 @@ services:
       SW_AGENT_COLLECTOR_GET_PROFILE_TASK_INTERVAL: 1
       SW_AGENT_COLLECTOR_GET_AGENT_DYNAMIC_CONFIG_INTERVAL: 1
     healthcheck:
-      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 9092"]
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9092"]
       interval: 5s
       timeout: 60s
       retries: 120

@@ -13,7 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- key: {{ notEmpty .key }}
-  value: {{ ge .value 1 }}
-{{- end }}
+- key: 2022-01-26 01
+  value: 0
+- key: 2022-01-26 02
+  value: 0
+- key: 2022-01-26 03
+  value: 400
+- key: 2022-01-26 04
+  value: 0
+- key: 2022-01-26 05
+  value: 0

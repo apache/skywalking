@@ -41,7 +41,7 @@ including
 1. Go and C++ SDKs.
 1. LUA agent especially for Nginx, OpenResty and Apache APISIX.
 1. Browser agent.
-1. Service Mesh Observability. Control panel and data panel. 
+1. Service Mesh Observability. Control plane and data plane. 
 1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer), Zabbix.
 1. Logs.
 1. Zipkin v1/v2 trace.(No Analysis)
@@ -82,22 +82,6 @@ Please follow the [REPORTING GUIDELINES](https://www.apache.org/foundation/polic
 # Our Users
 Hundreds of companies and organizations use SkyWalking for research, production, and commercial product.
 Visit our [website](http://skywalking.apache.org/users/) to find the user page.
-
-
-# Landscapes
-
-<p align="center">
-<br/><br/>
-<img src="https://landscape.cncf.io/images/left-logo.svg" width="150"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/right-logo.svg" width="200"/>
-<br/><br/>
-SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observability-and-analysis&license=apache-license-2-0">CNCF CLOUD NATIVE Landscape.</a>
-
-</p>
-
-<p align="center">
-<a href="https://openapm.io"><img src="https://openapm.io/static/media/openapm_logo.svg" width="100"/></a>
-  <br/>Our project enriches the <a href="https://openapm.io">OpenAPM Landscape!</a>
-</p>
 
 # License
 [Apache 2.0 License.](LICENSE)

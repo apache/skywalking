@@ -13,15 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-traces:
-{{- contains .traces }}
-- segmentid: {{ notEmpty .segmentid }}
-  endpointnames:
-    - POST:/users
-  duration: {{ ge .duration 0 }}
-  start: "{{ notEmpty .start}}"
-  iserror: false
-  traceids:
-    - {{ index .traceids 0 }}
-{{- end }}
-total: {{ gt .total 0 }}
+remote_out_count{sw_backend_instance="0.0.0.0_11800",dest="oap2_11800",self="Y",}
+remote_out_count{sw_backend_instance="0.0.0.0_11800",dest="oap1_11800",self="N",}

@@ -13,7 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
-  name: POST:/users
-{{- end}}
+- key: 2022-01-26 01
+  value: 0
+- key: 2022-01-26 02
+  value: 0
+- key: 2022-01-26 03
+  value: 200
+- key: 2022-01-26 04
+  value: 0
+- key: 2022-01-26 05
+  value: 0

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
@@ -28,10 +29,12 @@ import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+@Slf4j
 public class SelfRemoteClient implements RemoteClient {
 
     private final Address address;
     private CounterMetrics remoteOutCounter;
+    private CounterMetrics remoteOutErrorCounter;
     private final IWorkerInstanceGetter workerInstanceGetter;
 
     public SelfRemoteClient(ModuleDefineHolder moduleDefineHolder, Address address) {
@@ -44,6 +47,16 @@ public class SelfRemoteClient implements RemoteClient {
                                              .getService(MetricsCreator.class)
                                              .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.", new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(address
                                                  .toString(), "Y"));
+        remoteOutErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                  .provider()
+                                                  .getService(MetricsCreator.class)
+                                                  .createCounter(
+                                                      "remote_out_error_count",
+                                                      "The error number(client side) of inside remote inside aggregate rpc.",
+                                                      new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(
+                                                          address
+                                                              .toString(), "Y")
+                                                  );
     }
 
     @Override
@@ -62,7 +75,13 @@ public class SelfRemoteClient implements RemoteClient {
 
     @Override
     public void push(String nextWorkerName, StreamData streamData) {
-        workerInstanceGetter.get(nextWorkerName).getWorker().in(streamData);
+        try {
+            workerInstanceGetter.get(nextWorkerName).getWorker().in(streamData);
+            remoteOutCounter.inc();
+        } catch (Throwable t) {
+            remoteOutErrorCounter.inc();
+            log.error(t.getMessage(), t);
+        }
     }
 
     @Override

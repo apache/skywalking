@@ -16,98 +16,51 @@
 # This file is used to show how to write configuration files and can be used to test.
 
   cases:
-    # service list
+    # send metrics to each oap, just verify OAP cluster is up，
+    - query: |
+        curl -s -XPOST http://${sender1_host}:${sender1_9093}/sendBatchMetrics/1642647600000/100 > /dev/null;
+        curl -s -XPOST http://${sender2_host}:${sender2_9093}/sendBatchMetrics/1642647600000/100 > /dev/null;
+        sleep 10;
+        curl -s http://${oap1_host}:${oap1_1234} | grep remote_out_count{ | awk '{print $1}'
+      expected: expected/cluster-up-oap1.yml
+    - query: |
+        curl -s -XPOST http://${sender1_host}:${sender1_9093}/sendBatchMetrics/1642647600000/100 > /dev/null;
+        curl -s -XPOST http://${sender2_host}:${sender2_9093}/sendBatchMetrics/1642647600000/100 > /dev/null;
+        sleep 5;
+        curl -s http://${oap2_host}:${oap2_1234} | grep remote_out_count{ | awk '{print $1}'
+      expected: expected/cluster-up-oap2.yml
+    # send metrics to each oap first time, UTC 2022-01-26 03:00:00
+    - query: |
+        curl -s -XPOST http://${sender1_host}:${sender1_9093}/sendBatchMetrics/1643166000000/100;
+        curl -s -XPOST http://${sender2_host}:${sender2_9093}/sendBatchMetrics/1643166000000/100;
+        sleep 10;
+      expected: expected/send-metrics-rsp.yml
     - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql service ls
       expected: expected/service.yml
     # service instance list
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql instance list --service-name=e2e-service-provider
-      expected: expected/service-instance-provider.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql instance list --service-name=e2e-service-consumer
-      expected: expected/service-instance-consumer.yml
-    # service endpoint
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql endpoint list --keyword=users --service-name=e2e-service-provider
-      expected: expected/service-endpoint-provider.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql endpoint list --keyword=users --service-name=e2e-service-consumer
-      expected: expected/service-endpoint-consumer.yml
-    # trace segment list
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql trace ls
-      expected: expected/traces-list.yml
-    # trace detail
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql instance list --service-name=test-service
+      expected: expected/service-instance.yml
+    # metrics minute
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 0259" --end "2022-01-26 0301" |yq e 'to_entries' -
+      expected: expected/metrics-minute-first.yml
+    # metrics toHour
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 01" --end "2022-01-26 05" |yq e 'to_entries' -
+      expected: expected/metrics-hour-first.yml
+    # metrics toDay
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26" --end "2022-01-27" |yq e 'to_entries' -
+      expected: expected/metrics-day-first.yml
+    # send metrics to each oap second time UTC 2022-01-26 03:10:00
     - query: |
-        swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql trace $( \
-          swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql trace ls --service-name=e2e-service-consumer \
-            | yq e '.traces | select(.[].endpointnames[0]=="POST:/users") | .[0].traceids[0]' -
-        )
-      expected: expected/trace-users-detail.yml
-    # dependency service
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql dependency service --service-name=e2e-service-provider
-      expected: expected/dependency-services.yml
-    # dependency instance
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql dependency instance --service-name=e2e-service-consumer --dest-service-name=e2e-service-provider
-      expected: expected/dependency-instance.yml
-    # service metrics linear
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_sla --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_cpm --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_resp_time --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_apdex --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_sla --service-name=e2e-service-consumer |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_cpm --service-name=e2e-service-consumer |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_resp_time --service-name=e2e-service-consumer |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_apdex --service-name=e2e-service-consumer |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    # service metrics percentile
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics multiple-linear --name=service_percentile --service-name=e2e-service-provider |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-      expected: expected/metrics-has-value-percentile.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics multiple-linear --name=service_percentile --service-name=e2e-service-consumer |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-      expected: expected/metrics-has-value-percentile.yml
-    # service instance metrics
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_resp_time --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_cpm --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_sla --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_resp_time --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_cpm --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_sla --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    # service endpoint metrics
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=endpoint_cpm --endpoint-name=POST:/users --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=endpoint_avg --endpoint-name=POST:/users --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=endpoint_sla --endpoint-name=POST:/users --service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=endpoint_cpm --endpoint-name=POST:/users --service-name=e2e-service-consumer |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=endpoint_avg --endpoint-name=POST:/users --service-name=e2e-service-consumer |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=endpoint_sla --endpoint-name=POST:/users --service-name=e2e-service-consumer |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    # service endpoint metrics percentile
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics multiple-linear --name=endpoint_percentile --endpoint-name=POST:/users --service-name=e2e-service-consumer |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-      expected: expected/metrics-has-value-percentile.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics multiple-linear --name=endpoint_percentile --endpoint-name=POST:/users --service-name=e2e-service-consumer |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-      expected: expected/metrics-has-value-percentile.yml
-    # service relation metrics
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_relation_client_cpm --service-name=e2e-service-consumer --dest-service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_relation_server_cpm --service-name=e2e-service-consumer --dest-service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_relation_client_cpm --service-name=e2e-service-provider --dest-service-id=bG9jYWxob3N0Oi0x.0 |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    # service instance relation metrics
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_relation_server_cpm --instance-name=consumer1 --service-name=e2e-service-consumer --dest-instance-name=provider1 --dest-service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=service_instance_relation_client_cpm --instance-name=consumer1 --service-name=e2e-service-consumer --dest-instance-name=provider1 --dest-service-name=e2e-service-provider |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
-
+        curl -s -XPOST http://${sender1_host}:${sender1_9093}/sendBatchMetrics/1643166600000/100;
+        curl -s -XPOST http://${sender2_host}:${sender2_9093}/sendBatchMetrics/1643166600000/100;
+        sleep 10;
+      expected: expected/send-metrics-rsp.yml
+    # metrics minute
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 0309" --end "2022-01-26 0311" |yq e 'to_entries' -
+      expected: expected/metrics-minute-second.yml
+    # metrics toHour
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 01" --end "2022-01-26 05" |yq e 'to_entries' -
+      expected: expected/metrics-hour-second.yml
+    # metrics toDay
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26" --end "2022-01-27" |yq e 'to_entries' -
+      expected: expected/metrics-day-second.yml

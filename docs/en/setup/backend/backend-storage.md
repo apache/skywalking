@@ -257,7 +257,7 @@ storage:
 All connection related settings, including URL link, username, and password are found in `application.yml`. For metadata storage provider settings, refer to the configurations of **H2/MySQL** above.
 
 ## PostgreSQL
-PostgreSQL jdbc driver uses version 42.2.18. It supports PostgreSQL 8.2 or newer.
+PostgreSQL jdbc driver uses version 42.3.2. It supports PostgreSQL 8.2 or newer.
 Activate PostgreSQL as storage, and set storage provider to **postgresql**. 
 
 ```yaml
@@ -294,7 +294,7 @@ storage:
     username: ${SW_STORAGE_IOTDB_USERNAME:root}
     password: ${SW_STORAGE_IOTDB_PASSWORD:root}
     storageGroup: ${SW_STORAGE_IOTDB_STORAGE_GROUP:root.skywalking}
-    sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:16}
+    sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:8} # If it's zero, the SessionPool size will be 2*CPU_Cores
     fetchTaskLogMaxSize: ${SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
 ```
 All connection related settings, including host, rpcPort, username, and password are found in `application.yml`. Please ensure the IoTDB version >= 0.12.3.
