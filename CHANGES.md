@@ -14,6 +14,7 @@ Release Notes.
 * Exclude unnecessary libs when building under JDK 9+.
 * Migrate base Docker image to eclipse-temurin as adoptopenjdk is deprecated.
 * Add E2E test under Java 17.
+* Upgrade protoc to 3.19.2.
 
 #### OAP Server
 
