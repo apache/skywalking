@@ -54,6 +54,7 @@ Release Notes.
 * Bump up PostgreSQL driver to fix CVE.
 * Add Guava EventBus component ID(123) of Java agent.
 * Add OpenFunction component ID(5013).
+* Expose configuration `responseTimeout` of ES client.
 
 #### UI
 

@@ -60,6 +60,8 @@ public final class ElasticSearchBuilder {
 
     private String trustStorePass;
 
+    private Duration responseTimeout = Duration.ofSeconds(15);
+
     private Duration connectTimeout = Duration.ofMillis(500);
 
     private Duration socketTimeout = Duration.ofSeconds(30);
@@ -115,6 +117,12 @@ public final class ElasticSearchBuilder {
     public ElasticSearchBuilder connectTimeout(int connectTimeout) {
         checkArgument(connectTimeout > 0, "connectTimeout must be positive");
         this.connectTimeout = Duration.ofMillis(connectTimeout);
+        return this;
+    }
+
+    public ElasticSearchBuilder responseTimeout(int responseTimeout) {
+        checkArgument(responseTimeout >= 0, "responseTimeout must be 0 or positive");
+        this.responseTimeout = Duration.ofMillis(responseTimeout);
         return this;
     }
 
@@ -188,7 +196,8 @@ public final class ElasticSearchBuilder {
             password,
             endpointGroup,
             clientFactory,
-            healthyListener
+            healthyListener,
+            responseTimeout
         );
     }
 }

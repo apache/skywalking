@@ -36,6 +36,7 @@ import com.linecorp.armeria.common.util.Exceptions;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +82,8 @@ public final class ElasticSearch implements Closeable {
                   String username, String password,
                   EndpointGroup endpointGroup,
                   ClientFactory clientFactory,
-                  Consumer<Boolean> healthyListener) {
+                  Consumer<Boolean> healthyListener,
+                  Duration responseTimeout) {
         this.endpointGroup = endpointGroup;
         this.clientFactory = clientFactory;
         if (healthyListener != null) {
@@ -94,6 +96,7 @@ public final class ElasticSearch implements Closeable {
         final WebClientBuilder builder =
             WebClient.builder(protocol, endpointGroup)
                      .factory(clientFactory)
+                     .responseTimeout(responseTimeout)
                      .decorator(LoggingClient.builder()
                                              .logger(log)
                                              .newDecorator())
