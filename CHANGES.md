@@ -51,15 +51,18 @@ Release Notes.
 * Set the default value of SW_STORAGE_IOTDB_SESSIONPOOL_SIZE to 8.
 * Bump up iotdb-session to 0.12.4.
 * Bump up PostgreSQL driver to fix CVE.
+* Support datasource metric analysis.
 
 #### UI
 
 * Remove unused jars (log4j-api.jar) in classpath.
 * Bump up netty version to fix CVE.
+* add Database Connection pool metric.
 
 #### Documentation
 
 * update backend-alarm.md doc, support op "=" to "==".
+* update backend-meter.md doc .
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/112?closed=1)
 
