@@ -55,7 +55,7 @@ public class ScriptParserTest {
         Assert.assertEquals(2, results.size());
 
         AnalysisResult endpointAvg = results.get(0);
-        Assert.assertEquals("EndpointAvg", endpointAvg.getMetricsName());
+        Assert.assertEquals("EndpointRespTime", endpointAvg.getMetricsName());
         Assert.assertEquals("Endpoint", endpointAvg.getFrom().getSourceName());
         Assert.assertEquals("[latency]", endpointAvg.getFrom().getSourceAttribute().toString());
         Assert.assertEquals("longAvg", endpointAvg.getAggregationFuncStmt().getAggregationFunctionName());
