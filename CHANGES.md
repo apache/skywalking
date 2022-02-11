@@ -55,6 +55,7 @@ Release Notes.
 * Add Guava EventBus component ID(123) of Java agent.
 * Add OpenFunction component ID(5013).
 * Expose configuration `responseTimeout` of ES client.
+* Keep the endpoint avg resp time meter name the same with others scope.
 
 #### UI
 
