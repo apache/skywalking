@@ -56,7 +56,7 @@ Release Notes.
 * Add OpenFunction component ID(5013).
 * Expose configuration `responseTimeout` of ES client.
 * Support datasource metric analysis.
-* Keep the endpoint avg resp time meter name the same with others scope. (This may break 3rd party integration)
+* [Break Change] Keep the endpoint avg resp time meter name the same with others scope. (This may break 3rd party integration and existing alarm rule settings)
 
 #### UI
 
