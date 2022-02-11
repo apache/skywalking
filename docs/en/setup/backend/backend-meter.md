@@ -70,9 +70,10 @@ All available meter analysis scripts could be found [here](../../../../oap-serve
 
 | Rule Name | Description | Configuration File | Data Source |
 |-----|-----|-----|-----|
-|spring-sleuth| Metrics of Spring Sleuth Application | meter-analyzer-config/spring-sleuth.yaml | Sprign Sleuth Application --meter format--> SkyWalking OAP Server |
 |satellite| Metrics of SkyWalking Satellite self-observability(so11y)| meter-analyzer-config/satellite.yaml| SkyWalking Satellite --meter format-->SkyWalking OAP Server|
 |threadpool| Metrics of Thread Pool | meter-analyzer-config/threadpool.yaml | Thread Pool --meter format--> SkyWalking OAP Server |
+|datasource| Metrics of DataSource metrics | meter-analyzer-config/datasource.yaml | Datasource --meter format--> SkyWalking OAP Server |
+|spring-sleuth| Metrics of Spring Sleuth Application | meter-analyzer-config/spring-sleuth.yaml | Sprign Sleuth Application --meter format--> SkyWalking OAP Server |
 
 An example can be found [here](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
 If you're using Spring Sleuth, see [Spring Sleuth Setup](spring-sleuth-setup.md).
