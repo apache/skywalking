@@ -55,16 +55,19 @@ Release Notes.
 * Add Guava EventBus component ID(123) of Java agent.
 * Add OpenFunction component ID(5013).
 * Expose configuration `responseTimeout` of ES client.
+* Support datasource metric analysis.
 * Keep the endpoint avg resp time meter name the same with others scope. (This may break 3rd party integration)
 
 #### UI
 
 * Remove unused jars (log4j-api.jar) in classpath.
 * Bump up netty version to fix CVE.
+* add Database Connection pool metric.
 
 #### Documentation
 
 * update backend-alarm.md doc, support op "=" to "==".
+* update backend-meter.md doc .
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/112?closed=1)
 
