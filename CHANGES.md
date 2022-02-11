@@ -14,6 +14,7 @@ Release Notes.
 * Exclude unnecessary libs when building under JDK 9+.
 * Migrate base Docker image to eclipse-temurin as adoptopenjdk is deprecated.
 * Add E2E test under Java 17.
+* Upgrade protoc to 3.19.2.
 
 #### OAP Server
 
@@ -51,6 +52,9 @@ Release Notes.
 * Set the default value of SW_STORAGE_IOTDB_SESSIONPOOL_SIZE to 8.
 * Bump up iotdb-session to 0.12.4.
 * Bump up PostgreSQL driver to fix CVE.
+* Add Guava EventBus component ID(123) of Java agent.
+* Add OpenFunction component ID(5013).
+* Expose configuration `responseTimeout` of ES client.
 * Support datasource metric analysis.
 
 #### UI

@@ -398,6 +398,9 @@ Apache-Kylin-jdbc-driver:
 Apache-Kylin:
   id: 122
   languages: Java
+GuavaEventBus:
+  id: 123
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -509,6 +512,9 @@ Kratos:
 GoMysql:
   id: 5012
   languages: Golang
+OpenFunction:
+  id: 5013
+  languages: Golang,Node.js,Python,Java
 
 # Lua components
 # [6000, 7000) for Lua agent

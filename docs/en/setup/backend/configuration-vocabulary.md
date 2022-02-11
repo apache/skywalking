@@ -88,6 +88,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | protocol | HTTP or HTTPs. | SW_STORAGE_ES_HTTP_PROTOCOL | HTTP|
 | - | - | connectTimeout | Connect timeout of ElasticSearch client (in milliseconds). | SW_STORAGE_ES_CONNECT_TIMEOUT | 500|
 | - | - | socketTimeout | Socket timeout of ElasticSearch client (in milliseconds). | SW_STORAGE_ES_SOCKET_TIMEOUT | 30000|
+| - | - | responseTimeout | Response timeout of ElasticSearch client (in milliseconds), `0` disables the timeout. | SW_STORAGE_ES_RESPONSE_TIMEOUT | 1500 |
 | - | - | numHttpClientThread | The number of threads for the underlying HTTP client to perform socket I/O. If the value is <= 0, the number of available processors will be used. | SW_STORAGE_ES_NUM_HTTP_CLIENT_THREAD | 0 |
 | - | - | user| Username of ElasticSearch cluster. | SW_ES_USER | - |
 | - | - | password | Password of ElasticSearch cluster. | SW_ES_PASSWORD | - |
