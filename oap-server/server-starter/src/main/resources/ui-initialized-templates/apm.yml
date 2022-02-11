@@ -83,7 +83,7 @@ templates:
                   "entityType": "Endpoint",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "endpoint_avg",
+                  "metricName": "endpoint_resp_time",
                   "queryMetricType": "sortMetrics",
                   "chartType": "ChartSlow",
                   "parentService": false,
@@ -546,7 +546,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "queryMetricType": "sortMetrics",
                   "chartType": "ChartSlow",
-                  "metricName": "endpoint_avg",
+                  "metricName": "endpoint_resp_time",
                   "unit": "ms",
                   "parentService": true
                 },
@@ -584,7 +584,7 @@ templates:
                   "entityType": "Endpoint",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "endpoint_avg",
+                  "metricName": "endpoint_resp_time",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
                   "unit": "ms"

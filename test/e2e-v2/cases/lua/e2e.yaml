@@ -84,7 +84,7 @@ verify:
     # service endpoint metrics
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_cpm --endpoint-name=/nginx/info --service-name=User_Service_Name |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_avg --endpoint-name=/nginx/info --service-name=User_Service_Name |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_resp_time --endpoint-name=/nginx/info --service-name=User_Service_Name |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_sla --endpoint-name=/nginx/info --service-name=User_Service_Name |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml

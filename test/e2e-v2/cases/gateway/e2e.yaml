@@ -90,7 +90,7 @@ verify:
     # service endpoint metrics
     - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=endpoint_cpm --endpoint-name=POST:/users --service-name=e2e-service-provider |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=endpoint_avg --endpoint-name=POST:/users --service-name=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=endpoint_resp_time --endpoint-name=POST:/users --service-name=e2e-service-provider |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=endpoint_sla --endpoint-name=POST:/users --service-name=e2e-service-provider |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
