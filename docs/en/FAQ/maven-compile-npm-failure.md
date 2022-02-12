@@ -56,7 +56,7 @@ Find
 Replace it with
 ```
 <configuration>  
- <arguments>install --registry=https://registry.npm.taobao.org/ --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/</arguments>  
+ <arguments>install --registry=https://registry.npmmirror.com/ --sass_binary_site=https://npmmirror.com/mirrors/node-sass/</arguments>  
 </configuration>
 ```
 #### 2. Get a sufficiently powerful VPN.
