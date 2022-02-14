@@ -51,7 +51,7 @@ Note: `$name` is the original metric name.
 ## Configuration file
 The meter receiver is configured via a configuration file. The configuration file defines everything related to receiving 
  from agents, as well as which rule files to load.
- 
+
 The OAP can load the configuration at bootstrap. If the new configuration is not well-formed, the OAP may fail to start up. The files
 are located at `$CLASSPATH/meter-analyzer-config`.
 
@@ -66,12 +66,17 @@ New meter-analyzer-config files is **NOT** enabled by default, you should make m
 
 Meter-analyzer-config file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
 
-An example can be found [here](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
-If you're using Spring Sleuth, see [Spring Sleuth Setup](spring-sleuth-setup.md).
+All available meter analysis scripts could be found [here](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/).
 
 | Rule Name | Description | Configuration File | Data Source |
 |-----|-----|-----|-----|
+|satellite| Metrics of SkyWalking Satellite self-observability(so11y)| meter-analyzer-config/satellite.yaml| SkyWalking Satellite --meter format-->SkyWalking OAP Server|
+|threadpool| Metrics of Thread Pool | meter-analyzer-config/threadpool.yaml | Thread Pool --meter format--> SkyWalking OAP Server |
+|datasource| Metrics of DataSource metrics | meter-analyzer-config/datasource.yaml | Datasource --meter format--> SkyWalking OAP Server |
 |spring-sleuth| Metrics of Spring Sleuth Application | meter-analyzer-config/spring-sleuth.yaml | Sprign Sleuth Application --meter format--> SkyWalking OAP Server |
+
+An example can be found [here](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
+If you're using Spring Sleuth, see [Spring Sleuth Setup](spring-sleuth-setup.md).
 
 ### Meters configuration
 

@@ -14,6 +14,7 @@ Release Notes.
 * Exclude unnecessary libs when building under JDK 9+.
 * Migrate base Docker image to eclipse-temurin as adoptopenjdk is deprecated.
 * Add E2E test under Java 17.
+* Upgrade protoc to 3.19.2.
 
 #### OAP Server
 
@@ -46,17 +47,29 @@ Release Notes.
 * Add env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT` for cluster selectors `zookeeper`,`consul`,`etcd` and `nacos`.
 * Doc update: `configuration-vocabulary`,`backend-cluster` about env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT`.
 * Add Python MysqlClient component ID(7013) with mapping information.
+* Support Java thread pool metrics analysis.
+* Fix IoTDB Storage Option insert null index value.
+* Set the default value of SW_STORAGE_IOTDB_SESSIONPOOL_SIZE to 8.
+* Bump up iotdb-session to 0.12.4.
+* Bump up PostgreSQL driver to fix CVE.
+* Add Guava EventBus component ID(123) of Java agent.
+* Add OpenFunction component ID(5013).
+* Expose configuration `responseTimeout` of ES client.
+* Support datasource metric analysis.
+* [Break Change] Keep the endpoint avg resp time meter name the same with others scope. (This may break 3rd party integration and existing alarm rule settings)
 * Add Python FastApi component ID(7014) with mapping information.
-* Add env variables `fastapi_collect_http_params` for the plugin FastApi.
+* Add env variables `SW_FASTAPI_COLLECT_HTTP_PARAMS` for the plugin of FastApi.
 
 #### UI
 
 * Remove unused jars (log4j-api.jar) in classpath.
 * Bump up netty version to fix CVE.
+* add Database Connection pool metric.
 
 #### Documentation
 
 * update backend-alarm.md doc, support op "=" to "==".
+* update backend-meter.md doc .
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/112?closed=1)
 

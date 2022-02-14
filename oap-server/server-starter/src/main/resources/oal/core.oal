@@ -59,7 +59,7 @@ service_instance_cpm = from(ServiceInstance.*).cpm();
 
 // Endpoint scope metrics
 endpoint_cpm = from(Endpoint.*).cpm();
-endpoint_avg = from(Endpoint.latency).longAvg();
+endpoint_resp_time = from(Endpoint.latency).longAvg();
 endpoint_sla = from(Endpoint.*).percent(status == true);
 endpoint_percentile = from(Endpoint.latency).percentile(10); // Multiple values including p50, p75, p90, p95, p99
 endpoint_mq_consume_count = from(Endpoint.*).filter(type == RequestType.MQ).count();

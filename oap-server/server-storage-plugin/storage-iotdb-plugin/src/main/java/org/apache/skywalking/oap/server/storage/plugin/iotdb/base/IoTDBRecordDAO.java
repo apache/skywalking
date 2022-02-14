@@ -74,9 +74,6 @@ public class IoTDBRecordDAO implements IRecordDAO {
                 measurementValues.add(rawTag.getValue());
             });
         }
-        request.setMeasurements(measurements);
-        request.setMeasurementTypes(measurementTypes);
-        request.setMeasurementValues(measurementValues);
         return request;
     }
 }

@@ -156,7 +156,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
             indexNameConverter(config.getNamespace()), config.getConnectTimeout(),
-            config.getSocketTimeout(), config.getNumHttpClientThread()
+            config.getSocketTimeout(), config.getNumHttpClientThread(),
+            config.getResponseTimeout()
         );
         this.registerServiceImplementation(
             IBatchDAO.class,

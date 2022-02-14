@@ -67,8 +67,11 @@ public class IoTDBClient implements Client, HealthCheckable {
     @Override
     public void connect() throws IoTDBConnectionException, StatementExecutionException {
         try {
+            final int sessionPoolSize = config.getSessionPoolSize() == 0 ?
+                    Runtime.getRuntime().availableProcessors() * 2 : config.getSessionPoolSize();
+            log.info("SessionPool Size: {}", sessionPoolSize);
             sessionPool = new SessionPool(config.getHost(), config.getRpcPort(), config.getUsername(),
-                    config.getPassword(), config.getSessionPoolSize());
+                    config.getPassword(), sessionPoolSize, false, false);
             sessionPool.setStorageGroup(storageGroup);
 
             healthChecker.health();
@@ -254,7 +257,7 @@ public class IoTDBClient implements Client, HealthCheckable {
     /**
      * Query with aggregation function: count, sum, avg, last_value, first_value, min_time, max_time, min_value, max_value
      *
-     * @param querySQL  the SQL for query which should contain aggregation function
+     * @param querySQL the SQL for query which should contain aggregation function
      * @return the result of aggregation function
      * @throws IOException IoTDBConnectionException or StatementExecutionException
      */

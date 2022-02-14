@@ -83,7 +83,7 @@ templates:
                   "entityType": "Endpoint",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "endpoint_avg",
+                  "metricName": "endpoint_resp_time",
                   "queryMetricType": "sortMetrics",
                   "chartType": "ChartSlow",
                   "parentService": false,
@@ -450,6 +450,17 @@ templates:
                 },
                 {
                   "width": 3,
+                  "title": "Thread Pool(Java Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_thread_pool",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine"
+                },      
+                {
+                  "width": 3,
                   "title": "CLR CPU  (.NET Service)",
                   "height": "250",
                   "entityType": "ServiceInstance",
@@ -495,6 +506,17 @@ templates:
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
                   "metricName": "instance_clr_available_completion_port_threads,instance_clr_available_worker_threads,instance_clr_max_completion_port_threads,instance_clr_max_worker_threads"
+                },
+                 {
+                   "width": "3",
+                   "title": "Database Connection Pool",
+                   "height": "250",
+                   "entityType": "ServiceInstance",
+                   "independentSelector": false,
+                   "metricType": "LABELED_VALUE",
+                   "metricName": "meter_datasource",
+                   "queryMetricType": "readLabeledMetricsValues",
+                   "chartType": "ChartLine"
                 }
               ]
             },
@@ -524,7 +546,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "queryMetricType": "sortMetrics",
                   "chartType": "ChartSlow",
-                  "metricName": "endpoint_avg",
+                  "metricName": "endpoint_resp_time",
                   "unit": "ms",
                   "parentService": true
                 },
@@ -562,7 +584,7 @@ templates:
                   "entityType": "Endpoint",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "endpoint_avg",
+                  "metricName": "endpoint_resp_time",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
                   "unit": "ms"

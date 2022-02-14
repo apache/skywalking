@@ -42,6 +42,11 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      */
     private int socketTimeout = 30000;
     /**
+     * @since 9.0.0 the response timeout of ElasticSearch client (Armeria under the hood), set to 0 to disable response
+     * timeout.
+     */
+    private int responseTimeout = 15000;
+    /**
      * @since 6.4.0, the index of metrics and traces data in minute/hour/month precision are organized in days. ES
      * storage creates new indexes in every day.
      *
