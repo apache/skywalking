@@ -63,6 +63,11 @@ public final class ElasticSearchVersion {
                 }
                 return;
             }
+            if (major == 8) {
+                requestFactory = new V78RequestFactory(this);
+                codec = V78Codec.INSTANCE;
+                return;
+            }
         }
         throw new UnsupportedOperationException("Unsupported version: " + this);
     }

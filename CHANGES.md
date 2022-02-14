@@ -61,6 +61,8 @@ Release Notes.
 * Support all metrics from MAL engine in alarm core, including Prometheus, OC receiver, meter receiver.
 * Allow updating non-metrics templates when structure changed.
 * Set default connection timeout of ElasticSearch to 3000 milliseconds.
+* Support ElasticSearch 8 and add it into E2E tests.
+* Disable indexing for field `alarm_record.tags_raw_data` of binary type in ElasticSearch storage.
 
 #### UI
 

@@ -58,6 +58,8 @@ jobs:
             config-file: log/es/e2e.yaml
           - es-version: 7.15.0
             config-file: log/es/e2e.yaml
+          - es-version: 8.0.0
+            config-file: log/es/e2e.yaml
 
           - es-version: 6.3.2
             config-file: log/fluent-bit/e2e.yaml

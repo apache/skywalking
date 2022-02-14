@@ -61,6 +61,8 @@ jobs:
             config-file: storage/es/e2e.yaml
           - es-version: 7.15.0
             config-file: storage/es/e2e.yaml
+          - es-version: 8.0.0
+            config-file: storage/es/e2e.yaml
 
     steps:
       - uses: actions/checkout@v2
