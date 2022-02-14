@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -58,7 +58,6 @@ public class LogQueryService implements Service {
     public Logs queryLogs(String serviceId,
                           String serviceInstanceId,
                           String endpointId,
-                          String endpointName,
                           TraceScopeCondition relatedTrace,
                           Pagination paging,
                           Order queryOrder,
@@ -83,7 +82,6 @@ public class LogQueryService implements Service {
         Logs logs = getLogQueryDAO().queryLogs(serviceId,
                                                serviceInstanceId,
                                                endpointId,
-                                               endpointName,
                                                relatedTrace,
                                                queryOrder,
                                                page.getFrom(), page.getLimit(),

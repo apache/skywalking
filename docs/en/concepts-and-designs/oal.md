@@ -15,15 +15,17 @@ You can open set `SW_OAL_ENGINE_DEBUG=Y` at system env to see which classes are 
 Scripts should be named `*.oal`
 ```
 // Declare the metrics.
-METRICS_NAME = from(SCOPE.(* | [FIELD][,FIELD ...]))
-[.filter(FIELD OP [INT | STRING])]
+METRICS_NAME = from(CAST SCOPE.(* | [FIELD][,FIELD ...]))
+[.filter(CAST FIELD OP [INT | STRING])]
 .FUNCTION([PARAM][, PARAM ...])
 
 // Disable hard code 
 disable(METRICS_NAME);
 ```
 
-## Scope
+## From
+The **from** statement defines the data source of this OAL expression.
+
 Primary **SCOPE**s are `All`, `Service`, `ServiceInstance`, `Endpoint`, `ServiceRelation`, `ServiceInstanceRelation`, and `EndpointRelation`.
 There are also some secondary scopes which belong to a primary scope. 
 
@@ -95,6 +97,23 @@ All metrics data will be grouped by Scope.ID and min-level TimeBucket.
 
 - In the `Endpoint` scope, the Scope.ID is same as the Endpoint ID (i.e. the unique ID based on service and its endpoint).
 
+## Cast
+Fields of source are static type. In some cases, the type required by the filter expression and aggregation function doesn't 
+match the type in the source, such as tag value in the source is String type, most aggregation calculation requires numeric.
+
+Cast expression is provided to do so. 
+- `(str->long)` or `(long)`, cast string type into long.
+- `(str->int)` or `(int)`, cast string type into int.
+
+```
+mq_consume_latency = from((str->long)Service.tag["transmission.latency"]).longAvg(); // the value of tag is string type.
+```
+
+Cast statement is supported in
+1. **From statement**. `from((cast)source.attre)`. 
+2. **Filter expression**. `.filter((cast)tag["transmission.latency"] > 0)`
+3. **Aggregation function parameter**. `.longAvg((cast)strField1== 1,  (cast)strField2)`
+
 ## Disable
 `Disable` is an advanced statement in OAL, which is only used in certain cases.
 Some of the aggregation and metrics are defined through core hard codes. Examples include `segment` and `top_n_database_statement`.
@@ -112,7 +131,7 @@ endpoint_p99 = from(Endpoint.latency).filter(name in ("Endpoint1", "Endpoint2"))
 serv_Endpoint_p99 = from(Endpoint.latency).filter(name like "serv%").summary(0.99)
 
 // Calculate the avg response time of each Endpoint
-endpoint_avg = from(Endpoint.latency).avg()
+endpoint_resp_time = from(Endpoint.latency).avg()
 
 // Calculate the p50, p75, p90, p95 and p99 of each Endpoint by 50 ms steps.
 endpoint_percentile = from(Endpoint.latency).percentile(10)
@@ -133,7 +152,10 @@ endpoint_url_sum = from(Endpoint.*).filter(name in ["/v1", "/v2"]).count()
 endpoint_calls = from(Endpoint.*).count()
 
 // Calculate the CPM with the GET method for each service.The value is made up with `tagKey:tagValue`.
+// Option 1, use `tags contain`.
 service_cpm_http_get = from(Service.*).filter(tags contain "http.method:GET").cpm()
+// Option 2, use `tag[key]`.
+service_cpm_http_get = from(Service.*).filter(tag["http.method"] == "GET").cpm();
 
 // Calculate the CPM with the HTTP method except for the GET method for each service.The value is made up with `tagKey:tagValue`.
 service_cpm_http_other = from(Service.*).filter(tags not contain "http.method:GET").cpm()

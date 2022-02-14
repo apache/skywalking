@@ -15,7 +15,7 @@ SkyWalking's backend distribution package consists of the following parts:
 
 ## Requirements and default settings
 
-Requirement: **JDK8 to JDK12 are tested**. Other versions are not tested and may or may not work.
+Requirement: **JDK8 to JDK17 are tested**. Other versions are not tested and may or may not work.
 
 Before you start, you should know that the main purpose of quickstart is to help you obtain a basic configuration for previews/demo. Performance and long-term running are not our goals.
 
@@ -95,8 +95,7 @@ The required modules are listed here:
 capabilities. See [**Cluster Management**](backend-cluster.md) for more details.
 1. **Storage**. Makes the analysis result persistent. See [**Choose storage**](backend-storage.md) for more details
 1. **Query**. Provides query interfaces to UI.
-1. **Receiver** and **Fetcher**. Expose the service to the agents and probes, or read telemetry data from a channel. 
-See [Receiver](backend-receivers.md) and [Fetcher](backend-fetcher.md) documents for more details.
+1. **Receiver** and **Fetcher**. Expose the service to the agents and probes, or read telemetry data from a channel.
 
 ## FAQs
 #### Why do we need to set the timezone? And when do we do it?

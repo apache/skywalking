@@ -21,13 +21,12 @@
     <parent>
         <artifactId>profile-exporter</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.7.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.apache.skywalking</groupId>
     <artifactId>tool-profile-snapshot-exporter</artifactId>
-    <version>8.7.0-SNAPSHOT</version>
+    <version>9.0.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -35,13 +34,27 @@
             <artifactId>tool-profile-snapshot-bootstrap</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-elasticsearch-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>${project.build.directory}/oap-libs</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

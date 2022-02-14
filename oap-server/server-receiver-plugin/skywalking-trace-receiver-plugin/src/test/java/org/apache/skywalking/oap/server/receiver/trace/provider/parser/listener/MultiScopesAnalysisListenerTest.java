@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.MultiScopesAnalysisListener;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -134,10 +134,15 @@ public class MultiScopesAnalysisListenerTest {
                                           .setSpanType(SpanType.Entry)
                                           .addTags(
                                               KeyStringValuePair.newBuilder()
-                                                                .setKey(SpanTags.STATUS_CODE)
+                                                                .setKey(SpanTags.HTTP_RESPONSE_STATUS_CODE)
                                                                 .setValue("500")
                                                                 .build()
                                           )
+                                          .addTags(
+                                              KeyStringValuePair.newBuilder()
+                                                                .setKey(SpanTags.RPC_RESPONSE_STATUS_CODE)
+                                                                .setValue("OK")
+                                                                .build())
                                           .build();
         final SegmentObject segment = SegmentObject.newBuilder()
                                                    .setService("mock-service")
@@ -158,6 +163,8 @@ public class MultiScopesAnalysisListenerTest {
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(6);
         Assert.assertEquals("mock-service", service.getName());
         Assert.assertEquals(500, service.getResponseCode());
+        Assert.assertEquals(500, service.getHttpResponseStatusCode());
+        Assert.assertEquals("OK", service.getRpcStatusCode());
         Assert.assertFalse(service.isStatus());
         Assert.assertEquals("mock-instance", serviceInstance.getName());
         Assert.assertEquals("/springMVC", endpoint.getName());
@@ -427,7 +434,7 @@ public class MultiScopesAnalysisListenerTest {
         Assert.assertEquals("mock-instance", serviceInstanceRelation.getSourceServiceInstanceName());
         Assert.assertEquals("127.0.0.1:8080", serviceInstanceRelation.getDestServiceInstanceName());
         Assert.assertEquals("127.0.0.1:8080", serviceMeta.getName());
-        Assert.assertEquals(NodeType.Database, serviceMeta.getNodeType());
+        Assert.assertEquals(Layer.VIRTUAL_DATABASE, serviceMeta.getLayer());
         Assert.assertEquals("127.0.0.1:8080", databaseAccess.getName());
     }
 

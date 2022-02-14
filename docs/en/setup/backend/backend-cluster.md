@@ -47,13 +47,13 @@ The following settings are provided to set the host and port manually, based on 
 
 ```yaml
 zookeeper:
-  nameSpace: ${SW_NAMESPACE:""}
+  namespace: ${SW_NAMESPACE:""}
   hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
   #Retry Policy
   baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
   maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
-  internalComHost: 172.10.4.10
-  internalComPort: 11800
+  internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:172.10.4.10}
+  internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:11800}
   # Enable ACL
   enableACL: ${SW_ZK_ENABLE_ACL:false} # disable ACL in default
   schema: ${SW_ZK_SCHEMA:digest} # only support digest schema
@@ -99,10 +99,10 @@ cluster:
     # etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
     endpoints: ${SW_CLUSTER_ETCD_ENDPOINTS:localhost:2379}
     namespace: ${SW_CLUSTER_ETCD_NAMESPACE:/skywalking}
-    serviceName: ${SW_SCLUSTER_ETCD_ERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    serviceName: ${SW_CLUSTER_ETCD_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
     authentication: ${SW_CLUSTER_ETCD_AUTHENTICATION:false}
-    user: ${SW_SCLUSTER_ETCD_USER:}
-    password: ${SW_SCLUSTER_ETCD_PASSWORD:}
+    user: ${SW_CLUSTER_ETCD_USER:}
+    password: ${SW_CLUSTER_ETCD_PASSWORD:}
 ```
 
 Same as the Zookeeper coordinator,

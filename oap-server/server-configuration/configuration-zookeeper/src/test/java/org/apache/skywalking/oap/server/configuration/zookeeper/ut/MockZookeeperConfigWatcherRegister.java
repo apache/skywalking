@@ -24,6 +24,7 @@ import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.apache.skywalking.oap.server.configuration.zookeeper.ZookeeperServerSettings;
 
 public class MockZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
@@ -32,7 +33,7 @@ public class MockZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
 
     public MockZookeeperConfigWatcherRegister(ZookeeperServerSettings settings) throws Exception {
         super(settings.getPeriod());
-        prefix = settings.getNameSpace() + "/";
+        prefix = settings.getNamespace() + "/";
     }
 
     @Override
@@ -43,5 +44,10 @@ public class MockZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
             table.add(new ConfigTable.ConfigItem(s, data == null ? null : new String(data.getData())));
         });
         return Optional.of(table);
+    }
+
+    @Override
+    public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
+        return Optional.empty();
     }
 }

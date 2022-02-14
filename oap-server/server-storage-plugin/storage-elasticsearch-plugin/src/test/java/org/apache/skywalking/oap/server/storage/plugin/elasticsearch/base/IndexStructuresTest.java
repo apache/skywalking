@@ -19,7 +19,8 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.util.HashMap;
-import java.util.Map;
+import org.apache.skywalking.library.elasticsearch.response.Mappings;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,14 +32,22 @@ public class IndexStructuresTest {
         HashMap<String, Object> properties = new HashMap<>();
         properties.put("a", "b");
         properties.put("c", "d");
-        structures.putStructure("test", structures.getWrapper().wrapper(properties));
-        Map<String, Object> mapping = structures.getMapping("test");
-        Assert.assertEquals(structures.getExtractor().extract(mapping), properties);
+        structures.putStructure(
+            "test", Mappings.builder()
+                            .type(ElasticSearchClient.TYPE)
+                            .properties(properties)
+                            .build());
+        Mappings mapping = structures.getMapping("test");
+        Assert.assertEquals(mapping.getProperties(), properties);
 
-        structures.putStructure("test2", structures.getWrapper().wrapper(new HashMap<>()));
+        structures.putStructure(
+            "test2", Mappings.builder()
+                             .type(ElasticSearchClient.TYPE)
+                             .properties(new HashMap<>())
+                             .build());
         mapping = structures.getMapping("test2");
 
-        Assert.assertTrue(structures.getExtractor().extract(mapping).isEmpty());
+        Assert.assertTrue(mapping.getProperties().isEmpty());
     }
 
     @Test
@@ -47,19 +56,27 @@ public class IndexStructuresTest {
         HashMap<String, Object> properties = new HashMap<>();
         properties.put("a", "b");
         properties.put("c", "d");
-        structures.putStructure("test", structures.getWrapper().wrapper(properties));
-        Map<String, Object> mapping = structures.getMapping("test");
-        Assert.assertEquals(properties, structures.getExtractor().extract(mapping));
+        structures.putStructure(
+            "test", Mappings.builder()
+                            .type(ElasticSearchClient.TYPE)
+                            .properties(properties)
+                            .build());
+        Mappings mapping = structures.getMapping("test");
+        Assert.assertEquals(properties, mapping.getProperties());
         HashMap<String, Object> properties2 = new HashMap<>();
         properties2.put("a", "b");
         properties2.put("f", "g");
-        structures.putStructure("test", structures.getWrapper().wrapper(properties2));
+        structures.putStructure(
+            "test", Mappings.builder()
+                            .type(ElasticSearchClient.TYPE)
+                            .properties(properties2)
+                            .build());
         mapping = structures.getMapping("test");
         HashMap<String, Object> res = new HashMap<>();
         res.put("a", "b");
         res.put("c", "d");
         res.put("f", "g");
-        Assert.assertEquals(res, structures.getExtractor().extract(mapping));
+        Assert.assertEquals(res, mapping.getProperties());
     }
 
     @Test
@@ -69,17 +86,30 @@ public class IndexStructuresTest {
         properties.put("a", "b");
         properties.put("c", "d");
         properties.put("f", "g");
-        structures.putStructure("test", structures.getWrapper().wrapper(properties));
+        structures.putStructure(
+            "test", Mappings.builder()
+                            .type(ElasticSearchClient.TYPE)
+                            .properties(properties)
+                            .build());
         HashMap<String, Object> properties2 = new HashMap<>();
         properties2.put("a", "b");
-        Map<String, Object> diffMappings = structures.diffStructure(
-            "test", structures.getWrapper().wrapper(properties2));
+        Mappings diffMappings = structures.diffStructure(
+            "test", Mappings.builder()
+                            .type(ElasticSearchClient.TYPE)
+                            .properties(properties2)
+                            .build());
         HashMap<String, Object> res = new HashMap<>();
         res.put("c", "d");
         res.put("f", "g");
-        Assert.assertEquals(res, structures.getExtractor().extract(diffMappings));
-        diffMappings = structures.diffStructure("test", structures.getWrapper().wrapper(properties));
-        Assert.assertEquals(new HashMap<>(), structures.getExtractor().extract(diffMappings));
+        Assert.assertEquals(res, diffMappings.getProperties());
+        diffMappings = structures.diffStructure(
+            "test",
+            Mappings.builder()
+                    .type(ElasticSearchClient.TYPE)
+                    .properties(properties)
+                    .build()
+        );
+        Assert.assertEquals(new HashMap<>(), diffMappings.getProperties());
     }
 
     @Test
@@ -89,16 +119,31 @@ public class IndexStructuresTest {
         properties.put("a", "b");
         properties.put("c", "d");
         properties.put("f", "g");
-        structures.putStructure("test", structures.getWrapper().wrapper(properties));
+        structures.putStructure("test", Mappings.builder()
+                                                .type(ElasticSearchClient.TYPE)
+                                                .properties(properties)
+                                                .build());
 
         HashMap<String, Object> properties2 = new HashMap<>();
         properties2.put("a", "b");
         properties2.put("c", "d");
-        Assert.assertTrue(structures.containsStructure("test", structures.getWrapper().wrapper(properties2)));
+        Assert.assertTrue(structures.containsStructure(
+            "test",
+            Mappings.builder()
+                    .type(ElasticSearchClient.TYPE)
+                    .properties(properties2)
+                    .build()
+        ));
 
         HashMap<String, Object> properties3 = new HashMap<>();
         properties3.put("a", "b");
         properties3.put("q", "d");
-        Assert.assertFalse(structures.containsStructure("test", structures.getWrapper().wrapper(properties3)));
+        Assert.assertFalse(structures.containsStructure(
+            "test",
+            Mappings.builder()
+                    .type(ElasticSearchClient.TYPE)
+                    .properties(properties3)
+                    .build()
+        ));
     }
 }

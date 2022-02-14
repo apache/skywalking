@@ -78,7 +78,7 @@ public class GRPCExporterTest {
 
     @Test
     public void init() {
-        exporter.init();
+        exporter.init(null);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class GRPCExporterTest {
 
     @Test
     public void onError() {
-        Exception e = new IllegalArgumentException("some something wrong");
+        Exception e = new IllegalArgumentException("something wrong");
         exporter.onError(Collections.emptyList(), e);
         exporter.onError(dataList(), e);
     }

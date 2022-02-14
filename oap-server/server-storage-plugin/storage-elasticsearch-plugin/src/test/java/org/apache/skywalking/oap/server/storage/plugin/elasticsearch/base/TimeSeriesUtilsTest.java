@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testcontainers.shaded.com.google.common.collect.Lists;
 
 import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils.compressTimeBucket;
 import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils.writeIndexName;

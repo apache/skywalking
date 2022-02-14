@@ -19,11 +19,12 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.List;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -117,7 +118,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
 
     private class AggregatorConsumer implements IConsumer<Metrics> {
         @Override
-        public void init() {
+        public void init(final Properties properties) {
         }
 
         @Override

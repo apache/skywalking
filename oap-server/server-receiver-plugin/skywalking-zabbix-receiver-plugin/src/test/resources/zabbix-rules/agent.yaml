@@ -14,7 +14,7 @@
 # limitations under the License.
 
 metricPrefix: meter_agent
-expSuffix: tag({tags -> tags.cur_host_name = 'zabbix::' + tags.cur_host_name}).service(['cur_host_name'])
+expSuffix: tag({tags -> tags.cur_host_name = 'zabbix::' + tags.cur_host_name}).service(['cur_host_name'], Layer.OS_LINUX)
 entities:
   hostPatterns:
     - test.+

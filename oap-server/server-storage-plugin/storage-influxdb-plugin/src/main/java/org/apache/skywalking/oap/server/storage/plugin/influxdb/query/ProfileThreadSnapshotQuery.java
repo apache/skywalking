@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +29,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
@@ -36,7 +38,6 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
-import org.elasticsearch.common.Strings;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
@@ -76,10 +77,10 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
         }
 
         final WhereQueryImpl<SelectQueryImpl> whereQuery = select()
-            .function(InfluxConstants.SORT_ASC, SegmentRecord.START_TIME, segments.size())
+            .function(InfluxConstants.SORT_DES, SegmentRecord.START_TIME, segments.size())
             .column(SegmentRecord.SEGMENT_ID)
             .column(SegmentRecord.START_TIME)
-            .column(SegmentRecord.ENDPOINT_NAME)
+            .column(SegmentRecord.ENDPOINT_ID)
             .column(SegmentRecord.LATENCY)
             .column(SegmentRecord.IS_ERROR)
             .column(SegmentRecord.TRACE_ID)
@@ -97,7 +98,8 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
 
                   basicTrace.setSegmentId((String) values.get(2));
                   basicTrace.setStart(String.valueOf(((Number) values.get(3)).longValue()));
-                  basicTrace.getEndpointNames().add((String) values.get(4));
+                  basicTrace.getEndpointNames().add(
+                      IDManager.EndpointID.analysisId((String) values.get(4)).getEndpointName());
                   basicTrace.setDuration(((Number) values.get(5)).intValue());
                   basicTrace.setError(BooleanUtils.valueToBoolean(((Number) values.get(6)).intValue()));
                   String traceIds = (String) values.get(7);
@@ -167,13 +169,10 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
             .column(SegmentRecord.SEGMENT_ID)
             .column(SegmentRecord.TRACE_ID)
             .column(SegmentRecord.SERVICE_ID)
-            .column(SegmentRecord.ENDPOINT_NAME)
             .column(SegmentRecord.START_TIME)
-            .column(SegmentRecord.END_TIME)
             .column(SegmentRecord.LATENCY)
             .column(SegmentRecord.IS_ERROR)
             .column(SegmentRecord.DATA_BINARY)
-            .column(SegmentRecord.VERSION)
             .from(client.getDatabase(), SegmentRecord.INDEX_NAME)
             .where();
 
@@ -192,14 +191,11 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
         segmentRecord.setSegmentId((String) values.get(1));
         segmentRecord.setTraceId((String) values.get(2));
         segmentRecord.setServiceId((String) values.get(3));
-        segmentRecord.setEndpointName((String) values.get(4));
-        segmentRecord.setStartTime(((Number) values.get(5)).longValue());
-        segmentRecord.setEndTime(((Number) values.get(6)).longValue());
-        segmentRecord.setLatency(((Number) values.get(7)).intValue());
-        segmentRecord.setIsError(((Number) values.get(8)).intValue());
-        segmentRecord.setVersion(((Number) values.get(10)).intValue());
+        segmentRecord.setStartTime(((Number) values.get(4)).longValue());
+        segmentRecord.setLatency(((Number) values.get(5)).intValue());
+        segmentRecord.setIsError(((Number) values.get(6)).intValue());
 
-        final String base64 = (String) values.get(9);
+        final String base64 = (String) values.get(7);
         if (!Strings.isNullOrEmpty(base64)) {
             segmentRecord.setDataBinary(Base64.getDecoder().decode(base64));
         }

@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -35,8 +35,6 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.IndicesMetadataCache;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.joda.time.DateTime;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -52,7 +50,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     }
 
     @Override
-    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
+    public List<Metrics> multiGet(Model model, List<Metrics> metrics) {
         Map<String, List<Metrics>> groupIndices
             = metrics.stream()
                      .collect(
@@ -87,36 +85,32 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         // the current day and the T-1 day(if at the edge between days)
         List<Metrics> result = new ArrayList<>(metrics.size());
         groupIndices.forEach((tableName, metricList) -> {
-            String[] ids = metricList.stream()
-                                     .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
-                                     .toArray(String[]::new);
-            try {
-                SearchResponse response = getClient().ids(tableName, ids);
-                for (int i = 0; i < response.getHits().getHits().length; i++) {
-                    Metrics source = storageBuilder.storage2Entity(response.getHits().getAt(i).getSourceAsMap());
-                    result.add(source);
-                }
-            } catch (IOException e) {
-                log.error("multiGet id=" + Arrays.toString(ids) + " from " + tableName + " fails.", e);
-            }
+            List<String> ids = metricList.stream()
+                                         .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
+                                         .collect(Collectors.toList());
+            final SearchResponse response = getClient().ids(tableName, ids);
+            response.getHits().getHits().forEach(hit -> {
+                Metrics source = storageBuilder.storage2Entity(hit.getSource());
+                result.add(source);
+            });
         });
 
         return result;
     }
 
     @Override
-    public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
-        XContentBuilder builder = map2builder(
-            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(metrics)));
+    public InsertRequest prepareBatchInsert(Model model, Metrics metrics) {
+        Map<String, Object> builder =
+            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(metrics));
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareInsert(modelName, id, builder);
     }
 
     @Override
-    public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
-        XContentBuilder builder = map2builder(
-            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(metrics)));
+    public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) {
+        Map<String, Object> builder =
+            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(metrics));
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareUpdate(modelName, id, builder);

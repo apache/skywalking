@@ -236,14 +236,16 @@ last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog').downsam
 
 ## Metric level function
 
-There are three levels in metric: service, instance and endpoint. They extract level relevant labels from metric labels, then informs the meter-system the level to which this metric belongs.
+They extract level relevant labels from metric labels, then informs the meter-system the level and [layer](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java) to which this metric belongs.
 
- - `servcie([svc_label1, svc_label2...])` extracts service level labels from the array argument.
- - `instance([svc_label1, svc_label2...], [ins_label1, ins_label2...])` extracts service level labels from the first array argument, 
-                                                                        extracts instance level labels from the second array argument.
+ - `service([svc_label1, svc_label2...], Layer)` extracts service level labels from the array argument, extracts layer from `Layer` argument.
+ - `instance([svc_label1, svc_label2...], [ins_label1, ins_label2...], Layer)` extracts service level labels from the first array argument, 
+                                                                        extracts instance level labels from the second array argument, extracts layer from `Layer` argument.
  - `endpoint([svc_label1, svc_label2...], [ep_label1, ep_label2...])` extracts service level labels from the first array argument, 
-                                                                      extracts endpoint level labels from the second array argument.
-
+                                                                      extracts endpoint level labels from the second array argument, extracts layer from `Layer` argument.
+ - `serviceRelation(DetectPoint, [source_svc_label1...], [dest_svc_label1...], Layer)` DetectPoint including `DetectPoint.CLIENT` and `DetectPoint.SERVER`, 
+   extracts `sourceService` labels from the first array argument, extracts `destService` labels from the second array argument, extracts layer from `Layer` argument.
+   
 ## More Examples
 
-Please refer to [OAP Self-Observability](../../../oap-server/server-bootstrap/src/main/resources/fetcher-prom-rules/self.yaml)
+Please refer to [OAP Self-Observability](../../../oap-server/server-starter/src/main/resources/fetcher-prom-rules/self.yaml)

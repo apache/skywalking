@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.skywalking.oap.meter.analyzer.Analyzer;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgFunction;
@@ -31,10 +32,14 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHist
 import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -67,11 +72,23 @@ public class AnalyzerTest {
 
     }
 
+    @BeforeClass
+    public static void init() {
+        MeterEntity.setNamingControl(
+            new NamingControl(512, 512, 512, new EndpointNameGrouping()));
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        MeterEntity.setNamingControl(null);
+    }
+
     @Test
     public void testSingle() {
         analyzer = Analyzer.build(
             "sum_service_instance",
-            "http_success_request.sum(['region', 'idc']).instance(['idc'] , ['region'])",
+            null,
+            "http_success_request.sum(['region', 'idc']).instance(['idc'] , ['region'], Layer.GENERAL)",
             meterSystem
         );
         ImmutableMap<String, SampleFamily> input = ImmutableMap.of(
@@ -114,7 +131,8 @@ public class AnalyzerTest {
     public void testLabeled() {
         analyzer = Analyzer.build(
             "sum_service_instance_labels",
-            "http_success_request.sum(['region', 'idc' , 'instance']).instance(['idc'] , ['region'])",
+            null,
+            "http_success_request.sum(['region', 'idc' , 'instance']).instance(['idc'] , ['region'], Layer.GENERAL)",
             meterSystem
         );
         ImmutableMap<String, SampleFamily> input = ImmutableMap.of(
@@ -162,7 +180,8 @@ public class AnalyzerTest {
     public void testHistogramPercentile() {
         analyzer = Analyzer.build(
             "instance_cpu_percentage",
-            "instance_cpu_percentage.sum(['le' , 'service' , 'instance']).histogram().histogram_percentile([75,99]).service(['service'])",
+            null,
+            "instance_cpu_percentage.sum(['le' , 'service' , 'instance']).histogram().histogram_percentile([75,99]).service(['service'], Layer.GENERAL)",
             meterSystem
         );
         ImmutableMap<String, SampleFamily> input = ImmutableMap.of(

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.antlr.v4.runtime.misc.NotNull;
@@ -54,13 +55,18 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterSource(OALParser.SourceContext ctx) {
-        current.setSourceName(ctx.getText());
-        current.setSourceScopeId(DefaultScopeDefine.valueOf(metricsNameFormat(ctx.getText())));
+        current.getFrom().setSourceName(ctx.getText());
+        current.getFrom().setSourceScopeId(DefaultScopeDefine.valueOf(metricsNameFormat(ctx.getText())));
     }
 
     @Override
     public void enterSourceAttribute(OALParser.SourceAttributeContext ctx) {
-        current.getSourceAttribute().add(ctx.getText());
+        current.getFrom().getSourceAttribute().add(ctx.getText());
+    }
+
+    @Override
+    public void enterSourceAttrCast(OALParser.SourceAttrCastContext ctx) {
+        current.getFrom().setSourceCastType(ctx.getText());
     }
 
     @Override
@@ -76,7 +82,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterFunctionName(OALParser.FunctionNameContext ctx) {
-        current.setAggregationFunctionName(ctx.getText());
+        current.getAggregationFuncStmt().setAggregationFunctionName(ctx.getText());
     }
 
     @Override
@@ -86,7 +92,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void exitFilterStatement(OALParser.FilterStatementContext ctx) {
-        current.addFilterExpressionsParserResult(conditionExpression);
+        current.getFilters().addFilterExpressionsParserResult(conditionExpression);
         conditionExpression = null;
     }
 
@@ -97,7 +103,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void exitFuncParamExpression(OALParser.FuncParamExpressionContext ctx) {
-        current.addFuncConditionExpression(conditionExpression);
+        current.getAggregationFuncStmt().addFuncConditionExpression(conditionExpression);
         conditionExpression = null;
     }
 
@@ -112,6 +118,11 @@ public class OALListener extends OALParserBaseListener {
     @Override
     public void enterBooleanMatch(OALParser.BooleanMatchContext ctx) {
         conditionExpression.setExpressionType("booleanMatch");
+    }
+
+    @Override
+    public void enterNumberMatch(OALParser.NumberMatchContext ctx) {
+        conditionExpression.setExpressionType("numberMatch");
     }
 
     @Override
@@ -191,7 +202,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterEnumConditionValue(OALParser.EnumConditionValueContext ctx) {
-        enterConditionValue(ctx.getText());
+        enterEnumConditionValue(ctx.getText());
     }
 
     @Override
@@ -200,12 +211,22 @@ public class OALListener extends OALParserBaseListener {
         enterConditionValue(ctx.getText());
     }
 
+    @Override
+    public void enterNullConditionValue(OALParser.NullConditionValueContext ctx) {
+        enterConditionValue(ctx.getText());
+    }
+
+    @Override
+    public void enterExpressionAttrCast(final OALParser.ExpressionAttrCastContext ctx) {
+        conditionExpression.setCastType(ctx.getText());
+    }
+
     private void enterConditionValue(String value) {
-        if (value.split("\\.").length == 2 && !value.startsWith("\"")) {
-            // Value is an enum.
-            value = sourcePackage + value;
-        }
         conditionExpression.addValue(value);
+    }
+
+    private void enterEnumConditionValue(String value) {
+        conditionExpression.addValue(sourcePackage + value);
     }
 
     /////////////
@@ -214,11 +235,22 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterLiteralExpression(OALParser.LiteralExpressionContext ctx) {
-        if (ctx.IDENTIFIER() == null) {
-            current.addFuncArg(new Argument(EntryMethod.LITERAL_TYPE, Arrays.asList(ctx.getText())));
-            return;
-        }
-        current.addFuncArg(new Argument(EntryMethod.IDENTIFIER_TYPE, Arrays.asList(ctx.getText().split("\\."))));
+        current.getAggregationFuncStmt().addFuncArg(new Argument(EntryMethod.LITERAL_TYPE, Arrays.asList(ctx.getText())));
+    }
+
+    @Override
+    public void enterAttributeExpression(final OALParser.AttributeExpressionContext ctx) {
+        current.getAggregationFuncStmt().addFuncArg(new Argument(EntryMethod.ATTRIBUTE_EXP_TYPE, new ArrayList<>(3)));
+    }
+
+    @Override
+    public void enterAttributeExpressionSegment(OALParser.AttributeExpressionSegmentContext ctx) {
+        current.getAggregationFuncStmt().getLastArgument().addText(ctx.getText());
+    }
+
+    @Override
+    public void enterFunctionArgCast(final OALParser.FunctionArgCastContext ctx) {
+        current.getAggregationFuncStmt().getLastArgument().setCastType(ctx.getText());
     }
 
     private String metricsNameFormat(String source) {

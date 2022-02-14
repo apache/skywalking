@@ -22,18 +22,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 public class EndpointGroupingRuleReader4Openapi {
-
-    private final String openapiDefPath;
+    private final Map<String, /*serviceName*/ List<Map>/*openapiData*/> serviceOpenapiDefMap;
     private final static String DEFAULT_ENDPOINT_NAME_FORMAT = "${METHOD}:${PATH}";
     private final static String DEFAULT_ENDPOINT_NAME_MATCH_RULE = "${METHOD}:${PATH}";
     private final Map<String, String> requestMethodsMap = new HashMap<String, String>() {
@@ -49,14 +50,49 @@ public class EndpointGroupingRuleReader4Openapi {
         }
     };
 
-    public EndpointGroupingRuleReader4Openapi(final String openapiDefPath) {
-
-        this.openapiDefPath = openapiDefPath;
+    public EndpointGroupingRuleReader4Openapi(final String openapiDefPath) throws FileNotFoundException {
+        this.serviceOpenapiDefMap = this.parseFromDir(openapiDefPath);
     }
 
-    public EndpointGroupingRule4Openapi read() throws FileNotFoundException {
-        EndpointGroupingRule4Openapi endpointGroupingRule = new EndpointGroupingRule4Openapi();
+    public EndpointGroupingRuleReader4Openapi(final Map<String, String> openapiDefsConf) {
+        this.serviceOpenapiDefMap = this.parseFromDynamicConf(openapiDefsConf);
+    }
 
+    public EndpointGroupingRule4Openapi read() {
+        EndpointGroupingRule4Openapi endpointGroupingRule = new EndpointGroupingRule4Openapi();
+        serviceOpenapiDefMap.forEach((serviceName, openapiDefs) -> {
+            openapiDefs.forEach(openapiData -> {
+                LinkedHashMap<String, LinkedHashMap<String, LinkedHashMap>> paths =
+                    (LinkedHashMap<String, LinkedHashMap<String, LinkedHashMap>>) openapiData.get(
+                        "paths");
+                if (paths != null) {
+                    paths.forEach((pathString, pathItem) -> {
+                        pathItem.keySet().forEach(key -> {
+                            String requestMethod = requestMethodsMap.get(key);
+                            if (!StringUtil.isEmpty(requestMethod)) {
+                                String endpointGroupName = formatEndPointName(
+                                    pathString, requestMethod, openapiData);
+                                String groupRegex = getGroupRegex(
+                                    pathString, requestMethod, openapiData);
+                                if (isTemplatePath(pathString)) {
+                                    endpointGroupingRule.addGroupedRule(
+                                        serviceName, endpointGroupName, groupRegex);
+                                } else {
+                                    endpointGroupingRule.addDirectLookup(
+                                        serviceName, groupRegex, endpointGroupName);
+                                }
+                            }
+                        });
+                    });
+                }
+            });
+        });
+        endpointGroupingRule.sortRulesAll();
+        return endpointGroupingRule;
+    }
+
+    private Map<String, List<Map>> parseFromDir(String openapiDefPath) throws FileNotFoundException {
+        Map<String, List<Map>> serviceOpenapiDefMap = new HashMap<>();
         List<File> fileList = ResourceUtils.getDirectoryFilesRecursive(openapiDefPath, 1);
         for (File file : fileList) {
             if (!file.getName().endsWith(".yaml")) {
@@ -66,34 +102,35 @@ public class EndpointGroupingRuleReader4Openapi {
             Yaml yaml = new Yaml(new SafeConstructor());
             Map openapiData = yaml.load(reader);
             if (openapiData != null) {
-                String serviceName = getServiceName(openapiData, file);
-                LinkedHashMap<String, LinkedHashMap<String, LinkedHashMap>> paths =
-                    (LinkedHashMap<String, LinkedHashMap<String, LinkedHashMap>>) openapiData.get("paths");
-
-                if (paths != null) {
-                    paths.forEach((pathString, pathItem) -> {
-                        pathItem.keySet().forEach(key -> {
-                            String requestMethod = requestMethodsMap.get(key);
-                            if (!StringUtil.isEmpty(requestMethod)) {
-                                String endpointGroupName = formatEndPointName(pathString, requestMethod, openapiData);
-                                String groupRegex = getGroupRegex(pathString, requestMethod, openapiData);
-                                if (isTemplatePath(pathString)) {
-                                    endpointGroupingRule.addGroupedRule(serviceName, endpointGroupName, groupRegex);
-                                } else {
-                                    endpointGroupingRule.addDirectLookup(serviceName, groupRegex, endpointGroupName);
-                                }
-                            }
-                        });
-                    });
-                }
+                serviceOpenapiDefMap.computeIfAbsent(getServiceName(openapiDefPath, file, openapiData), k -> new ArrayList<>()).add(openapiData);
             }
         }
-        endpointGroupingRule.sortRulesAll();
-        return endpointGroupingRule;
+
+        return serviceOpenapiDefMap;
     }
 
-    private String getServiceName(Map openapiData, File file) {
+    private Map<String, List<Map>> parseFromDynamicConf(final Map<String, String> openapiDefsConf) {
+        Map<String, List<Map>> serviceOpenapiDefMap = new HashMap<>();
+        openapiDefsConf.forEach((itemName, openapiDefs) -> {
+            String serviceName = itemName;
+            //service map to multiple openapiDefs
+            String[] itemNameInfo = itemName.split("\\.");
+            if (itemNameInfo.length > 1) {
+                serviceName = itemNameInfo[0];
+            }
+            Reader reader = new StringReader(openapiDefs);
+            Yaml yaml = new Yaml(new SafeConstructor());
+            Map openapiData = yaml.load(reader);
+            if (openapiData != null) {
+                serviceOpenapiDefMap.computeIfAbsent(getServiceName(serviceName, openapiData), k -> new ArrayList<>())
+                                    .add(openapiData);
+            }
+        });
 
+        return serviceOpenapiDefMap;
+    }
+
+    private String getServiceName(String openapiDefPath, File file, Map openapiData) {
         String serviceName = (String) openapiData.get("x-sw-service-name");
         if (StringUtil.isEmpty(serviceName)) {
             File directory = new File(file.getParent());
@@ -102,6 +139,15 @@ public class EndpointGroupingRuleReader4Openapi {
                     "OpenAPI definition file: " + file.getAbsolutePath() + " found in root directory, but doesn't include x-sw-service-name extensive definition in the file.");
             }
             serviceName = directory.getName();
+        }
+
+        return serviceName;
+    }
+
+    private String getServiceName(String defaultServiceName, Map openapiData) {
+        String serviceName = (String) openapiData.get("x-sw-service-name");
+        if (StringUtil.isEmpty(serviceName)) {
+            serviceName = defaultServiceName;
         }
 
         return serviceName;

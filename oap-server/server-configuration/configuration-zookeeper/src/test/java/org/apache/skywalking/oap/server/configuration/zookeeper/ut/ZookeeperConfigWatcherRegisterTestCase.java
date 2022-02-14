@@ -34,16 +34,16 @@ import static org.mockito.Mockito.when;
 public class ZookeeperConfigWatcherRegisterTestCase {
     @Test
     public void TestCase() throws Exception {
-        final String nameSpace = "/default";
+        final String namespace = "/default";
         final String key = "receiver-trace.default.slowDBAccessThreshold";
         final String value = "default:100,mongodb:50";
 
         final ZookeeperServerSettings mockSettings = mock(ZookeeperServerSettings.class);
-        when(mockSettings.getNameSpace()).thenReturn(nameSpace);
+        when(mockSettings.getNamespace()).thenReturn(namespace);
 
         final MockZookeeperConfigWatcherRegister mockRegister = spy(new MockZookeeperConfigWatcherRegister(mockSettings));
         final PathChildrenCache mockPathChildrenCache = mock(PathChildrenCache.class);
-        when(mockPathChildrenCache.getCurrentData(nameSpace + "/" + key)).thenReturn(new ChildData(nameSpace + "/" + key, null, value
+        when(mockPathChildrenCache.getCurrentData(namespace + "/" + key)).thenReturn(new ChildData(namespace + "/" + key, null, value
             .getBytes()));
 
         Whitebox.setInternalState(mockRegister, "childrenCache", mockPathChildrenCache);

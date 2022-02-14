@@ -18,13 +18,35 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import java.util.HashSet;
+import java.util.Set;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 
-@Getter
-@Setter
+@EqualsAndHashCode
 public class Service {
+    @Getter
     private String id;
+    @Getter
+    @Setter
     private String name;
+    @Getter
+    @Setter
+    private String shortName;
+    @Getter
+    @Setter
     private String group;
+    @Getter
+    private boolean normal;
+    @Getter
+    @Setter
+    private Set<String> layers = new HashSet<>();
+
+    public void setId(String id) {
+        this.id = id;
+        IDManager.ServiceID.ServiceIDDefinition def = IDManager.ServiceID.analysisId(id);
+        this.normal = def.isReal();
+    }
 }

@@ -5,7 +5,7 @@ SkyWalking UI distribution is already included in our Apache official release.
 Startup script is also in `/bin/webappService.sh`(.bat). UI runs as an OS Java process, powered-by Zuul.
 
 ## Settings
-Setting file of UI is  `webapp/webapp.yml` in distribution package. It is constituted by three parts.
+Settings file of UI is  `webapp/webapp.yml` in distribution package. It has three parts.
 
 1. Listening port.
 1. Backend connect info.
@@ -32,3 +32,18 @@ spring:
 
 ```
 
+## Start with Docker Image
+
+Start a container to connect oap server whose address is `http://oap:12800`.
+
+```shell
+docker run --name oap --restart always -d -e SW_OAP_ADDRESS=http://oap:12800 apache/skywalking-ui:8.8.0
+```
+
+### Configuration
+
+We could set up environment variables to configure this image.
+
+### SW_OAP_ADDRESS
+
+The address of OAP server. Default value is `http://127.0.0.1:12800`.

@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
 @Getter
@@ -33,14 +34,10 @@ public class EndpointEntityDescription implements EntityDescription {
     private final ScopeType scopeType = ScopeType.ENDPOINT;
     private final List<String> serviceKeys;
     private final List<String> endpointKeys;
+    private final Layer layer;
 
     @Override
     public List<String> getLabelKeys() {
         return Stream.concat(this.serviceKeys.stream(), this.endpointKeys.stream()).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<String> getInstanceKeys() {
-        throw new UnsupportedOperationException("Unsupported Operation of getInstanceKeys() " + this.toString());
     }
 }

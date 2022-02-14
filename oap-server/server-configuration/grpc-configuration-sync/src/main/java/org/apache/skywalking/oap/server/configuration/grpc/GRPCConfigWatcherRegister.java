@@ -22,20 +22,21 @@ import io.grpc.netty.NettyChannelBuilder;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.apache.skywalking.oap.server.configuration.service.ConfigurationRequest;
 import org.apache.skywalking.oap.server.configuration.service.ConfigurationResponse;
 import org.apache.skywalking.oap.server.configuration.service.ConfigurationServiceGrpc;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.configuration.service.GroupConfigurationResponse;
 
+@Slf4j
 public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GRPCConfigWatcherRegister.class);
-
     private RemoteEndpointSettings settings;
     private ConfigurationServiceGrpc.ConfigurationServiceBlockingStub stub;
     private String uuid = null;
+    private String groupUuid = null;
 
     public GRPCConfigWatcherRegister(RemoteEndpointSettings settings) {
         super(settings.getPeriod());
@@ -57,7 +58,7 @@ public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
             }
             ConfigurationResponse response = stub.call(builder.build());
             String responseUuid = response.getUuid();
-            if (responseUuid != null && Objects.equals(uuid, responseUuid)) {
+            if (Objects.equals(uuid, responseUuid)) {
                 // If UUID matched, the config table is expected as empty.
                 return Optional.empty();
             }
@@ -69,8 +70,42 @@ public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
             });
             this.uuid = responseUuid;
         } catch (Exception e) {
-            LOGGER.error("Remote config center [" + settings + "] is not available.", e);
+            log.error("Remote config center [{}] is not available.", settings, e);
         }
         return Optional.of(table);
+    }
+
+    @Override
+    public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
+        GroupConfigTable groupConfigTable = new GroupConfigTable();
+        try {
+            ConfigurationRequest.Builder builder = ConfigurationRequest.newBuilder()
+                                                                       .setClusterName(settings.getClusterName());
+            if (groupUuid != null) {
+                builder.setUuid(groupUuid);
+            }
+            GroupConfigurationResponse response = stub.callGroup(builder.build());
+            String responseUuid = response.getUuid();
+            if (Objects.equals(groupUuid, responseUuid)) {
+                // If UUID matched, the config table is expected as empty.
+                return Optional.empty();
+            }
+
+            response.getGroupConfigTableList().forEach(rspGroupConfigItems -> {
+                String groupName = rspGroupConfigItems.getGroupName();
+                if (keys.contains(groupName)) {
+                    GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(
+                        groupName);
+                    groupConfigTable.addGroupConfigItems(groupConfigItems);
+                    rspGroupConfigItems.getItemsList().forEach(item -> {
+                        groupConfigItems.add(new ConfigTable.ConfigItem(item.getName(), item.getValue()));
+                    });
+                }
+            });
+            this.groupUuid = responseUuid;
+        } catch (Exception e) {
+            log.error("Remote config center [{}] is not available.", settings, e);
+        }
+        return Optional.of(groupConfigTable);
     }
 }

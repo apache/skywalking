@@ -1,15 +1,15 @@
 # Sending Envoy Metrics to SkyWalking OAP Server Example
 
-This is an example of sending [Envoy Stats](https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/observability/statistics#arch-overview-statistics) to SkyWalking OAP server
-through [Metric Service](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v2/config/metrics/v2/metrics_service.proto).
+This is an example of sending [Envoy Stats](https://www.envoyproxy.io/docs/envoy/v1.19.1/intro/arch_overview/observability/statistics) to SkyWalking OAP server
+through Metric Service [v2](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v2/config/metrics/v2/metrics_service.proto) and [v3](https://www.envoyproxy.io/docs/envoy/v1.19.1/api-v3/config/metrics/v3/metrics_service.proto).
 
 ## Running the example
 
-The example requires `docker` and `docker-compose` to be installed in your local. It fetches images from Docker Hub.
+The example requires `docker` and `docker-compose` to be installed in your local system. It fetches images from Docker Hub.
 
-Note that in ths setup, we override the [`log4j2.xml`](log4j2.xml) config to set the `org.apache.skywalking.oap.server.receiver.envoy` logger level to `DEBUG`. This enables us to see the messages sent by Envoy to SkyWalking OAP server.
+Note that in this setup, we override the [`log4j2.xml`](log4j2.xml) config to set the `org.apache.skywalking.oap.server.receiver.envoy` logger level to `DEBUG`. This enables us to see the messages sent by Envoy to SkyWalking OAP server.
 
-You can also find Envoy Metric Service V3 API example in [docker-compose-envoy-v3-api.yaml](./docker-compose-envoy-v3-api.yaml)
+You can also find the Envoy Metric Service V3 API example in [docker-compose-envoy-v3-api.yaml](./docker-compose-envoy-v3-api.yaml)
 ```
 $ make up
 $ docker-compose logs -f skywalking

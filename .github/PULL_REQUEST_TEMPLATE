@@ -11,13 +11,6 @@
 - [ ] Explain briefly why the bug exists and how to fix it.
      ==== 🐛 Remove this line WHEN AND ONLY WHEN you're fixing a bug, follow the checklist 👆 ==== -->
 
-<!-- ==== 🔌 Remove this line WHEN AND ONLY WHEN you're adding a new plugin, follow the checklist 👇 ====
-### Add an agent plugin to support <framework name>
-- [ ] Add a test case for the new plugin, refer to [the doc](https://github.com/apache/skywalking/blob/master/docs/en/guides/Plugin-test.md)
-- [ ] Add a component id in [the component-libraries.yml](https://github.com/apache/skywalking/blob/master/oap-server/server-bootstrap/src/main/resources/component-libraries.yml)
-- [ ] Add a logo in [the UI repo](https://github.com/apache/skywalking-rocketbot-ui/tree/master/src/views/components/topology/assets)
-     ==== 🔌 Remove this line WHEN AND ONLY WHEN you're adding a new plugin, follow the checklist 👆 ==== -->
-
 <!-- ==== 📈 Remove this line WHEN AND ONLY WHEN you're improving the performance, follow the checklist 👇 ====
 ### Improve the performance of <class or module or ...>
 - [ ] Add a benchmark for the improvement, refer to [the existing ones](https://github.com/apache/skywalking/blob/master/apm-commons/apm-datacarrier/src/test/java/org/apache/skywalking/apm/commons/datacarrier/LinkedArrayBenchmark.java)

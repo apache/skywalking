@@ -36,7 +36,6 @@ import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -58,7 +57,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
     @Override
     public void getProfileTaskCommands(ProfileTaskCommandQuery request, StreamObserver<Commands> responseObserver) {
         // query profile task list by service id
-        final String serviceId = IDManager.ServiceID.buildId(request.getService(), NodeType.Normal);
+        final String serviceId = IDManager.ServiceID.buildId(request.getService(), true);
         final String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, request.getServiceInstance());
         final List<ProfileTask> profileTaskList = profileTaskCache.getProfileTaskList(serviceId);
         if (CollectionUtils.isEmpty(profileTaskList)) {
@@ -127,7 +126,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
     @Override
     public void reportTaskFinish(ProfileTaskFinishReport request, StreamObserver<Commands> responseObserver) {
         // query task from cache, set log time bucket need it
-        final String serviceId = IDManager.ServiceID.buildId(request.getService(), NodeType.Normal);
+        final String serviceId = IDManager.ServiceID.buildId(request.getService(), true);
         final String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, request.getServiceInstance());
         final ProfileTask profileTask = profileTaskCache.getProfileTaskById(request.getTaskId());
 

@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Getter
 @Setter
 public class StorageModuleElasticsearchConfig extends ModuleConfig {
-    private String nameSpace;
+    private String namespace;
     private String clusterNodes;
     String protocol = "http";
     /**
@@ -41,6 +41,11 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * @since 8.7.0
      */
     private int socketTimeout = 30000;
+    /**
+     * @since 9.0.0 the response timeout of ElasticSearch client (Armeria under the hood), set to 0 to disable response
+     * timeout.
+     */
+    private int responseTimeout = 15000;
     /**
      * @since 6.4.0, the index of metrics and traces data in minute/hour/month precision are organized in days. ES
      * storage creates new indexes in every day.
@@ -64,6 +69,12 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int superDatasetIndexReplicasNumber = 0;
     private int superDatasetIndexShardsFactor = 5;
     private int indexRefreshInterval = 2;
+
+    /**
+     * @since 8.7.0 The order of index template.
+     */
+    private int indexTemplateOrder = 0;
+
     /**
      * @since 8.7.0 This setting affects all traces/logs/metrics/metadata flush policy.
      */
@@ -112,4 +123,10 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      */
     private String oapLogAnalyzer = "{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}";
     private String advanced;
+
+    /**
+     * The number of threads for the underlying HTTP client to perform socket I/O.
+     * If the value is <= 0, the number of available processors will be used.
+     */
+    private int numHttpClientThread;
 }

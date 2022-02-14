@@ -67,6 +67,7 @@ public class DSLTest {
                     "    service \"test\"\n" +
                     "    instance \"test\"\n" +
                     "    endpoint \"test\"\n" +
+                    "    layer \"mesh\"\n" +
                     "    traceId \"123\"\n" +
                     "    segmentId \"123\"\n" +
                     "    spanId \"123\"\n" +
@@ -93,13 +94,13 @@ public class DSLTest {
                     "        // use service:errorCode as sampler id so that each service:errorCode has its own sampler,\n" +
                     "        // e.g. checkoutservice:[upstreamConnectionFailure], checkoutservice:[upstreamRetryLimitExceeded]\n" +
                     "        rateLimit(\"${log.service}:${log.body.json.json}:${log.tags.getData(0).key}:${parsed?.commonProperties?.responseFlags}\") {\n" +
-                    "          qps 100\n" +
+                    "          rpm 100\n" +
                     "        }\n" +
                     "      } else {\n" +
                     "        // use service:responseCode as sampler id so that each service:responseCode has its own sampler,\n" +
                     "        // e.g. checkoutservice:500, checkoutservice:404.\n" +
                     "        rateLimit(\"${log.service}:${log.body?.type}:${log.traceContext?.traceId}:${parsed?.response?.responseCode}\") {\n" +
-                    "          qps 100\n" +
+                    "          rpm 100\n" +
                     "        }\n" +
                     "      }\n" +
                     "    }\n" +
@@ -146,13 +147,13 @@ public class DSLTest {
                     "        // use service:errorCode as sampler id so that each service:errorCode has its own sampler,\n" +
                     "        // e.g. checkoutservice:[upstreamConnectionFailure], checkoutservice:[upstreamRetryLimitExceeded]\n" +
                     "        rateLimit(\"${log.service}:${(parsed?.commonProperties?.responseFlags as Map)?.keySet()}\") {\n" +
-                    "          qps 100\n" +
+                    "          rpm 100\n" +
                     "        }\n" +
                     "      } else {\n" +
                     "        // use service:responseCode as sampler id so that each service:responseCode has its own sampler,\n" +
                     "        // e.g. checkoutservice:500, checkoutservice:404.\n" +
                     "        rateLimit(\"${log.service}:${parsed?.response?.responseCode}\") {\n" +
-                    "          qps 100\n" +
+                    "          rpm 100\n" +
                     "        }\n" +
                     "      }\n" +
                     "    }\n" +

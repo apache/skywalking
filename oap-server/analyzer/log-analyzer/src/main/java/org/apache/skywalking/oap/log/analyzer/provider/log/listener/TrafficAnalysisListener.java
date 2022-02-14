@@ -20,12 +20,12 @@ package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 import com.google.protobuf.Message;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.EndpointMeta;
@@ -64,13 +64,20 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
     @Override
     public LogAnalysisListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
+        Layer layer;
+        if (StringUtil.isNotEmpty(logData.getLayer())) {
+            layer = Layer.valueOf(logData.getLayer());
+        } else {
+            layer = Layer.GENERAL;
+        }
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         // to service traffic
         String serviceName = namingControl.formatServiceName(logData.getService());
-        String serviceId = IDManager.ServiceID.buildId(serviceName, NodeType.Normal);
+        String serviceId = IDManager.ServiceID.buildId(serviceName, true);
         serviceMeta = new ServiceMeta();
         serviceMeta.setName(namingControl.formatServiceName(logData.getService()));
-        serviceMeta.setNodeType(NodeType.Normal);
+        serviceMeta.setNormal(true);
+        serviceMeta.setLayer(layer);
         serviceMeta.setTimeBucket(timeBucket);
         // to service instance traffic
         if (StringUtil.isNotEmpty(logData.getServiceInstance())) {
@@ -78,12 +85,14 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
             instanceMeta.setServiceId(serviceId);
             instanceMeta.setName(namingControl.formatInstanceName(logData.getServiceInstance()));
             instanceMeta.setTimeBucket(timeBucket);
+            instanceMeta.setLayer(layer);
+
         }
         // to endpoint traffic
         if (StringUtil.isNotEmpty(logData.getEndpoint())) {
             endpointMeta = new EndpointMeta();
             endpointMeta.setServiceName(serviceName);
-            endpointMeta.setServiceNodeType(NodeType.Normal);
+            endpointMeta.setServiceNormal(true);
             endpointMeta.setEndpoint(namingControl.formatEndpointName(serviceName, logData.getEndpoint()));
             endpointMeta.setTimeBucket(timeBucket);
         }

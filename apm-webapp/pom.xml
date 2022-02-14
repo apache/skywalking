@@ -17,12 +17,11 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.7.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,7 +32,6 @@
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.boot.version>2.4.8</spring.boot.version>
-        <log4j.version>2.6.2</log4j.version>
         <gson.version>2.8.2</gson.version>
         <apache-httpclient.version>4.5.3</apache-httpclient.version>
         <spring-cloud-dependencies.version>2020.0.3</spring-cloud-dependencies.version>
@@ -41,6 +39,7 @@
         <logback-classic.version>1.2.3</logback-classic.version>
         <jackson-version>2.12.2</jackson-version>
         <yaml.version>1.28</yaml.version>
+        <netty.version>4.1.68.Final</netty.version>
 
         <ui.path>${project.parent.basedir}/skywalking-ui</ui.path>
     </properties>
@@ -53,6 +52,13 @@
                 <version>${spring-cloud-dependencies.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -76,6 +82,10 @@
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -122,9 +132,6 @@
 
     <build>
         <finalName>skywalking-webapp</finalName>
-        <resources>
-
-        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

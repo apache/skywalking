@@ -1,0 +1,48 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+
+expSuffix: serviceRelation(DetectPoint.CLIENT, ['app'], ['cluster_name'], Layer.MESH_DP)
+metricPrefix: envoy_sr
+metricsRules:
+  - name: cluster_up_cx_active
+    exp: envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_cx_active').tagMatch('metrics_name' , 'cluster.outbound.+').sum(['app' ,'cluster_name'])
+  - name: cluster_up_cx_incr
+    exp:  envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_cx_total').tagMatch('metrics_name' , 'cluster.outbound.+').sum(['app' , 'cluster_name']).increase('PT1M')
+  - name: cluster_up_rq_active
+    exp: envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_rq_active').tagMatch('metrics_name' , 'cluster.outbound.+').sum(['app', 'cluster_name'])
+  - name: cluster_up_rq_incr
+    exp:  envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_rq_total').tagMatch('metrics_name' , 'cluster.outbound.+').sum(['app' , 'cluster_name']).increase('PT1M')
+  - name: cluster_up_rq_pending_active
+    exp: envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_rq_pending_active').tagMatch('metrics_name' , 'cluster.outbound.+').sum(['app' , 'cluster_name'])
+  - name: cluster_lb_healthy_panic_incr
+    exp:  envoy_cluster_metrics.tagMatch('metrics_name' , '.+lb_healthy_panic').tagMatch('metrics_name' , 'cluster.outbound.+').sum(['app', 'cluster_name']).increase('PT1M')
+  - name: cluster_up_cx_none_healthy_incr
+    exp: envoy_cluster_metrics.tagMatch('metrics_name' , '.+upstream_cx_none_healthy').tagMatch('metrics_name' , 'cluster.outbound.+').sum(['app', 'cluster_name']).increase('PT1M')

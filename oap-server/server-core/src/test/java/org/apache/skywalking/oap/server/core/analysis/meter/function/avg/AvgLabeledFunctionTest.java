@@ -22,9 +22,14 @@ import io.vavr.collection.Stream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -43,18 +48,29 @@ public class AvgLabeledFunctionTest {
     @Spy
     private AvgLabeledFunction function;
 
+    @BeforeClass
+    public static void setup() {
+        MeterEntity.setNamingControl(
+            new NamingControl(512, 512, 512, new EndpointNameGrouping()));
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        MeterEntity.setNamingControl(null);
+    }
+
     @Test
     public void testAccept() {
-        function.accept(MeterEntity.newService("request_count"), build(asList("200", "404"), asList(10L, 2L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "404"), asList(10L, 2L)));
         assertResult(asList("200", "404"), asList(10L, 2L), asList(1L, 1L));
-        function.accept(MeterEntity.newService("request_count"), build(asList("200", "500"), asList(2L, 3L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "500"), asList(2L, 3L)));
         assertResult(asList("200", "404", "500"), asList(12L, 2L, 3L), asList(2L, 1L, 1L));
     }
 
     @Test
     public void testCalculate() {
-        function.accept(MeterEntity.newService("request_count"), build(asList("200", "404"), asList(10L, 2L)));
-        function.accept(MeterEntity.newService("request_count"), build(asList("200", "500"), asList(2L, 3L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "404"), asList(10L, 2L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "500"), asList(2L, 3L)));
         function.calculate();
 
         assertThat(function.getValue().sortedKeys(Comparator.naturalOrder()), is(asList("200", "404", "500")));
@@ -63,7 +79,7 @@ public class AvgLabeledFunctionTest {
 
     @Test
     public void testSerialize() {
-        function.accept(MeterEntity.newService("request_count"), build(asList("200", "404"), asList(10L, 2L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "404"), asList(10L, 2L)));
         AvgLabeledFunction function2 = Mockito.spy(AvgLabeledFunction.class);
         function2.deserialize(function.serialize().build());
         assertThat(function2.getEntityId(), is(function.getEntityId()));
@@ -72,7 +88,7 @@ public class AvgLabeledFunctionTest {
 
     @Test
     public void testBuilder() throws IllegalAccessException, InstantiationException {
-        function.accept(MeterEntity.newService("request_count"), build(asList("200", "404"), asList(10L, 2L)));
+        function.accept(MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "404"), asList(10L, 2L)));
         function.calculate();
         StorageHashMapBuilder<AvgLabeledFunction> storageBuilder = function.builder().newInstance();
 

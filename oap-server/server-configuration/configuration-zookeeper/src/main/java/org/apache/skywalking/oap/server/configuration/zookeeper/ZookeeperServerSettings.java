@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Setter
 @ToString
 public class ZookeeperServerSettings extends ModuleConfig {
-    private String nameSpace = "/default";
+    private String namespace = "/default";
     private String hostPort;
     private int baseSleepTimeMs = 1000;
     private int maxRetries = 3;

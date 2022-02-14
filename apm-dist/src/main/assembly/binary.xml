@@ -50,7 +50,7 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../oap-server/server-bootstrap/src/main/resources</directory>
+            <directory>${project.basedir}/../oap-server/server-starter/src/main/resources</directory>
             <includes>
                 <include>application.yml</include>
                 <include>component-libraries.yml</include>
@@ -58,11 +58,13 @@
                 <include>service-apdex-threshold.yml</include>
                 <include>endpoint-name-grouping.yml</include>
                 <include>metadata-service-mapping.yaml</include>
+                <include>trace-sampling-policy-settings.yml</include>
                 <include>oal/*.oal</include>
                 <include>fetcher-prom-rules/*.yaml</include>
                 <include>envoy-metrics-rules/*.yaml</include>
                 <include>meter-analyzer-config/*.yaml</include>
                 <include>zabbix-rules/*.yaml</include>
+                <include>openapi-definitions/*</include>
                 <include>otel-oc-rules/*</include>
                 <include>ui-initialized-templates/*</include>
                 <include>lal/*</include>
@@ -71,14 +73,13 @@
             <outputDirectory>config</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../oap-server/server-starter/target/skywalking-oap-assembly/skywalking-oap/libs</directory>
+            <directory>${project.basedir}/../oap-server/server-starter/target/oap-libs</directory>
             <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
 
-        <!-- Agent repackage into the dist -->
         <fileSet>
-            <directory>${project.basedir}/../skywalking-agent</directory>
-            <outputDirectory>agent</outputDirectory>
+            <directory>${project.basedir}/../oap-server/server-tools/profile-exporter/tool-profile-snapshot-exporter/target/oap-libs</directory>
+            <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
 
         <!-- Profile exporter tools -->

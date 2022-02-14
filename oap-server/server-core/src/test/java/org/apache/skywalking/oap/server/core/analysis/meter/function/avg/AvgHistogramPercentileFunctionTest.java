@@ -19,14 +19,19 @@
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -45,11 +50,22 @@ public class AvgHistogramPercentileFunctionTest {
         90
     };
 
+    @BeforeClass
+    public static void setup() {
+        MeterEntity.setNamingControl(
+            new NamingControl(512, 512, 512, new EndpointNameGrouping()));
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        MeterEntity.setNamingControl(null);
+    }
+
     @Test
     public void testFunction() {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -65,7 +81,7 @@ public class AvgHistogramPercentileFunctionTest {
         );
 
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -101,7 +117,7 @@ public class AvgHistogramPercentileFunctionTest {
     public void testSerialization() {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -130,7 +146,7 @@ public class AvgHistogramPercentileFunctionTest {
     public void testBuilder() throws IllegalAccessException, InstantiationException {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
@@ -194,7 +210,7 @@ public class AvgHistogramPercentileFunctionTest {
 
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 valuesA,
                 RANKS
@@ -212,7 +228,7 @@ public class AvgHistogramPercentileFunctionTest {
         valuesA.setGroup("localhost:3306/swtest");
 
         inst.accept(
-            MeterEntity.newService("service-test"),
+            MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
                 valuesB,
                 RANKS

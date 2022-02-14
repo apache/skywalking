@@ -1,22 +1,22 @@
 # Send Envoy metrics to SkyWalking with / without Istio
 
-Envoy defines a gRPC service to emit the metrics, whatever implements this protocol can be used to receive the metrics.
-SkyWalking has a built-in receiver that implements this protocol so that you can configure Envoy to emit its metrics to SkyWalking.
+Envoy defines a gRPC service to emit metrics, and whatever is used to implement this protocol can be used to receive the metrics.
+SkyWalking has a built-in receiver that implements this protocol, so you can configure Envoy to emit its metrics to SkyWalking.
 
-As an APM system, SkyWalking does not only receive and store the metrics emitted by Envoy, it also analyzes the topology of services and service instances.
+As an APM system, SkyWalking does not only receive and store the metrics emitted by Envoy, but it also analyzes the topology of services and service instances.
 
-**Attention:** There are two versions of Envoy metrics service protocol up to date,
+**Attention:** There are two versions of Envoy metrics service protocol currently:
 [v2](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v2/api/v2/core/grpc_service.proto#envoy-api-msg-core-grpcservice) and
-[v3](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v3/config/metrics/v3/metrics_service.proto), SkyWalking (8.3.0+) supports both of them.
+[v3](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v3/config/metrics/v3/metrics_service.proto). SkyWalking (8.3.0+) supports both of them.
 
 ## Configure Envoy to send metrics to SkyWalking without Istio
 
-Envoy can be used with / without Istio's control. This section introduces how to configure the standalone Envoy to send the metrics to SkyWalking.
+Envoy can be used with / without Istio. This section explains how you can configure the standalone Envoy to send metrics to SkyWalking.
 
-In order to let Envoy send metrics to SkyWalking, we need to feed Envoy with a configuration which contains `stats_sinks` that includes `envoy.metrics_service`.
+In order to let Envoy send metrics to SkyWalking, we need to feed Envoy with a configuration that contains `stats_sinks`, which in turn includes `envoy.metrics_service`.
 This `envoy.metrics_service` should be configured as a [`config.grpc_service`](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v2/api/v2/core/grpc_service.proto#envoy-api-msg-core-grpcservice) entry.
 
-The interesting parts of the config is shown in the config below:
+The noteworthy parts of the config are shown below:
 
 ```yaml
 stats_sinks:
@@ -48,11 +48,11 @@ static_resources:
                 port_value: 11800
 ```
 
-A more complete static configuration, can be observed [here](config.yaml).
+The comprehensive static configuration can be found [here](config.yaml).
 
 Note that Envoy can also be configured dynamically through [xDS Protocol](https://github.com/envoyproxy/envoy/blob/v1.18.2/api/xds_protocol.rst).
 
-As mentioned above, SkyWalking also builds the topology of services from the metrics, this is because Envoy also carries the service metadata along with the metrics, to feed the Envoy such metadata, another configuration part is as follows:
+As mentioned above, SkyWalking also builds the topology of services from the metrics, since Envoy also carries service metadata along with the metrics. To feed Envoy such metadata, see the other part of the configuration as follows:
 
 ```yaml
 node:
@@ -65,14 +65,14 @@ node:
 
 ## Configure Envoy to send metrics to SkyWalking with Istio
 
-Typically, Envoy can be also used under Istio's control, where the configurations are much more simple because Istio composes the configurations for you and sends them to Envoy via [xDS Protocol](https://github.com/envoyproxy/envoy/blob/v1.18.2/api/xds_protocol.rst).
-Istio also automatically injects the metadata such as service name and instance name into the bootstrap configurations.
+Typically, Envoy can also be used with Istio. In this case, the configurations are much simpler because Istio composes the configurations for you and sends them to Envoy via [xDS Protocol](https://github.com/envoyproxy/envoy/blob/v1.18.2/api/xds_protocol.rst).
+Istio also automatically injects the metadata, such as service name and instance name, into the bootstrap configurations.
 
-Under this circumstance, emitting the metrics to SyWalking is as simple as adding the option `--set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800>` to Istio install command, for example:
+Emitting the metrics to SkyWalking is as simple as adding the option `--set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800>` to Istio install command, like this:
 
 ```shell
 istioctl install -y \
-  --set profile=demo `# replace the profile as per your need` \
+  --set profile=demo # replace the profile as per your need \
   --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> \ # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
   --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*'
 ```
@@ -81,11 +81,30 @@ If you already have Istio installed, you can use the following command to apply 
 
 ```shell
 istioctl manifest install -y \
-  --set profile=demo `# replace the profile as per your need` \
+  --set profile=demo # replace the profile as per your need \
   --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> \ # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
   --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*'
 ```
 
+Note:
+`proxyStatsMatcher` is only supported by `Istio 1.8+`.
+We recommend using `inclusionRegexps` to reserve specific metrics which need to be analyzed, in order to reduce memory usage and avoid CPU overhead.
+For example, OAP uses these metrics:
+
+```shell
+istioctl manifest install -y \
+  --set profile=demo # replace the profile as per your need \
+  --set meshConfig.defaultConfig.envoyMetricsService.address=<skywalking.address.port.11800> \ # replace <skywalking.address.port.11800> with your actual SkyWalking OAP address
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[0]=.*membership_healthy.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[1]=.*upstream_cx_active.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[2]=.*upstream_cx_total.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[3]=.*upstream_rq_active.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[4]=.*upstream_rq_total.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[5]=.*upstream_rq_pending_active.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[6]=.*lb_healthy_panic.*' \
+  --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[7]=.*upstream_cx_none_healthy.*'
+```
+
 # Metrics data
 
-Some Envoy statistics are listed in this [list](https://www.envoyproxy.io/docs/envoy/v1.17.0/configuration/upstream/cluster_manager/cluster_stats#config-cluster-manager-cluster-stats). A sample data that contains identifier can be found [here](identify.json), while the metrics only can be observed [here](metrics.json).
+Some Envoy statistics are [listed here](https://www.envoyproxy.io/docs/envoy/v1.17.0/configuration/upstream/cluster_manager/cluster_stats#config-cluster-manager-cluster-stats). Sample data that contain identifiers can be found [here](identify.json), while the metrics can be found [here](metrics.json).

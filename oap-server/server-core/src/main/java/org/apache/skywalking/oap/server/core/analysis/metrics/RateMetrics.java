@@ -73,4 +73,14 @@ public abstract class RateMetrics extends Metrics implements IntValueHolder {
     public int getValue() {
         return percentage;
     }
+
+    @Override
+    public boolean haveDefault() {
+        return true;
+    }
+
+    @Override
+    public boolean isDefaultValue() {
+        return percentage == 0;
+    }
 }

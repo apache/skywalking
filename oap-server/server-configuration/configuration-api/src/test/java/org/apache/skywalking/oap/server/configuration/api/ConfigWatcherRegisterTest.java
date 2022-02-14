@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.configuration.api;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -66,6 +68,30 @@ public class ConfigWatcherRegisterTest {
     }
 
     @Test
+    public void testGroupConfInit() {
+        final Map<String, String> config = new ConcurrentHashMap<>();
+
+        register.registerConfigChangeWatcher(new GroupConfigChangeWatcher("MockModule", new MockProvider(), "groupItems1") {
+            @Override
+            public void notifyGroup(Map<String , ConfigChangeEvent> groupItems) {
+                groupItems.forEach((groupItemName , event) -> {
+                    config.put(groupItemName, event.getNewValue());
+                });
+            }
+
+            @Override
+            public Map<String, String> groupItems() {
+                return config;
+            }
+        });
+
+        register.configSync();
+
+        Assert.assertEquals("abc", config.get("item1"));
+        Assert.assertEquals("abc2", config.get("item2"));
+    }
+
+    @Test
     public void testRegisterTableLog() {
         register.registerConfigChangeWatcher(new ConfigChangeWatcher("MockModule", new MockProvider(), "prop2") {
             @Override
@@ -78,24 +104,56 @@ public class ConfigWatcherRegisterTest {
             }
         });
 
+        register.registerConfigChangeWatcher(new GroupConfigChangeWatcher("MockModule", new MockProvider(), "groupItems1") {
+            @Override
+            public Map<String, String> groupItems() {
+                return null;
+            }
+
+            @Override
+            public void notifyGroup(final Map<String, ConfigChangeEvent> groupItems) {
+
+            }
+        });
+
         register.configSync();
-        ConfigWatcherRegister.Register registerTable = Whitebox.getInternalState(this.register, "register");
+        ConfigWatcherRegister.Register registerTable = Whitebox.getInternalState(this.register, "singleConfigChangeWatcherRegister");
+        ConfigWatcherRegister.Register groupRegisterTable = Whitebox.getInternalState(this.register, "groupConfigChangeWatcherRegister");
 
         String expected = "Following dynamic config items are available." + ConfigWatcherRegister.LINE_SEPARATOR + "---------------------------------------------" + ConfigWatcherRegister.LINE_SEPARATOR + "key:MockModule.provider.prop2    module:MockModule    provider:provider    value(current):null" + ConfigWatcherRegister.LINE_SEPARATOR;
+        String groupConfigExpected = "Following dynamic config items are available." + ConfigWatcherRegister.LINE_SEPARATOR + "---------------------------------------------" + ConfigWatcherRegister.LINE_SEPARATOR + "key:MockModule.provider.groupItems1    module:MockModule    provider:provider    groupItems(current):null" + ConfigWatcherRegister.LINE_SEPARATOR;
 
         Assert.assertEquals(expected, registerTable.toString());
+        Assert.assertEquals(groupConfigExpected, groupRegisterTable.toString());
     }
 
     public static class MockConfigWatcherRegister extends ConfigWatcherRegister {
 
         @Override
         public Optional<ConfigTable> readConfig(Set<String> keys) {
-            ConfigTable.ConfigItem item1 = new ConfigTable.ConfigItem("module.provider.prop1", "abc");
+            ConfigTable.ConfigItem item1 = new ConfigTable.ConfigItem("MockModule.provider.prop1", "abc");
             ConfigTable.ConfigItem item2 = new ConfigTable.ConfigItem("MockModule.provider.prop2", "abc2");
 
             ConfigTable table = new ConfigTable();
             table.add(item1);
             table.add(item2);
+            return Optional.of(table);
+        }
+
+        @Override
+        public Optional<GroupConfigTable> readGroupConfig(Set<String> keys) {
+            ConfigTable.ConfigItem item1 = new ConfigTable.ConfigItem("item1", "abc");
+            ConfigTable.ConfigItem item2 = new ConfigTable.ConfigItem("item2", "abc2");
+            ConfigTable.ConfigItem item3 = new ConfigTable.ConfigItem("item3", "abc3");
+            GroupConfigTable.GroupConfigItems groupConfigItems1 = new GroupConfigTable.GroupConfigItems("MockModule.provider.groupItems1");
+            GroupConfigTable.GroupConfigItems groupConfigItems2 = new GroupConfigTable.GroupConfigItems("MockModule.provider.groupItems2");
+            groupConfigItems1.add(item1);
+            groupConfigItems1.add(item2);
+            groupConfigItems2.add(item3);
+
+            GroupConfigTable table = new GroupConfigTable();
+            table.addGroupConfigItems(groupConfigItems1);
+            table.addGroupConfigItems(groupConfigItems2);
             return Optional.of(table);
         }
     }

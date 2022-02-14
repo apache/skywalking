@@ -18,27 +18,36 @@
 
 package org.apache.skywalking.oap.meter.analyzer;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DownsamplingType;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Expression;
 import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext;
+import org.apache.skywalking.oap.meter.analyzer.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Result;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -48,13 +57,8 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedVal
 import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.elasticsearch.common.Strings;
 
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -73,11 +77,17 @@ public class Analyzer {
 
     public static final Tuple2<String, SampleFamily> NIL = Tuple.of("", null);
 
-    public static Analyzer build(final String metricName, final String expression,
+    public static Analyzer build(final String metricName,
+                                 final String filterExpression,
+                                 final String expression,
                                  final MeterSystem meterSystem) {
         Expression e = DSL.parse(expression);
+        FilterExpression filter = null;
+        if (!Strings.isNullOrEmpty(filterExpression)) {
+            filter = new FilterExpression(filterExpression);
+        }
         ExpressionParsingContext ctx = e.parse();
-        Analyzer analyzer = new Analyzer(metricName, e, meterSystem);
+        Analyzer analyzer = new Analyzer(metricName, filter, e, meterSystem);
         analyzer.init(ctx);
         return analyzer;
     }
@@ -87,6 +97,8 @@ public class Analyzer {
     private List<String> samples;
 
     private final String metricName;
+
+    private final FilterExpression filterExpression;
 
     private final Expression expression;
 
@@ -102,15 +114,18 @@ public class Analyzer {
      * @param sampleFamilies input samples.
      */
     public void analyse(final ImmutableMap<String, SampleFamily> sampleFamilies) {
-        ImmutableMap<String, SampleFamily> input = samples.stream()
-                                                          .map(s -> Tuple.of(s, sampleFamilies.get(s)))
-                                                          .filter(t -> t._2 != null)
-                                                          .collect(ImmutableMap.toImmutableMap(t -> t._1, t -> t._2));
+        Map<String, SampleFamily> input = samples.stream()
+                                                 .map(s -> Tuple.of(s, sampleFamilies.get(s)))
+                                                 .filter(t -> t._2 != null)
+                                                 .collect(toImmutableMap(t -> t._1, t -> t._2));
         if (input.size() < 1) {
             if (log.isDebugEnabled()) {
                 log.debug("{} is ignored due to the lack of {}", expression, samples);
             }
             return;
+        }
+        if (filterExpression != null) {
+            input = filterExpression.filter(input);
         }
         Result r = expression.run(input);
         if (!r.isSuccess()) {
@@ -147,7 +162,12 @@ public class Analyzer {
                               long[] vv = new long[bb.length];
                               for (int i = 0; i < subSs.size(); i++) {
                                   Sample s = subSs.get(i);
-                                  bb[i] = Long.parseLong(s.getLabels().get("le"));
+                                  final double leVal = Double.parseDouble(s.getLabels().get("le"));
+                                  if (leVal == Double.NEGATIVE_INFINITY) {
+                                      bb[i] = Long.MIN_VALUE;
+                                  } else {
+                                      bb[i] = (long) leVal;
+                                  }
                                   vv[i] = getValue(s);
                               }
                               BucketedValues bv = new BucketedValues(bb, vv);
@@ -230,7 +250,7 @@ public class Analyzer {
                               final String dataType,
                               final DownsamplingType downsamplingType) {
         String functionName = String.format(
-            FUNCTION_NAME_TEMP, downsamplingType.toString().toLowerCase(), Strings.capitalize(dataType));
+            FUNCTION_NAME_TEMP, downsamplingType.toString().toLowerCase(), StringUtils.capitalize(dataType));
         meterSystem.create(metricName, functionName, scopeType);
     }
 
@@ -240,17 +260,30 @@ public class Analyzer {
     }
 
     private void generateTraffic(MeterEntity entity) {
-        ServiceTraffic s = new ServiceTraffic();
-        s.setName(requireNonNull(entity.getServiceName()));
-        s.setNodeType(NodeType.Normal);
-        s.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-        MetricsStreamProcessor.getInstance().in(s);
+        if (entity.getDetectPoint() != null) {
+            switch (entity.getDetectPoint()) {
+                case SERVER:
+                    entity.setServiceName(entity.getDestServiceName());
+                    toService(requireNonNull(entity.getDestServiceName()), entity.getLayer());
+                    serverSide(entity);
+                    break;
+                case CLIENT:
+                    entity.setServiceName(entity.getSourceServiceName());
+                    toService(requireNonNull(entity.getSourceServiceName()), entity.getLayer());
+                    clientSide(entity);
+                    break;
+            }
+        } else {
+            toService(requireNonNull(entity.getServiceName()), entity.getLayer());
+        }
+
         if (!com.google.common.base.Strings.isNullOrEmpty(entity.getInstanceName())) {
             InstanceTraffic instanceTraffic = new InstanceTraffic();
             instanceTraffic.setName(entity.getInstanceName());
             instanceTraffic.setServiceId(entity.serviceId());
             instanceTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
             instanceTraffic.setLastPingTimestamp(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+            instanceTraffic.setLayer(entity.getLayer());
             MetricsStreamProcessor.getInstance().in(instanceTraffic);
         }
         if (!com.google.common.base.Strings.isNullOrEmpty(entity.getEndpointName())) {
@@ -260,5 +293,34 @@ public class Analyzer {
             endpointTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
             MetricsStreamProcessor.getInstance().in(endpointTraffic);
         }
+    }
+
+    private void toService(String serviceName, Layer layer) {
+        ServiceTraffic s = new ServiceTraffic();
+        s.setName(requireNonNull(serviceName));
+        s.setNormal(true);
+        s.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        s.setLayer(layer);
+        MetricsStreamProcessor.getInstance().in(s);
+    }
+
+    private void serverSide(MeterEntity entity) {
+        ServiceRelationServerSideMetrics metrics = new ServiceRelationServerSideMetrics();
+        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setSourceServiceId(entity.sourceServiceId());
+        metrics.setDestServiceId(entity.destServiceId());
+        metrics.setComponentId(0);
+        metrics.setEntityId(entity.id());
+        MetricsStreamProcessor.getInstance().in(metrics);
+    }
+
+    private void clientSide(MeterEntity entity) {
+        ServiceRelationClientSideMetrics metrics = new ServiceRelationClientSideMetrics();
+        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setSourceServiceId(entity.sourceServiceId());
+        metrics.setDestServiceId(entity.destServiceId());
+        metrics.setComponentId(0);
+        metrics.setEntityId(entity.id());
+        MetricsStreamProcessor.getInstance().in(metrics);
     }
 }

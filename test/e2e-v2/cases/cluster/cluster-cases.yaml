@@ -1,0 +1,66 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to show how to write configuration files and can be used to test.
+
+  cases:
+    # send metrics to each oap, just verify OAP cluster is up，
+    - query: |
+        curl -s -XPOST http://${sender1_host}:${sender1_9093}/sendBatchMetrics/1642647600000/100 > /dev/null;
+        curl -s -XPOST http://${sender2_host}:${sender2_9093}/sendBatchMetrics/1642647600000/100 > /dev/null;
+        sleep 10;
+        curl -s http://${oap1_host}:${oap1_1234} | grep remote_out_count{ | awk '{print $1}'
+      expected: expected/cluster-up-oap1.yml
+    - query: |
+        curl -s -XPOST http://${sender1_host}:${sender1_9093}/sendBatchMetrics/1642647600000/100 > /dev/null;
+        curl -s -XPOST http://${sender2_host}:${sender2_9093}/sendBatchMetrics/1642647600000/100 > /dev/null;
+        sleep 5;
+        curl -s http://${oap2_host}:${oap2_1234} | grep remote_out_count{ | awk '{print $1}'
+      expected: expected/cluster-up-oap2.yml
+    # send metrics to each oap first time, UTC 2022-01-26 03:00:00
+    - query: |
+        curl -s -XPOST http://${sender1_host}:${sender1_9093}/sendBatchMetrics/1643166000000/100;
+        curl -s -XPOST http://${sender2_host}:${sender2_9093}/sendBatchMetrics/1643166000000/100;
+        sleep 10;
+      expected: expected/send-metrics-rsp.yml
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql service ls
+      expected: expected/service.yml
+    # service instance list
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql instance list --service-name=test-service
+      expected: expected/service-instance.yml
+    # metrics minute
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 0259" --end "2022-01-26 0301" |yq e 'to_entries' -
+      expected: expected/metrics-minute-first.yml
+    # metrics toHour
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 01" --end "2022-01-26 05" |yq e 'to_entries' -
+      expected: expected/metrics-hour-first.yml
+    # metrics toDay
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26" --end "2022-01-27" |yq e 'to_entries' -
+      expected: expected/metrics-day-first.yml
+    # send metrics to each oap second time UTC 2022-01-26 03:10:00
+    - query: |
+        curl -s -XPOST http://${sender1_host}:${sender1_9093}/sendBatchMetrics/1643166600000/100;
+        curl -s -XPOST http://${sender2_host}:${sender2_9093}/sendBatchMetrics/1643166600000/100;
+        sleep 10;
+      expected: expected/send-metrics-rsp.yml
+    # metrics minute
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 0309" --end "2022-01-26 0311" |yq e 'to_entries' -
+      expected: expected/metrics-minute-second.yml
+    # metrics toHour
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 01" --end "2022-01-26 05" |yq e 'to_entries' -
+      expected: expected/metrics-hour-second.yml
+    # metrics toDay
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26" --end "2022-01-27" |yq e 'to_entries' -
+      expected: expected/metrics-day-second.yml

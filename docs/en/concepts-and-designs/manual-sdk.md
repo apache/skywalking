@@ -7,4 +7,4 @@ Our incredible community has contributed to the manual instrument SDK.
 See these protocols in [protocols document](../protocols/README.md).
 
 ## Envoy tracer
-Envoy has its internal tracer implementation for SkyWalking. Read [SkyWalking Tracer doc](https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/trace/v3/skywalking.proto.html?highlight=skywalking) and [SkyWalking tracing sandbox](https://www.envoyproxy.io/docs/envoy/latest/start/sandboxes/skywalking_tracing.html?highlight=skywalking) for more details.
+Envoy has its internal tracer implementation for SkyWalking. Read [SkyWalking Tracer doc](https://www.envoyproxy.io/docs/envoy/v1.19.1/api-v3/config/trace/v3/skywalking.proto.html?highlight=skywalking) and [SkyWalking tracing sandbox](https://www.envoyproxy.io/docs/envoy/v1.19.1/start/sandboxes/skywalking_tracing?highlight=skywalking) for more details.

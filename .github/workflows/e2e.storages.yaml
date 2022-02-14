@@ -36,29 +36,43 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['mysql', 'es6', 'es7.0', 'es7.10', 'opensearch', 'influxdb', 'tidb', 'postgresql']
-    env:
-      SW_STORAGE: ${{ matrix.storage }}
+        config-file:
+          - storage/h2/e2e.yaml
+          - storage/mysql/e2e.yaml
+          - storage/tidb/e2e.yaml
+          - storage/influxdb/e2e.yaml
+          - storage/postgres/e2e.yaml
+          - storage/iotdb/e2e.yaml
+        include:
+          - opensearch-version: 1.1.0
+            config-file: storage/opensearch/e2e.yaml
+          - opensearch-version: 1.2.0
+            config-file: storage/opensearch/e2e.yaml
+
+          - es-version: 6.3.2
+            config-file: storage/es/e2e.yaml
+          - es-version: 7.0.0
+            config-file: storage/es/e2e.yaml
+          - es-version: 7.8.0
+            config-file: storage/es/e2e.yaml
+          - es-version: 7.10.1
+            config-file: storage/es/e2e.yaml
+          - es-version: 7.14.0
+            config-file: storage/es/e2e.yaml
+          - es-version: 7.15.0
+            config-file: storage/es/e2e.yaml
+
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-      - name: Cache local Maven repository
-        if: env.SKIP_CI != 'true'
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
       - name: Run E2E Test
-        if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
+        uses: ./.github/actions/infra-e2e-test
+        env:
+          ES_VERSION: ${{ matrix.es-version }}
+          OPENSEARCH_VERSION: ${{ matrix.opensearch-version }}
         with:
-          test_class: org.apache.skywalking.e2e.storage.StorageE2E
+          config-file: ${{ matrix.config-file }}
 
   Storage:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')

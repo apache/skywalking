@@ -22,18 +22,14 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import joptsimple.internal.Strings;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.DATA_BINARY;
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.ENDPOINT_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.ENDPOINT_NAME;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.END_TIME;
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.LATENCY;
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.SEGMENT_ID;
@@ -43,7 +39,6 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.segment.Segm
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.TAGS;
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.TIME_BUCKET;
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.TRACE_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.VERSION;
 
 /**
  * H2/MySQL is different from standard {@link org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.Builder},
@@ -60,20 +55,13 @@ public class H2SegmentRecordBuilder extends AbstractSearchTagBuilder<Record> {
     @Override
     public Map<String, Object> entity2Storage(Record record) {
         SegmentRecord storageData = (SegmentRecord) record;
-        storageData.setStatement(Strings.join(new String[] {
-            storageData.getEndpointName(),
-            storageData.getTraceId()
-        }, " - "));
         Map<String, Object> map = new HashMap<>();
         map.put(SEGMENT_ID, storageData.getSegmentId());
         map.put(TRACE_ID, storageData.getTraceId());
-        map.put(TopN.STATEMENT, storageData.getStatement());
         map.put(SERVICE_ID, storageData.getServiceId());
         map.put(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
-        map.put(ENDPOINT_NAME, storageData.getEndpointName());
         map.put(ENDPOINT_ID, storageData.getEndpointId());
         map.put(START_TIME, storageData.getStartTime());
-        map.put(END_TIME, storageData.getEndTime());
         map.put(LATENCY, storageData.getLatency());
         map.put(IS_ERROR, storageData.getIsError());
         map.put(TIME_BUCKET, storageData.getTimeBucket());
@@ -82,7 +70,6 @@ public class H2SegmentRecordBuilder extends AbstractSearchTagBuilder<Record> {
         } else {
             map.put(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
         }
-        map.put(VERSION, storageData.getVersion());
         analysisSearchTag(storageData.getTagsRawData(), map);
         return map;
     }
@@ -92,13 +79,10 @@ public class H2SegmentRecordBuilder extends AbstractSearchTagBuilder<Record> {
         SegmentRecord record = new SegmentRecord();
         record.setSegmentId((String) dbMap.get(SEGMENT_ID));
         record.setTraceId((String) dbMap.get(TRACE_ID));
-        record.setStatement((String) dbMap.get(TopN.STATEMENT));
         record.setServiceId((String) dbMap.get(SERVICE_ID));
         record.setServiceInstanceId((String) dbMap.get(SERVICE_INSTANCE_ID));
-        record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
         record.setEndpointId((String) dbMap.get(ENDPOINT_ID));
         record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
-        record.setEndTime(((Number) dbMap.get(END_TIME)).longValue());
         record.setLatency(((Number) dbMap.get(LATENCY)).intValue());
         record.setIsError(((Number) dbMap.get(IS_ERROR)).intValue());
         record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
@@ -107,7 +91,6 @@ public class H2SegmentRecordBuilder extends AbstractSearchTagBuilder<Record> {
         } else {
             record.setDataBinary(Base64.getDecoder().decode((String) dbMap.get(DATA_BINARY)));
         }
-        record.setVersion(((Number) dbMap.get(VERSION)).intValue());
         // Don't read the tags as they has been in the data binary already.
         return record;
     }

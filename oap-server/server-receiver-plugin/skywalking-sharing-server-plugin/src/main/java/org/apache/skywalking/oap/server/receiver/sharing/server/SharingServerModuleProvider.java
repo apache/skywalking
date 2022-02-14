@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.receiver.sharing.server;
 
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.health.HealthCheckServiceHandler;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
@@ -103,7 +103,8 @@ public class SharingServerModuleProvider extends ModuleProvider {
                     Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
                     config.getGRPCPort(),
                     config.getGRPCSslCertChainPath(),
-                    config.getGRPCSslKeyPath()
+                    config.getGRPCSslKeyPath(),
+                    config.getGRPCSslTrustedCAsPath()
                 );
             } else {
                 grpcServer = new GRPCServer(

@@ -18,11 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -36,7 +38,6 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObje
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
-import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
@@ -45,9 +46,8 @@ import org.influxdb.querybuilder.WhereQueryImpl;
 import org.influxdb.querybuilder.clauses.ConjunctionClause;
 
 import static java.util.Objects.nonNull;
-import static org.apache.skywalking.apm.util.StringUtil.isNotEmpty;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotEmpty;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_NAME;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SPAN_ID;
@@ -73,7 +73,6 @@ public class LogQuery implements ILogQueryDAO {
     public Logs queryLogs(final String serviceId,
                           final String serviceInstanceId,
                           final String endpointId,
-                          final String endpointName,
                           final TraceScopeCondition relatedTrace,
                           final Order queryOrder,
                           final int from,
@@ -100,9 +99,6 @@ public class LogQuery implements ILogQueryDAO {
         }
         if (isNotEmpty(endpointId)) {
             recallQuery.and(eq(ENDPOINT_ID, endpointId));
-        }
-        if (isNotEmpty(endpointName)) {
-            recallQuery.and(contains(ENDPOINT_NAME, endpointName.replaceAll("/", "\\\\/")));
         }
         if (nonNull(relatedTrace)) {
             if (isNotEmpty(relatedTrace.getTraceId())) {
@@ -164,7 +160,9 @@ public class LogQuery implements ILogQueryDAO {
                 log.setServiceId((String) data.get(SERVICE_ID));
                 log.setServiceInstanceId((String) data.get(SERVICE_INSTANCE_ID));
                 log.setEndpointId((String) data.get(ENDPOINT_ID));
-                log.setEndpointName((String) data.get(ENDPOINT_NAME));
+                if (log.getEndpointId() != null) {
+                    log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+                }
                 log.setTraceId((String) data.get(TRACE_ID));
                 log.setTimestamp(((Number) data.get(TIMESTAMP)).longValue());
                 log.setContentType(

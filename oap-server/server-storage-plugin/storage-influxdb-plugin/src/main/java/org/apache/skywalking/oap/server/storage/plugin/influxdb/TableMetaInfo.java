@@ -71,20 +71,21 @@ public class TableMetaInfo {
                 // service_traffic  name, group
                 case ServiceTraffic.INDEX_NAME: {
                     storageAndTagMap.put(ServiceTraffic.GROUP, InfluxConstants.TagName.SERVICE_GROUP);
-                    storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
+                    storageAndTagMap.put(ServiceTraffic.LAYER, InfluxConstants.TagName.LAYER);
+                    storageAndTagMap.put(ServiceTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
                 }
             }
         } else {
 
-            // Specifies ENTITY_ID, TIME_BUCKET, NODE_TYPE, SERVICE_ID as tag
+            // Specifies ENTITY_ID, TIME_BUCKET, LAYER, SERVICE_ID as tag
             if (storageAndColumnMap.containsKey(Metrics.ENTITY_ID)) {
                 storageAndTagMap.put(Metrics.ENTITY_ID, InfluxConstants.TagName.ENTITY_ID);
             }
             if (storageAndColumnMap.containsKey(Record.TIME_BUCKET)) {
                 storageAndTagMap.put(Record.TIME_BUCKET, InfluxConstants.TagName.TIME_BUCKET);
             }
-            if (storageAndColumnMap.containsKey(ServiceTraffic.NODE_TYPE)) {
-                storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
+            if (storageAndColumnMap.containsKey(ServiceTraffic.LAYER)) {
+                storageAndTagMap.put(ServiceTraffic.LAYER, InfluxConstants.TagName.LAYER);
             }
             if (storageAndColumnMap.containsKey(SegmentRecord.SERVICE_ID)) {
                 storageAndTagMap.put(SegmentRecord.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);

@@ -23,17 +23,17 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
@@ -53,6 +53,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingControl;
     private final List<String> searchableTagKeys;
+    @Getter
     private final Log log = new Log();
 
     @Override
@@ -72,7 +73,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
 
         // service
         String serviceName = namingControl.formatServiceName(logData.getService());
-        String serviceId = IDManager.ServiceID.buildId(serviceName, NodeType.Normal);
+        String serviceId = IDManager.ServiceID.buildId(serviceName, true);
         log.setServiceId(serviceId);
         // service instance
         if (StringUtil.isNotEmpty(logData.getServiceInstance())) {
@@ -85,7 +86,6 @@ public class RecordAnalysisListener implements LogAnalysisListener {
         if (StringUtil.isNotEmpty(logData.getEndpoint())) {
             String endpointName = namingControl.formatEndpointName(serviceName, logData.getEndpoint());
             log.setEndpointId(IDManager.EndpointID.buildId(serviceId, endpointName));
-            log.setEndpointName(endpointName);
         }
         // trace
         TraceContext traceContext = logData.getTraceContext();

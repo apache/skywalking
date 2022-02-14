@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -166,6 +166,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     public void overrideColumnName(String columnName, String newName) {
         columnNameOverrideRule.put(columnName, newName);
         models.forEach(this::followColumnNameRules);
+        ValueColumnMetadata.INSTANCE.overrideColumnName(columnName, newName);
     }
 
     private void followColumnNameRules(Model model) {

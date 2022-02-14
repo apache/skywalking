@@ -1,17 +1,17 @@
-## Language agents in Service
+## Installing language agents in services
 
-- [Java agent](java-agent/README.md). Introduces how to install java agent to your service, without any impact in your code.
+- [Java agent](http://github.com/apache/skywalking-java). Learn how to install the Java agent in your service without affecting your code.
 
-- [LUA agent](https://github.com/apache/skywalking-nginx-lua). Introduce how to install the lua agent in Nginx + LUA module or OpenResty.
+- [LUA agent](https://github.com/apache/skywalking-nginx-lua). Learn how to install the Lua agent in Nginx + LUA module or OpenResty.
 
-- [Kong agent](https://github.com/apache/skywalking-kong). Introduce how to install the lua agent in Kong.
+- [Kong agent](https://github.com/apache/skywalking-kong). Learn how to install the Lua agent in Kong.
 
-- [Python Agent](https://github.com/apache/skywalking-python). Introduce how to install the Python Agent in a Python service.
+- [Python Agent](https://github.com/apache/skywalking-python). Learn how to install the Python Agent in a Python service.
 
-- [Node.js agent](https://github.com/apache/skywalking-nodejs). Introduce how to install the NodeJS Agent in a NodeJS service.
+- [Node.js agent](https://github.com/apache/skywalking-nodejs). Learn how to install the NodeJS Agent in a NodeJS service.
 
-The following agents and SDKs are compatible with the SkyWalking's data formats and network protocols, but are maintained by 3rd-parties.
-You can go to their project repositories for additional info about guides and releases.
+The following agents and SDKs are compatible with SkyWalking's data formats and network protocols, but are maintained by third parties.
+See their project repositories for guides and releases.
 
 - [SkyAPM .NET Core agent](https://github.com/SkyAPM/SkyAPM-dotnet). See .NET Core agent project document for more details.
 

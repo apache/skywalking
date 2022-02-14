@@ -17,13 +17,11 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.7.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -31,25 +29,26 @@
 
     <properties>
         <slf4j.version>1.7.30</slf4j.version>
-        <log4j.version>2.14.1</log4j.version>
-        <graphql-java-tools.version>5.2.3</graphql-java-tools.version>
-        <graphql-java.version>8.0</graphql-java.version>
+        <log4j.version>2.17.1</log4j.version>
+        <graphql-java-tools.version>12.0.2</graphql-java-tools.version>
+        <graphql-java.version>17.3</graphql-java.version>
+        <graphql-java-extended-scalars.version>17.0</graphql-java-extended-scalars.version>
         <okhttp.version>3.14.9</okhttp.version>
-        <h2.version>1.4.196</h2.version>
+        <httpclient.version>4.5.13</httpclient.version>
+        <h2.version>2.1.210</h2.version>
         <joda-time.version>2.10.5</joda-time.version>
-        <elasticsearch.version>6.3.2</elasticsearch.version>
         <zookeeper.version>3.5.7</zookeeper.version>
         <guava.version>28.1-jre</guava.version>
         <snakeyaml.version>1.28</snakeyaml.version>
-        <protobuf-java.version>3.13.0</protobuf-java.version>
-        <protobuf-java-util.version>3.12.4</protobuf-java-util.version>
+        <protobuf-java.version>3.19.2</protobuf-java.version>
+        <protobuf-java-util.version>3.19.2</protobuf-java-util.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
-        <netty-tcnative-boringssl-static.version>2.0.39.Final</netty-tcnative-boringssl-static.version>
+        <netty-tcnative-boringssl-static.version>2.0.43.Final</netty-tcnative-boringssl-static.version>
         <jetty.version>9.4.40.v20210413</jetty.version>
         <commons-io.version>2.6</commons-io.version>
-        <kubernetes.version>12.0.1</kubernetes.version>
+        <kubernetes.version>14.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.9.1</zipkin.version>
         <jackson-core.version>2.12.2</jackson-core.version>
@@ -62,9 +61,9 @@
         <curator.version>4.3.0</curator.version>
         <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.18.0</etcd4j.version>
-        <netty.version>4.1.65.Final</netty.version>
+        <netty.version>4.1.68.Final</netty.version>
         <jackson-module-afterburner.version>2.12.2</jackson-module-afterburner.version>
-        <antlr.version>4.7.1</antlr.version>
+        <antlr.version>4.9.2</antlr.version>
         <freemarker.version>2.3.28</freemarker.version>
         <javaassist.version>3.25.0-GA</javaassist.version>
         <vavr.version>0.10.3</vavr.version>
@@ -72,9 +71,15 @@
         <mvel.version>2.4.8.Final</mvel.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <flatbuffers-java.version>1.12.0</flatbuffers-java.version>
-        <postgresql.version>42.2.18</postgresql.version>
+        <postgresql.version>42.3.2</postgresql.version>
         <jetcd.version>0.5.3</jetcd.version>
         <testcontainers.version>1.15.3</testcontainers.version>
+        <armeria.version>1.13.4</armeria.version>
+        <awaitility.version>3.0.0</awaitility.version>
+        <httpcore.version>4.4.13</httpcore.version>
+        <commons-compress.version>1.21</commons-compress.version>
+        <iotdb-session.version>0.12.4</iotdb-session.version>
+        <lz4-java.version>1.6.0</lz4-java.version>
     </properties>
 
     <dependencyManagement>
@@ -112,7 +117,7 @@
                 <version>${log4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.graphql-java</groupId>
+                <groupId>com.graphql-java-kickstart</groupId>
                 <artifactId>graphql-java-tools</artifactId>
                 <version>${graphql-java-tools.version}</version>
             </dependency>
@@ -120,6 +125,11 @@
                 <groupId>com.graphql-java</groupId>
                 <artifactId>graphql-java</artifactId>
                 <version>${graphql-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.graphql-java</groupId>
+                <artifactId>graphql-java-extended-scalars</artifactId>
+                <version>${graphql-java-extended-scalars.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -140,17 +150,6 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>${joda-time.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.elasticsearch.client</groupId>
-                <artifactId>elasticsearch-rest-high-level-client</artifactId>
-                <version>${elasticsearch.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
@@ -482,6 +481,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.google.flatbuffers</groupId>
                 <artifactId>flatbuffers-java</artifactId>
                 <version>${flatbuffers-java.version}</version>
@@ -494,10 +499,63 @@
             </dependency>
 
             <dependency>
+                <groupId>com.linecorp.armeria</groupId>
+                <artifactId>armeria</artifactId>
+                <version>${armeria.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.aayushatharva.brotli4j</groupId>
+                        <artifactId>native-linux-x86_64</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.aayushatharva.brotli4j</groupId>
+                        <artifactId>native-osx-x86_64</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${httpcore.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore-nio</artifactId>
+                <version>${httpcore.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${awaitility.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.iotdb</groupId>
+                <artifactId>iotdb-session</artifactId>
+                <version>${iotdb-session.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.lz4</groupId>
+                <artifactId>lz4-java</artifactId>
+                <version>${lz4-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

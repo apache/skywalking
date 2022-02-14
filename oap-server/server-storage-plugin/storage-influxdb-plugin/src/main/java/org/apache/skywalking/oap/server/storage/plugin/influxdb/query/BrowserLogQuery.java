@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
@@ -35,7 +35,6 @@ import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
 import static java.util.Objects.nonNull;
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
@@ -50,7 +49,6 @@ public class BrowserLogQuery implements IBrowserLogQueryDAO {
     public BrowserErrorLogs queryBrowserErrorLogs(final String serviceId,
                                                   final String serviceVersionId,
                                                   final String pagePathId,
-                                                  final String pagePath,
                                                   final BrowserErrorCategory category,
                                                   final long startSecondTB,
                                                   final long endSecondTB,
@@ -80,10 +78,6 @@ public class BrowserLogQuery implements IBrowserLogQueryDAO {
         if (nonNull(category)) {
             recallQuery.and(eq(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
         }
-        if (StringUtil.isNotEmpty(pagePath)) {
-            recallQuery.and(contains(BrowserErrorLogRecord.PAGE_PATH, pagePath.replaceAll("/", "\\\\/")));
-        }
-
         WhereQueryImpl<SelectQueryImpl> countQuery = select()
             .count(BrowserErrorLogRecord.SERVICE_ID)
             .from(client.getDatabase(), BrowserErrorLogRecord.INDEX_NAME)

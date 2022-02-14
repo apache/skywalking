@@ -9,17 +9,17 @@ Metadata contains concise information on all services and their instances, endpo
 You may query the metadata in different ways.
 ```graphql
 extend type Query {
-    getGlobalBrief(duration: Duration!): ClusterBrief
-
-    # Normal service related metainfo 
-    getAllServices(duration: Duration!): [Service!]!
+    # Normal service related meta info 
+    getAllServices(duration: Duration!, group: String): [Service!]!
     searchServices(duration: Duration!, keyword: String!): [Service!]!
     searchService(serviceCode: String!): Service
-    
+
     # Fetch all services of Browser type
     getAllBrowserServices(duration: Duration!): [Service!]!
+    searchBrowserServices(duration: Duration!, keyword: String!): [Service!]!
+    searchBrowserService(serviceCode: String!): Service
 
-    # Service intance query
+    # Service instance query
     getServiceInstances(duration: Duration!, serviceId: ID!): [ServiceInstance!]!
 
     # Endpoint query
@@ -127,12 +127,51 @@ extend type Query {
 }
 ```
 
-### Others
-The following queries are for specific features, including trace, alarm, and profile.
-1. Trace. Query distributed traces by this.
-1. Alarm. Through alarm query, you can find alarm trends and their details.
+### Logs
+```graphql
+extend type Query {
+    # Return true if the current storage implementation supports fuzzy query for logs.
+    supportQueryLogsByKeywords: Boolean!
+    queryLogs(condition: LogQueryCondition): Logs
 
-The actual query GraphQL scripts can be found in the `query-protocol` folder [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources).
+    # Test the logs and get the results of the LAL output.
+    test(requests: LogTestRequest!): LogTestResponse!
+}
+```
+
+Log implementations vary between different database options. Some search engines like ElasticSearch and OpenSearch can support
+full log text fuzzy queries, while others do not due to considerations related to performance impact and end user experience.
+
+`test` API serves as the debugging tool for native LAL parsing. 
+
+### Trace
+```graphql
+extend type Query {
+    queryBasicTraces(condition: TraceQueryCondition): TraceBrief
+    queryTrace(traceId: ID!): Trace
+}
+```
+
+Trace query fetches trace segment lists and spans of given trace IDs.
+
+### Alarm
+```graphql
+extend type Query {
+    getAlarmTrend(duration: Duration!): AlarmTrend!
+    getAlarm(duration: Duration!, scope: Scope, keyword: String, paging: Pagination!, tags: [AlarmTag]): Alarms
+}
+```
+
+Alarm query identifies alarms and related events.
+
+### Event
+```graphql
+extend type Query {
+    queryEvents(condition: EventQueryCondition): Events
+}
+```
+
+Event query fetches the event list based on given sources and time range conditions.
 
 ## Condition
 ### Duration

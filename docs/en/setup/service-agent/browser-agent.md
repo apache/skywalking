@@ -1,10 +1,19 @@
 ## Browser Monitoring
-[Apache SkyWalking Client JS](https://github.com/apache/skywalking-client-js) is client-side JavaScript exception and tracing library.
+[Apache SkyWalking Client JS](https://github.com/apache/skywalking-client-js) is a client-side JavaScript exception and tracing library.
 
-- Provide metrics and error collection to SkyWalking backend.
-- Lightweight, no browser plugin, just a simple JavaScript library.
-- Make browser as a start of whole distributed tracing.
+It has these features:
+- Provides metrics and error collection to SkyWalking backend.
+- Lightweight. No browser plugin required. A simple JavaScript library.
+- Browser serves as a starting point for the entire distributed tracing system.
 
-Go to the Client JS [official doc](https://github.com/apache/skywalking-client-js#quick-start) to learn more.
+See Client JS [official doc](https://github.com/apache/skywalking-client-js#quick-start) for more information.
 
-Note, make sure the [`receiver-browser`](../backend/backend-receivers.md) has been opened, default is **ON** since 8.2.0.
+Note: Make sure receiver-browser is enabled. It is **ON** by default since version 8.2.0.
+
+```yaml
+receiver-browser:
+  selector: ${SW_RECEIVER_BROWSER:default} // This means activated.
+  default:
+    # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
+```

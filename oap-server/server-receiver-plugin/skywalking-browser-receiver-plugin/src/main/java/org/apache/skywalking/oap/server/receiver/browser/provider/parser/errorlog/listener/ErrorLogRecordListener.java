@@ -19,10 +19,9 @@ package org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorl
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorLog;
@@ -78,7 +77,7 @@ public class ErrorLogRecordListener implements ErrorLogAnalysisListener {
 
         // service
         String serviceName = namingControl.formatServiceName(decorator.getService());
-        String serviceId = IDManager.ServiceID.buildId(serviceName, NodeType.Browser);
+        String serviceId = IDManager.ServiceID.buildId(serviceName, true);
         errorLog.setServiceId(serviceId);
 
         // service version
@@ -87,7 +86,6 @@ public class ErrorLogRecordListener implements ErrorLogAnalysisListener {
 
         // page
         String pagePath = namingControl.formatEndpointName(serviceName, decorator.getPagePath());
-        errorLog.setPagePath(pagePath);
         errorLog.setPagePathId(IDManager.EndpointID.buildId(serviceId, pagePath));
 
         // raw data

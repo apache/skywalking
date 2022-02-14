@@ -29,17 +29,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
+import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
-import org.apache.skywalking.oap.server.library.module.ModuleConfigException;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.module.ModuleNotFoundException;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -52,19 +48,22 @@ import static org.junit.Assert.assertNull;
 
 @Slf4j
 public class ITEtcdConfigurationTest {
-    @ClassRule
-    public static final GenericContainer CONTAINER =
-        new GenericContainer(DockerImageName.parse("bitnami/etcd:3.5.0"))
-            .waitingFor(Wait.forLogMessage(".*etcd setup finished!.*", 1))
-            .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"));
+    @Rule
+    public final GenericContainer<?> container =
+        new GenericContainer<>(DockerImageName.parse("quay.io/coreos/etcd:v3.5.0"))
+            .waitingFor(Wait.forLogMessage(".*ready to serve client requests.*", 1))
+            .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"))
+            .withCommand(
+                "etcd",
+                "--advertise-client-urls", "http://0.0.0.0:2379",
+                "--listen-client-urls", "http://0.0.0.0:2379"
+            );
 
-    private static EtcdConfigurationTestProvider PROVIDER;
+    private EtcdConfigurationTestProvider provider;
 
-    private static final String TEST_VALUE = "value";
-
-    @BeforeClass
-    public static void beforeClass() throws FileNotFoundException, ModuleConfigException, ModuleNotFoundException, ModuleStartException {
-        System.setProperty("etcd.endpoint", "http://127.0.0.1:" + CONTAINER.getMappedPort(2379));
+    @Before
+    public void before() throws Exception {
+        System.setProperty("etcd.endpoint", "http://127.0.0.1:" + container.getMappedPort(2379));
 
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
@@ -72,40 +71,91 @@ public class ITEtcdConfigurationTest {
         final ModuleManager moduleManager = new ModuleManager();
         moduleManager.init(applicationConfiguration);
 
-        PROVIDER = (EtcdConfigurationTestProvider) moduleManager.find(EtcdConfigurationTestModule.NAME).provider();
+        provider = (EtcdConfigurationTestProvider) moduleManager.find(EtcdConfigurationTestModule.NAME).provider();
 
-        assertNotNull(PROVIDER);
+        assertNotNull(provider);
     }
 
     @Test(timeout = 20000)
     public void shouldReadUpdated() throws Exception {
-        assertNull(PROVIDER.watcher.value());
+        assertNull(provider.watcher.value());
 
         KV client = Client.builder()
-                          .endpoints("http://localhost:" + CONTAINER.getMappedPort(2379))
+                          .endpoints("http://localhost:" + container.getMappedPort(2379))
+                          .namespace(ByteSequence.from("/skywalking/", Charset.defaultCharset()))
+                          .build()
+                          .getKVClient();
+
+        String testValue = "value";
+        client.put(
+            ByteSequence.from("test-module.default.testKey", Charset.defaultCharset()),
+            ByteSequence.from(testValue, Charset.defaultCharset())
+        ).get();
+
+        for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
+            log.info("value is : {}", provider.watcher.value());
+            TimeUnit.MILLISECONDS.sleep(200L);
+        }
+
+        assertEquals(testValue, provider.watcher.value());
+
+        client.delete(ByteSequence.from("test-module.default.testKey", Charset.defaultCharset())).get();
+
+        for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
+            TimeUnit.MILLISECONDS.sleep(200L);
+        }
+
+        assertNull(provider.watcher.value());
+    }
+
+    @Test(timeout = 20000)
+    public void shouldReadUpdated4Group() throws Exception {
+        assertEquals("{}", provider.groupWatcher.groupItems().toString());
+
+        KV client = Client.builder()
+                          .endpoints("http://localhost:" + container.getMappedPort(2379))
                           .namespace(ByteSequence.from("/skywalking/", Charset.defaultCharset()))
                           .build()
                           .getKVClient();
 
         client.put(
-            ByteSequence.from("test-module.default.testKey", Charset.defaultCharset()),
-            ByteSequence.from(TEST_VALUE, Charset.defaultCharset())
+            ByteSequence.from("test-module.default.testKeyGroup/item1", Charset.defaultCharset()),
+            ByteSequence.from("100", Charset.defaultCharset())
+        ).get();
+        client.put(
+            ByteSequence.from("test-module.default.testKeyGroup/item2", Charset.defaultCharset()),
+            ByteSequence.from("200", Charset.defaultCharset())
         ).get();
 
-        for (String v = PROVIDER.watcher.value(); v == null; v = PROVIDER.watcher.value()) {
-            log.info("value is : {}", PROVIDER.watcher.value());
+        for (String v = provider.groupWatcher.groupItems().get("item1"); v == null; v = provider.groupWatcher.groupItems().get("item1")) {
+            log.info("value is : {}", provider.groupWatcher.groupItems().get("item1"));
             TimeUnit.MILLISECONDS.sleep(200L);
         }
-
-        assertEquals(TEST_VALUE, PROVIDER.watcher.value());
-
-        client.delete(ByteSequence.from("test-module.default.testKey", Charset.defaultCharset())).get();
-
-        for (String v = PROVIDER.watcher.value(); v != null; v = PROVIDER.watcher.value()) {
+        for (String v = provider.groupWatcher.groupItems().get("item2"); v == null; v = provider.groupWatcher.groupItems().get("item2")) {
+            log.info("value is : {}", provider.groupWatcher.groupItems().get("item2"));
             TimeUnit.MILLISECONDS.sleep(200L);
         }
+        assertEquals("100", provider.groupWatcher.groupItems().get("item1"));
+        assertEquals("200", provider.groupWatcher.groupItems().get("item2"));
 
-        assertNull(PROVIDER.watcher.value());
+        //test remove item1
+        client.delete(ByteSequence.from("test-module.default.testKeyGroup/item1", Charset.defaultCharset())).get();
+        for (String v = provider.groupWatcher.groupItems().get("item1"); v != null; v = provider.groupWatcher.groupItems().get("item1")) {
+            log.info("value is : {}", provider.groupWatcher.groupItems().get("item1"));
+            TimeUnit.MILLISECONDS.sleep(200L);
+        }
+        assertNull(provider.groupWatcher.groupItems().get("item1"));
+
+        //test modify item2
+        client.put(
+            ByteSequence.from("test-module.default.testKeyGroup/item2", Charset.defaultCharset()),
+            ByteSequence.from("300", Charset.defaultCharset())
+        ).get();
+        for (String v = provider.groupWatcher.groupItems().get("item2"); v.equals("200"); v = provider.groupWatcher.groupItems().get("item2")) {
+            log.info("value is : {}", provider.groupWatcher.groupItems().get("item2"));
+            TimeUnit.MILLISECONDS.sleep(200L);
+        }
+        assertEquals("300", provider.groupWatcher.groupItems().get("item2"));
     }
 
     @SuppressWarnings("unchecked")
@@ -136,10 +186,5 @@ public class ITEtcdConfigurationTest {
                 }
             });
         }
-    }
-
-    @AfterClass
-    public static void teardown() {
-        CONTAINER.close();
     }
 }

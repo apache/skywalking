@@ -20,15 +20,11 @@
     <parent>
         <artifactId>server-cluster-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.7.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>cluster-nacos-plugin</artifactId>
-
-    <properties>
-        <test.nacos.version>1.4.2</test.nacos.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -64,107 +60,12 @@
                     <groupId>net.jcip</groupId>
                     <artifactId>jcip-annotations</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpasyncclient</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
+        <!-- Override the dependency to use the same version of httpcore-nio -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore-nio</artifactId>
+        </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>CI-with-IT</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <configuration>
-                            <sourceMode>all</sourceMode>
-                            <showLogs>true</showLogs>
-                            <logDate>default</logDate>
-                            <verbose>true</verbose>
-                            <imagePullPolicy>IfNotPresent</imagePullPolicy>
-                            <images>
-                                <image>
-                                    <name>nacos/nacos-server:${test.nacos.version}</name>
-                                    <alias>cluster-nacos-plugin-integration-test-nacos</alias>
-                                    <run>
-                                        <env>
-                                            <MODE>standalone</MODE>
-                                        </env>
-                                        <ports>
-                                            <port>nacos.port:8848</port>
-                                        </ports>
-                                        <wait>
-                                            <log>Nacos started successfully</log>
-                                            <time>120000</time>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>start</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>start</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>stop</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.gmaven</groupId>
-                        <artifactId>gmaven-plugin</artifactId>
-                        <version>${gmaven-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>add-default-properties</id>
-                                <phase>initialize</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <providerSelection>2.0</providerSelection>
-                                    <source>
-                                        project.properties.setProperty('docker.hostname', 'localhost')
-
-                                        log.info("Docker hostname is " + project.properties['docker.hostname'])
-                                    </source>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <nacos.address>
-                                    ${docker.hostname}:${nacos.port}
-                                </nacos.address>
-                            </systemPropertyVariables>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

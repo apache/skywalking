@@ -26,7 +26,6 @@
     <Loggers>
         <logger name="org.eclipse.jetty" level="INFO"/>
         <logger name="org.apache.zookeeper" level="INFO"/>
-        <logger name="org.elasticsearch.common.network.IfConfig" level="INFO"/>
         <logger name="io.grpc.netty" level="INFO"/>
         <logger name="org.apache.skywalking.oap.server.receiver.istio.telemetry" level="DEBUG"/>
         <!-- We make envoy metrics receiver to log at DEBUG level -->

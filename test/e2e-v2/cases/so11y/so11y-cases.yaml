@@ -1,0 +1,47 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+  cases:
+    # layer list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql layer ls
+      expected: expected/layer.yml
+    # service list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+      expected: expected/service.yml
+    # service instance list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=oap::oap-server
+      expected: expected/service-instance.yml
+    # service instance metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_cpu_percentage --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name meter_oap_instance_jvm_memory_bytes_used --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_trace_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_metrics_first_aggregation --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_prepare_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_execute_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_thread_live_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_thread_runnable_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_class_loaded_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_class_total_loaded_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+

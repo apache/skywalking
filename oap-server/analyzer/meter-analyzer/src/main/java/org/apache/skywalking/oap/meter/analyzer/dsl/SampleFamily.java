@@ -18,30 +18,24 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.AtomicDouble;
-import groovy.lang.Closure;
-import io.vavr.Function2;
-import io.vavr.Function3;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import static java.util.function.UnaryOperator.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EndpointEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.InstanceEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceEntityDescription;
+import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceRelationEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.K8sRetagType;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -57,11 +51,24 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static java.util.function.UnaryOperator.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.AtomicDouble;
+
+import groovy.lang.Closure;
+import io.vavr.Function2;
+import io.vavr.Function3;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * SampleFamily represents a collection of {@link Sample}.
@@ -69,13 +76,17 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 @ToString
+@Slf4j
 public class SampleFamily {
     public static final SampleFamily EMPTY = new SampleFamily(new Sample[0], RunningContext.EMPTY);
 
     static SampleFamily build(RunningContext ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
-        samples = Arrays.stream(samples).filter(sample -> !Double.isNaN(sample.getValue())).toArray(Sample[]::new);
         Preconditions.checkArgument(samples.length > 0);
+        samples = Arrays.stream(samples).filter(sample -> !Double.isNaN(sample.getValue())).toArray(Sample[]::new);
+        if (samples.length == 0) {
+            return EMPTY;
+        }
         return new SampleFamily(samples, Optional.ofNullable(ctx).orElseGet(RunningContext::instance));
     }
 
@@ -213,7 +224,8 @@ public class SampleFamily {
         }
         if (by == null) {
             double result = Arrays.stream(samples).mapToDouble(Sample::getValue).average().orElse(0.0D);
-            return SampleFamily.build(this.context, InternalOps.newSample(samples[0].name, ImmutableMap.of(), samples[0].timestamp, result));
+            return SampleFamily.build(
+                this.context, InternalOps.newSample(samples[0].name, ImmutableMap.of(), samples[0].timestamp, result));
         }
 
         return SampleFamily.build(
@@ -238,7 +250,8 @@ public class SampleFamily {
         }
         if (by == null) {
             double result = Arrays.stream(samples).mapToDouble(s -> s.value).reduce(aggregator).orElse(0.0D);
-            return SampleFamily.build(this.context, InternalOps.newSample(samples[0].name, ImmutableMap.of(), samples[0].timestamp, result));
+            return SampleFamily.build(
+                this.context, InternalOps.newSample(samples[0].name, ImmutableMap.of(), samples[0].timestamp, result));
         }
         return SampleFamily.build(
             this.context,
@@ -320,15 +333,32 @@ public class SampleFamily {
                       Object r = c.call(arg);
                       return sample.toBuilder()
                                    .labels(
-                                       ImmutableMap.copyOf(Optional.ofNullable((r instanceof Map) ? (Map<String, String>) r : null)
-                                                                   .orElse(arg)))
+                                       ImmutableMap.copyOf(
+                                           Optional.ofNullable((r instanceof Map) ? (Map<String, String>) r : null)
+                                                   .orElse(arg)))
                                    .build();
                   }).toArray(Sample[]::new)
         );
     }
 
+    public SampleFamily filter(Closure<Boolean> filter) {
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        final Sample[] filtered = Arrays.stream(samples)
+                                        .filter(it -> filter.call(it.labels))
+                                        .toArray(Sample[]::new);
+        if (filtered.length == 0) {
+            return EMPTY;
+        }
+        return SampleFamily.build(context, filtered);
+    }
+
     /* k8s retags*/
-    public SampleFamily retagByK8sMeta(String newLabelName, K8sRetagType type, String existingLabelName, String namespaceLabelName) {
+    public SampleFamily retagByK8sMeta(String newLabelName,
+                                       K8sRetagType type,
+                                       String existingLabelName,
+                                       String namespaceLabelName) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(newLabelName));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(existingLabelName));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(namespaceLabelName));
@@ -337,7 +367,8 @@ public class SampleFamily {
             return EMPTY;
         }
 
-        return SampleFamily.build(this.context, type.execute(samples, newLabelName, existingLabelName, namespaceLabelName));
+        return SampleFamily.build(
+            this.context, type.execute(samples, newLabelName, existingLabelName, namespaceLabelName));
     }
 
     public SampleFamily histogram() {
@@ -368,8 +399,17 @@ public class SampleFamily {
                           double r = this.context.histogramType == HistogramType.ORDINARY ? s.value : s.value - pre.get();
                           pre.set(s.value);
                           ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
-                              .putAll(Maps.filterKeys(s.labels, key -> !Objects.equals(key, le)))
-                              .put("le", String.valueOf((long) ((Double.parseDouble(this.context.histogramType == HistogramType.ORDINARY ? s.labels.get(le) : preLe.get())) * scale))).build();
+                                                                        .putAll(Maps.filterKeys(s.labels,
+                                                                                                key -> !Objects.equals(
+                                                                                                    key, le)
+                                                                        ))
+                                                                        .put(
+                                                                            "le", String.valueOf(
+                                                                                (long) ((Double.parseDouble(
+                                                                                    this.context.histogramType == HistogramType.ORDINARY ? s.labels
+                                                                                        .get(
+                                                                                            le) : preLe.get())) * scale)))
+                                                                        .build();
                           preLe.set(s.labels.get(le));
                           return InternalOps.newSample(s.name, ll, s.timestamp, r);
                       })
@@ -381,13 +421,14 @@ public class SampleFamily {
         Preconditions.checkArgument(percentiles.size() > 0);
         int[] p = percentiles.stream().mapToInt(i -> i).toArray();
         ExpressionParsingContext.get().ifPresent(ctx -> {
-            Preconditions.checkState(ctx.isHistogram, "histogram() should be invoked before invoking histogram_percentile()");
+            Preconditions.checkState(
+                ctx.isHistogram, "histogram() should be invoked before invoking histogram_percentile()");
             ctx.percentiles = p;
         });
         return this;
     }
 
-    public SampleFamily service(List<String> labelKeys) {
+    public SampleFamily service(List<String> labelKeys, Layer layer) {
         Preconditions.checkArgument(labelKeys.size() > 0);
         ExpressionParsingContext.get().ifPresent(ctx -> {
             ctx.scopeType = ScopeType.SERVICE;
@@ -396,13 +437,12 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new ServiceEntityDescription(labelKeys));
+        return createMeterSamples(new ServiceEntityDescription(labelKeys, layer));
     }
 
-    public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys) {
+    public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys, Layer layer) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(instanceKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.scopeType = ScopeType.SERVICE_INSTANCE);
         ExpressionParsingContext.get().ifPresent(ctx -> {
             ctx.scopeType = ScopeType.SERVICE_INSTANCE;
             ctx.scopeLabels.addAll(serviceKeys);
@@ -411,13 +451,12 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new InstanceEntityDescription(serviceKeys, instanceKeys));
+        return createMeterSamples(new InstanceEntityDescription(serviceKeys, instanceKeys, layer));
     }
 
-    public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys) {
+    public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys, Layer layer) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(endpointKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.scopeType = ScopeType.ENDPOINT);
         ExpressionParsingContext.get().ifPresent(ctx -> {
             ctx.scopeType = ScopeType.ENDPOINT;
             ctx.scopeLabels.addAll(serviceKeys);
@@ -426,16 +465,33 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new EndpointEntityDescription(serviceKeys, endpointKeys));
+        return createMeterSamples(new EndpointEntityDescription(serviceKeys, endpointKeys, layer));
+    }
+
+    public SampleFamily serviceRelation(DetectPoint detectPoint, List<String> sourceServiceKeys, List<String> destServiceKeys, Layer layer) {
+        Preconditions.checkArgument(sourceServiceKeys.size() > 0);
+        Preconditions.checkArgument(destServiceKeys.size() > 0);
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            ctx.scopeType = ScopeType.SERVICE_RELATION;
+            ctx.scopeLabels.addAll(sourceServiceKeys);
+            ctx.scopeLabels.addAll(destServiceKeys);
+        });
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint, layer));
     }
 
     private SampleFamily createMeterSamples(EntityDescription entityDescription) {
         Map<MeterEntity, Sample[]> meterSamples = new HashMap<>();
         Arrays.stream(samples)
-              .collect(groupingBy(it -> InternalOps.getLabels(entityDescription.getLabelKeys(), it), mapping(identity(), toList())))
+              .collect(groupingBy(it -> InternalOps.getLabels(entityDescription.getLabelKeys(), it),
+                                  mapping(identity(), toList())
+              ))
               .forEach((labels, samples) -> {
                   MeterEntity meterEntity = InternalOps.buildMeterEntity(samples, entityDescription);
-                  meterSamples.put(meterEntity, InternalOps.left(samples, entityDescription.getLabelKeys()));
+                  meterSamples.put(
+                      meterEntity, InternalOps.left(samples, entityDescription.getLabelKeys()));
               });
 
         this.context.setMeterSamples(meterSamples);
@@ -452,7 +508,10 @@ public class SampleFamily {
         Sample[] ss = Arrays.stream(samples)
                             .filter(sample -> ll.entrySet()
                                                 .stream()
-                                                .allMatch(entry -> op.apply(sample.labels.getOrDefault(entry.getKey(), ""), entry.getValue())))
+                                                .allMatch(
+                                                    entry -> op.apply(sample.labels.getOrDefault(entry.getKey(), ""),
+                                                                      entry.getValue()
+                                                    )))
                             .toArray(Sample[]::new);
         return ss.length > 0 ? SampleFamily.build(this.context, ss) : EMPTY;
     }
@@ -480,7 +539,10 @@ public class SampleFamily {
         Sample[] ss = Arrays.stream(samples)
                             .flatMap(cs -> io.vavr.collection.Stream.of(another.samples)
                                                                     .find(as -> cs.labels.equals(as.labels))
-                                                                    .map(as -> cs.toBuilder().value(transform.apply(cs.value, as.value)))
+                                                                    .map(as -> cs.toBuilder()
+                                                                                 .value(transform.apply(cs.value,
+                                                                                                        as.value
+                                                                                 )))
                                                                     .map(Sample.SampleBuilder::build)
                                                                     .toJavaStream())
                             .toArray(Sample[]::new);
@@ -506,9 +568,9 @@ public class SampleFamily {
 
         static RunningContext instance() {
             return RunningContext.builder()
-                .histogramType(HistogramType.CUMULATIVE)
-                .defaultHistogramBucketUnit(TimeUnit.SECONDS)
-                .build();
+                                 .histogramType(HistogramType.CUMULATIVE)
+                                 .defaultHistogramBucketUnit(TimeUnit.SECONDS)
+                                 .build();
         }
 
         private Map<MeterEntity, Sample[]> meterSamples = new HashMap<>();
@@ -523,8 +585,10 @@ public class SampleFamily {
         private static Sample[] left(List<Sample> samples, List<String> labelKeys) {
             return samples.stream().map(s -> {
                 ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
-                    .putAll(Maps.filterKeys(s.labels, key -> !labelKeys.contains(key)))
-                    .build();
+                                                              .putAll(Maps.filterKeys(s.labels,
+                                                                                      key -> !labelKeys.contains(key)
+                                                              ))
+                                                              .build();
                 return s.toBuilder().labels(ll).build();
             }).toArray(Sample[]::new);
         }
@@ -540,22 +604,42 @@ public class SampleFamily {
                                                     EntityDescription entityDescription) {
             switch (entityDescription.getScopeType()) {
                 case SERVICE:
-                    return MeterEntity.newService(InternalOps.dim(samples, entityDescription.getServiceKeys()));
+                    ServiceEntityDescription serviceEntityDescription = (ServiceEntityDescription) entityDescription;
+                    return MeterEntity.newService(
+                        InternalOps.dim(samples, serviceEntityDescription.getServiceKeys()),
+                        serviceEntityDescription.getLayer()
+                    );
                 case SERVICE_INSTANCE:
+                    InstanceEntityDescription instanceEntityDescription = (InstanceEntityDescription) entityDescription;
                     return MeterEntity.newServiceInstance(
-                        InternalOps.dim(samples, entityDescription.getServiceKeys()),
-                        InternalOps.dim(samples, entityDescription.getInstanceKeys())
+                        InternalOps.dim(samples, instanceEntityDescription.getServiceKeys()),
+                        InternalOps.dim(samples, instanceEntityDescription.getInstanceKeys()),
+                        instanceEntityDescription.getLayer()
                     );
                 case ENDPOINT:
+                    EndpointEntityDescription endpointEntityDescription = (EndpointEntityDescription) entityDescription;
                     return MeterEntity.newEndpoint(
-                        InternalOps.dim(samples, entityDescription.getServiceKeys()),
-                        InternalOps.dim(samples, entityDescription.getEndpointKeys())
+                        InternalOps.dim(samples, endpointEntityDescription.getServiceKeys()),
+                        InternalOps.dim(samples, endpointEntityDescription.getEndpointKeys()),
+                        endpointEntityDescription.getLayer()
                     );
-                default: throw new UnexpectedException("Unexpected scope type of entityDescription " + entityDescription.toString());
+                case SERVICE_RELATION:
+                    ServiceRelationEntityDescription serviceRelationEntityDescription = (ServiceRelationEntityDescription) entityDescription;
+                    return MeterEntity.newServiceRelation(
+                        InternalOps.dim(samples, serviceRelationEntityDescription.getSourceServiceKeys()),
+                        InternalOps.dim(samples, serviceRelationEntityDescription.getDestServiceKeys()),
+                        serviceRelationEntityDescription.getDetectPoint(), serviceRelationEntityDescription.getLayer()
+                    );
+                default:
+                    throw new UnexpectedException(
+                        "Unexpected scope type of entityDescription " + entityDescription);
             }
         }
 
-        private static Sample newSample(String name, ImmutableMap<String, String> labels, long timestamp, double newValue) {
+        private static Sample newSample(String name,
+                                        ImmutableMap<String, String> labels,
+                                        long timestamp,
+                                        double newValue) {
             return Sample.builder()
                          .value(newValue)
                          .labels(labels)

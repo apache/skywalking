@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Istio
+name: E2E
 
 on:
   pull_request:
@@ -26,11 +26,7 @@ on:
 
 env:
   SKIP_TEST: true
-  ES_VERSION: es7
   TAG: ${{ github.sha }}
-  SCRIPTS_DIR: test/e2e-mesh/e2e-istio/scripts
-  SW_OAP_BASE_IMAGE: openjdk:11-jdk
-  SW_KUBERNETES_COMMIT_SHA: 6d5897616ce30ebb1706c0cf566ac36f733d93e0
 
 concurrency:
   group: e2e-istio-${{ github.event.pull_request.number || github.ref }}
@@ -44,137 +40,20 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        analyzer: [k8s-mesh, mx-mesh]
-        istio_version: [1.7.1, 1.8.2, 1.9.1]
+        analyzer: [ k8s-mesh, mx-mesh ]
+        istio_version: &istio-versions [ 1.7.1, 1.8.2, 1.9.1, 1.10.3, 1.11.4, 1.12.0 ]
     name: Istio(${{ matrix.istio_version }})+ALS(${{ matrix.analyzer }})
     env:
       ISTIO_VERSION: ${{ matrix.istio_version }}
+      ALS_ANALYZER: ${{ matrix.analyzer }}
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-
-      - name: Check Unintended Changes
-        run: |
-          echo "::group::Check sw.version"
-          sudo apt install -y -q xmlstarlet
-          SW_VERSION=$(xmlstarlet sel -N pom=http://maven.apache.org/POM/4.0.0 -t -v "/pom:project/pom:properties/pom:sw.version" test/e2e/pom.xml)
-          if [[ "$(echo $(echo $SW_VERSION))" != "" ]]; then
-            echo "::error Please don't submit the change of sw.version in test/e2e/pom.xml"
-            exit 1
-          fi
-          echo "::endgroup::"
-
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-
-      - uses: actions/cache@v2
-        if: env.SKIP_CI != 'true'
+      - name: Run E2E Test
+        uses: ./.github/actions/infra-e2e-test
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
-      - name: Build Docker Image
-        if: env.SKIP_CI != 'true'
-        run: make docker
-
-      - name: Prepare environment
-        if: env.SKIP_CI != 'true'
-        run: bash ${SCRIPTS_DIR}/pre.sh
-
-      - name: Install Minikube
-        if: env.SKIP_CI != 'true'
-        run: bash ${SCRIPTS_DIR}/minikube.sh start
-
-      - name: Install Istio
-        if: env.SKIP_CI != 'true'
-        run: bash ${SCRIPTS_DIR}/istio.sh --set profile=demo --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.istio-system:11800 --set meshConfig.enableEnvoyAccessLogService=true
-
-      - name: Install SkyWalking
-        if: env.SKIP_CI != 'true'
-        run: |
-          git clone https://github.com/apache/skywalking-kubernetes.git
-          cd skywalking-kubernetes
-          git reset --hard $SW_KUBERNETES_COMMIT_SHA
-          cd chart
-          mkdir -p skywalking/files/conf.d/oap/ && cp ../../test/e2e/e2e-test/src/test/resources/metadata-service-mapping.yaml skywalking/files/conf.d/oap/metadata-service-mapping.yaml
-          helm dep up skywalking
-          helm -n istio-system install skywalking skywalking \
-               --set fullnameOverride=skywalking \
-               --set elasticsearch.replicas=1 \
-               --set elasticsearch.minimumMasterNodes=1 \
-               --set elasticsearch.imageTag=7.5.1 \
-               --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=${{ matrix.analyzer }} \
-               --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=${{ matrix.analyzer }} \
-               --set oap.env.K8S_SERVICE_NAME_RULE='e2e::${service.metadata.name}' \
-               --set oap.envoy.als.enabled=true \
-               --set oap.replicas=1 \
-               --set ui.image.repository=skywalking/ui \
-               --set ui.image.tag=$TAG \
-               --set oap.image.tag=$TAG \
-               --set oap.image.repository=skywalking/oap \
-               --set oap.storageType=elasticsearch7
-          kubectl -n istio-system get pods
-
-          sleep 3
-          kubectl -n istio-system wait --for=condition=available deployments/skywalking-oap --timeout=1200s
-          kubectl get pods -A -o wide --show-labels
-          kubectl get services -A -o wide
-
-      - name: Deploy demo services
-        if: env.SKIP_CI != 'true'
-        run: |
-          bash ${SCRIPTS_DIR}/demo.sh
-          # Enable TCP services
-          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo-ratings-v2.yaml
-          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo-db.yaml
-          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/destination-rule-all.yaml
-          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/virtual-service-ratings-db.yaml
-
-      - name: Cluster Info
-        if: ${{ failure() }}
-        run: |
-          df -h
-          minikube logs
-          minikube status
-
-      - name: Set up Minikube tunnel
-        if: env.SKIP_CI != 'true'
-        run: |
-          mkdir /tmp/minikube-tunnel
-          minikube tunnel > /tmp/minikube-tunnel/a.log &
-          export POD_NAME=$(kubectl get pods -n istio-system -l "app=skywalking,release=skywalking,component=ui" -o jsonpath="{.items[0].metadata.name}")
-          echo $POD_NAME
-          kubectl -n istio-system port-forward $POD_NAME 8080:8080 > /tmp/minikube-tunnel/b.log &
-
-      - name: Run E2E test
-        if: env.SKIP_CI != 'true'
-        run: |
-          export GATEWAY_HOST=$(minikube ip)
-          export GATEWAY_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
-          export WEBAPP_HOST=127.0.0.1
-          export WEBAPP_PORT=8080
-
-          export SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
-
-          ./mvnw -DskipTests -N install
-          ./mvnw -f apm-application-toolkit -DskipTests -am install
-
-          ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=org.apache.skywalking.e2e.mesh.ALSE2E
-
-      - name: Logs
-        if: ${{ failure() }}
-        continue-on-error: true
-        run: |
-          kubectl -n istio-system logs --tail=10000 -l "app=skywalking,release=skywalking,component=ui"
-          kubectl -n istio-system logs --tail=10000 -l "app=skywalking,release=skywalking,component=oap"
-          cat /tmp/minikube-tunnel/*
-
-      - name: Clean up
-        if: env.SKIP_CI != 'true'
-        continue-on-error: true
-        run: minikube delete
+          config-file: istio/als/e2e.yaml
 
   metrics-service:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -184,125 +63,14 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        istio_version: [1.7.1, 1.8.2, 1.9.1]
+        istio_version: *istio-versions
     env:
       ISTIO_VERSION: ${{ matrix.istio_version }}
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-
-      - name: Check Unintended Changes
-        run: |
-          echo "::group::Check sw.version"
-          sudo apt install -y -q xmlstarlet
-          SW_VERSION=$(xmlstarlet sel -N pom=http://maven.apache.org/POM/4.0.0 -t -v "/pom:project/pom:properties/pom:sw.version" test/e2e/pom.xml)
-          if [[ "$(echo $(echo $SW_VERSION))" != "" ]]; then
-            echo "Please don't submit the change of sw.version in test/e2e/pom.xml"
-            exit 1
-          fi
-          echo "::endgroup::"
-
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-
-      - uses: actions/cache@v2
-        if: env.SKIP_CI != 'true'
+      - name: Run E2E Test
+        uses: ./.github/actions/infra-e2e-test
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
-      - name: Build Docker Image
-        if: env.SKIP_CI != 'true'
-        run: make docker
-
-      - name: Prepare environment
-        if: env.SKIP_CI != 'true'
-        run: bash ${SCRIPTS_DIR}/pre.sh
-
-      - name: Install Minikube
-        if: env.SKIP_CI != 'true'
-        run: bash ${SCRIPTS_DIR}/minikube.sh start
-
-      - name: Install Istio
-        if: env.SKIP_CI != 'true'
-        run: |
-          bash ${SCRIPTS_DIR}/istio.sh \
-            --set profile=demo \
-            --set meshConfig.defaultConfig.envoyMetricsService.address=skywalking-oap.istio-system:11800 \
-            --set values.telemetry.v2.enabled=false # disable the metadata-exchange extension intentionally to make sure metrics service doesn't rely on it
-
-      - name: Install SkyWalking
-        if: env.SKIP_CI != 'true'
-        run: |
-          git clone https://github.com/apache/skywalking-kubernetes.git
-          cd skywalking-kubernetes
-          git reset --hard $SW_KUBERNETES_COMMIT_SHA
-          cd chart
-          mkdir -p skywalking/files/conf.d/oap/ && cp ../../test/e2e/e2e-test/src/test/resources/metadata-service-mapping.yaml skywalking/files/conf.d/oap/metadata-service-mapping.yaml
-          helm dep up skywalking
-          helm -n istio-system install skywalking skywalking \
-               --set fullnameOverride=skywalking \
-               --set elasticsearch.replicas=1 \
-               --set elasticsearch.minimumMasterNodes=1 \
-               --set elasticsearch.imageTag=7.5.1 \
-               --set oap.replicas=1 \
-               --set ui.image.repository=skywalking/ui \
-               --set ui.image.tag=$TAG \
-               --set oap.image.tag=$TAG \
-               --set oap.image.repository=skywalking/oap \
-               --set oap.storageType=elasticsearch7
-          kubectl -n istio-system get pods
-
-          sleep 3
-          kubectl -n istio-system wait --for=condition=available deployments/skywalking-oap --timeout=1200s
-          kubectl get pods -A -o wide --show-labels
-          kubectl get services -A -o wide
-
-      - name: Deploy demo services
-        if: env.SKIP_CI != 'true'
-        run: bash ${SCRIPTS_DIR}/demo.sh
-
-      - name: Cluster Info
-        if: ${{ failure() }}
-        run: |
-          df -h
-          minikube logs
-          minikube status
-
-      - name: Set up Minikube tunnel
-        if: env.SKIP_CI != 'true'
-        run: |
-          mkdir /tmp/minikube-tunnel
-          minikube tunnel > /tmp/minikube-tunnel/a.log &
-          export POD_NAME=$(kubectl get pods -n istio-system -l "app=skywalking,release=skywalking,component=ui" -o jsonpath="{.items[0].metadata.name}")
-          echo $POD_NAME
-          kubectl -n istio-system port-forward $POD_NAME 8080:8080 > /tmp/minikube-tunnel/b.log &
-
-      - name: Run E2E test
-        if: env.SKIP_CI != 'true'
-        run: |
-          export GATEWAY_HOST=$(minikube ip)
-          export GATEWAY_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
-          export WEBAPP_HOST=127.0.0.1
-          export WEBAPP_PORT=8080
-
-          export SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
-
-          ./mvnw -DskipTests -N install
-          ./mvnw -f apm-application-toolkit -DskipTests -am install
-
-          ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=org.apache.skywalking.e2e.mesh.MetricsServiceE2E
-
-      - name: Logs
-        if: ${{ failure() }}
-        continue-on-error: true
-        run: |
-          kubectl -n istio-system logs --tail=10000 -l "app=skywalking,release=skywalking,component=ui"
-          kubectl -n istio-system logs --tail=10000 -l "app=skywalking,release=skywalking,component=oap"
-          cat /tmp/minikube-tunnel/*
-
-      - name: Clean up
-        if: env.SKIP_CI != 'true'
-        run: minikube delete
+          config-file: istio/metrics/e2e.yaml

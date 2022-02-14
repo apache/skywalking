@@ -21,7 +21,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -31,7 +31,6 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.log.Abstract
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord.CONTENT_TYPE;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord.ENDPOINT_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord.ENDPOINT_NAME;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord.SERVICE_INSTANCE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord.SPAN_ID;
@@ -56,7 +55,6 @@ public class H2LogRecordBuilder extends AbstractSearchTagBuilder<Record> {
         record.setServiceId((String) dbMap.get(SERVICE_ID));
         record.setServiceInstanceId((String) dbMap.get(SERVICE_INSTANCE_ID));
         record.setEndpointId((String) dbMap.get(ENDPOINT_ID));
-        record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
         record.setTraceId((String) dbMap.get(TRACE_ID));
         record.setTraceSegmentId((String) dbMap.get(TRACE_SEGMENT_ID));
         record.setSpanId(((Number) dbMap.get(SPAN_ID)).intValue());
@@ -81,7 +79,6 @@ public class H2LogRecordBuilder extends AbstractSearchTagBuilder<Record> {
         map.put(SERVICE_ID, storageData.getServiceId());
         map.put(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
         map.put(ENDPOINT_ID, storageData.getEndpointId());
-        map.put(ENDPOINT_NAME, storageData.getEndpointName());
         map.put(TRACE_ID, storageData.getTraceId());
         map.put(TRACE_SEGMENT_ID, storageData.getTraceSegmentId());
         map.put(SPAN_ID, storageData.getSpanId());

@@ -21,6 +21,7 @@ package org.apache.skywalking.oal.rt.parser;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * Function argument.
@@ -32,4 +33,11 @@ public class Argument {
     private final int type;
 
     private final List<String> text;
+
+    @Setter
+    private String castType;
+
+    public void addText(String text) {
+        this.text.add(text);
+    }
 }

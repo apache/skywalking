@@ -25,7 +25,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * ConfigTable contains all config.
+ * ConfigTable contains all WatchType.SINGLE config.
  */
 @ToString
 public class ConfigTable {

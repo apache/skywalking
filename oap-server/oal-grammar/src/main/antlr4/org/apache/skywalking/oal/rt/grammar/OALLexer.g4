@@ -78,6 +78,7 @@ CONTAIN:                            'contain';
 NOT_CONTAIN:                        'not contain';
 
 // Literals
+NULL_LITERAL:                       'null';
 
 BOOL_LITERAL:       'true'
             |       'false'
@@ -122,7 +123,7 @@ fragment HexDigit
     ;
 
 fragment Digits
-    : [0-9] ([0-9_]* [0-9])?
+    : [0-9] ([0-9_]* [0-9])? ('l'|'L')?
     ;
 
 fragment LetterOrDigit
@@ -135,3 +136,9 @@ fragment Letter
     | ~[\u0000-\u007F\uD800-\uDBFF] // covers all characters above 0x7F which are not a surrogate
     | [\uD800-\uDBFF] [\uDC00-\uDFFF] // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
     ;
+
+// Type cast rule
+STRING_TO_LONG:                                '(str->long)';
+STRING_TO_LONG_SHORT:                          '(long)';
+STRING_TO_INT:                                 '(str->int)';
+STRING_TO_INT_SHORT:                           '(int)';

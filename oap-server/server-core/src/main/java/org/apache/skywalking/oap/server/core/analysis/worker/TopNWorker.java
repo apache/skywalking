@@ -19,12 +19,12 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.LimitedSizeBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
@@ -70,11 +70,9 @@ public class TopNWorker extends PersistenceWorker<TopN> {
             return Collections.EMPTY_LIST;
         }
         lastReportTimestamp = now;
-        return super.buildBatchRequests();
-    }
 
-    @Override
-    public List<PrepareRequest> prepareBatch(Collection<TopN> lastCollection) {
+        final List<TopN> lastCollection = getCache().read();
+
         List<PrepareRequest> prepareRequests = new ArrayList<>(lastCollection.size());
         lastCollection.forEach(record -> {
             try {
@@ -100,7 +98,7 @@ public class TopNWorker extends PersistenceWorker<TopN> {
 
     private class TopNConsumer implements IConsumer<TopN> {
         @Override
-        public void init() {
+        public void init(final Properties properties) {
         }
 
         @Override

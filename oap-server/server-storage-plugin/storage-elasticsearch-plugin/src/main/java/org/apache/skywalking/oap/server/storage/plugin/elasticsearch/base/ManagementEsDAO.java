@@ -19,13 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public class ManagementEsDAO extends EsDAO implements IManagementDAO {
     private final StorageHashMapBuilder<ManagementData> storageBuilder;
@@ -40,12 +39,13 @@ public class ManagementEsDAO extends EsDAO implements IManagementDAO {
     public void insert(Model model, ManagementData managementData) throws IOException {
         String tableName = IndexController.INSTANCE.getTableName(model);
         String docId = IndexController.INSTANCE.generateDocId(model, managementData.id());
-        final GetResponse response = getClient().get(tableName, docId);
-        if (response.isExists()) {
+        final boolean exist = getClient().existDoc(tableName, docId);
+        if (exist) {
             return;
         }
-        XContentBuilder builder = map2builder(
-            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(managementData)));
-        getClient().forceInsert(tableName, docId, builder);
+        Map<String, Object> source =
+            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(
+                managementData));
+        getClient().forceInsert(tableName, docId, source);
     }
 }

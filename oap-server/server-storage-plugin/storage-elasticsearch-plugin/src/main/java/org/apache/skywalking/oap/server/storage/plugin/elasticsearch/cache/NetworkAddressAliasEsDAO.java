@@ -21,14 +21,14 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.elasticsearch.requests.search.Query;
+import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 @Slf4j
 public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAliasDAO {
@@ -44,16 +44,19 @@ public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAl
         List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>();
 
         try {
-            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.rangeQuery(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET)
-                                                   .gte(timeBucketInMinute));
-            searchSourceBuilder.size(resultWindowMaxSize);
+            final Search search =
+                Search.builder().query(
+                          Query.range(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET)
+                               .gte(timeBucketInMinute))
+                      .size(resultWindowMaxSize)
+                      .build();
 
-            SearchResponse response = getClient().search(NetworkAddressAlias.INDEX_NAME, searchSourceBuilder);
+            final SearchResponse results =
+                getClient().search(NetworkAddressAlias.INDEX_NAME, search);
 
             final NetworkAddressAlias.Builder builder = new NetworkAddressAlias.Builder();
-            for (SearchHit searchHit : response.getHits().getHits()) {
-                networkAddressAliases.add(builder.storage2Entity(searchHit.getSourceAsMap()));
+            for (SearchHit searchHit : results.getHits()) {
+                networkAddressAliases.add(builder.storage2Entity(searchHit.getSource()));
             }
         } catch (Throwable t) {
             log.error(t.getMessage(), t);

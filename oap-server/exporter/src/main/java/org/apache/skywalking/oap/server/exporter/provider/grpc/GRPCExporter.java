@@ -22,12 +22,13 @@ import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
@@ -103,8 +104,8 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     public void fetchSubscriptionList() {
         final long currentTimeMillis = System.currentTimeMillis();
         if (currentTimeMillis - lastFetchTimestamp > FETCH_SUBSCRIPTION_PERIOD) {
+            fetchListLock.lock();
             try {
-                fetchListLock.lock();
                 if (currentTimeMillis - lastFetchTimestamp > FETCH_SUBSCRIPTION_PERIOD) {
                     lastFetchTimestamp = currentTimeMillis;
                     SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS)
@@ -121,7 +122,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     }
 
     @Override
-    public void init() {
+    public void init(final Properties properties) {
 
     }
 

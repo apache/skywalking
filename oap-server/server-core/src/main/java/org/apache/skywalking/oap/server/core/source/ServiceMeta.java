@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_META;
 
@@ -37,9 +37,10 @@ public class ServiceMeta extends Source {
 
     @Override
     public String getEntityId() {
-        return IDManager.ServiceID.buildId(name, NodeType.Normal);
+        return IDManager.ServiceID.buildId(name, isNormal);
     }
 
     private String name;
-    private NodeType nodeType;
+    private Layer layer;
+    private boolean isNormal;
 }

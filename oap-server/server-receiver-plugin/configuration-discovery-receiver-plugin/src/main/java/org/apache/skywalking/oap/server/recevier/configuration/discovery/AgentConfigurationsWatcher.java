@@ -18,13 +18,12 @@
 
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-
+import com.google.common.hash.Hashing;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 /**
  * AgentConfigurationsWatcher used to handle dynamic configuration changes.
@@ -36,17 +35,19 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
 
     public AgentConfigurationsWatcher(ModuleProvider provider) {
         super(ConfigurationDiscoveryModule.NAME, provider, "agentConfigurations");
-        this.settingsString = Const.EMPTY_STRING;
+        this.settingsString = null;
         this.agentConfigurationsTable = new AgentConfigurationsTable();
+        // noinspection UnstableApiUsage
         this.emptyAgentConfigurations = new AgentConfigurations(
-            null, new HashMap<>(), DigestUtils.sha512Hex("EMPTY")
+            null, new HashMap<>(),
+            Hashing.sha512().hashString("EMPTY", StandardCharsets.UTF_8).toString()
         );
     }
 
     @Override
     public void notify(ConfigChangeEvent value) {
         if (value.getEventType().equals(EventType.DELETE)) {
-            settingsString = Const.EMPTY_STRING;
+            settingsString = null;
             this.agentConfigurationsTable = new AgentConfigurationsTable();
         } else {
             settingsString = value.getNewValue();

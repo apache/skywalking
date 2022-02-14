@@ -152,17 +152,25 @@ not dropped) and is used to associate with traces / metrics.
 
 The unit of `timestamp` is millisecond.
 
+- `layer`
+
+`layer` extracts the [layer](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java) from the `parsed` result, and set it into the `LogData`, which will be persisted (if
+not dropped) and is used to associate with service / instance.
+
 - `tag`
 
 `tag` extracts the tags from the `parsed` result, and set them into the `LogData`. The form of this extractor should look something like this: `tag key1: value, key2: value2`. You may use the properties of `parsed` as both keys and values.
 
 ```groovy
+import javax.swing.text.LayeredHighlighter
+
 filter {
     // ... parser
 
     extractor {
         tag level: parsed.level, (parsed.statusCode): parsed.statusMsg
         tag anotherKey: "anotherConstantValue"
+        layer 'GENERAL'
     }
 }
 ```
@@ -244,8 +252,8 @@ Sampler allows you to save the logs in a sampling manner. Currently, the samplin
 contributions on more sampling strategies. If multiple samplers are specified, the last one determines the final sampling
 result. See examples in [Enforcer](#enforcer).
 
-`rateLimit` samples `n` logs at a maximum rate of 1 second. `rateLimit("SamplerID")` requires an ID for the sampler. Sampler
-declarations with the same ID share the same sampler instance, thus sharing the same `qps` and resetting logic.
+`rateLimit` samples `n` logs at a maximum rate of 1 minute. `rateLimit("SamplerID")` requires an ID for the sampler. Sampler
+declarations with the same ID share the same sampler instance, thus sharing the same `rpm` and resetting logic.
 
 Examples:
 
@@ -257,11 +265,11 @@ filter {
         sampler {
             if (parsed.service == "ImportantApp") {
                 rateLimit("ImportantAppSampler") {
-                    qps 30  // samples 30 pieces of logs every second for service "ImportantApp"
+                    rpm 1800  // samples 1800 pieces of logs every minute for service "ImportantApp"
                 }
             } else {
                 rateLimit("OtherSampler") {
-                    qps 3   // samples 3 pieces of logs every second for other services than "ImportantApp"
+                    rpm 180   // samples 180 pieces of logs every minute for other services than "ImportantApp"
                 }
             }
         }

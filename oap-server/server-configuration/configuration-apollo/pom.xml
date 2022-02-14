@@ -21,7 +21,7 @@
     <parent>
         <artifactId>server-configuration</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.7.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -54,119 +54,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>CI-with-IT</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <configuration>
-                            <sourceMode>all</sourceMode>
-                            <showLogs>true</showLogs>
-                            <logDate>default</logDate>
-                            <verbose>true</verbose>
-                            <imagePullPolicy>IfNotPresent</imagePullPolicy>
-                            <skip>true</skip>
-                            <images>
-                                <image>
-                                    <name>mysql:5.7</name>
-                                    <alias>apollo-db</alias>
-                                    <run>
-                                        <env>
-                                            <TZ>Asia/Shanghai</TZ>
-                                            <MYSQL_ALLOW_EMPTY_PASSWORD>yes</MYSQL_ALLOW_EMPTY_PASSWORD>
-                                        </env>
-                                        <namingStrategy>none</namingStrategy>
-                                        <volumes>
-                                            <bind>
-                                                <volume>
-                                                    src/test/resources/docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-                                                </volume>
-                                            </bind>
-                                        </volumes>
-                                        <wait>
-                                            <log>ready for connections</log>
-                                            <time>600000</time>
-                                        </wait>
-                                    </run>
-                                </image>
-                                <image>
-                                    <name>kezhenxu94/apollo:1.2</name>
-                                    <alias>apollo-config-and-portal</alias>
-                                    <run>
-                                        <namingStrategy>none</namingStrategy>
-                                        <dependsOn>
-                                            <container>apollo-db</container>
-                                        </dependsOn>
-                                        <links>
-                                            <link>apollo-db</link>
-                                        </links>
-                                        <ports>
-                                            <port>+apollo.portal.host:apollo.portal.port:8070</port>
-                                            <port>+apollo.meta.host:apollo.meta.port:8080</port>
-                                        </ports>
-                                        <wait>
-                                            <log>Portal started. You can visit</log>
-                                            <time>2400000</time>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>start</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>start</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>stop</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <apollo.portal.host>
-                                    ${apollo.portal.host}
-                                </apollo.portal.host>
-                                <apollo.portal.port>
-                                    ${apollo.portal.port}
-                                </apollo.portal.port>
-                                <apollo.meta.host>
-                                    ${apollo.meta.host}
-                                </apollo.meta.host>
-                                <apollo.meta.port>
-                                    ${apollo.meta.port}
-                                </apollo.meta.port>
-                                <apollo.configService>
-                                    http://${apollo.meta.host}:${apollo.meta.port}
-                                </apollo.configService>
-                            </systemPropertyVariables>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

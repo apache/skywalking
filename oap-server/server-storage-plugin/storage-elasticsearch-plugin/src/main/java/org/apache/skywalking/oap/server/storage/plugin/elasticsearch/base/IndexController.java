@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 
@@ -88,7 +88,7 @@ public enum IndexController {
         public static final String METRIC_TABLE_NAME = "metric_table";
 
         public static String getPhysicalTableName(String logicName) {
-            return Optional.of(LOGIC_INDICES_CATALOG.get(logicName)).orElse(logicName);
+            return Optional.ofNullable(LOGIC_INDICES_CATALOG.get(logicName)).orElse(logicName);
         }
 
         public static void registerRelation(String logicName, String physicalName) {

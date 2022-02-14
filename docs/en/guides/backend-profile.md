@@ -48,5 +48,5 @@ The reason for generating multiple top-level trees is that original data can be 
     2. Calculate each node's duration in parallel. For each node, sort the sequences. If there are two continuous sequences, the duration should add the duration of these two seq's timestamp.
     3. Calculate each node execution in parallel. For each node, the duration of the current node should deduct the time consumed by all children.
 
-## Profile data debuggiing
-Please follow the [exporter tool](backend-profile-export.md#export-command-line-usage) to package profile data. Unzip the profile data and use [analyzer main function](../../../oap-server/server-tools/profile-exporter/tool-profile-snapshot-bootstrap/src/test/java/org/apache/skywalking/oap/server/tool/profile/exporter/ProfileExportedAnalyze.java) to run it.
+## Profile data debugging
+Please follow the [exporter tool](backend-profile-export.md#export-using-command-line) to package profile data. Unzip the profile data and use [analyzer main function](../../../oap-server/server-tools/profile-exporter/tool-profile-snapshot-bootstrap/src/test/java/org/apache/skywalking/oap/server/tool/profile/exporter/ProfileExportedAnalyze.java) to run it.

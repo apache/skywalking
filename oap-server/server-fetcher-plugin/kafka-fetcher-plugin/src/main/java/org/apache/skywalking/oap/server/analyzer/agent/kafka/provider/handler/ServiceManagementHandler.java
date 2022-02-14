@@ -31,11 +31,12 @@ import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcher
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
+import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -74,8 +75,9 @@ public class ServiceManagementHandler extends AbstractKafkaHandler {
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         final String serviceName = namingLengthControl.formatServiceName(request.getService());
         final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
-        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
+        serviceInstanceUpdate.setLayer(Layer.GENERAL);
 
         if (log.isDebugEnabled()) {
             log.debug("Service[{}] instance[{}] registered.", serviceName, instanceName);
@@ -107,10 +109,18 @@ public class ServiceManagementHandler extends AbstractKafkaHandler {
         }
 
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
-        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
         serviceInstanceUpdate.setTimeBucket(timeBucket);
+        serviceInstanceUpdate.setLayer(Layer.GENERAL);
         sourceReceiver.receive(serviceInstanceUpdate);
+
+        ServiceMeta serviceMeta = new ServiceMeta();
+        serviceMeta.setName(serviceName);
+        serviceMeta.setNormal(true);
+        serviceMeta.setTimeBucket(timeBucket);
+        serviceMeta.setLayer(Layer.GENERAL);
+        sourceReceiver.receive(serviceMeta);
     }
 
     @Override

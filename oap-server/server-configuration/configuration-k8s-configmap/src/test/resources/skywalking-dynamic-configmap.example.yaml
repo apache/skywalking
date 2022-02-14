@@ -21,7 +21,7 @@ kind: ConfigMap
 metadata:
   name: skywalking-dynamic-config
   labels:
-    app: skywalking-alarm
+    app: collector
     release: skywalking
 data:
   receiver-trace.default.slowDBAccessThreshold: default:200,mongodb:50
@@ -82,8 +82,8 @@ data:
     #  Active endpoint related metrics alarm will cost more memory than service and service instance metrics alarm.
     #  Because the number of endpoint is much more than service and instance.
     #
-    #  endpoint_avg_rule:
-    #    metrics-name: endpoint_avg
+    #  endpoint_resp_time_rule:
+    #    metrics-name: endpoint_resp_time
     #    op: ">"
     #    threshold: 1000
     #    period: 10

@@ -17,7 +17,7 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -52,8 +52,7 @@ public class BrowserLogQuery implements GraphQLQueryResolver {
 
         return getQueryService().queryBrowserErrorLogs(
             condition.getServiceId(), condition.getServiceVersionId(), condition.getPagePathId(),
-            condition.getPagePath(), condition.getCategory()
-            , startSecondTB, endSecondTB, condition.getPaging()
+            condition.getCategory(), startSecondTB, endSecondTB, condition.getPaging()
         );
     }
 }

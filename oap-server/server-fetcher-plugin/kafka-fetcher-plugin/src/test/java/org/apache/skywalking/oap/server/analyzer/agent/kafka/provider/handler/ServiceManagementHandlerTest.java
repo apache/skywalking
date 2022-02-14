@@ -56,7 +56,7 @@ public class ServiceManagementHandlerTest {
             ServiceInstanceUpdate instanceUpdate = (ServiceInstanceUpdate) sourceList.get(0);
             Assert.assertEquals(instanceUpdate.getName(), SERVICE_INSTANCE);
 
-            ServiceInstanceUpdate instanceUpdate1 = (ServiceInstanceUpdate) sourceList.get(1);
+            ServiceInstanceUpdate instanceUpdate1 = (ServiceInstanceUpdate) sourceList.get(2);
             Assert.assertEquals(instanceUpdate1.getName(), SERVICE_INSTANCE);
         }
     };

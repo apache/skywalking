@@ -135,7 +135,7 @@ spec:
           - "--log-level=DEBUG"
 #           Memory Ballast size should be max 1/3 to 1/2 of memory.
           - "--mem-ballast-size-mib=683"
-        image: otel/opentelemetry-collector-dev:latest
+        image: otel/opentelemetry-collector:0.29.0
         name: otel-collector
         resources:
           limits:
@@ -166,3 +166,4 @@ spec:
               - key: otel-collector-config
                 path: otel-collector-config.yaml
           name: otel-collector-config-vol
+          

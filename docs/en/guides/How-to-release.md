@@ -54,7 +54,7 @@ _You could do a GPG signature before preparing for the release. If you need to i
 
 ## Stage the release 
 ```
-./mvnw release:perform -DskipTests -Pall
+./mvnw release:perform -Dmaven.test.skip -Pall
 ```
 
 - The release will be automatically inserted into a temporary staging repository.
@@ -92,7 +92,7 @@ if you haven't done it before.
     * Package name: `apache-skywalking-x.y.z-src.tar.gz`
     * See Section "Build and sign the source code package" for more details 
 1. Upload the distribution package to the folder with files ending with `.asc` and `.sha512`.
-    * Package name:  `apache-skywalking-bin-x.y.z.tar.gz` and `apache-skywalking-bin-x.y.z.zip`
+    * Package name:  `apache-skywalking-bin-x.y.z.tar.gz`.
     * See Section "Locate and download the distribution package in Apache Nexus Staging repositories" for more details.
     * Create a `.sha512` package: `shasum -a 512 file > file.sha512`
 
@@ -280,6 +280,24 @@ SkyWalking Resources:
 
 
 - Apache SkyWalking Team
+```
+
+## Publish the Docker images
+
+```shell
+export SW_VERSION=x.y.z
+git clone --depth 1 --branch v$SW_VERSION https://github.com/apache/skywalking.git
+cd skywalking
+
+svn co https://dist.apache.org/repos/dist/release/skywalking/$SW_VERSION release # (1)
+
+export CONTEXT=release
+export HUB=apache
+export OAP_NAME=skywalking-oap-server
+export UI_NAME=skywalking-ui
+export TAG=$SW_VERSION
+export DIST=<the binary package name inside (1), e.g. apache-skywalking-apm-8.8.0.tar.gz>
+make docker.push
 ```
 
 ## Clean up the old releases

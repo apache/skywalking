@@ -31,11 +31,13 @@ public abstract class ConfigChangeWatcher {
     private final String module;
     private final ModuleProvider provider;
     private final String itemName;
+    protected WatchType watchType;
 
     public ConfigChangeWatcher(String module, ModuleProvider provider, String itemName) {
         this.module = module;
         this.provider = provider;
         this.itemName = itemName;
+        this.watchType = WatchType.SINGLE;
     }
 
     /**
@@ -69,5 +71,9 @@ public abstract class ConfigChangeWatcher {
 
     public enum EventType {
         ADD, MODIFY, DELETE
+    }
+
+    public enum WatchType {
+        SINGLE, GROUP
     }
 }

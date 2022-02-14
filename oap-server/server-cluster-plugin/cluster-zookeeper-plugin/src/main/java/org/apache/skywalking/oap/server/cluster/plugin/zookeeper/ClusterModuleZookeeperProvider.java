@@ -28,7 +28,7 @@ import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -118,7 +118,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         }
         client = builder.build();
 
-        String path = BASE_PATH + (StringUtil.isEmpty(config.getNameSpace()) ? "" : "/" + config.getNameSpace());
+        String path = BASE_PATH + (StringUtil.isEmpty(config.getNamespace()) ? "" : "/" + config.getNamespace());
 
         serviceDiscovery = ServiceDiscoveryBuilder.builder(RemoteInstance.class)
                                                   .client(client)

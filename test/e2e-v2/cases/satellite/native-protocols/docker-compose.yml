@@ -1,0 +1,110 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+
+  etcd:
+    hostname: etcd
+    image: quay.io/coreos/etcd:v3.5.0
+    ports:
+      - 2379
+    networks:
+      - e2e
+    environment:
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_ADVERTISE_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://0.0.0.0:2380
+      ETCD_INITIAL_CLUSTER: s1=http://0.0.0.0:2380
+      ETCD_NAME: s1
+      ETCD_DATA_DIR: /etcd-data
+    healthcheck:
+      test: ["CMD", "sh", "-c", "etcdctl endpoint health" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_LOG_LAL_FILES: test
+      SW_CLUSTER: etcd
+      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth
+      SW_CONFIGURATION: etcd
+    volumes:
+      - ./lal.yaml:/skywalking/config/lal/test.yaml
+    ports:
+      - 12800
+    depends_on:
+      etcd:
+        condition: service_healthy
+
+  satellite:
+    build:
+      context: ../
+      dockerfile: Dockerfile.satellite
+      args:
+        - SW_AGENT_SATELLITE_COMMIT=${SW_AGENT_SATELLITE_COMMIT}
+    expose:
+      - 11800
+    environment:
+      SATELLITE_GRPC_CLIENT: oap:11800
+      SATELLITE_LOGPIPE_SENDER_MIN_FLUSH_EVENTS: 1
+      SW_AGENT_SATELLITE_COMMIT: ${SW_AGENT_SATELLITE_COMMIT}
+      SATELLITE_GRPC_ACCEPT_LIMIT_CPU_UTILIZATION: 100
+    networks:
+      - e2e
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -zn 127.0.0.1 11800" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  provider:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: provider
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: satellite:11800
+      SW_GRPC_LOG_SERVER_HOST: satellite
+      SW_GRPC_LOG_SERVER_PORT: 11800
+    ports:
+      - 9090
+    depends_on:
+      satellite:
+        condition: service_healthy
+
+  consumer:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: consumer
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: satellite:11800
+      SW_GRPC_LOG_SERVER_HOST: satellite
+      SW_GRPC_LOG_SERVER_PORT: 11800
+    ports:
+      - 9092
+    depends_on:
+      satellite:
+        condition: service_healthy
+      provider:
+        condition: service_healthy
+
+networks:
+  e2e:

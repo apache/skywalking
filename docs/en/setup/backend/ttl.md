@@ -1,14 +1,12 @@
 # TTL
-In SkyWalking, there are two types of observability data, besides metadata.
-1. Record, including trace and alarm. Maybe log in the future.
-1. Metric, including such as percentile, heat map, success rate, cpm(rpm) etc.
+In SkyWalking, there are two types of observability data:
+1. Records include traces, logs, topN sampled statements and alarm. `recordDataTTL` applies to **record** data.
+1. Metrics include all metrics for service, instance, endpoint, and topology map. Metadata(lists of services, instances, or endpoints) also belongs to metrics. `metricsDataTTL` applies to **Metrics** data.
 
-You have following settings for different types.
+These are the settings for the different types:
 ```yaml
     # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
     recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:3} # Unit is day
     metricsDataTTL: ${SW_CORE_METRICS_DATA_TTL:7} # Unit is day
 ```
 
-- `recordDataTTL` affects **Record** data, including tracing and alarm.
-- `metricsDataTTL` affects all metrics, including service, instance, endpoint metrics and topology map metrics.

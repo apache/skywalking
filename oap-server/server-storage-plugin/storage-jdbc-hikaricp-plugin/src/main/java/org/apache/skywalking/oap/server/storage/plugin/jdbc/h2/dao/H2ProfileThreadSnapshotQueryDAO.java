@@ -28,7 +28,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
@@ -36,7 +37,6 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.elasticsearch.search.sort.SortOrder;
 
 public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
     private JDBCHikariCPClient h2Client;
@@ -81,20 +81,22 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
         for (int i = 0; i < segments.size(); i++) {
             sql.append(i > 0 ? " or " : "").append(SegmentRecord.SEGMENT_ID).append(" = ? ");
         }
-        sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append(SortOrder.DESC);
+        sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append("desc");
 
         ArrayList<BasicTrace> result = new ArrayList<>(segments.size());
         try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection, sql.toString(), segments.toArray(new String[segments
-                    .size()]))) {
+                connection, sql.toString(), segments.toArray(new String[segments.size()]))) {
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 
                     basicTrace.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
                     basicTrace.setStart(resultSet.getString(SegmentRecord.START_TIME));
-                    basicTrace.getEndpointNames().add(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
+                    basicTrace.getEndpointNames().add(
+                        IDManager.EndpointID.analysisId(
+                            resultSet.getString(SegmentRecord.ENDPOINT_ID)).getEndpointName()
+                    );
                     basicTrace.setDuration(resultSet.getInt(SegmentRecord.LATENCY));
                     basicTrace.setError(BooleanUtils.valueToBoolean(resultSet.getInt(SegmentRecord.IS_ERROR)));
                     String traceIds = resultSet.getString(SegmentRecord.TRACE_ID);
@@ -176,16 +178,13 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
                     segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
                     segmentRecord.setServiceId(resultSet.getString(SegmentRecord.SERVICE_ID));
                     segmentRecord.setServiceInstanceId(resultSet.getString(SegmentRecord.SERVICE_INSTANCE_ID));
-                    segmentRecord.setEndpointName(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
                     segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
-                    segmentRecord.setEndTime(resultSet.getLong(SegmentRecord.END_TIME));
                     segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
                     segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
                     String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
                     if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                         segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
                     }
-                    segmentRecord.setVersion(resultSet.getInt(SegmentRecord.VERSION));
                     return segmentRecord;
                 }
             }

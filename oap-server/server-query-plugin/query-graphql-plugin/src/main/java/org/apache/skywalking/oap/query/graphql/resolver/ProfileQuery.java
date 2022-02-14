@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
+import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.ProfiledSegment;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -54,6 +55,10 @@ public class ProfileQuery implements GraphQLQueryResolver {
 
     public List<ProfileTask> getProfileTaskList(final String serviceId, final String endpointName) throws IOException {
         return getProfileTaskQueryService().getTaskList(serviceId, endpointName);
+    }
+
+    public List<ProfileTaskLog> getProfileTaskLogs(final String taskID) throws IOException {
+        return getProfileTaskQueryService().getProfileTaskLogs(taskID);
     }
 
     public List<BasicTrace> getProfileTaskSegmentList(final String taskID) throws IOException {

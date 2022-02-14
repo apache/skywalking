@@ -21,30 +21,249 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.7.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>server-starter</artifactId>
-    <description>A backend starter specially for ElasticSearch 6 storage</description>
-    <packaging>jar</packaging>
+
+    <properties>
+        <generateGitPropertiesFilename>${project.basedir}/src/main/resources/version.properties
+        </generateGitPropertiesFilename>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>server-bootstrap</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-elasticsearch-plugin</artifactId>
+            <artifactId>server-core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!-- profile exporter -->
+        <!-- OAL runtime core -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>tool-profile-snapshot-exporter</artifactId>
+            <artifactId>oal-rt</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- OAL runtime core -->
+
+        <!-- cluster module -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-standalone-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-zookeeper-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-kubernetes-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-consul-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-etcd-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-nacos-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- cluster module -->
+
+        <!-- receiver module -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-mesh-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-management-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-jvm-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-trace-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>zipkin-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>envoy-metrics-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-clr-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-profile-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>otel-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-meter-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-browser-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-log-recevier-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-discovery-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-event-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-zabbix-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- receiver module -->
+
+        <!-- fetcher module -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>prometheus-fetcher-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>kafka-fetcher-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- fetcher module -->
+
+        <!-- storage module -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-jdbc-hikaricp-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-influxdb-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-tidb-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-iotdb-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- storage module -->
+
+        <!-- queryBuild module -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>query-graphql-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- queryBuild module -->
+
+        <!-- alarm module -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>server-alarm-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- telemetry -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>telemetry-prometheus</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- exporter -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>exporter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- configuration -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>grpc-configuration-sync</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-apollo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-etcd</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-consul</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-k8s-configmap</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-nacos</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-elasticsearch-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -53,22 +272,89 @@
         <finalName>skywalking-oap</finalName>
         <plugins>
             <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${compiler.version}</source>
+                    <target>${compiler.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>application.yml</exclude>
+                        <exclude>log4j2.xml</exclude>
+                        <exclude>alarm-settings.yml</exclude>
+                        <exclude>component-libraries.yml</exclude>
+                        <exclude>gateways.yml</exclude>
+                        <exclude>service-apdex-threshold.yml</exclude>
+                        <exclude>endpoint-name-grouping.yml</exclude>
+                        <exclude>metadata-service-mapping.yaml</exclude>
+                        <exclude>trace-sampling-policy-settings.yml</exclude>
+                        <exclude>oal/</exclude>
+                        <exclude>fetcher-prom-rules/</exclude>
+                        <exclude>envoy-metrics-rules/</exclude>
+                        <exclude>meter-analyzer-config/</exclude>
+                        <exclude>openapi-definitions/</exclude>
+                        <exclude>otel-oc-rules/</exclude>
+                        <exclude>ui-initialized-templates/</exclude>
+                        <exclude>zabbix-rules/</exclude>
+                        <exclude>lal/</exclude>
+                        <exclude>log-mal-rules/</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>assembly</id>
-                        <phase>package</phase>
+                        <id>copy-dependencies</id>
+                        <phase>process-resources</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/assembly.xml</descriptor>
-                            </descriptors>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>${project.build.directory}/oap-libs</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.9.10</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-information</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <verbose>false</verbose>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${generateGitPropertiesFilename}</generateGitPropertiesFilename>
+                    <dateFormatTimeZone>UTC</dateFormatTimeZone>
+                    <dateFormat>yyyyMMddHHmmss</dateFormat>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.version$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.build.time$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                </configuration>
             </plugin>
         </plugins>
     </build>

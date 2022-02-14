@@ -1,0 +1,156 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  zk:
+    image: zookeeper:3.5
+    expose:
+      - 2181
+    networks:
+      - e2e
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/2181" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  es:
+    image: elastic/elasticsearch:7.15.0
+    expose:
+      - 9200
+    networks:
+      - e2e
+    environment:
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  oap1:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: oap
+    volumes:
+      - ../../test-downsampling.yaml:/skywalking/config/meter-analyzer-config/test-downsampling.yaml
+    environment:
+      SW_CLUSTER: zookeeper
+      SW_STORAGE: elasticsearch
+      SW_CORE_PERSISTENT_PERIOD: 5
+      SW_METER_ANALYZER_ACTIVE_FILES: test-downsampling
+      SW_CLUSTER_ZK_HOST_PORT: zk:2181
+      SW_CLUSTER_INTERNAL_COM_HOST: oap1
+      SW_CLUSTER_INTERNAL_COM_PORT: 11800
+      SW_CORE_DATA_KEEPER_EXECUTE_PERIOD: 100
+      SW_TELEMETRY: prometheus
+    ports:
+      - 1234
+    depends_on:
+      zk:
+        condition: service_healthy
+      es:
+        condition: service_healthy
+
+  oap2:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: oap
+    volumes:
+      - ../../test-downsampling.yaml:/skywalking/config/meter-analyzer-config/test-downsampling.yaml
+    environment:
+      SW_CLUSTER: zookeeper
+      SW_STORAGE: elasticsearch
+      SW_CORE_PERSISTENT_PERIOD: 5
+      SW_METER_ANALYZER_ACTIVE_FILES: test-downsampling
+      SW_CLUSTER_ZK_HOST_PORT: zk:2181
+      SW_CLUSTER_INTERNAL_COM_HOST: oap2
+      SW_CLUSTER_INTERNAL_COM_PORT: 11800
+      SW_CORE_DATA_KEEPER_EXECUTE_PERIOD: 100
+      SW_TELEMETRY: prometheus
+    ports:
+      - 1234
+    depends_on:
+      zk:
+        condition: service_healthy
+      es:
+        condition: service_healthy
+      oap1:
+        condition: service_healthy
+
+  ui:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: ui
+    environment:
+      - SW_OAP_ADDRESS=http://oap1:12800,http://oap2:12800
+    depends_on:
+      oap1:
+        condition: service_healthy
+      oap2:
+        condition: service_healthy
+    ports:
+    - 8080
+
+  sender1:
+    image: "eclipse-temurin:8-jre"
+    volumes:
+      - ../../../../java-test-service/e2e-mock-sender/target/e2e-mock-sender-2.0.0.jar:/e2e-mock-sender-2.0.0.jar
+    command: [ "java", "-jar", "/e2e-mock-sender-2.0.0.jar" ]
+    environment:
+      OAP_HOST: oap1
+      OAP_GRPC_PORT: 11800
+    networks:
+      - e2e
+    ports:
+      - 9093
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 9093" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      oap1:
+        condition: service_healthy
+      oap2:
+        condition: service_healthy
+
+  sender2:
+    image: "eclipse-temurin:8-jre"
+    volumes:
+      - ../../../../java-test-service/e2e-mock-sender/target/e2e-mock-sender-2.0.0.jar:/e2e-mock-sender-2.0.0.jar
+    command: [ "java", "-jar", "/e2e-mock-sender-2.0.0.jar" ]
+    environment:
+      OAP_HOST: oap2
+      OAP_GRPC_PORT: 11800
+    networks:
+      - e2e
+    ports:
+      - 9093
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 9093" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      oap1:
+        condition: service_healthy
+      oap2:
+        condition: service_healthy
+networks:
+  e2e:

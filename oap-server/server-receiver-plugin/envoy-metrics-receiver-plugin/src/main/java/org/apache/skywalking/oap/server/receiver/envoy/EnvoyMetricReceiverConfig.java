@@ -34,7 +34,7 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     @Getter
     private boolean acceptMetricsService = false;
     private String alsHTTPAnalysis;
-    private String alsTCPAnalysis; // TODO: add to doc
+    private String alsTCPAnalysis;
     @Getter
     private String k8sServiceNameRule;
 
@@ -57,7 +57,7 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     }
 
     public List<Rule> rules() throws ModuleStartException {
-        return Rules.loadRules("envoy-metrics-rules", Collections.singletonList("envoy"));
+        return Rules.loadRules("envoy-metrics-rules", Arrays.asList("envoy", "envoy-svc-relation"));
     }
 
     public ServiceMetaInfoFactory serviceMetaInfoFactory() {

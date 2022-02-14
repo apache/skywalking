@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>8.7.0-SNAPSHOT</version>
+    <version>9.0.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -32,7 +32,6 @@
     </parent>
 
     <modules>
-        <module>apm-commons</module>
         <module>apm-protocol</module>
     </modules>
     <packaging>pom</packaging>
@@ -76,16 +75,6 @@
 
     <profiles>
         <profile>
-            <id>agent</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>apm-sniffer</module>
-                <module>apm-application-toolkit</module>
-            </modules>
-        </profile>
-        <profile>
             <id>backend</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -93,7 +82,6 @@
             <modules>
                 <module>oap-server</module>
                 <module>oap-server-bom</module>
-                <module>oap-server-bom-es7</module>
             </modules>
         </profile>
         <profile>
@@ -112,7 +100,6 @@
             </activation>
             <modules>
                 <module>apm-dist</module>
-                <module>apm-dist-es7</module>
             </modules>
         </profile>
         <profile>
@@ -121,12 +108,10 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <modules>
-                <module>apm-sniffer</module>
-                <module>apm-application-toolkit</module>
                 <module>oap-server</module>
+                <module>oap-server-bom</module>
                 <module>apm-webapp</module>
                 <module>apm-dist</module>
-                <module>apm-dist-es7</module>
             </modules>
             <build>
                 <plugins>
@@ -188,17 +173,16 @@
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>4.12</junit.version>
         <mockito-core.version>3.5.13</mockito-core.version>
-        <lombok.version>1.18.20</lombok.version>
+        <lombok.version>1.18.22</lombok.version>
 
         <!-- core lib dependency -->
-        <bytebuddy.version>1.10.19</bytebuddy.version>
-        <grpc.version>1.32.1</grpc.version>
+        <grpc.version>1.43.2</grpc.version>
         <gson.version>2.8.6</gson.version>
         <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
-        <com.google.protobuf.protoc.version>3.12.0</com.google.protobuf.protoc.version>
-        <protoc-gen-grpc-java.plugin.version>1.32.1</protoc-gen-grpc-java.plugin.version>
-        <netty-tcnative-boringssl-static.version>2.0.39.Final</netty-tcnative-boringssl-static.version>
+        <com.google.protobuf.protoc.version>3.19.2</com.google.protobuf.protoc.version>
+        <protoc-gen-grpc-java.plugin.version>1.42.1</protoc-gen-grpc-java.plugin.version>
+        <netty-tcnative-boringssl-static.version>2.0.43.Final</netty-tcnative-boringssl-static.version>
         <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
         <objenesis.version>3.1</objenesis.version>
         <!-- necessary for Java 9+ -->
@@ -208,7 +192,6 @@
         <docker.plugin.version>0.4.13</docker.plugin.version>
         <takari-maven-plugin.version>0.6.1</takari-maven-plugin.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
-        <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
@@ -216,18 +199,16 @@
         <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
-        <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
         <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-resource-plugin.version>3.1.0</maven-resource-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <versions-maven-plugin.version>2.5</versions-maven-plugin.version>
-        <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
         <jmh.version>1.21</jmh.version>
         <gmaven-plugin.version>1.5</gmaven-plugin.version>
-        <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
         <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
+        <assertj-core.version>3.20.2</assertj-core.version>
 
     </properties>
 
@@ -248,14 +229,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy-agent</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.objenesis</groupId>
             <artifactId>objenesis</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
         </dependency>
 
         <dependency>
@@ -306,15 +286,15 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>net.bytebuddy</groupId>
-                <artifactId>byte-buddy-agent</artifactId>
-                <version>${bytebuddy.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.objenesis</groupId>
                 <artifactId>objenesis</artifactId>
                 <version>${objenesis.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj-core.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -322,6 +302,18 @@
                 <artifactId>jmh-generator-annprocess</artifactId>
                 <version>${jmh.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- These dependencies will be bundled in JDK9+ but we don't need them, just exclude them. -->
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -334,10 +326,6 @@
                     <groupId>io.takari</groupId>
                     <artifactId>maven</artifactId>
                     <version>${takari-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>${maven-antrun-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
@@ -358,10 +346,6 @@
                         <forceCreation>true</forceCreation>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <artifactId>maven-shade-plugin</artifactId>
-                    <version>${maven-shade-plugin.version}</version>
-                </plugin>
                 <!--
                     maven-surefire-plugin will exclude integration tests (ITs)
                     and leave them for maven-failsafe-plugin to run, which is bound to the `verify` goal.
@@ -377,14 +361,6 @@
                         <excludes>
                             <exclude>IT*.class</exclude>
                         </excludes>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>docker-maven-plugin</artifactId>
-                    <version>${maven-docker-plugin.version}</version>
-                    <configuration>
-                        <containerNamePattern>%a-%t-%i</containerNamePattern>
                     </configuration>
                 </plugin>
             </plugins>
@@ -457,7 +433,6 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>none</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
@@ -465,22 +440,10 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <version>${coveralls-maven-plugin.version}</version>
-                <configuration>
-                    <repoToken>${COVERALLS_REPO_TOKEN}</repoToken>
-                    <sourceDirectories>
-                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-                    </sourceDirectories>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
                     <configLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/checkStyle.xml</configLocation>
-                    <headerLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -514,9 +477,6 @@
                         **/generated/*_jmhType*.java,
                         **/generated/*_jmhTest.java
                     </excludes>
-                    <propertyExpansion>
-                        import.control=${maven.multiModuleProjectDirectory}/apm-checkstyle/importControl.xml
-                    </propertyExpansion>
                 </configuration>
                 <executions>
                     <execution>
@@ -527,44 +487,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>${cobertura-maven-plugin.version}</version>
-                <configuration>
-                    <check />
-                    <aggregate>true</aggregate>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                    <quiet>true</quiet>
-                    <formats>
-                        <format>html</format>
-                        <format>xml</format>
-                    </formats>
-                    <instrumentation>
-                        <ignoreTrivial>true</ignoreTrivial>
-                        <ignoreMethodAnnotations>
-                            <ignoreMethodAnnotation>lombok.Generated</ignoreMethodAnnotation>
-                        </ignoreMethodAnnotations>
-                        <includes>
-                            <include>org/apache/skywalking/**/*.class</include>
-                        </includes>
-                        <excludes>
-                            <exclude>org/apache/skywalking/**/*Test.class</exclude>
-                            <exclude>org/apache/skywalking/**/Test*.class</exclude>
-                            <exclude>org/apache/skywalking/apm/network/register/v2/**/*.class</exclude>
-                            <exclude>org/apache/skywalking/apm/network/common/**/*.class</exclude>
-                            <exclude>org/apache/skywalking/apm/network/servicemesh/**/*.class</exclude>
-                            <exclude>org/apache/skywalking/apm/network/language/**/*.class</exclude>
-                            <exclude>org/apache/skywalking/oap/server/core/remote/grpc/proto/*.class</exclude>
-                            <exclude>org/apache/skywalking/oal/rt/grammar/*.class</exclude>
-                            <exclude>org/apache/skywalking/oap/server/exporter/grpc/*.class</exclude>
-                            <exclude>org/apache/skywalking/apm/toolkit/**/*Activation.class</exclude>
-                            <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation.class</exclude>
-                            <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation$*.class</exclude>
-                        </excludes>
-                    </instrumentation>
-                </configuration>
             </plugin>
         </plugins>
     </build>

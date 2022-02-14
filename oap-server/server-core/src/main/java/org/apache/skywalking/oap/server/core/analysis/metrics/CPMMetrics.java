@@ -57,5 +57,15 @@ public abstract class CPMMetrics extends Metrics implements LongValueHolder {
     public void calculate() {
         this.value = total / getDurationInMinute();
     }
+
+    @Override
+    public boolean haveDefault() {
+        return true;
+    }
+
+    @Override
+    public boolean isDefaultValue() {
+        return value == 0;
+    }
 }
 

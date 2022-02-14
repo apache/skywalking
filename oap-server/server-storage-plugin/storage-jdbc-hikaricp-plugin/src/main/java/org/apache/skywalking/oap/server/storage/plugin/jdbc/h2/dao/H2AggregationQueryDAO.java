@@ -61,8 +61,8 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
             });
         }
         sql.append(" group by ").append(Metrics.ENTITY_ID);
-        sql.append(")  as T order by value ")
-           .append(metrics.getOrder().equals(Order.ASC) ? "asc" : "desc")
+        sql.append(")  as T order by result")
+           .append(metrics.getOrder().equals(Order.ASC) ? " asc" : " desc")
            .append(" limit ")
            .append(metrics.getTopN());
         List<SelectedRecord> topNEntities = new ArrayList<>();
@@ -72,7 +72,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
             while (resultSet.next()) {
                 SelectedRecord topNEntity = new SelectedRecord();
                 topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
-                topNEntity.setValue(resultSet.getString("value"));
+                topNEntity.setValue(resultSet.getString("result"));
                 topNEntities.add(topNEntity);
             }
         } catch (SQLException e) {
@@ -85,7 +85,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         StringBuilder sql = new StringBuilder();
         sql.append("select * from (select avg(")
                 .append(valueColumnName)
-                .append(") value,")
+                .append(") result,")
                 .append(Metrics.ENTITY_ID)
                 .append(" from ")
                 .append(metricsName)

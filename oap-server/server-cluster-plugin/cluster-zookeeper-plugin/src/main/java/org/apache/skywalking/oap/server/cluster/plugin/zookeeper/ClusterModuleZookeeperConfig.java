@@ -27,7 +27,7 @@ class ClusterModuleZookeeperConfig extends ModuleConfig {
 
     @Setter
     @Getter
-    private String nameSpace;
+    private String namespace;
     private String hostPort;
     private int baseSleepTimeMs;
     private int maxRetries;

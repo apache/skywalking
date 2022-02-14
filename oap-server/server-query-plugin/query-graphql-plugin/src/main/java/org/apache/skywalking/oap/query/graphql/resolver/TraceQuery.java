@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.kickstart.tools.GraphQLQueryResolver;
 import com.google.common.base.Strings;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.Const;
@@ -67,14 +67,13 @@ public class TraceQuery implements GraphQLQueryResolver {
 
         int minDuration = condition.getMinTraceDuration();
         int maxDuration = condition.getMaxTraceDuration();
-        String endpointName = condition.getEndpointName();
         String endpointId = condition.getEndpointId();
         TraceState traceState = condition.getTraceState();
         QueryOrder queryOrder = condition.getQueryOrder();
         Pagination pagination = condition.getPaging();
 
         return getQueryService().queryBasicTraces(
-            condition.getServiceId(), condition.getServiceInstanceId(), endpointId, traceId, endpointName, minDuration,
+            condition.getServiceId(), condition.getServiceInstanceId(), endpointId, traceId, minDuration,
             maxDuration, traceState, queryOrder, pagination, startSecondTB, endSecondTB, condition.getTags()
         );
     }

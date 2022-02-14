@@ -1,0 +1,40 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+// JVM instance metrics
+instance_jvm_cpu = from(ServiceInstanceJVMCPU.usePercent).doubleAvg();
+instance_jvm_memory_heap = from(ServiceInstanceJVMMemory.used).filter(heapStatus == true).longAvg();
+instance_jvm_memory_noheap = from(ServiceInstanceJVMMemory.used).filter(heapStatus == false).longAvg();
+instance_jvm_memory_heap_max = from(ServiceInstanceJVMMemory.max).filter(heapStatus == true).longAvg();
+instance_jvm_memory_noheap_max = from(ServiceInstanceJVMMemory.max).filter(heapStatus == false).longAvg();
+instance_jvm_young_gc_time = from(ServiceInstanceJVMGC.time).filter(phase == GCPhase.NEW).sum();
+instance_jvm_old_gc_time = from(ServiceInstanceJVMGC.time).filter(phase == GCPhase.OLD).sum();
+instance_jvm_normal_gc_time = from(ServiceInstanceJVMGC.time).filter(phase == GCPhase.NORMAL).sum();
+instance_jvm_young_gc_count = from(ServiceInstanceJVMGC.count).filter(phase == GCPhase.NEW).sum();
+instance_jvm_old_gc_count = from(ServiceInstanceJVMGC.count).filter(phase == GCPhase.OLD).sum();
+instance_jvm_normal_gc_count = from(ServiceInstanceJVMGC.count).filter(phase == GCPhase.NORMAL).sum();
+instance_jvm_thread_live_count = from(ServiceInstanceJVMThread.liveCount).longAvg();
+instance_jvm_thread_daemon_count = from(ServiceInstanceJVMThread.daemonCount).longAvg();
+instance_jvm_thread_peak_count = from(ServiceInstanceJVMThread.peakCount).longAvg();
+instance_jvm_thread_runnable_state_thread_count = from(ServiceInstanceJVMThread.runnableStateThreadCount).longAvg();
+instance_jvm_thread_blocked_state_thread_count = from(ServiceInstanceJVMThread.blockedStateThreadCount).longAvg();
+instance_jvm_thread_waiting_state_thread_count = from(ServiceInstanceJVMThread.waitingStateThreadCount).longAvg();
+instance_jvm_thread_timed_waiting_state_thread_count = from(ServiceInstanceJVMThread.timedWaitingStateThreadCount).longAvg();
+instance_jvm_class_loaded_class_count = from(ServiceInstanceJVMClass.loadedClassCount).longAvg();
+instance_jvm_class_total_unloaded_class_count = from(ServiceInstanceJVMClass.totalUnloadedClassCount).longAvg();
+instance_jvm_class_total_loaded_class_count = from(ServiceInstanceJVMClass.totalLoadedClassCount).longAvg();

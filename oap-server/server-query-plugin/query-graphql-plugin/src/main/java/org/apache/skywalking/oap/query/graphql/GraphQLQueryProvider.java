@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.query.graphql;
 
-import com.coxautodev.graphql.tools.SchemaParser;
 import graphql.GraphQL;
+import graphql.kickstart.tools.SchemaParser;
+import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLSchema;
 import org.apache.skywalking.oap.query.graphql.resolver.AggregationQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.AlarmQuery;
@@ -27,7 +28,9 @@ import org.apache.skywalking.oap.query.graphql.resolver.BrowserLogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.EventQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.HealthQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.LogQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.LogTestQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetadataQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.MetadataQueryV2;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.Mutation;
@@ -80,7 +83,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
                                            .resolvers(new MetadataQuery(getManager()))
                                            .file("query-protocol/topology.graphqls")
                                            .resolvers(new TopologyQuery(getManager()))
-                                           /**
+                                           /*
                                             * Metrics v2 query protocol is an alternative metrics query(s) of original v1,
                                             * defined in the metric.graphql, top-n-records.graphqls, and aggregation.graphqls.
                                             */
@@ -101,7 +104,8 @@ public class GraphQLQueryProvider extends ModuleProvider {
                                            .file("query-protocol/alarm.graphqls")
                                            .resolvers(new AlarmQuery(getManager()))
                                            .file("query-protocol/log.graphqls")
-                                           .resolvers(new LogQuery(getManager()))
+                                           .resolvers(new LogQuery(getManager()),
+                                                      new LogTestQuery(getManager(), config))
                                            .file("query-protocol/profile.graphqls")
                                            .resolvers(new ProfileQuery(getManager()), new ProfileMutation(getManager()))
                                            .file("query-protocol/ui-configuration.graphqls")
@@ -110,6 +114,9 @@ public class GraphQLQueryProvider extends ModuleProvider {
                                            .resolvers(new BrowserLogQuery(getManager()))
                                            .file("query-protocol/event.graphqls")
                                            .resolvers(new EventQuery(getManager()))
+                                           .file("query-protocol/metadata-v2.graphqls")
+                                           .resolvers(new MetadataQueryV2(getManager()))
+                                           .scalars(ExtendedScalars.GraphQLLong)
                                            .build()
                                            .makeExecutableSchema();
         this.graphQL = GraphQL.newGraphQL(schema).build();

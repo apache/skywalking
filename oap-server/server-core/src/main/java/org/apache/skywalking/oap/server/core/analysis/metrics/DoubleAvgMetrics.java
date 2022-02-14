@@ -64,4 +64,15 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
     public final void calculate() {
         this.value = this.summation / this.count;
     }
+
+    @Override
+    public boolean haveDefault() {
+        return true;
+    }
+
+    @Override
+    public boolean isDefaultValue() {
+        // Value in the query stage will ignore decimal places after a decimal point
+        return Double.valueOf(value).longValue() == 0;
+    }
 }

@@ -24,7 +24,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 class ServiceAMock {
     public static String SERVICE_NAME = "mock_a_service";
@@ -64,8 +63,8 @@ class ServiceAMock {
         span.setOperationName(REST_ENDPOINT);
         span.setIsError(false);
         span.addTags(KeyStringValuePair.newBuilder().setKey("http.method").setValue("get").build());
-        span.addTags(KeyStringValuePair.newBuilder().setKey("status_code").setValue("404").build());
-        span.addTags(KeyStringValuePair.newBuilder().setKey("status_code").setValue("200").build());
+        span.addTags(KeyStringValuePair.newBuilder().setKey("http.status_code").setValue("404").build());
+        span.addTags(KeyStringValuePair.newBuilder().setKey("http.status_code").setValue("200").build());
         return span;
     }
 
