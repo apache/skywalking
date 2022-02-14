@@ -571,6 +571,9 @@ Falcon:
 MysqlClient:
   id: 7013
   languages: Python
+FastApi:
+  id: 7014
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
