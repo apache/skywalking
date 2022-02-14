@@ -46,6 +46,8 @@ Release Notes.
 * Add env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT` for cluster selectors `zookeeper`,`consul`,`etcd` and `nacos`.
 * Doc update: `configuration-vocabulary`,`backend-cluster` about env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT`.
 * Add Python MysqlClient component ID(7013) with mapping information.
+* Add Python FastApi component ID(7014) with mapping information.
+* Add env variables `fastapi_collect_http_params` for the plugin FastApi.
 
 #### UI
 
