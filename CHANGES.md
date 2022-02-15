@@ -57,6 +57,7 @@ Release Notes.
 * Expose configuration `responseTimeout` of ES client.
 * Support datasource metric analysis.
 * [Break Change] Keep the endpoint avg resp time meter name the same with others scope. (This may break 3rd party integration and existing alarm rule settings)
+* Add Python FastApi component ID(7014).
 
 #### UI
 
