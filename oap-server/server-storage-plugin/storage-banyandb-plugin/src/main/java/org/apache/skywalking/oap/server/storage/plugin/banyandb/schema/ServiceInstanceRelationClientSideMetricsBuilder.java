@@ -29,7 +29,7 @@ import java.util.List;
 public class ServiceInstanceRelationClientSideMetricsBuilder extends BanyanDBStorageDataBuilder<ServiceInstanceRelationClientSideMetrics> {
     @Override
     protected List<SerializableTag<BanyandbModel.TagValue>> searchableTags(ServiceInstanceRelationClientSideMetrics entity) {
-        List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>();
+        List<SerializableTag<BanyandbModel.TagValue>> searchable = new ArrayList<>(3);
         searchable.add(TagAndValue.stringField(entity.getSourceServiceId()));
         searchable.add(TagAndValue.stringField(entity.getDestServiceId()));
         searchable.add(TagAndValue.stringField(entity.getEntityId()));
@@ -38,7 +38,7 @@ public class ServiceInstanceRelationClientSideMetricsBuilder extends BanyanDBSto
 
     @Override
     protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(ServiceInstanceRelationClientSideMetrics entity) {
-        List<SerializableTag<BanyandbModel.TagValue>> data = new ArrayList<>();
+        List<SerializableTag<BanyandbModel.TagValue>> data = new ArrayList<>(3);
         data.add(TagAndValue.longField(entity.getComponentId()));
         data.add(TagAndValue.stringField(entity.getSourceServiceInstanceId()));
         data.add(TagAndValue.stringField(entity.getDestServiceInstanceId()));

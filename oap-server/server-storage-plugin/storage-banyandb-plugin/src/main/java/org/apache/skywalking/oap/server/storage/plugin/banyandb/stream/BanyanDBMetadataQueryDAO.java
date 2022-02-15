@@ -62,10 +62,11 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public List<Service> listServices(final String layer, final String group) throws IOException {
         StreamQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
-                ImmutableList.of(ServiceTraffic.NAME, ServiceTraffic.LAYER, ServiceTraffic.GROUP),
+                ImmutableList.of(ServiceTraffic.NAME, ServiceTraffic.SERVICE_ID, ServiceTraffic.GROUP, ServiceTraffic.LAYER),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
+                        query.setDataProjections(Collections.singletonList(ServiceTraffic.SHORT_NAME));
                         if (StringUtil.isNotEmpty(layer)) {
                             query.appendCondition(eq(ServiceTraffic.LAYER, Layer.valueOf(layer).value()));
                         }
@@ -81,10 +82,12 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public List<Service> getServices(String serviceId) throws IOException {
         StreamQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
-                ImmutableList.of(ServiceTraffic.NAME, ServiceTraffic.LAYER, ServiceTraffic.GROUP),
+                ImmutableList.of(ServiceTraffic.NAME, ServiceTraffic.SERVICE_ID, ServiceTraffic.GROUP, ServiceTraffic.LAYER),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
+                        query.setDataProjections(Collections.singletonList(ServiceTraffic.SHORT_NAME));
+
                         query.appendCondition(eq(ServiceTraffic.SERVICE_ID, serviceId));
                     }
                 });
@@ -116,9 +119,11 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public ServiceInstance getInstance(String instanceId) throws IOException {
         StreamQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
-                ImmutableList.of(InstanceTraffic.NAME, InstanceTraffic.SERVICE_ID), new QueryBuilder() {
+                ImmutableList.of(StreamMetaInfo.ID), new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
+                        query.setDataProjections(Collections.singletonList("data_binary"));
+
                         query.appendCondition(eq(StreamMetaInfo.ID, instanceId));
                     }
                 });
@@ -145,8 +150,8 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         public Endpoint apply(RowEntity row) {
             Endpoint endpoint = new Endpoint();
             final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
-            endpoint.setId((String) searchable.get(0).getValue());
-            endpoint.setName((String) searchable.get(1).getValue());
+            endpoint.setId(row.getId());
+            endpoint.setName((String) searchable.get(0).getValue()); // 0 - name
             return endpoint;
         }
     }
@@ -179,7 +184,8 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                     RemoteData remoteData = RemoteData.parseFrom((ByteString) o);
                     instanceTraffic.deserialize(remoteData);
                     serviceInstance.setName(instanceTraffic.getName());
-                    serviceInstance.setId(instanceTraffic.getServiceId());
+                    serviceInstance.setId(row.getId());
+                    serviceInstance.setInstanceUUID(serviceInstance.getId());
                     serviceInstance.setLayer(instanceTraffic.getLayer().name());
 
                     if (instanceTraffic.getProperties() != null) {

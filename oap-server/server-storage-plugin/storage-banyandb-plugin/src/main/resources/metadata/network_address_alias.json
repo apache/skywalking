@@ -1,7 +1,7 @@
 {
   "metadata": {
     "name": "network_address_alias",
-    "group": "default"
+    "group": "default-stream"
   },
   "tag_families": [
     {
@@ -37,14 +37,9 @@
   ],
   "entity": {
     "tag_names": [
+      "represent_service_id",
+      "represent_service_instance_id"
     ]
   },
-  "opts": {
-    "shard_num": 2,
-    "ttl": {
-      "val": 52000,
-      "unit": "DURATION_UNIT_WEEK"
-    }
-  },
-  "updated_at_nanoseconds": "2021-04-15T01:30:15.01Z"
+  "updated_at": "2021-04-15T01:30:15.01Z"
 }

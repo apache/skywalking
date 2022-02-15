@@ -19,10 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
+import org.apache.skywalking.banyandb.v1.client.GroupedBanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
+import org.apache.skywalking.banyandb.v1.client.metadata.Group;
 import org.apache.skywalking.banyandb.v1.client.metadata.IndexRule;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.oap.server.library.client.Client;
@@ -38,10 +40,15 @@ import java.io.IOException;
  */
 public class BanyanDBStorageClient implements Client, HealthCheckable {
     private final BanyanDBClient client;
+    private GroupedBanyanDBClient streamClient;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
 
-    public BanyanDBStorageClient(String host, int port, String group) {
-        this.client = new BanyanDBClient(host, port, group);
+    public BanyanDBStorageClient(String host, int port) {
+        this.client = new BanyanDBClient(host, port);
+    }
+
+    public void defineStreamGroup(Group group) {
+        this.streamClient = this.client.attachGroup(group);
     }
 
     @Override
@@ -56,7 +63,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public StreamQueryResponse query(StreamQuery streamQuery) {
         try {
-            StreamQueryResponse response = this.client.queryStreams(streamQuery);
+            StreamQueryResponse response = this.streamClient.queryStreams(streamQuery);
             this.healthChecker.health();
             return response;
         } catch (Throwable t) {
@@ -66,18 +73,18 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     }
 
     public void createStream(StreamMetaInfo streamMetaInfo) {
-        Stream stm = this.client.define(streamMetaInfo.getStream());
+        Stream stm = this.streamClient.define(streamMetaInfo.getStream());
         if (stm != null) {
-            this.client.defineIndexRules(stm, streamMetaInfo.getIndexRules().toArray(new IndexRule[]{}));
+            this.streamClient.defineIndexRules(stm, streamMetaInfo.getIndexRules().toArray(new IndexRule[]{}));
         }
     }
 
     public void write(StreamWrite streamWrite) {
-        this.client.write(streamWrite);
+        this.streamClient.write(streamWrite);
     }
 
     public StreamBulkWriteProcessor createBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
-        return this.client.buildStreamWriteProcessor(maxBulkSize, flushInterval, concurrency);
+        return this.streamClient.buildStreamWriteProcessor(maxBulkSize, flushInterval, concurrency);
     }
 
     @Override
