@@ -35,7 +35,7 @@ public class NetworkAddressAliasBuilder extends BanyanDBStorageDataBuilder<Netwo
 
     @Override
     protected List<SerializableTag<BanyandbModel.TagValue>> dataTags(NetworkAddressAlias entity) {
-        List<SerializableTag<BanyandbModel.TagValue>> data = new ArrayList<>(3);
+        List<SerializableTag<BanyandbModel.TagValue>> data = new ArrayList<>(4);
         // 0 - time_bucket
         data.add(TagAndValue.longField(entity.getTimeBucket()));
         // 1 - address

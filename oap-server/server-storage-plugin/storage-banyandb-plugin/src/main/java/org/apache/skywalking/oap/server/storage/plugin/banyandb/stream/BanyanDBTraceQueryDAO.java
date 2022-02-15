@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
-import lombok.Getter;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -37,6 +36,7 @@ import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.SegmentRecordBuilder;
@@ -79,13 +79,10 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
                 switch (traceState) {
                     case ERROR:
-                        query.appendCondition(eq(SegmentRecord.IS_ERROR, TraceStateStorage.ERROR.getState()));
+                        query.appendCondition(eq(SegmentRecord.IS_ERROR, BooleanUtils.TRUE));
                         break;
                     case SUCCESS:
-                        query.appendCondition(eq(SegmentRecord.IS_ERROR, TraceStateStorage.SUCCESS.getState()));
-                        break;
-                    default:
-                        query.appendCondition(eq(SegmentRecord.IS_ERROR, TraceStateStorage.ALL.getState()));
+                        query.appendCondition(eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
                         break;
                 }
 
@@ -118,7 +115,14 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
         }
 
         StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
-                ImmutableList.of("trace_id", "is_error", "endpoint_id", "latency", "start_time"), tsRange, q);
+                ImmutableList.of(SegmentRecord.TRACE_ID, // 0 - trace_id
+                        SegmentRecord.IS_ERROR, // 1 - is_error
+                        SegmentRecord.SERVICE_ID, // 2 - service_id
+                        SegmentRecord.SERVICE_INSTANCE_ID, // 3 - service_instance_id
+                        SegmentRecord.ENDPOINT_ID, // 4 - endpoint_id
+                        SegmentRecord.LATENCY, // 5 - latency
+                        SegmentRecord.START_TIME), // 6 - start_time
+                tsRange, q);
 
         List<BasicTrace> basicTraces = resp.getElements().stream().map(new BasicTraceDeserializer()).collect(Collectors.toList());
 
@@ -131,11 +135,17 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
-                ImmutableList.of("trace_id", "is_error", "service_id", "service_instance_id", "endpoint_id", "latency", "start_time"),
+                ImmutableList.of(SegmentRecord.TRACE_ID, // 0 - trace_id
+                        SegmentRecord.IS_ERROR, // 1 - is_error
+                        SegmentRecord.SERVICE_ID, // 2 - service_id
+                        SegmentRecord.SERVICE_INSTANCE_ID, // 3 - service_instance_id
+                        SegmentRecord.ENDPOINT_ID, // 4 - endpoint_id
+                        SegmentRecord.LATENCY, // 5 - latency
+                        SegmentRecord.START_TIME), // 6 - start_time
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.setDataProjections(Collections.singletonList("data_binary"));
+                        query.setDataProjections(Collections.singletonList(SegmentRecord.DATA_BINARY));
                         query.appendCondition(eq(SegmentRecord.TRACE_ID, traceId));
                     }
                 });
@@ -148,17 +158,6 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
         return Collections.emptyList();
     }
 
-    public enum TraceStateStorage {
-        ALL(0), SUCCESS(1), ERROR(2);
-
-        @Getter
-        private final int state;
-
-        TraceStateStorage(int state) {
-            this.state = state;
-        }
-    }
-
     public static class BasicTraceDeserializer implements RowEntityDeserializer<BasicTrace> {
         @Override
         public BasicTrace apply(RowEntity row) {
@@ -168,10 +167,10 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             trace.getTraceIds().add((String) searchable.get(0).getValue());
             trace.setError(((Long) searchable.get(1).getValue()).intValue() == 1);
             trace.getEndpointNames().add(IDManager.EndpointID.analysisId(
-                    (String) searchable.get(2).getValue()
+                    (String) searchable.get(4).getValue()
             ).getEndpointName());
-            trace.setDuration(((Long) searchable.get(3).getValue()).intValue());
-            trace.setStart(String.valueOf(searchable.get(4).getValue()));
+            trace.setDuration(((Long) searchable.get(5).getValue()).intValue());
+            trace.setStart(String.valueOf(searchable.get(6).getValue()));
             return trace;
         }
     }

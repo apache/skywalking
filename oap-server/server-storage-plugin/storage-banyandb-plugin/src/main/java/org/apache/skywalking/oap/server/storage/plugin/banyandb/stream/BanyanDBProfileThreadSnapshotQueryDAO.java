@@ -124,7 +124,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
     @Override
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
         StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
-                ImmutableList.of("trace_id", "state", "service_id", "service_instance_id", "endpoint_id", "duration", "start_time"),
+                ImmutableList.of(SegmentRecord.TRACE_ID, SegmentRecord.IS_ERROR, SegmentRecord.SERVICE_ID, SegmentRecord.SERVICE_INSTANCE_ID, SegmentRecord.ENDPOINT_ID, SegmentRecord.LATENCY, SegmentRecord.START_TIME),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {

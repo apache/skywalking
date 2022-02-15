@@ -48,12 +48,11 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
     @Override
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
         StreamQueryResponse resp = query(ProfileTaskLogRecord.INDEX_NAME,
-                ImmutableList.of(ProfileTaskLogRecord.OPERATION_TIME),
+                ImmutableList.of(ProfileTaskLogRecord.OPERATION_TIME, ProfileTaskLogRecord.INSTANCE_ID),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
                         query.setDataProjections(ImmutableList.of(ProfileTaskLogRecord.TASK_ID,
-                                ProfileTaskLogRecord.INSTANCE_ID,
                                 ProfileTaskLogRecord.OPERATION_TYPE));
                         query.setLimit(BanyanDBProfileTaskLogQueryDAO.this.queryMaxSize);
                     }
@@ -71,13 +70,13 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
             final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
             // searchable - operation_time
             profileTaskLog.setOperationTime(((Number) searchable.get(0).getValue()).longValue());
-            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
-            // searchable - task_id
-            profileTaskLog.setTaskId((String) data.get(0).getValue());
             // searchable - instance_id
-            profileTaskLog.setInstanceId((String) data.get(1).getValue());
-            // searchable - operation_type
-            profileTaskLog.setOperationType(ProfileTaskLogOperationType.parse(((Number) data.get(2).getValue()).intValue()));
+            profileTaskLog.setInstanceId((String) searchable.get(1).getValue());
+            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
+            // data - task_id
+            profileTaskLog.setTaskId((String) data.get(0).getValue());
+            // data - operation_type
+            profileTaskLog.setOperationType(ProfileTaskLogOperationType.parse(((Number) data.get(1).getValue()).intValue()));
             return profileTaskLog;
         }
     }

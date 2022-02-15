@@ -19,13 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.google.protobuf.util.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
-import org.apache.skywalking.banyandb.v1.client.metadata.Duration;
 import org.apache.skywalking.banyandb.v1.client.metadata.IndexRule;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Getter
 @Builder
@@ -69,14 +70,13 @@ public class StreamMetaInfo {
             log.warn("fail to find stream schema {}", model.getName());
             return null;
         }
-        BanyandbDatabase.Duration duration = pbStream.getOpts().getTtl();
-        Duration ttl = Duration.fromProtobuf(duration);
-        final Stream stream = new Stream(pbStream.getMetadata().getName(), pbStream.getOpts().getShardNum(), ttl);
+        final Stream stream = new Stream(pbStream.getMetadata().getName());
 
         List<IndexRule> indexRules = new ArrayList<>();
 
-        stream.setEntityTagNames(pbStream.getEntity().getTagNamesList());
+        Set<String> entityNameSet = ImmutableSet.copyOf(pbStream.getEntity().getTagNamesList());
 
+        stream.setEntityTagNames(pbStream.getEntity().getTagNamesList());
 
         for (BanyandbDatabase.TagFamilySpec pbTagFamilySpec : pbStream.getTagFamiliesList()) {
             final TagFamilySpec tagFamilySpec = TagFamilySpec.fromProtobuf(pbTagFamilySpec);
@@ -85,6 +85,10 @@ public class StreamMetaInfo {
             // if the tag family equals to "searchable", build index rules
             if (tagFamilySpec.getTagFamilyName().equals(TAG_FAMILY_SEARCHABLE)) {
                 for (final TagFamilySpec.TagSpec tagSpec : tagFamilySpec.getTagSpecs()) {
+                    // check if this spec exists in the entity names
+                    if (entityNameSet.contains(tagSpec.getTagName())) {
+                        continue;
+                    }
                     BanyandbDatabase.IndexRule pbIndexRule = parseIndexRulesFromJSON(model.getName(), tagSpec.getTagName());
                     if (pbIndexRule == null) {
                         log.warn("fail to find the index rule for {}", tagSpec.getTagName());

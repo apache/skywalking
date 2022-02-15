@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "name": "disabled",
+    "name": "sequence",
     "group": "default"
   },
   "tags": [
-    "disabled"
+    "sequence"
   ],
   "type": "TYPE_TREE",
   "location": "LOCATION_SERIES",

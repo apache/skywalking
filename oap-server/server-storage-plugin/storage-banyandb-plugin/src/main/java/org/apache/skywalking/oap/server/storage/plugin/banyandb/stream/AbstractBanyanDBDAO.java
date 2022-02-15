@@ -27,10 +27,15 @@ import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetaInfo;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.function.Function;
 
 public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageClient> {
+    private static final Instant UPPER_BOUND = Instant.ofEpochSecond(0, Long.MAX_VALUE);
+
+    private static final TimestampRange LARGEST_TIME_RANGE = new TimestampRange(0, UPPER_BOUND.toEpochMilli());
+
     protected AbstractBanyanDBDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -43,7 +48,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                                         QueryBuilder builder) {
         final StreamQuery query;
         if (timestampRange == null) {
-            query = new StreamQuery(indexName, searchableTags);
+            query = new StreamQuery(indexName, LARGEST_TIME_RANGE, searchableTags);
         } else {
             query = new StreamQuery(indexName, timestampRange, searchableTags);
         }

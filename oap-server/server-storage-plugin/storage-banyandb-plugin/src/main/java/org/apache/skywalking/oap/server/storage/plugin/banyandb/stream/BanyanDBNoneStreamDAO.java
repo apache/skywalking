@@ -41,7 +41,7 @@ public class BanyanDBNoneStreamDAO<T extends NoneStream> implements INoneStreamD
 
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
-        final long timestamp = TimeBucket.getTimeBucket(noneStream.getTimeBucket(), model.getDownsampling());
+        final long timestamp = TimeBucket.getTimestamp(noneStream.getTimeBucket(), model.getDownsampling());
         StreamWrite.StreamWriteBuilder builder =
                 this.storageBuilder.entity2Storage((T) noneStream)
                         .name(model.getName())

@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "name": "disabled",
+    "name": "dump_time",
     "group": "default"
   },
   "tags": [
-    "disabled"
+    "dump_time"
   ],
   "type": "TYPE_TREE",
   "location": "LOCATION_SERIES",
