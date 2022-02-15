@@ -30,7 +30,13 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
  * @since 9.0.0
  */
 public abstract class Meter extends Metrics implements WithMetadata {
-    protected MetricsMetaInfo metadata = new MetricsMetaInfo("UNKNOWN", DefaultScopeDefine.UNKNOWN);
+    private MetricsMetaInfo metadata = new MetricsMetaInfo("UNKNOWN", DefaultScopeDefine.UNKNOWN);
+
+    /**
+     * @return entity ID to represent this metric object. Typically, meter function should have a String type field, named entityId.
+     * See {@link org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgFunction#getEntityId()} as an example.
+     */
+    public abstract String getEntityId();
 
     /**
      * This method is called in {@link MeterSystem#create} process through dynamic Java codes.
@@ -45,7 +51,7 @@ public abstract class Meter extends Metrics implements WithMetadata {
 
     public MetricsMetaInfo getMeta() {
         // Only read the id from the implementation when needed, to avoid uninitialized cases.
-        this.metadata.setId(this.id());
+        this.metadata.setId(this.getEntityId());
         return metadata;
     }
 }
