@@ -72,7 +72,7 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
                             query.setLimit(limit);
                         }
 
-                        query.setOrderBy(new StreamQuery.OrderBy(ProfileTaskRecord.START_TIME, StreamQuery.OrderBy.Type.DESC));
+//                        query.setOrderBy(new StreamQuery.OrderBy(ProfileTaskRecord.START_TIME, StreamQuery.OrderBy.Type.DESC));
                     }
                 });
 

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "name": "service_relation_server_side",
+    "name": "profile_task_log",
     "group": "default-stream"
   },
   "tag_families": [
@@ -8,7 +8,11 @@
       "name": "data",
       "tags": [
         {
-          "name": "component_id",
+          "name": "task_id",
+          "type": "TAG_TYPE_STRING"
+        },
+        {
+          "name": "operation_type",
           "type": "TAG_TYPE_INT"
         }
       ]
@@ -17,15 +21,11 @@
       "name": "searchable",
       "tags": [
         {
-          "name": "source_service_id",
-          "type": "TAG_TYPE_STRING"
+          "name": "operation_time",
+          "type": "TAG_TYPE_INT"
         },
         {
-          "name": "dest_service_id",
-          "type": "TAG_TYPE_STRING"
-        },
-        {
-          "name": "entity_id",
+          "name": "instance_id",
           "type": "TAG_TYPE_STRING"
         }
       ]
@@ -33,8 +33,7 @@
   ],
   "entity": {
     "tag_names": [
-      "source_service_id",
-      "dest_service_id"
+      "instance_id"
     ]
   },
   "updated_at": "2021-04-15T01:30:15.01Z"

@@ -1,7 +1,7 @@
 {
   "metadata": {
     "name": "segment",
-    "group": "default"
+    "group": "default-stream"
   },
   "tag_families": [
     {
@@ -82,12 +82,5 @@
       "is_error"
     ]
   },
-  "opts": {
-    "shard_num": 2,
-    "ttl": {
-      "val": 7,
-      "unit": "DURATION_UNIT_DAY"
-    }
-  },
-  "updated_at_nanoseconds": "2021-04-15T01:30:15.01Z"
+  "updated_at": "2021-04-15T01:30:15.01Z"
 }

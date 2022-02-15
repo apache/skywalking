@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import org.apache.skywalking.banyandb.v1.client.metadata.Catalog;
+import org.apache.skywalking.banyandb.v1.client.metadata.Group;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -93,7 +95,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         this.registerServiceImplementation(StorageBuilderFactory.class, new BanyanDBStorageBuilderFactory());
 
-        this.client = new BanyanDBStorageClient(config.getHost(), config.getPort(), config.getGroup());
+        this.client = new BanyanDBStorageClient(config.getHost(), config.getPort());
 
         // Stream
         this.registerServiceImplementation(IBatchDAO.class, new BanyanDBBatchDAO(client, config.getMaxBulkSize(), config.getFlushInterval(), config.getConcurrentWriteThreads()));
@@ -133,6 +135,9 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.client.registerChecker(healthChecker);
         try {
             this.client.connect();
+            // create stream group
+            final Group streamGroup = new Group("default-stream", Catalog.STREAM, 2);
+            this.client.defineStreamGroup(streamGroup);
             BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, getManager());
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (Exception e) {
