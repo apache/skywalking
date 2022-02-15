@@ -27,6 +27,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -42,7 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @MeterFunction(functionName = "histogram")
 @Slf4j
 @ToString
-public abstract class HistogramFunction extends Metrics implements AcceptableValue<BucketedValues> {
+public abstract class HistogramFunction extends Meter implements AcceptableValue<BucketedValues> {
     public static final String DATASET = "dataset";
 
     @Setter
