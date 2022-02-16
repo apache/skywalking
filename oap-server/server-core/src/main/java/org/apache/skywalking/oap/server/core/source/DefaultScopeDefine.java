@@ -38,6 +38,11 @@ public class DefaultScopeDefine {
      * <p>
      * If you want to extend the scope, recommend to start with 10,000.
      */
+
+    /**
+     * @since 9.0.0
+     */
+    public static final int UNKNOWN = 0;
     public static final int ALL = 0;
     public static final int SERVICE = 1;
     public static final int SERVICE_INSTANCE = 2;
@@ -58,7 +63,9 @@ public class DefaultScopeDefine {
     public static final int SERVICE_INSTANCE_CLR_THREAD = 21;
     public static final int ENVOY_INSTANCE_METRIC = 22;
     public static final int ZIPKIN_SPAN = 23;
+    @Deprecated
     public static final int JAEGER_SPAN = 24;
+    @Deprecated
     public static final int HTTP_ACCESS_LOG = 25;
     public static final int PROFILE_TASK = 26;
     public static final int PROFILE_TASK_LOG = 27;

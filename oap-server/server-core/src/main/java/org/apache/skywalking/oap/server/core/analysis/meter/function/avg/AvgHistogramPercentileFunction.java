@@ -34,6 +34,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
@@ -63,7 +64,7 @@ import static java.util.stream.Collectors.mapping;
  */
 @MeterFunction(functionName = "avgHistogramPercentile")
 @Slf4j
-public abstract class AvgHistogramPercentileFunction extends Metrics implements AcceptableValue<PercentileArgument>, MultiIntValuesHolder {
+public abstract class AvgHistogramPercentileFunction extends Meter implements AcceptableValue<PercentileArgument>, MultiIntValuesHolder {
     private static final String DEFAULT_GROUP = "pD";
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
