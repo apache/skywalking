@@ -81,7 +81,7 @@ public class StorageEsInstaller extends ModelInstaller {
 
         boolean exist = templateExists && lastIndexExists;
 
-        if (exist && IndexController.INSTANCE.isMetricModel(model)) {
+        if (exist) {
             structures.putStructure(
                 tableName, template.get().getMappings()
             );
@@ -119,9 +119,7 @@ public class StorageEsInstaller extends ModelInstaller {
         String indexName = TimeSeriesUtils.latestWriteIndexName(model);
         try {
             boolean shouldUpdateTemplate = !esClient.isExistsTemplate(tableName);
-            if (IndexController.INSTANCE.isMetricModel(model)) {
-                shouldUpdateTemplate = shouldUpdateTemplate || !structures.containsStructure(tableName, mapping);
-            }
+            shouldUpdateTemplate = shouldUpdateTemplate || !structures.containsStructure(tableName, mapping);
             if (shouldUpdateTemplate) {
                 structures.putStructure(tableName, mapping);
                 boolean isAcknowledged = esClient.createOrUpdateTemplate(

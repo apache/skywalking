@@ -59,6 +59,7 @@ Release Notes.
 * [Break Change] Keep the endpoint avg resp time meter name the same with others scope. (This may break 3rd party integration and existing alarm rule settings)
 * Add Python FastApi component ID(7014).
 * Support all metrics from MAL engine in alarm core, including Prometheus, OC receiver, meter receiver.
+* Allow updating non-metrics templates when structure changed.
 
 #### UI
 
