@@ -34,7 +34,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      *
      * @since 8.7.0
      */
-    private int connectTimeout = 500;
+    private int connectTimeout = 3000;
     /**
      * Socket timeout of ElasticSearch client.
      *
