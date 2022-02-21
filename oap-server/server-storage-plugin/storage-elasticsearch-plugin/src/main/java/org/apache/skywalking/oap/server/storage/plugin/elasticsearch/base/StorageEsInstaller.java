@@ -200,12 +200,12 @@ public class StorageEsInstaller extends ModelInstaller {
     protected Mappings createMapping(Model model) {
         Map<String, Object> properties = new HashMap<>();
         for (ModelColumn columnDefine : model.getColumns()) {
+            final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType());
             if (columnDefine.isMatchQuery()) {
                 String matchCName = MatchCNameBuilder.INSTANCE.build(columnDefine.getColumnName().getName());
 
                 Map<String, Object> originalColumn = new HashMap<>();
-                originalColumn.put(
-                    "type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
+                originalColumn.put("type", type);
                 originalColumn.put("copy_to", matchCName);
                 properties.put(columnDefine.getColumnName().getName(), originalColumn);
 
@@ -215,9 +215,9 @@ public class StorageEsInstaller extends ModelInstaller {
                 properties.put(matchCName, matchColumn);
             } else {
                 Map<String, Object> column = new HashMap<>();
-                column.put(
-                    "type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
-                if (columnDefine.isStorageOnly()) {
+                column.put("type", type);
+                // no index parameter is allowed for binary type, since ES 8.0
+                if (columnDefine.isStorageOnly() && !"binary".equals(type)) {
                     column.put("index", false);
                 }
                 properties.put(columnDefine.getColumnName().getName(), column);
