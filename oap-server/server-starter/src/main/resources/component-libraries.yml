@@ -401,6 +401,15 @@ Apache-Kylin:
 GuavaEventBus:
   id: 123
   languages: Java
+AWSLambdaTrigger:
+  id: 124
+  languages: Java,C#,Node.js,Python
+AWSLambdaGatewayAPIHTTP:
+  id: 125
+  languages: Java,C#,Node.js,Python
+AWSLambdaGatewayAPIREST:
+  id: 126
+  languages: Java,C#,Node.js,Python
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
