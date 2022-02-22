@@ -336,21 +336,3 @@ filter {
     }
 }
 ```
-
-You can use `enforcer` and `dropper` to simulate a probabilistic sampler like this.
-
-```groovy
-filter {
-    // ... parser
-
-    sink {
-        sampler { // simulate a probabilistic sampler with sampler rate 30% (not accurate though)
-            if (Math.abs(Math.random()) > 0.3) {
-                enforcer {}
-            } else {
-                dropper {}
-            }
-        }
-    }
-}
-```
