@@ -25,10 +25,11 @@ CLI_VERSION ?= 0.9.0 # CLI version inside OAP image should always use an Apache 
 init:
 	cd $(SW_ROOT) && git submodule update --init --recursive
 
-.PHONY: build.all build.backend build.ui build.docker
+.PHONY: build.all build.backend build.ui build.docker docker.e2e-service
 
 build.all:
 	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST)
+	cd $(SW_ROOT) && ./mvnw --batch-mode -f test/e2e-v2/java-test-service/pom.xml clean package
 
 build.backend:
 	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pbackend,dist
@@ -36,18 +37,23 @@ build.backend:
 build.ui:
 	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pui,dist
 
+build.e2e-service:
+	cd $(SW_ROOT) && ./mvnw --batch-mode -f test/e2e-v2/java-test-service/pom.xml clean package
+
 DOCKER_BUILD_TOP:=${CONTEXT}/docker_build
 
 HUB ?= skywalking
 OAP_NAME ?= oap
 UI_NAME ?= ui
+E2E_SERVICE_PROVIDER_NAME = e2e-service-provider
+E2E_SERVICE_CONSUMER_NAME = e2e-service-consumer
 TAG ?= latest
 
 .PHONY: docker docker.all
 
 docker: init build.all docker.all
 
-DOCKER_TARGETS:=docker.oap docker.ui
+DOCKER_TARGETS:=docker.oap docker.ui docker.e2e-service-provider docker.e2e-service-consumer
 
 ifneq ($(SW_OAP_BASE_IMAGE),)
   BUILD_ARGS := $(BUILD_ARGS) --build-arg BASE_IMAGE=$(SW_OAP_BASE_IMAGE)
@@ -57,11 +63,16 @@ BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST) --build-arg SKYWALKING_CLI_
 
 %.ui: NAME = $(UI_NAME)
 %.oap: NAME = $(OAP_NAME)
+%.e2e-service-provider: NAME = $(E2E_SERVICE_PROVIDER_NAME)
+%.e2e-service-consumer: NAME = $(E2E_SERVICE_CONSUMER_NAME)
 
 docker.%: PLATFORMS =
 docker.%: LOAD_OR_PUSH = --load
 push.%: PLATFORMS = --platform linux/amd64,linux/arm64
 push.%: LOAD_OR_PUSH = --push
+
+docker.e2e-service-provider: ADDITIONAL_DEPS = $(SW_ROOT)/test/e2e-v2/java-test-service/e2e-service-provider/target/e2e-service-provider-2.0.0.jar
+docker.e2e-service-consumer: ADDITIONAL_DEPS = $(SW_ROOT)/test/e2e-v2/java-test-service/e2e-service-consumer/target/e2e-service-consumer-2.0.0.jar
 
 docker.% push.docker.%: $(CONTEXT)/$(DIST) $(SW_ROOT)/docker/%/*
 	$(DOCKER_RULE)
@@ -73,12 +84,12 @@ docker.push: $(DOCKER_TARGETS:%=push.%)
 # Rule Steps #
 ##############
 # 1. Make a directory $(DOCKER_BUILD_TOP)/$(NAME)
-# 2. This rule uses cp to copy all dependency filenames into into $(DOCKER_BUILD_TOP/$(NAME)
+# 2. This rule uses cp to copy all dependency filenames (together with additional dependencies if declared) into into $(DOCKER_BUILD_TOP/$(NAME)
 # 3. This rule finally runs docker build passing $(BUILD_ARGS) to docker if they are specified as a dependency variable
 
 define DOCKER_RULE
 	mkdir -p $(DOCKER_BUILD_TOP)/$(NAME)
-	cp -r $^ $(DOCKER_BUILD_TOP)/$(NAME)
+	cp -r $^ $(ADDITIONAL_DEPS) $(DOCKER_BUILD_TOP)/$(NAME)
 	docker buildx create --use --driver docker-container --name skywalking_main > /dev/null 2>&1 || true
 	docker buildx build $(PLATFORMS) $(LOAD_OR_PUSH) \
 		--no-cache $(BUILD_ARGS) \
