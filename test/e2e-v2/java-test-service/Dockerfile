@@ -14,8 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM eclipse-temurin:8u322-b06-jre-focal
+ARG BASE_IMAGE
+FROM $BASE_IMAGE
+ARG SERVICE_JAR
 
-COPY ./e2e-service-provider-2.0.0.jar /services_provider.jar
+COPY $SERVICE_JAR /app.jar
 
-CMD ["java", "-jar", "/services_provider.jar"]
+CMD ["java", "-jar", "/app.jar"]
