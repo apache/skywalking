@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: publish-docker
+name: publish-docker-e2e-service
 
 on:
   push:
