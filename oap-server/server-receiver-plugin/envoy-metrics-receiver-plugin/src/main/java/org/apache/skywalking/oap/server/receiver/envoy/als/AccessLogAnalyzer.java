@@ -70,7 +70,7 @@ public interface AccessLogAnalyzer<E> {
 
     @Data
     @Builder
-    class Result {
+    static class Result {
         /**
          * The service representing the Envoy node.
          */

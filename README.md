@@ -38,7 +38,7 @@ SkyWalking supports to collect telemetry (metrics, traces, and logs) data from m
 and multiple formats,
 including
 1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
-1. Go and C++ SDKs.
+1. Go, C++, and Rust SDKs.
 1. LUA agent especially for Nginx, OpenResty and Apache APISIX.
 1. Browser agent.
 1. Service Mesh Observability. Control plane and data plane. 
