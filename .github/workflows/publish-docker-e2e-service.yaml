@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: publish-docker-e2e-service
+name: Publish E2E service images
 
 on:
   push:
+    branches:
+      - master
     paths:
       - 'test/e2e-v2/java-test-service/**'
       - 'test/Makefile'
@@ -28,7 +30,7 @@ env:
 
 jobs:
   build:
-    if: github.repository == 'apache/skywalking' && github.ref == 'refs/heads/master'
+    if: github.repository == 'apache/skywalking'
     runs-on: ubuntu-latest
     permissions:
       contents: read
