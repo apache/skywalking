@@ -15,59 +15,43 @@
 # limitations under the License.
 
 SHELL := /bin/bash -o pipefail
+SW_ROOT := $(shell dirname $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
+CONTEXT := $(SW_ROOT)/test/e2e-v2/java-test-service
+DOCKER_BUILD_TOP:=${SW_ROOT}/dist/docker_build
+HUB ?= ghcr.io/apache/skywalking
+TAG ?= latest
+JRE ?= 8u322-b06-jre-focal
+BASE_IMAGE ?= eclipse-temurin:$(JRE)
 
-SW_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-CONTEXT ?= ${SW_ROOT}/dist
-SKIP_TEST ?= false
-DIST ?= apache-skywalking-apm-bin.tar.gz
-CLI_VERSION ?= 0.9.0 # CLI version inside OAP image should always use an Apache released artifact.
+E2E_SERVICE_PROVIDER_NAME = e2e-service-provider
+E2E_SERVICE_CONSUMER_NAME = e2e-service-consumer
 
+.PHONY: init
 init:
 	cd $(SW_ROOT) && git submodule update --init --recursive
 
-.PHONY: build.all build.backend build.ui build.docker
+.PHONY: build.e2e-service
+build.e2e-service:
+	cd $(SW_ROOT) && ./mvnw --batch-mode -f $(CONTEXT)/pom.xml clean package
 
-build.all:
-	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST)
+DOCKER_TARGETS:=docker.e2e-service-provider docker.e2e-service-consumer
 
-build.backend:
-	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pbackend,dist
+.PHONY: docker docker.e2e-service
+docker: init build.e2e-service docker.e2e-service
 
-build.ui:
-	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pui,dist
-
-DOCKER_BUILD_TOP:=${CONTEXT}/docker_build
-
-HUB ?= skywalking
-OAP_NAME ?= oap
-UI_NAME ?= ui
-TAG ?= latest
-
-.PHONY: docker docker.all
-
-docker: init build.all docker.all
-
-DOCKER_TARGETS:=docker.oap docker.ui
-
-ifneq ($(SW_OAP_BASE_IMAGE),)
-  BUILD_ARGS := $(BUILD_ARGS) --build-arg BASE_IMAGE=$(SW_OAP_BASE_IMAGE)
-endif
-
-BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST) --build-arg SKYWALKING_CLI_VERSION=$(CLI_VERSION)
-
-%.ui: NAME = $(UI_NAME)
-%.oap: NAME = $(OAP_NAME)
+%.e2e-service-provider: NAME = $(E2E_SERVICE_PROVIDER_NAME)
+%.e2e-service-consumer: NAME = $(E2E_SERVICE_CONSUMER_NAME)
 
 docker.%: PLATFORMS =
 docker.%: LOAD_OR_PUSH = --load
 push.%: PLATFORMS = --platform linux/amd64,linux/arm64
 push.%: LOAD_OR_PUSH = --push
 
-docker.% push.docker.%: $(CONTEXT)/$(DIST) $(SW_ROOT)/docker/%/*
+push.docker.e2e-service-% docker.e2e-service-%: $(CONTEXT)/Dockerfile
 	$(DOCKER_RULE)
 
-docker.all: $(DOCKER_TARGETS)
-docker.push: $(DOCKER_TARGETS:%=push.%)
+docker.e2e-service: $(DOCKER_TARGETS)
+docker.push-e2e-service: $(DOCKER_TARGETS:%=push.%)
 
 # $^ the name of the dependencies for the target
 # Rule Steps #
@@ -78,12 +62,14 @@ docker.push: $(DOCKER_TARGETS:%=push.%)
 
 define DOCKER_RULE
 	mkdir -p $(DOCKER_BUILD_TOP)/$(NAME)
-	cp -r $^ $(DOCKER_BUILD_TOP)/$(NAME)
-	docker buildx create --use --driver docker-container --name skywalking_main > /dev/null 2>&1 || true
+	cp -r $^ $(SW_ROOT)/test/e2e-v2/java-test-service/$(NAME)/target/$(NAME)-2.0.0.jar $(DOCKER_BUILD_TOP)/$(NAME)
+	docker buildx create --use --driver docker-container --name skywalking_test_service > /dev/null 2>&1 || true
 	docker buildx build $(PLATFORMS) $(LOAD_OR_PUSH) \
-		--no-cache $(BUILD_ARGS) \
+		--no-cache \
+		--build-arg SERVICE_JAR="./$(NAME)-2.0.0.jar" \
+		--build-arg BASE_IMAGE=$(BASE_IMAGE) \
 		-t $(HUB)/$(NAME):$(TAG) \
 		-t $(HUB)/$(NAME):latest \
 		$(DOCKER_BUILD_TOP)/$(NAME)
-	docker buildx rm skywalking_main || true
+	docker buildx rm skywalking_test_service || true
 endef
