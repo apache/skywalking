@@ -47,7 +47,7 @@ docker.%: LOAD_OR_PUSH = --load
 push.%: PLATFORMS = --platform linux/amd64,linux/arm64
 push.%: LOAD_OR_PUSH = --push
 
-push.docker.push-e2e-service-% docker.e2e-service-%: $(CONTEXT)/Dockerfile
+push.docker.e2e-service-% docker.e2e-service-%: $(CONTEXT)/Dockerfile
 	$(DOCKER_RULE)
 
 docker.e2e-service: $(DOCKER_TARGETS)
