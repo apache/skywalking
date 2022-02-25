@@ -64,6 +64,7 @@ Release Notes.
 * Support ElasticSearch 8 and add it into E2E tests.
 * Disable indexing for field `alarm_record.tags_raw_data` of binary type in ElasticSearch storage.
 * Fix Zipkin receiver wrong condition for decoding `gzip`. 
+* Add a new sampler (`possibility`) in LAL.
 
 #### UI
 
