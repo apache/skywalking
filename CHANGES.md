@@ -78,7 +78,7 @@ Release Notes.
 
 * Update backend-alarm.md doc, support op "=" to "==".
 * Update backend-meter.md doc .
-* Add <STAM: Enhancing Topology Auto Detection For A Highly Distributed and Large-Scale Application System> paper with CN version.
+* Add <STAM: Enhancing Topology Auto Detection For A Highly Distributed and Large-Scale Application System> paper.
 * Add Academy menu for recommending articles.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/112?closed=1)

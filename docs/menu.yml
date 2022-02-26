@@ -190,7 +190,7 @@ catalog:
       - name: "Query Protocol (GraphQL)"
         path: "/en/protocols/query-protocol"
   - name: "Academy"
-    path: "en/academy/list"
+    path: "/en/academy/list"
   - name: "FAQs"
     path: "/en/FAQ/readme"
   - name: "Changelog"
