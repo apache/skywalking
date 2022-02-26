@@ -25,6 +25,5 @@ HELMVERSION=${HELMVERSION:-'helm-v3.0.0'}
 
 if ! command -v helm &> /dev/null; then
   mkdir -p $BASE_DIR/helm && cd $BASE_DIR/helm
-  curl -sSL https://get.helm.sh/${HELMVERSION}-linux-amd64.tar.gz
-  tar xz -C $BIN_DIR --strip-components=1 linux-amd64/helm
+  curl -sSL https://get.helm.sh/${HELMVERSION}-linux-amd64.tar.gz | tar xz -C $BIN_DIR --strip-components=1 linux-amd64/helm
 fi
