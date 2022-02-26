@@ -3,8 +3,6 @@
 - Sheng Wu 吴 晟
 - wusheng@apache.org
 
-[![中文版本](https://img.shields.io/badge/Translation-%E4%B8%AD%E6%96%87-green)](stam-cn.md)
-
 ### Editor's note
 This paper was written by Sheng Wu, project founder, in 2017, to describe the fundamental theory of all current
 agent core concepts.
