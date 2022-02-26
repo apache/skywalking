@@ -36,6 +36,8 @@ catalog:
             path: "/en/concepts-and-designs/manual-sdk"
           - name: "Service Mesh probe"
             path: "/en/concepts-and-designs/service-mesh-probe"
+          - name: "STAM Paper, Streaming Topology Analysis Method"
+            path: "/en/papers/stam"
       - name: "Backend"
         catalog:
           - name: "Overview"
@@ -187,6 +189,8 @@ catalog:
         path: "/en/protocols/readme"
       - name: "Query Protocol (GraphQL)"
         path: "/en/protocols/query-protocol"
+  - name: "Academy"
+    path: "en/academy/list"
   - name: "FAQs"
     path: "/en/FAQ/readme"
   - name: "Changelog"
