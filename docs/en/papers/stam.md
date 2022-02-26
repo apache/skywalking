@@ -136,13 +136,13 @@ This paper described the STAM, which is to the best of our knowledge the best to
 We thank all contributors of Apache SkyWalking project for suggestions, code contributions to implement the STAM, and feedback from using the STAM and SkyWalking in their production environment.
 
 # License
-This paper and the STAM are licensed in the [Apache 2.0](LICENSE)
+This paper and the STAM are licensed in the Apache 2.0.
 
 # References
 
 1. Dapper, a Large-Scale Distributed Systems Tracing Infrastructure, https://research.google.com/pubs/pub36356.html?spm=5176.100239.blogcont60165.11.OXME9Z
 1. Apache SkyWalking, http://skywalking.apache.org/
-1. Apache Open Users, https://github.com/apache/skywalking/blob/master/docs/powered-by.md
+1. Apache Open Users, https://skywalking.apache.org/users/
 1. Zipkin, https://zipkin.io/
 1. Kubernetes, Production-Grade Container Orchestration. Automated container deployment, scaling, and management. https://kubernetes.io/
 1. OpenTracing Specification https://github.com/opentracing/specification/blob/master/specification.md
