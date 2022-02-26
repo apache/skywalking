@@ -25,5 +25,5 @@ BIN_DIR=$2
 if ! command -v istioctl &> /dev/null; then
   mkdir -p $BASE_DIR/istioctl && cd $BASE_DIR/istioctl
   curl -L https://istio.io/downloadIstio | sh -
-  cp istio-$ISTIO_VERSION/bin/istioctl $BIN_DIR
+  cp istio-$ISTIO_VERSION/bin/istioctl $BIN_DIR/istioctl
 fi

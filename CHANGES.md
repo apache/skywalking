@@ -15,6 +15,7 @@ Release Notes.
 * Migrate base Docker image to eclipse-temurin as adoptopenjdk is deprecated.
 * Add E2E test under Java 17.
 * Upgrade protoc to 3.19.2.
+* Add Istio 1.13.1 to E2E test matrix for verification.
 
 #### OAP Server
 
