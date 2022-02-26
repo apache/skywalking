@@ -16,6 +16,7 @@ Release Notes.
 * Add E2E test under Java 17.
 * Upgrade protoc to 3.19.2.
 * Add Istio 1.13.1 to E2E test matrix for verification.
+* Upgrade Apache parent pom version to 25.
 
 #### OAP Server
 

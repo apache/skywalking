@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
-        <version>21</version>
+        <version>25</version>
         <relativePath />
     </parent>
 
@@ -410,6 +410,13 @@
                     <source>${compiler.version}</source>
                     <target>${compiler.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>${compiler.version}</source>
+                    <target>${compiler.version}</target>
                 </configuration>
             </plugin>
             <plugin>
