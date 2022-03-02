@@ -62,7 +62,7 @@ public abstract class ModelInstaller implements ModelCreator.CreatingListener {
      * Installer implementation could use this API to request a column name replacement. This method delegates for
      * {@link ModelManipulator}.
      */
-    protected final void overrideColumnName(String columnName, String newName) {
+    protected void overrideColumnName(String columnName, String newName) {
         ModelManipulator modelOverride = moduleManager.find(CoreModule.NAME)
                                                       .provider()
                                                       .getService(ModelManipulator.class);
