@@ -6,7 +6,7 @@ dependency from Zipkin's trace.
 
 Use the following config to activate it.
 ```yaml
-receiver_zipkin:
+receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
     host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}

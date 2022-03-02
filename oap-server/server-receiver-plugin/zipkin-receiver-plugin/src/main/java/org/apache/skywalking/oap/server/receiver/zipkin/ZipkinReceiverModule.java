@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
  * zipkin backend.
  */
 public class ZipkinReceiverModule extends ModuleDefine {
-    public static final String NAME = "receiver_zipkin";
+    public static final String NAME = "receiver-zipkin";
 
     public ZipkinReceiverModule() {
         super(NAME);
