@@ -8,6 +8,9 @@ import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * @author jayxu
+ */
 public class MySQLTableInstallerTest {
     @Test
     public void test() throws Exception {
