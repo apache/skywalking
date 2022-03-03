@@ -257,7 +257,7 @@ public class DefaultScopeDefine {
     }
 
     /**
-     * Check whether current service belongs service catalog
+     * Check whether the given scope ID belongs service catalog
      *
      * @param scopeId represents an existing scope id.
      * @return true is current scope set {@link ScopeDeclaration#catalog()} == {@link #SERVICE_CATALOG_NAME}
@@ -267,7 +267,7 @@ public class DefaultScopeDefine {
     }
 
     /**
-     * Check whether current service belongs service instance catalog
+     * Check whether the given scope ID belongs service instance catalog
      *
      * @param scopeId represents an existing scope id.
      * @return true is current scope set {@link ScopeDeclaration#catalog()} == {@link #SERVICE_INSTANCE_CATALOG_NAME}
@@ -277,7 +277,7 @@ public class DefaultScopeDefine {
     }
 
     /**
-     * Check whether current service belongs endpoint catalog
+     * Check whether the given scope ID belongs endpoint catalog
      *
      * @param scopeId represents an existing scope id.
      * @return true is current scope set {@link ScopeDeclaration#catalog()} == {@link #ENDPOINT_CATALOG_NAME}
@@ -287,7 +287,7 @@ public class DefaultScopeDefine {
     }
 
     /**
-     * Check whether current service belongs service relation catalog
+     * Check whether the given scope ID belongs service relation catalog
      *
      * @param scopeId represents an existing scope id.
      * @return true is current scope set {@link ScopeDeclaration#catalog()} == {@link #SERVICE_RELATION_CATALOG_NAME}
@@ -297,7 +297,7 @@ public class DefaultScopeDefine {
     }
 
     /**
-     * Check whether current service belongs service instance relation catalog
+     * Check whether the given scope ID belongs service instance relation catalog
      *
      * @param scopeId represents an existing scope id.
      * @return true is current scope set {@link ScopeDeclaration#catalog()} == {@link #SERVICE_INSTANCE_RELATION_CATALOG_NAME}
@@ -307,7 +307,7 @@ public class DefaultScopeDefine {
     }
 
     /**
-     * Check whether current service belongs endpoint relation catalog
+     * Check whether the given scope ID belongs endpoint relation catalog
      *
      * @param scopeId represents an existing scope id.
      * @return true is current scope set {@link ScopeDeclaration#catalog()} == {@link #ENDPOINT_RELATION_CATALOG_NAME}
@@ -317,7 +317,7 @@ public class DefaultScopeDefine {
     }
 
     /**
-     * Check whether current service belongs process catalog
+     * Check whether the given scope ID belongs process catalog
      *
      * @param scopeId represents an existing scope id.
      * @return true is current scope set {@link ScopeDeclaration#catalog()} == {@link #PROCESS_CATALOG_NAME}

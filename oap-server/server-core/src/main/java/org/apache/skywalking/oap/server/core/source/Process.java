@@ -26,9 +26,8 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS_CATALOG_NAME;
 
-@ScopeDeclaration(id = PROCESS, name = "Process", catalog = PROCESS_CATALOG_NAME)
+@ScopeDeclaration(id = PROCESS, name = "Process")
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class Process extends Source {
     private volatile String entityId;
@@ -47,22 +46,17 @@ public class Process extends Source {
     }
 
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "instance_id")
     private String instanceId;
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
     private String serviceId;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "instance_name", requireDynamicActive = true)
     private String instanceName;
     @Getter
     @Setter

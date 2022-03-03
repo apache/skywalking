@@ -19,9 +19,8 @@ Instance and Endpoint are used everywhere today, so it is worth defining their s
 - **Service Instance**. Each individual workload in the Service group is known as an instance. Like `pods` in Kubernetes, it 
   doesn't need to be a single OS process, however, if you are using instrument agents, an instance is actually a real OS process.
 - **Endpoint**. A path in a service for incoming requests, such as an HTTP URI path or a gRPC service class + method signature. 
-- **Process**. Each independently running OS process in a Service Instance is a process. In some scenarios, a Service Instance is
-  not a process. such as pods in Kubernetes, each pod could have multiple OS Process, the pod could be a Service Instance, and 
-  the OS Process in each pod is a Process.
+- **Process**. An operating system process. In some scenarios, a Service Instance is
+  not a process, such as a pod Kubernetes could contain multiple processes.
 
 SkyWalking allows users to understand the topology relationship between Services and Endpoints, to view the metrics of every 
 Service/Service Instance/Endpoint and to set alarm rules.
