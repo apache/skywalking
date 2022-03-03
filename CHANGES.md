@@ -17,6 +17,16 @@ Release Notes.
 * Upgrade protoc to 3.19.2.
 * Add Istio 1.13.1 to E2E test matrix for verification.
 * Upgrade Apache parent pom version to 25.
+* Use the plugin version defined by the Apache maven parent.
+  * Upgrade maven-dependency-plugin to 3.2.0.
+  * Upgrade  maven-assembly-plugin to 3.3.0.
+  * Upgrade  maven-failsafe-plugin to 2.22.2.
+  * Upgrade  maven-surefire-plugin to 2.22.2.
+  * Upgrade  maven-jar-plugin to 3.2.2.
+  * Upgrade  maven-enforcer-plugin to 3.0.0.
+  * Upgrade  maven-compiler-plugin to 3.10.0.
+  * Upgrade  maven-resources-plugin to 3.2.0.
+  * Upgrade  maven-source-plugin to 3.2.1.
 
 #### OAP Server
 
@@ -67,6 +77,7 @@ Release Notes.
 * Disable indexing for field `alarm_record.tags_raw_data` of binary type in ElasticSearch storage.
 * Fix Zipkin receiver wrong condition for decoding `gzip`. 
 * Add a new sampler (`possibility`) in LAL.
+* Unify module name `receiver_zipkin` to `receiver-zipkin`, remove `receiver_jaeger` from `application.yaml`. 
 * Introduce the entity of Process type.
 
 #### UI

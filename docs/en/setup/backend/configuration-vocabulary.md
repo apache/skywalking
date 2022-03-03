@@ -200,7 +200,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | receiver-otel | default | A receiver for analyzing metrics data from OpenTelemetry. | - | - |
 | - | - | enabledHandlers| Enabled handlers for otel. | SW_OTEL_RECEIVER_ENABLED_HANDLERS | - |
 | - | - | enabledOcRules| Enabled metric rules for OC handler. | SW_OTEL_RECEIVER_ENABLED_OC_RULES | - |
-| receiver_zipkin |default|  A receiver for Zipkin traces. | - | - |
+| receiver-zipkin |default|  A receiver for Zipkin traces. | - | - |
 | - | - | restHost| Binding IP of RESTful services. |SW_RECEIVER_ZIPKIN_HOST|0.0.0.0|
 | - | - | restPort | Binding port of RESTful services. | SW_RECEIVER_ZIPKIN_PORT|9411|
 | - | - | restContextPath| Web context path of RESTful services. | SW_RECEIVER_ZIPKIN_CONTEXT_PATH|/|
