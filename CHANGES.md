@@ -78,6 +78,7 @@ Release Notes.
 * Fix Zipkin receiver wrong condition for decoding `gzip`. 
 * Add a new sampler (`possibility`) in LAL.
 * Unify module name `receiver_zipkin` to `receiver-zipkin`, remove `receiver_jaeger` from `application.yaml`. 
+* Introduce the entity of Process type.
 
 #### UI
 
