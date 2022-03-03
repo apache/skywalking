@@ -104,9 +104,6 @@ public class ProcessTraffic extends Metrics {
     public boolean combine(Metrics metrics) {
         final ProcessTraffic processTraffic = (ProcessTraffic) metrics;
         this.lastPingTimestamp = processTraffic.getLastPingTimestamp();
-        if (processTraffic.getDetectType() > 0) {
-            this.setDetectType(processTraffic.getDetectType());
-        }
         if (StringUtil.isNotBlank(processTraffic.getAgentId())) {
             this.agentId = processTraffic.getAgentId();
         }
