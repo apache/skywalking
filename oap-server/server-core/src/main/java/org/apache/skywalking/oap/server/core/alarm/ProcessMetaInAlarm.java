@@ -16,48 +16,38 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.metrics;
+package org.apache.skywalking.oap.server.core.alarm;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
-public class MetricsMetaInfo {
-    @Setter
-    @Getter
+@Setter
+@Getter
+public class ProcessMetaInAlarm extends MetaInAlarm {
     private String metricsName;
-    @Setter
-    @Getter
-    private int scope;
-    @Setter
-    @Getter
+
     private String id;
-    @Setter
-    @Getter
-    private MetricsEntityMetaInfo entity;
+    private String name;
 
-    public MetricsMetaInfo(String metricsName, int scope) {
-        this.metricsName = metricsName;
-        this.scope = scope;
-        this.id = Const.EMPTY_STRING;
-    }
-
-    public MetricsMetaInfo(String metricsName, int scope, String id) {
-        this.metricsName = metricsName;
-        this.scope = scope;
-        this.id = id;
-    }
-
-    public MetricsMetaInfo(String metricsName, int scope, String id, MetricsEntityMetaInfo entity) {
-        this.metricsName = metricsName;
-        this.scope = scope;
-        this.id = id;
-        this.entity = entity;
+    @Override
+    public String getScope() {
+        return DefaultScopeDefine.PROCESS_CATALOG_NAME;
     }
 
     @Override
-    public String toString() {
-        return "MetricsMetaInfo{" + "metricsName='" + metricsName + '\'' + ", scope=" + scope + ", id='" + id + '\''
-                + ", entity=" + entity + '}';
+    public int getScopeId() {
+        return DefaultScopeDefine.PROCESS;
+    }
+
+    @Override
+    public String getId0() {
+        return id;
+    }
+
+    @Override
+    public String getId1() {
+        return Const.EMPTY_STRING;
     }
 }

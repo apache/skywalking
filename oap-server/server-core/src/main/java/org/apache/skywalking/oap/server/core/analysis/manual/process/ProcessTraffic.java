@@ -67,12 +67,12 @@ public class ProcessTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = INSTANCE_ID)
+    @Column(columnName = INSTANCE_ID, length = 600)
     private String instanceId;
 
     @Setter
     @Getter
-    @Column(columnName = NAME)
+    @Column(columnName = NAME, length = 500)
     private String name;
 
     @Setter
@@ -92,7 +92,7 @@ public class ProcessTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = AGENT_ID)
+    @Column(columnName = AGENT_ID, length = 500)
     private String agentId;
 
     @Setter
