@@ -92,6 +92,8 @@ public class DefaultScopeDefine {
 
     public static final int SERVICE_INSTANCE_JVM_CLASS = 44;
 
+    public static final int PROCESS = 45;
+
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */
@@ -101,6 +103,7 @@ public class DefaultScopeDefine {
     public static final String SERVICE_RELATION_CATALOG_NAME = "SERVICE_RELATION";
     public static final String SERVICE_INSTANCE_RELATION_CATALOG_NAME = "SERVICE_INSTANCE_RELATION";
     public static final String ENDPOINT_RELATION_CATALOG_NAME = "ENDPOINT_RELATION";
+    public static final String PROCESS_CATALOG_NAME = "PROCESS";
 
     private static final Map<Integer, Boolean> SERVICE_CATALOG = new HashMap<>();
     private static final Map<Integer, Boolean> SERVICE_INSTANCE_CATALOG = new HashMap<>();

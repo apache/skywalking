@@ -512,3 +512,7 @@ configuration-discovery:
 receiver-event:
   selector: ${SW_RECEIVER_EVENT:default}
   default:
+
+receiver-ebpf:
+  selector: ${SW_RECEIVER_EBPF:default}
+  default:
