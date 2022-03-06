@@ -19,8 +19,10 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import com.google.common.base.Strings;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -114,7 +116,7 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
 
     @Override
     public boolean combine(final Metrics metrics) {
-        final Event event = (Event)metrics;
+        final Event event = (Event) metrics;
 
         value++;
 
@@ -261,17 +263,17 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
         @Override
         public Event storage2Entity(Map<String, Object> dbMap) {
             Event record = new Event();
-            record.setUuid((String)dbMap.get(UUID));
-            record.setService((String)dbMap.get(SERVICE));
-            record.setServiceInstance((String)dbMap.get(SERVICE_INSTANCE));
-            record.setEndpoint((String)dbMap.get(ENDPOINT));
-            record.setName((String)dbMap.get(NAME));
-            record.setType((String)dbMap.get(TYPE));
-            record.setMessage((String)dbMap.get(MESSAGE));
-            record.setParameters((String)dbMap.get(PARAMETERS));
-            record.setStartTime(((Number)dbMap.get(START_TIME)).longValue());
-            record.setEndTime(((Number)dbMap.get(END_TIME)).longValue());
-            record.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
+            record.setUuid((String) dbMap.get(UUID));
+            record.setService((String) dbMap.get(SERVICE));
+            record.setServiceInstance((String) dbMap.get(SERVICE_INSTANCE));
+            record.setEndpoint((String) dbMap.get(ENDPOINT));
+            record.setName((String) dbMap.get(NAME));
+            record.setType((String) dbMap.get(TYPE));
+            record.setMessage((String) dbMap.get(MESSAGE));
+            record.setParameters((String) dbMap.get(PARAMETERS));
+            record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
+            record.setEndTime(((Number) dbMap.get(END_TIME)).longValue());
+            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             return record;
         }
     }
