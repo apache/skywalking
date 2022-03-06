@@ -37,8 +37,8 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 
 @Getter
 @Setter
@@ -73,6 +73,8 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
 
     public static final String END_TIME = "end_time";
 
+    private static final int PARAMETER_MAX_LENGTH = 2000;
+
     @Override
     protected String id0() {
         return getUuid();
@@ -99,7 +101,7 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
     @Column(columnName = MESSAGE)
     private String message;
 
-    @Column(columnName = PARAMETERS, storageOnly = true, length = 1024)
+    @Column(columnName = PARAMETERS, storageOnly = true, length = PARAMETER_MAX_LENGTH)
     private String parameters;
 
     @Column(columnName = START_TIME)
@@ -112,7 +114,7 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
 
     @Override
     public boolean combine(final Metrics metrics) {
-        final Event event = (Event) metrics;
+        final Event event = (Event)metrics;
 
         value++;
 
@@ -144,6 +146,13 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
             setParameters(event.getParameters());
         }
         return true;
+    }
+
+    /**
+     * @since 9.0.0 Limit the length of {@link #parameters}
+     */
+    public void setParameters(String parameters) {
+        this.parameters = parameters.length() > PARAMETER_MAX_LENGTH ? parameters.substring(0, PARAMETER_MAX_LENGTH) : parameters;
     }
 
     @Override
@@ -252,17 +261,17 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
         @Override
         public Event storage2Entity(Map<String, Object> dbMap) {
             Event record = new Event();
-            record.setUuid((String) dbMap.get(UUID));
-            record.setService((String) dbMap.get(SERVICE));
-            record.setServiceInstance((String) dbMap.get(SERVICE_INSTANCE));
-            record.setEndpoint((String) dbMap.get(ENDPOINT));
-            record.setName((String) dbMap.get(NAME));
-            record.setType((String) dbMap.get(TYPE));
-            record.setMessage((String) dbMap.get(MESSAGE));
-            record.setParameters((String) dbMap.get(PARAMETERS));
-            record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
-            record.setEndTime(((Number) dbMap.get(END_TIME)).longValue());
-            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            record.setUuid((String)dbMap.get(UUID));
+            record.setService((String)dbMap.get(SERVICE));
+            record.setServiceInstance((String)dbMap.get(SERVICE_INSTANCE));
+            record.setEndpoint((String)dbMap.get(ENDPOINT));
+            record.setName((String)dbMap.get(NAME));
+            record.setType((String)dbMap.get(TYPE));
+            record.setMessage((String)dbMap.get(MESSAGE));
+            record.setParameters((String)dbMap.get(PARAMETERS));
+            record.setStartTime(((Number)dbMap.get(START_TIME)).longValue());
+            record.setEndTime(((Number)dbMap.get(END_TIME)).longValue());
+            record.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
             return record;
         }
     }
