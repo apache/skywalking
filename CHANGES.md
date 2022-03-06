@@ -80,6 +80,7 @@ Release Notes.
 * Unify module name `receiver_zipkin` to `receiver-zipkin`, remove `receiver_jaeger` from `application.yaml`. 
 * Introduce the entity of Process type.
 * Set the length of event#parameters to 2000.
+* Limit the length of Event#parameters.
 
 #### UI
 

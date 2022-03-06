@@ -19,8 +19,10 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import com.google.common.base.Strings;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,8 +39,8 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 
 @Getter
 @Setter
@@ -73,6 +75,8 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
 
     public static final String END_TIME = "end_time";
 
+    private static final int PARAMETER_MAX_LENGTH = 2000;
+
     @Override
     protected String id0() {
         return getUuid();
@@ -99,7 +103,7 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
     @Column(columnName = MESSAGE)
     private String message;
 
-    @Column(columnName = PARAMETERS, storageOnly = true, length = 20000)
+    @Column(columnName = PARAMETERS, storageOnly = true, length = PARAMETER_MAX_LENGTH)
     private String parameters;
 
     @Column(columnName = START_TIME)
@@ -144,6 +148,14 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
             setParameters(event.getParameters());
         }
         return true;
+    }
+
+    /**
+     * @since 9.0.0 Limit the length of {@link #parameters}
+     */
+    public void setParameters(String parameters) {
+        this.parameters = parameters == null || parameters.length() <= PARAMETER_MAX_LENGTH ?
+                parameters : parameters.substring(0, PARAMETER_MAX_LENGTH);
     }
 
     @Override
