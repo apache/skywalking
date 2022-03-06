@@ -154,7 +154,8 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
      * @since 9.0.0 Limit the length of {@link #parameters}
      */
     public void setParameters(String parameters) {
-        this.parameters = parameters.length() > PARAMETER_MAX_LENGTH ? parameters.substring(0, PARAMETER_MAX_LENGTH) : parameters;
+        this.parameters = parameters == null || parameters.length() <= PARAMETER_MAX_LENGTH ?
+                parameters : parameters.substring(0, PARAMETER_MAX_LENGTH);
     }
 
     @Override
