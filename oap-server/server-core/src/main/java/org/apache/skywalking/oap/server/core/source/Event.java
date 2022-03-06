@@ -99,7 +99,7 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
     @Column(columnName = MESSAGE)
     private String message;
 
-    @Column(columnName = PARAMETERS, storageOnly = true, length = 1024)
+    @Column(columnName = PARAMETERS, storageOnly = true, length = 20000)
     private String parameters;
 
     @Column(columnName = START_TIME)
