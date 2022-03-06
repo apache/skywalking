@@ -77,6 +77,7 @@ Release Notes.
 * Disable indexing for field `alarm_record.tags_raw_data` of binary type in ElasticSearch storage.
 * Fix Zipkin receiver wrong condition for decoding `gzip`. 
 * Add a new sampler (`possibility`) in LAL.
+* Set the length of event#parameters to 2000.
 
 #### UI
 
