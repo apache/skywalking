@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.core.analysis;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+
+import com.google.common.base.Charsets;
+import com.google.common.hash.Hashing;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -249,6 +252,21 @@ public class IDManager {
              */
             private final String destServiceId;
             private final String dest;
+        }
+    }
+
+    /**
+     * Process ID related functions.
+     */
+    public static class ProcessID {
+        /**
+         * @param instanceId built by {@link ServiceInstanceID#buildId(String, String)}
+         * @param name process name
+         * @return process id
+         */
+        public static String buildId(String instanceId, String name) {
+            return Hashing.sha256().newHasher().putString(String.format("%s_%s",
+                    name, instanceId), Charsets.UTF_8).hash().toString();
         }
     }
 

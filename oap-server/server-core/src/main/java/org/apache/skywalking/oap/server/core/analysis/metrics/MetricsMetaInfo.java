@@ -32,6 +32,9 @@ public class MetricsMetaInfo {
     @Setter
     @Getter
     private String id;
+    @Setter
+    @Getter
+    private MetricsEntityMetaInfo entity;
 
     public MetricsMetaInfo(String metricsName, int scope) {
         this.metricsName = metricsName;
@@ -45,8 +48,16 @@ public class MetricsMetaInfo {
         this.id = id;
     }
 
+    public MetricsMetaInfo(String metricsName, int scope, String id, MetricsEntityMetaInfo entity) {
+        this.metricsName = metricsName;
+        this.scope = scope;
+        this.id = id;
+        this.entity = entity;
+    }
+
     @Override
     public String toString() {
-        return "MetricsMetaInfo{" + "metricsName='" + metricsName + '\'' + ", scope=" + scope + ", id='" + id + '\'' + '}';
+        return "MetricsMetaInfo{" + "metricsName='" + metricsName + '\'' + ", scope=" + scope + ", id='" + id + '\''
+                + ", entity=" + entity + '}';
     }
 }

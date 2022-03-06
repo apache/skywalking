@@ -77,6 +77,8 @@ Release Notes.
 * Disable indexing for field `alarm_record.tags_raw_data` of binary type in ElasticSearch storage.
 * Fix Zipkin receiver wrong condition for decoding `gzip`. 
 * Add a new sampler (`possibility`) in LAL.
+* Unify module name `receiver_zipkin` to `receiver-zipkin`, remove `receiver_jaeger` from `application.yaml`. 
+* Introduce the entity of Process type.
 * Set the length of event#parameters to 2000.
 
 #### UI

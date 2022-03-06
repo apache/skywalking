@@ -45,6 +45,7 @@
         <module>configuration-discovery-receiver-plugin</module>
         <module>skywalking-event-receiver-plugin</module>
         <module>skywalking-zabbix-receiver-plugin</module>
+        <module>skywalking-ebpf-receiver-plugin</module>
     </modules>
 
     <dependencies>

@@ -383,7 +383,7 @@ receiver-otel:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
     enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane"}
 
-receiver_zipkin:
+receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
     host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
@@ -395,12 +395,6 @@ receiver_zipkin:
     jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
     jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
     instanceNameRule: ${SW_RECEIVER_ZIPKIN_INSTANCE_NAME_RULE:[spring.instance_id,node_id]}
-
-receiver_jaeger:
-  selector: ${SW_RECEIVER_JAEGER:-}
-  default:
-    gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
-    gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
 
 receiver-browser:
   selector: ${SW_RECEIVER_BROWSER:default}
@@ -511,4 +505,8 @@ configuration-discovery:
 
 receiver-event:
   selector: ${SW_RECEIVER_EVENT:default}
+  default:
+
+receiver-ebpf:
+  selector: ${SW_RECEIVER_EBPF:default}
   default:

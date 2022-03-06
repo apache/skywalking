@@ -16,26 +16,38 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin;
+package org.apache.skywalking.oap.server.core.alarm;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
-/**
- * Zipkin receiver module provides the HTTP, protoc serve for any SDK or agent by following Zipkin format.
- * <p>
- * At this moment, Zipkin format is not compatible with SkyWalking, especially HEADERs. Please don't consider this as a
- * Zipkin-SkyWalking integration, it is provided for adding analysis, aggregation and visualization capabilities to
- * zipkin backend.
- */
-public class ZipkinReceiverModule extends ModuleDefine {
-    public static final String NAME = "receiver-zipkin";
+@Setter
+@Getter
+public class ProcessMetaInAlarm extends MetaInAlarm {
+    private String metricsName;
 
-    public ZipkinReceiverModule() {
-        super(NAME);
+    private String id;
+    private String name;
+
+    @Override
+    public String getScope() {
+        return DefaultScopeDefine.PROCESS_CATALOG_NAME;
     }
 
     @Override
-    public Class[] services() {
-        return new Class[0];
+    public int getScopeId() {
+        return DefaultScopeDefine.PROCESS;
+    }
+
+    @Override
+    public String getId0() {
+        return id;
+    }
+
+    @Override
+    public String getId1() {
+        return Const.EMPTY_STRING;
     }
 }

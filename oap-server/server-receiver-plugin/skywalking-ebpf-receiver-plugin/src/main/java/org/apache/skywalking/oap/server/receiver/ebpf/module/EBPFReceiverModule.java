@@ -16,21 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin;
+package org.apache.skywalking.oap.server.receiver.ebpf.module;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-/**
- * Zipkin receiver module provides the HTTP, protoc serve for any SDK or agent by following Zipkin format.
- * <p>
- * At this moment, Zipkin format is not compatible with SkyWalking, especially HEADERs. Please don't consider this as a
- * Zipkin-SkyWalking integration, it is provided for adding analysis, aggregation and visualization capabilities to
- * zipkin backend.
- */
-public class ZipkinReceiverModule extends ModuleDefine {
-    public static final String NAME = "receiver-zipkin";
+public class EBPFReceiverModule extends ModuleDefine {
 
-    public ZipkinReceiverModule() {
+    public static final String NAME = "receiver-ebpf";
+
+    public EBPFReceiverModule() {
         super(NAME);
     }
 
