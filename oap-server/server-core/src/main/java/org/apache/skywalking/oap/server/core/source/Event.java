@@ -155,7 +155,7 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
      */
     public void setParameters(String parameters) {
         this.parameters = parameters == null || parameters.length() <= PARAMETER_MAX_LENGTH ?
-                parameters : parameters.substring(0, PARAMETER_MAX_LENGTH);
+            parameters : parameters.substring(0, PARAMETER_MAX_LENGTH);
     }
 
     @Override
