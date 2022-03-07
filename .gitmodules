@@ -7,3 +7,6 @@
 [submodule "test/e2e-v2/java-test-service/e2e-protocol/src/main/proto"]
 	path = test/e2e-v2/java-test-service/e2e-protocol/src/main/proto
 	url = https://github.com/apache/skywalking-data-collect-protocol.git
+[submodule "skywalking-ui"]
+	path = skywalking-ui
+	url = https://github.com/apache/skywalking-booster-ui.git
