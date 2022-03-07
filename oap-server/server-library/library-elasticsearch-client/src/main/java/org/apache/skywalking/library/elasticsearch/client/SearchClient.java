@@ -22,13 +22,14 @@ import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.util.Exceptions;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
+import org.apache.skywalking.library.elasticsearch.requests.search.Scroll;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 
 @Slf4j
@@ -40,7 +41,7 @@ public final class SearchClient {
 
     @SneakyThrows
     public SearchResponse search(Search criteria,
-                                 Map<String, ?> params,
+                                 SearchParams params,
                                  String... index) {
         final CompletableFuture<SearchResponse> future =
             version.thenCompose(
@@ -68,6 +69,35 @@ public final class SearchClient {
             }
             if (log.isDebugEnabled()) {
                 log.debug("Succeeded to search index {}, {}", index, result);
+            }
+        });
+        return future.get();
+    }
+
+    @SneakyThrows
+    public SearchResponse scroll(Scroll scroll) {
+        final CompletableFuture<SearchResponse> future =
+            version.thenCompose(
+                v -> client.execute(v.requestFactory().search().scroll(scroll))
+                           .aggregate().thenApply(response -> {
+                        if (response.status() != HttpStatus.OK) {
+                            throw new RuntimeException(response.contentUtf8());
+                        }
+
+                        try (final HttpData content = response.content();
+                             final InputStream is = content.toInputStream()) {
+                            return v.codec().decode(is, SearchResponse.class);
+                        } catch (Exception e) {
+                            return Exceptions.throwUnsafely(e);
+                        }
+                    }));
+        future.whenComplete((result, exception) -> {
+            if (exception != null) {
+                log.error("Failed to scroll, request {}, {}", scroll, exception);
+                return;
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Succeeded to scroll, {}", result);
             }
         });
         return future.get();

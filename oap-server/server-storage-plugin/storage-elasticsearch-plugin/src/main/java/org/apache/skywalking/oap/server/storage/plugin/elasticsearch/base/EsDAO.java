@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import java.time.Duration;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 
 public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
+    protected static final Duration SCROLL_CONTEXT_RETENTION = Duration.ofSeconds(30);
 
     public EsDAO(ElasticSearchClient client) {
         super(client);
