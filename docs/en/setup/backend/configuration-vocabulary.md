@@ -106,7 +106,8 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | flushInterval| Period of flush (in seconds). Does not matter whether `bulkActions` is reached or not. INT(flushInterval * 2/3) is used for index refresh period. | SW_STORAGE_ES_FLUSH_INTERVAL | 15 (index refresh period = 10)|
 | - | - | concurrentRequests| The number of concurrent requests allowed to be executed. | SW_STORAGE_ES_CONCURRENT_REQUESTS| 2 |
 | - | - | resultWindowMaxSize | The maximum size of dataset when the OAP loads cache, such as network aliases. | SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE | 10000|
-| - | - | metadataQueryMaxSize | The maximum size of metadata per query. | SW_STORAGE_ES_QUERY_MAX_SIZE | 5000 |
+| - | - | metadataQueryMaxSize | The maximum size of metadata per query. | SW_STORAGE_ES_QUERY_MAX_SIZE | 10000 |
+| - | - | scrollingBatchSize | The batch size of metadata per iteration when `metadataQueryMaxSize` or `resultWindowMaxSize` is too large to be retrieved in a single query. | SW_STORAGE_ES_SCROLLING_BATCH_SIZE | 5000 |
 | - | - | segmentQueryMaxSize | The maximum size of trace segments per query. | SW_STORAGE_ES_QUERY_SEGMENT_SIZE | 200|
 | - | - | profileTaskQueryMaxSize | The maximum size of profile task per query. | SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE | 200|
 | - | - | advanced | All settings of ElasticSearch index creation. The value should be in JSON format. | SW_STORAGE_ES_ADVANCED | - |
