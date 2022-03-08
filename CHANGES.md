@@ -82,13 +82,14 @@ Release Notes.
 * Introduce the entity of Process type.
 * Set the length of event#parameters to 2000.
 * Limit the length of Event#parameters.
-* Introduce booster-ui and implement template management protocol.
+* Implement v9 UI template management protocol.
 
 #### UI
 
 * Remove unused jars (log4j-api.jar) in classpath.
 * Bump up netty version to fix CVE.
 * Add Database Connection pool metric.
+* Introduce skywalking-booster-ui, remove skywalking-rocketbot-ui.
 
 #### Documentation
 
