@@ -40,6 +40,7 @@ import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
 import org.apache.skywalking.library.elasticsearch.bulk.BulkProcessor;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.response.Document;
 import org.apache.skywalking.library.elasticsearch.response.Index;
 import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
@@ -254,19 +255,27 @@ public class ElasticSearchClient implements Client, HealthCheckable {
                   .toArray(String[]::new);
         return es.get().search(
             search,
-            ImmutableMap.of(
-                "ignore_unavailable", true,
-                "allow_no_indices", true,
-                "expand_wildcards", "open"
-            ),
-            indexNames
-        );
+            new SearchParams()
+                .ignoreUnavailable(true)
+                .allowNoIndices(true)
+                .expandWildcards("open"),
+            indexNames);
     }
 
     public SearchResponse search(String indexName, Search search) {
         indexName = indexNameConverter.apply(indexName);
 
         return es.get().search(search, indexName);
+    }
+
+    public SearchResponse search(String indexName, Search search, SearchParams params) {
+        indexName = indexNameConverter.apply(indexName);
+
+        return es.get().search(search, params, indexName);
+    }
+
+    public SearchResponse scroll(Duration contextRetention, String scrollId) {
+        return es.get().scroll(contextRetention, scrollId);
     }
 
     public Optional<Document> get(String indexName, String id) {

@@ -82,6 +82,9 @@ Release Notes.
 * Introduce the entity of Process type.
 * Set the length of event#parameters to 2000.
 * Limit the length of Event#parameters.
+* Support large service/instance/networkAddressAlias list query by using ElasticSearch scrolling API, add `metadataQueryBatchSize` to configure scrolling page size.
+* Change default value of `metadataQueryMaxSize` from `5000` to `10000`
+* Replace deprecated Armeria API `BasicToken.of` with `AuthToken.ofBasic`.
 * Implement v9 UI template management protocol.
 
 #### UI
