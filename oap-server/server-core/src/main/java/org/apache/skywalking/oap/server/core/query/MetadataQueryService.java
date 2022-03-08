@@ -20,14 +20,18 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.EndpointInfo;
+import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -96,6 +100,20 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         endpointInfo.setServiceId(endpointIDDefinition.getServiceId());
         endpointInfo.setServiceName(serviceIDDefinition.getName());
         return endpointInfo;
+    }
+
+    public List<Process> listProcesses(final String serviceId, final String instanceId) throws IOException {
+        if (StringUtils.isEmpty(serviceId) && StringUtils.isEmpty(instanceId)) {
+            return Collections.emptyList();
+        }
+        return getMetadataQueryDAO().listProcesses(serviceId, instanceId);
+    }
+
+    public Process getProcess(String processId) throws IOException {
+        if (StringUtils.isEmpty(processId)) {
+            return null;
+        }
+        return getMetadataQueryDAO().getProcess(processId);
     }
 
     private List<Service> combineServices(List<Service> services) {
