@@ -68,7 +68,6 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
 
         if (Objects.nonNull(series)) {
             List<String> columnNames = series.getColumns();
-            final int size = series.getValues().size();
             List<Object> columnValues = series.getValues().get(0);
 
             Map<String, Object> data = Maps.newHashMap();
