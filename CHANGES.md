@@ -82,6 +82,7 @@ Release Notes.
 * Introduce the entity of Process type.
 * Set the length of event#parameters to 2000.
 * Limit the length of Event#parameters.
+* Introduce booster-ui and implement template management protocol.
 
 #### UI
 

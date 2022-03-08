@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.influxdb.dto.Point;
@@ -49,12 +50,45 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
     private final InfluxClient client;
 
     @Override
-    public List<DashboardConfiguration> getAllTemplates(final Boolean includingDisabled) throws IOException {
+    public DashboardConfiguration getTemplate(final String id) throws IOException {
+        if (StringUtil.isEmpty(id)) {
+            return null;
+        }
+
+        final SelectQueryImpl query = select().all()
+                                              .from(client.getDatabase(), UITemplate.INDEX_NAME)
+                                              .where(eq(InfluxConstants.TagName.ID_COLUMN, id))
+                                              .limit(1);
+
+        final QueryResult.Series series = client.queryForSingleSeries(query);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result: {}", query.getCommand(), series);
+        }
+        final UITemplate.Builder builder = new UITemplate.Builder();
+
+        if (Objects.nonNull(series)) {
+            List<String> columnNames = series.getColumns();
+            final int size = series.getValues().size();
+            List<Object> columnValues = series.getValues().get(0);
+
+            Map<String, Object> data = Maps.newHashMap();
+            for (int i = 1; i < columnNames.size(); i++) {
+                data.put(columnNames.get(i), columnValues.get(i));
+            }
+            UITemplate uiTemplate = builder.storage2Entity(data);
+            return new DashboardConfiguration().fromEntity(uiTemplate);
+
+        }
+        return null;
+    }
+
+    @Override
+    public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> where = select().raw("*::field")
                                                               .from(client.getDatabase(), UITemplate.INDEX_NAME)
                                                               .where();
         if (!includingDisabled) {
-            where.and(eq(UITemplate.DISABLED, BooleanUtils.FALSE));
+            where.and(eq(UITemplate.DISABLED, BooleanUtils.booleanToValue(includingDisabled)));
         }
         final QueryResult.Series series = client.queryForSingleSeries(where);
         final List<DashboardConfiguration> configs = new ArrayList<>();
@@ -88,7 +122,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
                                  .time(1L, TimeUnit.NANOSECONDS)
                                  .build();
         client.write(point);
-        return TemplateChangeStatus.builder().status(true).build();
+        return TemplateChangeStatus.builder().status(true).id(setting.getId()).build();
     }
 
     @Override
@@ -108,28 +142,28 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
                                      .time(1L, TimeUnit.NANOSECONDS)
                                      .build();
             client.write(point);
-            return TemplateChangeStatus.builder().status(true).build();
+            return TemplateChangeStatus.builder().status(true).id(setting.getId()).build();
         } else {
-            return TemplateChangeStatus.builder().status(false).message("Can't find the template").build();
+            return TemplateChangeStatus.builder().status(false).id(setting.getId()).message("Can't find the template").build();
         }
     }
 
     @Override
-    public TemplateChangeStatus disableTemplate(final String name) throws IOException {
+    public TemplateChangeStatus disableTemplate(final String id) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select().all()
                                                         .from(client.getDatabase(), UITemplate.INDEX_NAME)
-                                                        .where(eq(InfluxConstants.TagName.ID_COLUMN, name));
+                                                        .where(eq(InfluxConstants.TagName.ID_COLUMN, id));
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (Objects.nonNull(series)) {
             final Point point = Point.measurement(UITemplate.INDEX_NAME)
-                                     .tag(InfluxConstants.TagName.ID_COLUMN, name)
+                                     .tag(InfluxConstants.TagName.ID_COLUMN, id)
                                      .addField(UITemplate.DISABLED, BooleanUtils.TRUE)
                                      .time(1L, TimeUnit.NANOSECONDS)
                                      .build();
             client.write(point);
-            return TemplateChangeStatus.builder().status(true).build();
+            return TemplateChangeStatus.builder().status(true).id(id).build();
         } else {
-            return TemplateChangeStatus.builder().status(false).message("Can't find the template").build();
+            return TemplateChangeStatus.builder().status(false).id(id).message("Can't find the template").build();
         }
     }
 }

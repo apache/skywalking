@@ -21,23 +21,20 @@ package org.apache.skywalking.oap.server.core.query.input;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
-import org.apache.skywalking.oap.server.core.query.enumeration.TemplateType;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
 @Setter
 @Getter
 public class DashboardSetting {
-    private String name;
-    private TemplateType type;
+    private String id;
     private String configuration;
-    private boolean active;
+    private long updateTime;
 
     public UITemplate toEntity() {
         UITemplate uiTemplate = new UITemplate();
-        uiTemplate.setName(this.getName());
+        uiTemplate.setTemplateId(this.id);
         uiTemplate.setConfiguration(this.getConfiguration());
-        uiTemplate.setType(this.getType().name());
-        uiTemplate.setActivated(BooleanUtils.booleanToValue(this.isActive()));
+        uiTemplate.setUpdateTime(this.updateTime);
         uiTemplate.setDisabled(BooleanUtils.FALSE);
         return uiTemplate;
     }

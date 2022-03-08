@@ -23,11 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.core.query.enumeration.TemplateType;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -53,44 +49,7 @@ public class UITemplateInitializer {
 
     public List<UITemplate> read() {
         List<UITemplate> uiTemplates = new ArrayList<>();
-        if (Objects.nonNull(yamlData)) {
-            List templates = (List) yamlData.get("templates");
-            if (templates != null) {
-                templates.forEach(templateObj -> {
-                    final Map template = (Map) templateObj;
-                    UITemplate newTemplate = new UITemplate();
-                    final String name = (String) template.get("name");
-                    if (StringUtil.isEmpty(name)) {
-                        throw new IllegalArgumentException("template name shouldn't be null");
-                    }
-                    newTemplate.setName(name);
-                    final String type = (String) template.getOrDefault("type", TemplateType.DASHBOARD.name());
-                    TemplateType.forName(type); // for checking.
-                    newTemplate.setType(type);
-                    final String configuration = (String) template.get("configuration");
-                    if (StringUtil.isEmpty(configuration)) {
-                        throw new IllegalArgumentException("template configuration shouldn't be null");
-                    }
-                    newTemplate.setConfiguration(configuration);
-                    newTemplate.setActivated(
-                        BooleanUtils.booleanToValue(
-                            // The template should be activated in default, it is just an option.
-                            (Boolean) template.getOrDefault("activated", false)
-                        )
-                    );
-                    newTemplate.setDisabled(
-                        BooleanUtils.booleanToValue(
-                            // The template should be available in default.
-                            (Boolean) template.getOrDefault("disabled", false)
-                        )
-                    );
-                    if (uiTemplates.contains(newTemplate)) {
-                        throw new IllegalArgumentException("Template " + newTemplate.getName() + " name conflicts");
-                    }
-                    uiTemplates.add(newTemplate);
-                });
-            }
-        }
+        //Todo: implement later when new template file ready
         return uiTemplates;
     }
 }
