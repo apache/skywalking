@@ -16,19 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.enumeration;
+package org.apache.skywalking.oap.server.core.query.input;
 
-public enum TemplateType {
-    DASHBOARD,
-    TOPOLOGY_SERVICE,
-    TOPOLOGY_INSTANCE,
-    TOPOLOGY_ENDPOINT,
-    TOPOLOGY_SERVICE_RELATION,
-    TOPOLOGY_SERVICE_INSTANCE_RELATION,
-    TOPOLOGY_ENDPOINT_RELATION,
-    ;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 
-    public static TemplateType forName(String name) {
-        return Enum.valueOf(TemplateType.class, name.toUpperCase());
+@Setter
+@Getter
+public class NewDashboardSetting {
+    private String configuration;
+
+    public UITemplate toEntity() {
+        UITemplate uiTemplate = new UITemplate();
+        uiTemplate.setConfiguration(this.getConfiguration());
+        return uiTemplate;
     }
 }

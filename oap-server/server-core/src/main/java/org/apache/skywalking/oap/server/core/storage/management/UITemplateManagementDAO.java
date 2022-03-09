@@ -29,11 +29,13 @@ import org.apache.skywalking.oap.server.core.storage.DAO;
  * UI Template management, including CRUD.
  */
 public interface UITemplateManagementDAO extends DAO {
+    DashboardConfiguration getTemplate(String id) throws IOException;
+
     List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException;
 
     TemplateChangeStatus addTemplate(DashboardSetting setting) throws IOException;
 
     TemplateChangeStatus changeTemplate(DashboardSetting setting) throws IOException;
 
-    TemplateChangeStatus disableTemplate(String name) throws IOException;
+    TemplateChangeStatus disableTemplate(String id) throws IOException;
 }

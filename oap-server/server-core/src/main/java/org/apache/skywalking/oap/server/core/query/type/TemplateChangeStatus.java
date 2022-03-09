@@ -26,6 +26,7 @@ import lombok.Setter;
 @Getter
 @Builder
 public class TemplateChangeStatus {
+    private String id;
     private boolean status;
     private String message;
 }

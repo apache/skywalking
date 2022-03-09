@@ -21,28 +21,22 @@ package org.apache.skywalking.oap.server.core.query.type;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
-import org.apache.skywalking.oap.server.core.query.enumeration.TemplateType;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
 @Setter
 @Getter
 public class DashboardConfiguration {
-    private String name;
-    private TemplateType type;
+    private String id;
     /**
      * Configuration in JSON format.
      */
     private String configuration;
-    private boolean activated;
     private boolean disabled;
 
     public DashboardConfiguration fromEntity(UITemplate templateEntity) {
-        this.setName(templateEntity.getName());
-        this.setType(TemplateType.forName(templateEntity.getType()));
+        this.setId(templateEntity.getTemplateId());
         this.setConfiguration(templateEntity.getConfiguration());
-        this.setActivated(BooleanUtils.valueToBoolean(templateEntity.getActivated()));
         this.setDisabled(BooleanUtils.valueToBoolean(templateEntity.getDisabled()));
-
         return this;
     }
 }
