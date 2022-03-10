@@ -265,7 +265,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
         for (List<Object> values : result) {
             Process process = new Process();
 
-            process.setId((String) values.get((1)));
+            process.setId((String) values.get(1));
             process.setName((String) values.get(2));
             String serviceId = (String) values.get(3);
             process.setServiceId(serviceId);
