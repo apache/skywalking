@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.RequestType;
@@ -69,9 +68,10 @@ public class TelemetryDataDispatcher {
             "mesh_analysis_latency", "The process latency of service mesh telemetry", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
         );
-        MESH_ERROR_METRICS = metricsCreator.createCounter("mesh_analysis_error_count", "The error number of mesh analysis",
-                MetricsTag.EMPTY_KEY,
-                MetricsTag.EMPTY_VALUE
+        MESH_ERROR_METRICS = metricsCreator.createCounter("mesh_analysis_error_count",
+                                                          "The error number of mesh analysis",
+                                                          MetricsTag.EMPTY_KEY,
+                                                          MetricsTag.EMPTY_VALUE
         );
     }
 
@@ -108,7 +108,6 @@ public class TelemetryDataDispatcher {
         long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getStartTime());
 
         if (org.apache.skywalking.apm.network.common.v3.DetectPoint.server.equals(metrics.getDetectPoint())) {
-            toAll(metrics, minuteTimeBucket);
             toService(metrics, minuteTimeBucket);
             toServiceInstance(metrics, minuteTimeBucket);
             toEndpoint(metrics, minuteTimeBucket);
@@ -120,21 +119,6 @@ public class TelemetryDataDispatcher {
             toServiceRelation(metrics, minuteTimeBucket);
             toServiceInstanceRelation(metrics, minuteTimeBucket);
         }
-    }
-
-    private static void toAll(ServiceMeshMetric.Builder metrics, long minuteTimeBucket) {
-        All all = new All();
-        all.setTimeBucket(minuteTimeBucket);
-        all.setName(metrics.getDestServiceName());
-        all.setServiceInstanceName(metrics.getDestServiceInstance());
-        all.setEndpointName(metrics.getEndpoint());
-        all.setLatency(metrics.getLatency());
-        all.setStatus(metrics.getStatus());
-        all.setResponseCode(metrics.getResponseCode());
-        all.setHttpResponseStatusCode(metrics.getResponseCode());
-        all.setType(protocol2Type(metrics.getProtocol()));
-
-        SOURCE_RECEIVER.receive(all);
     }
 
     private static void toService(ServiceMeshMetric.Builder metrics, long minuteTimeBucket) {

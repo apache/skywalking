@@ -39,7 +39,6 @@ import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.Networ
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
-import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
@@ -153,14 +152,13 @@ public class MultiScopesAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(7, receivedSources.size());
-        final All all = (All) receivedSources.get(0);
-        final Service service = (Service) receivedSources.get(1);
-        final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(2);
-        final Endpoint endpoint = (Endpoint) receivedSources.get(3);
-        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(4);
-        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(5);
-        final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(6);
+        Assert.assertEquals(6, receivedSources.size());
+        final Service service = (Service) receivedSources.get(0);
+        final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(1);
+        final Endpoint endpoint = (Endpoint) receivedSources.get(2);
+        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(3);
+        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(4);
+        final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(5);
         Assert.assertEquals("mock-service", service.getName());
         Assert.assertEquals(500, service.getResponseCode());
         Assert.assertEquals(500, service.getHttpResponseStatusCode());
@@ -220,14 +218,13 @@ public class MultiScopesAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(7, receivedSources.size());
-        final All all = (All) receivedSources.get(0);
-        final Service service = (Service) receivedSources.get(1);
-        final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(2);
-        final Endpoint endpoint = (Endpoint) receivedSources.get(3);
-        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(4);
-        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(5);
-        final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(6);
+        Assert.assertEquals(6, receivedSources.size());
+        final Service service = (Service) receivedSources.get(0);
+        final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(1);
+        final Endpoint endpoint = (Endpoint) receivedSources.get(2);
+        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(3);
+        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(4);
+        final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(5);
         Assert.assertEquals("mock-service", service.getName());
         Assert.assertEquals("mock-instance", serviceInstance.getName());
         Assert.assertEquals("/springMVC", endpoint.getName());
@@ -238,7 +235,6 @@ public class MultiScopesAnalysisListenerTest {
         Assert.assertEquals("downstream-endpoint", endpointRelation.getEndpoint());
         Assert.assertEquals(endpoint.getName(), endpointRelation.getChildEndpoint());
         // tags test
-        Assert.assertEquals("http.method:GET", all.getTags().get(0));
         Assert.assertEquals("http.method:GET", service.getTags().get(0));
         Assert.assertEquals("http.method:GET", serviceInstance.getTags().get(0));
         Assert.assertEquals("http.method:GET", endpoint.getTags().get(0));
@@ -284,14 +280,13 @@ public class MultiScopesAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(7, receivedSources.size());
-        final All all = (All) receivedSources.get(0);
-        final Service service = (Service) receivedSources.get(1);
-        final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(2);
-        final Endpoint endpoint = (Endpoint) receivedSources.get(3);
-        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(4);
-        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(5);
-        final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(6);
+        Assert.assertEquals(6, receivedSources.size());
+        final Service service = (Service) receivedSources.get(0);
+        final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(1);
+        final Endpoint endpoint = (Endpoint) receivedSources.get(2);
+        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(3);
+        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(4);
+        final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(5);
         Assert.assertEquals("mock-service", service.getName());
         Assert.assertEquals("mock-instance", serviceInstance.getName());
         Assert.assertEquals("/springMVC", endpoint.getName());

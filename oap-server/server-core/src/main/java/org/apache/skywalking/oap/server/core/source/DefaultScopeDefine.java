@@ -43,6 +43,10 @@ public class DefaultScopeDefine {
      * @since 9.0.0
      */
     public static final int UNKNOWN = 0;
+    /**
+     * @since Deprecated from 9.0.0
+     */
+    @Deprecated
     public static final int ALL = 0;
     public static final int SERVICE = 1;
     public static final int SERVICE_INSTANCE = 2;

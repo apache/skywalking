@@ -43,7 +43,7 @@ public class GRPCExporterTest {
     public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
 
     private MetricExportServiceGrpc.MetricExportServiceImplBase service = new MockMetricExportServiceImpl();
-    private MetricsMetaInfo metaInfo = new MetricsMetaInfo("mock-metrics", DefaultScopeDefine.ALL);
+    private MetricsMetaInfo metaInfo = new MetricsMetaInfo("mock-metrics", DefaultScopeDefine.SERVICE);
 
     private MetricExportServiceGrpc.MetricExportServiceBlockingStub stub;
 
@@ -67,7 +67,7 @@ public class GRPCExporterTest {
     public static class MockExporterMetrics extends MockMetrics implements WithMetadata {
         @Override
         public MetricsMetaInfo getMeta() {
-            return new MetricsMetaInfo("mock-metrics", DefaultScopeDefine.ALL);
+            return new MetricsMetaInfo("mock-metrics", DefaultScopeDefine.SERVICE);
         }
     }
 

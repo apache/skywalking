@@ -29,7 +29,6 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
@@ -123,26 +122,6 @@ class SourceBuilder {
         this.destServiceName = namingControl.formatServiceName(destServiceName);
         this.destServiceInstanceName = namingControl.formatInstanceName(destServiceInstanceName);
         this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
-    }
-
-    /**
-     * The global level metrics source
-     */
-    All toAll() {
-        All all = new All();
-        all.setName(destServiceName);
-        all.setServiceInstanceName(destServiceInstanceName);
-        all.setEndpointName(destEndpointName);
-        all.setLatency(latency);
-        all.setStatus(status);
-        all.setResponseCode(responseCode);
-        all.setHttpResponseStatusCode(httpResponseStatusCode);
-        all.setRpcStatusCode(rpcStatusCode);
-        all.setType(type);
-        all.setTimeBucket(timeBucket);
-        all.setTags(tags);
-        all.setOriginalTags(originalTags);
-        return all;
     }
 
     /**
