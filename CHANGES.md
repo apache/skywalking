@@ -88,7 +88,10 @@ Release Notes.
 * Implement v9 UI template management protocol.
 * Implement process metadata query protocol.
 * Expose more ElasticSearch health check related logs to help to diagnose `Health check fails. reason: No healthy endpoint`.
-* Deprecate `All` from OAL source.
+* Add source `event` generated metrics to SERVICE_CATALOG_NAME catalog.
+* [Breaking Change] Deprecate `All` from OAL source.
+* [Breaking Change] Remove `SRC_ALL: 'All'` from OAL grammar tree.
+* Remove `all_heatmap` and `all_percentile` metrics.
 
 #### UI
 

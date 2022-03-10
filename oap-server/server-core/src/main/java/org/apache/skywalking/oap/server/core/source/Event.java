@@ -40,11 +40,12 @@ import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 
 @Getter
 @Setter
-@ScopeDeclaration(id = EVENT, name = "Event")
+@ScopeDeclaration(id = EVENT, name = "Event", catalog = SERVICE_CATALOG_NAME)
 @Stream(name = Event.INDEX_NAME, scopeId = EVENT, builder = Event.Builder.class, processor = MetricsStreamProcessor.class)
 @EqualsAndHashCode(
     callSuper = false,
