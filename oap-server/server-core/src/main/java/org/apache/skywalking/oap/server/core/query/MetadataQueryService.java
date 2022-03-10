@@ -20,12 +20,13 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.EndpointInfo;
 import org.apache.skywalking.oap.server.core.query.type.Service;
@@ -51,12 +52,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
     }
 
     public Set<String> listLayers() throws IOException {
-        Set<String> layers = new HashSet<>();
-        getMetadataQueryDAO().listServices(null, null).forEach(service -> {
-            layers.addAll(service.getLayers());
-
-        });
-        return layers;
+        return Arrays.stream(Layer.values()).filter(layer -> layer.value() > 0).map(Layer::name).collect(Collectors.toSet());
     }
 
     public List<Service> listServices(final String layer, final String group) throws IOException {
