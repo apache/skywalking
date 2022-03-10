@@ -16,21 +16,39 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.iotdb;
+package org.apache.skywalking.oap.server.core.query.type;
 
-public interface IoTDBIndexes {
-    // Here is the indexes we choose and their order in storage path.
-    String ID_IDX = "id";
-    String ENTITY_ID_IDX = "entity_id";
-    String LAYER_IDX = "layer";
-    String SERVICE_ID_IDX = "service_id";
-    String GROUP_IDX = "service_group";
-    String TRACE_ID_IDX = "trace_id";
-    String INSTANCE_ID_INX = "instance_id";
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-    static boolean isIndex(String key) {
-        return key.equals(ID_IDX) || key.equals(ENTITY_ID_IDX) || key.equals(LAYER_IDX) ||
-                key.equals(SERVICE_ID_IDX) || key.equals(GROUP_IDX) || key.equals(TRACE_ID_IDX) ||
-                key.equals(INSTANCE_ID_INX);
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@EqualsAndHashCode
+public class Process {
+    @Setter
+    private String id;
+    @Setter
+    private String name;
+    @Setter
+    private String serviceId;
+    @Setter
+    private String serviceName;
+    @Setter
+    private String instanceId;
+    @Setter
+    private String instanceName;
+    @Setter
+    private String layer;
+    @Setter
+    private String agentId;
+    @Setter
+    private String detectType;
+    private final List<Attribute> attributes;
+
+    public Process() {
+        this.attributes = new ArrayList<>();
     }
 }

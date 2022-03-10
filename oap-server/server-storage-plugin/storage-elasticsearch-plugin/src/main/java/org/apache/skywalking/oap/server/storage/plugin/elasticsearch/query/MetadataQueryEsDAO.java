@@ -32,14 +32,18 @@ import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.enumeration.Language;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
+import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
@@ -191,6 +195,37 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         return endpoints;
     }
 
+    @Override
+    public List<Process> listProcesses(String serviceId, String instanceId) throws IOException {
+        final String index =
+                IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
+
+        final BoolQueryBuilder query = Query.bool();
+        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+        if (StringUtil.isNotEmpty(serviceId)) {
+            query.must(Query.term(ProcessTraffic.SERVICE_ID, serviceId));
+        }
+        if (StringUtil.isNotEmpty(instanceId)) {
+            query.must(Query.term(ProcessTraffic.INSTANCE_ID, instanceId));
+        }
+        final SearchResponse results = getClient().search(index, search.build());
+
+        return buildProcesses(results);
+    }
+
+    @Override
+    public Process getProcess(String processId) throws IOException {
+        final String index =
+                IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
+        final BoolQueryBuilder query = Query.bool()
+                        .must(Query.term("_id", processId));
+        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+
+        final SearchResponse response = getClient().search(index, search.build());
+        final List<Process> processes = buildProcesses(response);
+        return processes.isEmpty() ? null : processes.get(0);
+    }
+
     private List<Service> buildServices(SearchResponse response) {
         List<Service> services = new ArrayList<>();
         for (SearchHit hit : response.getHits()) {
@@ -240,5 +275,39 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             serviceInstances.add(serviceInstance);
         }
         return serviceInstances;
+    }
+
+    private List<Process> buildProcesses(SearchResponse response) {
+        List<Process> processes = new ArrayList<>();
+        for (SearchHit searchHit : response.getHits()) {
+            Map<String, Object> sourceAsMap = searchHit.getSource();
+
+            final ProcessTraffic processTraffic =
+                    new ProcessTraffic.Builder().storage2Entity(sourceAsMap);
+
+            Process process = new Process();
+            process.setId(processTraffic.id());
+            process.setName(processTraffic.getName());
+            final String serviceId = processTraffic.getServiceId();
+            process.setServiceId(serviceId);
+            process.setServiceName(IDManager.ServiceID.analysisId(serviceId).getName());
+            final String instanceId = processTraffic.getInstanceId();
+            process.setInstanceId(instanceId);
+            process.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
+            process.setLayer(Layer.valueOf(processTraffic.getLayer()).name());
+            process.setAgentId(processTraffic.getAgentId());
+            process.setDetectType(ProcessDetectType.valueOf(processTraffic.getDetectType()).name());
+
+            JsonObject properties = processTraffic.getProperties();
+            if (properties != null) {
+                for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
+                    String key = property.getKey();
+                    String value = property.getValue().getAsString();
+                    process.getAttributes().add(new Attribute(key, value));
+                }
+            }
+            processes.add(process);
+        }
+        return processes;
     }
 }

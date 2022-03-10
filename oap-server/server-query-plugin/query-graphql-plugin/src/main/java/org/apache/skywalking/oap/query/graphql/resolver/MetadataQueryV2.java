@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.EndpointInfo;
+import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -91,6 +92,14 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
 
     public EndpointInfo getEndpointInfo(final String endpointId) throws IOException {
         return getMetadataQueryService().getEndpointInfo(endpointId);
+    }
+
+    public List<Process> listProcesses(final String serviceId, final String instanceId) throws IOException {
+        return getMetadataQueryService().listProcesses(serviceId, instanceId);
+    }
+
+    public Process getProcess(final String processId) throws IOException {
+        return getMetadataQueryService().getProcess(processId);
     }
 
     public TimeInfo getTimeInfo() {

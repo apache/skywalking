@@ -86,6 +86,7 @@ Release Notes.
 * Change default value of `metadataQueryMaxSize` from `5000` to `10000`
 * Replace deprecated Armeria API `BasicToken.of` with `AuthToken.ofBasic`.
 * Implement v9 UI template management protocol.
+* Implement process metadata query protocol.
 
 #### UI
 

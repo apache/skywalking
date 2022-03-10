@@ -28,14 +28,18 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.enumeration.Language;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
+import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
@@ -52,6 +56,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     private final StorageHashMapBuilder<ServiceTraffic> serviceBuilder = new ServiceTraffic.Builder();
     private final StorageHashMapBuilder<EndpointTraffic> endpointBuilder = new EndpointTraffic.Builder();
     private final StorageHashMapBuilder<InstanceTraffic> instanceBuilder = new InstanceTraffic.Builder();
+    private final StorageHashMapBuilder<ProcessTraffic> processBuilder = new ProcessTraffic.Builder();
 
     @Override
     public List<Service> listServices(final String layer, final String group) throws IOException {
@@ -142,6 +147,40 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         return endpointList;
     }
 
+    @Override
+    public List<Process> listProcesses(String serviceId, String instanceId) throws IOException {
+        StringBuilder query = new StringBuilder();
+        query.append("select * from ");
+        query = client.addModelPath(query, ProcessTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        if (StringUtil.isNotEmpty(serviceId)) {
+            indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
+        }
+        if (StringUtil.isNotEmpty(instanceId)) {
+            indexAndValueMap.put(IoTDBIndexes.INSTANCE_ID_INX, instanceId);
+        }
+        query = client.addQueryIndexValue(ProcessTraffic.INDEX_NAME, query, indexAndValueMap);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME, query.toString(), processBuilder);
+        return buildProcesses(storageDataList);
+    }
+
+    @Override
+    public Process getProcess(String processId) throws IOException {
+        StringBuilder query = new StringBuilder();
+        query.append("select * from ");
+        query = client.addModelPath(query, ProcessTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBIndexes.ID_IDX, processId);
+        query = client.addQueryIndexValue(ProcessTraffic.INDEX_NAME, query, indexAndValueMap);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME, query.toString(), processBuilder);
+        final List<Process> processes = buildProcesses(storageDataList);
+        return processes.size() > 0 ? processes.get(0) : null;
+    }
+
     private List<Service> buildServices(List<? super StorageData> storageDataList) {
         List<Service> services = new ArrayList<>();
         storageDataList.forEach(storageData -> {
@@ -188,5 +227,34 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
             serviceInstanceList.add(serviceInstance);
         });
         return serviceInstanceList;
+    }
+
+    private List<Process> buildProcesses(List<? super StorageData> storageDataList) {
+        List<Process> processes = new ArrayList<>();
+        storageDataList.forEach(storageData -> {
+            ProcessTraffic processTraffic = (ProcessTraffic) storageData;
+            Process process = new Process();
+            process.setId(processTraffic.id());
+            process.setName(processTraffic.getName());
+            final String serviceId = processTraffic.getServiceId();
+            process.setServiceId(serviceId);
+            process.setServiceName(IDManager.ServiceID.analysisId(serviceId).getName());
+            final String instanceId = processTraffic.getInstanceId();
+            process.setInstanceId(instanceId);
+            process.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
+            process.setLayer(Layer.valueOf(processTraffic.getLayer()).name());
+            process.setAgentId(processTraffic.getAgentId());
+            process.setDetectType(ProcessDetectType.valueOf(processTraffic.getDetectType()).name());
+            JsonObject properties = processTraffic.getProperties();
+            if (properties != null) {
+                for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
+                    String key = property.getKey();
+                    String value = property.getValue().getAsString();
+                    process.getAttributes().add(new Attribute(key, value));
+                }
+            }
+            processes.add(process);
+        });
+        return processes;
     }
 }

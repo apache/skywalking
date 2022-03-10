@@ -31,7 +31,11 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
+import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
@@ -153,6 +157,34 @@ public class MetadataQuery implements IMetadataQueryDAO {
         return list;
     }
 
+    @Override
+    public List<Process> listProcesses(String serviceId, String instanceId) throws IOException {
+        final SelectQueryImpl query = select(
+                ID_COLUMN, ProcessTraffic.NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
+                ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES)
+                .from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
+        final WhereQueryImpl<SelectQueryImpl> whereQuery = query.where();
+        if (StringUtil.isNotEmpty(serviceId)) {
+            whereQuery.and(eq(TagName.SERVICE_ID, serviceId));
+        }
+        if (StringUtil.isNotEmpty(instanceId)) {
+            whereQuery.and(eq(TagName.INSTANCE_ID, instanceId));
+        }
+
+        return buildProcesses(query);
+    }
+
+    @Override
+    public Process getProcess(String processId) throws IOException {
+        final WhereQueryImpl<SelectQueryImpl> where = select(
+                ID_COLUMN, ProcessTraffic.NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
+                ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES)
+                .from(client.getDatabase(), ProcessTraffic.INDEX_NAME)
+                .where(eq(TagName.ID_COLUMN, processId));
+        final List<Process> processes = buildProcesses(where);
+        return processes.size() > 0 ? processes.get(0) : null;
+    }
+
     private List<Service> buildServices(Query query) throws IOException {
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
@@ -215,6 +247,46 @@ public class MetadataQuery implements IMetadataQueryDAO {
             }
             serviceInstance.setLayer(Layer.valueOf((int) values.get(4)).name());
             instances.add(serviceInstance);
+        }
+        return instances;
+    }
+
+    private List<Process> buildProcesses(Query query) throws IOException {
+        QueryResult.Series series = client.queryForSingleSeries(query);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result: {}", query.getCommand(), series);
+        }
+        if (Objects.isNull(series)) {
+            return Collections.emptyList();
+        }
+
+        List<List<Object>> result = series.getValues();
+        List<Process> instances = Lists.newArrayList();
+        for (List<Object> values : result) {
+            Process process = new Process();
+
+            process.setId((String) values.get(1));
+            process.setName((String) values.get(2));
+            String serviceId = (String) values.get(3);
+            process.setServiceId(serviceId);
+            process.setServiceName(IDManager.ServiceID.analysisId(serviceId).getName());
+            String instanceId = (String) values.get(4);
+            process.setInstanceId(instanceId);
+            process.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
+            process.setLayer(Layer.valueOf((Integer) values.get(5)).name());
+            process.setAgentId((String) values.get(6));
+            process.setDetectType(ProcessDetectType.valueOf((Integer) values.get(7)).name());
+
+            String propertiesString = (String) values.get(8);
+            if (!Strings.isNullOrEmpty(propertiesString)) {
+                JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
+                for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
+                    String key = property.getKey();
+                    String value = property.getValue().getAsString();
+                    process.getAttributes().add(new Attribute(key, value));
+                }
+            }
+            instances.add(process);
         }
         return instances;
     }

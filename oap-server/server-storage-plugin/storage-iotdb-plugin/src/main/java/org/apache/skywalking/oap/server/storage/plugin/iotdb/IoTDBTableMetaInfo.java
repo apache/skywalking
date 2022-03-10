@@ -76,6 +76,9 @@ public class IoTDBTableMetaInfo {
         if (storageAndIndexMap.containsValue(IoTDBIndexes.TRACE_ID_IDX)) {
             indexes.add(IoTDBIndexes.TRACE_ID_IDX);
         }
+        if (storageAndIndexMap.containsValue(IoTDBIndexes.INSTANCE_ID_INX)) {
+            indexes.add(IoTDBIndexes.INSTANCE_ID_INX);
+        }
 
         final IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.builder().model(model)
                 .columnAndTypeMap(columnAndTypeMap).indexes(indexes).build();
