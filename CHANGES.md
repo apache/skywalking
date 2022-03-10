@@ -32,7 +32,7 @@ Release Notes.
 #### OAP Server
 
 * Fix potential NPE in OAL string match and a bug when right-hand-side variable includes double quotes.
-* Bump up Armeria version to fix CVE.
+* Bump up Armeria version to 1.14.1 to fix CVE.
 * Polish ETCD cluster config environment variables.
 * Add the analysis of metrics in Satellite MetricsService.
 * Fix `Can't split endpoint id into 2 parts` bug for endpoint ID. In the TCP in service mesh observability, endpoint
@@ -87,6 +87,7 @@ Release Notes.
 * Replace deprecated Armeria API `BasicToken.of` with `AuthToken.ofBasic`.
 * Implement v9 UI template management protocol.
 * Implement process metadata query protocol.
+* Expose more ElasticSearch health check related logs to help to diagnose `Health check fails. reason: No healthy endpoint`.
 
 #### UI
 

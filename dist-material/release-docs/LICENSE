@@ -327,9 +327,9 @@ The text of each license is the standard Apache 2.0 license.
     simpleclient_httpserver 0.12.0 from prometheus https://github.com/prometheus/client_java Apache 2.0
     jetcd 0.5.3, https://github.com/etcd-io/jetcd, Apache 2.0
     failasfe 2.3.4, https://github.com/jhalterman/failsafe, Apache 2.0
-    Armeria 1.13.4, http://github.com/line/armeria, Apache 2.0
+    Armeria 1.14.1, http://github.com/line/armeria, Apache 2.0
     Brotli4j 1.6.0, https://github.com/hyperxpro/Brotli4j, Apache 2.0
-    micrometer 1.7.6, https://github.com/micrometer-metrics/micrometer, Apache 2.0
+    micrometer 1.8.2, https://github.com/micrometer-metrics/micrometer, Apache 2.0
     iotdb-session 0.12.4: https://github.com/apache/iotdb, Apache 2.0
     iotdb-thrift 0.12.4: https://github.com/apache/iotdb, Apache 2.0
     service-rpc 0.12.4: https://github.com/apache/iotdb, Apache 2.0
@@ -491,4 +491,3 @@ tslib 2.0.3 https://www.npmjs.com/package/tslib BSD Zero Clause
 Public Domain licenses
 ========================================
 aopalliance 1.0: http://aopalliance.sourceforge.net Public Domain
-
