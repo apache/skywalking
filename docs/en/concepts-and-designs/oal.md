@@ -26,7 +26,7 @@ disable(METRICS_NAME);
 ## From
 The **from** statement defines the data source of this OAL expression.
 
-Primary **SCOPE**s are `All`, `Service`, `ServiceInstance`, `Endpoint`, `ServiceRelation`, `ServiceInstanceRelation`, and `EndpointRelation`.
+Primary **SCOPE**s are `Service`, `ServiceInstance`, `Endpoint`, `ServiceRelation`, `ServiceInstanceRelation`, and `EndpointRelation`.
 There are also some secondary scopes which belong to a primary scope. 
 
 See [Scope Definitions](scope-definitions.md), where you can find all existing Scopes and Fields.
@@ -66,7 +66,7 @@ Parameter (2) is the `denominator` condition.
 In this case, the number of calls of each service. 
 
 - `histogram`. See [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map).
-> all_heatmap = from(All.latency).histogram(100, 20);
+> service_heatmap = from(Service.latency).histogram(100, 20);
 
 In this case, the thermodynamic heatmap of all incoming requests. 
 Parameter (1) is the precision of latency calculation, such as in the above case, where 113ms and 193ms are considered the same in the 101-200ms group.
@@ -80,12 +80,12 @@ Parameter (1) is the service name, which reflects the Apdex threshold value load
 Parameter (2) is the status of this request. The status(success/failure) reflects the Apdex calculation.
 
 - `p99`, `p95`, `p90`, `p75`, `p50`. See [percentile in WIKI](https://en.wikipedia.org/wiki/Percentile).
-> all_percentile = from(All.latency).percentile(10);
+> service_percentile = from(Service.latency).percentile(10);
 
 **percentile** is the first multiple-value metric, which has been introduced since 7.0.0. As a metric with multiple values, it could be queried through the `getMultipleLinearIntValues` GraphQL query.
 In this case, see `p99`, `p95`, `p90`, `p75`, and `p50` of all incoming requests. The parameter is precise to a latency at p99, such as in the above case, and 120ms and 124ms are considered to produce the same response time.
 Before 7.0.0, `p99`, `p95`, `p90`, `p75`, `p50` func(s) are used to calculate metrics separately. They are still supported in 7.x, but they are no longer recommended and are not included in the current official OAL script. 
-> all_p99 = from(All.latency).p99(10);
+> service_p99 = from(Service.latency).p99(10);
 
 In this case, the p99 value of all incoming requests. The parameter is precise to a latency at p99, such as in the above case, and 120ms and 124ms are considered to produce the same response time.
 

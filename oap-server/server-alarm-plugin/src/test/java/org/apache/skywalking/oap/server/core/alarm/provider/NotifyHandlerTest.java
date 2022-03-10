@@ -302,7 +302,7 @@ public class NotifyHandlerTest {
     public void dontNotify() {
 
         MetricsMetaInfo metadata = mock(MetricsMetaInfo.class);
-        when(metadata.getScope()).thenReturn(DefaultScopeDefine.ALL);
+        when(metadata.getScope()).thenReturn(DefaultScopeDefine.SERVICE);
 
         MockMetrics mockMetrics = mock(MockMetrics.class);
         when(mockMetrics.getMeta()).thenReturn(metadata);

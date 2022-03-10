@@ -286,7 +286,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     public void build() {
         entrySourceBuilders.forEach(entrySourceBuilder -> {
             entrySourceBuilder.prepare();
-            sourceReceiver.receive(entrySourceBuilder.toAll());
             sourceReceiver.receive(entrySourceBuilder.toService());
             sourceReceiver.receive(entrySourceBuilder.toServiceInstance());
             sourceReceiver.receive(entrySourceBuilder.toEndpoint());

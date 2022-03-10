@@ -88,6 +88,7 @@ Release Notes.
 * Implement v9 UI template management protocol.
 * Implement process metadata query protocol.
 * Expose more ElasticSearch health check related logs to help to diagnose `Health check fails. reason: No healthy endpoint`.
+* Deprecate `All` from OAL source.
 
 #### UI
 
@@ -102,6 +103,7 @@ Release Notes.
 * Update backend-meter.md doc .
 * Add <STAM: Enhancing Topology Auto Detection For A Highly Distributed and Large-Scale Application System> paper.
 * Add Academy menu for recommending articles.
+* Remove `All` source relative document and examples.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/112?closed=1)
 

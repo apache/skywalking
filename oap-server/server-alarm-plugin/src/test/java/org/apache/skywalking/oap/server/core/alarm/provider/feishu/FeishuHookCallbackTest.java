@@ -84,7 +84,7 @@ public class FeishuHookCallbackTest implements Servlet {
         FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
-        alarmMessage.setScopeId(DefaultScopeDefine.ALL);
+        alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
         alarmMessages.add(alarmMessage);
@@ -110,7 +110,7 @@ public class FeishuHookCallbackTest implements Servlet {
         FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
-        alarmMessage.setScopeId(DefaultScopeDefine.ALL);
+        alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
         alarmMessages.add(alarmMessage);
@@ -136,7 +136,7 @@ public class FeishuHookCallbackTest implements Servlet {
         FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
-        alarmMessage.setScopeId(DefaultScopeDefine.ALL);
+        alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
         alarmMessages.add(alarmMessage);

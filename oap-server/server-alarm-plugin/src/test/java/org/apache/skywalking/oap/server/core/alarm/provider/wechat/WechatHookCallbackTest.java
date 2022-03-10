@@ -79,7 +79,7 @@ public class WechatHookCallbackTest implements Servlet {
         WechatHookCallback wechatHookCallback = new WechatHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
-        alarmMessage.setScopeId(DefaultScopeDefine.ALL);
+        alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
         alarmMessages.add(alarmMessage);
