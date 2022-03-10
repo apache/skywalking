@@ -22,10 +22,12 @@ import graphql.kickstart.tools.GraphQLMutationResolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
+import org.apache.skywalking.oap.server.core.query.input.NewDashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -50,22 +52,29 @@ public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLM
         return uiTemplateManagementService;
     }
 
-    public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException {
-        if (includingDisabled == null) {
-            includingDisabled = false;
-        }
-        return getUITemplateManagementService().getAllTemplates(includingDisabled);
+    public DashboardConfiguration getTemplate(String id) throws IOException {
+        return getUITemplateManagementService().getTemplate(id);
     }
 
-    public TemplateChangeStatus addTemplate(DashboardSetting setting) throws IOException {
-        return getUITemplateManagementService().addTemplate(setting);
+    public List<DashboardConfiguration> getAllTemplates() throws IOException {
+        return getUITemplateManagementService().getAllTemplates(false);
+    }
+
+    public TemplateChangeStatus addTemplate(NewDashboardSetting setting) throws IOException {
+        DashboardSetting dashboardSetting = new DashboardSetting();
+        //Backend generate the Id for new template
+        dashboardSetting.setId(UUID.randomUUID().toString());
+        dashboardSetting.setUpdateTime(System.currentTimeMillis());
+        dashboardSetting.setConfiguration(setting.getConfiguration());
+        return getUITemplateManagementService().addTemplate(dashboardSetting);
     }
 
     public TemplateChangeStatus changeTemplate(DashboardSetting setting) throws IOException {
+        setting.setUpdateTime(System.currentTimeMillis());
         return getUITemplateManagementService().changeTemplate(setting);
     }
 
-    public TemplateChangeStatus disableTemplate(String name) throws IOException {
-        return getUITemplateManagementService().disableTemplate(name);
+    public TemplateChangeStatus disableTemplate(String id) throws IOException {
+        return getUITemplateManagementService().disableTemplate(id);
     }
 }

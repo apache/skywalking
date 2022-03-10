@@ -29,6 +29,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuil
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -48,6 +49,7 @@ import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
@@ -56,10 +58,14 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.instance.Ins
 
 public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     private final int queryMaxSize;
+    private final int scrollingBatchSize;
 
-    public MetadataQueryEsDAO(ElasticSearchClient client, int queryMaxSize) {
+    public MetadataQueryEsDAO(
+        ElasticSearchClient client,
+        StorageModuleElasticsearchConfig config) {
         super(client);
-        this.queryMaxSize = queryMaxSize;
+        this.queryMaxSize = config.getMetadataQueryMaxSize();
+        this.scrollingBatchSize = config.getScrollingBatchSize();
     }
 
     @Override
@@ -67,18 +73,34 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME);
 
+        final int batchSize = Math.min(queryMaxSize, scrollingBatchSize);
         final BoolQueryBuilder query =
             Query.bool();
-        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+        final SearchBuilder search = Search.builder().query(query).size(batchSize);
         if (StringUtil.isNotEmpty(layer)) {
             query.must(Query.term(ServiceTraffic.LAYER, Layer.valueOf(layer).value()));
         }
         if (StringUtil.isNotEmpty(group)) {
             query.must(Query.term(ServiceTraffic.GROUP, group));
         }
-        final SearchResponse results = getClient().search(index, search.build());
+        final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
+        final List<Service> services = new ArrayList<>();
 
-        return buildServices(results);
+        SearchResponse results = getClient().search(index, search.build(), params);
+        while (results.getHits().getTotal() > 0) {
+            final List<Service> batch = buildServices(results);
+            services.addAll(batch);
+            // The last iterate, there is no more data
+            if (batch.size() < batchSize) {
+                break;
+            }
+            // We've got enough data
+            if (services.size() >= queryMaxSize) {
+                break;
+            }
+            results = getClient().scroll(SCROLL_CONTEXT_RETENTION, results.getScrollId());
+        }
+        return services;
     }
 
     @Override
@@ -105,10 +127,23 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             Query.bool()
                  .must(Query.range(InstanceTraffic.LAST_PING_TIME_BUCKET).gte(minuteTimeBucket))
                  .must(Query.term(InstanceTraffic.SERVICE_ID, serviceId));
-        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+        final int batchSize = Math.min(queryMaxSize, scrollingBatchSize);
+        final SearchBuilder search = Search.builder().query(query).size(batchSize);
 
-        final SearchResponse response = getClient().search(index, search.build());
-        return buildInstances(response);
+        final List<ServiceInstance> instances = new ArrayList<>();
+        SearchResponse response = getClient().search(index, search.build());
+        while (response.getHits().getTotal() > 0) {
+            final List<ServiceInstance> batch = buildInstances(response);
+            instances.addAll(batch);
+            if (batch.size() < batchSize) {
+                break;
+            }
+            if (batch.size() >= queryMaxSize) {
+                break;
+            }
+            response = getClient().scroll(SCROLL_CONTEXT_RETENTION, response.getScrollId());
+        }
+        return instances;
     }
 
     @Override

@@ -20,13 +20,14 @@ package org.apache.skywalking.library.elasticsearch.requests.factory.common;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpRequestBuilder;
 import com.linecorp.armeria.common.MediaType;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
 import org.apache.skywalking.library.elasticsearch.requests.factory.SearchFactory;
+import org.apache.skywalking.library.elasticsearch.requests.search.Scroll;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,7 +37,7 @@ public final class CommonSearchFactory implements SearchFactory {
     @SneakyThrows
     @Override
     public HttpRequest search(Search search,
-                              Map<String, ?> queryParams,
+                              SearchParams params,
                               String... indices) {
         final HttpRequestBuilder builder = HttpRequest.builder();
 
@@ -47,8 +48,8 @@ public final class CommonSearchFactory implements SearchFactory {
                    .pathParam("indices", String.join(",", indices));
         }
 
-        if (queryParams != null && !queryParams.isEmpty()) {
-            queryParams.forEach(builder::queryParam);
+        if (params != null) {
+            params.forEach(e -> builder.queryParam(e.getKey(), e.getValue()));
         }
 
         final byte[] content = version.codec().encode(search);
@@ -59,5 +60,19 @@ public final class CommonSearchFactory implements SearchFactory {
 
         return builder.content(MediaType.JSON, content)
                       .build();
+    }
+
+    @SneakyThrows
+    @Override
+    public HttpRequest scroll(Scroll scroll) {
+        final HttpRequestBuilder builder = HttpRequest.builder().get("/_search/scroll");
+
+        final byte[] content = version.codec().encode(scroll);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Scroll request: {}", new String(content));
+        }
+
+        return builder.content(MediaType.JSON, content).build();
     }
 }

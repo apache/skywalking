@@ -108,6 +108,12 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private String trustStorePass;
     private int resultWindowMaxSize = 10000;
     private int metadataQueryMaxSize = 5000;
+    /**
+     * @since 9.0.0 The batch size that is used to scroll on the large results,
+     * if {@link #metadataQueryMaxSize} is larger than the maximum result window in
+     * ElasticSearch server, this can be used to retrieve all results.
+     */
+    private int scrollingBatchSize = 5000;
     private int segmentQueryMaxSize = 200;
     private int profileTaskQueryMaxSize = 200;
     /**
