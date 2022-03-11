@@ -96,12 +96,20 @@ public class MultipleChannelsConsumer extends Thread {
          * to fetch the data from queue, if the queue only contains few elements, it is too expensive to consume every
          * time.
          *
+         * if 'size of last fetched data' > 0
+         *
          * priority = 'size of last fetched data' * 100 / {@link Channels#size()} * {@link Channels#getChannelSize()}
+         *
+         * else
+         *
+         * priority = priority / 2
+         *
          * Meaning, priority is the load factor of {@link #channels}
          *
-         * In every consuming loop, priority = (priority of current loop + priority of last loop) / 2 If priority > 50,
-         * consuming happens in next loop, otherwise, priority += 10, and wait until priority > 50. In worth case, for a
-         * low traffic group, consuming happens in 1/10.
+         * After consuming loop, priority = (priority of current loop + priority of last loop) / 2.
+         *
+         * If priority > 50, consuming happens in next loop, otherwise, priority += 10, and wait until priority > 50. In
+         * worth case, for a low traffic group, consuming happens in 1/10.
          *
          * Priority only exists in {@link MultipleChannelsConsumer}, because it has limited threads but has to consume
          * from a large set of queues.
