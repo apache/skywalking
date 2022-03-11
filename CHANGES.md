@@ -28,6 +28,7 @@ Release Notes.
   * Upgrade  maven-resources-plugin to 3.2.0.
   * Upgrade  maven-source-plugin to 3.2.1.
 * Update codeStyle.xml to fix incompatibility on M1's IntelliJ IDEA 2021.3.2.
+* Update frontend-maven-plugin to 1.12 and npm to 16.14.0 for booster UI build.
 
 #### OAP Server
 
