@@ -18,15 +18,15 @@ Release Notes.
 * Add Istio 1.13.1 to E2E test matrix for verification.
 * Upgrade Apache parent pom version to 25.
 * Use the plugin version defined by the Apache maven parent.
-  * Upgrade maven-dependency-plugin to 3.2.0.
-  * Upgrade  maven-assembly-plugin to 3.3.0.
-  * Upgrade  maven-failsafe-plugin to 2.22.2.
-  * Upgrade  maven-surefire-plugin to 2.22.2.
-  * Upgrade  maven-jar-plugin to 3.2.2.
-  * Upgrade  maven-enforcer-plugin to 3.0.0.
-  * Upgrade  maven-compiler-plugin to 3.10.0.
-  * Upgrade  maven-resources-plugin to 3.2.0.
-  * Upgrade  maven-source-plugin to 3.2.1.
+    * Upgrade maven-dependency-plugin to 3.2.0.
+    * Upgrade maven-assembly-plugin to 3.3.0.
+    * Upgrade maven-failsafe-plugin to 2.22.2.
+    * Upgrade maven-surefire-plugin to 2.22.2.
+    * Upgrade maven-jar-plugin to 3.2.2.
+    * Upgrade maven-enforcer-plugin to 3.0.0.
+    * Upgrade maven-compiler-plugin to 3.10.0.
+    * Upgrade maven-resources-plugin to 3.2.0.
+    * Upgrade maven-source-plugin to 3.2.1.
 * Update codeStyle.xml to fix incompatibility on M1's IntelliJ IDEA 2021.3.2.
 * Update frontend-maven-plugin to 1.12 and npm to 16.14.0 for booster UI build.
 
@@ -40,7 +40,8 @@ Release Notes.
   name doesn't exist in TCP traffic.
 * Upgrade H2 version to 2.0.206 to fix CVE-2021-23463 and GHSA-h376-j262-vhq6.
 * Extend column name override mechanism working for `ValueColumnMetadata`.
-* Introduce new concept `Layer` and removed `NodeType`. More details refer to [v9-version-upgrade](https://skywalking.apache.org/docs/main/latest/en/faq/v9-version-upgrade/).
+* Introduce new concept `Layer` and removed `NodeType`. More details refer
+  to [v9-version-upgrade](https://skywalking.apache.org/docs/main/latest/en/faq/v9-version-upgrade/).
 * Fix query sort metrics failure in H2 Storage.
 * Bump up grpc to 1.43.2 and protobuf to 3.19.2 to fix CVE-2021-22569.
 * Add source layer and dest layer to relation.
@@ -58,8 +59,10 @@ Release Notes.
 * Add FreeSql component ID(3017) of dotnet agent.
 * E2E: verify OAP cluster model data aggregation.
 * Fix `SelfRemoteClient` self observing metrics.
-* Add env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT` for cluster selectors `zookeeper`,`consul`,`etcd` and `nacos`.
-* Doc update: `configuration-vocabulary`,`backend-cluster` about env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT`.
+* Add env variables `SW_CLUSTER_INTERNAL_COM_HOST` and `SW_CLUSTER_INTERNAL_COM_PORT` for cluster selectors `zookeeper`
+  ,`consul`,`etcd` and `nacos`.
+* Doc update: `configuration-vocabulary`,`backend-cluster` about env variables `SW_CLUSTER_INTERNAL_COM_HOST`
+  and `SW_CLUSTER_INTERNAL_COM_PORT`.
 * Add Python MysqlClient component ID(7013) with mapping information.
 * Support Java thread pool metrics analysis.
 * Fix IoTDB Storage Option insert null index value.
@@ -70,30 +73,38 @@ Release Notes.
 * Add OpenFunction component ID(5013).
 * Expose configuration `responseTimeout` of ES client.
 * Support datasource metric analysis.
-* [Break Change] Keep the endpoint avg resp time meter name the same with others scope. (This may break 3rd party integration and existing alarm rule settings)
+* [Break Change] Keep the endpoint avg resp time meter name the same with others scope. (This may break 3rd party
+  integration and existing alarm rule settings)
 * Add Python FastApi component ID(7014).
 * Support all metrics from MAL engine in alarm core, including Prometheus, OC receiver, meter receiver.
 * Allow updating non-metrics templates when structure changed.
 * Set default connection timeout of ElasticSearch to 3000 milliseconds.
 * Support ElasticSearch 8 and add it into E2E tests.
 * Disable indexing for field `alarm_record.tags_raw_data` of binary type in ElasticSearch storage.
-* Fix Zipkin receiver wrong condition for decoding `gzip`. 
+* Fix Zipkin receiver wrong condition for decoding `gzip`.
 * Add a new sampler (`possibility`) in LAL.
-* Unify module name `receiver_zipkin` to `receiver-zipkin`, remove `receiver_jaeger` from `application.yaml`. 
+* Unify module name `receiver_zipkin` to `receiver-zipkin`, remove `receiver_jaeger` from `application.yaml`.
 * Introduce the entity of Process type.
 * Set the length of event#parameters to 2000.
 * Limit the length of Event#parameters.
-* Support large service/instance/networkAddressAlias list query by using ElasticSearch scrolling API, add `metadataQueryBatchSize` to configure scrolling page size.
+* Support large service/instance/networkAddressAlias list query by using ElasticSearch scrolling API,
+  add `metadataQueryBatchSize` to configure scrolling page size.
 * Change default value of `metadataQueryMaxSize` from `5000` to `10000`
 * Replace deprecated Armeria API `BasicToken.of` with `AuthToken.ofBasic`.
 * Implement v9 UI template management protocol.
 * Implement process metadata query protocol.
-* Expose more ElasticSearch health check related logs to help to diagnose `Health check fails. reason: No healthy endpoint`.
+* Expose more ElasticSearch health check related logs to help to
+  diagnose `Health check fails. reason: No healthy endpoint`.
 * Add source `event` generated metrics to SERVICE_CATALOG_NAME catalog.
 * [Breaking Change] Deprecate `All` from OAL source.
 * [Breaking Change] Remove `SRC_ALL: 'All'` from OAL grammar tree.
 * Remove `all_heatmap` and `all_percentile` metrics.
-* Fix es normal index couldn't apply mapping and update.
+* Fix ElasticSearch normal index couldn't apply mapping and update.
+* Enhance DataCarrier#MultipleChannelsConsumer to add priority for the channels, which makes OAP server has a better
+  performance to activate all analyzers on default.
+* Activate `receiver-otel#enabledOcRules` receiver with `k8s-cluster,k8s-node,k8s-service,oap,vm` rules on default.
+* Activate `satellite,spring-sleuth` for `agent-analyzer#meterAnalyzerActiveFiles`  on default.
+* Activate `receiver-zabbix` receiver with `agent` rule on default.
 
 #### UI
 
