@@ -93,6 +93,7 @@ Release Notes.
 * [Breaking Change] Deprecate `All` from OAL source.
 * [Breaking Change] Remove `SRC_ALL: 'All'` from OAL grammar tree.
 * Remove `all_heatmap` and `all_percentile` metrics.
+* Fix es normal index couldn't apply mapping and update.
 
 #### UI
 
