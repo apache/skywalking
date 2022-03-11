@@ -117,11 +117,13 @@ public class MultipleChannelsConsumer extends Thread {
          * @since 9.0.0
          */
         private int priority;
+        private short continuousNoDataCount;
 
         private Group(Channels channels, IConsumer consumer) {
             this.channels = channels;
             this.consumer = consumer;
             this.priority = 0;
+            this.continuousNoDataCount = 0;
         }
 
         /**
@@ -150,9 +152,18 @@ public class MultipleChannelsConsumer extends Thread {
                     } finally {
                         consumeList.clear();
                     }
+                    continuousNoDataCount = 0;
                     return true;
                 } else {
-                    priority /= 2;
+                    if (continuousNoDataCount < 5) {
+                        continuousNoDataCount++;
+                        // For low traffic queue (low traffic means occasionally no data
+                        // cut priority to half to reduce consuming period.
+                        priority /= 2;
+                    } else {
+                        // For cold queue, the consuming happens in 1/10;
+                        priority = -50;
+                    }
                 }
 
                 consumer.nothingToConsume();
