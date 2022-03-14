@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
@@ -44,7 +44,7 @@ public class SharingServerModule extends ModuleDefine {
     public Class[] services() {
         return new Class[] {
             GRPCHandlerRegister.class,
-            JettyHandlerRegister.class
+            HTTPHandlerRegister.class
         };
     }
 }

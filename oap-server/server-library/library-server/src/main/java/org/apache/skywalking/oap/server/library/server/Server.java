@@ -19,16 +19,7 @@
 package org.apache.skywalking.oap.server.library.server;
 
 public interface Server {
-
-    String hostPort();
-
-    String serverClassify();
-
     void initialize();
 
     void start() throws ServerException;
-
-    boolean isSSLOpen();
-
-    boolean isStatusEqual(Server target);
 }

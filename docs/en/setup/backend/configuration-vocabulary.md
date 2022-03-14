@@ -10,7 +10,6 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restMinThreads| Minimum thread number of RESTful services. | SW_CORE_REST_JETTY_MIN_THREADS|1|
 | - | - | restMaxThreads| Maximum thread number of RESTful services. | SW_CORE_REST_JETTY_MAX_THREADS|200|
 | - | - | restIdleTimeOut| Connector idle timeout of RESTful services (in milliseconds). | SW_CORE_REST_JETTY_IDLE_TIMEOUT|30000|
-| - | - | restAcceptorPriorityDelta| Thread priority delta to give to acceptor threads of RESTful services. | SW_CORE_REST_JETTY_DELTA|0|
 | - | - | restAcceptQueueSize| ServerSocketChannel Backlog of RESTful services. | SW_CORE_REST_JETTY_QUEUE_SIZE|0|
 | - | - | httpMaxRequestHeaderSize| Maximum request header size accepted. | SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE|8192|
 | - | - | gRPCHost| Binding IP of gRPC services, including gRPC data report and internal communication among OAP nodes. |SW_CORE_GRPC_HOST|0.0.0.0|
@@ -167,7 +166,6 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restMinThreads| Minimum thread number of RESTful services. | SW_RECEIVER_SHARING_JETTY_MIN_THREADS|1|
 | - | - | restMaxThreads| Maximum thread number of RESTful services. | SW_RECEIVER_SHARING_JETTY_MAX_THREADS|200|
 | - | - | restIdleTimeOut| Connector idle timeout of RESTful services (in milliseconds). | SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT|30000|
-| - | - | restAcceptorPriorityDelta| Thread priority delta to give to acceptor threads of RESTful services. | SW_RECEIVER_SHARING_JETTY_DELTA|0|
 | - | - | restAcceptQueueSize| ServerSocketChannel backlog of RESTful services. | SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE|0|
 | - | - | httpMaxRequestHeaderSize| Maximum request header size accepted. | SW_RECEIVER_SHARING_HTTP_MAX_REQUEST_HEADER_SIZE|8192|
 | - | - | gRPCHost| Binding IP of gRPC services. Services include gRPC data report and internal communication among OAP nodes. | SW_RECEIVER_GRPC_HOST | 0.0.0.0. Not Activated |
@@ -231,7 +229,6 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | receiver-browser | default | gRPC services that accept browser performance data and error log. | - | - | - |
 | - | - | sampleRate | Sampling rate for receiving trace. Precise to 1/10000. 10000 means sampling rate of 100% by default. | SW_RECEIVER_BROWSER_SAMPLE_RATE | 10000 |
 | query | graphql | - | GraphQL query implementation. | - |
-| - | - | path | Root path of GraphQL query and mutation. | SW_QUERY_GRAPHQL_PATH | /graphql|
 | - | - | enableLogTestTool | Enable the log testing API to test the LAL. **NOTE**: This API evaluates untrusted code on the OAP server. A malicious script can do significant damage (steal keys and secrets, remove files and directories, install malware, etc). As such, please enable this API only when you completely trust your users. | SW_QUERY_GRAPHQL_ENABLE_LOG_TEST_TOOL | false |
 | alarm | default | - | Read [alarm doc](backend-alarm.md) for more details. | - |
 | telemetry | - | - | Read [telemetry doc](backend-telemetry.md) for more details. | - |

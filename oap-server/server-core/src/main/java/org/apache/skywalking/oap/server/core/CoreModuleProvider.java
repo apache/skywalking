@@ -75,8 +75,8 @@ import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.remote.health.HealthCheckServiceHandler;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegisterImpl;
-import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
-import org.apache.skywalking.oap.server.core.server.JettyHandlerRegisterImpl;
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegisterImpl;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.source.SourceReceiverImpl;
@@ -97,8 +97,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
-import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
-import org.apache.skywalking.oap.server.library.server.jetty.JettyServerConfig;
+import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
+import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
@@ -115,7 +115,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
     private final CoreModuleConfig moduleConfig;
     private GRPCServer grpcServer;
-    private JettyServer jettyServer;
+    private HTTPServer httpServer;
     private RemoteClientManager remoteClientManager;
     private final AnnotationScan annotationScan;
     private final StorageModels storageModels;
@@ -217,29 +217,26 @@ public class CoreModuleProvider extends ModuleProvider {
         }
         grpcServer.initialize();
 
-        JettyServerConfig jettyServerConfig = JettyServerConfig.builder()
-                                                               .host(moduleConfig.getRestHost())
-                                                               .port(moduleConfig.getRestPort())
-                                                               .contextPath(moduleConfig.getRestContextPath())
-                                                               .jettyIdleTimeOut(moduleConfig.getRestIdleTimeOut())
-                                                               .jettyAcceptorPriorityDelta(
-                                                                   moduleConfig.getRestAcceptorPriorityDelta())
-                                                               .jettyMinThreads(moduleConfig.getRestMinThreads())
-                                                               .jettyMaxThreads(moduleConfig.getRestMaxThreads())
-                                                               .jettyAcceptQueueSize(
+        HTTPServerConfig httpServerConfig = HTTPServerConfig.builder()
+                                                            .host(moduleConfig.getRestHost())
+                                                            .port(moduleConfig.getRestPort())
+                                                            .contextPath(moduleConfig.getRestContextPath())
+                                                            .idleTimeOut(moduleConfig.getRestIdleTimeOut())
+                                                            .maxThreads(moduleConfig.getRestMaxThreads())
+                                                            .acceptQueueSize(
                                                                    moduleConfig.getRestAcceptQueueSize())
-                                                               .jettyHttpMaxRequestHeaderSize(
+                                                            .maxRequestHeaderSize(
                                                                    moduleConfig.getHttpMaxRequestHeaderSize())
-                                                               .build();
-        jettyServer = new JettyServer(jettyServerConfig);
-        jettyServer.initialize();
+                                                            .build();
+        httpServer = new HTTPServer(httpServerConfig);
+        httpServer.initialize();
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
         this.registerServiceImplementation(
             DownSamplingConfigService.class, new DownSamplingConfigService(moduleConfig.getDownsampling()));
 
         this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));
-        this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
+        this.registerServiceImplementation(HTTPHandlerRegister.class, new HTTPHandlerRegisterImpl(httpServer));
 
         this.registerServiceImplementation(IComponentLibraryCatalogService.class, new ComponentLibraryCatalogService());
 
@@ -367,7 +364,7 @@ public class CoreModuleProvider extends ModuleProvider {
     public void notifyAfterCompleted() throws ModuleStartException {
         try {
             grpcServer.start();
-            jettyServer.start();
+            httpServer.start();
         } catch (ServerException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

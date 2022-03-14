@@ -22,7 +22,7 @@ import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -31,8 +31,7 @@ import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerMod
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc.TraceSegmentReportServiceHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc.TraceSegmentReportServiceHandlerCompat;
-import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportListServletHandler;
-import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportSingleServletHandler;
+import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class TraceModuleProvider extends ModuleProvider {
@@ -62,16 +61,15 @@ public class TraceModuleProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);
-        JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME)
-                                                                .provider()
-                                                                .getService(JettyHandlerRegister.class);
+        HTTPHandlerRegister httpHandlerRegister = getManager().find(SharingServerModule.NAME)
+                                                              .provider()
+                                                              .getService(HTTPHandlerRegister.class);
 
         TraceSegmentReportServiceHandler traceSegmentReportServiceHandler = new TraceSegmentReportServiceHandler(getManager());
         grpcHandlerRegister.addHandler(traceSegmentReportServiceHandler);
         grpcHandlerRegister.addHandler(new TraceSegmentReportServiceHandlerCompat(traceSegmentReportServiceHandler));
 
-        jettyHandlerRegister.addHandler(new TraceSegmentReportListServletHandler(getManager()));
-        jettyHandlerRegister.addHandler(new TraceSegmentReportSingleServletHandler(getManager()));
+        httpHandlerRegister.addHandler(new TraceSegmentReportHandler(getManager()));
     }
 
     @Override
