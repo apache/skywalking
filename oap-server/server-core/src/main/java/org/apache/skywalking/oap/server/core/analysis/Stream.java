@@ -49,7 +49,7 @@ public @interface Stream {
 
     /**
      * @return the converter type between entity and storage record persistence. The converter could be override by the
-     * storage implementation if necessary. Default, return {@link org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder}
+     * storage implementation if necessary. Default, return {@link org.apache.skywalking.oap.server.core.storage.type.StorageBuilder}
      * for general suitable.
      */
     Class<? extends StorageBuilder> builder();
