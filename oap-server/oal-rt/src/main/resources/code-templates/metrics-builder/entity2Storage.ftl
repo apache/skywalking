@@ -1,6 +1,5 @@
-public java.util.Map entity2Storage(org.apache.skywalking.oap.server.core.storage.StorageData input, org.apache.skywalking.oap.server.core.storage.type.Convert2Storage converter) {
+public void entity2Storage(org.apache.skywalking.oap.server.core.storage.StorageData input, org.apache.skywalking.oap.server.core.storage.type.Convert2Storage converter) {
 ${metricsClassPackage}${metricsName}Metrics storageData = (${metricsClassPackage}${metricsName}Metrics)input;
-java.util.Map map = new java.util.HashMap();
 <#list fieldsFromSource as field>
     <#if field.typeName == "long">
         converter.accept("${field.columnName}", new Long(storageData.${field.fieldGetter}()));
@@ -27,5 +26,4 @@ java.util.Map map = new java.util.HashMap();
         converter.accept("${field.columnName}", storageData.${field.fieldGetter}());
     </#if>
 </#list>
-return map;
 }
