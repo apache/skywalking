@@ -105,6 +105,8 @@ Release Notes.
 * Activate `receiver-otel#enabledOcRules` receiver with `k8s-node,oap,vm` rules on default.
 * Activate `satellite,spring-sleuth` for `agent-analyzer#meterAnalyzerActiveFiles`  on default.
 * Activate `receiver-zabbix` receiver with `agent` rule on default.
+* Add storage column attribute `indexOnly`, support ElasticSearch only index and not store some fields. 
+* Add `indexOnly=true` to `SegmentRecord.tags`, to reduce unnecessary storage.
 
 #### UI
 

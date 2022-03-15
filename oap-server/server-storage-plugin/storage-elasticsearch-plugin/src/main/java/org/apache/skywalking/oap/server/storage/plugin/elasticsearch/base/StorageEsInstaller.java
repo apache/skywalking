@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import com.google.gson.Gson;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class StorageEsInstaller extends ModelInstaller {
     }
 
     @Override
-    protected boolean isExists(Model model) {
+    protected boolean isExists(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         String tableName = IndexController.INSTANCE.getTableName(model);
         IndexController.LogicIndicesRegister.registerRelation(model.getName(), tableName);
@@ -148,7 +149,7 @@ public class StorageEsInstaller extends ModelInstaller {
             if (shouldUpdateTemplate) {
                 structures.putStructure(tableName, mapping);
                 boolean isAcknowledged = esClient.createOrUpdateTemplate(
-                    tableName, settings, structures.getMapping(tableName), config.getIndexTemplateOrder());
+                    tableName, settings, mapping, config.getIndexTemplateOrder());
                 log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
                 if (!isAcknowledged) {
                     throw new IOException("create " + tableName + " index template failure, ");
@@ -222,9 +223,15 @@ public class StorageEsInstaller extends ModelInstaller {
         return gson.fromJson(gson.toJson(analyzerSetting), Map.class);
     }
 
-    protected Mappings createMapping(Model model) {
+    protected Mappings createMapping(Model model) throws StorageException {
         Map<String, Object> properties = new HashMap<>();
+        Map<String, Object> source = new HashMap<>();
         for (ModelColumn columnDefine : model.getColumns()) {
+            if (columnDefine.isIndexOnly() & columnDefine.isStorageOnly()) {
+                throw new StorageException("Model: " + model.getName() + ", column: "
+                                                     + columnDefine.getColumnName().getName()
+                                                     + " attributes [isIndexOnly] and [isStorageOnly] can not both true");
+            }
             final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType());
             if (columnDefine.isMatchQuery()) {
                 String matchCName = MatchCNameBuilder.INSTANCE.build(columnDefine.getColumnName().getName());
@@ -247,6 +254,11 @@ public class StorageEsInstaller extends ModelInstaller {
                 }
                 properties.put(columnDefine.getColumnName().getName(), column);
             }
+
+            if (columnDefine.isIndexOnly()) {
+                List<String> sourceExcludes = (List<String>) source.computeIfAbsent("excludes", v -> new ArrayList<String>());
+                sourceExcludes.add(columnDefine.getColumnName().getName());
+            }
         }
 
         if (IndexController.INSTANCE.isMetricModel(model)) {
@@ -257,6 +269,7 @@ public class StorageEsInstaller extends ModelInstaller {
         Mappings mappings = Mappings.builder()
                                     .type("type")
                                     .properties(properties)
+                                    .source(source)
                                     .build();
         log.debug("elasticsearch index template setting: {}", mappings.toString());
 

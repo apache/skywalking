@@ -45,7 +45,6 @@ public class SegmentRecord extends Record {
     public static final String TRACE_ID = "trace_id";
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_INSTANCE_ID = "service_instance_id";
-    public static final String ENDPOINT_NAME = "endpoint_name";
     public static final String ENDPOINT_ID = "endpoint_id";
     public static final String START_TIME = "start_time";
     public static final String LATENCY = "latency";
@@ -91,7 +90,7 @@ public class SegmentRecord extends Record {
     private byte[] dataBinary;
     @Setter
     @Getter
-    @Column(columnName = TAGS)
+    @Column(columnName = TAGS, indexOnly = true)
     private List<String> tags;
     /**
      * Tags raw data is a duplicate field of {@link #tags}. Some storage don't support array values in a single column.

@@ -30,6 +30,7 @@ public class ModelColumn {
     private final Type genericType;
     private final boolean matchQuery;
     private final boolean storageOnly;
+    private final boolean indexOnly;
     private final int length;
     private final Column.AnalyzerType analyzer;
 
@@ -38,6 +39,7 @@ public class ModelColumn {
                        Type genericType,
                        boolean matchQuery,
                        boolean storageOnly,
+                       boolean indexOnly,
                        boolean isValue,
                        int length,
                        Column.AnalyzerType analyzer) {
@@ -59,5 +61,6 @@ public class ModelColumn {
             }
             this.storageOnly = storageOnly;
         }
+        this.indexOnly = indexOnly;
     }
 }
