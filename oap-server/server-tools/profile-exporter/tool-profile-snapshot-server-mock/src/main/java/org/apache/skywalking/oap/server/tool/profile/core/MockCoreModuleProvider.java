@@ -51,7 +51,7 @@ import org.apache.skywalking.oap.server.core.query.TraceQueryService;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -68,7 +68,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockGRPCHandlerRegister;
-import org.apache.skywalking.oap.server.tool.profile.core.mock.MockJettyHandlerRegister;
+import org.apache.skywalking.oap.server.tool.profile.core.mock.MockHTTPHandlerRegister;
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockRemoteClientManager;
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockSourceReceiver;
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockStreamAnnotationListener;
@@ -125,7 +125,7 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
                 DownSamplingConfigService.class, new DownSamplingConfigService(Collections.emptyList()));
 
         this.registerServiceImplementation(GRPCHandlerRegister.class, new MockGRPCHandlerRegister());
-        this.registerServiceImplementation(JettyHandlerRegister.class, new MockJettyHandlerRegister());
+        this.registerServiceImplementation(HTTPHandlerRegister.class, new MockHTTPHandlerRegister());
 
         this.registerServiceImplementation(
                 IComponentLibraryCatalogService.class, new MockComponentLibraryCatalogService());

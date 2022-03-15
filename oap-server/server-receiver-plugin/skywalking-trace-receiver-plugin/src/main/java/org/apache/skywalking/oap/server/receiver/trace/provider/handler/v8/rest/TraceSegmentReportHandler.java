@@ -13,17 +13,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.oap.server.receiver.event.rest;
+package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest;
 
 import com.linecorp.armeria.server.annotation.Post;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
-import org.apache.skywalking.apm.network.event.v3.Event;
-import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerService;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -32,40 +33,48 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
-public class EventRestServiceHandler {
+public class TraceSegmentReportHandler {
+    private final ISegmentParserService segmentParserService;
     private final HistogramMetrics histogram;
-
     private final CounterMetrics errorCounter;
 
-    private final EventAnalyzerService eventAnalyzerService;
-
-    public EventRestServiceHandler(final ModuleManager manager) {
-        final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
+    public TraceSegmentReportHandler(ModuleManager moduleManager) {
+        this.segmentParserService = moduleManager.find(AnalyzerModule.NAME)
+                                                 .provider()
+                                                 .getService(ISegmentParserService.class);
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
-
-        eventAnalyzerService = manager.find(EventAnalyzerModule.NAME)
-                                      .provider()
-                                      .getService(EventAnalyzerService.class);
-
         histogram = metricsCreator.createHistogramMetric(
-            "event_in_latency", "The process latency of event data",
+            "trace_in_latency", "The process latency of trace data",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
         errorCounter = metricsCreator.createCounter(
-            "event_error_count", "The error number of event analysis",
+            "trace_analysis_error_count", "The error number of trace analysis",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
     }
 
-    @Post("/v3/events")
-    public Commands collectEvents(final List<Event> events) {
+    @Post("/v3/segment")
+    public Commands collectSegment(final SegmentObject segment) {
         try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
-            events.forEach(eventAnalyzerService::analyze);
-            return Commands.newBuilder().build();
+            segmentParserService.send(segment);
         } catch (Exception e) {
             errorCounter.inc();
             throw e;
         }
+        return Commands.newBuilder().build();
+    }
+
+    @Post("/v3/segments")
+    public Commands collectSegments(final List<SegmentObject> segments) {
+        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+            segments.forEach(segmentParserService::send);
+        } catch (Exception e) {
+            errorCounter.inc();
+            throw e;
+        }
+
+        return Commands.newBuilder().build();
     }
 }

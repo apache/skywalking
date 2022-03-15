@@ -16,7 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.server.grpc;
+package org.apache.skywalking.oap.server.library.server.http;
 
-public interface GRPCHandler {
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
+@Builder
+public class HTTPServerConfig {
+
+    private String host;
+    private int port;
+    private String contextPath;
+
+    @Builder.Default
+    private int maxThreads = 200;
+    @Builder.Default
+    private long idleTimeOut = 30000;
+    @Builder.Default
+    private int acceptorPriorityDelta = 0;
+    @Builder.Default
+    private int acceptQueueSize = 0;
+    @Builder.Default
+    private int maxRequestHeaderSize = 8192;
 }

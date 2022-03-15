@@ -16,7 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.server.grpc;
+package org.apache.skywalking.oap.server.core.server;
 
-public interface GRPCHandler {
+import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
+
+public class HTTPHandlerRegisterImpl implements HTTPHandlerRegister {
+
+    private final HTTPServer server;
+
+    public HTTPHandlerRegisterImpl(HTTPServer server) {
+        this.server = server;
+    }
+
+    @Override
+    public void addHandler(Object httpService) {
+        server.addHandler(httpService);
+    }
 }

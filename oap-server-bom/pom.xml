@@ -46,7 +46,6 @@
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <netty-tcnative-boringssl-static.version>2.0.43.Final</netty-tcnative-boringssl-static.version>
-        <jetty.version>9.4.40.v20210413</jetty.version>
         <commons-io.version>2.6</commons-io.version>
         <kubernetes.version>14.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
@@ -88,6 +87,13 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
                 <version>${netty.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>com.linecorp.armeria</groupId>
+                <artifactId>armeria-bom</artifactId>
+                <version>${armeria.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -274,16 +280,6 @@
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-grpclb</artifactId>
                 <version>${grpc.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-server</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlet</artifactId>
-                <version>${jetty.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-dbcp</groupId>
