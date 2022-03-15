@@ -56,7 +56,7 @@ public class TraceSegmentReportHandler {
     }
 
     @Post("/v3/segment")
-    protected Commands collectSegment(final SegmentObject segment) {
+    public Commands collectSegment(final SegmentObject segment) {
         try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
             segmentParserService.send(segment);
         } catch (Exception e) {

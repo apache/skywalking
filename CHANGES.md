@@ -102,7 +102,7 @@ Release Notes.
 * Fix ElasticSearch normal index couldn't apply mapping and update.
 * Enhance DataCarrier#MultipleChannelsConsumer to add priority for the channels, which makes OAP server has a better
   performance to activate all analyzers on default.
-* Activate `receiver-otel#enabledOcRules` receiver with `k8s-cluster,k8s-node,k8s-service,oap,vm` rules on default.
+* Activate `receiver-otel#enabledOcRules` receiver with `k8s-node,oap,vm` rules on default.
 * Activate `satellite,spring-sleuth` for `agent-analyzer#meterAnalyzerActiveFiles`  on default.
 * Activate `receiver-zabbix` receiver with `agent` rule on default.
 * Replace HTTP server (GraphQL, agent HTTP protocol) from Jetty with Armeria.

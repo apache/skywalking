@@ -24,6 +24,7 @@ import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.Route;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.docs.DocService;
+import com.linecorp.armeria.server.logging.LoggingService;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +59,8 @@ public class HTTPServer implements Server {
                     return HttpResponse.of(HttpStatus.METHOD_NOT_ALLOWED);
                 }
                 return delegate.serve(ctx, req);
-            });
+            })
+            .decorator(LoggingService.newDecorator());
 
         if (config.getAcceptQueueSize() > 0) {
             sb.maxNumConnections(config.getAcceptQueueSize());
