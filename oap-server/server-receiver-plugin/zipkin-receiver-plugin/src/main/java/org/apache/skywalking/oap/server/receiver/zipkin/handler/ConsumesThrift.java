@@ -16,24 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin;
+package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import com.linecorp.armeria.server.annotation.Consumes;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Setter
-@Getter
-public class ZipkinReceiverConfig extends ModuleConfig {
-    private String host;
-    private int port;
-    private String contextPath;
-    private int maxThreads = 200;
-    private long idleTimeOut = 30000;
-    private int acceptorPriorityDelta = 0;
-    private int acceptQueueSize = 0;
-    private List<String> instanceNameRule = new ArrayList<>();
+@Retention(RetentionPolicy.RUNTIME)
+@Target({
+    ElementType.TYPE,
+    ElementType.METHOD
+})
+@Consumes("application/x-thrift")
+@interface ConsumesThrift {
 }
