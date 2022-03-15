@@ -18,20 +18,20 @@
 package org.apache.skywalking.oap.server.core.browser.manual.errorlog;
 
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @SuperDataset
 @Stream(name = BrowserErrorLogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.BROWSER_ERROR_LOG, builder = BrowserErrorLogRecord.Builder.class, processor = RecordStreamProcessor.class)
@@ -85,18 +85,18 @@ public class BrowserErrorLogRecord extends Record {
     @Column(columnName = DATA_BINARY)
     private byte[] dataBinary;
 
-    public static class Builder implements StorageHashMapBuilder<BrowserErrorLogRecord> {
+    public static class Builder implements StorageBuilder<BrowserErrorLogRecord> {
         @Override
-        public BrowserErrorLogRecord storage2Entity(final Map<String, Object> dbMap) {
+        public BrowserErrorLogRecord storage2Entity(final Convert2Entity converter) {
             BrowserErrorLogRecord record = new BrowserErrorLogRecord();
-            record.setUniqueId((String) dbMap.get(UNIQUE_ID));
-            record.setServiceId((String) dbMap.get(SERVICE_ID));
-            record.setServiceVersionId((String) dbMap.get(SERVICE_VERSION_ID));
-            record.setPagePathId((String) dbMap.get(PAGE_PATH_ID));
-            record.setTimestamp(((Number) dbMap.get(TIMESTAMP)).longValue());
-            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            record.setErrorCategory(((Number) dbMap.get(ERROR_CATEGORY)).intValue());
-            String dataBinary = (String) dbMap.get(DATA_BINARY);
+            record.setUniqueId((String) converter.get(UNIQUE_ID));
+            record.setServiceId((String) converter.get(SERVICE_ID));
+            record.setServiceVersionId((String) converter.get(SERVICE_VERSION_ID));
+            record.setPagePathId((String) converter.get(PAGE_PATH_ID));
+            record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
+            record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            record.setErrorCategory(((Number) converter.get(ERROR_CATEGORY)).intValue());
+            String dataBinary = (String) converter.get(DATA_BINARY);
             if (StringUtil.isEmpty(dataBinary)) {
                 record.setDataBinary(new byte[] {});
             } else {
@@ -106,21 +106,19 @@ public class BrowserErrorLogRecord extends Record {
         }
 
         @Override
-        public Map<String, Object> entity2Storage(final BrowserErrorLogRecord storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(UNIQUE_ID, storageData.getUniqueId());
-            map.put(SERVICE_ID, storageData.getServiceId());
-            map.put(SERVICE_VERSION_ID, storageData.getServiceVersionId());
-            map.put(PAGE_PATH_ID, storageData.getPagePathId());
-            map.put(TIMESTAMP, storageData.getTimestamp());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(ERROR_CATEGORY, storageData.getErrorCategory());
+        public void entity2Storage(final BrowserErrorLogRecord storageData, final Convert2Storage converter) {
+            converter.accept(UNIQUE_ID, storageData.getUniqueId());
+            converter.accept(SERVICE_ID, storageData.getServiceId());
+            converter.accept(SERVICE_VERSION_ID, storageData.getServiceVersionId());
+            converter.accept(PAGE_PATH_ID, storageData.getPagePathId());
+            converter.accept(TIMESTAMP, storageData.getTimestamp());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(ERROR_CATEGORY, storageData.getErrorCategory());
             if (CollectionUtils.isEmpty(storageData.getDataBinary())) {
-                map.put(DATA_BINARY, Const.EMPTY_STRING);
+                converter.accept(DATA_BINARY, Const.EMPTY_STRING);
             } else {
-                map.put(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
+                converter.accept(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
             }
-            return map;
         }
     }
 }

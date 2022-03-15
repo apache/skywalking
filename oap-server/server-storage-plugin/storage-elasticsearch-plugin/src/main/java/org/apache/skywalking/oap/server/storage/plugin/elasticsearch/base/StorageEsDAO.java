@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 
@@ -39,21 +38,21 @@ public class StorageEsDAO extends EsDAO implements StorageDAO {
 
     @Override
     public IMetricsDAO newMetricsDao(StorageBuilder storageBuilder) {
-        return new MetricsEsDAO(getClient(), (StorageHashMapBuilder<Metrics>) storageBuilder);
+        return new MetricsEsDAO(getClient(), (StorageBuilder<Metrics>) storageBuilder);
     }
 
     @Override
     public IRecordDAO newRecordDao(StorageBuilder storageBuilder) {
-        return new RecordEsDAO(getClient(), (StorageHashMapBuilder<Record>) storageBuilder);
+        return new RecordEsDAO(getClient(), (StorageBuilder<Record>) storageBuilder);
     }
 
     @Override
     public INoneStreamDAO newNoneStreamDao(StorageBuilder storageBuilder) {
-        return new NoneStreamEsDAO(getClient(), (StorageHashMapBuilder<NoneStream>) storageBuilder);
+        return new NoneStreamEsDAO(getClient(), (StorageBuilder<NoneStream>) storageBuilder);
     }
 
     @Override
     public IManagementDAO newManagementDao(StorageBuilder storageBuilder) {
-        return new ManagementEsDAO(getClient(), (StorageHashMapBuilder<ManagementData>) storageBuilder);
+        return new ManagementEsDAO(getClient(), (StorageBuilder<ManagementData>) storageBuilder);
     }
 }

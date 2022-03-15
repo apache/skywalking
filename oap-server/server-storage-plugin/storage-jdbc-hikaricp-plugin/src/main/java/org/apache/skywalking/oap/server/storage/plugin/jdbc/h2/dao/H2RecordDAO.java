@@ -30,20 +30,20 @@ import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentReco
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
     private JDBCHikariCPClient h2Client;
-    private StorageHashMapBuilder<Record> storageBuilder;
+    private StorageBuilder<Record> storageBuilder;
     private final int maxSizeOfArrayColumn;
 
     public H2RecordDAO(ModuleManager manager,
                        JDBCHikariCPClient h2Client,
-                       StorageHashMapBuilder<Record> storageBuilder,
+                       StorageBuilder<Record> storageBuilder,
                        final int maxSizeOfArrayColumn,
                        final int numOfSearchableValuesPerTag) {
         this.h2Client = h2Client;

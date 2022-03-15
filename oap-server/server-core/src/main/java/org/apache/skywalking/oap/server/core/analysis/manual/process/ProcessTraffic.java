@@ -31,12 +31,11 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS;
 
@@ -44,8 +43,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
     builder = ProcessTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = true)
 @EqualsAndHashCode(of = {
-        "instanceId",
-        "name",
+    "instanceId",
+    "name",
 })
 public class ProcessTraffic extends Metrics {
     public static final String INDEX_NAME = "process_traffic";
@@ -161,43 +160,40 @@ public class ProcessTraffic extends Metrics {
         return IDManager.ProcessID.buildId(instanceId, name);
     }
 
-    public static class Builder implements StorageHashMapBuilder<ProcessTraffic> {
-
+    public static class Builder implements StorageBuilder<ProcessTraffic> {
         @Override
-        public ProcessTraffic storage2Entity(Map<String, Object> dbMap) {
+        public ProcessTraffic storage2Entity(final Convert2Entity converter) {
             final ProcessTraffic processTraffic = new ProcessTraffic();
-            processTraffic.setServiceId((String) dbMap.get(SERVICE_ID));
-            processTraffic.setInstanceId((String) dbMap.get(INSTANCE_ID));
-            processTraffic.setName((String) dbMap.get(NAME));
-            processTraffic.setLayer(((Number) dbMap.get(LAYER)).intValue());
-            processTraffic.setAgentId((String) dbMap.get(AGENT_ID));
-            final String propString = (String) dbMap.get(PROPERTIES);
+            processTraffic.setServiceId((String) converter.get(SERVICE_ID));
+            processTraffic.setInstanceId((String) converter.get(INSTANCE_ID));
+            processTraffic.setName((String) converter.get(NAME));
+            processTraffic.setLayer(((Number) converter.get(LAYER)).intValue());
+            processTraffic.setAgentId((String) converter.get(AGENT_ID));
+            final String propString = (String) converter.get(PROPERTIES);
             if (StringUtil.isNotEmpty(propString)) {
                 processTraffic.setProperties(GSON.fromJson(propString, JsonObject.class));
             }
-            processTraffic.setLastPingTimestamp(((Number) dbMap.get(LAST_PING_TIME_BUCKET)).longValue());
-            processTraffic.setDetectType(((Number) dbMap.get(DETECT_TYPE)).intValue());
-            processTraffic.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            processTraffic.setLastPingTimestamp(((Number) converter.get(LAST_PING_TIME_BUCKET)).longValue());
+            processTraffic.setDetectType(((Number) converter.get(DETECT_TYPE)).intValue());
+            processTraffic.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return processTraffic;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(ProcessTraffic storageData) {
-            final HashMap<String, Object> map = new HashMap<>();
-            map.put(SERVICE_ID, storageData.getServiceId());
-            map.put(INSTANCE_ID, storageData.getInstanceId());
-            map.put(NAME, storageData.getName());
-            map.put(LAYER, storageData.getLayer());
-            map.put(AGENT_ID, storageData.getAgentId());
+        public void entity2Storage(final ProcessTraffic storageData, final Convert2Storage converter) {
+            converter.accept(SERVICE_ID, storageData.getServiceId());
+            converter.accept(INSTANCE_ID, storageData.getInstanceId());
+            converter.accept(NAME, storageData.getName());
+            converter.accept(LAYER, storageData.getLayer());
+            converter.accept(AGENT_ID, storageData.getAgentId());
             if (storageData.getProperties() != null) {
-                map.put(PROPERTIES, GSON.toJson(storageData.getProperties()));
+                converter.accept(PROPERTIES, GSON.toJson(storageData.getProperties()));
             } else {
-                map.put(PROPERTIES, Const.EMPTY_STRING);
+                converter.accept(PROPERTIES, Const.EMPTY_STRING);
             }
-            map.put(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
-            map.put(DETECT_TYPE, storageData.getDetectType());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            return map;
+            converter.accept(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
+            converter.accept(DETECT_TYPE, storageData.getDetectType());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
         }
     }
 

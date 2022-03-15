@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.latest;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,8 +35,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @MeterFunction(functionName = "latest")
 @ToString
@@ -63,23 +63,27 @@ public abstract class LatestFunction extends Meter implements AcceptableValue<Lo
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Latest)
     private long value;
 
-    @Override public void accept(MeterEntity entity, Long value) {
+    @Override
+    public void accept(MeterEntity entity, Long value) {
         this.entityId = entity.id();
         this.serviceId = entity.serviceId();
         this.value = value;
     }
 
-    @Entrance public final void combine(@SourceFrom long value) {
+    @Entrance
+    public final void combine(@SourceFrom long value) {
         this.value = value;
     }
 
-    @Override public final boolean combine(Metrics metrics) {
+    @Override
+    public final boolean combine(Metrics metrics) {
         LatestFunction latestFunction = (LatestFunction) metrics;
         combine(latestFunction.value);
         return true;
     }
 
-    @Override public void calculate() {
+    @Override
+    public void calculate() {
 
     }
 
@@ -135,34 +139,32 @@ public abstract class LatestFunction extends Meter implements AcceptableValue<Lo
     }
 
     @Override
-    public Class<? extends LastestStorageBuilder> builder() {
-        return LatestFunction.LastestStorageBuilder.class;
+    public Class<? extends LatestStorageBuilder> builder() {
+        return LatestStorageBuilder.class;
     }
 
-    public static class LastestStorageBuilder implements StorageHashMapBuilder<LatestFunction> {
+    public static class LatestStorageBuilder implements StorageBuilder<LatestFunction> {
         @Override
-        public LatestFunction storage2Entity(final Map<String, Object> dbMap) {
+        public LatestFunction storage2Entity(final Convert2Entity converter) {
             LatestFunction metrics = new LatestFunction() {
                 @Override
                 public AcceptableValue<Long> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
-            metrics.setValue(((Number) dbMap.get(VALUE)).longValue());
-            metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            metrics.setServiceId((String) dbMap.get(InstanceTraffic.SERVICE_ID));
-            metrics.setEntityId((String) dbMap.get(ENTITY_ID));
+            metrics.setValue(((Number) converter.get(VALUE)).longValue());
+            metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            metrics.setServiceId((String) converter.get(InstanceTraffic.SERVICE_ID));
+            metrics.setEntityId((String) converter.get(ENTITY_ID));
             return metrics;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(final LatestFunction storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(VALUE, storageData.getValue());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
-            map.put(ENTITY_ID, storageData.getEntityId());
-            return map;
+        public void entity2Storage(final LatestFunction storageData, final Convert2Storage converter) {
+            converter.accept(VALUE, storageData.getValue());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
+            converter.accept(ENTITY_ID, storageData.getEntityId());
         }
     }
 

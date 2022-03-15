@@ -24,8 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.influxdb.dto.Point;
@@ -41,9 +42,9 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 @Slf4j
 public class ManagementDAO implements IManagementDAO {
     private final InfluxClient client;
-    private final StorageHashMapBuilder<ManagementData> storageBuilder;
+    private final StorageBuilder<ManagementData> storageBuilder;
 
-    public ManagementDAO(InfluxClient client, StorageHashMapBuilder<ManagementData> storageBuilder) {
+    public ManagementDAO(InfluxClient client, StorageBuilder<ManagementData> storageBuilder) {
         this.client = client;
         this.storageBuilder = storageBuilder;
     }
@@ -62,10 +63,12 @@ public class ManagementDAO implements IManagementDAO {
             return;
         }
 
+        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+        storageBuilder.entity2Storage(managementData, toStorage);
         Point point = Point.measurement(UITemplate.INDEX_NAME)
                            .tag(InfluxConstants.TagName.ID_COLUMN, managementData.id())
                            .time(1L, TimeUnit.NANOSECONDS)
-                           .fields(storageBuilder.entity2Storage(managementData)).build();
+                           .fields(toStorage.obtain()).build();
         client.write(point);
     }
 }

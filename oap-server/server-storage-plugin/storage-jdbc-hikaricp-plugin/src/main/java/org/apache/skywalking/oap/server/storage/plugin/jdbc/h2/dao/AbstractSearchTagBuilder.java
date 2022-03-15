@@ -18,12 +18,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.util.List;
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
-public abstract class AbstractSearchTagBuilder<T extends Record> implements StorageHashMapBuilder<T> {
+public abstract class AbstractSearchTagBuilder<T extends Record> implements StorageBuilder<T> {
 
     private final int numOfSearchableValuesPerTag;
     private final List<String> searchTagKeys;
@@ -43,7 +43,7 @@ public abstract class AbstractSearchTagBuilder<T extends Record> implements Stor
         this.tagColumn = tagColumn;
     }
 
-    protected void analysisSearchTag(List<Tag> rawTags, Map<String, Object> dbMap) {
+    protected void analysisSearchTag(List<Tag> rawTags, Convert2Storage converter) {
         rawTags.forEach(tag -> {
             final int index = searchTagKeys.indexOf(tag.getKey());
             boolean shouldAdd = true;
@@ -51,7 +51,7 @@ public abstract class AbstractSearchTagBuilder<T extends Record> implements Stor
             final String tagExpression = tag.toString();
             for (int i = 0; i < numOfSearchableValuesPerTag; i++) {
                 tagInx = index * numOfSearchableValuesPerTag + i;
-                final String previousValue = (String) dbMap.get(tagColumn + "_" + tagInx);
+                final String previousValue = (String) converter.get(tagColumn + "_" + tagInx);
                 if (previousValue == null) {
                     // Still have at least one available slot, add directly.
                     shouldAdd = true;
@@ -68,7 +68,7 @@ public abstract class AbstractSearchTagBuilder<T extends Record> implements Stor
                 }
             }
             if (shouldAdd) {
-                dbMap.put(tagColumn + "_" + tagInx, tagExpression);
+                converter.accept(tagColumn + "_" + tagInx, tagExpression);
             }
         });
     }

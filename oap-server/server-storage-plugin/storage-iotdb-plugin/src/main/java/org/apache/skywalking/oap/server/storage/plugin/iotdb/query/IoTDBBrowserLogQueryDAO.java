@@ -34,7 +34,6 @@ import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
