@@ -61,6 +61,11 @@ public class ModelColumn {
             }
             this.storageOnly = storageOnly;
         }
+
+        if (storageOnly && indexOnly) {
+            throw new IllegalArgumentException(
+                "The column " + columnName + " can't be defined as both indexOnly and storageOnly.");
+        }
         this.indexOnly = indexOnly;
     }
 }
