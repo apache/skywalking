@@ -106,9 +106,14 @@ Release Notes.
 * Activate `satellite,spring-sleuth` for `agent-analyzer#meterAnalyzerActiveFiles`  on default.
 * Activate `receiver-zabbix` receiver with `agent` rule on default.
 * Replace HTTP server (GraphQL, agent HTTP protocol) from Jetty with Armeria.
-* [Breaking Change] Remove configuration `restAcceptorPriorityDelta` (env var: `SW_RECEIVER_SHARING_JETTY_DELTA`, `SW_CORE_REST_JETTY_DELTA`).
+* [Breaking Change] Remove configuration `restAcceptorPriorityDelta` (env var: `SW_RECEIVER_SHARING_JETTY_DELTA`
+  , `SW_CORE_REST_JETTY_DELTA`).
 * [Breaking Change] Remove configuration `graphql/path` (env var: `SW_QUERY_GRAPHQL_PATH`).
-* [Breaking Change] Remove configuration `restMinThreads` (env var: `SW_CORE_REST_JETTY_MIN_THREADS`, `SW_RECEIVER_SHARING_JETTY_MIN_THREADS`).
+* [Breaking Change] Remove configuration `restMinThreads` (env var: `SW_CORE_REST_JETTY_MIN_THREADS`
+  , `SW_RECEIVER_SHARING_JETTY_MIN_THREADS`).
+* Refactor the core Builder mechanism, new storage plugin could implement their own converter and get rid of hard
+  requirement of using HashMap to community between data object and database native structure.
+* [Breaking Change] Break all existing 3rd-party storage extensions.
 
 #### UI
 
