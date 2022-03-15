@@ -112,7 +112,7 @@ Release Notes.
 * [Breaking Change] Remove configuration `restMinThreads` (env var: `SW_CORE_REST_JETTY_MIN_THREADS`
   , `SW_RECEIVER_SHARING_JETTY_MIN_THREADS`).
 * Refactor the core Builder mechanism, new storage plugin could implement their own converter and get rid of hard
-  requirement of using HashMap to community between data object and database native structure.
+  requirement of using HashMap to communicate between data object and database native structure.
 * [Breaking Change] Break all existing 3rd-party storage extensions.
 
 #### UI
