@@ -56,8 +56,8 @@
             <artifactId>graphql-java-extended-scalars</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
+            <groupId>com.linecorp.armeria</groupId>
+            <artifactId>armeria-graphql</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>

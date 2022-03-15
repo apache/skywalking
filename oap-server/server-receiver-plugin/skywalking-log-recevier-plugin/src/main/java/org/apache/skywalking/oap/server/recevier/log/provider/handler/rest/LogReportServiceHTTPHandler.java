@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.receiver.event.rest;
+package org.apache.skywalking.oap.server.recevier.log.provider.handler.rest;
 
 import com.linecorp.armeria.server.annotation.Post;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
-import org.apache.skywalking.apm.network.event.v3.Event;
-import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerService;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
+import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -32,38 +32,38 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
-public class EventRestServiceHandler {
+public class LogReportServiceHTTPHandler {
     private final HistogramMetrics histogram;
 
     private final CounterMetrics errorCounter;
 
-    private final EventAnalyzerService eventAnalyzerService;
+    private final ILogAnalyzerService logAnalyzerService;
 
-    public EventRestServiceHandler(final ModuleManager manager) {
-        final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
-                                                     .provider()
-                                                     .getService(MetricsCreator.class);
+    public LogReportServiceHTTPHandler(final ModuleManager moduleManager) {
+        final MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                           .provider()
+                                                           .getService(MetricsCreator.class);
 
-        eventAnalyzerService = manager.find(EventAnalyzerModule.NAME)
-                                      .provider()
-                                      .getService(EventAnalyzerService.class);
+        logAnalyzerService = moduleManager.find(LogAnalyzerModule.NAME)
+                                          .provider()
+                                          .getService(ILogAnalyzerService.class);
 
         histogram = metricsCreator.createHistogramMetric(
-            "event_in_latency", "The process latency of event data",
+            "log_in_latency", "The process latency of log",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
         errorCounter = metricsCreator.createCounter(
-            "event_error_count", "The error number of event analysis",
+            "log_analysis_error_count", "The error number of log analysis",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
     }
 
-    @Post("/v3/events")
-    public Commands collectEvents(final List<Event> events) {
-        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
-            events.forEach(eventAnalyzerService::analyze);
+    @Post("/v3/logs")
+    public Commands collectLogs(final List<LogData> logs) {
+        try (final HistogramMetrics.Timer ignored = histogram.createTimer()) {
+            logs.forEach(it -> logAnalyzerService.doAnalysis(it, null));
             return Commands.newBuilder().build();
-        } catch (Exception e) {
+        } catch (final Throwable e) {
             errorCounter.inc();
             throw e;
         }

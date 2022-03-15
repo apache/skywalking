@@ -25,7 +25,6 @@ import io.grpc.ServerServiceDefinition;
 import io.grpc.netty.NettyServerBuilder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -91,16 +90,6 @@ public class GRPCServer implements Server {
     }
 
     @Override
-    public String hostPort() {
-        return host + ":" + port;
-    }
-
-    @Override
-    public String serverClassify() {
-        return "Google-RPC";
-    }
-
-    @Override
     public void initialize() {
         InetSocketAddress address = new InetSocketAddress(host, port);
         ArrayBlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(threadPoolQueueSize);
@@ -153,20 +142,4 @@ public class GRPCServer implements Server {
         nettyServerBuilder.intercept(serverInterceptor);
     }
 
-    @Override
-    public boolean isSSLOpen() {
-        return !Strings.isNullOrEmpty(privateKeyFile) && !Strings.isNullOrEmpty(certChainFile);
-    }
-
-    @Override
-    public boolean isStatusEqual(Server target) {
-        if (this == target)
-            return true;
-        if (target == null || getClass() != target.getClass())
-            return false;
-        GRPCServer that = (GRPCServer) target;
-        return port == that.port && Objects.equals(host, that.host) && Objects.equals(
-            certChainFile, that.certChainFile) && Objects
-            .equals(privateKeyFile, that.privateKeyFile);
-    }
 }

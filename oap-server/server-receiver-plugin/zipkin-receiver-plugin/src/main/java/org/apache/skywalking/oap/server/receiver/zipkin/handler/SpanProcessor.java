@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 
+import com.linecorp.armeria.common.HttpData;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-import javax.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -38,8 +38,9 @@ public class SpanProcessor {
     private final NamingControl namingControl;
     private final SourceReceiver receiver;
 
-    void convert(ZipkinReceiverConfig config, SpanBytesDecoder decoder, HttpServletRequest request) throws IOException {
-        try (InputStream inputStream = getInputStream(request)) {
+    void convert(ZipkinReceiverConfig config, SpanBytesDecoder decoder,
+                 String contentEncoding, HttpData request) throws IOException {
+        try (InputStream inputStream = getInputStream(contentEncoding, request)) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buffer = new byte[2048];
             int readCntOnce;
@@ -55,14 +56,13 @@ public class SpanProcessor {
         }
     }
 
-    private InputStream getInputStream(HttpServletRequest request) throws IOException {
+    private InputStream getInputStream(String headEncoding, HttpData request) throws IOException {
         InputStream requestInStream;
 
-        String headEncoding = request.getHeader("Content-Encoding");
-        if (headEncoding != null && (headEncoding.indexOf("gzip") != -1)) {
-            requestInStream = new GZIPInputStream(request.getInputStream());
+        if (headEncoding != null && headEncoding.contains("gzip")) {
+            requestInStream = new GZIPInputStream(request.toInputStream());
         } else {
-            requestInStream = request.getInputStream();
+            requestInStream = request.toInputStream();
         }
 
         return requestInStream;

@@ -16,7 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.server.grpc;
+package org.apache.skywalking.oap.server.tool.profile.core.mock;
 
-public interface GRPCHandler {
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
+
+/**
+ * Mock from {@link HTTPHandlerRegister}
+ */
+public class MockHTTPHandlerRegister implements HTTPHandlerRegister {
+    @Override
+    public void addHandler(Object httpService) {
+    }
 }

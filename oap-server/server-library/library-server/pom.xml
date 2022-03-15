@@ -52,14 +52,6 @@
             <artifactId>grpc-testing</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
         </dependency>
@@ -74,6 +66,15 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.linecorp.armeria</groupId>
+            <artifactId>armeria</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.linecorp.armeria</groupId>
+            <artifactId>armeria-protobuf</artifactId>
         </dependency>
     </dependencies>
 </project>

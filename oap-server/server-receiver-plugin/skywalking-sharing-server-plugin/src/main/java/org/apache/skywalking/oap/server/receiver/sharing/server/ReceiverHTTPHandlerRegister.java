@@ -16,7 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.server.grpc;
+package org.apache.skywalking.oap.server.receiver.sharing.server;
 
-public interface GRPCHandler {
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
+
+public class ReceiverHTTPHandlerRegister implements HTTPHandlerRegister {
+
+    @Setter
+    private HTTPHandlerRegister httpHandlerRegister;
+
+    @Override
+    public void addHandler(Object httpService) {
+        httpHandlerRegister.addHandler(httpService);
+    }
 }
