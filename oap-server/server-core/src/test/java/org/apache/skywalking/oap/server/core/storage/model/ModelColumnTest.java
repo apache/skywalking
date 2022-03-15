@@ -56,4 +56,12 @@ public class ModelColumnTest {
                                              Column.AnalyzerType.OAP_ANALYZER
         );
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConflictDefinitionIndexOnly() {
+        ModelColumn column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
+                                             true, true, true, false, 200,
+                                             Column.AnalyzerType.OAP_ANALYZER
+        );
+    }
 }
