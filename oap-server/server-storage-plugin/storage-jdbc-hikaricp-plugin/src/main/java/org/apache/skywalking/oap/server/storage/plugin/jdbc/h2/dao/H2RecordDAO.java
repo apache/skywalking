@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -31,6 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -50,7 +50,7 @@ public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
         try {
             if (SegmentRecord.class
                 .equals(
-                    storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType()
+                    storageBuilder.getClass().getMethod("storage2Entity", Convert2Entity.class).getReturnType()
                 )
             ) {
                 this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
@@ -63,7 +63,7 @@ public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
                     Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA))
                 );
             } else if (LogRecord.class.equals(
-                storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType())) {
+                storageBuilder.getClass().getMethod("storage2Entity", Convert2Entity.class).getReturnType())) {
                 this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
                 final ConfigService configService = manager.find(CoreModule.NAME)
                                                            .provider()
@@ -75,23 +75,24 @@ public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
                                                .split(Const.COMMA))
                 );
             } else if (AlarmRecord.class.equals(
-                    storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType())) {
+                storageBuilder.getClass().getMethod("storage2Entity", Convert2Entity.class).getReturnType())) {
                 this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
                 final ConfigService configService = manager.find(CoreModule.NAME)
-                        .provider()
-                        .getService(ConfigService.class);
+                                                           .provider()
+                                                           .getService(ConfigService.class);
                 this.storageBuilder = new H2AlarmRecordBuilder(
-                        maxSizeOfArrayColumn,
-                        numOfSearchableValuesPerTag,
-                        Arrays.asList(configService.getSearchableAlarmTags()
-                                .split(Const.COMMA))
+                    maxSizeOfArrayColumn,
+                    numOfSearchableValuesPerTag,
+                    Arrays.asList(configService.getSearchableAlarmTags()
+                                               .split(Const.COMMA))
                 );
             } else {
                 this.maxSizeOfArrayColumn = 1;
                 this.storageBuilder = storageBuilder;
             }
         } catch (NoSuchMethodException e) {
-            throw new UnexpectedException("Can't find the SegmentRecord$Builder.map2Data method.");
+            throw new UnexpectedException(
+                "Can't find the " + storageBuilder.getClass().getName() + ".storage2Entity method.");
         }
     }
 
