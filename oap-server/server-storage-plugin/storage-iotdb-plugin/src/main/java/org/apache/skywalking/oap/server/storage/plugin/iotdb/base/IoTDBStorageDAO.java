@@ -19,10 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.base;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
-import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
@@ -37,21 +33,21 @@ public class IoTDBStorageDAO implements StorageDAO {
 
     @Override
     public IMetricsDAO newMetricsDao(StorageBuilder storageBuilder) {
-        return new IoTDBMetricsDAO(ioTDBClient, (StorageHashMapBuilder<Metrics>) storageBuilder);
+        return new IoTDBMetricsDAO(ioTDBClient, storageBuilder);
     }
 
     @Override
     public IRecordDAO newRecordDao(StorageBuilder storageBuilder) {
-        return new IoTDBRecordDAO((StorageHashMapBuilder<Record>) storageBuilder);
+        return new IoTDBRecordDAO(storageBuilder);
     }
 
     @Override
     public INoneStreamDAO newNoneStreamDao(StorageBuilder storageBuilder) {
-        return new IoTDBNoneStreamDAO(ioTDBClient, (StorageHashMapBuilder<NoneStream>) storageBuilder);
+        return new IoTDBNoneStreamDAO(ioTDBClient, storageBuilder);
     }
 
     @Override
     public IManagementDAO newManagementDao(StorageBuilder storageBuilder) {
-        return new IoTDBManagementDAO(ioTDBClient, (StorageHashMapBuilder<ManagementData>) storageBuilder);
+        return new IoTDBManagementDAO(ioTDBClient, storageBuilder);
     }
 }

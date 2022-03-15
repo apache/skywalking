@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
@@ -41,7 +42,7 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertReq
 @RequiredArgsConstructor
 public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<UITemplate> storageBuilder = new UITemplate.Builder();
+    private final StorageBuilder<UITemplate> storageBuilder = new UITemplate.Builder();
     private static final long UI_TEMPLATE_TIMESTAMP = 1L;
 
     @Override
@@ -57,7 +58,8 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
         query = client.addQueryIndexValue(UITemplate.INDEX_NAME, query, indexAndValueMap);
         query.append(" limit 1").append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(UITemplate.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(
+            UITemplate.INDEX_NAME, query.toString(), storageBuilder);
         if (storageDataList.size() > 0) {
             return new DashboardConfiguration().fromEntity((UITemplate) storageDataList.get(0));
         }
@@ -76,10 +78,12 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(UITemplate.INDEX_NAME, query.toString(),
-                storageBuilder);
+                                                                       storageBuilder
+        );
         List<DashboardConfiguration> dashboardConfigurationList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData ->
-                dashboardConfigurationList.add(new DashboardConfiguration().fromEntity((UITemplate) storageData)));
+                                    dashboardConfigurationList.add(
+                                        new DashboardConfiguration().fromEntity((UITemplate) storageData)));
         return dashboardConfigurationList;
     }
 
@@ -88,7 +92,8 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
         final UITemplate uiTemplate = setting.toEntity();
 
         IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
-                uiTemplate, storageBuilder);
+                                                            uiTemplate, storageBuilder
+        );
         client.write(request);
         return TemplateChangeStatus.builder().status(true).id(setting.getId()).build();
     }
@@ -101,13 +106,19 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
         query.append("select * from ");
         query = client.addModelPath(query, UITemplate.INDEX_NAME);
         query.append(IoTDBClient.DOT).append(client.indexValue2LayerName(uiTemplate.id()))
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
-        List<? super StorageData> queryResult = client.filterQuery(UITemplate.INDEX_NAME, query.toString(), storageBuilder);
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
+        List<? super StorageData> queryResult = client.filterQuery(
+            UITemplate.INDEX_NAME, query.toString(), storageBuilder);
         if (queryResult.size() == 0) {
-            return TemplateChangeStatus.builder().status(false).id(setting.getId()).message("Can't find the template").build();
+            return TemplateChangeStatus.builder()
+                                       .status(false)
+                                       .id(setting.getId())
+                                       .message("Can't find the template")
+                                       .build();
         } else {
             IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
-                    uiTemplate, storageBuilder);
+                                                                uiTemplate, storageBuilder
+            );
             client.write(request);
             return TemplateChangeStatus.builder().status(true).id(setting.getId()).build();
         }
@@ -119,16 +130,18 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
         query.append("select * from ");
         query = client.addModelPath(query, UITemplate.INDEX_NAME);
         query.append(IoTDBClient.DOT).append(client.indexValue2LayerName(id))
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> queryResult = client.filterQuery(UITemplate.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> queryResult = client.filterQuery(
+            UITemplate.INDEX_NAME, query.toString(), storageBuilder);
         if (queryResult.size() == 0) {
             return TemplateChangeStatus.builder().status(false).id(id).message("Can't find the template").build();
         } else {
             final UITemplate uiTemplate = (UITemplate) queryResult.get(0);
             uiTemplate.setDisabled(BooleanUtils.TRUE);
             IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
-                    uiTemplate, storageBuilder);
+                                                                uiTemplate, storageBuilder
+            );
             client.write(request);
             return TemplateChangeStatus.builder().status(true).id(id).build();
         }
