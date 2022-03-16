@@ -16,28 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter.function;
+package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
-import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+import com.linecorp.armeria.server.annotation.Consumes;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/**
- * Indicate this function accepting the data of type T.
- */
-public interface AcceptableValue<T> {
-    void accept(MeterEntity entity, T value);
-
-    /**
-     * @return a new instance based on the implementation, it should be the same class.
-     */
-    AcceptableValue<T> createNew();
-
-    /**
-     * @return builder
-     */
-    Class<? extends StorageBuilder> builder();
-
-    void setTimeBucket(long timeBucket);
-
-    long getTimeBucket();
+@Retention(RetentionPolicy.RUNTIME)
+@Target({
+    ElementType.TYPE,
+    ElementType.METHOD
+})
+@Consumes("application/x-thrift")
+@interface ConsumesThrift {
 }

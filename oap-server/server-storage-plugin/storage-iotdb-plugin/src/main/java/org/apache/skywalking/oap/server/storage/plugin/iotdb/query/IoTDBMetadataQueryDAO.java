@@ -43,8 +43,8 @@ import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
@@ -53,10 +53,10 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 @RequiredArgsConstructor
 public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<ServiceTraffic> serviceBuilder = new ServiceTraffic.Builder();
-    private final StorageHashMapBuilder<EndpointTraffic> endpointBuilder = new EndpointTraffic.Builder();
-    private final StorageHashMapBuilder<InstanceTraffic> instanceBuilder = new InstanceTraffic.Builder();
-    private final StorageHashMapBuilder<ProcessTraffic> processBuilder = new ProcessTraffic.Builder();
+    private final StorageBuilder<ServiceTraffic> serviceBuilder = new ServiceTraffic.Builder();
+    private final StorageBuilder<EndpointTraffic> endpointBuilder = new EndpointTraffic.Builder();
+    private final StorageBuilder<InstanceTraffic> instanceBuilder = new InstanceTraffic.Builder();
+    private final StorageBuilder<ProcessTraffic> processBuilder = new ProcessTraffic.Builder();
 
     @Override
     public List<Service> listServices(final String layer, final String group) throws IOException {

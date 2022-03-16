@@ -37,7 +37,8 @@ import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
@@ -68,10 +69,11 @@ public class IoTDBClient implements Client, HealthCheckable {
     public void connect() throws IoTDBConnectionException, StatementExecutionException {
         try {
             final int sessionPoolSize = config.getSessionPoolSize() == 0 ?
-                    Runtime.getRuntime().availableProcessors() * 2 : config.getSessionPoolSize();
+                Runtime.getRuntime().availableProcessors() * 2 : config.getSessionPoolSize();
             log.info("SessionPool Size: {}", sessionPoolSize);
             sessionPool = new SessionPool(config.getHost(), config.getRpcPort(), config.getUsername(),
-                    config.getPassword(), sessionPoolSize, false, false);
+                                          config.getPassword(), sessionPoolSize, false, false
+            );
             sessionPool.setStorageGroup(storageGroup);
 
             healthChecker.health();
@@ -119,10 +121,12 @@ public class IoTDBClient implements Client, HealthCheckable {
             // make an index value as a layer name of the storage path
             if (!request.getIndexes().isEmpty()) {
                 request.getIndexValues().forEach(value -> devicePath.append(IoTDBClient.DOT)
-                        .append(indexValue2LayerName(value)));
+                                                                    .append(indexValue2LayerName(value)));
             }
             sessionPool.insertRecord(devicePath.toString(), request.getTime(),
-                    request.getMeasurements(), request.getMeasurementTypes(), request.getMeasurementValues());
+                                     request.getMeasurements(), request.getMeasurementTypes(),
+                                     request.getMeasurementValues()
+            );
             healthChecker.health();
         } catch (IoTDBConnectionException | StatementExecutionException e) {
             healthChecker.unHealth(e);
@@ -155,7 +159,7 @@ public class IoTDBClient implements Client, HealthCheckable {
             // make an index value as a layer name of the storage path
             if (!request.getIndexes().isEmpty()) {
                 request.getIndexValues().forEach(value -> devicePath.append(IoTDBClient.DOT)
-                        .append(indexValue2LayerName(value)));
+                                                                    .append(indexValue2LayerName(value)));
             }
             devicePathList.add(devicePath.toString());
             timeList.add(request.getTime());
@@ -183,8 +187,8 @@ public class IoTDBClient implements Client, HealthCheckable {
      * @throws IOException IoTDBConnectionException or StatementExecutionException
      */
     public List<? super StorageData> filterQuery(String modelName, String querySQL,
-                                                 StorageHashMapBuilder<? extends StorageData> storageBuilder)
-            throws IOException {
+                                                 StorageBuilder<? extends StorageData> storageBuilder)
+        throws IOException {
         if (!querySQL.contains("align by device")) {
             throw new IOException("querySQL must contain \"align by device\"");
         }
@@ -205,8 +209,10 @@ public class IoTDBClient implements Client, HealthCheckable {
                 List<Field> fields = rowRecord.getFields();
                 // transform timestamp to time_bucket
                 if (!UITemplate.INDEX_NAME.equals(modelName)) {
-                    map.put(IoTDBClient.TIME_BUCKET, TimeBucket.getTimeBucket(rowRecord.getTimestamp(),
-                            tableMetaInfo.getModel().getDownsampling()));
+                    map.put(IoTDBClient.TIME_BUCKET, TimeBucket.getTimeBucket(
+                        rowRecord.getTimestamp(),
+                        tableMetaInfo.getModel().getDownsampling()
+                    ));
                 }
                 // field.get(0) -> Device, transform layerName to indexValue
                 String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
@@ -240,7 +246,7 @@ public class IoTDBClient implements Client, HealthCheckable {
                     }
                 }
 
-                storageDataList.add(storageBuilder.storage2Entity(map));
+                storageDataList.add(storageBuilder.storage2Entity(new HashMapConverter.ToEntity(map)));
             }
             healthChecker.health();
         } catch (IoTDBConnectionException | StatementExecutionException e) {
@@ -255,7 +261,8 @@ public class IoTDBClient implements Client, HealthCheckable {
     }
 
     /**
-     * Query with aggregation function: count, sum, avg, last_value, first_value, min_time, max_time, min_value, max_value
+     * Query with aggregation function: count, sum, avg, last_value, first_value, min_time, max_time, min_value,
+     * max_value
      *
      * @param querySQL the SQL for query which should contain aggregation function
      * @return the result of aggregation function
@@ -317,7 +324,9 @@ public class IoTDBClient implements Client, HealthCheckable {
         return layerName.substring(0, layerName.length() - 1);
     }
 
-    public StringBuilder addQueryIndexValue(String modelName, StringBuilder query, Map<String, String> indexAndValueMap) {
+    public StringBuilder addQueryIndexValue(String modelName,
+                                            StringBuilder query,
+                                            Map<String, String> indexAndValueMap) {
         List<String> indexes = IoTDBTableMetaInfo.get(modelName).getIndexes();
         indexes.forEach(index -> {
             if (indexAndValueMap.containsKey(index)) {

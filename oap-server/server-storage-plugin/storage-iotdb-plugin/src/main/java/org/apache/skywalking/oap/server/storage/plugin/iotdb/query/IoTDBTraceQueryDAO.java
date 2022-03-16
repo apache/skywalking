@@ -36,8 +36,8 @@ import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -47,7 +47,7 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 @RequiredArgsConstructor
 public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<SegmentRecord> storageBuilder = new SegmentRecord.Builder();
+    private final StorageBuilder<SegmentRecord> storageBuilder = new SegmentRecord.Builder();
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,

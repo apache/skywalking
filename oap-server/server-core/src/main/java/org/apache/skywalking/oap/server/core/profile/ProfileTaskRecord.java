@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.profile;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -27,8 +25,10 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK;
 
@@ -73,36 +73,33 @@ public class ProfileTaskRecord extends NoneStream {
     @Column(columnName = MAX_SAMPLING_COUNT)
     private int maxSamplingCount;
 
-    public static class Builder implements StorageHashMapBuilder<ProfileTaskRecord> {
-
+    public static class Builder implements StorageBuilder<ProfileTaskRecord> {
         @Override
-        public ProfileTaskRecord storage2Entity(Map<String, Object> dbMap) {
+        public ProfileTaskRecord storage2Entity(final Convert2Entity converter) {
             final ProfileTaskRecord record = new ProfileTaskRecord();
-            record.setServiceId((String) dbMap.get(SERVICE_ID));
-            record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
-            record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
-            record.setDuration(((Number) dbMap.get(DURATION)).intValue());
-            record.setMinDurationThreshold(((Number) dbMap.get(MIN_DURATION_THRESHOLD)).intValue());
-            record.setDumpPeriod(((Number) dbMap.get(DUMP_PERIOD)).intValue());
-            record.setCreateTime(((Number) dbMap.get(CREATE_TIME)).longValue());
-            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            record.setMaxSamplingCount(((Number) dbMap.get(MAX_SAMPLING_COUNT)).intValue());
+            record.setServiceId((String) converter.get(SERVICE_ID));
+            record.setEndpointName((String) converter.get(ENDPOINT_NAME));
+            record.setStartTime(((Number) converter.get(START_TIME)).longValue());
+            record.setDuration(((Number) converter.get(DURATION)).intValue());
+            record.setMinDurationThreshold(((Number) converter.get(MIN_DURATION_THRESHOLD)).intValue());
+            record.setDumpPeriod(((Number) converter.get(DUMP_PERIOD)).intValue());
+            record.setCreateTime(((Number) converter.get(CREATE_TIME)).longValue());
+            record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            record.setMaxSamplingCount(((Number) converter.get(MAX_SAMPLING_COUNT)).intValue());
             return record;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(ProfileTaskRecord storageData) {
-            final HashMap<String, Object> map = new HashMap<>();
-            map.put(SERVICE_ID, storageData.getServiceId());
-            map.put(ENDPOINT_NAME, storageData.getEndpointName());
-            map.put(START_TIME, storageData.getStartTime());
-            map.put(DURATION, storageData.getDuration());
-            map.put(MIN_DURATION_THRESHOLD, storageData.getMinDurationThreshold());
-            map.put(DUMP_PERIOD, storageData.getDumpPeriod());
-            map.put(CREATE_TIME, storageData.getCreateTime());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(MAX_SAMPLING_COUNT, storageData.getMaxSamplingCount());
-            return map;
+        public void entity2Storage(final ProfileTaskRecord storageData, final Convert2Storage converter) {
+            converter.accept(SERVICE_ID, storageData.getServiceId());
+            converter.accept(ENDPOINT_NAME, storageData.getEndpointName());
+            converter.accept(START_TIME, storageData.getStartTime());
+            converter.accept(DURATION, storageData.getDuration());
+            converter.accept(MIN_DURATION_THRESHOLD, storageData.getMinDurationThreshold());
+            converter.accept(DUMP_PERIOD, storageData.getDumpPeriod());
+            converter.accept(CREATE_TIME, storageData.getCreateTime());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(MAX_SAMPLING_COUNT, storageData.getMaxSamplingCount());
         }
     }
 

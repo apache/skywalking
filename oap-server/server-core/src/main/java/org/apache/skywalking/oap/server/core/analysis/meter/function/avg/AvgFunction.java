@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,8 +36,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @MeterFunction(functionName = "avg")
 @ToString
@@ -162,38 +162,36 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
     }
 
     @Override
-    public Class<? extends StorageHashMapBuilder> builder() {
+    public Class<? extends StorageBuilder> builder() {
         return AvgStorageBuilder.class;
     }
 
-    public static class AvgStorageBuilder implements StorageHashMapBuilder<AvgFunction> {
+    public static class AvgStorageBuilder implements StorageBuilder<AvgFunction> {
         @Override
-        public AvgFunction storage2Entity(final Map<String, Object> dbMap) {
+        public AvgFunction storage2Entity(final Convert2Entity converter) {
             AvgFunction metrics = new AvgFunction() {
                 @Override
                 public AcceptableValue<Long> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
-            metrics.setSummation(((Number) dbMap.get(SUMMATION)).longValue());
-            metrics.setValue(((Number) dbMap.get(VALUE)).longValue());
-            metrics.setCount(((Number) dbMap.get(COUNT)).longValue());
-            metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            metrics.setServiceId((String) dbMap.get(InstanceTraffic.SERVICE_ID));
-            metrics.setEntityId((String) dbMap.get(ENTITY_ID));
+            metrics.setSummation(((Number) converter.get(SUMMATION)).longValue());
+            metrics.setValue(((Number) converter.get(VALUE)).longValue());
+            metrics.setCount(((Number) converter.get(COUNT)).longValue());
+            metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            metrics.setServiceId((String) converter.get(InstanceTraffic.SERVICE_ID));
+            metrics.setEntityId((String) converter.get(ENTITY_ID));
             return metrics;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(final AvgFunction storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(SUMMATION, storageData.getSummation());
-            map.put(VALUE, storageData.getValue());
-            map.put(COUNT, storageData.getCount());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
-            map.put(ENTITY_ID, storageData.getEntityId());
-            return map;
+        public void entity2Storage(final AvgFunction storageData, final Convert2Storage converter) {
+            converter.accept(SUMMATION, storageData.getSummation());
+            converter.accept(VALUE, storageData.getValue());
+            converter.accept(COUNT, storageData.getCount());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
+            converter.accept(ENTITY_ID, storageData.getEntityId());
         }
     }
 

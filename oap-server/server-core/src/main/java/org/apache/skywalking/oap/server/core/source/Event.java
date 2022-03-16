@@ -19,10 +19,6 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import com.google.common.base.Strings;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,8 +32,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
@@ -244,39 +242,37 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
         return id;
     }
 
-    public static class Builder implements StorageHashMapBuilder<Event> {
+    public static class Builder implements StorageBuilder<Event> {
         @Override
-        public Map<String, Object> entity2Storage(Event storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(UUID, storageData.getUuid());
-            map.put(SERVICE, storageData.getService());
-            map.put(SERVICE_INSTANCE, storageData.getServiceInstance());
-            map.put(ENDPOINT, storageData.getEndpoint());
-            map.put(NAME, storageData.getName());
-            map.put(TYPE, storageData.getType());
-            map.put(MESSAGE, storageData.getMessage());
-            map.put(PARAMETERS, storageData.getParameters());
-            map.put(START_TIME, storageData.getStartTime());
-            map.put(END_TIME, storageData.getEndTime());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            return map;
+        public Event storage2Entity(final Convert2Entity converter) {
+            Event record = new Event();
+            record.setUuid((String) converter.get(UUID));
+            record.setService((String) converter.get(SERVICE));
+            record.setServiceInstance((String) converter.get(SERVICE_INSTANCE));
+            record.setEndpoint((String) converter.get(ENDPOINT));
+            record.setName((String) converter.get(NAME));
+            record.setType((String) converter.get(TYPE));
+            record.setMessage((String) converter.get(MESSAGE));
+            record.setParameters((String) converter.get(PARAMETERS));
+            record.setStartTime(((Number) converter.get(START_TIME)).longValue());
+            record.setEndTime(((Number) converter.get(END_TIME)).longValue());
+            record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            return record;
         }
 
         @Override
-        public Event storage2Entity(Map<String, Object> dbMap) {
-            Event record = new Event();
-            record.setUuid((String) dbMap.get(UUID));
-            record.setService((String) dbMap.get(SERVICE));
-            record.setServiceInstance((String) dbMap.get(SERVICE_INSTANCE));
-            record.setEndpoint((String) dbMap.get(ENDPOINT));
-            record.setName((String) dbMap.get(NAME));
-            record.setType((String) dbMap.get(TYPE));
-            record.setMessage((String) dbMap.get(MESSAGE));
-            record.setParameters((String) dbMap.get(PARAMETERS));
-            record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
-            record.setEndTime(((Number) dbMap.get(END_TIME)).longValue());
-            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            return record;
+        public void entity2Storage(final Event storageData, final Convert2Storage converter) {
+            converter.accept(UUID, storageData.getUuid());
+            converter.accept(SERVICE, storageData.getService());
+            converter.accept(SERVICE_INSTANCE, storageData.getServiceInstance());
+            converter.accept(ENDPOINT, storageData.getEndpoint());
+            converter.accept(NAME, storageData.getName());
+            converter.accept(TYPE, storageData.getType());
+            converter.accept(MESSAGE, storageData.getMessage());
+            converter.accept(PARAMETERS, storageData.getParameters());
+            converter.accept(START_TIME, storageData.getStartTime());
+            converter.accept(END_TIME, storageData.getEndTime());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
         }
     }
 }

@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 import lombok.Getter;
@@ -39,8 +37,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHold
 import org.apache.skywalking.oap.server.core.analysis.metrics.PercentileMetrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 /**
  * PercentileFunction is the implementation of {@link PercentileMetrics} in the meter system. The major difference is
@@ -252,7 +252,7 @@ public abstract class PercentileFunction extends Meter implements AcceptableValu
     }
 
     @Override
-    public Class<? extends StorageHashMapBuilder> builder() {
+    public Class<? extends StorageBuilder> builder() {
         return PercentileFunctionBuilder.class;
     }
 
@@ -263,33 +263,30 @@ public abstract class PercentileFunction extends Meter implements AcceptableValu
         private final int[] ranks;
     }
 
-    public static class PercentileFunctionBuilder implements StorageHashMapBuilder<PercentileFunction> {
-
+    public static class PercentileFunctionBuilder implements StorageBuilder<PercentileFunction> {
         @Override
-        public PercentileFunction storage2Entity(final Map<String, Object> dbMap) {
+        public PercentileFunction storage2Entity(final Convert2Entity converter) {
             PercentileFunction metrics = new PercentileFunction() {
                 @Override
                 public AcceptableValue<PercentileArgument> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
-            metrics.setDataset(new DataTable((String) dbMap.get(DATASET)));
-            metrics.setRanks(new IntList((String) dbMap.get(RANKS)));
-            metrics.setPercentileValues(new DataTable((String) dbMap.get(VALUE)));
-            metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            metrics.setEntityId((String) dbMap.get(ENTITY_ID));
+            metrics.setDataset(new DataTable((String) converter.get(DATASET)));
+            metrics.setRanks(new IntList((String) converter.get(RANKS)));
+            metrics.setPercentileValues(new DataTable((String) converter.get(VALUE)));
+            metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            metrics.setEntityId((String) converter.get(ENTITY_ID));
             return metrics;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(final PercentileFunction storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(DATASET, storageData.getDataset());
-            map.put(RANKS, storageData.getRanks());
-            map.put(VALUE, storageData.getPercentileValues());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(ENTITY_ID, storageData.getEntityId());
-            return map;
+        public void entity2Storage(final PercentileFunction storageData, final Convert2Storage converter) {
+            converter.accept(DATASET, storageData.getDataset());
+            converter.accept(RANKS, storageData.getRanks());
+            converter.accept(VALUE, storageData.getPercentileValues());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(ENTITY_ID, storageData.getEntityId());
         }
     }
 

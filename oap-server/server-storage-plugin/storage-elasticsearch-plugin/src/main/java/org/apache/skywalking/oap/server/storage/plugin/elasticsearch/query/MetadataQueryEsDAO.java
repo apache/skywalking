@@ -47,6 +47,7 @@ import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
@@ -184,7 +185,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             Map<String, Object> sourceAsMap = searchHit.getSource();
 
             final EndpointTraffic endpointTraffic =
-                new EndpointTraffic.Builder().storage2Entity(sourceAsMap);
+                new EndpointTraffic.Builder().storage2Entity(new HashMapConverter.ToEntity(sourceAsMap));
 
             Endpoint endpoint = new Endpoint();
             endpoint.setId(endpointTraffic.id());
@@ -198,7 +199,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     @Override
     public List<Process> listProcesses(String serviceId, String instanceId) throws IOException {
         final String index =
-                IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query = Query.bool();
         final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
@@ -216,9 +217,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     @Override
     public Process getProcess(String processId) throws IOException {
         final String index =
-                IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool()
-                        .must(Query.term("_id", processId));
+                                            .must(Query.term("_id", processId));
         final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
 
         final SearchResponse response = getClient().search(index, search.build());
@@ -231,7 +232,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         for (SearchHit hit : response.getHits()) {
             final Map<String, Object> sourceAsMap = hit.getSource();
             final ServiceTraffic.Builder builder = new ServiceTraffic.Builder();
-            final ServiceTraffic serviceTraffic = builder.storage2Entity(sourceAsMap);
+            final ServiceTraffic serviceTraffic = builder.storage2Entity(new HashMapConverter.ToEntity(sourceAsMap));
             String serviceName = serviceTraffic.getName();
             Service service = new Service();
             service.setId(serviceTraffic.getServiceId());
@@ -250,7 +251,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             Map<String, Object> sourceAsMap = searchHit.getSource();
 
             final InstanceTraffic instanceTraffic =
-                new InstanceTraffic.Builder().storage2Entity(sourceAsMap);
+                new InstanceTraffic.Builder().storage2Entity(new HashMapConverter.ToEntity(sourceAsMap));
 
             ServiceInstance serviceInstance = new ServiceInstance();
             serviceInstance.setId(instanceTraffic.id());
@@ -283,7 +284,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             Map<String, Object> sourceAsMap = searchHit.getSource();
 
             final ProcessTraffic processTraffic =
-                    new ProcessTraffic.Builder().storage2Entity(sourceAsMap);
+                new ProcessTraffic.Builder().storage2Entity(new HashMapConverter.ToEntity(sourceAsMap));
 
             Process process = new Process();
             process.setId(processTraffic.id());

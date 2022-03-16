@@ -27,15 +27,15 @@ import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
 @RequiredArgsConstructor
 public class IoTDBProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<ProfileTaskLogRecord> storageBuilder = new ProfileTaskLogRecord.Builder();
+    private final StorageBuilder<ProfileTaskLogRecord> storageBuilder = new ProfileTaskLogRecord.Builder();
     private final int fetchTaskLogMaxSize;
 
     @Override

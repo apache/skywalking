@@ -19,8 +19,6 @@
 package org.apache.skywalking.oap.server.core.analysis.manual.endpoint;
 
 import com.google.common.base.Strings;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,8 +30,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @Stream(name = EndpointTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT,
     builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class)
@@ -86,24 +86,21 @@ public class EndpointTraffic extends Metrics {
         return hashCode();
     }
 
-    public static class Builder implements StorageHashMapBuilder<EndpointTraffic> {
-
+    public static class Builder implements StorageBuilder<EndpointTraffic> {
         @Override
-        public EndpointTraffic storage2Entity(Map<String, Object> dbMap) {
+        public EndpointTraffic storage2Entity(final Convert2Entity converter) {
             EndpointTraffic inventory = new EndpointTraffic();
-            inventory.setServiceId((String) dbMap.get(SERVICE_ID));
-            inventory.setName((String) dbMap.get(NAME));
-            inventory.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            inventory.setServiceId((String) converter.get(SERVICE_ID));
+            inventory.setName((String) converter.get(NAME));
+            inventory.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return inventory;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(EndpointTraffic storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(SERVICE_ID, storageData.getServiceId());
-            map.put(NAME, storageData.getName());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            return map;
+        public void entity2Storage(final EndpointTraffic storageData, final Convert2Storage converter) {
+            converter.accept(SERVICE_ID, storageData.getServiceId());
+            converter.accept(NAME, storageData.getName());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
         }
     }
 

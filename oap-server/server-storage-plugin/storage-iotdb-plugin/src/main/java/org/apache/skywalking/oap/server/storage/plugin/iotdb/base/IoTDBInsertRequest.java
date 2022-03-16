@@ -28,7 +28,8 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
@@ -50,12 +51,14 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
     private List<Object> measurementValues;
 
     public <T extends StorageData> IoTDBInsertRequest(String modelName, long time, T storageData,
-                                                      StorageHashMapBuilder<T> storageBuilder) {
+                                                      StorageBuilder<T> storageBuilder) {
         this.modelName = modelName;
         this.time = time;
         indexes = IoTDBTableMetaInfo.get(modelName).getIndexes();
         indexValues = new ArrayList<>(indexes.size());
-        Map<String, Object> storageMap = storageBuilder.entity2Storage(storageData);
+        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+        storageBuilder.entity2Storage(storageData, toStorage);
+        Map<String, Object> storageMap = toStorage.obtain();
 
         indexes.forEach(index -> {
             if (index.equals(IoTDBIndexes.ID_IDX)) {

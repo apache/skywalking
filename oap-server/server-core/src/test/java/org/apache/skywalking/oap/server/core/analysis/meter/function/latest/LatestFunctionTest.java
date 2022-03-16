@@ -23,7 +23,8 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -87,12 +88,14 @@ public class LatestFunctionTest {
         long time = 1597113447737L;
         function.accept(MeterEntity.newService("latest_sync_time", Layer.GENERAL), time);
         function.calculate();
-        StorageHashMapBuilder<LatestFunction> storageBuilder = function.builder().newInstance();
+        StorageBuilder<LatestFunction> storageBuilder = function.builder().newInstance();
 
-        Map<String, Object> map = storageBuilder.entity2Storage(function);
+        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+        storageBuilder.entity2Storage(function, toStorage);
+        final Map<String, Object> map = toStorage.obtain();
         map.put(LatestFunction.VALUE, map.get(LatestFunction.VALUE));
 
-        LatestFunction function2 = storageBuilder.storage2Entity(map);
+        LatestFunction function2 = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(map));
         assertThat(function2.getValue(), is(function.getValue()));
     }
 }

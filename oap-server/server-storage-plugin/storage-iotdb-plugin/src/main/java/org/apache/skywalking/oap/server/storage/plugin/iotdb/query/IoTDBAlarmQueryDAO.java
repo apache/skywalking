@@ -30,15 +30,15 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @RequiredArgsConstructor
 public class IoTDBAlarmQueryDAO implements IAlarmQueryDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<AlarmRecord> storageBuilder = new AlarmRecord.Builder();
+    private final StorageBuilder<AlarmRecord> storageBuilder = new AlarmRecord.Builder();
 
     @Override
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB, long endTB, List<Tag> tags) throws IOException {

@@ -36,8 +36,9 @@ import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTr
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
@@ -57,10 +58,10 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 @Slf4j
 public class MetricsDAO implements IMetricsDAO {
 
-    private final StorageHashMapBuilder<Metrics> storageBuilder;
+    private final StorageBuilder<Metrics> storageBuilder;
     private final InfluxClient client;
 
-    public MetricsDAO(InfluxClient client, StorageHashMapBuilder<Metrics> storageBuilder) {
+    public MetricsDAO(InfluxClient client, StorageBuilder<Metrics> storageBuilder) {
         this.client = client;
         this.storageBuilder = storageBuilder;
     }
@@ -135,7 +136,7 @@ public class MetricsDAO implements IMetricsDAO {
 
                            data.put(storageAndColumnMap.get(columns.get(i)), value);
                        }
-                       newMetrics.add(storageBuilder.storage2Entity(data));
+                       newMetrics.add(storageBuilder.storage2Entity(new HashMapConverter.ToEntity(data)));
                    });
                });
 

@@ -33,15 +33,15 @@ import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.core.query.type.event.Source;
 import org.apache.skywalking.oap.server.core.source.Event;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @Slf4j
 @RequiredArgsConstructor
 public class IoTDBEventQueryDAO implements IEventQueryDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<Event> storageBuilder = new Event.Builder();
+    private final StorageBuilder<Event> storageBuilder = new Event.Builder();
 
     @Override
     public Events queryEvents(EventQueryCondition condition) throws Exception {

@@ -16,29 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.management.ui.template;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
-import org.junit.Assert;
-import org.junit.Test;
 
-public class UITemplateTest {
-    @Test
-    public void testSerialization() {
-        UITemplate uiTemplate = new UITemplate();
-        uiTemplate.setTemplateId("id");
-        uiTemplate.setConfiguration("configuration");
-
-        final UITemplate.Builder builder = new UITemplate.Builder();
-
-        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
-        builder.entity2Storage(uiTemplate, toStorage);
-        final UITemplate uiTemplate2 = builder.storage2Entity(new HashMapConverter.ToEntity(toStorage.obtain()));
-
-        Assert.assertEquals(uiTemplate, uiTemplate2);
-
-        uiTemplate2.setConfiguration("configuration2");
-        // Equals method is only for `templateId` field.
-        Assert.assertEquals(uiTemplate, uiTemplate2);
+public class HashMapConverterWrapper {
+    /**
+     * Create a wrapper to exclude "Tag" field to storage. Because this field is being replaced in JDBC implementation.
+     *
+     * @param origin converter from core builder.
+     * @return a new wrapper
+     */
+    public static HashMapConverter.ToStorage of(Convert2Storage origin) {
+        return new HashMapConverter.ToStorage() {
+            @Override
+            public void accept(final String fieldName, final Object fieldValue) {
+                if (fieldName.equals("tags")) {
+                    return;
+                }
+                origin.accept(fieldName, fieldValue);
+            }
+        };
     }
 }

@@ -122,7 +122,6 @@ public class GraphQLQueryProvider extends ModuleProvider {
         HTTPHandlerRegister service = getManager().find(CoreModule.NAME)
                                                   .provider()
                                                   .getService(HTTPHandlerRegister.class);
-        // TODO config.getPath()
         service.addHandler(new GraphQLQueryHandler(schemaBuilder.build().makeExecutableSchema()));
     }
 

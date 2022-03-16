@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import java.util.Base64;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -28,14 +29,12 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
 
@@ -83,46 +82,43 @@ public class AlarmRecord extends Record {
     @Getter
     private List<Tag> tags;
 
-    public static class Builder implements StorageHashMapBuilder<AlarmRecord> {
-
+    public static class Builder implements StorageBuilder<AlarmRecord> {
         @Override
-        public Map<String, Object> entity2Storage(AlarmRecord storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(SCOPE, storageData.getScope());
-            map.put(NAME, storageData.getName());
-            map.put(ID0, storageData.getId0());
-            map.put(ID1, storageData.getId1());
-            map.put(ALARM_MESSAGE, storageData.getAlarmMessage());
-            map.put(START_TIME, storageData.getStartTime());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(RULE_NAME, storageData.getRuleName());
-            if (CollectionUtils.isEmpty(storageData.getTagsRawData())) {
-                map.put(TAGS_RAW_DATA, Const.EMPTY_STRING);
-            } else {
-                map.put(TAGS_RAW_DATA, new String(Base64.getEncoder().encode(storageData.getTagsRawData())));
-            }
-            map.put(TAGS, storageData.getTagsInString());
-            return map;
-        }
-
-        @Override
-        public AlarmRecord storage2Entity(Map<String, Object> dbMap) {
+        public AlarmRecord storage2Entity(final Convert2Entity converter) {
             AlarmRecord record = new AlarmRecord();
-            record.setScope(((Number) dbMap.get(SCOPE)).intValue());
-            record.setName((String) dbMap.get(NAME));
-            record.setId0((String) dbMap.get(ID0));
-            record.setId1((String) dbMap.get(ID1));
-            record.setAlarmMessage((String) dbMap.get(ALARM_MESSAGE));
-            record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
-            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            record.setRuleName((String) dbMap.get(RULE_NAME));
-            if (StringUtil.isEmpty((String) dbMap.get(TAGS_RAW_DATA))) {
+            record.setScope(((Number) converter.get(SCOPE)).intValue());
+            record.setName((String) converter.get(NAME));
+            record.setId0((String) converter.get(ID0));
+            record.setId1((String) converter.get(ID1));
+            record.setAlarmMessage((String) converter.get(ALARM_MESSAGE));
+            record.setStartTime(((Number) converter.get(START_TIME)).longValue());
+            record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            record.setRuleName((String) converter.get(RULE_NAME));
+            if (StringUtil.isEmpty((String) converter.get(TAGS_RAW_DATA))) {
                 record.setTagsRawData(new byte[] {});
             } else {
                 // Don't read the tags as they has been in the data binary already.
-                record.setTagsRawData(Base64.getDecoder().decode((String) dbMap.get(TAGS_RAW_DATA)));
+                record.setTagsRawData(Base64.getDecoder().decode((String) converter.get(TAGS_RAW_DATA)));
             }
             return record;
+        }
+
+        @Override
+        public void entity2Storage(final AlarmRecord storageData, final Convert2Storage converter) {
+            converter.accept(SCOPE, storageData.getScope());
+            converter.accept(NAME, storageData.getName());
+            converter.accept(ID0, storageData.getId0());
+            converter.accept(ID1, storageData.getId1());
+            converter.accept(ALARM_MESSAGE, storageData.getAlarmMessage());
+            converter.accept(START_TIME, storageData.getStartTime());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(RULE_NAME, storageData.getRuleName());
+            if (CollectionUtils.isEmpty(storageData.getTagsRawData())) {
+                converter.accept(TAGS_RAW_DATA, Const.EMPTY_STRING);
+            } else {
+                converter.accept(TAGS_RAW_DATA, new String(Base64.getEncoder().encode(storageData.getTagsRawData())));
+            }
+            converter.accept(TAGS, storageData.getTagsInString());
         }
     }
 }

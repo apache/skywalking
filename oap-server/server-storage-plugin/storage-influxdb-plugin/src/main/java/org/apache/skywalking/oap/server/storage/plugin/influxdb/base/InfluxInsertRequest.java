@@ -24,10 +24,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
@@ -41,9 +42,12 @@ public class InfluxInsertRequest implements InsertRequest, UpdateRequest {
     private final Point.Builder builder;
     private final Map<String, Object> fields = Maps.newHashMap();
 
-    public <T extends StorageData> InfluxInsertRequest(Model model, T storageData, StorageHashMapBuilder<T> storageBuilder) {
-        final Map<String, Object> objectMap = storageBuilder.entity2Storage(storageData);
-        if (SegmentRecord.INDEX_NAME.equals(model.getName()) || LogRecord.INDEX_NAME.equals(model.getName()) || AlarmRecord.INDEX_NAME.equals(model.getName())) {
+    public <T extends StorageData> InfluxInsertRequest(Model model, T storageData, StorageBuilder<T> storageBuilder) {
+        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+        storageBuilder.entity2Storage(storageData, toStorage);
+        final Map<String, Object> objectMap = toStorage.obtain();
+        if (SegmentRecord.INDEX_NAME.equals(model.getName()) || LogRecord.INDEX_NAME.equals(
+            model.getName()) || AlarmRecord.INDEX_NAME.equals(model.getName())) {
             objectMap.remove(SegmentRecord.TAGS);
         }
 

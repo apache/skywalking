@@ -26,8 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
-import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanV1HTTPHandler;
-import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanV2HTTPHandler;
+import org.apache.skywalking.oap.server.receiver.zipkin.handler.ZipkinSpanHTTPHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class ZipkinReceiverProvider extends ModuleProvider {
@@ -65,18 +64,17 @@ public class ZipkinReceiverProvider extends ModuleProvider {
                                                             .host(config.getHost())
                                                             .port(config.getPort())
                                                             .contextPath(config.getContextPath())
-                                                            .idleTimeOut(config.getJettyIdleTimeOut())
+                                                            .idleTimeOut(config.getIdleTimeOut())
                                                             .acceptorPriorityDelta(
-                                                                   config.getJettyAcceptorPriorityDelta())
-                                                            .maxThreads(config.getJettyMaxThreads())
-                                                            .acceptQueueSize(config.getJettyAcceptQueueSize())
+                                                                   config.getAcceptorPriorityDelta())
+                                                            .maxThreads(config.getMaxThreads())
+                                                            .acceptQueueSize(config.getAcceptQueueSize())
                                                             .build();
 
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.initialize();
 
-        httpServer.addHandler(new SpanV1HTTPHandler(config, getManager()));
-        httpServer.addHandler(new SpanV2HTTPHandler(config, getManager()));
+        httpServer.addHandler(new ZipkinSpanHTTPHandler(config, getManager()));
     }
 
     @Override

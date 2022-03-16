@@ -29,13 +29,13 @@ import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 
 @RequiredArgsConstructor
 public class IoTDBRecordDAO implements IRecordDAO {
-    private final StorageHashMapBuilder<Record> storageBuilder;
+    private final StorageBuilder<Record> storageBuilder;
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) {

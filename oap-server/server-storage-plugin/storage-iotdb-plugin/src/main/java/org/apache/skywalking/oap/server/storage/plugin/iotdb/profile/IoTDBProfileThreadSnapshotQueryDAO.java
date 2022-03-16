@@ -28,16 +28,16 @@ import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentReco
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @RequiredArgsConstructor
 public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<ProfileThreadSnapshotRecord> profileThreadSnapshotRecordBuilder = new ProfileThreadSnapshotRecord.Builder();
-    private final StorageHashMapBuilder<SegmentRecord> segmentRecordBuilder = new SegmentRecord.Builder();
+    private final StorageBuilder<ProfileThreadSnapshotRecord> profileThreadSnapshotRecordBuilder = new ProfileThreadSnapshotRecord.Builder();
+    private final StorageBuilder<SegmentRecord> segmentRecordBuilder = new SegmentRecord.Builder();
 
     @Override
     public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
