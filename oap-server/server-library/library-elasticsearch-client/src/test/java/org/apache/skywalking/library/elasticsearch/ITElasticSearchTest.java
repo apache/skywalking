@@ -89,6 +89,7 @@ public class ITElasticSearchTest {
                                    .asCompatibleSubstituteFor(
                                        "docker.elastic.co/elasticsearch/elasticsearch-oss"))
                     .withEnv("plugins.security.disabled", "true")
+                    .withStartupTimeout(java.time.Duration.ofMinutes(5))
             }
         });
     }

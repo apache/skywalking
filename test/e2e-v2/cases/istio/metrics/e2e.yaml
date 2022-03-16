@@ -21,8 +21,8 @@ setup:
   init-system-environment: ../../../script/env
   kind:
     import-images:
-      - skywalking/ui:$TAG
-      - skywalking/oap:$TAG
+      - skywalking/ui:latest
+      - skywalking/oap:latest
     expose-ports:
       - namespace: istio-system
         resource: service/skywalking-ui
@@ -74,8 +74,8 @@ setup:
                        --set oap.envoy.als.enabled=true \
                        --set oap.replicas=1 \
                        --set ui.image.repository=skywalking/ui \
-                       --set ui.image.tag=$TAG \
-                       --set oap.image.tag=$TAG \
+                       --set ui.image.tag=latest \
+                       --set oap.image.tag=latest \
                        --set oap.image.repository=skywalking/oap \
                        --set oap.storageType=elasticsearch
       wait:

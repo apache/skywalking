@@ -14,34 +14,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: E2E
+name: CI
 
 on:
   pull_request:
-    paths:
-      - '**'
-      - '!**.md'
-  schedule:
-    - cron: '0 18 * * *'
-
-env:
-  SW_AGENT_JDK_VERSION: 8
-  SW_STORAGE: h2
+    paths-ignore:
+      - "!*.md"
+      - "!*.txt"
+      - "!skywalking-ui"
+      - "!.asf.yaml"
+      - "!.dlc.yaml"
+      - "!.licenserc.yaml"
+      - "!docs/menu.yml"
+      - "!.github/workflows/codeql.yaml"
+      - "!dist-material/release-docs"
+      - "!*/component-libraries.yml"
 
 concurrency:
-  group: e2e-satellite-${{ github.event.pull_request.number || github.ref }}
+  group: skywalking-fake-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  Satellite:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: Satellite
+  required:
+    name: Required
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Run E2E Test
-        uses: ./.github/actions/infra-e2e-test
-        with:
-          config-file: satellite/native-protocols/e2e.yaml
+      - name: Merge Requirement
+        run: echo 'Passed!'
