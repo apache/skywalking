@@ -74,7 +74,7 @@ public class AlarmRecord extends Record {
     private String alarmMessage;
     @Column(columnName = RULE_NAME)
     private String ruleName;
-    @Column(columnName = TAGS)
+    @Column(columnName = TAGS, indexOnly = true)
     private List<String> tagsInString;
     @Column(columnName = TAGS_RAW_DATA, storageOnly = true)
     private byte[] tagsRawData;

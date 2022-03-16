@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import com.google.gson.Gson;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,7 +148,7 @@ public class StorageEsInstaller extends ModelInstaller {
             if (shouldUpdateTemplate) {
                 structures.putStructure(tableName, mapping);
                 boolean isAcknowledged = esClient.createOrUpdateTemplate(
-                    tableName, settings, mapping, config.getIndexTemplateOrder());
+                    tableName, settings, structures.getMapping(tableName), config.getIndexTemplateOrder());
                 log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
                 if (!isAcknowledged) {
                     throw new IOException("create " + tableName + " index template failure, ");
@@ -225,7 +224,7 @@ public class StorageEsInstaller extends ModelInstaller {
 
     protected Mappings createMapping(Model model) {
         Map<String, Object> properties = new HashMap<>();
-        Map<String, Object> source = new HashMap<>();
+        Mappings.SourceConf source = new Mappings.SourceConf();
         for (ModelColumn columnDefine : model.getColumns()) {
             final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType());
             if (columnDefine.isMatchQuery()) {
@@ -251,8 +250,7 @@ public class StorageEsInstaller extends ModelInstaller {
             }
 
             if (columnDefine.isIndexOnly()) {
-                List<String> sourceExcludes = (List<String>) source.computeIfAbsent("excludes", v -> new ArrayList<String>());
-                sourceExcludes.add(columnDefine.getColumnName().getName());
+                source.getExcludes().add(columnDefine.getColumnName().getName());
             }
         }
 

@@ -19,9 +19,10 @@ package org.apache.skywalking.library.elasticsearch.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -48,5 +49,12 @@ public final class Mappings {
     @JsonProperty("_source")
     @Getter
     @Setter
-    private Map<String, Object> source = new HashMap<>();
+    private SourceConf source = new SourceConf();
+
+    public static class SourceConf {
+        @JsonProperty("excludes")
+        @Getter
+        @Setter
+        private Set<String> excludes = new HashSet<>();
+    }
 }

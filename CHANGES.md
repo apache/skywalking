@@ -111,7 +111,7 @@ Release Notes.
 * [Breaking Change] Remove configuration `graphql/path` (env var: `SW_QUERY_GRAPHQL_PATH`).
 * [Breaking Change] Remove configuration `restMinThreads` (env var: `SW_CORE_REST_JETTY_MIN_THREADS`, `SW_RECEIVER_SHARING_JETTY_MIN_THREADS`).
 * Add storage column attribute `indexOnly`, support ElasticSearch only index and not store some fields.
-* Add `indexOnly=true` to `SegmentRecord.tags`, to reduce unnecessary storage.
+* Add `indexOnly=true` to `SegmentRecord.tags`, `AlarmRecord.tags`, `AbstractLogRecord.tags`, to reduce unnecessary storage.
 * [Breaking Change] Remove configuration `restMinThreads` (env var: `SW_CORE_REST_JETTY_MIN_THREADS`
   , `SW_RECEIVER_SHARING_JETTY_MIN_THREADS`).
 * Refactor the core Builder mechanism, new storage plugin could implement their own converter and get rid of hard

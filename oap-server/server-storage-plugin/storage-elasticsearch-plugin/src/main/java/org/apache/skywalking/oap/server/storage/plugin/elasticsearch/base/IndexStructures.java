@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -36,9 +37,13 @@ public class IndexStructures {
         Map<String, Object> properties =
             structures.containsKey(tableName) ?
                 structures.get(tableName).properties : new HashMap<>();
+        Mappings.SourceConf source =
+                    structures.containsKey(tableName) ?
+                        structures.get(tableName).source : new Mappings.SourceConf();
         return Mappings.builder()
                        .type(ElasticSearchClient.TYPE)
                        .properties(properties)
+                       .source(source)
                        .build();
     }
 
@@ -52,8 +57,7 @@ public class IndexStructures {
             || mapping.getProperties().isEmpty()) {
             return;
         }
-        Map<String, Object> properties = mapping.getProperties();
-        Fields fields = new Fields(properties);
+        Fields fields = new Fields(mapping);
         if (structures.containsKey(tableName)) {
             structures.get(tableName).appendNewFields(fields);
         } else {
@@ -63,6 +67,7 @@ public class IndexStructures {
 
     /**
      * Returns mappings with fields that not exist in the input mappings.
+     * do not return _source config to avoid index update conflict.
      */
     public Mappings diffStructure(String tableName, Mappings mappings) {
         if (!structures.containsKey(tableName)) {
@@ -70,7 +75,7 @@ public class IndexStructures {
         }
         Map<String, Object> properties = mappings.getProperties();
         Map<String, Object> diffProperties =
-            structures.get(tableName).diffFields(new Fields(properties));
+            structures.get(tableName).diffFields(new Fields(mappings));
         return Mappings.builder()
                        .type(ElasticSearchClient.TYPE)
                        .properties(diffProperties)
@@ -89,7 +94,7 @@ public class IndexStructures {
         }
         return structures.containsKey(tableName)
             && structures.get(tableName)
-                         .containsAllFields(new Fields(mappings.getProperties()));
+                         .containsAllFields(new Fields(mappings));
     }
 
     /**
@@ -97,9 +102,11 @@ public class IndexStructures {
      */
     public static class Fields {
         private final Map<String, Object> properties;
+        Mappings.SourceConf source;
 
-        private Fields(Map<String, Object> properties) {
-            this.properties = properties;
+        private Fields(Mappings mapping) {
+            this.properties = mapping.getProperties();
+            this.source = mapping.getSource();
         }
 
         /**
@@ -123,6 +130,10 @@ public class IndexStructures {
                                      Map.Entry::getValue
                                  ));
             properties.putAll(newFields);
+
+            Set<String> exclude = source.getExcludes();
+            Set<String> newExclude = fields.source.getExcludes();
+            exclude.addAll(newExclude);
         }
 
         /**
