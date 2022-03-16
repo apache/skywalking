@@ -130,10 +130,11 @@ public class IndexStructures {
                                      Map.Entry::getValue
                                  ));
             properties.putAll(newFields);
-
-            Set<String> exclude = source.getExcludes();
-            Set<String> newExclude = fields.source.getExcludes();
-            exclude.addAll(newExclude);
+            if (source != null) {
+                Set<String> exclude = source.getExcludes();
+                Set<String> newExclude = fields.source.getExcludes();
+                exclude.addAll(newExclude);
+            }
         }
 
         /**
