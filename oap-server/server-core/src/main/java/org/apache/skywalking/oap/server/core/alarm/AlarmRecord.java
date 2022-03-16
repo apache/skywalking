@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import java.util.Base64;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,9 +31,8 @@ import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
 
@@ -94,12 +92,8 @@ public class AlarmRecord extends Record {
             record.setStartTime(((Number) converter.get(START_TIME)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             record.setRuleName((String) converter.get(RULE_NAME));
-            if (StringUtil.isEmpty((String) converter.get(TAGS_RAW_DATA))) {
-                record.setTagsRawData(new byte[] {});
-            } else {
-                // Don't read the tags as they has been in the data binary already.
-                record.setTagsRawData(Base64.getDecoder().decode((String) converter.get(TAGS_RAW_DATA)));
-            }
+            record.setTagsRawData(converter.getWith(TAGS_RAW_DATA, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
+            // Don't read the TAGS as they are only for query.
             return record;
         }
 
@@ -113,11 +107,7 @@ public class AlarmRecord extends Record {
             converter.accept(START_TIME, storageData.getStartTime());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(RULE_NAME, storageData.getRuleName());
-            if (CollectionUtils.isEmpty(storageData.getTagsRawData())) {
-                converter.accept(TAGS_RAW_DATA, Const.EMPTY_STRING);
-            } else {
-                converter.accept(TAGS_RAW_DATA, new String(Base64.getEncoder().encode(storageData.getTagsRawData())));
-            }
+            converter.accept(TAGS_RAW_DATA, storageData.getTagsRawData());
             converter.accept(TAGS, storageData.getTagsInString());
         }
     }

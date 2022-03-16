@@ -116,6 +116,7 @@ Release Notes.
 * Refactor the core Builder mechanism, new storage plugin could implement their own converter and get rid of hard
   requirement of using HashMap to communicate between data object and database native structure.
 * [Breaking Change] Break all existing 3rd-party storage extensions.
+* Remove hard requirement of BASE64 encoding for binary field.
 
 #### UI
 

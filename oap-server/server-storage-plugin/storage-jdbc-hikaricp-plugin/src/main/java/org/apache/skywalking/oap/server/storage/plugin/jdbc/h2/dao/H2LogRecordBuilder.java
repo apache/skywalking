@@ -22,7 +22,6 @@ import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.HashMapConverterWrapper;
 
 public class H2LogRecordBuilder extends AbstractSearchTagBuilder<Record> {
 
@@ -38,9 +37,8 @@ public class H2LogRecordBuilder extends AbstractSearchTagBuilder<Record> {
     }
 
     @Override
-    public void entity2Storage(final Record record, final Convert2Storage originConverter) {
+    public void entity2Storage(final Record record, final Convert2Storage converter) {
         final LogRecord storageData = (LogRecord) record;
-        Convert2Storage converter = HashMapConverterWrapper.of(originConverter);
         final LogRecord.Builder builder = new LogRecord.Builder();
         builder.entity2Storage(storageData, converter);
         analysisSearchTag(storageData.getTags(), converter);

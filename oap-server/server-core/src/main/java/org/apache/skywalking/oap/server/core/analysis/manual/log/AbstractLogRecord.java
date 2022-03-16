@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.log;
 
-import java.util.Base64;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -30,9 +28,8 @@ import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public abstract class AbstractLogRecord extends Record {
 
@@ -121,12 +118,7 @@ public abstract class AbstractLogRecord extends Record {
             record.setContentType(((Number) converter.get(CONTENT_TYPE)).intValue());
             record.setContent((String) converter.get(CONTENT));
             record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
-            if (StringUtil.isEmpty((String) converter.get(TAGS_RAW_DATA))) {
-                record.setTagsRawData(new byte[] {});
-            } else {
-                // Don't read the tags as they has been in the data binary already.
-                record.setTagsRawData(Base64.getDecoder().decode((String) converter.get(TAGS_RAW_DATA)));
-            }
+            record.setTagsRawData(converter.getWith(TAGS_RAW_DATA, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
         }
 
@@ -141,11 +133,7 @@ public abstract class AbstractLogRecord extends Record {
             converter.accept(CONTENT_TYPE, record.getContentType());
             converter.accept(CONTENT, record.getContent());
             converter.accept(TIMESTAMP, record.getTimestamp());
-            if (CollectionUtils.isEmpty(record.getTagsRawData())) {
-                converter.accept(TAGS_RAW_DATA, Const.EMPTY_STRING);
-            } else {
-                converter.accept(TAGS_RAW_DATA, new String(Base64.getEncoder().encode(record.getTagsRawData())));
-            }
+            converter.accept(TAGS_RAW_DATA, record.getTagsRawData());
             converter.accept(TAGS, record.getTagsInString());
         }
     }

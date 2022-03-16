@@ -18,9 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.storage.type;
 
+import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public class HashMapConverter {
     /**
@@ -33,6 +39,30 @@ public class HashMapConverter {
         @Override
         public Object get(final String fieldName) {
             return source.get(fieldName);
+        }
+
+        @Override
+        public <T, R> R getWith(final String fieldName, final Function<T, R> typeDecoder) {
+            final T value = (T) source.get(fieldName);
+            return typeDecoder.apply(value);
+        }
+
+        /**
+         * Default Base64Decoder supplier
+         */
+        public static class Base64Decoder implements Function<String, byte[]> {
+            public static final Base64Decoder INSTANCE = new Base64Decoder();
+
+            private Base64Decoder() {
+            }
+
+            @Override
+            public byte[] apply(final String encodedStr) {
+                if (StringUtil.isEmpty(encodedStr)) {
+                    return new byte[] {};
+                }
+                return Base64.getDecoder().decode(encodedStr);
+            }
         }
     }
 
@@ -49,6 +79,20 @@ public class HashMapConverter {
         @Override
         public void accept(final String fieldName, final Object fieldValue) {
             source.put(fieldName, fieldValue);
+        }
+
+        @Override
+        public void accept(final String fieldName, final byte[] fieldValue) {
+            if (CollectionUtils.isEmpty(fieldValue)) {
+                source.put(fieldName, Const.EMPTY_STRING);
+            } else {
+                source.put(fieldName, new String(Base64.getEncoder().encode(fieldValue)));
+            }
+        }
+
+        @Override
+        public void accept(final String fieldName, final List<String> fieldValue) {
+            this.accept(fieldName, (Object) fieldValue);
         }
 
         @Override
