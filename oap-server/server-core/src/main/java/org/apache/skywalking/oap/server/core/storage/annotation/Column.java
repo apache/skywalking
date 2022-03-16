@@ -60,7 +60,9 @@ public @interface Column {
 
     /**
      * The column(field) is just indexed, never stored. Note: this feature only supported by elasticsearch
-     * and can not support update mappings in current index
+     * and don't support mappings update due to ElasticSearch server's limitation.
+     *
+     * NOTICE, metrics should not use this, as the OAP core merges indices of metrics automatically.
      */
     boolean indexOnly() default false;
 
