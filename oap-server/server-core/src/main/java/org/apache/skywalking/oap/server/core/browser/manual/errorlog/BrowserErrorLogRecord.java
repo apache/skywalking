@@ -17,10 +17,8 @@
 
 package org.apache.skywalking.oap.server.core.browser.manual.errorlog;
 
-import java.util.Base64;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
@@ -29,9 +27,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @SuperDataset
 @Stream(name = BrowserErrorLogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.BROWSER_ERROR_LOG, builder = BrowserErrorLogRecord.Builder.class, processor = RecordStreamProcessor.class)
@@ -96,12 +93,7 @@ public class BrowserErrorLogRecord extends Record {
             record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             record.setErrorCategory(((Number) converter.get(ERROR_CATEGORY)).intValue());
-            String dataBinary = (String) converter.get(DATA_BINARY);
-            if (StringUtil.isEmpty(dataBinary)) {
-                record.setDataBinary(new byte[] {});
-            } else {
-                record.setDataBinary(Base64.getDecoder().decode(dataBinary));
-            }
+            record.setDataBinary(converter.getWith(DATA_BINARY, new HashMapConverter.ToEntity.Base64Decoder()));
             return record;
         }
 
@@ -114,11 +106,7 @@ public class BrowserErrorLogRecord extends Record {
             converter.accept(TIMESTAMP, storageData.getTimestamp());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(ERROR_CATEGORY, storageData.getErrorCategory());
-            if (CollectionUtils.isEmpty(storageData.getDataBinary())) {
-                converter.accept(DATA_BINARY, Const.EMPTY_STRING);
-            } else {
-                converter.accept(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
-            }
+            converter.accept(DATA_BINARY, storageData.getDataBinary());
         }
     }
 }

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
+import java.util.List;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 
@@ -32,10 +33,16 @@ public class HashMapConverterWrapper {
         return new HashMapConverter.ToStorage() {
             @Override
             public void accept(final String fieldName, final Object fieldValue) {
-                if (fieldName.equals("tags")) {
-                    return;
-                }
                 origin.accept(fieldName, fieldValue);
+            }
+
+            /**
+             * Skip String list type column in SQL-style database. The values are processed by
+             * AbstractSearchTagBuilder#analysisSearchTag(List, Convert2Storage) and TAGS_RAW_DATA column
+             */
+            @Override
+            public void accept(final String fieldName, final List<String> fieldValue) {
+
             }
         };
     }
