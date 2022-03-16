@@ -93,7 +93,7 @@ public class BrowserErrorLogRecord extends Record {
             record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             record.setErrorCategory(((Number) converter.get(ERROR_CATEGORY)).intValue());
-            record.setDataBinary(converter.getWith(DATA_BINARY, new HashMapConverter.ToEntity.Base64Decoder()));
+            record.setDataBinary(converter.getWith(DATA_BINARY, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
             return record;
         }
 

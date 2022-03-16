@@ -115,7 +115,7 @@ public class SegmentRecord extends Record {
             record.setLatency(((Number) converter.get(LATENCY)).intValue());
             record.setIsError(((Number) converter.get(IS_ERROR)).intValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
-            record.setDataBinary(converter.getWith(DATA_BINARY, new HashMapConverter.ToEntity.Base64Decoder()));
+            record.setDataBinary(converter.getWith(DATA_BINARY, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
             // Don't read the tags as they have been in the data binary already.
             return record;
         }

@@ -92,7 +92,7 @@ public class AlarmRecord extends Record {
             record.setStartTime(((Number) converter.get(START_TIME)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             record.setRuleName((String) converter.get(RULE_NAME));
-            record.setTagsRawData(converter.getWith(TAGS_RAW_DATA, new HashMapConverter.ToEntity.Base64Decoder()));
+            record.setTagsRawData(converter.getWith(TAGS_RAW_DATA, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
             // Don't read the TAGS as they are only for query.
             return record;
         }

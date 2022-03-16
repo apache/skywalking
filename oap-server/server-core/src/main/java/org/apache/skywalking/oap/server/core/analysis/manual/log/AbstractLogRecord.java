@@ -118,7 +118,7 @@ public abstract class AbstractLogRecord extends Record {
             record.setContentType(((Number) converter.get(CONTENT_TYPE)).intValue());
             record.setContent((String) converter.get(CONTENT));
             record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
-            record.setTagsRawData(converter.getWith(TAGS_RAW_DATA, new HashMapConverter.ToEntity.Base64Decoder()));
+            record.setTagsRawData(converter.getWith(TAGS_RAW_DATA, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
         }
 

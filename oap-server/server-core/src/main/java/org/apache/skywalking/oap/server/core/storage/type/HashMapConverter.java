@@ -51,6 +51,11 @@ public class HashMapConverter {
          * Default Base64Decoder supplier
          */
         public static class Base64Decoder implements Function<String, byte[]> {
+            public static final Base64Decoder INSTANCE = new Base64Decoder();
+
+            private Base64Decoder() {
+            }
+
             @Override
             public byte[] apply(final String encodedStr) {
                 if (StringUtil.isEmpty(encodedStr)) {
