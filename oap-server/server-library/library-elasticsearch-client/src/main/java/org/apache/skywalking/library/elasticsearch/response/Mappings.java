@@ -49,9 +49,9 @@ public final class Mappings {
     @JsonProperty("_source")
     @Getter
     @Setter
-    private SourceConf source = new SourceConf();
+    private Source source = new Source();
 
-    public static class SourceConf {
+    public static class Source {
         @JsonProperty("excludes")
         @Getter
         @Setter

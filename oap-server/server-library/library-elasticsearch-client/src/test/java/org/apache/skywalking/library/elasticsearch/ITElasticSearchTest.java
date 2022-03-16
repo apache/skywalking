@@ -124,7 +124,7 @@ public class ITElasticSearchTest {
             "service_id", ImmutableMap.of("type", "keyword")
         );
 
-        final Mappings.SourceConf sourceConf = new Mappings.SourceConf();
+        final Mappings.Source sourceConf = new Mappings.Source();
         sourceConf.getExcludes().add("test");
 
         final Mappings mappings = Mappings.builder()
@@ -147,7 +147,7 @@ public class ITElasticSearchTest {
             .isPresent()
             .map(IndexTemplate::getMappings)
             .map(Mappings::getSource)
-            .map(Mappings.SourceConf::getExcludes)
+            .map(Mappings.Source::getExcludes)
             .hasValue(mappings.getSource().getExcludes());
     }
 
@@ -189,7 +189,7 @@ public class ITElasticSearchTest {
     @Test
     public void testSearch() {
         final String index = "test-index";
-        final Mappings.SourceConf sourceConf = new Mappings.SourceConf();
+        final Mappings.Source sourceConf = new Mappings.Source();
         sourceConf.getExcludes().add("key3");
         assertTrue(
             client.index().create(
@@ -197,8 +197,8 @@ public class ITElasticSearchTest {
                 Mappings.builder()
                         .type("type")
                         .properties(ImmutableMap.of("key1", ImmutableMap.of("type", "keyword")))
-                        .properties(ImmutableMap.of("key2", ImmutableMap.of("type", "keyword"), "key3",
-                                                    ImmutableMap.of("type", "keyword")
+                        .properties(ImmutableMap.of("key2", ImmutableMap.of("type", "keyword"),
+                                                    "key3", ImmutableMap.of("type", "keyword")
                         ))
                         .source(sourceConf)
                         .build(),
@@ -233,7 +233,7 @@ public class ITElasticSearchTest {
             );
             assertEquals(1, response.getHits().getTotal());
             assertEquals("val1", response.getHits().iterator().next().getSource().get("key1"));
-            assertNull(response.getHits().iterator().next().getSource().get("key3"));
+            assertNull("indexOnly fields should not be stored", response.getHits().iterator().next().getSource().get("key3"));
         });
 
         await().atMost(Duration.ONE_MINUTE)

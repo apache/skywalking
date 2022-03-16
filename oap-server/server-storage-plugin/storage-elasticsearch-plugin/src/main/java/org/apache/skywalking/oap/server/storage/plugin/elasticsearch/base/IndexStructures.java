@@ -37,9 +37,9 @@ public class IndexStructures {
         Map<String, Object> properties =
             structures.containsKey(tableName) ?
                 structures.get(tableName).properties : new HashMap<>();
-        Mappings.SourceConf source =
+        Mappings.Source source =
                     structures.containsKey(tableName) ?
-                        structures.get(tableName).source : new Mappings.SourceConf();
+                        structures.get(tableName).source : new Mappings.Source();
         return Mappings.builder()
                        .type(ElasticSearchClient.TYPE)
                        .properties(properties)
@@ -102,7 +102,7 @@ public class IndexStructures {
      */
     public static class Fields {
         private final Map<String, Object> properties;
-        Mappings.SourceConf source;
+        Mappings.Source source;
 
         private Fields(Mappings mapping) {
             this.properties = mapping.getProperties();

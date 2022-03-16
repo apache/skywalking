@@ -224,7 +224,7 @@ public class StorageEsInstaller extends ModelInstaller {
 
     protected Mappings createMapping(Model model) {
         Map<String, Object> properties = new HashMap<>();
-        Mappings.SourceConf source = new Mappings.SourceConf();
+        Mappings.Source source = new Mappings.Source();
         for (ModelColumn columnDefine : model.getColumns()) {
             final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType());
             if (columnDefine.isMatchQuery()) {

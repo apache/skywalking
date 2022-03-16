@@ -53,7 +53,7 @@ public class IndexStructuresTest {
         Assert.assertTrue(mapping.getProperties().isEmpty());
         //test with source
         IndexStructures structuresSource = new IndexStructures();
-        Mappings.SourceConf source = new Mappings.SourceConf();
+        Mappings.Source source = new Mappings.Source();
         source.getExcludes().add("a");
         structuresSource.putStructure(
             "test", Mappings.builder()
@@ -95,7 +95,7 @@ public class IndexStructuresTest {
 
         //test with source
         IndexStructures structuresSource = new IndexStructures();
-        Mappings.SourceConf source = new Mappings.SourceConf();
+        Mappings.Source source = new Mappings.Source();
         source.getExcludes().addAll(Arrays.asList("a", "b", "c"));
         structuresSource.putStructure(
             "test", Mappings.builder()
@@ -106,7 +106,7 @@ public class IndexStructuresTest {
         Assert.assertEquals(structuresSource.getMapping("test").getProperties(), properties);
         Assert.assertEquals(structuresSource.getMapping("test").getSource().getExcludes(), source.getExcludes());
 
-        Mappings.SourceConf source2 = new Mappings.SourceConf();
+        Mappings.Source source2 = new Mappings.Source();
         source.getExcludes().addAll(Arrays.asList("b", "c", "d", "e"));
         structuresSource.putStructure(
             "test", Mappings.builder()
@@ -153,7 +153,7 @@ public class IndexStructuresTest {
 
         //test with source
         IndexStructures structuresSource = new IndexStructures();
-        Mappings.SourceConf source = new Mappings.SourceConf();
+        Mappings.Source source = new Mappings.Source();
         source.getExcludes().addAll(Arrays.asList("a", "b", "c"));
         structuresSource.putStructure(
             "test", Mappings.builder()
@@ -175,7 +175,7 @@ public class IndexStructuresTest {
                             .source(source)
                             .build());
         Assert.assertEquals(res, diffMappings.getProperties());
-        Assert.assertNull(diffMappings.getSource());
+        Assert.assertNull("Mapping source should not be return by diffStructure()", diffMappings.getSource());
         diffMappings = structuresSource.diffStructure(
             "test",
             Mappings.builder()
