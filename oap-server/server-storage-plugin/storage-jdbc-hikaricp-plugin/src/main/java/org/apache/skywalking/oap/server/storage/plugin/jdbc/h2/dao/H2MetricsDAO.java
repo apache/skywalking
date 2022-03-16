@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
@@ -53,7 +54,7 @@ public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO {
 
     @Override
     public SQLExecutor prepareBatchInsert(Model model, Metrics metrics) throws IOException {
-        return getInsertExecutor(model.getName(), metrics, storageBuilder);
+        return getInsertExecutor(model.getName(), metrics, storageBuilder, new HashMapConverter.ToStorage());
     }
 
     @Override

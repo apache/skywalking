@@ -23,7 +23,6 @@ import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentReco
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.HashMapConverterWrapper;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.TAGS;
 
@@ -45,9 +44,8 @@ public class H2SegmentRecordBuilder extends AbstractSearchTagBuilder<Record> {
     }
 
     @Override
-    public void entity2Storage(final Record record, final Convert2Storage originConverter) {
+    public void entity2Storage(final Record record, final Convert2Storage converter) {
         SegmentRecord storageData = (SegmentRecord) record;
-        Convert2Storage converter = HashMapConverterWrapper.of(originConverter);
         final SegmentRecord.Builder builder = new SegmentRecord.Builder();
         builder.entity2Storage(storageData, converter);
         analysisSearchTag(storageData.getTagsRawData(), converter);

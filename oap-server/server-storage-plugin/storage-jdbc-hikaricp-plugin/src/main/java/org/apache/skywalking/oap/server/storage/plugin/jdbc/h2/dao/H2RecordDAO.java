@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.JDBCConverter;
 
 public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
     private JDBCHikariCPClient h2Client;
@@ -98,6 +99,6 @@ public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        return getInsertExecutor(model.getName(), record, storageBuilder, maxSizeOfArrayColumn);
+        return getInsertExecutor(model.getName(), record, storageBuilder, new JDBCConverter.RecordToStorage(), maxSizeOfArrayColumn);
     }
 }
