@@ -107,17 +107,16 @@ public class H2SQLExecutor {
 
     protected <T extends StorageData> SQLExecutor getInsertExecutor(String modelName, T metrics,
                                                                     StorageBuilder<T> storageBuilder,
-                                                                    Convert2Storage converter) throws IOException {
+                                                                    Convert2Storage<Map<String, Object>> converter) throws IOException {
         return getInsertExecutor(modelName, metrics, storageBuilder, converter, 1);
     }
 
     protected <T extends StorageData> SQLExecutor getInsertExecutor(String modelName, T metrics,
                                                                     StorageBuilder<T> storageBuilder,
-                                                                    Convert2Storage converter,
+                                                                    Convert2Storage<Map<String, Object>> converter,
                                                                     int maxSizeOfArrayColumn) throws IOException {
-        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
-        storageBuilder.entity2Storage(metrics, toStorage);
-        Map<String, Object> objectMap = toStorage.obtain();
+        storageBuilder.entity2Storage(metrics, converter);
+        Map<String, Object> objectMap = converter.obtain();
 
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + modelName + " VALUES");
         List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
