@@ -91,7 +91,7 @@ public abstract class AbstractLogRecord extends Record {
     private byte[] tagsRawData;
     @Setter
     @Getter
-    @Column(columnName = TAGS)
+    @Column(columnName = TAGS, indexOnly = true)
     private List<String> tagsInString;
 
     /**

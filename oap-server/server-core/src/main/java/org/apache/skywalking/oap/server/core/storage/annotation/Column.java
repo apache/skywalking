@@ -59,6 +59,14 @@ public @interface Column {
     boolean storageOnly() default false;
 
     /**
+     * The column(field) is just indexed, never stored. Note: this feature only supported by elasticsearch
+     * and don't support mappings update due to ElasticSearch server's limitation.
+     *
+     * NOTICE, metrics should not use this, as the OAP core merges indices of metrics automatically.
+     */
+    boolean indexOnly() default false;
+
+    /**
      * @return the length of this column, this is only for {@link String} column. The usage of this depends on the
      * storage implementation.
      *

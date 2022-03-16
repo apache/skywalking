@@ -224,6 +224,7 @@ public class StorageEsInstaller extends ModelInstaller {
 
     protected Mappings createMapping(Model model) {
         Map<String, Object> properties = new HashMap<>();
+        Mappings.Source source = new Mappings.Source();
         for (ModelColumn columnDefine : model.getColumns()) {
             final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType());
             if (columnDefine.isMatchQuery()) {
@@ -247,6 +248,10 @@ public class StorageEsInstaller extends ModelInstaller {
                 }
                 properties.put(columnDefine.getColumnName().getName(), column);
             }
+
+            if (columnDefine.isIndexOnly()) {
+                source.getExcludes().add(columnDefine.getColumnName().getName());
+            }
         }
 
         if (IndexController.INSTANCE.isMetricModel(model)) {
@@ -257,6 +262,7 @@ public class StorageEsInstaller extends ModelInstaller {
         Mappings mappings = Mappings.builder()
                                     .type("type")
                                     .properties(properties)
+                                    .source(source)
                                     .build();
         log.debug("elasticsearch index template setting: {}", mappings.toString());
 
