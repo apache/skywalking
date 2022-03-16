@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
@@ -45,9 +44,11 @@ import org.apache.skywalking.oap.server.core.query.type.RefType;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord;
 import zipkin2.Span;
@@ -147,8 +148,8 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         for (SearchHit searchHit : response.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();
 
-            final ZipkinSpanRecord zipkinSpanRecord = new ZipkinSpanRecord.Builder().storage2Entity(
-                searchHit.getSource());
+            final ZipkinSpanRecord zipkinSpanRecord
+                = new ZipkinSpanRecord.Builder().storage2Entity(new HashMapConverter.ToEntity(searchHit.getSource()));
 
             basicTrace.setSegmentId(zipkinSpanRecord.getSpanId());
             basicTrace.setStart(String.valueOf((long) zipkinSpanRecord.getStartTime()));

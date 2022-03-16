@@ -19,20 +19,20 @@
 package org.apache.skywalking.oap.server.core.profile;
 
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_SEGMENT_SNAPSHOT;
 
@@ -71,38 +71,35 @@ public class ProfileThreadSnapshotRecord extends Record {
         return getTaskId() + Const.ID_CONNECTOR + getSegmentId() + Const.ID_CONNECTOR + getSequence() + Const.ID_CONNECTOR;
     }
 
-    public static class Builder implements StorageHashMapBuilder<ProfileThreadSnapshotRecord> {
-
+    public static class Builder implements StorageBuilder<ProfileThreadSnapshotRecord> {
         @Override
-        public ProfileThreadSnapshotRecord storage2Entity(Map<String, Object> dbMap) {
+        public ProfileThreadSnapshotRecord storage2Entity(final Convert2Entity converter) {
             final ProfileThreadSnapshotRecord snapshot = new ProfileThreadSnapshotRecord();
-            snapshot.setTaskId((String) dbMap.get(TASK_ID));
-            snapshot.setSegmentId((String) dbMap.get(SEGMENT_ID));
-            snapshot.setDumpTime(((Number) dbMap.get(DUMP_TIME)).longValue());
-            snapshot.setSequence(((Number) dbMap.get(SEQUENCE)).intValue());
-            snapshot.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).intValue());
-            if (StringUtil.isEmpty((String) dbMap.get(STACK_BINARY))) {
+            snapshot.setTaskId((String) converter.get(TASK_ID));
+            snapshot.setSegmentId((String) converter.get(SEGMENT_ID));
+            snapshot.setDumpTime(((Number) converter.get(DUMP_TIME)).longValue());
+            snapshot.setSequence(((Number) converter.get(SEQUENCE)).intValue());
+            snapshot.setTimeBucket(((Number) converter.get(TIME_BUCKET)).intValue());
+            if (StringUtil.isEmpty((String) converter.get(STACK_BINARY))) {
                 snapshot.setStackBinary(new byte[] {});
             } else {
-                snapshot.setStackBinary(Base64.getDecoder().decode((String) dbMap.get(STACK_BINARY)));
+                snapshot.setStackBinary(Base64.getDecoder().decode((String) converter.get(STACK_BINARY)));
             }
             return snapshot;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(ProfileThreadSnapshotRecord storageData) {
-            final HashMap<String, Object> map = new HashMap<>();
-            map.put(TASK_ID, storageData.getTaskId());
-            map.put(SEGMENT_ID, storageData.getSegmentId());
-            map.put(DUMP_TIME, storageData.getDumpTime());
-            map.put(SEQUENCE, storageData.getSequence());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
+        public void entity2Storage(final ProfileThreadSnapshotRecord storageData, final Convert2Storage converter) {
+            converter.accept(TASK_ID, storageData.getTaskId());
+            converter.accept(SEGMENT_ID, storageData.getSegmentId());
+            converter.accept(DUMP_TIME, storageData.getDumpTime());
+            converter.accept(SEQUENCE, storageData.getSequence());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             if (CollectionUtils.isEmpty(storageData.getStackBinary())) {
-                map.put(STACK_BINARY, Const.EMPTY_STRING);
+                converter.accept(STACK_BINARY, Const.EMPTY_STRING);
             } else {
-                map.put(STACK_BINARY, new String(Base64.getEncoder().encode(storageData.getStackBinary())));
+                converter.accept(STACK_BINARY, new String(Base64.getEncoder().encode(storageData.getStackBinary())));
             }
-            return map;
         }
     }
 }

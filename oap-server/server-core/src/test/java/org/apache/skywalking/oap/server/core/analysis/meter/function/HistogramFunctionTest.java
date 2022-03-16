@@ -27,7 +27,8 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -216,13 +217,16 @@ public class HistogramFunctionTest {
             })
         );
 
-        final StorageHashMapBuilder storageBuilder = inst.builder().newInstance();
+        final StorageBuilder storageBuilder = inst.builder().newInstance();
 
         // Simulate the storage layer do, convert the datatable to string.
-        final Map map = storageBuilder.entity2Storage(inst);
+        final HashMapConverter.ToStorage hashMapConverter = new HashMapConverter.ToStorage();
+        storageBuilder.entity2Storage(inst, hashMapConverter);
+        final Map<String, Object> map = hashMapConverter.obtain();
         map.put(DATASET, ((DataTable) map.get(DATASET)).toStorageData());
 
-        final HistogramFunction inst2 = (HistogramFunction) storageBuilder.storage2Entity(map);
+        final HistogramFunction inst2 = (HistogramFunction) storageBuilder.storage2Entity(
+            new HashMapConverter.ToEntity(map));
         Assert.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
         Assert.assertEquals(inst.getDataset(), inst2.getDataset());

@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.profile;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -27,8 +25,10 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_LOG;
 
@@ -61,28 +61,25 @@ public class ProfileTaskLogRecord extends Record {
         return getTaskId() + Const.ID_CONNECTOR + getInstanceId() + Const.ID_CONNECTOR + getOperationType() + Const.ID_CONNECTOR + getOperationTime();
     }
 
-    public static class Builder implements StorageHashMapBuilder<ProfileTaskLogRecord> {
-
+    public static class Builder implements StorageBuilder<ProfileTaskLogRecord> {
         @Override
-        public ProfileTaskLogRecord storage2Entity(Map<String, Object> dbMap) {
+        public ProfileTaskLogRecord storage2Entity(final Convert2Entity converter) {
             final ProfileTaskLogRecord log = new ProfileTaskLogRecord();
-            log.setTaskId((String) dbMap.get(TASK_ID));
-            log.setInstanceId((String) dbMap.get(INSTANCE_ID));
-            log.setOperationType(((Number) dbMap.get(OPERATION_TYPE)).intValue());
-            log.setOperationTime(((Number) dbMap.get(OPERATION_TIME)).longValue());
-            log.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            log.setTaskId((String) converter.get(TASK_ID));
+            log.setInstanceId((String) converter.get(INSTANCE_ID));
+            log.setOperationType(((Number) converter.get(OPERATION_TYPE)).intValue());
+            log.setOperationTime(((Number) converter.get(OPERATION_TIME)).longValue());
+            log.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return log;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(ProfileTaskLogRecord storageData) {
-            final HashMap<String, Object> map = new HashMap<>();
-            map.put(TASK_ID, storageData.getTaskId());
-            map.put(INSTANCE_ID, storageData.getInstanceId());
-            map.put(OPERATION_TYPE, storageData.getOperationType());
-            map.put(OPERATION_TIME, storageData.getOperationTime());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            return map;
+        public void entity2Storage(final ProfileTaskLogRecord storageData, final Convert2Storage converter) {
+            converter.accept(TASK_ID, storageData.getTaskId());
+            converter.accept(INSTANCE_ID, storageData.getInstanceId());
+            converter.accept(OPERATION_TYPE, storageData.getOperationType());
+            converter.accept(OPERATION_TIME, storageData.getOperationTime());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
         }
     }
 }

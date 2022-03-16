@@ -24,18 +24,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 
 public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO {
 
     private JDBCHikariCPClient h2Client;
-    private StorageHashMapBuilder<Metrics> storageBuilder;
+    private StorageBuilder<Metrics> storageBuilder;
 
-    public H2MetricsDAO(JDBCHikariCPClient h2Client, StorageHashMapBuilder<Metrics> storageBuilder) {
+    public H2MetricsDAO(JDBCHikariCPClient h2Client, StorageBuilder<Metrics> storageBuilder) {
         this.h2Client = h2Client;
         this.storageBuilder = storageBuilder;
     }

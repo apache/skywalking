@@ -16,28 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter.function;
-
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
-import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+package org.apache.skywalking.oap.server.core.storage.type;
 
 /**
- * Indicate this function accepting the data of type T.
+ * A function supplier to convert raw data from database to object defined in OAP
  */
-public interface AcceptableValue<T> {
-    void accept(MeterEntity entity, T value);
-
-    /**
-     * @return a new instance based on the implementation, it should be the same class.
-     */
-    AcceptableValue<T> createNew();
-
-    /**
-     * @return builder
-     */
-    Class<? extends StorageBuilder> builder();
-
-    void setTimeBucket(long timeBucket);
-
-    long getTimeBucket();
+public interface Convert2Entity {
+    Object get(String fieldName);
 }

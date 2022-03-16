@@ -27,8 +27,8 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
@@ -37,7 +37,7 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 @RequiredArgsConstructor
 public class IoTDBMetricsDAO implements IMetricsDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<Metrics> storageBuilder;
+    private final StorageBuilder<Metrics> storageBuilder;
 
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {

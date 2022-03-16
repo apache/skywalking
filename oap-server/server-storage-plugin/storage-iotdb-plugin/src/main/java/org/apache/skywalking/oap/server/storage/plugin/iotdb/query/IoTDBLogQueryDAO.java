@@ -39,8 +39,8 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
@@ -50,7 +50,7 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 @RequiredArgsConstructor
 public class IoTDBLogQueryDAO implements ILogQueryDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<LogRecord> storageBuilder = new LogRecord.Builder();
+    private final StorageBuilder<LogRecord> storageBuilder = new LogRecord.Builder();
 
     @Override
     public Logs queryLogs(String serviceId, String serviceInstanceId, String endpointId,

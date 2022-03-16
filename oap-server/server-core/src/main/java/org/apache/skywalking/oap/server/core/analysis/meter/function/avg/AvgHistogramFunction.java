@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,19 +34,20 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 /**
- * AvgHistogram intends to aggregate raw values over the interval (minute, hour or day). When users query a value
- * from such a interval, an average over it will be sent back.
+ * AvgHistogram intends to aggregate raw values over the interval (minute, hour or day). When users query a value from
+ * such a interval, an average over it will be sent back.
  *
- * The acceptable bucket value should be a result from one of "increase", "rate" and "irate" query functions.
- * That means the value is the increase or per-second instant rate of increase in a specific range.
+ * The acceptable bucket value should be a result from one of "increase", "rate" and "irate" query functions. That means
+ * the value is the increase or per-second instant rate of increase in a specific range.
  *
- * Example:
- * "persistence_timer_bulk_execute_latency" is histogram, the possible PromQL format of acceptable bucket value should be:
- * "increase(persistence_timer_bulk_execute_latency{service="oap-server", instance="localhost:1234"}[5m])"
+ * Example: "persistence_timer_bulk_execute_latency" is histogram, the possible PromQL format of acceptable bucket value
+ * should be: "increase(persistence_timer_bulk_execute_latency{service="oap-server", instance="localhost:1234"}[5m])"
  */
 @MeterFunction(functionName = "avgHistogram")
 @Slf4j
@@ -177,33 +176,30 @@ public abstract class AvgHistogramFunction extends Meter implements AcceptableVa
         return AvgHistogramFunctionBuilder.class;
     }
 
-    public static class AvgHistogramFunctionBuilder implements StorageHashMapBuilder<AvgHistogramFunction> {
-
+    public static class AvgHistogramFunctionBuilder implements StorageBuilder<AvgHistogramFunction> {
         @Override
-        public AvgHistogramFunction storage2Entity(final Map<String, Object> dbMap) {
+        public AvgHistogramFunction storage2Entity(final Convert2Entity converter) {
             AvgHistogramFunction metrics = new AvgHistogramFunction() {
                 @Override
                 public AcceptableValue<BucketedValues> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
-            metrics.setDataset(new DataTable((String) dbMap.get(DATASET)));
-            metrics.setCount(new DataTable((String) dbMap.get(COUNT)));
-            metrics.setSummation(new DataTable((String) dbMap.get(SUMMATION)));
-            metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            metrics.setEntityId((String) dbMap.get(ENTITY_ID));
+            metrics.setDataset(new DataTable((String) converter.get(DATASET)));
+            metrics.setCount(new DataTable((String) converter.get(COUNT)));
+            metrics.setSummation(new DataTable((String) converter.get(SUMMATION)));
+            metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            metrics.setEntityId((String) converter.get(ENTITY_ID));
             return metrics;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(final AvgHistogramFunction storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(DATASET, storageData.getDataset());
-            map.put(COUNT, storageData.getCount());
-            map.put(SUMMATION, storageData.getSummation());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(ENTITY_ID, storageData.getEntityId());
-            return map;
+        public void entity2Storage(final AvgHistogramFunction storageData, final Convert2Storage converter) {
+            converter.accept(DATASET, storageData.getDataset());
+            converter.accept(COUNT, storageData.getCount());
+            converter.accept(SUMMATION, storageData.getSummation());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(ENTITY_ID, storageData.getEntityId());
         }
     }
 

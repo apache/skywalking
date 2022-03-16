@@ -23,14 +23,14 @@ import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 @RequiredArgsConstructor
 public class IoTDBNoneStreamDAO implements INoneStreamDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<NoneStream> storageBuilder;
+    private final StorageBuilder<NoneStream> storageBuilder;
 
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {

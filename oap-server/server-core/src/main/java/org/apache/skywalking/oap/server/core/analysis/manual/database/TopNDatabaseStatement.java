@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.database;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,8 +25,10 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 /**
  * Database TopN statement, including Database SQL statement, mongoDB and Redis commands.
@@ -64,28 +64,25 @@ public class TopNDatabaseStatement extends TopN {
         return Objects.hash(getServiceId());
     }
 
-    public static class Builder implements StorageHashMapBuilder<TopNDatabaseStatement> {
-
+    public static class Builder implements StorageBuilder<TopNDatabaseStatement> {
         @Override
-        public TopNDatabaseStatement storage2Entity(Map<String, Object> dbMap) {
+        public TopNDatabaseStatement storage2Entity(final Convert2Entity converter) {
             TopNDatabaseStatement statement = new TopNDatabaseStatement();
-            statement.setStatement((String) dbMap.get(STATEMENT));
-            statement.setTraceId((String) dbMap.get(TRACE_ID));
-            statement.setLatency(((Number) dbMap.get(LATENCY)).longValue());
-            statement.setServiceId((String) dbMap.get(SERVICE_ID));
-            statement.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            statement.setStatement((String) converter.get(STATEMENT));
+            statement.setTraceId((String) converter.get(TRACE_ID));
+            statement.setLatency(((Number) converter.get(LATENCY)).longValue());
+            statement.setServiceId((String) converter.get(SERVICE_ID));
+            statement.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return statement;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(TopNDatabaseStatement storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(STATEMENT, storageData.getStatement());
-            map.put(TRACE_ID, storageData.getTraceId());
-            map.put(LATENCY, storageData.getLatency());
-            map.put(SERVICE_ID, storageData.getServiceId());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            return map;
+        public void entity2Storage(final TopNDatabaseStatement storageData, final Convert2Storage converter) {
+            converter.accept(STATEMENT, storageData.getStatement());
+            converter.accept(TRACE_ID, storageData.getTraceId());
+            converter.accept(LATENCY, storageData.getLatency());
+            converter.accept(SERVICE_ID, storageData.getServiceId());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
         }
     }
 }

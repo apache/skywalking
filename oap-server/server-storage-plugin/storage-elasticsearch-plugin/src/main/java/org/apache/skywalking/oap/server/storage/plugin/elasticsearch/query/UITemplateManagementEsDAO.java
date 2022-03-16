@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -62,7 +63,8 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
         if (response.getHits().getHits().size() > 0) {
             UITemplate.Builder builder = new UITemplate.Builder();
             SearchHit data = response.getHits().getHits().get(0);
-            return new DashboardConfiguration().fromEntity(builder.storage2Entity(data.getSource()));
+            return new DashboardConfiguration().fromEntity(
+                builder.storage2Entity(new HashMapConverter.ToEntity(data.getSource())));
         }
         return null;
     }
@@ -91,7 +93,7 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSource();
 
-            final UITemplate uiTemplate = builder.storage2Entity(sourceAsMap);
+            final UITemplate uiTemplate = builder.storage2Entity(new HashMapConverter.ToEntity(sourceAsMap));
             configs.add(new DashboardConfiguration().fromEntity(uiTemplate));
         }
         return configs;
@@ -109,8 +111,9 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
                                            .build();
             }
 
-            final Map<String, Object> xContentBuilder = builder.entity2Storage(uiTemplate);
-            getClient().forceInsert(UITemplate.INDEX_NAME, uiTemplate.id(), xContentBuilder);
+            final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+            builder.entity2Storage(uiTemplate, toStorage);
+            getClient().forceInsert(UITemplate.INDEX_NAME, uiTemplate.id(), toStorage.obtain());
             return TemplateChangeStatus.builder().status(true).id(uiTemplate.getTemplateId()).build();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -131,8 +134,9 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
                                            .message("Can't find the template").build();
             }
 
-            final Map<String, Object> xContentBuilder = builder.entity2Storage(uiTemplate);
-            getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id(), xContentBuilder);
+            final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+            builder.entity2Storage(uiTemplate, toStorage);
+            getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id(), toStorage.obtain());
             return TemplateChangeStatus.builder().status(true).id(setting.getId()).build();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -146,11 +150,13 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
         final Optional<Document> response = getClient().get(UITemplate.INDEX_NAME, id);
         if (response.isPresent()) {
             final UITemplate.Builder builder = new UITemplate.Builder();
-            final UITemplate uiTemplate = builder.storage2Entity(response.get().getSource());
+            final UITemplate uiTemplate = builder.storage2Entity(
+                new HashMapConverter.ToEntity(response.get().getSource()));
             uiTemplate.setDisabled(BooleanUtils.TRUE);
 
-            final Map<String, Object> xContentBuilder = builder.entity2Storage(uiTemplate);
-            getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id(), xContentBuilder);
+            final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+            builder.entity2Storage(uiTemplate, toStorage);
+            getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id(), toStorage.obtain());
             return TemplateChangeStatus.builder().status(true).id(id).build();
         } else {
             return TemplateChangeStatus.builder().status(false).id(id).message("Can't find the template")
