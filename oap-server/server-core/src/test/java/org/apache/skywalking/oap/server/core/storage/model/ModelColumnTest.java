@@ -27,14 +27,14 @@ public class ModelColumnTest {
     @Test
     public void testColumnDefine() {
         ModelColumn column = new ModelColumn(new ColumnName("", "abc"), byte[].class, byte[].class, true,
-                                             false, true, 0,
+                                             false, false, true, 0,
                                              Column.AnalyzerType.OAP_ANALYZER
         );
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
 
         column = new ModelColumn(new ColumnName("", "abc"), DataTable.class, DataTable.class, true,
-                                 false, true, 200,
+                                 false, false, true, 200,
                                  Column.AnalyzerType.OAP_ANALYZER
         );
         Assert.assertEquals(true, column.isStorageOnly());
@@ -42,7 +42,7 @@ public class ModelColumnTest {
         Assert.assertEquals(200, column.getLength());
 
         column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class, true,
-                                 false, true, 200,
+                                 false, false, true, 200,
                                  Column.AnalyzerType.OAP_ANALYZER
         );
         Assert.assertEquals(false, column.isStorageOnly());
@@ -52,7 +52,15 @@ public class ModelColumnTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConflictDefinition() {
         ModelColumn column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
-                                             true, true, true, 200,
+                                             true, true, false, true, 200,
+                                             Column.AnalyzerType.OAP_ANALYZER
+        );
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConflictDefinitionIndexOnly() {
+        ModelColumn column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
+                                             true, true, true, false, 200,
                                              Column.AnalyzerType.OAP_ANALYZER
         );
     }

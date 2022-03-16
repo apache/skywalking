@@ -90,7 +90,7 @@ public class SegmentRecord extends Record {
     private byte[] dataBinary;
     @Setter
     @Getter
-    @Column(columnName = TAGS)
+    @Column(columnName = TAGS, indexOnly = true)
     private List<String> tags;
     /**
      * Tags raw data is a duplicate field of {@link #tags}. Some storage don't support array values in a single column.
