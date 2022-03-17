@@ -21,18 +21,14 @@ package org.apache.skywalking.oap.server.core.profiling.ebpf.storage;
 import com.google.common.hash.Hashing;
 import com.linecorp.armeria.internal.shaded.guava.base.Charsets;
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-
-import java.util.Base64;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EBPF_PROFILING_DATA;
 
@@ -79,12 +75,7 @@ public class EBPFProfilingDataRecord extends Record {
             dataTraffic.setScheduleId((String) converter.get(SCHEDULE_ID));
             dataTraffic.setTaskId((String) converter.get(TASK_ID));
             dataTraffic.setStackIdList((String) converter.get(STACK_ID_LIST));
-            if (StringUtil.isEmpty((String) converter.get(STACKS_BINARY))) {
-                dataTraffic.setStacksBinary(new byte[] {});
-            } else {
-                // Don't read the tags as they has been in the data binary already.
-                dataTraffic.setStacksBinary(Base64.getDecoder().decode((String) converter.get(STACKS_BINARY)));
-            }
+            dataTraffic.setStacksBinary(converter.getWith(STACKS_BINARY, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
             dataTraffic.setStackDumpCount(((Number) converter.get(STACK_DUMP_COUNT)).longValue());
             dataTraffic.setUploadTime(((Number) converter.get(UPLOAD_TIME)).longValue());
             dataTraffic.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
@@ -96,11 +87,7 @@ public class EBPFProfilingDataRecord extends Record {
             converter.accept(SCHEDULE_ID, storageData.getScheduleId());
             converter.accept(TASK_ID, storageData.getTaskId());
             converter.accept(STACK_ID_LIST, storageData.getStackIdList());
-            if (CollectionUtils.isEmpty(storageData.getStacksBinary())) {
-                converter.accept(STACKS_BINARY, Const.EMPTY_STRING);
-            } else {
-                converter.accept(STACKS_BINARY, new String(Base64.getEncoder().encode(storageData.getStacksBinary())));
-            }
+            converter.accept(STACKS_BINARY, storageData.getStacksBinary());
             converter.accept(STACK_DUMP_COUNT, storageData.getStackDumpCount());
             converter.accept(UPLOAD_TIME, storageData.getUploadTime());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
