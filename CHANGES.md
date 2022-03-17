@@ -29,6 +29,8 @@ Release Notes.
     * Upgrade maven-source-plugin to 3.2.1.
 * Update codeStyle.xml to fix incompatibility on M1's IntelliJ IDEA 2021.3.2.
 * Update frontend-maven-plugin to 1.12 and npm to 16.14.0 for booster UI build.
+* Improve CI with the GHA new feature "run failed jobs".
+* Fix `./mvnw compile` not work if `./mvnw install` is not executed at least once.
 
 #### OAP Server
 
@@ -109,11 +111,14 @@ Release Notes.
 * [Breaking Change] Remove configuration `restAcceptorPriorityDelta` (env var: `SW_RECEIVER_SHARING_JETTY_DELTA`
   , `SW_CORE_REST_JETTY_DELTA`).
 * [Breaking Change] Remove configuration `graphql/path` (env var: `SW_QUERY_GRAPHQL_PATH`).
+* Add storage column attribute `indexOnly`, support ElasticSearch only index and not store some fields.
+* Add `indexOnly=true` to `SegmentRecord.tags`, `AlarmRecord.tags`, `AbstractLogRecord.tags`, to reduce unnecessary storage.
 * [Breaking Change] Remove configuration `restMinThreads` (env var: `SW_CORE_REST_JETTY_MIN_THREADS`
   , `SW_RECEIVER_SHARING_JETTY_MIN_THREADS`).
 * Refactor the core Builder mechanism, new storage plugin could implement their own converter and get rid of hard
   requirement of using HashMap to communicate between data object and database native structure.
 * [Breaking Change] Break all existing 3rd-party storage extensions.
+* Remove hard requirement of BASE64 encoding for binary field.
 * Implement the eBPF profiling query and data collect protocol.
 
 #### UI

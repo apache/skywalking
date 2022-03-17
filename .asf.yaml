@@ -1,4 +1,4 @@
-  
+
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -41,14 +41,11 @@ github:
       required_status_checks:
         strict: true
         contexts:
-          - CI
-          - Single
-          - Storage
-          - Cluster
+          - Required
       required_pull_request_reviews:
         dismiss_stale_reviews: true
         required_approving_review_count: 1
-    # Protect these branches for the website    
+    # Protect these branches for the website
     website-docs/8.2.0:
       whatever: Just a placehold to make it take effects
     website-docs/8.3.0:

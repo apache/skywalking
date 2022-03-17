@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
@@ -78,7 +79,8 @@ public class H2UITemplateManagementDAO extends H2SQLExecutor implements UITempla
         }
 
         try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]))) {
                 final List<DashboardConfiguration> configs = new ArrayList<>();
                 final UITemplate.Builder builder = new UITemplate.Builder();
                 UITemplate uiTemplate = null;
@@ -87,7 +89,8 @@ public class H2UITemplateManagementDAO extends H2SQLExecutor implements UITempla
                     if (uiTemplate != null) {
                         configs.add(new DashboardConfiguration().fromEntity(uiTemplate));
                     }
-                } while (uiTemplate != null);
+                }
+                while (uiTemplate != null);
                 return configs;
             }
         } catch (SQLException | JDBCClientException e) {
@@ -98,13 +101,18 @@ public class H2UITemplateManagementDAO extends H2SQLExecutor implements UITempla
     @Override
     public TemplateChangeStatus addTemplate(final DashboardSetting setting) throws IOException {
         final UITemplate uiTemplate = setting.toEntity();
-        final SQLExecutor insertExecutor = getInsertExecutor(UITemplate.INDEX_NAME, uiTemplate, new UITemplate.Builder());
+        final SQLExecutor insertExecutor = getInsertExecutor(
+            UITemplate.INDEX_NAME, uiTemplate, new UITemplate.Builder(), new HashMapConverter.ToStorage());
         try (Connection connection = h2Client.getConnection()) {
             insertExecutor.invoke(connection);
             return TemplateChangeStatus.builder().status(true).id(setting.getId()).build();
         } catch (SQLException | JDBCClientException e) {
             log.error(e.getMessage(), e);
-            return TemplateChangeStatus.builder().status(false).id(setting.getId()).message("Can't add a new template").build();
+            return TemplateChangeStatus.builder()
+                                       .status(false)
+                                       .id(setting.getId())
+                                       .message("Can't add a new template")
+                                       .build();
         }
     }
 
@@ -116,7 +124,8 @@ public class H2UITemplateManagementDAO extends H2SQLExecutor implements UITempla
 
     @Override
     public TemplateChangeStatus disableTemplate(final String id) throws IOException {
-        final UITemplate uiTemplate = (UITemplate) getByID(h2Client, UITemplate.INDEX_NAME, id, new UITemplate.Builder());
+        final UITemplate uiTemplate = (UITemplate) getByID(
+            h2Client, UITemplate.INDEX_NAME, id, new UITemplate.Builder());
         if (uiTemplate == null) {
             return TemplateChangeStatus.builder().status(false).id(id).message("Can't find the template").build();
         }
@@ -125,13 +134,18 @@ public class H2UITemplateManagementDAO extends H2SQLExecutor implements UITempla
     }
 
     private TemplateChangeStatus executeUpdate(final UITemplate uiTemplate) throws IOException {
-        final SQLExecutor updateExecutor = getUpdateExecutor(UITemplate.INDEX_NAME, uiTemplate, new UITemplate.Builder());
+        final SQLExecutor updateExecutor = getUpdateExecutor(
+            UITemplate.INDEX_NAME, uiTemplate, new UITemplate.Builder());
         try (Connection connection = h2Client.getConnection()) {
             updateExecutor.invoke(connection);
             return TemplateChangeStatus.builder().status(true).id(uiTemplate.getTemplateId()).build();
         } catch (SQLException | JDBCClientException e) {
             log.error(e.getMessage(), e);
-            return TemplateChangeStatus.builder().status(false).id(uiTemplate.getTemplateId()).message("Can't add/update the template").build();
+            return TemplateChangeStatus.builder()
+                                       .status(false)
+                                       .id(uiTemplate.getTemplateId())
+                                       .message("Can't add/update the template")
+                                       .build();
         }
     }
 }

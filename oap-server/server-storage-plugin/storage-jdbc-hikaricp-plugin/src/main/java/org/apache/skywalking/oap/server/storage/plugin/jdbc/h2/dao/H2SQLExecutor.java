@@ -29,6 +29,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
@@ -105,16 +106,17 @@ public class H2SQLExecutor {
     }
 
     protected <T extends StorageData> SQLExecutor getInsertExecutor(String modelName, T metrics,
-                                                                    StorageBuilder<T> storageBuilder) throws IOException {
-        return getInsertExecutor(modelName, metrics, storageBuilder, 1);
+                                                                    StorageBuilder<T> storageBuilder,
+                                                                    Convert2Storage<Map<String, Object>> converter) throws IOException {
+        return getInsertExecutor(modelName, metrics, storageBuilder, converter, 1);
     }
 
     protected <T extends StorageData> SQLExecutor getInsertExecutor(String modelName, T metrics,
                                                                     StorageBuilder<T> storageBuilder,
+                                                                    Convert2Storage<Map<String, Object>> converter,
                                                                     int maxSizeOfArrayColumn) throws IOException {
-        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
-        storageBuilder.entity2Storage(metrics, toStorage);
-        Map<String, Object> objectMap = toStorage.obtain();
+        storageBuilder.entity2Storage(metrics, converter);
+        Map<String, Object> objectMap = converter.obtain();
 
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + modelName + " VALUES");
         List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();

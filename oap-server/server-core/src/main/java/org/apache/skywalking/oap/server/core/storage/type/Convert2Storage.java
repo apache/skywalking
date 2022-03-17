@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.storage.type;
 
+import java.util.List;
+
 /**
  * A function supplier to accept key-value pair, and convert to the expected database structure according to storage
  * implementation.
@@ -25,9 +27,25 @@ package org.apache.skywalking.oap.server.core.storage.type;
  * @param <R> Type of database required structure.
  */
 public interface Convert2Storage<R> {
+    /**
+     * Accept general type key/value.
+     */
     void accept(String fieldName, Object fieldValue);
+
+    /**
+     * Accept String key and byte array value.
+     */
+    void accept(String fieldName, byte[] fieldValue);
+
+    /**
+     * Accept String key and String list value.
+     */
+    void accept(String fieldName, List<String> fieldValue);
 
     Object get(String fieldName);
 
+    /**
+     * @return the converted data
+     */
     R obtain();
 }

@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
@@ -44,7 +45,7 @@ public class H2NoneStreamDAO extends H2SQLExecutor implements INoneStreamDAO {
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
-            SQLExecutor insertExecutor = getInsertExecutor(model.getName(), noneStream, storageBuilder);
+            SQLExecutor insertExecutor = getInsertExecutor(model.getName(), noneStream, storageBuilder, new HashMapConverter.ToStorage());
             insertExecutor.invoke(connection);
         } catch (IOException | SQLException e) {
             throw new IOException(e.getMessage(), e);

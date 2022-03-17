@@ -18,15 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
-import java.util.Base64;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
-import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
-import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -34,7 +28,10 @@ import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcess
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @SuperDataset
 @Stream(name = SegmentRecord.INDEX_NAME, scopeId = DefaultScopeDefine.SEGMENT, builder = SegmentRecord.Builder.class, processor = RecordStreamProcessor.class)
@@ -90,7 +87,7 @@ public class SegmentRecord extends Record {
     private byte[] dataBinary;
     @Setter
     @Getter
-    @Column(columnName = TAGS)
+    @Column(columnName = TAGS, indexOnly = true)
     private List<String> tags;
     /**
      * Tags raw data is a duplicate field of {@link #tags}. Some storage don't support array values in a single column.
@@ -118,11 +115,7 @@ public class SegmentRecord extends Record {
             record.setLatency(((Number) converter.get(LATENCY)).intValue());
             record.setIsError(((Number) converter.get(IS_ERROR)).intValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
-            if (StringUtil.isEmpty((String) converter.get(DATA_BINARY))) {
-                record.setDataBinary(new byte[] {});
-            } else {
-                record.setDataBinary(Base64.getDecoder().decode((String) converter.get(DATA_BINARY)));
-            }
+            record.setDataBinary(converter.getWith(DATA_BINARY, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
             // Don't read the tags as they have been in the data binary already.
             return record;
         }
@@ -138,11 +131,7 @@ public class SegmentRecord extends Record {
             converter.accept(LATENCY, storageData.getLatency());
             converter.accept(IS_ERROR, storageData.getIsError());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
-            if (CollectionUtils.isEmpty(storageData.getDataBinary())) {
-                converter.accept(DATA_BINARY, Const.EMPTY_STRING);
-            } else {
-                converter.accept(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
-            }
+            converter.accept(DATA_BINARY, storageData.getDataBinary());
             converter.accept(TAGS, storageData.getTags());
         }
     }
