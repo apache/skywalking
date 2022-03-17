@@ -50,7 +50,7 @@ public class IoTDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
 
         StringBuilder where = new StringBuilder(" where ");
         if (StringUtil.isNotEmpty(taskId)) {
-            where.append(EBPFProfilingDataRecord.TASK_ID).append(" = ").append(taskId).append(" and ");
+            where.append(EBPFProfilingDataRecord.TASK_ID).append(" = \"").append(taskId).append("\" and ");
         }
         if (beginTime > 0) {
             where.append(IoTDBClient.TIME).append(" >= ").append(beginTime).append(" and ");
