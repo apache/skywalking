@@ -541,88 +541,24 @@ jobs:
         with:
           e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/simple/jdk/e2e.yaml
 
-  ci:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: CI
-    needs: [ unit-test, integration-test ]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Merge Requirement
-        run: |
-          if [[ ${{ needs.unit-test.result }} != 'success' ]]; then
-            exit -1
-          fi
-          if [[ ${{ needs.integration-test.result }} != 'success' ]]; then
-            exit -1
-          fi
-
-  single:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: Single
-    needs: [ e2e-test, e2e-test-istio, e2e-test-java-versions ]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Merge Requirement
-        run: |
-          if [[ ${{ needs.e2e-test.result }} != 'success' ]]; then
-            exit -1
-          fi
-          if [[ ${{ needs.e2e-test-istio.result }} != 'success' ]]; then
-            exit -1
-          fi
-          if [[ ${{ needs.e2e-test-java-versions.result }} != 'success' ]]; then
-            exit -1
-          fi
-
-  cluster:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: Cluster
-    needs: [ e2e-test, e2e-test-istio, e2e-test-java-versions ]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Merge Requirement
-        run: |
-          if [[ ${{ needs.e2e-test.result }} != 'success' ]]; then
-            exit -1
-          fi
-          if [[ ${{ needs.e2e-test-istio.result }} != 'success' ]]; then
-            exit -1
-          fi
-          if [[ ${{ needs.e2e-test-java-versions.result }} != 'success' ]]; then
-            exit -1
-          fi
-
-  storage:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: Storage
-    needs: [ e2e-test, e2e-test-istio, e2e-test-java-versions ]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Merge Requirement
-        run: |
-          if [[ ${{ needs.e2e-test.result }} != 'success' ]]; then
-            exit -1
-          fi
-          if [[ ${{ needs.e2e-test-istio.result }} != 'success' ]]; then
-            exit -1
-          fi
-          if [[ ${{ needs.e2e-test-java-versions.result }} != 'success' ]]; then
-            exit -1
-          fi
-
   required:
     if: always()
     name: Required
-    needs: [ unit-test, integration-test, e2e-test, e2e-test-istio, e2e-test-java-versions ]
+    needs:
+      - dependency-license
+      - unit-test
+      - integration-test
+      - e2e-test
+      - e2e-test-istio
+      - e2e-test-java-versions
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Merge Requirement
         run: |
+          if [[ ${{ needs.dependency-license.result }} != 'success' ]]; then
+            exit -1
+          fi
           if [[ ${{ needs.unit-test.result }} != 'success' ]]; then
             exit -1
           fi
