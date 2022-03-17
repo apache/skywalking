@@ -1,0 +1,157 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.skywalking.oap.server.core.profiling.ebpf.analyze;
+
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTree;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+public class EBPFProfilingAnalyzer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EBPFProfilingAnalyzer.class);
+
+    private static final EBPFProfilingAnalyzeCollector ANALYZE_COLLECTOR = new EBPFProfilingAnalyzeCollector();
+    private static final Long FETCH_FETCH_DURATION = TimeUnit.MINUTES.toMillis(2);
+
+    private final ModuleManager moduleManager;
+    protected IEBPFProfilingDataDAO dataDAO;
+
+    public EBPFProfilingAnalyzer(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    /**
+     * search data and analyze
+     */
+    public EBPFProfilingAnalyzation analyze(String taskId, List<EBPFProfilingAnalyzeTimeRange> ranges) throws IOException {
+        EBPFProfilingAnalyzation analyzation = new EBPFProfilingAnalyzation();
+
+        List<TimeRange> timeRanges = buildTimeRanges(ranges);
+        if (CollectionUtils.isEmpty(timeRanges)) {
+            analyzation.setTip("data not found");
+            return analyzation;
+        }
+
+        // query data
+        List<EBPFProfilingStack> stacks = timeRanges.parallelStream().map(r -> {
+            try {
+                return getDataDAO().queryData(taskId, r.minTime, r.maxTime);
+            } catch (IOException e) {
+                LOGGER.warn(e.getMessage(), e);
+                return Collections.<EBPFProfilingDataRecord>emptyList();
+            }
+        }).flatMap(Collection::stream).map(e -> {
+            try {
+                return EBPFProfilingStack.deserialize(e);
+            } catch (Exception ex) {
+                LOGGER.warn("could not deserialize the stack", ex);
+                return null;
+            }
+        }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+
+        // analyze
+        final List<EBPFProfilingTree> trees = analyze(stacks);
+        if (trees != null) {
+            analyzation.getTrees().addAll(trees);
+        }
+
+        return analyzation;
+    }
+
+    protected List<TimeRange> buildTimeRanges(List<EBPFProfilingAnalyzeTimeRange> timeRanges) {
+        return timeRanges.parallelStream()
+                .map(r -> buildTimeRanges(r.getStart(), r.getEnd()))
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
+    protected List<TimeRange> buildTimeRanges(long start, long end) {
+        if (start >= end) {
+            return null;
+        }
+
+        // include latest millisecond
+        end += 1;
+
+        final List<TimeRange> timeRanges = new ArrayList<>();
+        do {
+            long batchEnd = Math.min(start + FETCH_FETCH_DURATION, end);
+            timeRanges.add(new TimeRange(start, batchEnd));
+            start = batchEnd;
+        }
+        while (start < end);
+
+        return timeRanges;
+    }
+
+    /**
+     * Analyze records
+     */
+    protected List<EBPFProfilingTree> analyze(List<EBPFProfilingStack> stacks) {
+        if (CollectionUtils.isEmpty(stacks)) {
+            return null;
+        }
+
+        // using parallel stream
+        Map<EBPFProfilingStack.Symbol, EBPFProfilingTree> stackTrees = stacks.parallelStream()
+                                                         // stack list cannot be empty
+                                                         .filter(s -> CollectionUtils.isNotEmpty(s.getSymbols()))
+                                                         .collect(Collectors.groupingBy(s -> s.getSymbols()
+                                                                                              .get(0), ANALYZE_COLLECTOR));
+
+        return new ArrayList<>(stackTrees.values());
+    }
+
+    protected IEBPFProfilingDataDAO getDataDAO() {
+        if (dataDAO == null) {
+            dataDAO = moduleManager.find(StorageModule.NAME)
+                                                         .provider()
+                                                         .getService(IEBPFProfilingDataDAO.class);
+        }
+        return dataDAO;
+    }
+
+    private static class TimeRange {
+        private long minTime;
+        private long maxTime;
+
+        public TimeRange(long minTime, long maxTime) {
+            this.minTime = minTime;
+            this.maxTime = maxTime;
+        }
+    }
+}

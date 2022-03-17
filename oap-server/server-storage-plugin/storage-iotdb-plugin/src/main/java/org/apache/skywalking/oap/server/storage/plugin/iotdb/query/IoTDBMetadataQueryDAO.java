@@ -148,7 +148,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId) throws IOException {
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
         query = client.addModelPath(query, ProcessTraffic.INDEX_NAME);
@@ -158,6 +158,9 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         }
         if (StringUtil.isNotEmpty(instanceId)) {
             indexAndValueMap.put(IoTDBIndexes.INSTANCE_ID_INX, instanceId);
+        }
+        if (StringUtil.isNotEmpty(agentId)) {
+            indexAndValueMap.put(IoTDBIndexes.AGENT_ID_INX, agentId);
         }
         query = client.addQueryIndexValue(ProcessTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);

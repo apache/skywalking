@@ -24,6 +24,8 @@ import graphql.scalars.ExtendedScalars;
 import org.apache.skywalking.oap.query.graphql.resolver.AggregationQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.AlarmQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.BrowserLogQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.EBPFProcessProfilingMutation;
+import org.apache.skywalking.oap.query.graphql.resolver.EBPFProcessProfilingQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.EventQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.HealthQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.LogQuery;
@@ -114,6 +116,8 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .resolvers(new EventQuery(getManager()))
                      .file("query-protocol/metadata-v2.graphqls")
                      .resolvers(new MetadataQueryV2(getManager()))
+                     .file("query-protocol/ebpf-profiling.graphqls")
+                     .resolvers(new EBPFProcessProfilingQuery(getManager()), new EBPFProcessProfilingMutation(getManager()))
                      .scalars(ExtendedScalars.GraphQLLong);
     }
 
