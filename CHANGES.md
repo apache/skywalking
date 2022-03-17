@@ -29,6 +29,8 @@ Release Notes.
     * Upgrade maven-source-plugin to 3.2.1.
 * Update codeStyle.xml to fix incompatibility on M1's IntelliJ IDEA 2021.3.2.
 * Update frontend-maven-plugin to 1.12 and npm to 16.14.0 for booster UI build.
+* Improve CI with the GHA new feature "run failed jobs".
+* Fix `./mvnw compile` not work if `./mvnw install` is not executed at least once.
 
 #### OAP Server
 

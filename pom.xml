@@ -142,28 +142,6 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>CI-with-IT</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
 
     <properties>
@@ -199,6 +177,8 @@
         <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
         <assertj-core.version>3.20.2</assertj-core.version>
 
+        <skipUTs>false</skipUTs>
+        <skipITs>true</skipITs>
     </properties>
 
     <dependencies>
@@ -323,7 +303,19 @@
                     <artifactId>maven-assembly-plugin</artifactId>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
+                    <configuration>
+                        <skip>${skipITs}</skip>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -334,14 +326,14 @@
                 <!--
                     maven-surefire-plugin will exclude integration tests (ITs)
                     and leave them for maven-failsafe-plugin to run, which is bound to the `verify` goal.
-                    If you want to run the ITs please activate the CI-with-IT profile
-                    as well as the the profiles of the modules whose ITs you want to run.
-                    e.g. you want to run the ITs in oap-server, run `./mvnw -Pbackend,CI-with-IT clean verify`
+                    If you want to run the ITs please set the property skipITs to false (-DskipITs=false),
+                    e.g. you want to run the ITs in oap-server, run `./mvnw -Pbackend clean verify -DskipITs=false`
                  -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
+                        <skip>${skipUTs}</skip>
                         <excludes>
                             <exclude>IT*.class</exclude>
                         </excludes>
@@ -399,6 +391,10 @@
                 <configuration>
                     <source>${compiler.version}</source>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>

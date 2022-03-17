@@ -323,7 +323,7 @@
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
-                        <phase>process-resources</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
