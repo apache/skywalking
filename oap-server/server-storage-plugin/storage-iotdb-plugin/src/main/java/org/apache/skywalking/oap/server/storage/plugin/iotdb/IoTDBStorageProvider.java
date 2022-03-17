@@ -64,6 +64,7 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBAggregat
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBAlarmQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBEBPFProfilingDataDAO;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBLogQueryDAO;
@@ -133,7 +134,7 @@ public class IoTDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(ITraceQueryDAO.class, new IoTDBTraceQueryDAO(client));
 
         this.registerServiceImplementation(IEBPFProfilingTaskDAO.class, new IoTDBEBPFProfilingTaskDAO(client));
-        this.registerServiceImplementation(IEBPFProfilingScheduleDAO.class, new IoTDBEBPFProfilingTaskDAO(client));
+        this.registerServiceImplementation(IEBPFProfilingScheduleDAO.class, new IoTDBEBPFProfilingScheduleDAO(client));
         this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new IoTDBEBPFProfilingDataDAO(client));
     }
 
