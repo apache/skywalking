@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Objects;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,25 +51,11 @@ public final class Mappings {
     @Setter
     private Source source = new Source();
 
+    @EqualsAndHashCode
     public static class Source {
         @JsonProperty("excludes")
         @Getter
         @Setter
         private Set<String> excludes = new HashSet<>();
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
-            final Source source = (Source) o;
-            return Objects.equals(excludes, source.excludes);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(excludes);
-        }
     }
 }
