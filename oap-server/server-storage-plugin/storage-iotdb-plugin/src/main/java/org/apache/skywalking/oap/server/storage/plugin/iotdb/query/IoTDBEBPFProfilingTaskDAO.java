@@ -55,16 +55,16 @@ public class IoTDBEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         query.append("select * from ");
         query = client.addModelPath(query, EBPFProfilingTaskRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        if (finder != null && StringUtil.isNotEmpty(finder.getServiceId())) {
+        if (StringUtil.isNotEmpty(finder.getServiceId())) {
             indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, finder.getServiceId());
         }
-        if (finder != null && StringUtil.isNotEmpty(finder.getInstanceId())) {
+        if (StringUtil.isNotEmpty(finder.getInstanceId())) {
             indexAndValueMap.put(IoTDBIndexes.INSTANCE_ID_INX, finder.getInstanceId());
         }
         query = client.addQueryIndexValue(EBPFProfilingTaskRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
-        if (finder != null) {
+        if (CollectionUtils.isNotEmpty(finder.getProcessIdList())) {
             final List<String> processIdList = finder.getProcessIdList();
             if (CollectionUtils.isNotEmpty(processIdList)) {
                 StringBuilder sb = new StringBuilder();

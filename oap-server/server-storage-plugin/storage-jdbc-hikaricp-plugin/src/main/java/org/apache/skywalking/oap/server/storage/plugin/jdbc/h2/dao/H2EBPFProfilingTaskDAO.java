@@ -50,19 +50,19 @@ public class H2EBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
 
         StringBuilder conditionSql = new StringBuilder();
 
-        if (finder != null && finder.getFinderType() != null) {
+        if (finder.getFinderType() != null) {
             appendCondition(conditionSql, condition,
                     EBPFProfilingTaskRecord.PROCESS_FIND_TYPE, finder.getFinderType().value());
         }
-        if (finder != null && StringUtil.isNotEmpty(finder.getServiceId())) {
+        if (StringUtil.isNotEmpty(finder.getServiceId())) {
             appendCondition(conditionSql, condition,
                     EBPFProfilingTaskRecord.SERVICE_ID, finder.getServiceId());
         }
-        if (finder != null && StringUtil.isNotEmpty(finder.getInstanceId())) {
+        if (StringUtil.isNotEmpty(finder.getInstanceId())) {
             appendCondition(conditionSql, condition,
                     EBPFProfilingTaskRecord.INSTANCE_ID, finder.getInstanceId());
         }
-        if (finder != null && CollectionUtils.isNotEmpty(finder.getProcessIdList())) {
+        if (CollectionUtils.isNotEmpty(finder.getProcessIdList())) {
             appendListCondition(conditionSql, condition,
                     EBPFProfilingTaskRecord.PROCESS_ID, finder.getProcessIdList());
         }

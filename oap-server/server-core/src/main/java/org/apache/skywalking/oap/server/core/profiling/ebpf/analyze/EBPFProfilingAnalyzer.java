@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.profiling.ebpf.analyze;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
@@ -26,8 +27,6 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,10 +37,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@Slf4j
 public class EBPFProfilingAnalyzer {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EBPFProfilingAnalyzer.class);
 
     private static final EBPFProfilingAnalyzeCollector ANALYZE_COLLECTOR = new EBPFProfilingAnalyzeCollector();
     private static final Long FETCH_FETCH_DURATION = TimeUnit.MINUTES.toMillis(2);
@@ -66,29 +65,37 @@ public class EBPFProfilingAnalyzer {
         }
 
         // query data
-        List<EBPFProfilingStack> stacks = timeRanges.parallelStream().map(r -> {
+        final Stream<EBPFProfilingStack> stackStream = timeRanges.parallelStream().map(r -> {
             try {
                 return getDataDAO().queryData(taskId, r.minTime, r.maxTime);
             } catch (IOException e) {
-                LOGGER.warn(e.getMessage(), e);
+                log.warn(e.getMessage(), e);
                 return Collections.<EBPFProfilingDataRecord>emptyList();
             }
         }).flatMap(Collection::stream).map(e -> {
             try {
                 return EBPFProfilingStack.deserialize(e);
             } catch (Exception ex) {
-                LOGGER.warn("could not deserialize the stack", ex);
+                log.warn("could not deserialize the stack", ex);
                 return null;
             }
-        }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        }).filter(Objects::nonNull).distinct();
 
-        // analyze
-        final List<EBPFProfilingTree> trees = analyze(stacks);
-        if (trees != null) {
-            analyzation.getTrees().addAll(trees);
-        }
+        // analyze tree
+        generateTrees(analyzation, stackStream);
 
         return analyzation;
+    }
+
+    public void generateTrees(EBPFProfilingAnalyzation analyzation, Stream<EBPFProfilingStack> stackStream) {
+        Collection<EBPFProfilingTree> stackTrees = stackStream
+                // stack list cannot be empty
+                .filter(s -> CollectionUtils.isNotEmpty(s.getSymbols()))
+                // analyze the symbol and combine as trees
+                .collect(Collectors.groupingBy(s -> s.getSymbols()
+                        .get(0), ANALYZE_COLLECTOR)).values();
+
+        analyzation.getTrees().addAll(stackTrees);
     }
 
     protected List<TimeRange> buildTimeRanges(List<EBPFProfilingAnalyzeTimeRange> timeRanges) {

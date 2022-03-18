@@ -56,16 +56,16 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
                 IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingTaskRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
 
-        if (finder != null && finder.getFinderType() != null) {
+        if (finder.getFinderType() != null) {
             query.must(Query.term(EBPFProfilingTaskRecord.PROCESS_FIND_TYPE, finder.getFinderType().value()));
         }
-        if (finder != null && finder.getServiceId() != null) {
+        if (finder.getServiceId() != null) {
             query.must(Query.term(EBPFProfilingTaskRecord.SERVICE_ID, finder.getServiceId()));
         }
-        if (finder != null && finder.getInstanceId() != null) {
+        if (finder.getInstanceId() != null) {
             query.must(Query.term(EBPFProfilingTaskRecord.INSTANCE_ID, finder.getInstanceId()));
         }
-        if (finder != null && finder.getProcessIdList() != null) {
+        if (finder.getProcessIdList() != null) {
             query.must(Query.terms(EBPFProfilingTaskRecord.PROCESS_ID, finder.getProcessIdList()));
         }
         if (targetType != null) {

@@ -31,7 +31,6 @@ import java.util.function.Consumer;
 public class EBPFProfilingStackNode {
 
     private EBPFProfilingStack.Symbol codeSignature;
-    private List<EBPFProfilingStack> detectedStacks;
     private List<EBPFProfilingStackNode> children;
     private long dumpCount;
 
@@ -40,7 +39,6 @@ public class EBPFProfilingStackNode {
      */
     public static EBPFProfilingStackNode newNode() {
         EBPFProfilingStackNode emptyNode = new EBPFProfilingStackNode();
-        emptyNode.detectedStacks = new LinkedList<>();
         emptyNode.children = new ArrayList<>();
         return emptyNode;
     }
@@ -175,12 +173,10 @@ public class EBPFProfilingStackNode {
     }
 
     private void detectedBy(EBPFProfilingStack stack) {
-        this.detectedStacks.add(stack);
         this.dumpCount += stack.getDumpCount();
     }
 
     private void combineDetectedStacks(EBPFProfilingStackNode node) {
-        this.detectedStacks.addAll(node.detectedStacks);
         this.dumpCount += node.dumpCount;
     }
 

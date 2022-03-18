@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTime
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,6 +52,10 @@ public class EBPFProcessProfilingQuery implements GraphQLQueryResolver {
     }
 
     public List<EBPFProfilingTask> queryEBPFProfilingTasks(EBPFProfilingCondition query) throws IOException {
+        if (query == null || (StringUtil.isEmpty(query.getServiceId()) && StringUtil.isEmpty(query.getInstanceId())
+                        && StringUtil.isEmpty(query.getProcessId()))) {
+            throw new IllegalArgumentException("please provide the task condition");
+        }
         return getQueryService().queryEBPFProfilingTasks(query);
     }
 

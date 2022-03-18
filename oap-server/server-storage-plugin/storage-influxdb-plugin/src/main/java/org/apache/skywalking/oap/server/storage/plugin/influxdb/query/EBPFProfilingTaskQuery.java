@@ -72,16 +72,16 @@ public class EBPFProfilingTaskQuery implements IEBPFProfilingTaskDAO {
                 .from(client.getDatabase(), EBPFProfilingTaskRecord.INDEX_NAME)
                 .where();
 
-        if (finder != null && finder.getFinderType() != null) {
+        if (finder.getFinderType() != null) {
             query.and(eq(EBPFProfilingTaskRecord.PROCESS_FIND_TYPE, finder.getFinderType().value()));
         }
-        if (finder != null && StringUtil.isNotEmpty(finder.getServiceId())) {
+        if (StringUtil.isNotEmpty(finder.getServiceId())) {
             query.and(eq(EBPFProfilingTaskRecord.SERVICE_ID, finder.getServiceId()));
         }
-        if (finder != null && StringUtil.isNotEmpty(finder.getInstanceId())) {
+        if (StringUtil.isNotEmpty(finder.getInstanceId())) {
             query.and(eq(EBPFProfilingTaskRecord.INSTANCE_ID, finder.getInstanceId()));
         }
-        if (finder != null && CollectionUtils.isNotEmpty(finder.getProcessIdList())) {
+        if (CollectionUtils.isNotEmpty(finder.getProcessIdList())) {
             query.and(regex(EBPFProfilingTaskRecord.PROCESS_ID, Joiner.on("|").join(finder.getProcessIdList())));
         }
         if (targetType != null) {
