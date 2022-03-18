@@ -136,6 +136,8 @@ BanyanDB is the 1st storage implementation supporting this. It would make contin
 NOTICE, this sharding concept is NOT just for splitting data into different database instances or physical files.
 ```
 
+* Support ElasticSearch template mappings `properties parameters` and `_source` update.
+
 #### UI
 
 * Remove unused jars (log4j-api.jar) in classpath.
