@@ -120,6 +120,7 @@ Release Notes.
 * [Breaking Change] Break all existing 3rd-party storage extensions.
 * Remove hard requirement of BASE64 encoding for binary field.
 * Add complexity limitation for GraphQL query to avoid malicious query.
+* Support ElasticSearch template mappings `properties parameters` and `_source` update.
 
 #### UI
 
