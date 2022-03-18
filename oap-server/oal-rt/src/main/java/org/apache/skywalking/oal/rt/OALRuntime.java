@@ -44,6 +44,7 @@ import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.SignatureAttribute;
 import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.BooleanMemberValue;
 import javassist.bytecode.annotation.ClassMemberValue;
 import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
@@ -51,7 +52,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
 import org.apache.skywalking.oal.rt.output.DispatcherContext;
 import org.apache.skywalking.oal.rt.parser.AnalysisResult;
@@ -75,6 +75,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * OAL Runtime is the class generation engine, which load the generated classes from OAL scrip definitions. This runtime
@@ -266,6 +267,9 @@ public class OALRuntime implements OALEngine {
                 columnAnnotation.addMemberValue("columnName", new StringMemberValue(field.getColumnName(), constPool));
                 if (field.getType().equals(String.class)) {
                     columnAnnotation.addMemberValue("length", new IntegerMemberValue(constPool, field.getLength()));
+                }
+                if (field.isID()) {
+                    columnAnnotation.addMemberValue("shardingKey", new BooleanMemberValue(true, constPool));
                 }
                 annotationsAttribute.addAnnotation(columnAnnotation);
 

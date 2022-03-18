@@ -51,7 +51,7 @@ public class NetworkAddressAlias extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = ADDRESS)
+    @Column(columnName = ADDRESS, shardingKey = true)
     private String address;
     @Setter
     @Getter

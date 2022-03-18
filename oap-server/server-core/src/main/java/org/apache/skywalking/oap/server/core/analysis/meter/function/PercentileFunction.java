@@ -55,7 +55,7 @@ public abstract class PercentileFunction extends Meter implements AcceptableValu
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(columnName = ENTITY_ID, length = 512, shardingKey = true)
     private String entityId;
     @Getter
     @Setter

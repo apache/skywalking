@@ -59,8 +59,8 @@ public @interface Column {
     boolean storageOnly() default false;
 
     /**
-     * The column(field) is just indexed, never stored. Note: this feature only supported by elasticsearch
-     * and don't support mappings update due to ElasticSearch server's limitation.
+     * The column(field) is just indexed, never stored. Note: this feature only supported by elasticsearch and don't
+     * support mappings update due to ElasticSearch server's limitation.
      *
      * NOTICE, metrics should not use this, as the OAP core merges indices of metrics automatically.
      */
@@ -70,17 +70,16 @@ public @interface Column {
      * @return the length of this column, this is only for {@link String} column. The usage of this depends on the
      * storage implementation.
      *
-     * Notice, different lengths may cause different types.
-     * Such as, over 16383 would make the type in MySQL to be MEDIUMTEXT, due to database varchar max=16383
-     *
+     * Notice, different lengths may cause different types. Such as, over 16383 would make the type in MySQL to be
+     * MEDIUMTEXT, due to database varchar max=16383
      * @since 7.1.0
      */
     int length() default 200;
 
     /**
      * The return name of system environment could provide an override value of the length limitation.
-     * @return the variable name of system environment.
      *
+     * @return the variable name of system environment.
      * @since 8.2.0
      */
     String lengthEnvVariable() default "";
@@ -101,6 +100,27 @@ public @interface Column {
      * @since 8.4.0
      */
     AnalyzerType analyzer() default AnalyzerType.OAP_ANALYZER;
+
+    /**
+     * Sharding key is used to group time series data per metric of one entity.
+     * For example,
+     * ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be
+     * [ServiceA: 01-28 18:30 values-1, 01-28 18:31 values-2, 01-28 18:32 values-3, 01-28 18:32 values-4]
+     *
+     * BanyanDB is the 1st storage implementation supporting this. It would make continuous time series metrics stored
+     * closely and compressed better.
+     *
+     * 1. One entity at most has one sharding key
+     * 2. If no column is appointed for this, {@link org.apache.skywalking.oap.server.core.storage.StorageData#id}
+     * would
+     * be used by the storage implementation accordingly.
+     *
+     * NOTICE, this sharding concept is NOT for splitting data into different database instances or physical files.
+     *
+     * @return TRUE if this column could(not must) be used for sharding.
+     * @since 9.0.0
+     */
+    boolean shardingKey() default false;
 
     /**
      * The analyzer declares the text analysis mode.

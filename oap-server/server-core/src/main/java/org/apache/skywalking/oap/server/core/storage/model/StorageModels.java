@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -34,6 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedInde
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * StorageModels manages all models detected by the core.
@@ -106,6 +106,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
         Field[] fields = clazz.getDeclaredFields();
 
+        ModelColumn existingShardingColumn = null;
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
                 Column column = field.getAnnotation(Column.class);
@@ -125,14 +126,28 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                         }
                     }
                 }
-                modelColumns.add(
-                    new ModelColumn(
-                        new ColumnName(modelName, column.columnName()), field.getType(), field.getGenericType(),
-                        column.matchQuery(), column.storageOnly(), column.indexOnly(), column.dataType().isValue(), columnLength,
-                        column.analyzer()
-                    ));
+
+                final ModelColumn modelColumn = new ModelColumn(
+                    new ColumnName(modelName, column.columnName()), field.getType(), field.getGenericType(),
+                    column.matchQuery(), column.storageOnly(), column.indexOnly(), column.dataType().isValue(),
+                    columnLength,
+                    column.analyzer(), column.shardingKey()
+                );
+                if (column.shardingKey()) {
+                    if (existingShardingColumn == null) {
+                        existingShardingColumn = modelColumn;
+                    } else {
+                        log.error("Entity {} have 2 columns declaring as the sharding key. {}:{}", modelName,
+                                  existingShardingColumn, modelColumn
+                        );
+                        throw new IllegalStateException(
+                            "Entity " + modelName + " have 2 columns declaring as the sharding key.");
+                    }
+                }
+
+                modelColumns.add(modelColumn);
                 if (log.isDebugEnabled()) {
-                    log.debug("The field named {} with the {} type", column.columnName(), field.getType());
+                    log.debug("The field named [{}] with the [{}] type", column.columnName(), field.getType());
                 }
                 if (column.dataType().isValue()) {
                     ValueColumnMetadata.INSTANCE.putIfAbsent(

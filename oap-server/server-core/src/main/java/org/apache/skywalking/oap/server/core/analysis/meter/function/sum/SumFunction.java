@@ -47,7 +47,7 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(columnName = ENTITY_ID, length = 512, shardingKey = true)
     private String entityId;
 
     @Setter
