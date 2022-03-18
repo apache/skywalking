@@ -413,6 +413,9 @@ query:
     # A malicious script can do significant damage (steal keys and secrets, remove files and directories, install malware, etc).
     # As such, please enable this API only when you completely trust your users.
     enableLogTestTool: ${SW_QUERY_GRAPHQL_ENABLE_LOG_TEST_TOOL:false}
+    # Maximum complexity allowed for the GraphQL query that can be used to
+    # abort a query if the total number of data fields queried exceeds the defined threshold.
+    maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:100}
 
 alarm:
   selector: ${SW_ALARM:default}
