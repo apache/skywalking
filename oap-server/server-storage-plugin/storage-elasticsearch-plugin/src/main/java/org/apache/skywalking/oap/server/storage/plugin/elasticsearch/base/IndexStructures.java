@@ -116,26 +116,12 @@ public class IndexStructures {
             if (this.properties.size() < fields.properties.size()) {
                 return false;
             }
-            boolean isContains = false;
-            isContains = fields.properties.entrySet().stream()
-                                    .allMatch(item -> {
-                                        Object hisItem = this.properties.get(item.getKey());
-                                        if (hisItem != null) {
-                                            return hisItem.toString().equals(item.getValue().toString());
-                                        } else {
-                                            return false;
-                                        }
-                                    });
+            boolean isContains = fields.properties.entrySet().stream()
+                    .allMatch(item -> Objects.equals(properties.get(item.getKey()), item.getValue()));
             if (!isContains) {
                 return false;
             }
-
-            if (fields.source != null && this.source != null) {
-                isContains = this.source.getExcludes().toString().equals(fields.source.getExcludes().toString());
-            } else {
-                return fields.source == null && this.source == null;
-            }
-            return isContains;
+            return Objects.equals(this.source, fields.source);
         }
 
         /**
