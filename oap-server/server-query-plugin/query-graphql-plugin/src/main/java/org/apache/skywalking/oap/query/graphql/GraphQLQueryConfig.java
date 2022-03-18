@@ -29,4 +29,5 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Setter
 public class GraphQLQueryConfig extends ModuleConfig {
     private boolean enableLogTestTool;
+    private int maxQueryComplexity = 100;
 }

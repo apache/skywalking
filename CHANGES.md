@@ -119,6 +119,7 @@ Release Notes.
   requirement of using HashMap to communicate between data object and database native structure.
 * [Breaking Change] Break all existing 3rd-party storage extensions.
 * Remove hard requirement of BASE64 encoding for binary field.
+* Add complexity limitation for GraphQL query to avoid malicious query.
 * Implement the eBPF profiling query and data collect protocol.
 
 #### UI
