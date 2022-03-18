@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Define when the profiling task would be executed
+ */
 public enum EBPFProfilingTriggerType {
 
     UNKNOWN(0),

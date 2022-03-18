@@ -144,13 +144,13 @@ public class EBPFProfilingAnalyzerBenchmark extends AbstractMicrobenchmark {
 
     @State(Scope.Benchmark)
     public static class LowDataSource extends DataSource {
+        // rover report period: 5s
+        // dump duration: 60m
+        // 10 instance analyze
+        // stack depth range: 15, 30
+        // stack duplicate rate: 5%
+        // stack symbol duplicate rate: 100%, 40%, 35%, 30%, 15%, 10%, 7%, 5%
         public LowDataSource() {
-            // rover report period: 5s
-            // dump duration: 60m
-            // 10 instance analyze
-            // stack depth range: 15, 30
-            // stack duplicate rate: 5%
-            // stack symbol duplicate rate: 100%, 40%, 35%, 30%, 15%, 10%, 7%, 5%
             super(generateStacks(calculateStackCount(5, 60, 10), 15, 30,
                     new double[]{100, 50, 45, 40, 35, 30, 15, 10, 5}, 5));
         }
@@ -158,13 +158,13 @@ public class EBPFProfilingAnalyzerBenchmark extends AbstractMicrobenchmark {
 
     @State(Scope.Benchmark)
     public static class MedianDatasource extends DataSource {
+        // rover report period: 5s
+        // dump duration: 100m
+        // 200 instance analyze
+        // stack depth range: 15, 30
+        // stack duplicate rate: 3%
+        // stack symbol duplicate rate: 50%, 40%, 35%, 30%, 20%, 10%, 7%, 5%, 2%
         public MedianDatasource() {
-            // rover report period: 5s
-            // dump duration: 100m
-            // 200 instance analyze
-            // stack depth range: 15, 30
-            // stack duplicate rate: 3%
-            // stack symbol duplicate rate: 50%, 40%, 35%, 30%, 20%, 10%, 7%, 5%, 2%
             super(generateStacks(calculateStackCount(5, 100, 200), 15, 30,
                     new double[]{50, 40, 35, 30, 20, 10, 7, 5, 2}, 3));
         }

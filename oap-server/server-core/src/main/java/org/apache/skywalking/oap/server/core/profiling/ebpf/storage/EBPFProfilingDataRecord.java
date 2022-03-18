@@ -32,12 +32,15 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EBPF_PROFILING_DATA;
 
+/**
+ * eBPF profiling reported data from the eBPF agent side
+ */
 @Data
 @Stream(name = EBPFProfilingDataRecord.INDEX_NAME, scopeId = EBPF_PROFILING_DATA,
         builder = EBPFProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
 public class EBPFProfilingDataRecord extends Record {
 
-    public static final String INDEX_NAME = "ebpf_process_profiling_data";
+    public static final String INDEX_NAME = "ebpf_profiling_data";
     public static final String SCHEDULE_ID = "schedule_id";
     public static final String TASK_ID = "task_id";
     public static final String STACK_ID_LIST = "stack_id";

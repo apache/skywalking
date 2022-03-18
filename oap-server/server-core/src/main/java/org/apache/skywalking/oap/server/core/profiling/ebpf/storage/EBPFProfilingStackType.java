@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * eBPF Profiling stack type means that the element in stack from where
+ */
 public enum EBPFProfilingStackType {
 
     UNKNOWN(0, null),

@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.profiling.ebpf;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.analyze.EBPFProfilingAnalyzer;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingCondition;
+import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingTaskCondition;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
@@ -72,7 +72,7 @@ public class EBPFProfilingQueryService implements Service {
         return profilingAnalyzer;
     }
 
-    public List<EBPFProfilingTask> queryEBPFProfilingTasks(EBPFProfilingCondition condition) throws IOException {
+    public List<EBPFProfilingTask> queryEBPFProfilingTasks(EBPFProfilingTaskCondition condition) throws IOException {
         return getTaskDAO().queryTasks(EBPFProfilingProcessFinder.builder()
                         .finderType(condition.getFinderType())
                         .serviceId(condition.getServiceId())

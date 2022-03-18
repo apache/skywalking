@@ -22,7 +22,7 @@ import graphql.kickstart.tools.GraphQLMutationResolver;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingMutationService;
 import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingTaskFixedTimeCreationRequest;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProcessProfilingTaskCreationResult;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskCreationResult;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class EBPFProcessProfilingMutation implements GraphQLMutationResolver {
         return mutationService;
     }
 
-    public EBPFProcessProfilingTaskCreationResult createEBPFProfilingFixedTimeTask(EBPFProfilingTaskFixedTimeCreationRequest request) throws IOException {
+    public EBPFProfilingTaskCreationResult createEBPFProfilingFixedTimeTask(EBPFProfilingTaskFixedTimeCreationRequest request) throws IOException {
         return getMutationService().createTask(request);
     }
 }

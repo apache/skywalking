@@ -23,6 +23,9 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * eBPF Profiling analysis result, used to render the Flame Graph
+ */
 @Data
 public class EBPFProfilingAnalyzation {
     private String tip;

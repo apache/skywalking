@@ -21,10 +21,17 @@ package org.apache.skywalking.oap.server.core.query.input;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingProcessFinderType;
 
+/**
+ * eBPF profiling task query condition
+ */
 @Data
-public class EBPFProfilingCondition {
+public class EBPFProfilingTaskCondition {
+    // the process finder type of profiling task
     private EBPFProfilingProcessFinderType finderType;
+    // service ID of process which need profiling
     private String serviceId;
+    // instance ID of process which need profiling
     private String instanceId;
+    // process ID of process which need profiling
     private String processId;
 }

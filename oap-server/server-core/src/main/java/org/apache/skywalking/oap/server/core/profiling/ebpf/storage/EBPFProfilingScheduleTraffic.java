@@ -35,6 +35,11 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EBPF_PROFILING_SCHEDULE;
 
+/**
+ * One eBPF profiling schedule is belong one {@link EBPFProfilingTaskRecord}, one task could schedule multi times.
+ * The schedule use the {@link #taskId}, {@link #processId}, {@link #startTime} as id
+ * And combine all the same id schedule to update the schedule finish time
+ */
 @Setter
 @Getter
 @Stream(name = EBPFProfilingScheduleTraffic.INDEX_NAME, scopeId = EBPF_PROFILING_SCHEDULE,
@@ -47,7 +52,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
 })
 public class EBPFProfilingScheduleTraffic extends Metrics {
 
-    public static final String INDEX_NAME = "ebpf_process_profiling_schedule";
+    public static final String INDEX_NAME = "ebpf_profiling_schedule";
     public static final String TASK_ID = "task_id";
     public static final String PROCESS_ID = "process_id";
     public static final String START_TIME = "start_time";

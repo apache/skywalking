@@ -20,8 +20,13 @@ package org.apache.skywalking.oap.server.core.query.type;
 
 import lombok.Data;
 
+/**
+ * eBPF Profiling analysis the time range for query
+ */
 @Data
 public class EBPFProfilingAnalyzeTimeRange {
+    // start timestamp
     private long start;
+    // end timestamp
     private long end;
 }

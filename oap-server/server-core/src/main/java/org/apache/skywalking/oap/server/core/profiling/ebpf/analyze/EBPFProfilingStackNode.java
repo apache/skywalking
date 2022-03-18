@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Consumer;
 
+/**
+ * EBPF profiling data analyze intermediate state data
+ */
 public class EBPFProfilingStackNode {
 
     private EBPFProfilingStack.Symbol codeSignature;

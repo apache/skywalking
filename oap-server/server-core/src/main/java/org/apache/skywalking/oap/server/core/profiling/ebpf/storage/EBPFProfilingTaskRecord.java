@@ -33,13 +33,16 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EBPF_PROFILING_TASK;
 
+/**
+ * eBPF Profiling Task is the user create it from the UI side
+ */
 @Data
 @ScopeDeclaration(id = EBPF_PROFILING_TASK, name = "EBPFProfilingTask")
 @Stream(name = EBPFProfilingTaskRecord.INDEX_NAME, scopeId = EBPF_PROFILING_TASK,
         builder = EBPFProfilingTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
 public class EBPFProfilingTaskRecord extends NoneStream {
 
-    public static final String INDEX_NAME = "ebpf_process_profiling_task";
+    public static final String INDEX_NAME = "ebpf_profiling_task";
     public static final String PROCESS_FIND_TYPE = "process_find_type";
     public static final String SERVICE_ID = "service_id";
     public static final String INSTANCE_ID = "instance_id";

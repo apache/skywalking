@@ -23,11 +23,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * eBPF profiling task create result
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EBPFProcessProfilingTaskCreationResult {
+public class EBPFProfilingTaskCreationResult {
     private boolean status;
     private String id;
     private String errorReason;

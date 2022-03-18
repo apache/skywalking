@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingProcessFind
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingTaskFixedTimeCreationRequest;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProcessProfilingTaskCreationResult;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskCreationResult;
 import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.EBPFProfilingProcessFinder;
@@ -68,7 +68,7 @@ public class EBPFProfilingMutationService implements Service {
         return metadataQueryDAO;
     }
 
-    public EBPFProcessProfilingTaskCreationResult createTask(EBPFProfilingTaskFixedTimeCreationRequest request) throws IOException {
+    public EBPFProfilingTaskCreationResult createTask(EBPFProfilingTaskFixedTimeCreationRequest request) throws IOException {
         final long current = System.currentTimeMillis();
         if (request.getStartTime() <= 0) {
             request.setStartTime(current);
@@ -102,11 +102,11 @@ public class EBPFProfilingMutationService implements Service {
         task.setTimeBucket(TimeBucket.getMinuteTimeBucket(current));
         NoneStreamProcessor.getInstance().in(task);
 
-        return EBPFProcessProfilingTaskCreationResult.builder().status(true).id(task.id()).build();
+        return EBPFProfilingTaskCreationResult.builder().status(true).id(task.id()).build();
     }
 
-    private EBPFProcessProfilingTaskCreationResult buildError(String msg) {
-        return EBPFProcessProfilingTaskCreationResult.builder().status(false).errorReason(msg).build();
+    private EBPFProfilingTaskCreationResult buildError(String msg) {
+        return EBPFProfilingTaskCreationResult.builder().status(false).errorReason(msg).build();
     }
 
     private String checkCreateRequest(EBPFProfilingTaskFixedTimeCreationRequest request) throws IOException {

@@ -29,6 +29,9 @@ import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Transform the {@link EBPFProfilingDataRecord} as runtime data
+ */
 @Data
 public class EBPFProfilingStack {
 

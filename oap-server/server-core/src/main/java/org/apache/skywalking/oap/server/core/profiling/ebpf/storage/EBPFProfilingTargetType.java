@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * eBPF type for profiling the process
+ */
 public enum EBPFProfilingTargetType {
 
     UNKNOWN(0),

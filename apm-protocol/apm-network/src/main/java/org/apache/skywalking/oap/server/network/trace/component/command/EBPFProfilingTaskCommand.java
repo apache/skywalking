@@ -23,8 +23,11 @@ import lombok.Data;
 import org.apache.skywalking.apm.network.common.v3.Command;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
-public class EBPFProcessProfilingTaskCommand extends BaseCommand implements Serializable {
-    public static final String NAME = "EBPFProcessProfilingTaskQuery";
+/**
+ * eBPF profiling task command use to send task to the ebpf agent side
+ */
+public class EBPFProfilingTaskCommand extends BaseCommand implements Serializable {
+    public static final String NAME = "EBPFProfilingTaskQuery";
 
     private String taskId;
     private String processId;
@@ -34,9 +37,9 @@ public class EBPFProcessProfilingTaskCommand extends BaseCommand implements Seri
     private FixedTrigger fixedTrigger;
     private String targetType;
 
-    public EBPFProcessProfilingTaskCommand(String serialNumber, String taskId, String processId, long taskStartTime,
-                                           long taskUpdateTime, String triggerType, FixedTrigger fixedTrigger,
-                                           String targetType) {
+    public EBPFProfilingTaskCommand(String serialNumber, String taskId, String processId, long taskStartTime,
+                                    long taskUpdateTime, String triggerType, FixedTrigger fixedTrigger,
+                                    String targetType) {
         super(NAME, serialNumber);
         this.taskId = taskId;
         this.processId = processId;

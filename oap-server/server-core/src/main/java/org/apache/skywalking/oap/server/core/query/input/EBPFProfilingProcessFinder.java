@@ -21,8 +21,11 @@ package org.apache.skywalking.oap.server.core.query.input;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingProcessFinderType;
 
+// Define how to find process which need to be profiling
 @Data
 public class EBPFProfilingProcessFinder {
+    // the way to address the target process
     private EBPFProfilingProcessFinderType finderType;
+    // appoint process ID when use the PROCESS_ID finder type
     private String processId;
 }

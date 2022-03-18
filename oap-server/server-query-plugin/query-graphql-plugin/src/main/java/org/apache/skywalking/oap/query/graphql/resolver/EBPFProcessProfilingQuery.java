@@ -22,7 +22,7 @@ import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingQueryService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingCondition;
+import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingTaskCondition;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
@@ -51,7 +51,7 @@ public class EBPFProcessProfilingQuery implements GraphQLQueryResolver {
         return queryService;
     }
 
-    public List<EBPFProfilingTask> queryEBPFProfilingTasks(EBPFProfilingCondition query) throws IOException {
+    public List<EBPFProfilingTask> queryEBPFProfilingTasks(EBPFProfilingTaskCondition query) throws IOException {
         if (query == null || (StringUtil.isEmpty(query.getServiceId()) && StringUtil.isEmpty(query.getInstanceId())
                         && StringUtil.isEmpty(query.getProcessId()))) {
             throw new IllegalArgumentException("please provide the task condition");

@@ -33,12 +33,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * eBPF Profiling Analyzer working on data query and combine them for generate the Flame Graph.
+ */
 @Slf4j
 public class EBPFProfilingAnalyzer {
 
@@ -106,6 +108,9 @@ public class EBPFProfilingAnalyzer {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Split time ranges to insure the start time and end time is small then {@link #FETCH_FETCH_DURATION}
+     */
     protected List<TimeRange> buildTimeRanges(long start, long end) {
         if (start >= end) {
             return null;
@@ -123,24 +128,6 @@ public class EBPFProfilingAnalyzer {
         while (start < end);
 
         return timeRanges;
-    }
-
-    /**
-     * Analyze records
-     */
-    protected List<EBPFProfilingTree> analyze(List<EBPFProfilingStack> stacks) {
-        if (CollectionUtils.isEmpty(stacks)) {
-            return null;
-        }
-
-        // using parallel stream
-        Map<EBPFProfilingStack.Symbol, EBPFProfilingTree> stackTrees = stacks.parallelStream()
-                                                         // stack list cannot be empty
-                                                         .filter(s -> CollectionUtils.isNotEmpty(s.getSymbols()))
-                                                         .collect(Collectors.groupingBy(s -> s.getSymbols()
-                                                                                              .get(0), ANALYZE_COLLECTOR));
-
-        return new ArrayList<>(stackTrees.values());
     }
 
     protected IEBPFProfilingDataDAO getDataDAO() {
