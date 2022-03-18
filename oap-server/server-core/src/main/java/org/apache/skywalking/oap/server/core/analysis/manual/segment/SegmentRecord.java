@@ -59,11 +59,11 @@ public class SegmentRecord extends Record {
     private String traceId;
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID)
+    @Column(columnName = SERVICE_ID, shardingKeyIdx = 0)
     private String serviceId;
     @Setter
     @Getter
-    @Column(columnName = SERVICE_INSTANCE_ID)
+    @Column(columnName = SERVICE_INSTANCE_ID, shardingKeyIdx = 1)
     private String serviceInstanceId;
     @Setter
     @Getter
@@ -79,7 +79,7 @@ public class SegmentRecord extends Record {
     private int latency;
     @Setter
     @Getter
-    @Column(columnName = IS_ERROR)
+    @Column(columnName = IS_ERROR, shardingKeyIdx = 2)
     private int isError;
     @Setter
     @Getter
