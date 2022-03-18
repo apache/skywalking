@@ -127,8 +127,8 @@ Release Notes.
 ```
 Sharding key is used to group time series data per metric of one entity.
 For example,
-ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be
-[ServiceA: 01-28 18:30 values-1, 01-28 18:31 values-2, 01-28 18:32 values-3, 01-28 18:32 values-4]
+ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be shard by service ID
+[ServiceA(encoded ID): 01-28 18:30 values-1, 01-28 18:31 values-2, 01-28 18:32 values-3, 01-28 18:32 values-4]
 
 BanyanDB is the 1st storage implementation supporting this. It would make continuous time series metrics stored closely and compressed better.
 
