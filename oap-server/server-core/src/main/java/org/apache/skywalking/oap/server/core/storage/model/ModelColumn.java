@@ -50,11 +50,11 @@ public class ModelColumn {
      */
     private final Column.AnalyzerType analyzer;
     /**
-     * Sharding key is used to group time series data per metric of one entity. See {@link Column#shardingKey()}.
+     * Sharding key is used to group time series data per metric of one entity. See {@link Column#shardingKeyIdx()}.
      *
      * @since 9.0.0
      */
-    private boolean isShardingKey;
+    private int shardingKeyIdx;
 
     public ModelColumn(ColumnName columnName,
                        Class<?> type,
@@ -65,7 +65,7 @@ public class ModelColumn {
                        boolean isValue,
                        int length,
                        Column.AnalyzerType analyzer,
-                       boolean isShardingKey) {
+                       int shardingKeyIdx) {
         this.columnName = columnName;
         this.type = type;
         this.genericType = genericType;
@@ -90,6 +90,6 @@ public class ModelColumn {
                 "The column " + columnName + " can't be defined as both indexOnly and storageOnly.");
         }
         this.indexOnly = indexOnly;
-        this.isShardingKey = isShardingKey;
+        this.shardingKeyIdx = shardingKeyIdx;
     }
 }

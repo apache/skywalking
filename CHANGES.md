@@ -122,17 +122,18 @@ Release Notes.
 * [Breaking Change] Break all existing 3rd-party storage extensions.
 * Remove hard requirement of BASE64 encoding for binary field.
 * Add complexity limitation for GraphQL query to avoid malicious query.
-* Add `Column.shardingKey` for column definition for BanyanDB.
+* Add `Column.shardingKeyIdx` for column definition for BanyanDB.
 
 ```
-Sharding key is used to group time series data per metric of one entity.
+Sharding key is used to group time series data per metric of one entity in one place (same sharding or same 
+column for column-oriented database).
 For example,
-ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be shard by service ID
+ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded by service ID
 [ServiceA(encoded ID): 01-28 18:30 values-1, 01-28 18:31 values-2, 01-28 18:32 values-3, 01-28 18:32 values-4]
 
 BanyanDB is the 1st storage implementation supporting this. It would make continuous time series metrics stored closely and compressed better.
 
-NOTICE, this sharding concept is NOT for splitting data into different database instances or physical files.
+NOTICE, this sharding concept is NOT just for splitting data into different database instances or physical files.
 ```
 
 #### UI

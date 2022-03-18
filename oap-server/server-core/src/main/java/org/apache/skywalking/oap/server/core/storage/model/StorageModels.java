@@ -57,7 +57,9 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
         List<ModelColumn> modelColumns = new ArrayList<>();
         List<ExtraQueryIndex> extraQueryIndices = new ArrayList<>();
-        retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices, scopeId);
+        ShardingKeyChecker checker = new ShardingKeyChecker();
+        retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices, scopeId, checker);
+        checker.check(storage.getModelName());
 
         Model model = new Model(
             storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
@@ -99,14 +101,14 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                            final String modelName,
                            final List<ModelColumn> modelColumns,
                            final List<ExtraQueryIndex> extraQueryIndices,
-                           final int scopeId) {
+                           final int scopeId,
+                           ShardingKeyChecker checker) {
         if (log.isDebugEnabled()) {
             log.debug("Analysis {} to generate Model.", clazz.getName());
         }
 
         Field[] fields = clazz.getDeclaredFields();
 
-        ModelColumn existingShardingColumn = null;
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
                 Column column = field.getAnnotation(Column.class);
@@ -131,18 +133,10 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     new ColumnName(modelName, column.columnName()), field.getType(), field.getGenericType(),
                     column.matchQuery(), column.storageOnly(), column.indexOnly(), column.dataType().isValue(),
                     columnLength,
-                    column.analyzer(), column.shardingKey()
+                    column.analyzer(), column.shardingKeyIdx()
                 );
-                if (column.shardingKey()) {
-                    if (existingShardingColumn == null) {
-                        existingShardingColumn = modelColumn;
-                    } else {
-                        log.error("Entity {} have 2 columns declaring as the sharding key. {}:{}", modelName,
-                                  existingShardingColumn, modelColumn
-                        );
-                        throw new IllegalStateException(
-                            "Entity " + modelName + " have 2 columns declaring as the sharding key.");
-                    }
+                if (column.shardingKeyIdx() > -1) {
+                    checker.accept(modelName, modelColumn);
                 }
 
                 modelColumns.add(modelColumn);
@@ -173,7 +167,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {
-            retrieval(clazz.getSuperclass(), modelName, modelColumns, extraQueryIndices, scopeId);
+            retrieval(clazz.getSuperclass(), modelName, modelColumns, extraQueryIndices, scopeId, checker);
         }
     }
 
@@ -194,5 +188,40 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     @Override
     public List<Model> allModels() {
         return models;
+    }
+
+    private class ShardingKeyChecker {
+        private ArrayList<ModelColumn> keys = new ArrayList<>();
+
+        /**
+         * @throws IllegalStateException if sharding key indices are conflicting.
+         */
+        private void accept(String modelName, ModelColumn modelColumn) throws IllegalStateException {
+            final int idx = modelColumn.getShardingKeyIdx();
+            while (idx + 1 > keys.size()) {
+                keys.add(null);
+            }
+            ModelColumn exist = keys.get(idx);
+            if (exist != null) {
+                throw new IllegalStateException(
+                    modelName + "'s "
+                        + "Column [" + exist.getColumnName() + "] and column [" + modelColumn.getColumnName()
+                        + " are conflicting with sharding key index=" + modelColumn.getShardingKeyIdx());
+            }
+            keys.set(idx, modelColumn);
+        }
+
+        /**
+         * @param modelName model name of the entity
+         * @throws IllegalStateException if sharding key indices are not continuous
+         */
+        private void check(String modelName) throws IllegalStateException {
+            for (int i = 0; i < keys.size(); i++) {
+                final ModelColumn modelColumn = keys.get(i);
+                if (modelColumn == null) {
+                    throw new IllegalStateException("Sharding key index=" + i + " is missing in " + modelName);
+                }
+            }
+        }
     }
 }

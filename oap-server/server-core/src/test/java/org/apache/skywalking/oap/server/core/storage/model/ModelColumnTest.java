@@ -28,14 +28,14 @@ public class ModelColumnTest {
     public void testColumnDefine() {
         ModelColumn column = new ModelColumn(new ColumnName("", "abc"), byte[].class, byte[].class, true,
                                              false, false, true, 0,
-                                             Column.AnalyzerType.OAP_ANALYZER, false
+                                             Column.AnalyzerType.OAP_ANALYZER, 0
         );
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
 
         column = new ModelColumn(new ColumnName("", "abc"), DataTable.class, DataTable.class, true,
                                  false, false, true, 200,
-                                 Column.AnalyzerType.OAP_ANALYZER, false
+                                 Column.AnalyzerType.OAP_ANALYZER, 0
         );
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
@@ -43,7 +43,7 @@ public class ModelColumnTest {
 
         column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class, true,
                                  false, false, true, 200,
-                                 Column.AnalyzerType.OAP_ANALYZER, false
+                                 Column.AnalyzerType.OAP_ANALYZER, 0
         );
         Assert.assertEquals(false, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
@@ -53,7 +53,7 @@ public class ModelColumnTest {
     public void testConflictDefinition() {
         ModelColumn column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
                                              true, true, false, true, 200,
-                                             Column.AnalyzerType.OAP_ANALYZER, false
+                                             Column.AnalyzerType.OAP_ANALYZER, 0
         );
     }
 
@@ -61,7 +61,7 @@ public class ModelColumnTest {
     public void testConflictDefinitionIndexOnly() {
         ModelColumn column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
                                              true, true, true, false, 200,
-                                             Column.AnalyzerType.OAP_ANALYZER, false
+                                             Column.AnalyzerType.OAP_ANALYZER, 0
         );
     }
 }

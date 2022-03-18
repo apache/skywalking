@@ -48,7 +48,7 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512, shardingKey = true)
+    @Column(columnName = ENTITY_ID, length = 512, shardingKeyIdx = 0)
     private String entityId;
 
     /**

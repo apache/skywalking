@@ -44,7 +44,6 @@ import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.SignatureAttribute;
 import javassist.bytecode.annotation.Annotation;
-import javassist.bytecode.annotation.BooleanMemberValue;
 import javassist.bytecode.annotation.ClassMemberValue;
 import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
@@ -269,7 +268,8 @@ public class OALRuntime implements OALEngine {
                     columnAnnotation.addMemberValue("length", new IntegerMemberValue(constPool, field.getLength()));
                 }
                 if (field.isID()) {
-                    columnAnnotation.addMemberValue("shardingKey", new BooleanMemberValue(true, constPool));
+                    // Add shardingKeyIdx = 0 to column annotation.
+                    columnAnnotation.addMemberValue("shardingKeyIdx", new IntegerMemberValue(constPool, 0));
                 }
                 annotationsAttribute.addAnnotation(columnAnnotation);
 
