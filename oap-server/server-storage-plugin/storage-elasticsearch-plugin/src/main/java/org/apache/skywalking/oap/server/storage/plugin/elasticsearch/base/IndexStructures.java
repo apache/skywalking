@@ -133,7 +133,7 @@ public class IndexStructures {
             if (fields.source != null && this.source != null) {
                 isContains = this.source.getExcludes().toString().equals(fields.source.getExcludes().toString());
             } else {
-                return false;
+                return fields.source == null && this.source == null;
             }
             return isContains;
         }
