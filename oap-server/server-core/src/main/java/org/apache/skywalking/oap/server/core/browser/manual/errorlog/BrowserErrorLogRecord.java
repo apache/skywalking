@@ -54,7 +54,7 @@ public class BrowserErrorLogRecord extends Record {
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID)
+    @Column(columnName = SERVICE_ID, shardingKeyIdx = 0)
     private String serviceId;
 
     @Setter
