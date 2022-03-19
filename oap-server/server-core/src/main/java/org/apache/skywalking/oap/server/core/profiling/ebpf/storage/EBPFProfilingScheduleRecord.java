@@ -42,15 +42,15 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
  */
 @Setter
 @Getter
-@Stream(name = EBPFProfilingScheduleTraffic.INDEX_NAME, scopeId = EBPF_PROFILING_SCHEDULE,
-        builder = EBPFProfilingScheduleTraffic.Builder.class, processor = MetricsStreamProcessor.class)
+@Stream(name = EBPFProfilingScheduleRecord.INDEX_NAME, scopeId = EBPF_PROFILING_SCHEDULE,
+        builder = EBPFProfilingScheduleRecord.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = true)
 @EqualsAndHashCode(of = {
         "taskId",
         "processId",
         "startTime",
 })
-public class EBPFProfilingScheduleTraffic extends Metrics {
+public class EBPFProfilingScheduleRecord extends Metrics {
 
     public static final String INDEX_NAME = "ebpf_profiling_schedule";
     public static final String TASK_ID = "task_id";
@@ -69,7 +69,7 @@ public class EBPFProfilingScheduleTraffic extends Metrics {
 
     @Override
     public boolean combine(Metrics metrics) {
-        final EBPFProfilingScheduleTraffic executeTraffic = (EBPFProfilingScheduleTraffic) metrics;
+        final EBPFProfilingScheduleRecord executeTraffic = (EBPFProfilingScheduleRecord) metrics;
         if (executeTraffic.getEndTime() > this.endTime) {
             this.endTime = executeTraffic.endTime;
         }
@@ -122,11 +122,11 @@ public class EBPFProfilingScheduleTraffic extends Metrics {
         return this.hashCode();
     }
 
-    public static class Builder implements StorageBuilder<EBPFProfilingScheduleTraffic> {
+    public static class Builder implements StorageBuilder<EBPFProfilingScheduleRecord> {
 
         @Override
-        public EBPFProfilingScheduleTraffic storage2Entity(final Convert2Entity converter) {
-            final EBPFProfilingScheduleTraffic executeTraffic = new EBPFProfilingScheduleTraffic();
+        public EBPFProfilingScheduleRecord storage2Entity(final Convert2Entity converter) {
+            final EBPFProfilingScheduleRecord executeTraffic = new EBPFProfilingScheduleRecord();
             executeTraffic.setTaskId((String) converter.get(TASK_ID));
             executeTraffic.setProcessId((String) converter.get(PROCESS_ID));
             executeTraffic.setStartTime(((Number) converter.get(START_TIME)).longValue());
@@ -136,7 +136,7 @@ public class EBPFProfilingScheduleTraffic extends Metrics {
         }
 
         @Override
-        public void entity2Storage(final EBPFProfilingScheduleTraffic storageData, final Convert2Storage converter) {
+        public void entity2Storage(final EBPFProfilingScheduleRecord storageData, final Convert2Storage converter) {
             converter.accept(TASK_ID, storageData.getTaskId());
             converter.accept(PROCESS_ID, storageData.getProcessId());
             converter.accept(START_TIME, storageData.getStartTime());

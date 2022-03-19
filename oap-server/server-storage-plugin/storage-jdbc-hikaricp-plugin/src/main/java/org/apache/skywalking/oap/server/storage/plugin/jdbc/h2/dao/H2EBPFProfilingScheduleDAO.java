@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import lombok.AllArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleTraffic;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
@@ -43,10 +43,10 @@ public class H2EBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO {
         final StringBuilder sql = new StringBuilder();
         final StringBuilder conditionSql = new StringBuilder();
         List<Object> condition = new ArrayList<>(4);
-        sql.append("select * from ").append(EBPFProfilingScheduleTraffic.INDEX_NAME);
+        sql.append("select * from ").append(EBPFProfilingScheduleRecord.INDEX_NAME);
 
         if (StringUtil.isNotEmpty(taskId)) {
-            appendCondition(conditionSql, condition, EBPFProfilingScheduleTraffic.TASK_ID, "=", taskId);
+            appendCondition(conditionSql, condition, EBPFProfilingScheduleRecord.TASK_ID, "=", taskId);
         }
         if (startTimeBucket > 0) {
             appendCondition(conditionSql, condition, EBPFProfilingTaskRecord.START_TIME, ">=", TimeBucket.getTimestamp(startTimeBucket));
@@ -74,10 +74,10 @@ public class H2EBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO {
         while (resultSet.next()) {
             EBPFProfilingSchedule schedule = new EBPFProfilingSchedule();
             schedule.setScheduleId(resultSet.getString(H2TableInstaller.ID_COLUMN));
-            schedule.setTaskId(resultSet.getString(EBPFProfilingScheduleTraffic.TASK_ID));
-            schedule.setProcessId(resultSet.getString(EBPFProfilingScheduleTraffic.PROCESS_ID));
-            schedule.setStartTime(resultSet.getLong(EBPFProfilingScheduleTraffic.START_TIME));
-            schedule.setEndTime(resultSet.getLong(EBPFProfilingScheduleTraffic.END_TIME));
+            schedule.setTaskId(resultSet.getString(EBPFProfilingScheduleRecord.TASK_ID));
+            schedule.setProcessId(resultSet.getString(EBPFProfilingScheduleRecord.PROCESS_ID));
+            schedule.setStartTime(resultSet.getLong(EBPFProfilingScheduleRecord.START_TIME));
+            schedule.setEndTime(resultSet.getLong(EBPFProfilingScheduleRecord.END_TIME));
 
             schedules.add(schedule);
         }

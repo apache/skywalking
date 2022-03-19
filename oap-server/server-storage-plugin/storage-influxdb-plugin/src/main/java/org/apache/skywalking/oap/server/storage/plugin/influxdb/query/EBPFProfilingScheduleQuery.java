@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleTraffic;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -51,22 +51,22 @@ public class EBPFProfilingScheduleQuery implements IEBPFProfilingScheduleDAO {
     public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> query = select(
                 InfluxConstants.ID_COLUMN,
-                EBPFProfilingScheduleTraffic.TASK_ID,
-                EBPFProfilingScheduleTraffic.PROCESS_ID,
-                EBPFProfilingScheduleTraffic.START_TIME,
-                EBPFProfilingScheduleTraffic.END_TIME
+                EBPFProfilingScheduleRecord.TASK_ID,
+                EBPFProfilingScheduleRecord.PROCESS_ID,
+                EBPFProfilingScheduleRecord.START_TIME,
+                EBPFProfilingScheduleRecord.END_TIME
         )
-                .from(client.getDatabase(), EBPFProfilingScheduleTraffic.INDEX_NAME)
+                .from(client.getDatabase(), EBPFProfilingScheduleRecord.INDEX_NAME)
                 .where();
 
         if (StringUtil.isNotEmpty(taskId)) {
-            query.and(eq(EBPFProfilingScheduleTraffic.TASK_ID, taskId));
+            query.and(eq(EBPFProfilingScheduleRecord.TASK_ID, taskId));
         }
         if (startTimeBucket > 0) {
-            query.and(gte(EBPFProfilingScheduleTraffic.START_TIME, TimeBucket.getTimestamp(startTimeBucket)));
+            query.and(gte(EBPFProfilingScheduleRecord.START_TIME, TimeBucket.getTimestamp(startTimeBucket)));
         }
         if (endTimeBucket > 0) {
-            query.and(lte(EBPFProfilingScheduleTraffic.START_TIME, TimeBucket.getTimestamp(endTimeBucket)));
+            query.and(lte(EBPFProfilingScheduleRecord.START_TIME, TimeBucket.getTimestamp(endTimeBucket)));
         }
 
         return buildSchedules(query);

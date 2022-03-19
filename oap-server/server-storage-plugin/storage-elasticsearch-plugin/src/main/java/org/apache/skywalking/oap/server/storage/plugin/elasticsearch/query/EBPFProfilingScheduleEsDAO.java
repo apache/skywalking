@@ -27,7 +27,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleTraffic;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
@@ -54,14 +54,14 @@ public class EBPFProfilingScheduleEsDAO extends EsDAO implements IEBPFProfilingS
     @Override
     public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket) throws IOException {
         final String index =
-                IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingScheduleTraffic.INDEX_NAME);
+                IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingScheduleRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
 
         if (StringUtil.isNotEmpty(taskId)) {
-            query.must(Query.term(EBPFProfilingScheduleTraffic.TASK_ID, taskId));
+            query.must(Query.term(EBPFProfilingScheduleRecord.TASK_ID, taskId));
         }
         RangeQueryBuilder timeRangeQuery = null;
-        Supplier<RangeQueryBuilder> timeRangeQuerySupplier = () -> Query.range(EBPFProfilingScheduleTraffic.START_TIME);
+        Supplier<RangeQueryBuilder> timeRangeQuerySupplier = () -> Query.range(EBPFProfilingScheduleRecord.START_TIME);
         if (startTimeBucket > 0) {
             timeRangeQuery = Optional.ofNullable(timeRangeQuery).orElseGet(timeRangeQuerySupplier)
                     .gte(TimeBucket.getTimestamp(startTimeBucket));
@@ -84,10 +84,10 @@ public class EBPFProfilingScheduleEsDAO extends EsDAO implements IEBPFProfilingS
     private EBPFProfilingSchedule parseSchedule(final SearchHit hit) {
         final EBPFProfilingSchedule schedule = new EBPFProfilingSchedule();
         schedule.setScheduleId(hit.getId());
-        schedule.setTaskId((String) hit.getSource().get(EBPFProfilingScheduleTraffic.TASK_ID));
-        schedule.setProcessId((String) hit.getSource().get(EBPFProfilingScheduleTraffic.PROCESS_ID));
-        schedule.setStartTime(((Number) hit.getSource().get(EBPFProfilingScheduleTraffic.START_TIME)).longValue());
-        schedule.setEndTime(((Number) hit.getSource().get(EBPFProfilingScheduleTraffic.END_TIME)).longValue());
+        schedule.setTaskId((String) hit.getSource().get(EBPFProfilingScheduleRecord.TASK_ID));
+        schedule.setProcessId((String) hit.getSource().get(EBPFProfilingScheduleRecord.PROCESS_ID));
+        schedule.setStartTime(((Number) hit.getSource().get(EBPFProfilingScheduleRecord.START_TIME)).longValue());
+        schedule.setEndTime(((Number) hit.getSource().get(EBPFProfilingScheduleRecord.END_TIME)).longValue());
         return schedule;
     }
 }

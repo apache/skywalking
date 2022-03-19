@@ -48,10 +48,10 @@ public class EBPFProfilingDataRecord extends Record {
     public static final String STACKS_BINARY = "dump_binary";
     public static final String UPLOAD_TIME = "upload_time";
 
+    @Column(columnName = TASK_ID, length = 600, shardingKeyIdx = 0)
+    private String taskId;
     @Column(columnName = SCHEDULE_ID, length = 600)
     private String scheduleId;
-    @Column(columnName = TASK_ID, length = 600)
-    private String taskId;
     @Column(columnName = STACK_ID_LIST)
     private String stackIdList;
     @Column(columnName = STACKS_BINARY, storageOnly = true)

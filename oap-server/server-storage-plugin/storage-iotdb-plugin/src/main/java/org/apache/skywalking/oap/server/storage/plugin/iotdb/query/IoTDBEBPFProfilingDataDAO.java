@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleTraffic;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -46,7 +46,7 @@ public class IoTDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
         query.append("select * from ");
         query = client.addModelPath(query, EBPFProfilingDataRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        query = client.addQueryIndexValue(EBPFProfilingScheduleTraffic.INDEX_NAME, query, indexAndValueMap);
+        query = client.addQueryIndexValue(EBPFProfilingScheduleRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
         if (StringUtil.isNotEmpty(taskId)) {
@@ -65,7 +65,7 @@ public class IoTDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingScheduleTraffic.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingScheduleRecord.INDEX_NAME, query.toString(), storageBuilder);
         List<EBPFProfilingDataRecord> dataList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> dataList.add((EBPFProfilingDataRecord) storageData));
         return dataList;

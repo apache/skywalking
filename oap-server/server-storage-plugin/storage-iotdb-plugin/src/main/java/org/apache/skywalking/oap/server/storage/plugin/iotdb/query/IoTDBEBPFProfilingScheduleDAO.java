@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleTraffic;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
@@ -37,18 +37,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class IoTDBEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO {
     private final IoTDBClient client;
-    private final StorageBuilder<EBPFProfilingScheduleTraffic> storageBuilder = new EBPFProfilingScheduleTraffic.Builder();
+    private final StorageBuilder<EBPFProfilingScheduleRecord> storageBuilder = new EBPFProfilingScheduleRecord.Builder();
 
     @Override
     public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, EBPFProfilingScheduleTraffic.INDEX_NAME);
-        query = client.addQueryAsterisk(EBPFProfilingScheduleTraffic.INDEX_NAME, query);
+        query = client.addModelPath(query, EBPFProfilingScheduleRecord.INDEX_NAME);
+        query = client.addQueryAsterisk(EBPFProfilingScheduleRecord.INDEX_NAME, query);
 
         StringBuilder where = new StringBuilder(" where ");
         if (StringUtil.isNotEmpty(taskId)) {
-            where.append(EBPFProfilingScheduleTraffic.TASK_ID).append(" = \"").append(taskId).append("\" and ");
+            where.append(EBPFProfilingScheduleRecord.TASK_ID).append(" = \"").append(taskId).append("\" and ");
         }
         if (startTimeBucket > 0) {
             where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTimeBucket)).append(" and ");
@@ -63,13 +63,13 @@ public class IoTDBEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO 
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingScheduleTraffic.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingScheduleRecord.INDEX_NAME, query.toString(), storageBuilder);
         List<EBPFProfilingSchedule> scheduleList = new ArrayList<>(storageDataList.size());
-        storageDataList.forEach(storageData -> scheduleList.add(parseSchedule((EBPFProfilingScheduleTraffic) storageData)));
+        storageDataList.forEach(storageData -> scheduleList.add(parseSchedule((EBPFProfilingScheduleRecord) storageData)));
         return scheduleList;
     }
 
-    public EBPFProfilingSchedule parseSchedule(EBPFProfilingScheduleTraffic traffic) {
+    public EBPFProfilingSchedule parseSchedule(EBPFProfilingScheduleRecord traffic) {
         final EBPFProfilingSchedule schedule = new EBPFProfilingSchedule();
         schedule.setTaskId(traffic.getTaskId());
         schedule.setProcessId(traffic.getProcessId());

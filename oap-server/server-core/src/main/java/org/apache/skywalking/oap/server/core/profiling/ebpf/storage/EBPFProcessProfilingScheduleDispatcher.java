@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.source.EBPFProcessProfilingSchedule
 public class EBPFProcessProfilingScheduleDispatcher implements SourceDispatcher<EBPFProcessProfilingSchedule> {
     @Override
     public void dispatch(EBPFProcessProfilingSchedule source) {
-        final EBPFProfilingScheduleTraffic traffic = new EBPFProfilingScheduleTraffic();
+        final EBPFProfilingScheduleRecord traffic = new EBPFProfilingScheduleRecord();
         traffic.setTaskId(source.getTaskId());
         traffic.setProcessId(source.getProcessId());
         traffic.setStartTime(source.getStartTime());
