@@ -125,8 +125,8 @@ Release Notes.
 * Add `Column.shardingKeyIdx` for column definition for BanyanDB.
 
 ```
-Sharding key is used to group time series data per metric of one entity in one place (same sharding or same 
-column for column-oriented database).
+Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same 
+row for column-oriented database).
 For example,
 ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded by service ID
 [ServiceA(encoded ID): 01-28 18:30 values-1, 01-28 18:31 values-2, 01-28 18:32 values-3, 01-28 18:32 values-4]
