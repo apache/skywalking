@@ -103,7 +103,7 @@ public class EBPFProfilingAnalyzeContext {
 
     private class Analyzer extends EBPFProfilingAnalyzer implements IEBPFProfilingDataDAO {
         public Analyzer() {
-            super(null);
+            super(null, 100);
         }
 
         @Override

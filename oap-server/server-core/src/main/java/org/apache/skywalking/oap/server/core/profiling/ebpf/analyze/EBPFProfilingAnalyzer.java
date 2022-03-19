@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,9 +50,11 @@ public class EBPFProfilingAnalyzer {
 
     private final ModuleManager moduleManager;
     protected IEBPFProfilingDataDAO dataDAO;
+    private long maxAnalyzeTimeRangeInMillisecond;
 
-    public EBPFProfilingAnalyzer(ModuleManager moduleManager) {
+    public EBPFProfilingAnalyzer(ModuleManager moduleManager, int maxDurationOfAnalysisInMinute) {
         this.moduleManager = moduleManager;
+        this.maxAnalyzeTimeRangeInMillisecond = TimeUnit.MINUTES.toMillis(maxDurationOfAnalysisInMinute);
     }
 
     /**
@@ -60,14 +63,14 @@ public class EBPFProfilingAnalyzer {
     public EBPFProfilingAnalyzation analyze(String taskId, List<EBPFProfilingAnalyzeTimeRange> ranges) throws IOException {
         EBPFProfilingAnalyzation analyzation = new EBPFProfilingAnalyzation();
 
-        List<TimeRange> timeRanges = buildTimeRanges(ranges);
-        if (CollectionUtils.isEmpty(timeRanges)) {
-            analyzation.setTip("data not found");
+        String timeRangeValidate = validateIsOutOfTimeRangeLimit(ranges);
+        if (StringUtil.isNotEmpty(timeRangeValidate)) {
+            analyzation.setTip(timeRangeValidate);
             return analyzation;
         }
 
         // query data
-        final Stream<EBPFProfilingStack> stackStream = timeRanges.parallelStream().map(r -> {
+        final Stream<EBPFProfilingStack> stackStream = buildTimeRanges(ranges).parallelStream().map(r -> {
             try {
                 return getDataDAO().queryData(taskId, r.minTime, r.maxTime);
             } catch (IOException e) {
@@ -87,6 +90,27 @@ public class EBPFProfilingAnalyzer {
         generateTrees(analyzation, stackStream);
 
         return analyzation;
+    }
+
+    private String validateIsOutOfTimeRangeLimit(List<EBPFProfilingAnalyzeTimeRange> timeRanges) {
+        if (CollectionUtils.isEmpty(timeRanges)) {
+            return "please provide time ranges";
+        }
+
+        long totalDuration = 0;
+        for (EBPFProfilingAnalyzeTimeRange timeRange : timeRanges) {
+            final long duration = timeRange.getEnd() - timeRange.getStart();
+            if (duration <= 0) {
+                return "please validate the time duration data";
+            }
+            totalDuration += duration;
+        }
+
+        if (totalDuration > maxAnalyzeTimeRangeInMillisecond) {
+            return "time range is out of " +
+                    TimeUnit.MILLISECONDS.toMinutes(this.maxAnalyzeTimeRangeInMillisecond) + " minute";
+        }
+        return null;
     }
 
     public void generateTrees(EBPFProfilingAnalyzation analyzation, Stream<EBPFProfilingStack> stackStream) {

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.profiling.ebpf;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.analyze.EBPFProfilingAnalyzer;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingTaskCondition;
@@ -28,7 +29,6 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.EBPFProfilingProcessFinder;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -41,10 +41,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EBPFProfilingQueryService implements Service {
     private final ModuleManager moduleManager;
+    private final CoreModuleConfig config;
 
     private IEBPFProfilingTaskDAO taskDAO;
     private IEBPFProfilingScheduleDAO scheduleDAO;
-    private IEBPFProfilingDataDAO dataDAO;
     private EBPFProfilingAnalyzer profilingAnalyzer;
 
     private IEBPFProfilingTaskDAO getTaskDAO() {
@@ -67,7 +67,7 @@ public class EBPFProfilingQueryService implements Service {
 
     private EBPFProfilingAnalyzer getProfilingAnalyzer() {
         if (profilingAnalyzer == null) {
-            this.profilingAnalyzer = new EBPFProfilingAnalyzer(moduleManager);
+            this.profilingAnalyzer = new EBPFProfilingAnalyzer(moduleManager, config.getMaxDurationOfAnalyzeEBPFProfiling());
         }
         return profilingAnalyzer;
     }

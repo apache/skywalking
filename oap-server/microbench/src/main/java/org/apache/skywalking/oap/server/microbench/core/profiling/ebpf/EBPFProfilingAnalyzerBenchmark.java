@@ -134,7 +134,7 @@ public class EBPFProfilingAnalyzerBenchmark extends AbstractMicrobenchmark {
         }
 
         public void analyze() {
-            new EBPFProfilingAnalyzer(null).generateTrees(new EBPFProfilingAnalyzation(), stackStream.parallelStream());
+            new EBPFProfilingAnalyzer(null, 100).generateTrees(new EBPFProfilingAnalyzation(), stackStream.parallelStream());
         }
     }
 

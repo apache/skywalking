@@ -103,6 +103,10 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private int maxSizeOfAnalyzeProfileSnapshot = 12000;
     /**
+     * Analyze eBPF profiling data max duration(minute)
+     */
+    private int maxDurationOfAnalyzeEBPFProfiling = 10;
+    /**
      * Extra model column are the column defined by {@link ScopeDefaultColumn.DefinedByField#requireDynamicActive()} ==
      * true. These columns of model are not required logically in aggregation or further query, and it will cause more
      * load for memory, network of OAP and storage.
