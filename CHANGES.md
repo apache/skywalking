@@ -31,6 +31,7 @@ Release Notes.
 * Update frontend-maven-plugin to 1.12 and npm to 16.14.0 for booster UI build.
 * Improve CI with the GHA new feature "run failed jobs".
 * Fix `./mvnw compile` not work if `./mvnw install` is not executed at least once.
+* Add `JD_PRESERVE_LINE_FEEDS=true` in official code style file.
 
 #### OAP Server
 
@@ -112,7 +113,8 @@ Release Notes.
   , `SW_CORE_REST_JETTY_DELTA`).
 * [Breaking Change] Remove configuration `graphql/path` (env var: `SW_QUERY_GRAPHQL_PATH`).
 * Add storage column attribute `indexOnly`, support ElasticSearch only index and not store some fields.
-* Add `indexOnly=true` to `SegmentRecord.tags`, `AlarmRecord.tags`, `AbstractLogRecord.tags`, to reduce unnecessary storage.
+* Add `indexOnly=true` to `SegmentRecord.tags`, `AlarmRecord.tags`, `AbstractLogRecord.tags`, to reduce unnecessary
+  storage.
 * [Breaking Change] Remove configuration `restMinThreads` (env var: `SW_CORE_REST_JETTY_MIN_THREADS`
   , `SW_RECEIVER_SHARING_JETTY_MIN_THREADS`).
 * Refactor the core Builder mechanism, new storage plugin could implement their own converter and get rid of hard
@@ -120,6 +122,21 @@ Release Notes.
 * [Breaking Change] Break all existing 3rd-party storage extensions.
 * Remove hard requirement of BASE64 encoding for binary field.
 * Add complexity limitation for GraphQL query to avoid malicious query.
+* Add `Column.shardingKeyIdx` for column definition for BanyanDB.
+
+```
+Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same 
+row for column-oriented database).
+For example,
+ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded by service ID
+[ServiceA(encoded ID): 01-28 18:30 values-1, 01-28 18:31 values-2, 01-28 18:32 values-3, 01-28 18:32 values-4]
+
+BanyanDB is the 1st storage implementation supporting this. It would make continuous time series metrics stored closely and compressed better.
+
+NOTICE, this sharding concept is NOT just for splitting data into different database instances or physical files.
+```
+
+* Support ElasticSearch template mappings `properties parameters` and `_source` update.
 * Implement the eBPF profiling query and data collect protocol.
 
 #### UI

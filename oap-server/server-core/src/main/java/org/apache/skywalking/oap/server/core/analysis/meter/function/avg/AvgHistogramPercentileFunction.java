@@ -74,7 +74,7 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID)
+    @Column(columnName = ENTITY_ID, shardingKeyIdx = 0)
     private String entityId;
     @Getter
     @Setter
