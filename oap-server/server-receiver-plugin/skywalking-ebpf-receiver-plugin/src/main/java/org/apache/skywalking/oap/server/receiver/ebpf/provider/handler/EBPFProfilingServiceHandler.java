@@ -51,6 +51,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Handle the eBPF Profiling data request from the eBPF Agent side.
+ */
 @Slf4j
 public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFProfilingServiceImplBase implements GRPCHandler {
     public static final List<EBPFProfilingStackType> COMMON_STACK_TYPE_ORDER = Arrays.asList(
@@ -86,7 +89,7 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
                     .processIdList(processes.stream().map(Process::getId).collect(Collectors.toList())).build();
             final List<EBPFProfilingTask> tasks = taskDAO.queryTasks(finder, null, 0, latestUpdateTime);
             final Commands.Builder builder = Commands.newBuilder();
-            tasks.stream().map(t -> commandService.newEBPFProcessProfilingTaskCommand(t).serialize()).forEach(builder::addCommands);
+            tasks.stream().map(t -> commandService.newEBPFProfilingTaskCommand(t).serialize()).forEach(builder::addCommands);
             responseObserver.onNext(builder.build());
             responseObserver.onCompleted();
             return;
@@ -134,7 +137,7 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
                             log.warn("process ON_CPU profiling data failure", e);
                         }
                         break;
-                    case PROFILING_NOT_SET:
+                    default:
                         throw new IllegalArgumentException("the profiling data not set");
                 }
 

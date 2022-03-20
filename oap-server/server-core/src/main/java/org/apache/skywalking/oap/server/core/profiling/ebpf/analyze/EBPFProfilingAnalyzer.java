@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.profiling.ebpf.analyze;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
@@ -35,6 +36,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,15 +49,20 @@ import java.util.stream.Stream;
 public class EBPFProfilingAnalyzer {
 
     private static final EBPFProfilingAnalyzeCollector ANALYZE_COLLECTOR = new EBPFProfilingAnalyzeCollector();
-    private static final Long FETCH_FETCH_DURATION = TimeUnit.MINUTES.toMillis(2);
+    private static final Long FETCH_DATA_DURATION = TimeUnit.MINUTES.toMillis(2);
 
     private final ModuleManager moduleManager;
     protected IEBPFProfilingDataDAO dataDAO;
     private long maxAnalyzeTimeRangeInMillisecond;
+    private long maxQueryTimeoutInSecond;
+    private final ExecutorService fetchDataThreadPool;
 
-    public EBPFProfilingAnalyzer(ModuleManager moduleManager, int maxDurationOfAnalysisInMinute) {
+    public EBPFProfilingAnalyzer(ModuleManager moduleManager, int maxDurationOfAnalysisInMinute,
+                                 int maxDurationOfQuery, int fetchDataThreadPoolSize) {
         this.moduleManager = moduleManager;
         this.maxAnalyzeTimeRangeInMillisecond = TimeUnit.MINUTES.toMillis(maxDurationOfAnalysisInMinute);
+        this.maxQueryTimeoutInSecond = maxDurationOfQuery;
+        this.fetchDataThreadPool = Executors.newFixedThreadPool(fetchDataThreadPoolSize);
     }
 
     /**
@@ -70,10 +78,12 @@ public class EBPFProfilingAnalyzer {
         }
 
         // query data
+        long queryDataMaxTimestamp = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(maxQueryTimeoutInSecond);
         final Stream<EBPFProfilingStack> stackStream = buildTimeRanges(ranges).parallelStream().map(r -> {
             try {
-                return getDataDAO().queryData(taskId, r.minTime, r.maxTime);
-            } catch (IOException e) {
+                return fetchDataThreadPool.submit(() -> getDataDAO().queryData(taskId, r.getMinTime(), r.getMaxTime()))
+                        .get(queryDataMaxTimestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+            } catch (Exception e) {
                 log.warn(e.getMessage(), e);
                 return Collections.<EBPFProfilingDataRecord>emptyList();
             }
@@ -133,7 +143,7 @@ public class EBPFProfilingAnalyzer {
     }
 
     /**
-     * Split time ranges to insure the start time and end time is small then {@link #FETCH_FETCH_DURATION}
+     * Split time ranges to insure the start time and end time is small then {@link #FETCH_DATA_DURATION}
      */
     protected List<TimeRange> buildTimeRanges(long start, long end) {
         if (start >= end) {
@@ -145,7 +155,7 @@ public class EBPFProfilingAnalyzer {
 
         final List<TimeRange> timeRanges = new ArrayList<>();
         do {
-            long batchEnd = Math.min(start + FETCH_FETCH_DURATION, end);
+            long batchEnd = Math.min(start + FETCH_DATA_DURATION, end);
             timeRanges.add(new TimeRange(start, batchEnd));
             start = batchEnd;
         }
@@ -163,6 +173,10 @@ public class EBPFProfilingAnalyzer {
         return dataDAO;
     }
 
+    /**
+     * Split the query time with {@link #FETCH_DATA_DURATION}
+     */
+    @Getter
     private static class TimeRange {
         private long minTime;
         private long maxTime;

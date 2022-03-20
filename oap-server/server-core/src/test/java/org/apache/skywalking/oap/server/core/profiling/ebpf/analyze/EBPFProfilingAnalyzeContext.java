@@ -40,6 +40,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * eBPF Profiling Analyzer test context.
+ */
 @Data
 public class EBPFProfilingAnalyzeContext {
 
@@ -47,6 +50,9 @@ public class EBPFProfilingAnalyzeContext {
     private List<String> symbols;
     private List<Except> excepted;
 
+    /**
+     * Initial the eBPF Profiling Analyzation and verify the analysis result.
+     */
     public void analyzeAssert() throws IOException {
         final Analyzer analyzer = new Analyzer();
         final EBPFProfilingAnalyzation analyze = analyzer.analyze(null, buildTimeRanges());
@@ -103,7 +109,7 @@ public class EBPFProfilingAnalyzeContext {
 
     private class Analyzer extends EBPFProfilingAnalyzer implements IEBPFProfilingDataDAO {
         public Analyzer() {
-            super(null, 100);
+            super(null, 100, 100, 5);
         }
 
         @Override

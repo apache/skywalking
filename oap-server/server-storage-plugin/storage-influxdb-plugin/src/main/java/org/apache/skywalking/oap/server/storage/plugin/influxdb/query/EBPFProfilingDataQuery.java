@@ -58,15 +58,9 @@ public class EBPFProfilingDataQuery implements IEBPFProfilingDataDAO {
                 .from(client.getDatabase(), EBPFProfilingDataRecord.INDEX_NAME)
                 .where();
 
-        if (StringUtil.isNotEmpty(taskId)) {
-            query.and(eq(EBPFProfilingDataRecord.TASK_ID, taskId));
-        }
-        if (beginTime > 0) {
-            query.and(gte(EBPFProfilingDataRecord.UPLOAD_TIME, beginTime));
-        }
-        if (endTime > 0) {
-            query.and(lt(EBPFProfilingDataRecord.UPLOAD_TIME, endTime));
-        }
+        query.and(eq(EBPFProfilingDataRecord.TASK_ID, taskId));
+        query.and(gte(EBPFProfilingDataRecord.UPLOAD_TIME, beginTime));
+        query.and(lt(EBPFProfilingDataRecord.UPLOAD_TIME, endTime));
 
         return buildDataList(query);
     }

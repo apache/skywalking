@@ -24,7 +24,6 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.influxdb.dto.QueryResult;
@@ -59,15 +58,9 @@ public class EBPFProfilingScheduleQuery implements IEBPFProfilingScheduleDAO {
                 .from(client.getDatabase(), EBPFProfilingScheduleRecord.INDEX_NAME)
                 .where();
 
-        if (StringUtil.isNotEmpty(taskId)) {
-            query.and(eq(EBPFProfilingScheduleRecord.TASK_ID, taskId));
-        }
-        if (startTimeBucket > 0) {
-            query.and(gte(EBPFProfilingScheduleRecord.START_TIME, TimeBucket.getTimestamp(startTimeBucket)));
-        }
-        if (endTimeBucket > 0) {
-            query.and(lte(EBPFProfilingScheduleRecord.START_TIME, TimeBucket.getTimestamp(endTimeBucket)));
-        }
+        query.and(eq(EBPFProfilingScheduleRecord.TASK_ID, taskId));
+        query.and(gte(EBPFProfilingScheduleRecord.START_TIME, TimeBucket.getTimestamp(startTimeBucket)));
+        query.and(lte(EBPFProfilingScheduleRecord.START_TIME, TimeBucket.getTimestamp(endTimeBucket)));
 
         return buildSchedules(query);
     }

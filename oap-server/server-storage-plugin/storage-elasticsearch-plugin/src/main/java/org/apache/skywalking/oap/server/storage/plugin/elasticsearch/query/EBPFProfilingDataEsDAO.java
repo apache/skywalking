@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
-import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
@@ -30,7 +29,6 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
@@ -39,8 +37,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataDAO {
     private final int scrollingBatchSize;
@@ -56,20 +52,8 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
                 IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingDataRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
         final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
-        if (StringUtil.isNotEmpty(taskId)) {
-            query.must(Query.term(EBPFProfilingDataRecord.TASK_ID, taskId));
-        }
-        RangeQueryBuilder rangeQuery = null;
-        Supplier<RangeQueryBuilder> rangeQuerySupplier = () -> Query.range(EBPFProfilingDataRecord.UPLOAD_TIME);
-        if (beginTime > 0) {
-            rangeQuery = Optional.ofNullable(rangeQuery).orElseGet(rangeQuerySupplier).gte(beginTime);
-        }
-        if (endTime > 0) {
-            rangeQuery = Optional.ofNullable(rangeQuery).orElseGet(rangeQuerySupplier).lt(endTime);
-        }
-        if (rangeQuery != null) {
-            query.must(rangeQuery);
-        }
+        query.must(Query.term(EBPFProfilingDataRecord.TASK_ID, taskId));
+        query.must(Query.range(EBPFProfilingDataRecord.UPLOAD_TIME).gte(beginTime).lt(endTime));
 
         final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
         final List<EBPFProfilingDataRecord> records = new ArrayList<>();

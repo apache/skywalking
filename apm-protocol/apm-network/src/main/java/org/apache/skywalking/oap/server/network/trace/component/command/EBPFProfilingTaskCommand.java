@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.network.common.v3.Command;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
 /**
- * eBPF profiling task command use to send task to the ebpf agent side
+ * eBPF profiling task command, OAP uses this to send a task to the ebpf agent side
  */
 public class EBPFProfilingTaskCommand extends BaseCommand implements Serializable {
     public static final String NAME = "EBPFProfilingTaskQuery";

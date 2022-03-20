@@ -43,15 +43,9 @@ public class H2EBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
         List<Object> condition = new ArrayList<>(4);
         sql.append("select * from ").append(EBPFProfilingDataRecord.INDEX_NAME);
 
-        if (StringUtil.isNotEmpty(taskId)) {
-            appendCondition(conditionSql, condition, EBPFProfilingDataRecord.TASK_ID, "=", taskId);
-        }
-        if (beginTime > 0) {
-            appendCondition(conditionSql, condition, EBPFProfilingDataRecord.UPLOAD_TIME, ">=", beginTime);
-        }
-        if (endTime > 0) {
-            appendCondition(conditionSql, condition, EBPFProfilingDataRecord.UPLOAD_TIME, "<", endTime);
-        }
+        appendCondition(conditionSql, condition, EBPFProfilingDataRecord.TASK_ID, "=", taskId);
+        appendCondition(conditionSql, condition, EBPFProfilingDataRecord.UPLOAD_TIME, ">=", beginTime);
+        appendCondition(conditionSql, condition, EBPFProfilingDataRecord.UPLOAD_TIME, "<", endTime);
 
         if (conditionSql.length() > 0) {
             sql.append(" where ").append(conditionSql);

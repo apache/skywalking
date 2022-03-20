@@ -46,7 +46,10 @@ public class CommandService implements Service {
             .getDumpPeriod(), task.getMaxSamplingCount(), task.getStartTime(), task.getCreateTime());
     }
 
-    public EBPFProfilingTaskCommand newEBPFProcessProfilingTaskCommand(EBPFProfilingTask task) {
+    /**
+     * Used to notify the eBPF Profiling task to the eBPF agent side
+     */
+    public EBPFProfilingTaskCommand newEBPFProfilingTaskCommand(EBPFProfilingTask task) {
         final String serialNumber = UUID.randomUUID().toString();
         EBPFProfilingTaskCommand.FixedTrigger fixedTrigger = null;
         if (Objects.equals(task.getTriggerType(), EBPFProfilingTriggerType.FIXED_TIME)) {

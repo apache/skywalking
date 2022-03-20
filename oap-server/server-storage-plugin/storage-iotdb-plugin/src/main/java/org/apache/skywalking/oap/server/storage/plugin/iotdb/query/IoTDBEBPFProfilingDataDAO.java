@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 import java.io.IOException;
@@ -49,15 +48,9 @@ public class IoTDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
         query = client.addQueryIndexValue(EBPFProfilingScheduleRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
-        if (StringUtil.isNotEmpty(taskId)) {
-            where.append(EBPFProfilingDataRecord.TASK_ID).append(" = \"").append(taskId).append("\" and ");
-        }
-        if (beginTime > 0) {
-            where.append(IoTDBClient.TIME).append(" >= ").append(beginTime).append(" and ");
-        }
-        if (endTime > 0) {
-            where.append(IoTDBClient.TIME).append(" <= ").append(endTime).append(" and ");
-        }
+        where.append(EBPFProfilingDataRecord.TASK_ID).append(" = \"").append(taskId).append("\" and ");
+        where.append(IoTDBClient.TIME).append(" >= ").append(beginTime).append(" and ");
+        where.append(IoTDBClient.TIME).append(" <= ").append(endTime).append(" and ");
         if (where.length() > 7) {
             int length = where.length();
             where.delete(length - 5, length);

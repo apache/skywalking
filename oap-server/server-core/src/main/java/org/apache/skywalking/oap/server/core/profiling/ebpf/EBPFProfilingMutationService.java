@@ -68,6 +68,9 @@ public class EBPFProfilingMutationService implements Service {
         return metadataQueryDAO;
     }
 
+    /**
+     * Create eBPF Profiling task with {@link EBPFProfilingTriggerType#FIXED_TIME}
+     */
     public EBPFProfilingTaskCreationResult createTask(EBPFProfilingTaskFixedTimeCreationRequest request) throws IOException {
         final long current = System.currentTimeMillis();
         if (request.getStartTime() <= 0) {

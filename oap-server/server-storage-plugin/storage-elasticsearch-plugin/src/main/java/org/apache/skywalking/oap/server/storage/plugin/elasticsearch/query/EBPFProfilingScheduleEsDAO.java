@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
-import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
@@ -32,15 +31,12 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class EBPFProfilingScheduleEsDAO extends EsDAO implements IEBPFProfilingScheduleDAO {
@@ -57,22 +53,10 @@ public class EBPFProfilingScheduleEsDAO extends EsDAO implements IEBPFProfilingS
                 IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingScheduleRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
 
-        if (StringUtil.isNotEmpty(taskId)) {
-            query.must(Query.term(EBPFProfilingScheduleRecord.TASK_ID, taskId));
-        }
-        RangeQueryBuilder timeRangeQuery = null;
-        Supplier<RangeQueryBuilder> timeRangeQuerySupplier = () -> Query.range(EBPFProfilingScheduleRecord.START_TIME);
-        if (startTimeBucket > 0) {
-            timeRangeQuery = Optional.ofNullable(timeRangeQuery).orElseGet(timeRangeQuerySupplier)
-                    .gte(TimeBucket.getTimestamp(startTimeBucket));
-        }
-        if (endTimeBucket > 0) {
-            timeRangeQuery = Optional.ofNullable(timeRangeQuery).orElseGet(timeRangeQuerySupplier)
-                    .lte(TimeBucket.getTimestamp(endTimeBucket));
-        }
-        if (timeRangeQuery != null) {
-            query.must(timeRangeQuery);
-        }
+        query.must(Query.term(EBPFProfilingScheduleRecord.TASK_ID, taskId));
+        query.must(Query.range(EBPFProfilingScheduleRecord.START_TIME)
+                    .gte(TimeBucket.getTimestamp(startTimeBucket))
+                    .lte(TimeBucket.getTimestamp(endTimeBucket)));
         final SearchBuilder search = Search.builder().query(query)
                 .sort(EBPFProfilingTaskRecord.CREATE_TIME, Sort.Order.DESC)
                 .size(scheduleTaskSize);

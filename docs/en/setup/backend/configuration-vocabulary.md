@@ -47,6 +47,8 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | prepareThreads| The number of threads used to prepare metrics data to the storage. | SW_CORE_PREPARE_THREADS | 2 |
 | - | - | enableEndpointNameGroupingByOpenapi | Automatically groups endpoints by the given OpenAPI definitions. | SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI | true |
 | - | - | maxDurationOfAnalyzeEBPFProfiling| The maximum duration(in minute) of analyze the eBPF profiling data. | - | 10 |
+| - | - | maxDurationOfQueryEBPFProfilingData| The maximum duration(in second) of query the eBPF profiling data from database. | - | 30 |
+| - | - | maxThreadCountOfQueryEBPFProfilingData| The maximum thread count of query the eBPF profiling data from database. | - | System CPU core size |
 |cluster|standalone| - | Standalone is not suitable for running on a single node running. No configuration available. | - | - |
 | - | zookeeper|namespace| The namespace, represented by root path, isolates the configurations in Zookeeper.|SW_NAMESPACE| `/`, root path|
 | - | - | hostPort| Hosts and ports of Zookeeper Cluster. |SW_CLUSTER_ZK_HOST_PORT| localhost:2181|
