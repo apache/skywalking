@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.profiling.ebpf.analyze;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
@@ -167,8 +168,8 @@ public class EBPFProfilingAnalyzer {
     protected IEBPFProfilingDataDAO getDataDAO() {
         if (dataDAO == null) {
             dataDAO = moduleManager.find(StorageModule.NAME)
-                                                         .provider()
-                                                         .getService(IEBPFProfilingDataDAO.class);
+                    .provider()
+                    .getService(IEBPFProfilingDataDAO.class);
         }
         return dataDAO;
     }
@@ -177,13 +178,9 @@ public class EBPFProfilingAnalyzer {
      * Split the query time with {@link #FETCH_DATA_DURATION}
      */
     @Getter
+    @RequiredArgsConstructor
     private static class TimeRange {
-        private long minTime;
-        private long maxTime;
-
-        public TimeRange(long minTime, long maxTime) {
-            this.minTime = minTime;
-            this.maxTime = maxTime;
-        }
+        private final long minTime;
+        private final long maxTime;
     }
 }
