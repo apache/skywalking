@@ -137,6 +137,7 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 ```
 
 * Support ElasticSearch template mappings `properties parameters` and `_source` update.
+* Implement the eBPF profiling query and data collect protocol.
 
 #### UI
 

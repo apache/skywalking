@@ -18,7 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.command;
 
+import java.util.Objects;
 import java.util.UUID;
+
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
+import org.apache.skywalking.oap.server.network.trace.component.command.EBPFProfilingTaskCommand;
 import org.apache.skywalking.oap.server.network.trace.component.command.ProfileTaskCommand;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -39,6 +44,19 @@ public class CommandService implements Service {
         return new ProfileTaskCommand(
             serialNumber, task.getId(), task.getEndpointName(), task.getDuration(), task.getMinDurationThreshold(), task
             .getDumpPeriod(), task.getMaxSamplingCount(), task.getStartTime(), task.getCreateTime());
+    }
+
+    /**
+     * Used to notify the eBPF Profiling task to the eBPF agent side
+     */
+    public EBPFProfilingTaskCommand newEBPFProfilingTaskCommand(EBPFProfilingTask task) {
+        final String serialNumber = UUID.randomUUID().toString();
+        EBPFProfilingTaskCommand.FixedTrigger fixedTrigger = null;
+        if (Objects.equals(task.getTriggerType(), EBPFProfilingTriggerType.FIXED_TIME)) {
+            fixedTrigger = new EBPFProfilingTaskCommand.FixedTrigger(task.getFixedTriggerDuration());
+        }
+        return new EBPFProfilingTaskCommand(serialNumber, task.getTaskId(), task.getProcessId(), task.getCreateTime(),
+                task.getLastUpdateTime(), task.getTriggerType().name(), fixedTrigger, task.getTargetType().name());
     }
 
     private String generateSerialNumber(final int serviceInstanceId, final long time,

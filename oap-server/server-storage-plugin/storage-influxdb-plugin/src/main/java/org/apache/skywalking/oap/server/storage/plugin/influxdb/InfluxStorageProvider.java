@@ -29,12 +29,15 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
@@ -53,6 +56,9 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.InfluxStora
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AggregationQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AlarmQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.BrowserLogQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.EBPFProfilingDataQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.EBPFProfilingScheduleQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.EBPFProfilingTaskQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.EventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.LogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetadataQuery;
@@ -126,6 +132,10 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(UITemplateManagementDAO.class, new UITemplateManagementDAOImpl(client));
 
         this.registerServiceImplementation(IEventQueryDAO.class, new EventQueryDAO(client));
+
+        this.registerServiceImplementation(IEBPFProfilingTaskDAO.class, new EBPFProfilingTaskQuery(client));
+        this.registerServiceImplementation(IEBPFProfilingScheduleDAO.class, new EBPFProfilingScheduleQuery(client));
+        this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new EBPFProfilingDataQuery(client));
     }
 
     @Override
