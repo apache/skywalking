@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
+import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.EBPFProfilingProcessFinder;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
@@ -40,6 +41,9 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -99,13 +103,12 @@ public class EBPFProfilingQueryService implements Service {
     public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId, Duration duration) throws IOException {
         final List<EBPFProfilingSchedule> schedules = getScheduleDAO().querySchedules(taskId, duration.getStartTimeBucket(), duration.getEndTimeBucket());
         if (CollectionUtils.isNotEmpty(schedules)) {
-            schedules.forEach(p -> {
-                try {
-                    p.setProcess(getMetadataQueryDAO().getProcess(p.getProcessId()));
-                } catch (IOException e) {
-                    log.warn("query process failure, processId: {}", p.getProcessId(), e);
-                }
-            });
+            final List<Process> processes = getMetadataQueryDAO().getProcesses(schedules.stream()
+                    .map(EBPFProfilingSchedule::getProcessId).distinct().collect(Collectors.toList()));
+
+            final Map<String, Process> processMap = processes.stream()
+                    .collect(Collectors.toMap(Process::getId, Function.identity()));
+            schedules.forEach(p -> p.setProcess(processMap.get(p.getProcessId())));
         }
         return schedules;
     }
