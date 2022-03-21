@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.profiling.ebpf;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.analyze.EBPFProfilingAnalyzer;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -31,13 +32,16 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.EBPFProfilingProcessFinder;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 public class EBPFProfilingQueryService implements Service {
     private final ModuleManager moduleManager;
@@ -46,6 +50,7 @@ public class EBPFProfilingQueryService implements Service {
     private IEBPFProfilingTaskDAO taskDAO;
     private IEBPFProfilingScheduleDAO scheduleDAO;
     private EBPFProfilingAnalyzer profilingAnalyzer;
+    private IMetadataQueryDAO metadataQueryDAO;
 
     private IEBPFProfilingTaskDAO getTaskDAO() {
         if (taskDAO == null) {
@@ -63,6 +68,15 @@ public class EBPFProfilingQueryService implements Service {
                     .getService(IEBPFProfilingScheduleDAO.class);
         }
         return scheduleDAO;
+    }
+
+    private IMetadataQueryDAO getMetadataQueryDAO() {
+        if (metadataQueryDAO == null) {
+            this.metadataQueryDAO = moduleManager.find(StorageModule.NAME)
+                    .provider()
+                    .getService(IMetadataQueryDAO.class);
+        }
+        return metadataQueryDAO;
     }
 
     private EBPFProfilingAnalyzer getProfilingAnalyzer() {
@@ -83,7 +97,17 @@ public class EBPFProfilingQueryService implements Service {
     }
 
     public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId, Duration duration) throws IOException {
-        return getScheduleDAO().querySchedules(taskId, duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        final List<EBPFProfilingSchedule> schedules = getScheduleDAO().querySchedules(taskId, duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        if (CollectionUtils.isNotEmpty(schedules)) {
+            schedules.forEach(p -> {
+                try {
+                    p.setProcess(getMetadataQueryDAO().getProcess(p.getProcessId()));
+                } catch (IOException e) {
+                    log.warn("query process failure, processId: {}", p.getProcessId(), e);
+                }
+            });
+        }
+        return schedules;
     }
 
     public EBPFProfilingAnalyzation getEBPFProfilingAnalyzation(String taskId, List<EBPFProfilingAnalyzeTimeRange> timeRanges) throws IOException {
