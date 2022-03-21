@@ -36,12 +36,13 @@ metricsRules:
     exp: (process_cpu_seconds_total * 100).sum(['service', 'host_name']).rate('PT1M')
   - name: instance_jvm_memory_bytes_used
     exp: jvm_memory_bytes_used.sum(['service', 'host_name'])
-  - name: instance_jvm_young_gc_count
-    exp: jvm_gc_collection_seconds_count.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation').sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_jvm_gc_count
+    exp: "jvm_gc_collection_seconds_count.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation|PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation')
+    .sum(['service', 'host_name', 'gc']).increase('PT1M')
+    .tag({tags -> if (tags['gc'] == 'PS Scavenge' || tags['gc'] == 'Copy' || tags['gc'] == 'ParNew' || tags['gc'] == 'G1 Young Generation') {tags.gc = 'young_gc_count'} })
+    .tag({tags -> if (tags['gc'] == 'PS MarkSweep' || tags['gc'] == 'MarkSweepCompact' || tags['gc'] == 'ConcurrentMarkSweep' || tags['gc'] == 'G1 Old Generation') {tags.gc = 'old_gc_count'} })"
   - name: instance_jvm_young_gc_time
     exp: jvm_gc_collection_seconds_sum.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation').sum(['service', 'host_name']) * 1000
-  - name: instance_jvm_old_gc_count
-    exp: jvm_gc_collection_seconds_count.tagMatch('gc', 'PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation').sum(['service', 'host_name']).increase('PT1M')
   - name: instance_jvm_old_gc_time
     exp: jvm_gc_collection_seconds_sum.tagMatch('gc', 'PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation').sum(['service', 'host_name']) * 1000
   - name: instance_trace_count
@@ -56,10 +57,9 @@ metricsRules:
     exp: mesh_analysis_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_mesh_analysis_error_count
     exp: mesh_analysis_error_count.sum(['service', 'host_name']).increase('PT1M')
-  - name: instance_metrics_first_aggregation
-    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '1').sum(['service', 'host_name']).increase('PT1M')
-  - name: instance_metrics_second_aggregation
-    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '2').sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_metrics_aggregation
+    exp: "metrics_aggregation.tagEqual('dimensionality', 'minute').sum(['service', 'host_name', 'level']).increase('PT1M')
+    .tag({tags -> if (tags['level'] == '1') {tags.level = 'L1 aggregation'} }).tag({tags -> if (tags['level'] == '2') {tags.level = 'L2 aggregation'} })"
   - name: instance_persistence_execute_percentile
     exp: persistence_timer_bulk_execute_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_persistence_prepare_percentile
