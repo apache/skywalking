@@ -19,22 +19,25 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableList;
-import com.google.protobuf.ByteString;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetadata;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -43,13 +46,22 @@ import java.util.stream.Collectors;
  * {@link ProfileThreadSnapshotRecord} is a stream
  */
 public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO implements IProfileThreadSnapshotQueryDAO {
+    protected final ProfileThreadSnapshotRecord.Builder builder =
+            new ProfileThreadSnapshotRecord.Builder();
+
+    private final StreamMetadata profileThreadSnapshotMetadata =
+            MetadataRegistry.INSTANCE.findStreamMetadata(ProfileThreadSnapshotRecord.INDEX_NAME);
+
+    private final StreamMetadata segmentRecordMetadata =
+            MetadataRegistry.INSTANCE.findStreamMetadata(SegmentRecord.INDEX_NAME);
+
     public BanyanDBProfileThreadSnapshotQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
 
     @Override
     public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
-        StreamQueryResponse resp = query(ProfileThreadSnapshotRecord.INDEX_NAME,
+        StreamQueryResponse resp = query(profileThreadSnapshotMetadata,
                 ImmutableList.of(ProfileThreadSnapshotRecord.TASK_ID, ProfileThreadSnapshotRecord.SEGMENT_ID,
                         ProfileThreadSnapshotRecord.DUMP_TIME, ProfileThreadSnapshotRecord.SEQUENCE),
                 new QueryBuilder() {
@@ -64,22 +76,39 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
             return Collections.emptyList();
         }
 
-        List<String> segmentIDs = resp.getElements().stream()
-                .map(new ProfileThreadSnapshotRecordDeserializer())
-                .map(ProfileThreadSnapshotRecord::getSegmentId)
-                .collect(Collectors.toList());
+        final List<String> segmentIds = new LinkedList<>();
+        for (final RowEntity rowEntity : resp.getElements()) {
+            segmentIds.add(rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, ProfileThreadSnapshotRecord.SEGMENT_ID));
+        }
 
         // TODO: support `IN` or `OR` logic operation in BanyanDB
         List<BasicTrace> basicTraces = new ArrayList<>();
-        for (String segmentID : segmentIDs) {
-            final StreamQueryResponse segmentRecordResp = query(SegmentRecord.INDEX_NAME, ImmutableList.of("trace_id", "state", "endpoint_id", "duration", "start_time"),
+        for (String segmentID : segmentIds) {
+            final StreamQueryResponse segmentRecordResp = query(segmentRecordMetadata,
+                    ImmutableList.of(SegmentRecord.TRACE_ID, SegmentRecord.IS_ERROR, SegmentRecord.ENDPOINT_ID, SegmentRecord.LATENCY, SegmentRecord.START_TIME),
                     new QueryBuilder() {
                         @Override
                         public void apply(StreamQuery traceQuery) {
                             traceQuery.appendCondition(eq(SegmentRecord.SEGMENT_ID, segmentID));
                         }
                     });
-            basicTraces.addAll(segmentRecordResp.getElements().stream().map(new BasicTraceDeserializer()).collect(Collectors.toList()));
+
+            for (final RowEntity row : segmentRecordResp.getElements()) {
+                BasicTrace basicTrace = new BasicTrace();
+
+                basicTrace.setSegmentId(row.getId());
+                basicTrace.setStart(String.valueOf(row.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.START_TIME)));
+                basicTrace.getEndpointNames().add(IDManager.EndpointID.analysisId(
+                        row.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.ENDPOINT_ID)
+                ).getEndpointName());
+                basicTrace.setDuration(((Number) row.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.LATENCY)).intValue());
+                basicTrace.setError(BooleanUtils.valueToBoolean(
+                        ((Number) row.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.IS_ERROR)).intValue()
+                ));
+                basicTrace.getTraceIds().add(row.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.TRACE_ID));
+
+                basicTraces.add(basicTrace);
+            }
         }
 
         // TODO: Sort in DB with DESC
@@ -104,7 +133,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
 
     @Override
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
-        StreamQueryResponse resp = query(ProfileThreadSnapshotRecord.INDEX_NAME,
+        StreamQueryResponse resp = query(profileThreadSnapshotMetadata,
                 ImmutableList.of(ProfileThreadSnapshotRecord.TASK_ID, ProfileThreadSnapshotRecord.SEGMENT_ID,
                         ProfileThreadSnapshotRecord.DUMP_TIME, ProfileThreadSnapshotRecord.SEQUENCE),
                 new QueryBuilder() {
@@ -118,26 +147,52 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
                     }
                 });
 
-        return resp.getElements().stream().map(new ProfileThreadSnapshotRecordDeserializer()).collect(Collectors.toList());
+        List<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
+        for (final RowEntity rowEntity : resp.getElements()) {
+            ProfileThreadSnapshotRecord record = this.builder.storage2Entity(
+                    new BanyanDBConverter.StreamToEntity(profileThreadSnapshotMetadata, rowEntity));
+
+            result.add(record);
+        }
+        return result;
     }
 
     @Override
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
-        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
+        StreamQueryResponse resp = query(segmentRecordMetadata,
                 ImmutableList.of(SegmentRecord.TRACE_ID, SegmentRecord.IS_ERROR, SegmentRecord.SERVICE_ID, SegmentRecord.SERVICE_INSTANCE_ID, SegmentRecord.ENDPOINT_ID, SegmentRecord.LATENCY, SegmentRecord.START_TIME),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.setDataProjections(Collections.singletonList("data_binary"));
+                        query.setDataProjections(Collections.singletonList(SegmentRecord.DATA_BINARY));
                         query.appendCondition(eq(SegmentRecord.INDEX_NAME, segmentId));
                     }
                 });
 
-        return resp.getElements().stream().map(new SegmentRecordDeserializer()).findFirst().orElse(null);
+        if (resp.size() == 0) {
+            return null;
+        }
+
+        final RowEntity rowEntity = resp.getElements().iterator().next();
+        final SegmentRecord segmentRecord = new SegmentRecord();
+        segmentRecord.setSegmentId(rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.SEGMENT_ID));
+        segmentRecord.setTraceId(rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.TRACE_ID));
+        segmentRecord.setServiceId(rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.SERVICE_ID));
+        segmentRecord.setStartTime(
+                ((Number) rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.START_TIME)).longValue());
+        segmentRecord.setLatency(
+                ((Number) rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.LATENCY)).intValue());
+        segmentRecord.setIsError(
+                ((Number) rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.IS_ERROR)).intValue());
+        byte[] dataBinary = rowEntity.getValue(StreamMetadata.TAG_FAMILY_DATA, SegmentRecord.DATA_BINARY);
+        if (dataBinary != null && dataBinary.length > 0) {
+            segmentRecord.setDataBinary(dataBinary);
+        }
+        return segmentRecord;
     }
 
     private int querySequenceWithAgg(AggType aggType, String segmentId, long start, long end) {
-        StreamQueryResponse resp = query(ProfileThreadSnapshotRecord.INDEX_NAME,
+        StreamQueryResponse resp = query(profileThreadSnapshotMetadata,
                 ImmutableList.of(ProfileThreadSnapshotRecord.TASK_ID, ProfileThreadSnapshotRecord.SEGMENT_ID,
                         ProfileThreadSnapshotRecord.DUMP_TIME, ProfileThreadSnapshotRecord.SEQUENCE),
                 new QueryBuilder() {
@@ -151,7 +206,13 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
                     }
                 });
 
-        List<ProfileThreadSnapshotRecord> records = resp.getElements().stream().map(new ProfileThreadSnapshotRecordDeserializer()).collect(Collectors.toList());
+        List<ProfileThreadSnapshotRecord> records = new ArrayList<>();
+        for (final RowEntity rowEntity : resp.getElements()) {
+            ProfileThreadSnapshotRecord record = this.builder.storage2Entity(
+                    new BanyanDBConverter.StreamToEntity(profileThreadSnapshotMetadata, rowEntity));
+
+            records.add(record);
+        }
 
         switch (aggType) {
             case MIN:
@@ -175,56 +236,5 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
 
     enum AggType {
         MIN, MAX
-    }
-
-    public static class ProfileThreadSnapshotRecordDeserializer implements RowEntityDeserializer<ProfileThreadSnapshotRecord> {
-        @Override
-        public ProfileThreadSnapshotRecord apply(RowEntity row) {
-            ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
-            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
-            record.setTaskId((String) searchable.get(0).getValue());
-            record.setSegmentId((String) searchable.get(1).getValue());
-            record.setDumpTime(((Number) searchable.get(2).getValue()).longValue());
-            record.setSequence(((Number) searchable.get(3).getValue()).intValue());
-            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
-            record.setStackBinary(((ByteString) data.get(0).getValue()).toByteArray());
-            return record;
-        }
-    }
-
-    public static class SegmentRecordDeserializer implements RowEntityDeserializer<SegmentRecord> {
-        @Override
-        public SegmentRecord apply(RowEntity row) {
-            SegmentRecord record = new SegmentRecord();
-            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
-            record.setSegmentId(row.getId());
-            record.setTraceId((String) searchable.get(0).getValue());
-            record.setIsError(((Number) searchable.get(1).getValue()).intValue());
-            record.setServiceId((String) searchable.get(2).getValue());
-            record.setServiceInstanceId((String) searchable.get(3).getValue());
-            record.setEndpointId((String) searchable.get(4).getValue());
-            record.setLatency(((Number) searchable.get(5).getValue()).intValue());
-            record.setStartTime(((Number) searchable.get(6).getValue()).longValue());
-            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
-            record.setDataBinary(((ByteString) data.get(0).getValue()).toByteArray());
-            return record;
-        }
-    }
-
-    public static class BasicTraceDeserializer implements RowEntityDeserializer<BasicTrace> {
-        @Override
-        public BasicTrace apply(RowEntity row) {
-            BasicTrace trace = new BasicTrace();
-            trace.setSegmentId(row.getId());
-            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
-            trace.getTraceIds().add((String) searchable.get(0).getValue());
-            trace.setError(((Long) searchable.get(1).getValue()).intValue() == 1);
-            trace.getEndpointNames().add(IDManager.EndpointID.analysisId(
-                    (String) searchable.get(2).getValue()
-            ).getEndpointName());
-            trace.setDuration(((Long) searchable.get(3).getValue()).intValue());
-            trace.setStart(String.valueOf(searchable.get(4).getValue()));
-            return trace;
-        }
     }
 }

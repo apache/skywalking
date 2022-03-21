@@ -19,17 +19,15 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
-import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetadata;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.function.Function;
 
 public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageClient> {
     private static final Instant UPPER_BOUND = Instant.ofEpochSecond(0, Long.MAX_VALUE);
@@ -40,17 +38,17 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         super(client);
     }
 
-    protected StreamQueryResponse query(String indexName, List<String> searchableTags, QueryBuilder builder) {
-        return this.query(indexName, searchableTags, null, builder);
+    protected StreamQueryResponse query(StreamMetadata metadata, List<String> searchableTags, QueryBuilder builder) {
+        return this.query(metadata, searchableTags, null, builder);
     }
 
-    protected StreamQueryResponse query(String indexName, List<String> searchableTags, TimestampRange timestampRange,
+    protected StreamQueryResponse query(StreamMetadata metadata, List<String> searchableTags, TimestampRange timestampRange,
                                         QueryBuilder builder) {
         final StreamQuery query;
         if (timestampRange == null) {
-            query = new StreamQuery(indexName, LARGEST_TIME_RANGE, searchableTags);
+            query = new StreamQuery(metadata.getGroup(), metadata.getModel().getName(), LARGEST_TIME_RANGE, searchableTags);
         } else {
-            query = new StreamQuery(indexName, timestampRange, searchableTags);
+            query = new StreamQuery(metadata.getGroup(), metadata.getModel().getName(), timestampRange, searchableTags);
         }
 
         builder.apply(query);
@@ -62,22 +60,19 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         abstract void apply(final StreamQuery query);
 
         protected PairQueryCondition<Long> eq(String name, long value) {
-            return PairQueryCondition.LongQueryCondition.eq(StreamMetaInfo.TAG_FAMILY_SEARCHABLE, name, value);
+            return PairQueryCondition.LongQueryCondition.eq(StreamMetadata.TAG_FAMILY_SEARCHABLE, name, value);
         }
 
         protected PairQueryCondition<Long> lte(String name, long value) {
-            return PairQueryCondition.LongQueryCondition.le(StreamMetaInfo.TAG_FAMILY_SEARCHABLE, name, value);
+            return PairQueryCondition.LongQueryCondition.le(StreamMetadata.TAG_FAMILY_SEARCHABLE, name, value);
         }
 
         protected PairQueryCondition<Long> gte(String name, long value) {
-            return PairQueryCondition.LongQueryCondition.ge(StreamMetaInfo.TAG_FAMILY_SEARCHABLE, name, value);
+            return PairQueryCondition.LongQueryCondition.ge(StreamMetadata.TAG_FAMILY_SEARCHABLE, name, value);
         }
 
         protected PairQueryCondition<String> eq(String name, String value) {
-            return PairQueryCondition.StringQueryCondition.eq(StreamMetaInfo.TAG_FAMILY_SEARCHABLE, name, value);
+            return PairQueryCondition.StringQueryCondition.eq(StreamMetadata.TAG_FAMILY_SEARCHABLE, name, value);
         }
-    }
-
-    interface RowEntityDeserializer<T> extends Function<RowEntity, T> {
     }
 }

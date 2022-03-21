@@ -23,24 +23,17 @@ import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
-import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBManagementDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBMetricsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBNoneStreamDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBStorageDataBuilder;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 public class BanyanDBStorageDAO extends AbstractDAO<BanyanDBStorageClient> implements StorageDAO {
@@ -50,69 +43,21 @@ public class BanyanDBStorageDAO extends AbstractDAO<BanyanDBStorageClient> imple
 
     @Override
     public IMetricsDAO newMetricsDao(StorageBuilder storageBuilder) {
-        // SKIP:
-        // 1. OAL runtime metrics builder
-        // 2. Analysis Function builder
-        if (storageBuilder.getClass().getName().startsWith("org.apache.skywalking.oap.server.core.")) {
-            log.warn("metrics builder {} is not supported yet", storageBuilder.getClass());
-            return new IMetricsDAO() {
-                @Override
-                public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
-                    return Collections.emptyList();
-                }
-
-                @Override
-                public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
-                    return new InsertRequest() {
-                    };
-                }
-
-                @Override
-                public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
-                    return new UpdateRequest() {
-                    };
-                }
-            };
-        }
-        return new BanyanDBMetricsDAO<>((BanyanDBStorageDataBuilder<Metrics>) storageBuilder);
+        return new BanyanDBMetricsDAO((StorageBuilder<Metrics>) storageBuilder);
     }
 
     @Override
     public IRecordDAO newRecordDao(StorageBuilder storageBuilder) {
-        try {
-            final Class<?> returnType = storageBuilder.getClass().getDeclaredMethod("storage2Entity", Map.class).getReturnType();
-            // FIXME: this is currently a hack to avoid TopN insertion since we will impl TopN later in BanyanDB side
-            if (TopN.class.isAssignableFrom(returnType)) {
-                return new IRecordDAO() {
-                    @Override
-                    public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-                        return new InsertRequest() {
-                        };
-                    }
-                };
-            } else if (returnType.getName().equals("org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord")) {
-                // SKIP ZipkinSpanRecord
-                return new IRecordDAO() {
-                    @Override
-                    public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-                        return new InsertRequest() {
-                        };
-                    }
-                };
-            }
-        } catch (NoSuchMethodException ex) {
-            log.error("fail to get declared method");
-        }
-        return new BanyanDBRecordDAO<>((BanyanDBStorageDataBuilder<Record>) storageBuilder);
+        return new BanyanDBRecordDAO((StorageBuilder<Record>) storageBuilder);
     }
 
     @Override
     public INoneStreamDAO newNoneStreamDao(StorageBuilder storageBuilder) {
-        return new BanyanDBNoneStreamDAO<>(getClient(), (BanyanDBStorageDataBuilder<NoneStream>) storageBuilder);
+        return new BanyanDBNoneStreamDAO(getClient(), (StorageBuilder<NoneStream>) storageBuilder);
     }
 
     @Override
     public IManagementDAO newManagementDao(StorageBuilder storageBuilder) {
-        return new BanyanDBManagementDAO<>(getClient(), (BanyanDBStorageDataBuilder<ManagementData>) storageBuilder);
+        return new BanyanDBManagementDAO(getClient(), (StorageBuilder<ManagementData>) storageBuilder);
     }
 }

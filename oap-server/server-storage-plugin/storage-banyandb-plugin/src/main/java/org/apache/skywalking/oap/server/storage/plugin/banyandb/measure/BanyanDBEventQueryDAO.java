@@ -16,15 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
+import org.apache.skywalking.oap.server.core.query.type.event.Events;
+import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 
-@RequiredArgsConstructor
-@Getter
-public class BanyanDBStreamInsertRequest implements InsertRequest {
-    private final StreamWrite streamWrite;
+import java.util.List;
+
+public class BanyanDBEventQueryDAO implements IEventQueryDAO {
+    @Override
+    public Events queryEvents(EventQueryCondition condition) throws Exception {
+        return new Events();
+    }
+
+    @Override
+    public Events queryEvents(List<EventQueryCondition> conditionList) throws Exception {
+        return new Events();
+    }
 }

@@ -24,21 +24,34 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.BanyanDBStorageDataBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetadata;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class BanyanDBRecordDAO<T extends Record> implements IRecordDAO {
-    private final BanyanDBStorageDataBuilder<T> storageBuilder;
+public class BanyanDBRecordDAO implements IRecordDAO {
+    private final StorageBuilder<Record> storageBuilder;
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        StreamWrite.StreamWriteBuilder builder = storageBuilder.entity2Storage((T) record)
-                .name(model.getName())
-                .timestamp(TimeBucket.getTimestamp(record.getTimeBucket(), model.getDownsampling()));
+        StreamMetadata metadata = MetadataRegistry.INSTANCE.findStreamMetadata(model.getName());
+        if (metadata == null) {
+            throw new IOException(model.getName() + " is not registered");
+        }
+        StreamWrite streamWrite = new StreamWrite(metadata.getGroup(), // group name
+                model.getName(), // index-name
+                record.id(), // identity
+                TimeBucket.getTimestamp(record.getTimeBucket(), model.getDownsampling()), // timestamp
+                metadata.getDataFamilySize(), // length of the "data" tag family
+                metadata.getSearchableFamilySize()); // length of the "searchable" tag family
+        Convert2Storage<StreamWrite> convert2Storage = new BanyanDBConverter.StreamToStorage(metadata, streamWrite);
+        storageBuilder.entity2Storage(record, convert2Storage);
 
-        return new BanyanDBStreamInsertRequest(builder.build());
+        return new BanyanDBStreamInsertRequest(convert2Storage.obtain());
     }
 }

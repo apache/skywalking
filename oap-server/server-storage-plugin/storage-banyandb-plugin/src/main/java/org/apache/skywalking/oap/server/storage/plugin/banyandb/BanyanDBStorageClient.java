@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
-import org.apache.skywalking.banyandb.v1.client.GroupedBanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -33,6 +32,8 @@ import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckab
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * BanyanDBStorageClient is a simple wrapper for the underlying {@link BanyanDBClient},
@@ -40,15 +41,16 @@ import java.io.IOException;
  */
 public class BanyanDBStorageClient implements Client, HealthCheckable {
     private final BanyanDBClient client;
-    private GroupedBanyanDBClient streamClient;
+    private final Map<String, Group> groupMap;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
 
     public BanyanDBStorageClient(String host, int port) {
         this.client = new BanyanDBClient(host, port);
+        this.groupMap = new ConcurrentHashMap<>();
     }
 
-    public void defineStreamGroup(Group group) {
-        this.streamClient = this.client.attachGroup(group);
+    public Group define(Group group) {
+        return groupMap.computeIfAbsent(group.getName(), s -> client.define(group));
     }
 
     @Override
@@ -63,7 +65,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public StreamQueryResponse query(StreamQuery streamQuery) {
         try {
-            StreamQueryResponse response = this.streamClient.queryStreams(streamQuery);
+            StreamQueryResponse response = this.client.queryStreams(streamQuery);
             this.healthChecker.health();
             return response;
         } catch (Throwable t) {
@@ -72,19 +74,19 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public void createStream(StreamMetaInfo streamMetaInfo) {
-        Stream stm = this.streamClient.define(streamMetaInfo.getStream());
-        if (stm != null) {
-            this.streamClient.defineIndexRules(stm, streamMetaInfo.getIndexRules().toArray(new IndexRule[]{}));
+    public void define(StreamMetadata streamMetadata) {
+        Stream stream = this.client.define(streamMetadata.getStream());
+        if (stream != null) {
+            this.client.defineIndexRules(stream, streamMetadata.getIndexRules().toArray(new IndexRule[]{}));
         }
     }
 
     public void write(StreamWrite streamWrite) {
-        this.streamClient.write(streamWrite);
+        this.client.write(streamWrite);
     }
 
     public StreamBulkWriteProcessor createBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
-        return this.streamClient.buildStreamWriteProcessor(maxBulkSize, flushInterval, concurrency);
+        return this.client.buildStreamWriteProcessor(maxBulkSize, flushInterval, concurrency);
     }
 
     @Override
