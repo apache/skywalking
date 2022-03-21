@@ -19,12 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableList;
-import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
@@ -35,17 +33,20 @@ import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetadata;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord} is a stream
  */
 public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements IBrowserLogQueryDAO {
+    private final StreamMetadata browserErrorLogRecordMetadata =
+            MetadataRegistry.INSTANCE.findStreamMetadata(BrowserErrorLogRecord.INDEX_NAME);
+
     public BanyanDBBrowserLogQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -57,8 +58,7 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
         }
 
-        final BrowserErrorLogs logs = new BrowserErrorLogs();
-        StreamQueryResponse resp = query(BrowserErrorLogRecord.INDEX_NAME, ImmutableList.of(BrowserErrorLogRecord.SERVICE_ID,
+        StreamQueryResponse resp = query(browserErrorLogRecordMetadata, ImmutableList.of(BrowserErrorLogRecord.SERVICE_ID,
                 BrowserErrorLogRecord.SERVICE_VERSION_ID,
                 BrowserErrorLogRecord.PAGE_PATH_ID,
                 BrowserErrorLogRecord.ERROR_CATEGORY), tsRange, new QueryBuilder() {
@@ -83,40 +83,47 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
                 query.setLimit(limit);
             }
         });
-        logs.getLogs().addAll(resp.getElements().stream().map(new BrowserErrorLogDeserializer()).collect(Collectors.toList()));
-        logs.setTotal(logs.getLogs().size());
+
+        BrowserErrorLogs logs = new BrowserErrorLogs();
+        logs.setTotal(resp.size());
+
+        for (final RowEntity rowEntity : resp.getElements()) {
+            final byte[] dataBinary =
+                    rowEntity.getValue(StreamMetadata.TAG_FAMILY_DATA, BrowserErrorLogRecord.DATA_BINARY);
+            if (dataBinary != null && dataBinary.length > 0) {
+                BrowserErrorLog log = parserDataBinary(dataBinary);
+                logs.getLogs().add(log);
+            }
+        }
         return logs;
     }
 
-    public static class BrowserErrorLogDeserializer implements RowEntityDeserializer<BrowserErrorLog> {
-        @Override
-        public BrowserErrorLog apply(RowEntity row) {
-            // FIXME: use protobuf directly
+    /**
+     * TODO: merge the default method in the interface
+     */
+    private BrowserErrorLog parserDataBinary(
+            byte[] dataBinary) {
+        try {
             BrowserErrorLog log = new BrowserErrorLog();
-            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
-            log.setService((String) searchable.get(0).getValue());
-            log.setServiceVersion((String) searchable.get(1).getValue());
-            log.setPagePath((String) searchable.get(2).getValue());
-            log.setCategory(ErrorCategory.valueOf((String) searchable.get(3).getValue()));
-            log.setTime(row.getTimestamp());
-            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
-            Object o = data.get(0).getValue();
-            if (o instanceof ByteString && !((ByteString) o).isEmpty()) {
-                try {
-                    org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog browserErrorLog = org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog
-                            .parseFrom((ByteString) o);
-                    log.setGrade(browserErrorLog.getGrade());
-                    log.setCol(browserErrorLog.getCol());
-                    log.setLine(browserErrorLog.getLine());
-                    log.setMessage(browserErrorLog.getMessage());
-                    log.setErrorUrl(browserErrorLog.getErrorUrl());
-                    log.setStack(browserErrorLog.getStack());
-                    log.setFirstReportedError(browserErrorLog.getFirstReportedError());
-                } catch (InvalidProtocolBufferException ex) {
-                    throw new RuntimeException("fail to parse proto buffer", ex);
-                }
-            }
+            org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog browserErrorLog = org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog
+                    .parseFrom(dataBinary);
+
+            log.setService(browserErrorLog.getService());
+            log.setServiceVersion(browserErrorLog.getServiceVersion());
+            log.setTime(browserErrorLog.getTime());
+            log.setPagePath(browserErrorLog.getPagePath());
+            log.setCategory(ErrorCategory.valueOf(browserErrorLog.getCategory().name().toUpperCase()));
+            log.setGrade(browserErrorLog.getGrade());
+            log.setMessage(browserErrorLog.getMessage());
+            log.setLine(browserErrorLog.getLine());
+            log.setCol(browserErrorLog.getCol());
+            log.setStack(browserErrorLog.getStack());
+            log.setErrorUrl(browserErrorLog.getErrorUrl());
+            log.setFirstReportedError(browserErrorLog.getFirstReportedError());
+
             return log;
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException(e);
         }
     }
 }

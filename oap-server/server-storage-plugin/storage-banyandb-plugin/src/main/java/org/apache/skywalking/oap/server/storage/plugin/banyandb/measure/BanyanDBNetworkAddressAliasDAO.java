@@ -16,15 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 
-@RequiredArgsConstructor
-@Getter
-public class BanyanDBStreamInsertRequest implements InsertRequest {
-    private final StreamWrite streamWrite;
+import java.util.Collections;
+import java.util.List;
+
+public class BanyanDBNetworkAddressAliasDAO implements INetworkAddressAliasDAO {
+    @Override
+    public List<NetworkAddressAlias> loadLastUpdate(long timeBucket) {
+        return Collections.emptyList();
+    }
 }

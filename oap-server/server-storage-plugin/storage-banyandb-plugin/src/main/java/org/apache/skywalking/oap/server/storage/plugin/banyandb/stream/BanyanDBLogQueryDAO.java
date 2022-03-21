@@ -19,21 +19,20 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableList;
-import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
+import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
@@ -41,17 +40,20 @@ import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.schema.LogRecordBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetadata;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord} is a stream
  */
 public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQueryDAO {
+    private final StreamMetadata logRecordMetadata =
+            MetadataRegistry.INSTANCE.findStreamMetadata(LogRecord.INDEX_NAME);
+
     public BanyanDBLogQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -90,9 +92,8 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
 
                 if (CollectionUtils.isNotEmpty(tags)) {
                     for (final Tag tag : tags) {
-                        if (LogRecordBuilder.INDEXED_TAGS.contains(tag.getKey())) {
-                            query.appendCondition(eq(tag.getKey(), tag.getValue()));
-                        }
+                        // TODO: check log indexed tags
+                        query.appendCondition(eq(tag.getKey(), tag.getValue()));
                     }
                 }
             }
@@ -103,45 +104,51 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
 
-        StreamQueryResponse resp = query(LogRecord.INDEX_NAME,
+        StreamQueryResponse resp = query(logRecordMetadata,
                 ImmutableList.of(AbstractLogRecord.SERVICE_ID, AbstractLogRecord.SERVICE_INSTANCE_ID,
                         AbstractLogRecord.ENDPOINT_ID, AbstractLogRecord.TRACE_ID, AbstractLogRecord.TRACE_SEGMENT_ID,
                         AbstractLogRecord.SPAN_ID), tsRange, query);
 
-        List<Log> logEntities = resp.getElements().stream().map(new LogDeserializer()).collect(Collectors.toList());
-
         Logs logs = new Logs();
-        logs.getLogs().addAll(logEntities);
-        logs.setTotal(logEntities.size());
+        logs.setTotal(resp.size());
 
+        for (final RowEntity rowEntity : resp.getElements()) {
+            Log log = new Log();
+            log.setServiceId(rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, AbstractLogRecord.SERVICE_ID));
+            log.setServiceInstanceId(
+                    rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, AbstractLogRecord.SERVICE_INSTANCE_ID));
+            log.setEndpointId(
+                    rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, AbstractLogRecord.ENDPOINT_ID));
+            if (log.getEndpointId() != null) {
+                log.setEndpointName(
+                        IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+            }
+            log.setTraceId(rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, AbstractLogRecord.TRACE_ID));
+            log.setTimestamp(((Number) rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE,
+                    AbstractLogRecord.TIMESTAMP)).longValue());
+            log.setContentType(ContentType.instanceOf(
+                    ((Number) rowEntity.getValue(StreamMetadata.TAG_FAMILY_DATA,
+                            AbstractLogRecord.CONTENT_TYPE)).intValue()));
+            log.setContent(rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, AbstractLogRecord.CONTENT));
+            byte[] dataBinary = rowEntity.getValue(StreamMetadata.TAG_FAMILY_DATA, AbstractLogRecord.TAGS_RAW_DATA);
+            if (dataBinary != null && dataBinary.length > 0) {
+                parserDataBinary(dataBinary, log.getTags());
+            }
+            logs.getLogs().add(log);
+        }
         return logs;
     }
 
-    public static class LogDeserializer implements RowEntityDeserializer<Log> {
-        @Override
-        public Log apply(RowEntity row) {
-            Log log = new Log();
-            final List<TagAndValue<?>> searchable = row.getTagFamilies().get(0);
-            log.setServiceId((String) searchable.get(0).getValue());
-            log.setServiceInstanceId((String) searchable.get(1).getValue());
-            log.setEndpointId((String) searchable.get(2).getValue());
-            log.setTraceId((String) searchable.get(3).getValue());
-            log.setTimestamp(row.getTimestamp());
-            final List<TagAndValue<?>> data = row.getTagFamilies().get(1);
-            if (data.get(2).getValue() == null || ((ByteString) data.get(2).getValue()).isEmpty()) {
-                log.setContent("");
-            } else {
-                try {
-                    // Don't read the tags as they have been in the data binary already.
-                    LogTags logTags = LogTags.parseFrom((ByteString) data.get(2).getValue());
-                    for (final KeyStringValuePair pair : logTags.getDataList()) {
-                        log.getTags().add(new KeyValue(pair.getKey(), pair.getValue()));
-                    }
-                } catch (InvalidProtocolBufferException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return log;
+    /**
+     * Parser the raw tags.
+     * TODO: merge default method
+     */
+    private void parserDataBinary(byte[] dataBinary, List<KeyValue> tags) {
+        try {
+            LogTags logTags = LogTags.parseFrom(dataBinary);
+            logTags.getDataList().forEach(pair -> tags.add(new KeyValue(pair.getKey(), pair.getValue())));
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -19,6 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.banyandb.v1.client.metadata.Catalog;
+import org.apache.skywalking.banyandb.v1.client.metadata.Duration;
+import org.apache.skywalking.banyandb.v1.client.metadata.Group;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
@@ -27,21 +32,36 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
+    private final ConfigService configService;
+
     public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
+        this.configService = moduleManager.find(CoreModule.NAME)
+                .provider()
+                .getService(ConfigService.class);
     }
 
     @Override
     protected boolean isExists(Model model) throws StorageException {
+        // TODO: get from BanyanDB and make a diff?
         return false;
     }
 
     @Override
     protected void createTable(Model model) throws StorageException {
-        StreamMetaInfo metaInfo = StreamMetaInfo.addModel(model);
-        if (metaInfo != null) {
-            log.info("install index {}", model.getName());
-            ((BanyanDBStorageClient) client).createStream(metaInfo);
+        if (model.isTimeSeries() && model.isRecord()) { // stream
+            StreamMetadata metaInfo = MetadataRegistry.INSTANCE.registerModel(model, this.configService);
+            if (metaInfo != null) {
+                log.info("install index {}", model.getName());
+                ((BanyanDBStorageClient) client).define(
+                        new Group(metaInfo.getGroup(), Catalog.STREAM, 2, 10, Duration.ofDays(7))
+                );
+                ((BanyanDBStorageClient) client).define(metaInfo);
+            }
+        } else if (model.isTimeSeries() && !model.isRecord()) { // measure
+            log.info("skip measure index {}", model.getName());
+        } else if (!model.isTimeSeries()) { // UITemplate
+            log.info("skip property index {}", model.getName());
         }
     }
 }
