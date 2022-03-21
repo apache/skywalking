@@ -16,15 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 
-@RequiredArgsConstructor
-@Getter
-public class BanyanDBStreamInsertRequest implements InsertRequest {
-    private final StreamWrite streamWrite;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+
+public class BanyanDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
+    @Override
+    public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public ProfileTask getById(String id) throws IOException {
+        return null;
+    }
 }
