@@ -123,6 +123,7 @@ Release Notes.
 * Remove hard requirement of BASE64 encoding for binary field.
 * Add complexity limitation for GraphQL query to avoid malicious query.
 * Add `Column.shardingKeyIdx` for column definition for BanyanDB.
+* Fix the configuration of `Aggregation` and `GC Count` metrics for oap self observability
 
 ```
 Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same 
