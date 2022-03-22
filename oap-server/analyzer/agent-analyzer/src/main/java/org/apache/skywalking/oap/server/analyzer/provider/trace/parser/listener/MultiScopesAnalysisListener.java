@@ -172,7 +172,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setDestServiceName(networkAddress);
             sourceBuilder.setDestServiceInstanceName(networkAddress);
             sourceBuilder.setDestLayer(identifyRemoteServiceLayer(span.getSpanLayer()));
-            sourceBuilder.setDestNormal(false);
         } else {
             /*
              * If alias exists, mean this network address is representing a real service.

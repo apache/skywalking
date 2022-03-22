@@ -86,13 +86,6 @@ public class ServiceTraffic extends Metrics {
     private Layer layer = Layer.UNDEFINED;
 
     /**
-     * The `normal` status represents this service is detected by an agent. The `un-normal` service is conjectured by
-     * telemetry data collected from agents on/in the `normal` service.
-     */
-    @Setter
-    private boolean isNormal = true;
-
-    /**
      * Primary key(id), to identify a service with different layers, a service could have more than one layer and be
      * saved as different records.
      *
@@ -151,12 +144,10 @@ public class ServiceTraffic extends Metrics {
         public void entity2Storage(final ServiceTraffic storageData, final Convert2Storage converter) {
             final String serviceName = storageData.getName();
             storageData.setShortName(serviceName);
-            if (storageData.isNormal) {
-                int groupIdx = serviceName.indexOf(DOUBLE_COLONS_SPLIT);
-                if (groupIdx > 0) {
-                    storageData.setGroup(serviceName.substring(0, groupIdx));
-                    storageData.setShortName(serviceName.substring(groupIdx + 2));
-                }
+            int groupIdx = serviceName.indexOf(DOUBLE_COLONS_SPLIT);
+            if (groupIdx > 0) {
+                storageData.setGroup(serviceName.substring(0, groupIdx));
+                storageData.setShortName(serviceName.substring(groupIdx + 2));
             }
             converter.accept(NAME, serviceName);
             converter.accept(SHORT_NAME, storageData.getShortName());
@@ -190,7 +181,7 @@ public class ServiceTraffic extends Metrics {
 
     public String getServiceId() {
         if (serviceId == null) {
-            serviceId = IDManager.ServiceID.buildId(name, isNormal);
+            serviceId = IDManager.ServiceID.buildId(name, Layer.isNormal(layer));
         }
         return serviceId;
     }

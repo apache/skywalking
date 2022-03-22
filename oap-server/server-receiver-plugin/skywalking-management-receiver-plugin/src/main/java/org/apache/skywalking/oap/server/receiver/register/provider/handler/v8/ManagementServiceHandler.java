@@ -87,7 +87,6 @@ public final class ManagementServiceHandler {
 
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setName(serviceName);
-        serviceMeta.setNormal(true);
         serviceMeta.setTimeBucket(timeBucket);
         serviceMeta.setLayer(Layer.GENERAL);
         sourceReceiver.receive(serviceMeta);

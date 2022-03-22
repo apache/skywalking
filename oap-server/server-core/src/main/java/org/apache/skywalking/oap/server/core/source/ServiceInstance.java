@@ -60,8 +60,6 @@ public class ServiceInstance extends Source {
     @Getter
     @Setter
     private Layer layer;
-    @Setter
-    private boolean isServiceNormal;
     @Getter
     @Setter
     private String endpointName;
@@ -99,7 +97,7 @@ public class ServiceInstance extends Source {
 
     @Override
     public void prepare() {
-        serviceId = IDManager.ServiceID.buildId(serviceName, isServiceNormal);
+        serviceId = IDManager.ServiceID.buildId(serviceName, Layer.isNormal(layer));
     }
 
     public String getTag(String key) {

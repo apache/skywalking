@@ -126,7 +126,6 @@ public class TelemetryDataDispatcher {
         service.setTimeBucket(minuteTimeBucket);
         service.setName(metrics.getDestServiceName());
         service.setLayer(Layer.MESH);
-        service.setNormal(true);
         service.setServiceInstanceName(metrics.getDestServiceInstance());
         service.setEndpointName(metrics.getEndpoint());
         service.setLatency(metrics.getLatency());
@@ -146,11 +145,9 @@ public class TelemetryDataDispatcher {
         serviceRelation.setTimeBucket(minuteTimeBucket);
         serviceRelation.setSourceServiceName(metrics.getSourceServiceName());
         serviceRelation.setSourceLayer(Layer.MESH);
-        serviceRelation.setSourceNormal(true);
         serviceRelation.setSourceServiceInstanceName(metrics.getSourceServiceInstance());
         serviceRelation.setDestServiceName(metrics.getDestServiceName());
         serviceRelation.setDestLayer(Layer.MESH);
-        serviceRelation.setDestNormal(true);
         serviceRelation.setDestServiceInstanceName(metrics.getDestServiceInstance());
         serviceRelation.setEndpoint(metrics.getEndpoint());
         serviceRelation.setLatency(metrics.getLatency());
@@ -174,7 +171,6 @@ public class TelemetryDataDispatcher {
         serviceInstance.setName(metrics.getDestServiceInstance());
         serviceInstance.setServiceName(metrics.getDestServiceName());
         serviceInstance.setLayer(Layer.MESH);
-        serviceInstance.setServiceNormal(true);
         serviceInstance.setEndpointName(metrics.getEndpoint());
         serviceInstance.setLatency(metrics.getLatency());
         serviceInstance.setStatus(metrics.getStatus());
@@ -194,10 +190,8 @@ public class TelemetryDataDispatcher {
         serviceRelation.setSourceServiceInstanceName(metrics.getSourceServiceInstance());
         serviceRelation.setSourceServiceName(metrics.getSourceServiceName());
         serviceRelation.setSourceServiceLayer(Layer.MESH);
-        serviceRelation.setSourceServiceNormal(true);
         serviceRelation.setDestServiceInstanceName(metrics.getDestServiceInstance());
         serviceRelation.setDestServiceLayer(Layer.MESH);
-        serviceRelation.setDestServiceNormal(true);
         serviceRelation.setDestServiceName(metrics.getDestServiceName());
         serviceRelation.setEndpoint(metrics.getEndpoint());
         serviceRelation.setLatency(metrics.getLatency());
@@ -223,7 +217,6 @@ public class TelemetryDataDispatcher {
         endpoint.setTimeBucket(minuteTimeBucket);
         endpoint.setName(metrics.getEndpoint());
         endpoint.setServiceName(metrics.getDestServiceName());
-        endpoint.setServiceNormal(true);
         endpoint.setServiceInstanceName(metrics.getDestServiceInstance());
         endpoint.setLatency(metrics.getLatency());
         endpoint.setStatus(metrics.getStatus());

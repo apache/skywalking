@@ -131,4 +131,23 @@ public enum Layer {
         }
         return layer;
     }
+
+    /**
+     * The `normal` status represents this service is detected by an agent. The `un-normal` service is conjectured by
+     * telemetry data collected from agents on/in the `normal` service.
+     */
+    public static boolean isNormal(Layer layer) {
+        if (layer == null) {
+            throw new UnexpectedException("Layer can't be null!");
+        }
+
+        switch (layer) {
+            case VIRTUAL_DATABASE:
+            case VIRTUAL_MQ:
+                return false;
+
+            default:
+                return true;
+        }
+    }
 }
