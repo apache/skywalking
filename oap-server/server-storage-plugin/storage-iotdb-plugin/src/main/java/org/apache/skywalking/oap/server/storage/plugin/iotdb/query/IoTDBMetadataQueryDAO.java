@@ -184,23 +184,6 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         return processes.size() > 0 ? processes.get(0) : null;
     }
 
-    @Override
-    public List<Process> getProcesses(List<String> processIdList) throws IOException {
-        StringBuilder query = new StringBuilder();
-        query.append("select * from ");
-        for (String processId : processIdList) {
-            query.append(", ");
-            query = client.addModelPath(query, ProcessTraffic.INDEX_NAME);
-            query.append(IoTDBClient.DOT).append(client.indexValue2LayerName(processId));
-        }
-        query.append(IoTDBClient.ALIGN_BY_DEVICE);
-        String queryString = query.toString().replaceFirst(", ", "");
-
-        List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME, queryString, processBuilder);
-        final List<Process> processes = buildProcesses(storageDataList);
-        return processes.size() > 0 ? processes : null;
-    }
-
     private List<Service> buildServices(List<? super StorageData> storageDataList) {
         List<Service> services = new ArrayList<>();
         storageDataList.forEach(storageData -> {

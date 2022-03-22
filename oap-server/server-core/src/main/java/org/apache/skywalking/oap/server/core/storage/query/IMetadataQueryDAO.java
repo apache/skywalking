@@ -70,9 +70,4 @@ public interface IMetadataQueryDAO extends DAO {
      * @param processId the id of the process.
      */
     Process getProcess(final String processId) throws IOException;
-
-    /**
-     * @param processIdList the id list of the process.
-     */
-    List<Process> getProcesses(final List<String> processIdList) throws IOException;
 }

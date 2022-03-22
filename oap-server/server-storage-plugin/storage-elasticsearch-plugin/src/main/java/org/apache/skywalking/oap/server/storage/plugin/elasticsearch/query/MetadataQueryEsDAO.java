@@ -230,17 +230,6 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         return processes.isEmpty() ? null : processes.get(0);
     }
 
-    @Override
-    public List<Process> getProcesses(List<String> processIdList) throws IOException {
-        final String index =
-                IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
-        final BoolQueryBuilder query = Query.bool().must(Query.ids(processIdList));
-        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
-
-        final SearchResponse response = getClient().search(index, search.build());
-        return buildProcesses(response);
-    }
-
     private List<Service> buildServices(SearchResponse response) {
         List<Service> services = new ArrayList<>();
         for (SearchHit hit : response.getHits()) {

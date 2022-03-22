@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -188,19 +187,6 @@ public class MetadataQuery implements IMetadataQueryDAO {
                 .where(eq(TagName.ID_COLUMN, processId));
         final List<Process> processes = buildProcesses(where);
         return processes.size() > 0 ? processes.get(0) : null;
-    }
-
-    @Override
-    public List<Process> getProcesses(List<String> processIdList) throws IOException {
-        final String query = processIdList.stream().map(m ->
-                select(ID_COLUMN, ProcessTraffic.NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
-                        ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES)
-                        .from(client.getDatabase(), ProcessTraffic.INDEX_NAME)
-                        .where(eq(TagName.ID_COLUMN, m))
-                        .buildQueryString())
-                .collect(Collectors.joining(";"));
-        final List<Process> processes = buildProcesses(new Query(query));
-        return processes;
     }
 
     private List<Service> buildServices(Query query) throws IOException {

@@ -290,31 +290,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         }
     }
 
-    @Override
-    public List<Process> getProcesses(List<String> processIdList) throws IOException {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(processIdList.size());
-        sql.append("select * from ").append(ProcessTraffic.INDEX_NAME).append(" where ");
-        sql.append(H2TableInstaller.ID_COLUMN).append(" in (");
-        for (int i = 0; i < processIdList.size(); i++) {
-            if (i > 0) {
-                sql.append(",");
-            }
-            sql.append("?");
-            condition.add(processIdList.get(i));
-        }
-        sql.append(") limit ").append(metadataQueryMaxSize);
-
-        try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(
-                    connection, sql.toString(), condition.toArray(new Object[0]));
-            final List<Process> processes = buildProcesses(resultSet);
-            return processes.size() > 0 ? processes : null;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-    }
-
     private List<Process> buildProcesses(ResultSet resultSet) throws SQLException {
         List<Process> processes = new ArrayList<>();
         while (resultSet.next()) {
