@@ -103,16 +103,16 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 }
 
                 final String networkAddressUsedAtPeer = reference.getNetworkAddressUsedAtPeer();
-                boolean uninstrumentedGateways = config.getUninstrumentedGatewaysConfig()
-                                                       .isAddressConfiguredAsGateway(networkAddressUsedAtPeer);
-                if (span.getSpanLayer().equals(SpanLayer.MQ) || uninstrumentedGateways) {
+                boolean isMQ = span.getSpanLayer().equals(SpanLayer.MQ);
+                if (isMQ || config.getUninstrumentedGatewaysConfig()
+                                  .isAddressConfiguredAsGateway(networkAddressUsedAtPeer)) {
                     sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
                     sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(networkAddressUsedAtPeer);
-                    if (uninstrumentedGateways) {
-                        sourceBuilder.setSourceLayer(Layer.VIRTUAL_GATEWAY);
-                    } else {
+                    if (isMQ) {
                         sourceBuilder.setSourceLayer(Layer.VIRTUAL_MQ);
+                    } else {
+                        sourceBuilder.setSourceLayer(Layer.VIRTUAL_GATEWAY);
                     }
                 } else {
                     sourceBuilder.setSourceServiceName(reference.getParentService());
