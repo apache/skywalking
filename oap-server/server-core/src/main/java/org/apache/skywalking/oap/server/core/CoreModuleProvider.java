@@ -278,7 +278,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(
             EBPFProfilingMutationService.class, new EBPFProfilingMutationService(getManager()));
         this.registerServiceImplementation(
-            EBPFProfilingQueryService.class, new EBPFProfilingQueryService(getManager(), moduleConfig));
+            EBPFProfilingQueryService.class, new EBPFProfilingQueryService(getManager(), moduleConfig, this.storageModels));
 
         this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
 
