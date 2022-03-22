@@ -25,6 +25,7 @@ public class EBPFProfilingSchedule {
     private String scheduleId;
     private String taskId;
     private String processId;
+    private Process process;
     private long startTime;
     private long endTime;
 }
