@@ -103,13 +103,17 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 }
 
                 final String networkAddressUsedAtPeer = reference.getNetworkAddressUsedAtPeer();
-
-                if (span.getSpanLayer().equals(SpanLayer.MQ) ||
-                    config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(networkAddressUsedAtPeer)) {
+                boolean uninstrumentedGateways = config.getUninstrumentedGatewaysConfig()
+                                                       .isAddressConfiguredAsGateway(networkAddressUsedAtPeer);
+                if (span.getSpanLayer().equals(SpanLayer.MQ) || uninstrumentedGateways) {
                     sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
                     sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(networkAddressUsedAtPeer);
-                    sourceBuilder.setSourceLayer(Layer.VIRTUAL_MQ);
+                    if (uninstrumentedGateways) {
+                        sourceBuilder.setSourceLayer(Layer.VIRTUAL_GATEWAY);
+                    } else {
+                        sourceBuilder.setSourceLayer(Layer.VIRTUAL_MQ);
+                    }
                 } else {
                     sourceBuilder.setSourceServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(reference.getParentServiceInstance());
@@ -169,7 +173,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         if (networkAddressAlias == null) {
             sourceBuilder.setDestServiceName(networkAddress);
             sourceBuilder.setDestServiceInstanceName(networkAddress);
-            sourceBuilder.setDestLayer(identifyRemoteServiceLayer(span.getSpanLayer()));
+            sourceBuilder.setDestLayer(identifyRemoteServiceLayer(span.getSpanLayer(), span.getPeer()));
         } else {
             /*
              * If alias exists, mean this network address is representing a real service.
@@ -375,7 +379,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     /**
      * Identify the layer of remote service. Such as  ${@link Layer#DATABASE} and ${@link Layer#CACHE}.
      */
-    private Layer identifyRemoteServiceLayer(SpanLayer spanLayer) {
+    private Layer identifyRemoteServiceLayer(SpanLayer spanLayer, String peer) {
         switch (spanLayer) {
             case Unknown:
                 return Layer.UNDEFINED;
@@ -384,6 +388,9 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             case RPCFramework:
                 return Layer.GENERAL;
             case Http:
+                if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(peer)) {
+                    return Layer.VIRTUAL_GATEWAY;
+                }
                 return Layer.GENERAL;
             case MQ:
                 return Layer.MQ;

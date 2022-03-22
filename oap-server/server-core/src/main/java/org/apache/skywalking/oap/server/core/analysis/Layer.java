@@ -107,7 +107,12 @@ public enum Layer {
     /**
      * MQ conjectured by client side plugin
      */
-    VIRTUAL_MQ(15, false);
+    VIRTUAL_MQ(15, false),
+
+    /**
+     * The uninstrumented gateways configured in OAP
+     */
+    VIRTUAL_GATEWAY(16, false);
 
     private final int value;
     /**
