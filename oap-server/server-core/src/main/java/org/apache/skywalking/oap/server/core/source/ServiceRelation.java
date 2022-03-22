@@ -114,7 +114,7 @@ public class ServiceRelation extends Source {
 
     @Override
     public void prepare() {
-        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, Layer.isNormal(sourceLayer));
-        destServiceId = IDManager.ServiceID.buildId(destServiceName, Layer.isNormal(destLayer));
+        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, sourceLayer.isNormal());
+        destServiceId = IDManager.ServiceID.buildId(destServiceName, destLayer.isNormal());
     }
 }

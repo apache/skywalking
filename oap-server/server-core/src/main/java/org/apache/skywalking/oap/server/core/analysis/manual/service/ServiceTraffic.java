@@ -181,7 +181,7 @@ public class ServiceTraffic extends Metrics {
 
     public String getServiceId() {
         if (serviceId == null) {
-            serviceId = IDManager.ServiceID.buildId(name, Layer.isNormal(layer));
+            serviceId = IDManager.ServiceID.buildId(name, layer.isNormal());
         }
         return serviceId;
     }

@@ -25,99 +25,105 @@ import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
- * Layer represents an abstract framework in computer science, such as Operating System(OS_LINUX layer),
- * Kubernetes(k8s layer). This kind of layer would be owners of different services/instances detected from different technology.
+ * Layer represents an abstract framework in computer science, such as Operating System(OS_LINUX layer), Kubernetes(k8s
+ * layer). This kind of layer would be owners of different services/instances detected from different technology.
  */
 public enum Layer {
     /**
      * Default Layer if the layer is not defined
      */
-    UNDEFINED(0),
+    UNDEFINED(0, false),
 
     /**
      * Envoy Access Log Service
      */
-    MESH(1),
+    MESH(1, true),
 
     /**
      * Agent-installed Service
      */
-    GENERAL(2),
+    GENERAL(2, true),
 
     /**
      * Operation System Linux
      */
-    OS_LINUX(3),
+    OS_LINUX(3, true),
 
     /**
      * Kubernetes, include pods, services, contains etc.
      */
-    K8S(4),
+    K8S(4, true),
 
     /**
      * Function as a Service
      */
-    FAAS(5),
+    FAAS(5, true),
 
     /**
      * Mesh control plane, eg. Istio control plane
      */
-    MESH_CP(6),
+    MESH_CP(6, true),
 
     /**
      * Mesh data plane, eg. Envoy
      */
-    MESH_DP(7),
+    MESH_DP(7, true),
 
     /**
      * Telemetry from real database
      */
-    DATABASE(8),
+    DATABASE(8, true),
 
     /**
      * Cache service eg. ehcache, guava-cache, memcache
      */
-    CACHE(9),
+    CACHE(9, true),
 
     /**
      * Telemetry from the Browser eg. Apache SkyWalking Client JS
      */
-    BROWSER(10),
+    BROWSER(10, true),
 
     /**
      * Self Observability of OAP
      */
-    SO11Y_OAP(11),
+    SO11Y_OAP(11, true),
 
     /**
      * Self Observability of Satellite
      */
-    SO11Y_SATELLITE(12),
+    SO11Y_SATELLITE(12, true),
 
     /**
      * Telemetry from the real MQ
      */
-    MQ(13),
+    MQ(13, true),
 
     /**
      * Database conjectured by client side plugin
      */
-    VIRTUAL_DATABASE(14),
+    VIRTUAL_DATABASE(14, false),
 
     /**
      * MQ conjectured by client side plugin
      */
-    VIRTUAL_MQ(15);
+    VIRTUAL_MQ(15, false);
 
     private final int value;
+    /**
+     * The `normal` status represents this service is detected by an agent. The `un-normal` service is conjectured by
+     * telemetry data collected from agents on/in the `normal` service.
+     */
+    private final boolean isNormal;
     private static final Map<Integer, Layer> DICTIONARY = new HashMap<>();
 
     static {
         Arrays.stream(Layer.values()).collect(Collectors.toMap(Layer::value, layer -> layer)).forEach(DICTIONARY::put);
     }
 
-    Layer(int value) {
+    Layer(int value, boolean isNormal) {
         this.value = value;
+        this.isNormal = isNormal;
     }
 
     public int value() {
@@ -132,22 +138,7 @@ public enum Layer {
         return layer;
     }
 
-    /**
-     * The `normal` status represents this service is detected by an agent. The `un-normal` service is conjectured by
-     * telemetry data collected from agents on/in the `normal` service.
-     */
-    public static boolean isNormal(Layer layer) {
-        if (layer == null) {
-            throw new UnexpectedException("Layer can't be null!");
-        }
-
-        switch (layer) {
-            case VIRTUAL_DATABASE:
-            case VIRTUAL_MQ:
-                return false;
-
-            default:
-                return true;
-        }
+    public boolean isNormal() {
+        return isNormal;
     }
 }

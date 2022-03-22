@@ -102,8 +102,8 @@ public class EndpointRelation extends Source {
 
     @Override
     public void prepare() {
-        serviceId = IDManager.ServiceID.buildId(serviceName, Layer.isNormal(serviceLayer));
-        childServiceId = IDManager.ServiceID.buildId(childServiceName, Layer.isNormal(childServiceLayer));
+        serviceId = IDManager.ServiceID.buildId(serviceName, serviceLayer.isNormal());
+        childServiceId = IDManager.ServiceID.buildId(childServiceName, childServiceLayer.isNormal());
     }
 }
 

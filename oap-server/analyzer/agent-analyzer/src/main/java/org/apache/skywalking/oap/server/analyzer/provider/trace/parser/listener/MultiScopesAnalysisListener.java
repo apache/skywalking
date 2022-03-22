@@ -110,7 +110,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(networkAddressUsedAtPeer);
                     sourceBuilder.setSourceLayer(Layer.VIRTUAL_MQ);
-                    sourceBuilder.setSourceNormal(false);
                 } else {
                     sourceBuilder.setSourceServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(reference.getParentServiceInstance());
@@ -131,7 +130,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setSourceServiceInstanceName(Const.USER_INSTANCE_NAME);
             sourceBuilder.setSourceEndpointName(Const.USER_ENDPOINT_NAME);
             sourceBuilder.setSourceLayer(Layer.UNDEFINED);
-            sourceBuilder.setSourceNormal(false);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
             sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer()));

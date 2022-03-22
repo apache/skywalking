@@ -41,7 +41,7 @@ public class Service extends Source {
     @Override
     public String getEntityId() {
         if (entityId == null) {
-            entityId = IDManager.ServiceID.buildId(name, Layer.isNormal(layer));
+            entityId = IDManager.ServiceID.buildId(name, layer.isNormal());
         }
         return entityId;
     }

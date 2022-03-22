@@ -52,9 +52,6 @@ class SourceBuilder {
     private Layer sourceLayer;
     @Getter
     @Setter
-    private boolean isSourceNormal = true;
-    @Getter
-    @Setter
     private String sourceServiceInstanceName;
     /**
      * Source endpoint could be not owned by {@link #sourceServiceName}, such as in the MQ or un-instrumented proxy

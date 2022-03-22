@@ -73,7 +73,7 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         // to service traffic
         String serviceName = namingControl.formatServiceName(logData.getService());
-        String serviceId = IDManager.ServiceID.buildId(serviceName, Layer.isNormal(layer));
+        String serviceId = IDManager.ServiceID.buildId(serviceName, layer.isNormal());
         serviceMeta = new ServiceMeta();
         serviceMeta.setName(namingControl.formatServiceName(logData.getService()));
         serviceMeta.setLayer(layer);

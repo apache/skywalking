@@ -96,7 +96,7 @@ public class Endpoint extends Source {
 
     @Override
     public void prepare() {
-        serviceId = IDManager.ServiceID.buildId(serviceName, Layer.isNormal(serviceLayer));
+        serviceId = IDManager.ServiceID.buildId(serviceName, serviceLayer.isNormal());
     }
 
     public String getTag(String key) {

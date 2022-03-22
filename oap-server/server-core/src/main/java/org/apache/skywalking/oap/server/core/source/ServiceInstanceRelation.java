@@ -120,8 +120,8 @@ public class ServiceInstanceRelation extends Source {
 
     @Override
     public void prepare() {
-        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, Layer.isNormal(sourceServiceLayer));
-        destServiceId = IDManager.ServiceID.buildId(destServiceName, Layer.isNormal(destServiceLayer));
+        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, sourceServiceLayer.isNormal());
+        destServiceId = IDManager.ServiceID.buildId(destServiceName, destServiceLayer.isNormal());
         sourceServiceInstanceId = IDManager.ServiceInstanceID.buildId(sourceServiceId, sourceServiceInstanceName);
         destServiceInstanceId = IDManager.ServiceInstanceID.buildId(destServiceId, destServiceInstanceName);
     }

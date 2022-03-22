@@ -97,7 +97,7 @@ public class ServiceInstance extends Source {
 
     @Override
     public void prepare() {
-        serviceId = IDManager.ServiceID.buildId(serviceName, Layer.isNormal(layer));
+        serviceId = IDManager.ServiceID.buildId(serviceName, layer.isNormal());
     }
 
     public String getTag(String key) {
