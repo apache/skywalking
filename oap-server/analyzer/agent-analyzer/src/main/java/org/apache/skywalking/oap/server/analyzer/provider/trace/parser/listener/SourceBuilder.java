@@ -52,9 +52,6 @@ class SourceBuilder {
     private Layer sourceLayer;
     @Getter
     @Setter
-    private boolean isSourceNormal = true;
-    @Getter
-    @Setter
     private String sourceServiceInstanceName;
     /**
      * Source endpoint could be not owned by {@link #sourceServiceName}, such as in the MQ or un-instrumented proxy
@@ -72,9 +69,6 @@ class SourceBuilder {
     @Getter
     @Setter
     private Layer destLayer;
-    @Getter
-    @Setter
-    private boolean isDestNormal = true;
     @Getter
     @Setter
     private String destServiceInstanceName;
@@ -133,7 +127,6 @@ class SourceBuilder {
         service.setServiceInstanceName(destServiceInstanceName);
         service.setEndpointName(destEndpointName);
         service.setLayer(destLayer);
-        service.setNormal(isDestNormal);
         service.setLatency(latency);
         service.setStatus(status);
         service.setResponseCode(responseCode);
@@ -152,11 +145,9 @@ class SourceBuilder {
     ServiceRelation toServiceRelation() {
         ServiceRelation serviceRelation = new ServiceRelation();
         serviceRelation.setSourceServiceName(sourceServiceName);
-        serviceRelation.setSourceNormal(isSourceNormal);
         serviceRelation.setSourceServiceInstanceName(sourceServiceInstanceName);
         serviceRelation.setSourceLayer(sourceLayer);
         serviceRelation.setDestServiceName(destServiceName);
-        serviceRelation.setDestNormal(isDestNormal);
         serviceRelation.setDestServiceInstanceName(destServiceInstanceName);
         serviceRelation.setDestLayer(destLayer);
         serviceRelation.setEndpoint(destEndpointName);
@@ -180,7 +171,6 @@ class SourceBuilder {
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setName(destServiceInstanceName);
         serviceInstance.setServiceName(destServiceName);
-        serviceInstance.setServiceNormal(isDestNormal);
         serviceInstance.setLayer(destLayer);
         serviceInstance.setEndpointName(destEndpointName);
         serviceInstance.setLatency(latency);
@@ -204,11 +194,9 @@ class SourceBuilder {
         }
         ServiceInstanceRelation serviceInstanceRelation = new ServiceInstanceRelation();
         serviceInstanceRelation.setSourceServiceName(sourceServiceName);
-        serviceInstanceRelation.setSourceServiceNormal(isSourceNormal);
         serviceInstanceRelation.setSourceServiceInstanceName(sourceServiceInstanceName);
         serviceInstanceRelation.setSourceServiceLayer(sourceLayer);
         serviceInstanceRelation.setDestServiceName(destServiceName);
-        serviceInstanceRelation.setDestServiceNormal(isDestNormal);
         serviceInstanceRelation.setDestServiceInstanceName(destServiceInstanceName);
         serviceInstanceRelation.setDestServiceLayer(destLayer);
         serviceInstanceRelation.setEndpoint(destEndpointName);
@@ -231,7 +219,7 @@ class SourceBuilder {
         Endpoint endpoint = new Endpoint();
         endpoint.setName(destEndpointName);
         endpoint.setServiceName(destServiceName);
-        endpoint.setServiceNormal(isDestNormal);
+        endpoint.setServiceLayer(destLayer);
         endpoint.setServiceInstanceName(destServiceInstanceName);
         endpoint.setLatency(latency);
         endpoint.setStatus(status);
@@ -256,15 +244,15 @@ class SourceBuilder {
         endpointRelation.setEndpoint(sourceEndpointName);
         if (sourceEndpointOwnerServiceName == null) {
             endpointRelation.setServiceName(sourceServiceName);
-            endpointRelation.setServiceNormal(isSourceNormal);
+            endpointRelation.setServiceLayer(sourceLayer);
         } else {
             endpointRelation.setServiceName(sourceEndpointOwnerServiceName);
-            endpointRelation.setServiceNormal(true);
+            endpointRelation.setServiceLayer(Layer.GENERAL);
         }
         endpointRelation.setServiceInstanceName(sourceServiceInstanceName);
         endpointRelation.setChildEndpoint(destEndpointName);
         endpointRelation.setChildServiceName(destServiceName);
-        endpointRelation.setChildServiceNormal(isDestNormal);
+        endpointRelation.setChildServiceLayer(destLayer);
         endpointRelation.setChildServiceInstanceName(destServiceInstanceName);
         endpointRelation.setComponentId(componentId);
         endpointRelation.setRpcLatency(latency);
@@ -286,7 +274,7 @@ class SourceBuilder {
         ServiceMeta service = new ServiceMeta();
         service.setName(destServiceName);
         service.setLayer(destLayer);
-        service.setNormal(isDestNormal);
+        service.setLayer(destLayer);
         service.setTimeBucket(timeBucket);
         return service;
     }

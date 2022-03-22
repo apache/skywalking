@@ -298,7 +298,6 @@ public class Analyzer {
     private void toService(String serviceName, Layer layer) {
         ServiceTraffic s = new ServiceTraffic();
         s.setName(requireNonNull(serviceName));
-        s.setNormal(true);
         s.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
         s.setLayer(layer);
         MetricsStreamProcessor.getInstance().in(s);
