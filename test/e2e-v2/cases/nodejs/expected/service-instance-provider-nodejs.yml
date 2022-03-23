@@ -22,7 +22,7 @@
   {{- contains .attributes }}
   - name: OS Name
     value: linux
-  - name: ""
+  - name: "Process No."
     value: "1"
   - name: ipv4s
     value: ""
