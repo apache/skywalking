@@ -115,14 +115,9 @@ public enum Layer {
     VIRTUAL_GATEWAY(16, false),
 
     /**
-     * Kubernetes cluster
+     * Kubernetes service
      */
-    K8S_SERVICE(17, true),
-
-    /**
-     * Kubernetes node
-     */
-    K8S_NODE(18, true);
+    K8S_SERVICE(17, true);
 
     private final int value;
     /**
