@@ -1,0 +1,3 @@
+jdk11 = true
+ignoreRules = [ "THREAD_SAFETY_VIOLATION" ]
+setup = ".lift/setup.sh"
