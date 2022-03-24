@@ -45,12 +45,12 @@ public enum Layer {
     GENERAL(2, true),
 
     /**
-     * Operation System Linux
+     * Linux Machine
      */
     OS_LINUX(3, true),
 
     /**
-     * Kubernetes, include pods, services, contains etc.
+     * Kubernetes cluster
      */
     K8S(4, true),
 
@@ -112,7 +112,12 @@ public enum Layer {
     /**
      * The uninstrumented gateways configured in OAP
      */
-    VIRTUAL_GATEWAY(16, false);
+    VIRTUAL_GATEWAY(16, false),
+
+    /**
+     * Kubernetes service
+     */
+    K8S_SERVICE(17, true);
 
     private final int value;
     /**
