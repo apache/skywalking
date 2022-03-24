@@ -158,7 +158,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId) throws IOException {
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId) throws IOException {
         final SelectQueryImpl query = select(
                 ID_COLUMN, ProcessTraffic.NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
                 ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES)
@@ -169,6 +169,9 @@ public class MetadataQuery implements IMetadataQueryDAO {
         }
         if (StringUtil.isNotEmpty(instanceId)) {
             whereQuery.and(eq(TagName.INSTANCE_ID, instanceId));
+        }
+        if (StringUtil.isNotEmpty(agentId)) {
+            whereQuery.and(eq(TagName.AGENT_ID, agentId));
         }
 
         return buildProcesses(query);

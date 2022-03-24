@@ -102,7 +102,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         if (StringUtils.isEmpty(serviceId) && StringUtils.isEmpty(instanceId)) {
             return Collections.emptyList();
         }
-        return getMetadataQueryDAO().listProcesses(serviceId, instanceId);
+        return getMetadataQueryDAO().listProcesses(serviceId, instanceId, null);
     }
 
     public Process getProcess(String processId) throws IOException {

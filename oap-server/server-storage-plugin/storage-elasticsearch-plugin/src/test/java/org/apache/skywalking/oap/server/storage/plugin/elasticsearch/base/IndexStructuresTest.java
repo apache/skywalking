@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.junit.Assert;
@@ -61,8 +60,8 @@ public class IndexStructuresTest {
                             .properties(properties)
                             .source(source)
                             .build());
-        Assert.assertEquals(structuresSource.getMapping("test").getProperties(), properties);
-        Assert.assertEquals(structuresSource.getMapping("test").getSource().getExcludes(), source.getExcludes());
+        Assert.assertEquals(properties, structuresSource.getMapping("test").getProperties());
+        Assert.assertEquals(source.getExcludes(), structuresSource.getMapping("test").getSource().getExcludes());
     }
 
     @Test
@@ -103,8 +102,8 @@ public class IndexStructuresTest {
                             .properties(properties)
                             .source(source)
                             .build());
-        Assert.assertEquals(structuresSource.getMapping("test").getProperties(), properties);
-        Assert.assertEquals(structuresSource.getMapping("test").getSource().getExcludes(), source.getExcludes());
+        Assert.assertEquals(properties, structuresSource.getMapping("test").getProperties());
+        Assert.assertEquals(source.getExcludes(), structuresSource.getMapping("test").getSource().getExcludes());
 
         Mappings.Source source2 = new Mappings.Source();
         source.getExcludes().addAll(Arrays.asList("b", "c", "d", "e"));
@@ -114,9 +113,8 @@ public class IndexStructuresTest {
                             .properties(properties2)
                             .source(source2)
                             .build());
-        Set<String> excludes = new HashSet<>(Arrays.asList("a", "b", "c", "d", "e"));
-        Assert.assertEquals(structuresSource.getMapping("test").getProperties(), res);
-        Assert.assertEquals(structuresSource.getMapping("test").getSource().getExcludes(), excludes);
+        Assert.assertEquals(res, structuresSource.getMapping("test").getProperties());
+        Assert.assertEquals(new HashSet<>(), structuresSource.getMapping("test").getSource().getExcludes());
     }
 
     @Test

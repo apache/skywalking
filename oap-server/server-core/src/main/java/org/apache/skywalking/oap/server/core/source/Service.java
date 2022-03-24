@@ -41,7 +41,7 @@ public class Service extends Source {
     @Override
     public String getEntityId() {
         if (entityId == null) {
-            entityId = IDManager.ServiceID.buildId(name, isNormal);
+            entityId = IDManager.ServiceID.buildId(name, layer.isNormal());
         }
         return entityId;
     }
@@ -53,9 +53,6 @@ public class Service extends Source {
     @Setter
     @Getter
     private Layer layer;
-    @Setter
-    @Getter
-    private boolean isNormal;
     @Getter
     @Setter
     private String serviceInstanceName;

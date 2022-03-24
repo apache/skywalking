@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -67,7 +66,8 @@ public class IndexStructures {
 
     /**
      * Returns mappings with fields that not exist in the input mappings.
-     * do not return _source config to avoid index update conflict.
+     * The input mappings should be history mapping from current index.
+     * Do not return _source config to avoid current index update conflict.
      */
     public Mappings diffStructure(String tableName, Mappings mappings) {
         if (!structures.containsKey(tableName)) {
@@ -102,7 +102,7 @@ public class IndexStructures {
      */
     public static class Fields {
         private final Map<String, Object> properties;
-        Mappings.Source source;
+        private Mappings.Source source;
 
         private Fields(Mappings mapping) {
             this.properties = mapping.getProperties();
@@ -113,28 +113,25 @@ public class IndexStructures {
          * Returns ture when the input fields have already been stored in the properties.
          */
         private boolean containsAllFields(Fields fields) {
-            return fields.properties.entrySet().stream()
-                                    .allMatch(item -> this.properties.containsKey(item.getKey()));
+            if (this.properties.size() < fields.properties.size()) {
+                return false;
+            }
+            boolean isContains = fields.properties.entrySet().stream()
+                    .allMatch(item -> Objects.equals(properties.get(item.getKey()), item.getValue()));
+            if (!isContains) {
+                return false;
+            }
+            return Objects.equals(this.source, fields.source);
         }
 
         /**
-         * Append new fields to the properties when have new fields.
+         * Append new fields and update.
+         * Properties combine input and exist, update property's attribute, won't remove old one.
+         * Source will be updated to the input.
          */
         private void appendNewFields(Fields fields) {
-            Map<String, Object> newFields =
-                fields.properties.entrySet()
-                                 .stream()
-                                 .filter(e -> !this.properties.containsKey(e.getKey()))
-                                 .collect(Collectors.toMap(
-                                     Map.Entry::getKey,
-                                     Map.Entry::getValue
-                                 ));
-            properties.putAll(newFields);
-            if (source != null) {
-                Set<String> exclude = source.getExcludes();
-                Set<String> newExclude = fields.source.getExcludes();
-                exclude.addAll(newExclude);
-            }
+            properties.putAll(fields.properties);
+            source = fields.source;
         }
 
         /**

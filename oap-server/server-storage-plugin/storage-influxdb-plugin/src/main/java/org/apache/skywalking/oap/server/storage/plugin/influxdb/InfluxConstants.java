@@ -48,5 +48,7 @@ public interface InfluxConstants {
         String SERVICE_ID = "_service_id";
 
         String INSTANCE_ID = "_instance_id";
+
+        String AGENT_ID = "_agent_id";
     }
 }

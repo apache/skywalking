@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
@@ -83,6 +84,10 @@ public class MetricsDAO implements IMetricsDAO {
                 }
                 case InstanceTraffic.INDEX_NAME: {
                     clauseFunction = m -> eq(TagName.SERVICE_ID, ((InstanceTraffic) m).getServiceId());
+                    break;
+                }
+                case ProcessTraffic.INDEX_NAME: {
+                    clauseFunction = m -> eq(TagName.SERVICE_ID, ((ProcessTraffic) m).getServiceId());
                     break;
                 }
                 default:
