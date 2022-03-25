@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -67,14 +68,14 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
             op = "sum";
         }
         query.append(String.format("select %s(%s) from ", op, valueColumnName));
-        query = client.addModelPath(query, condition.getName());
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, condition.getName());
         final String entityId = condition.getEntity().buildId();
         if (entityId != null) {
             Map<String, String> indexAndValueMap = new HashMap<>();
             indexAndValueMap.put(IoTDBIndexes.ENTITY_ID_IDX, entityId);
-            query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
+            IoTDBUtils.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
         } else {
-            query = client.addQueryAsterisk(condition.getName(), query);
+            IoTDBUtils.addQueryAsterisk(condition.getName(), query);
         }
         query.append(" where ").append(String.format("%s >= %s and %s <= %s",
                         IoTDBClient.TIME, duration.getStartTimestamp(), IoTDBClient.TIME, duration.getEndTimestamp()))
@@ -100,10 +101,10 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(valueColumnName).append(" from ");
         for (String id : ids) {
-            query = client.addModelPath(query, condition.getName());
+            IoTDBUtils.addModelPath(client.getStorageGroup(), query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
             indexAndValueMap.put(IoTDBIndexes.ID_IDX, id);
-            query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
+            IoTDBUtils.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
             query.append(", ");
         }
         String queryString = query.toString();
@@ -127,7 +128,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
-                String id = client.layerName2IndexValue(layerNames[1]);
+                String id = IoTDBUtils.layerName2IndexValue(layerNames[1]);
 
                 Field valueField = fields.get(1);
                 TSDataType valueType = valueField.getDataType();
@@ -163,10 +164,10 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(valueColumnName).append(" from ");
         for (String id : ids) {
-            query = client.addModelPath(query, condition.getName());
+            IoTDBUtils.addModelPath(client.getStorageGroup(), query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
             indexAndValueMap.put(IoTDBIndexes.ID_IDX, id);
-            query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
+            IoTDBUtils.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
             query.append(", ");
         }
         String queryString = query.toString();
@@ -188,7 +189,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
-                String id = client.layerName2IndexValue(layerNames[1]);
+                String id = IoTDBUtils.layerName2IndexValue(layerNames[1]);
 
                 DataTable multipleValues = new DataTable(5);
                 multipleValues.toObject(fields.get(1).getStringValue());
@@ -213,10 +214,10 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(valueColumnName).append(" from ");
         for (String id : ids) {
-            query = client.addModelPath(query, condition.getName());
+            IoTDBUtils.addModelPath(client.getStorageGroup(), query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
             indexAndValueMap.put(IoTDBIndexes.ID_IDX, id);
-            query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
+            IoTDBUtils.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
             query.append(", ");
         }
         String queryString = query.toString();
@@ -239,7 +240,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
-                String id = client.layerName2IndexValue(layerNames[1]);
+                String id = IoTDBUtils.layerName2IndexValue(layerNames[1]);
 
                 heatMap.buildColumn(id, fields.get(1).getStringValue(), defaultValue);
             }

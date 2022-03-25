@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTas
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -46,12 +47,12 @@ public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
                                          Long endTimeBucket, Integer limit) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, ProfileTaskRecord.INDEX_NAME);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProfileTaskRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
             indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         }
-        query = client.addQueryIndexValue(ProfileTaskRecord.INDEX_NAME, query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(ProfileTaskRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
         if (StringUtil.isNotEmpty(endpointName)) {
@@ -86,10 +87,10 @@ public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
         }
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, ProfileTaskRecord.INDEX_NAME);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProfileTaskRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBIndexes.ID_IDX, id);
-        query = client.addQueryIndexValue(ProfileTaskRecord.INDEX_NAME, query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(ProfileTaskRecord.INDEX_NAME, query, indexAndValueMap);
         query.append(" limit 1").append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskRecord.INDEX_NAME, query.toString(), storageBuilder);

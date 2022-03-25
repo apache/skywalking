@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -49,8 +50,8 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         // https://github.com/apache/iotdb/discussions/3888
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, Event.INDEX_NAME);
-        query = client.addQueryAsterisk(Event.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, Event.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(Event.INDEX_NAME, query);
         StringBuilder where = whereSQL(condition);
         if (where.length() > 0) {
             query.append(" where ").append(where);
@@ -89,8 +90,8 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         // https://github.com/apache/iotdb/discussions/3888
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, Event.INDEX_NAME);
-        query = client.addQueryAsterisk(Event.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, Event.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(Event.INDEX_NAME, query);
         StringBuilder where = whereSQL(conditionList);
         if (where.length() > 0) {
             query.append(" where ").append(where);

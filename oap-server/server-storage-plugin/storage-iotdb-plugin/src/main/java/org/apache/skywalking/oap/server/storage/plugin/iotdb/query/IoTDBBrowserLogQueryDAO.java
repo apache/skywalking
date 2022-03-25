@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -55,12 +56,12 @@ public class IoTDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
         query.append("select * from ");
-        query = client.addModelPath(query, BrowserErrorLogRecord.INDEX_NAME);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, BrowserErrorLogRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
             indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         }
-        query = client.addQueryIndexValue(BrowserErrorLogRecord.INDEX_NAME, query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(BrowserErrorLogRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
         if (startSecondTB != 0 && endSecondTB != 0) {

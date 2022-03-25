@@ -18,6 +18,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
@@ -26,12 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,9 +43,9 @@ public class IoTDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
     public List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, EBPFProfilingDataRecord.INDEX_NAME);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, EBPFProfilingDataRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        query = client.addQueryIndexValue(EBPFProfilingScheduleRecord.INDEX_NAME, query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(EBPFProfilingScheduleRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
         where.append(EBPFProfilingDataRecord.TASK_ID).append(" = \"").append(taskId).append("\" and ");

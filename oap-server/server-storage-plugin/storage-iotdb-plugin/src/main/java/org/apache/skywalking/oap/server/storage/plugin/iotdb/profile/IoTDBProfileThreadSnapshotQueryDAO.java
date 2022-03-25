@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThr
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @RequiredArgsConstructor
 public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
@@ -43,8 +44,8 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
     public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, ProfileThreadSnapshotRecord.INDEX_NAME);
-        query = client.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProfileThreadSnapshotRecord.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
         query.append(" where ").append(ProfileThreadSnapshotRecord.TASK_ID).append(" = \"").append(taskId).append("\"")
                 .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" = 0")
                 .append(IoTDBClient.ALIGN_BY_DEVICE);
@@ -62,8 +63,8 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
         // https://github.com/apache/iotdb/discussions/3888
         query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, SegmentRecord.INDEX_NAME);
-        query = client.addQueryAsterisk(SegmentRecord.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, SegmentRecord.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(SegmentRecord.INDEX_NAME, query);
         query.append(" where ").append(SegmentRecord.SEGMENT_ID).append(" in (");
         for (String segmentId : segmentIds) {
             query.append("\"").append(segmentId).append("\"").append(", ");
@@ -104,8 +105,8 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, ProfileThreadSnapshotRecord.INDEX_NAME);
-        query = client.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProfileThreadSnapshotRecord.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
         query.append(" where ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
                 .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ").append(minSequence)
                 .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" <= ").append(maxSequence)
@@ -122,8 +123,8 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, SegmentRecord.INDEX_NAME);
-        query = client.addQueryAsterisk(SegmentRecord.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, SegmentRecord.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(SegmentRecord.INDEX_NAME, query);
         query.append(" where ").append(SegmentRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
                 .append(IoTDBClient.ALIGN_BY_DEVICE);
 
@@ -140,8 +141,8 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
         // See https://github.com/apache/iotdb/discussions/3907
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, ProfileThreadSnapshotRecord.INDEX_NAME);
-        query = client.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProfileThreadSnapshotRecord.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
         query.append(" where ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
                 .append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ").append(start)
                 .append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ").append(end)

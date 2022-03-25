@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -56,13 +57,13 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(TopN.STATEMENT).append(", ").append(valueColumnName)
                 .append(" from ");
-        query = client.addModelPath(query, condition.getName());
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, condition.getName());
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(condition.getParentService())) {
             final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
             indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         }
-        query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
         if (Objects.nonNull(duration)) {
@@ -93,7 +94,7 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
                 record.setName(fields.get(1).getStringValue());
 
                 String traceId = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"")[traceIdIdx + 1];
-                traceId = client.layerName2IndexValue(traceId);
+                traceId = IoTDBUtils.layerName2IndexValue(traceId);
                 record.setRefId(traceId);
 
                 record.setId(record.getRefId());

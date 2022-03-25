@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -61,7 +62,7 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
         query.append("select * from ");
-        query = client.addModelPath(query, LogRecord.INDEX_NAME);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, LogRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
             indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
@@ -69,7 +70,7 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
         if (Objects.nonNull(relatedTrace) && StringUtil.isNotEmpty(relatedTrace.getTraceId())) {
             indexAndValueMap.put(IoTDBIndexes.TRACE_ID_IDX, relatedTrace.getTraceId());
         }
-        query = client.addQueryIndexValue(LogRecord.INDEX_NAME, query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(LogRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
         if (startTB != 0 && endTB != 0) {

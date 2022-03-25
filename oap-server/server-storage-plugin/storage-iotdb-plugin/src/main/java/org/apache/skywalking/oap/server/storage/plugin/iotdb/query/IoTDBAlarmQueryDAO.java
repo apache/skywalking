@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @RequiredArgsConstructor
 public class IoTDBAlarmQueryDAO implements IAlarmQueryDAO {
@@ -46,8 +47,8 @@ public class IoTDBAlarmQueryDAO implements IAlarmQueryDAO {
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
         query.append("select * from ");
-        query = client.addModelPath(query, AlarmRecord.INDEX_NAME);
-        query = client.addQueryAsterisk(AlarmRecord.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, AlarmRecord.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(AlarmRecord.INDEX_NAME, query);
 
         StringBuilder where = new StringBuilder(" where ");
         if (Objects.nonNull(scopeId)) {

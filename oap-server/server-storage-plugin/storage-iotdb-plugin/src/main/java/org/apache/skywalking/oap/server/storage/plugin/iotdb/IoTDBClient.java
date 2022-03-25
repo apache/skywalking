@@ -44,6 +44,9 @@ import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHeal
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
+
+import static org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils.indexValue2LayerName;
 
 @Slf4j
 public class IoTDBClient implements Client, HealthCheckable {
@@ -217,7 +220,7 @@ public class IoTDBClient implements Client, HealthCheckable {
                 // field.get(0) -> Device, transform layerName to indexValue
                 String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
                 for (int i = 0; i < indexes.size(); i++) {
-                    map.put(indexes.get(i), layerName2IndexValue(layerNames[i + 1]));
+                    map.put(indexes.get(i), IoTDBUtils.layerName2IndexValue(layerNames[i + 1]));
                 }
                 for (int i = 0; i < columnNames.size() - 2; i++) {
                     String columnName = columnNames.get(i + 2);
@@ -316,35 +319,7 @@ public class IoTDBClient implements Client, HealthCheckable {
         }
     }
 
-    public String indexValue2LayerName(String indexValue) {
-        return "\"" + indexValue + "\"";
-    }
-
-    public String layerName2IndexValue(String layerName) {
-        return layerName.substring(0, layerName.length() - 1);
-    }
-
-    public StringBuilder addQueryIndexValue(String modelName,
-                                            StringBuilder query,
-                                            Map<String, String> indexAndValueMap) {
-        List<String> indexes = IoTDBTableMetaInfo.get(modelName).getIndexes();
-        indexes.forEach(index -> {
-            if (indexAndValueMap.containsKey(index)) {
-                query.append(IoTDBClient.DOT).append(indexValue2LayerName(indexAndValueMap.get(index)));
-            } else {
-                query.append(IoTDBClient.DOT).append("*");
-            }
-        });
-        return query;
-    }
-
-    public StringBuilder addQueryAsterisk(String modelName, StringBuilder query) {
-        List<String> indexes = IoTDBTableMetaInfo.get(modelName).getIndexes();
-        indexes.forEach(index -> query.append(IoTDBClient.DOT).append("*"));
-        return query;
-    }
-
-    public StringBuilder addModelPath(StringBuilder query, String modelName) {
-        return query.append(storageGroup).append(IoTDBClient.DOT).append(modelName);
+    public String getStorageGroup() {
+        return storageGroup;
     }
 }

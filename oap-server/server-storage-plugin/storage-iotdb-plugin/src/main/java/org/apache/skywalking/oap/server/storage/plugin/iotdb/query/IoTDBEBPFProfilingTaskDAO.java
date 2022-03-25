@@ -18,13 +18,18 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingProcessFinderType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingProcessFinderType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.EBPFProfilingProcessFinder;
@@ -34,12 +39,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -53,7 +53,7 @@ public class IoTDBEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
                                               long taskStartTime, long latestUpdateTime) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, EBPFProfilingTaskRecord.INDEX_NAME);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, EBPFProfilingTaskRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(finder.getServiceId())) {
             indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, finder.getServiceId());
@@ -61,7 +61,7 @@ public class IoTDBEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         if (StringUtil.isNotEmpty(finder.getInstanceId())) {
             indexAndValueMap.put(IoTDBIndexes.INSTANCE_ID_INX, finder.getInstanceId());
         }
-        query = client.addQueryIndexValue(EBPFProfilingTaskRecord.INDEX_NAME, query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(EBPFProfilingTaskRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
         if (CollectionUtils.isNotEmpty(finder.getProcessIdList())) {

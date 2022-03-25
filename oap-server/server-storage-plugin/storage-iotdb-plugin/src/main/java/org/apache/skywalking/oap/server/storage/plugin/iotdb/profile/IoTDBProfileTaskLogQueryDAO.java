@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -42,8 +43,8 @@ public class IoTDBProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, ProfileTaskLogRecord.INDEX_NAME);
-        query = client.addQueryAsterisk(ProfileTaskLogRecord.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProfileTaskLogRecord.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(ProfileTaskLogRecord.INDEX_NAME, query);
         query.append(" limit ").append(fetchTaskLogMaxSize).append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskLogRecord.INDEX_NAME, query.toString(), storageBuilder);
