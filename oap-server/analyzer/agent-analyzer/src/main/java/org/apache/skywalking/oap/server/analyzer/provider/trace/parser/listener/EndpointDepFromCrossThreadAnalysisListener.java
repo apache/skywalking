@@ -37,13 +37,13 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
- * Endpoint dependency could be detected by local and exit span.
- * {@link RPCAnalysisListener} is detecting all RPC relative statistics.
+ * Endpoint dependency could be detected by local and exit span in cross threads cases.
+ * This is an add-on to {@link RPCAnalysisListener}, which is detecting all RPC relative statistics.
  *
  * @since 9.0.0
  */
 @RequiredArgsConstructor
-public class EndpointDepFromNotRPCAnalysisListener extends CommonAnalysisListener implements ExitAnalysisListener, LocalAnalysisListener {
+public class EndpointDepFromCrossThreadAnalysisListener extends CommonAnalysisListener implements ExitAnalysisListener, LocalAnalysisListener {
     private final SourceReceiver sourceReceiver;
     private final AnalyzerModuleConfig config;
     private final NamingControl namingControl;
@@ -144,7 +144,7 @@ public class EndpointDepFromNotRPCAnalysisListener extends CommonAnalysisListene
 
         @Override
         public AnalysisListener create(final ModuleManager moduleManager, final AnalyzerModuleConfig config) {
-            return new EndpointDepFromNotRPCAnalysisListener(sourceReceiver, config, namingControl);
+            return new EndpointDepFromCrossThreadAnalysisListener(sourceReceiver, config, namingControl);
         }
     }
 }

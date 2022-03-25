@@ -31,6 +31,7 @@ public class EndpointMeta extends Source {
     @Setter
     private String serviceName;
     @Setter
+    @Getter
     private boolean isServiceNormal;
     @Getter
     @Setter
