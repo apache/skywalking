@@ -61,7 +61,10 @@ public class LogQuery implements GraphQLQueryResolver {
             endSecondTB = condition.getQueryDuration().getEndTimeBucketInSec();
         }
         Order queryOrder = isNull(condition.getQueryOrder()) ? Order.DES : condition.getQueryOrder();
-
+        condition.getTags().forEach(tag -> {
+            tag.setKey(tag.getKey().trim());
+            tag.setValue(tag.getValue().trim());
+        });
         return getQueryService().queryLogs(
             condition.getServiceId(),
             condition.getServiceInstanceId(),
