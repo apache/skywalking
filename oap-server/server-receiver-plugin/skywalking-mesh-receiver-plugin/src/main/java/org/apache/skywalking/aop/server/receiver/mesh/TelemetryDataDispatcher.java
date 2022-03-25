@@ -130,7 +130,6 @@ public class TelemetryDataDispatcher {
         service.setEndpointName(metrics.getEndpoint());
         service.setLatency(metrics.getLatency());
         service.setStatus(metrics.getStatus());
-        service.setResponseCode(metrics.getResponseCode());
         service.setHttpResponseStatusCode(metrics.getResponseCode());
         service.setType(protocol2Type(metrics.getProtocol()));
         service.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
@@ -153,7 +152,6 @@ public class TelemetryDataDispatcher {
         serviceRelation.setLatency(metrics.getLatency());
         serviceRelation.setStatus(metrics.getStatus());
         serviceRelation.setType(protocol2Type(metrics.getProtocol()));
-        serviceRelation.setResponseCode(metrics.getResponseCode());
         serviceRelation.setHttpResponseStatusCode(metrics.getResponseCode());
         serviceRelation.setDetectPoint(detectPointMapping(metrics.getDetectPoint()));
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
@@ -174,7 +172,6 @@ public class TelemetryDataDispatcher {
         serviceInstance.setEndpointName(metrics.getEndpoint());
         serviceInstance.setLatency(metrics.getLatency());
         serviceInstance.setStatus(metrics.getStatus());
-        serviceInstance.setResponseCode(metrics.getResponseCode());
         serviceInstance.setHttpResponseStatusCode(metrics.getResponseCode());
         serviceInstance.setType(protocol2Type(metrics.getProtocol()));
         serviceInstance.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
@@ -221,7 +218,6 @@ public class TelemetryDataDispatcher {
         endpoint.setServiceInstanceName(metrics.getDestServiceInstance());
         endpoint.setLatency(metrics.getLatency());
         endpoint.setStatus(metrics.getStatus());
-        endpoint.setResponseCode(metrics.getResponseCode());
         endpoint.setHttpResponseStatusCode(metrics.getResponseCode());
         endpoint.setType(protocol2Type(metrics.getProtocol()));
         endpoint.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
