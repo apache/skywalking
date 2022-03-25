@@ -78,6 +78,7 @@ public class TableMetaInfo {
                 case ProcessTraffic.INDEX_NAME: {
                     storageAndTagMap.put(ProcessTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
                     storageAndTagMap.put(ProcessTraffic.INSTANCE_ID, InfluxConstants.TagName.INSTANCE_ID);
+                    storageAndTagMap.put(ProcessTraffic.AGENT_ID, InfluxConstants.TagName.AGENT_ID);
                 }
             }
         } else {

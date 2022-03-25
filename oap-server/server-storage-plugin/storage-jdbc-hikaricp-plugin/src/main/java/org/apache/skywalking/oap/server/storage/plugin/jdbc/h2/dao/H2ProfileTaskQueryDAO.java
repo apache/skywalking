@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 

@@ -69,6 +69,10 @@ public class ProcessTraffic extends Metrics {
     @Column(columnName = INSTANCE_ID, length = 600)
     private String instanceId;
 
+    @Getter
+    @Setter
+    private String processId;
+
     @Setter
     @Getter
     @Column(columnName = NAME, length = 500)
@@ -157,6 +161,9 @@ public class ProcessTraffic extends Metrics {
 
     @Override
     protected String id0() {
+        if (processId != null) {
+            return processId;
+        }
         return IDManager.ProcessID.buildId(instanceId, name);
     }
 

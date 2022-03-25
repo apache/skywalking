@@ -580,7 +580,7 @@ Falcon:
 MysqlClient:
   id: 7013
   languages: Python
-FastApi:
+FastAPI:
   id: 7014
   languages: Python
 

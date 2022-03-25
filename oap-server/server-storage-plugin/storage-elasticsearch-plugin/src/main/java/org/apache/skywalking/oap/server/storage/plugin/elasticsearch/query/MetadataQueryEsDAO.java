@@ -197,7 +197,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId) throws IOException {
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
@@ -208,6 +208,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         }
         if (StringUtil.isNotEmpty(instanceId)) {
             query.must(Query.term(ProcessTraffic.INSTANCE_ID, instanceId));
+        }
+        if (StringUtil.isNotEmpty(agentId)) {
+            query.must(Query.term(ProcessTraffic.AGENT_ID, agentId));
         }
         final SearchResponse results = getClient().search(index, search.build());
 

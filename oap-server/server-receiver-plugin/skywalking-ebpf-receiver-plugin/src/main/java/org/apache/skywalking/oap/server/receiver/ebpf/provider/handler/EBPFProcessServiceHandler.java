@@ -120,7 +120,6 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
             // service
             final ServiceMeta serviceMeta = new ServiceMeta();
             serviceMeta.setName(serviceName);
-            serviceMeta.setNormal(true);
             serviceMeta.setTimeBucket(timeBucket);
             serviceMeta.setLayer(layer);
             sourceReceiver.receive(serviceMeta);

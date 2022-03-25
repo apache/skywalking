@@ -51,6 +51,7 @@ public final class Mappings {
     @Setter
     private Source source = new Source();
 
+    @EqualsAndHashCode
     public static class Source {
         @JsonProperty("excludes")
         @Getter

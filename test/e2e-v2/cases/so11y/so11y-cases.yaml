@@ -30,8 +30,8 @@
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_trace_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_metrics_first_aggregation --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_oap_instance_metrics_aggregation --labels="L1 aggregation" --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+      expected: expected/metrics-has-value-label.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_prepare_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_execute_count --instance-name=http://localhost:1234 --service-name=oap::oap-server |yq e 'to_entries' -

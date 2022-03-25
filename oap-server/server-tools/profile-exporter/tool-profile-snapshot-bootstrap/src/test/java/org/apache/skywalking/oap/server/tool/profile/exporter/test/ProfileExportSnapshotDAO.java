@@ -20,9 +20,9 @@ package org.apache.skywalking.oap.server.tool.profile.exporter.test;
 
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadStack;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 
 import java.io.IOException;
 import java.util.ArrayList;

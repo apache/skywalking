@@ -232,11 +232,11 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId) throws IOException {
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
-        if (StringUtil.isNotEmpty(serviceId) || StringUtil.isNotEmpty(instanceId)) {
+        if (StringUtil.isNotEmpty(serviceId) || StringUtil.isNotEmpty(instanceId) || StringUtil.isNotEmpty(agentId)) {
             sql.append(" where ");
         }
 
@@ -244,12 +244,19 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             sql.append(ProcessTraffic.SERVICE_ID).append("=?");
             condition.add(serviceId);
         }
-        if (StringUtil.isNotEmpty(serviceId) && StringUtil.isNotEmpty(instanceId)) {
-            sql.append(" and ");
-        }
         if (StringUtil.isNotEmpty(instanceId)) {
+            if (!condition.isEmpty()) {
+                sql.append(" and ");
+            }
             sql.append(ProcessTraffic.INSTANCE_ID).append("=?");
             condition.add(instanceId);
+        }
+        if (StringUtil.isNotEmpty(agentId)) {
+            if (!condition.isEmpty()) {
+                sql.append(" and ");
+            }
+            sql.append(ProcessTraffic.AGENT_ID).append("=?");
+            condition.add(agentId);
         }
 
         sql.append(" limit ").append(metadataQueryMaxSize);

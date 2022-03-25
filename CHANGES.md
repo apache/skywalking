@@ -31,6 +31,7 @@ Release Notes.
 * Update frontend-maven-plugin to 1.12 and npm to 16.14.0 for booster UI build.
 * Improve CI with the GHA new feature "run failed jobs".
 * Fix `./mvnw compile` not work if `./mvnw install` is not executed at least once.
+* Add `JD_PRESERVE_LINE_FEEDS=true` in official code style file.
 
 #### OAP Server
 
@@ -75,9 +76,9 @@ Release Notes.
 * Add OpenFunction component ID(5013).
 * Expose configuration `responseTimeout` of ES client.
 * Support datasource metric analysis.
-* [Break Change] Keep the endpoint avg resp time meter name the same with others scope. (This may break 3rd party
+* [**Breaking Change**] Keep the endpoint avg resp time meter name the same with others scope. (This may break 3rd party
   integration and existing alarm rule settings)
-* Add Python FastApi component ID(7014).
+* Add Python FastAPI component ID(7014).
 * Support all metrics from MAL engine in alarm core, including Prometheus, OC receiver, meter receiver.
 * Allow updating non-metrics templates when structure changed.
 * Set default connection timeout of ElasticSearch to 3000 milliseconds.
@@ -98,8 +99,8 @@ Release Notes.
 * Expose more ElasticSearch health check related logs to help to
   diagnose `Health check fails. reason: No healthy endpoint`.
 * Add source `event` generated metrics to SERVICE_CATALOG_NAME catalog.
-* [Breaking Change] Deprecate `All` from OAL source.
-* [Breaking Change] Remove `SRC_ALL: 'All'` from OAL grammar tree.
+* [**Breaking Change**] Deprecate `All` from OAL source.
+* [**Breaking Change**] Remove `SRC_ALL: 'All'` from OAL grammar tree.
 * Remove `all_heatmap` and `all_percentile` metrics.
 * Fix ElasticSearch normal index couldn't apply mapping and update.
 * Enhance DataCarrier#MultipleChannelsConsumer to add priority for the channels, which makes OAP server has a better
@@ -108,25 +109,45 @@ Release Notes.
 * Activate `satellite,spring-sleuth` for `agent-analyzer#meterAnalyzerActiveFiles`  on default.
 * Activate `receiver-zabbix` receiver with `agent` rule on default.
 * Replace HTTP server (GraphQL, agent HTTP protocol) from Jetty with Armeria.
-* [Breaking Change] Remove configuration `restAcceptorPriorityDelta` (env var: `SW_RECEIVER_SHARING_JETTY_DELTA`
+* [**Breaking Change**] Remove configuration `restAcceptorPriorityDelta` (env var: `SW_RECEIVER_SHARING_JETTY_DELTA`
   , `SW_CORE_REST_JETTY_DELTA`).
-* [Breaking Change] Remove configuration `graphql/path` (env var: `SW_QUERY_GRAPHQL_PATH`).
+* [**Breaking Change**] Remove configuration `graphql/path` (env var: `SW_QUERY_GRAPHQL_PATH`).
 * Add storage column attribute `indexOnly`, support ElasticSearch only index and not store some fields.
-* Add `indexOnly=true` to `SegmentRecord.tags`, `AlarmRecord.tags`, `AbstractLogRecord.tags`, to reduce unnecessary storage.
-* [Breaking Change] Remove configuration `restMinThreads` (env var: `SW_CORE_REST_JETTY_MIN_THREADS`
+* Add `indexOnly=true` to `SegmentRecord.tags`, `AlarmRecord.tags`, `AbstractLogRecord.tags`, to reduce unnecessary
+  storage.
+* [**Breaking Change**] Remove configuration `restMinThreads` (env var: `SW_CORE_REST_JETTY_MIN_THREADS`
   , `SW_RECEIVER_SHARING_JETTY_MIN_THREADS`).
 * Refactor the core Builder mechanism, new storage plugin could implement their own converter and get rid of hard
   requirement of using HashMap to communicate between data object and database native structure.
-* [Breaking Change] Break all existing 3rd-party storage extensions.
+* [**Breaking Change**] Break all existing 3rd-party storage extensions.
 * Remove hard requirement of BASE64 encoding for binary field.
 * Add complexity limitation for GraphQL query to avoid malicious query.
+* Add `Column.shardingKeyIdx` for column definition for BanyanDB.
+* Fix the configuration of `Aggregation` and `GC Count` metrics for oap self observability
+
+```
+Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same 
+row for column-oriented database).
+For example,
+ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded by service ID
+[ServiceA(encoded ID): 01-28 18:30 values-1, 01-28 18:31 values-2, 01-28 18:32 values-3, 01-28 18:32 values-4]
+
+BanyanDB is the 1st storage implementation supporting this. It would make continuous time series metrics stored closely and compressed better.
+
+NOTICE, this sharding concept is NOT just for splitting data into different database instances or physical files.
+```
+
+* Support ElasticSearch template mappings `properties parameters` and `_source` update.
+* Implement the eBPF profiling query and data collect protocol.
 
 #### UI
 
+* [**Breaking Change**] Introduce Booster UI, remove RocketBot UI.
+* [**Breaking Change**] UI Templates have been redesigned totally. GraphQL query is minimal compatible for metadata and
+  metrics query.
 * Remove unused jars (log4j-api.jar) in classpath.
 * Bump up netty version to fix CVE.
 * Add Database Connection pool metric.
-* Introduce skywalking-booster-ui, remove skywalking-rocketbot-ui.
 
 #### Documentation
 
