@@ -134,7 +134,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     }
 
     /**
-     * Get all files could be meter analyzed, files split by ","
+     * Get all files could be metered analyzed, files split by ","
      */
     public List<String> meterAnalyzerActiveFileNames() {
         if (StringUtils.isEmpty(this.meterAnalyzerActiveFiles)) {
