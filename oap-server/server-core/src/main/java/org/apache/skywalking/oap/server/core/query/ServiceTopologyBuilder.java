@@ -69,8 +69,7 @@ class ServiceTopologyBuilder {
             /*
              * Use the alias name to make topology relationship accurate.
              */
-            if (!destService.isReal()
-                && networkAddressAliasCache.get(destService.getName()) != null) {
+            if (networkAddressAliasCache.get(destService.getName()) != null) {
                 /*
                  * If alias exists, mean this network address is representing a real service.
                  */

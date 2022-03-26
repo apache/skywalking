@@ -32,7 +32,8 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGa
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SegmentParserListenerManager;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SegmentParserServiceImpl;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.MultiScopesAnalysisListener;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.EndpointDepFromCrossThreadAnalysisListener;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.RPCAnalysisListener;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.NetworkAddressAliasMappingListener;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SegmentAnalysisListener;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
@@ -141,7 +142,8 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     private SegmentParserListenerManager listenerManager() {
         SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
         if (moduleConfig.isTraceAnalysis()) {
-            listenerManager.add(new MultiScopesAnalysisListener.Factory(getManager()));
+            listenerManager.add(new RPCAnalysisListener.Factory(getManager()));
+            listenerManager.add(new EndpointDepFromCrossThreadAnalysisListener.Factory(getManager()));
             listenerManager.add(new NetworkAddressAliasMappingListener.Factory(getManager()));
         }
         listenerManager.add(new SegmentAnalysisListener.Factory(getManager(), moduleConfig));

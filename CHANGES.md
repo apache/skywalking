@@ -139,6 +139,10 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 
 * Support ElasticSearch template mappings `properties parameters` and `_source` update.
 * Implement the eBPF profiling query and data collect protocol.
+* [**Breaking Change**] Remove **Deprecated responseCode** from sources, including Service, ServiceInstance, Endpoint
+* Enhance endpoint dependency analysis to support cross threads cases. Refactor span analysis code structures.
+* Remove `isNotNormal` service requirement when use alias to merge service topology from client side. All RPCs' peer
+  services from client side are always normal services. This cause the topology is not merged correctly.
 
 #### UI
 
