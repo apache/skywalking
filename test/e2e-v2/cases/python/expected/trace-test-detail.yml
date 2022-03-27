@@ -55,9 +55,9 @@ spans:
       {{- contains .tags }}
       - key: http.method
         value: POST
-      - key: url
+      - key: http.url
         value: http://medium-java:9092/users
-      - key: status.code
+      - key: http.status.code
         value: "200"
       {{- end }}
     logs: []
@@ -159,9 +159,9 @@ spans:
       {{- contains .tags }}
       - key: http.method
         value: POST
-      - key: url
+      - key: http.url
         value: http://provider-py-kafka:9089/users
-      - key: status.code
+      - key: http.status.code
         value: "200"
       {{- end }}
     logs: []
