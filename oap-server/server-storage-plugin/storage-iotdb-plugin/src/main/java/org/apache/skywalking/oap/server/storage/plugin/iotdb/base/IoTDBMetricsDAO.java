@@ -60,7 +60,7 @@ public class IoTDBMetricsDAO implements IMetricsDAO {
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) {
         final long timestamp = TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling());
-        return new IoTDBInsertRequest(model.getName(), timestamp, metrics, storageBuilder);
+        return IoTDBInsertRequest.buildRequest(model.getName(), timestamp, metrics, storageBuilder);
     }
 
     @Override

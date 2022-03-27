@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -102,7 +103,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         IoTDBUtils.addQueryIndexValue(InstanceTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(" where ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ").append(minuteTimeBucket)
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(InstanceTraffic.INDEX_NAME, query.toString(), instanceBuilder);
         return buildInstances(storageDataList);
@@ -206,7 +207,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         storageDataList.forEach(storageData -> {
             InstanceTraffic instanceTraffic = (InstanceTraffic) storageData;
             if (instanceTraffic.getName() == null) {
-                instanceTraffic.setName("");
+                instanceTraffic.setName(Const.EMPTY_STRING);
             }
             ServiceInstance serviceInstance = new ServiceInstance();
             serviceInstance.setId(instanceTraffic.id());

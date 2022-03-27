@@ -92,7 +92,7 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
     public TemplateChangeStatus addTemplate(DashboardSetting setting) throws IOException {
         final UITemplate uiTemplate = setting.toEntity();
 
-        IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
+        IoTDBInsertRequest request = IoTDBInsertRequest.buildRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
                                                             uiTemplate, storageBuilder
         );
         client.write(request);
@@ -117,7 +117,7 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
                                        .message("Can't find the template")
                                        .build();
         } else {
-            IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
+            IoTDBInsertRequest request = IoTDBInsertRequest.buildRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
                                                                 uiTemplate, storageBuilder
             );
             client.write(request);
@@ -140,7 +140,7 @@ public class IoTDBUITemplateManagementDAO implements UITemplateManagementDAO {
         } else {
             final UITemplate uiTemplate = (UITemplate) queryResult.get(0);
             uiTemplate.setDisabled(BooleanUtils.TRUE);
-            IoTDBInsertRequest request = new IoTDBInsertRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
+            IoTDBInsertRequest request = IoTDBInsertRequest.buildRequest(UITemplate.INDEX_NAME, UI_TEMPLATE_TIMESTAMP,
                                                                 uiTemplate, storageBuilder
             );
             client.write(request);

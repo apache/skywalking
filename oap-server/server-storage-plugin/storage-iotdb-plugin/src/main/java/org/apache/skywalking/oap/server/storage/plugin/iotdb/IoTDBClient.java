@@ -21,8 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
@@ -32,19 +30,15 @@ import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
-import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
-import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
-import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBDataConverter;
 
 import static org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils.indexValue2LayerName;
 
@@ -72,7 +66,7 @@ public class IoTDBClient implements Client, HealthCheckable {
     public void connect() throws IoTDBConnectionException, StatementExecutionException {
         try {
             final int sessionPoolSize = config.getSessionPoolSize() == 0 ?
-                Runtime.getRuntime().availableProcessors() * 2 : config.getSessionPoolSize();
+                    Runtime.getRuntime().availableProcessors() * 2 : config.getSessionPoolSize();
             log.info("SessionPool Size: {}", sessionPoolSize);
             sessionPool = new SessionPool(config.getHost(), config.getRpcPort(), config.getUsername(),
                                           config.getPassword(), sessionPoolSize, false, false
@@ -122,6 +116,7 @@ public class IoTDBClient implements Client, HealthCheckable {
         devicePath.append(storageGroup).append(IoTDBClient.DOT).append(request.getModelName());
         try {
             // make an index value as a layer name of the storage path
+            // every storage path has a fix order which has been set in IoTDBTableMetaInfo
             if (!request.getIndexes().isEmpty()) {
                 request.getIndexValues().forEach(value -> devicePath.append(IoTDBClient.DOT)
                                                                     .append(indexValue2LayerName(value)));
@@ -191,7 +186,7 @@ public class IoTDBClient implements Client, HealthCheckable {
      */
     public List<? super StorageData> filterQuery(String modelName, String querySQL,
                                                  StorageBuilder<? extends StorageData> storageBuilder)
-        throws IOException {
+            throws IOException {
         if (!querySQL.contains("align by device")) {
             throw new IOException("querySQL must contain \"align by device\"");
         }
@@ -207,49 +202,10 @@ public class IoTDBClient implements Client, HealthCheckable {
             IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.get(modelName);
             List<String> indexes = tableMetaInfo.getIndexes();
             while (wrapper.hasNext()) {
-                Map<String, Object> map = new ConcurrentHashMap<>();
                 RowRecord rowRecord = wrapper.next();
-                List<Field> fields = rowRecord.getFields();
-                // transform timestamp to time_bucket
-                if (!UITemplate.INDEX_NAME.equals(modelName)) {
-                    map.put(IoTDBClient.TIME_BUCKET, TimeBucket.getTimeBucket(
-                        rowRecord.getTimestamp(),
-                        tableMetaInfo.getModel().getDownsampling()
-                    ));
-                }
-                // field.get(0) -> Device, transform layerName to indexValue
-                String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
-                for (int i = 0; i < indexes.size(); i++) {
-                    map.put(indexes.get(i), IoTDBUtils.layerName2IndexValue(layerNames[i + 1]));
-                }
-                for (int i = 0; i < columnNames.size() - 2; i++) {
-                    String columnName = columnNames.get(i + 2);
-                    Field field = fields.get(i + 1);
-                    if (field.getDataType() == null) {
-                        continue;
-                    }
-                    if (field.getDataType().equals(TSDataType.TEXT)) {
-                        map.put(columnName, field.getStringValue());
-                    } else {
-                        map.put(columnName, field.getObjectValue(field.getDataType()));
-                    }
-                }
-                if (map.containsKey(IoTDBIndexes.LAYER_IDX)) {
-                    String layer = (String) map.get(IoTDBIndexes.LAYER_IDX);
-                    map.put(IoTDBIndexes.LAYER_IDX, Integer.valueOf(layer));
-                }
-                if (modelName.equals(BrowserErrorLogRecord.INDEX_NAME) || modelName.equals(LogRecord.INDEX_NAME)) {
-                    map.put(IoTDBClient.TIMESTAMP, map.get("\"" + IoTDBClient.TIMESTAMP + "\""));
-                }
-                for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    // remove double quotes
-                    String key = entry.getKey();
-                    if (key.contains(".")) {
-                        map.put(key.substring(1, key.length() - 1), entry.getValue());
-                    }
-                }
-
-                storageDataList.add(storageBuilder.storage2Entity(new HashMapConverter.ToEntity(map)));
+                Convert2Entity convert2Entity =
+                        new IoTDBDataConverter.ToEntity(modelName, rowRecord, tableMetaInfo, indexes, columnNames);
+                storageDataList.add(storageBuilder.storage2Entity(convert2Entity));
             }
             healthChecker.health();
         } catch (IoTDBConnectionException | StatementExecutionException e) {

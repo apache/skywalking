@@ -35,7 +35,7 @@ public class IoTDBNoneStreamDAO implements INoneStreamDAO {
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
         final long timestamp = TimeBucket.getTimestamp(noneStream.getTimeBucket(), model.getDownsampling());
-        final IoTDBInsertRequest request = new IoTDBInsertRequest(model.getName(), timestamp, noneStream, storageBuilder);
+        final IoTDBInsertRequest request = IoTDBInsertRequest.buildRequest(model.getName(), timestamp, noneStream, storageBuilder);
         client.write(request);
     }
 }
