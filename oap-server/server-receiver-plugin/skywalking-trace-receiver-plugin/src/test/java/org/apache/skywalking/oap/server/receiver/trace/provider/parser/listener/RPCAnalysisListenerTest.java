@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.AnalysisListener;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.MultiScopesAnalysisListener;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.RPCAnalysisListener;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -60,12 +60,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 /**
- * MultiScopesSpanListener includes the most segment to source(s) logic. This test covers most cases about the segment
+ * RPCAnalysisListenerTest includes the most segment to source(s) logic. This test covers most cases about the segment
  * to sources translation.
  *
  * This test is a good way to study about how OAP analysis trace segment.
  */
-public class MultiScopesAnalysisListenerTest {
+public class RPCAnalysisListenerTest {
     @Mock
     private static AnalyzerModuleConfig CONFIG;
     @Mock
@@ -98,7 +98,7 @@ public class MultiScopesAnalysisListenerTest {
 
     @Test
     public void testContainsPoint() {
-        MultiScopesAnalysisListener listener = new MultiScopesAnalysisListener(
+        RPCAnalysisListener listener = new RPCAnalysisListener(
             new MockReceiver(),
             CONFIG,
             CACHE,
@@ -117,7 +117,7 @@ public class MultiScopesAnalysisListenerTest {
     @Test
     public void testEntrySpanWithoutRef() {
         final MockReceiver mockReceiver = new MockReceiver();
-        MultiScopesAnalysisListener listener = new MultiScopesAnalysisListener(
+        RPCAnalysisListener listener = new RPCAnalysisListener(
             mockReceiver,
             CONFIG,
             CACHE,
@@ -160,7 +160,6 @@ public class MultiScopesAnalysisListenerTest {
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(4);
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(5);
         Assert.assertEquals("mock-service", service.getName());
-        Assert.assertEquals(500, service.getResponseCode());
         Assert.assertEquals(500, service.getHttpResponseStatusCode());
         Assert.assertEquals("OK", service.getRpcStatusCode());
         Assert.assertFalse(service.isStatus());
@@ -180,7 +179,7 @@ public class MultiScopesAnalysisListenerTest {
     @Test
     public void testEntrySpanRef() {
         final MockReceiver mockReceiver = new MockReceiver();
-        MultiScopesAnalysisListener listener = new MultiScopesAnalysisListener(
+        RPCAnalysisListener listener = new RPCAnalysisListener(
             mockReceiver,
             CONFIG,
             CACHE,
@@ -246,7 +245,7 @@ public class MultiScopesAnalysisListenerTest {
     @Test
     public void testEntrySpanMQRef() {
         final MockReceiver mockReceiver = new MockReceiver();
-        MultiScopesAnalysisListener listener = new MultiScopesAnalysisListener(
+        RPCAnalysisListener listener = new RPCAnalysisListener(
             mockReceiver,
             CONFIG,
             CACHE,
@@ -305,7 +304,7 @@ public class MultiScopesAnalysisListenerTest {
     @Test
     public void testParseLocalLogicSpan() {
         final MockReceiver mockReceiver = new MockReceiver();
-        MultiScopesAnalysisListener listener = new MultiScopesAnalysisListener(
+        RPCAnalysisListener listener = new RPCAnalysisListener(
             mockReceiver,
             CONFIG,
             CACHE,
@@ -348,7 +347,7 @@ public class MultiScopesAnalysisListenerTest {
     @Test
     public void testParseSpanWithLogicEndpointTag() {
         final MockReceiver mockReceiver = new MockReceiver();
-        MultiScopesAnalysisListener listener = new MultiScopesAnalysisListener(
+        RPCAnalysisListener listener = new RPCAnalysisListener(
             mockReceiver,
             CONFIG,
             CACHE,
@@ -393,7 +392,7 @@ public class MultiScopesAnalysisListenerTest {
     @Test
     public void testExitSpanWithoutAlias() {
         final MockReceiver mockReceiver = new MockReceiver();
-        MultiScopesAnalysisListener listener = new MultiScopesAnalysisListener(
+        RPCAnalysisListener listener = new RPCAnalysisListener(
             mockReceiver,
             CONFIG,
             CACHE,
@@ -439,7 +438,7 @@ public class MultiScopesAnalysisListenerTest {
     @Test
     public void testExitSpanWithAlias() {
         final MockReceiver mockReceiver = new MockReceiver();
-        MultiScopesAnalysisListener listener = new MultiScopesAnalysisListener(
+        RPCAnalysisListener listener = new RPCAnalysisListener(
             mockReceiver,
             CONFIG,
             CACHE2,

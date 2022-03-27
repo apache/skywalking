@@ -35,7 +35,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 /**
  * NetworkAddressAliasMappingListener use the propagated data in the segment reference, set up the alias relationship
  * between network address and current service and instance. The alias relationship will be used in the {@link
- * MultiScopesAnalysisListener#parseExit(SpanObject, SegmentObject)} to setup the accurate target destination service
+ * RPCAnalysisListener#parseExit(SpanObject, SegmentObject)} to setup the accurate target destination service
  * and instance.
  *
  * This is a key point of SkyWalking header propagation protocol.
