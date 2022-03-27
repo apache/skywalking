@@ -143,6 +143,8 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Enhance endpoint dependency analysis to support cross threads cases. Refactor span analysis code structures.
 * Remove `isNotNormal` service requirement when use alias to merge service topology from client side. All RPCs' peer
   services from client side are always normal services. This cause the topology is not merged correctly.
+* Fix event type of export data is incorrect, it was `EventType.TOTAL` always.
+* Reduce redundancy ThreadLocal in MAL core. Improve MAL performance.
 
 #### UI
 
