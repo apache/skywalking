@@ -29,8 +29,6 @@ import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
-import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -84,27 +82,23 @@ public class IoTDBDataConverter {
                 String layer = (String) map.get(IoTDBIndexes.LAYER_IDX);
                 map.put(IoTDBIndexes.LAYER_IDX, Integer.valueOf(layer));
             }
-            // add timestamp property for some entities
-            if (modelName.equals(BrowserErrorLogRecord.INDEX_NAME) || modelName.equals(LogRecord.INDEX_NAME)) {
-                map.put(IoTDBClient.TIMESTAMP, map.get("\"" + IoTDBClient.TIMESTAMP + "\""));
-            }
-            // remove double quotes
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                String key = entry.getKey();
-                if (key.contains(".")) {
-                    map.put(key.substring(1, key.length() - 1), entry.getValue());
-                }
-            }
         }
 
         @Override
         public Object get(String fieldName) {
+            // IoTDB doesn't allow a measurement named `timestamp` or contains `.`,
+            // so we add double quotation mark to them.
+            // Also see IoTDBDataConverter.ToStorage.accept(String, Object)
+            if (fieldName.equals(IoTDBClient.TIMESTAMP) || fieldName.contains(".")) {
+                return map.get(IoTDBUtils.addQuotationMark(fieldName));
+            }
             return map.get(fieldName);
         }
 
         @Override
         public <T, R> R getWith(final String fieldName, final Function<T, R> typeDecoder) {
-            return null;
+            final T value = (T) map.get(fieldName);
+            return typeDecoder.apply(value);
         }
     }
 
@@ -138,7 +132,7 @@ public class IoTDBDataConverter {
                 List<Object> measurementValues = request.getMeasurementValues();
                 // IoTDB doesn't allow a measurement named `timestamp` or contains `.`
                 if (fieldName.equals(IoTDBClient.TIMESTAMP) || fieldName.contains(".")) {
-                    measurements.add("\"" + fieldName + "\"");
+                    measurements.add(IoTDBUtils.addQuotationMark(fieldName));
                 } else {
                     measurements.add(fieldName);
                 }

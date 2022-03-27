@@ -24,8 +24,12 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 
 public class IoTDBUtils {
+    public static String addQuotationMark(String string) {
+        return "\"" + string + "\"";
+    }
+
     public static String indexValue2LayerName(String indexValue) {
-        return "\"" + indexValue + "\"";
+        return addQuotationMark(indexValue);
     }
 
     public static String layerName2IndexValue(String layerName) {
