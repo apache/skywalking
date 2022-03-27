@@ -109,7 +109,7 @@ public class Expression {
 
     @RequiredArgsConstructor
     @SuppressWarnings("unused") // used in MAL expressions
-    public static class ExpressionDelegate extends GroovyObjectSupport {
+    private static class ExpressionDelegate extends GroovyObjectSupport {
         public static final DownsamplingType AVG = DownsamplingType.AVG;
         public static final DownsamplingType SUM = DownsamplingType.SUM;
         public static final DownsamplingType LATEST = DownsamplingType.LATEST;
