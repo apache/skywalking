@@ -25,6 +25,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -50,6 +51,7 @@ public class IoTDBInsertRequest implements InsertRequest, UpdateRequest {
         this.time = time;
         this.indexes = IoTDBTableMetaInfo.get(modelName).getIndexes();
         this.indexValues = new ArrayList<>(indexes.size());
+        this.indexes.forEach(index -> this.indexValues.add(Const.EMPTY_STRING));
 
         int measurementsSize = IoTDBTableMetaInfo.get(modelName).getColumnAndTypeMap().size();
         this.measurements = new ArrayList<>(measurementsSize);

@@ -39,8 +39,7 @@ import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckab
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.base.IoTDBInsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBDataConverter;
-
-import static org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils.indexValue2LayerName;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 public class IoTDBClient implements Client, HealthCheckable {
@@ -119,7 +118,7 @@ public class IoTDBClient implements Client, HealthCheckable {
             // every storage path has a fix order which has been set in IoTDBTableMetaInfo
             if (!request.getIndexes().isEmpty()) {
                 request.getIndexValues().forEach(value -> devicePath.append(IoTDBClient.DOT)
-                                                                    .append(indexValue2LayerName(value)));
+                                                                    .append(IoTDBUtils.indexValue2LayerName(value)));
             }
             sessionPool.insertRecord(devicePath.toString(), request.getTime(),
                                      request.getMeasurements(), request.getMeasurementTypes(),
@@ -157,7 +156,7 @@ public class IoTDBClient implements Client, HealthCheckable {
             // make an index value as a layer name of the storage path
             if (!request.getIndexes().isEmpty()) {
                 request.getIndexValues().forEach(value -> devicePath.append(IoTDBClient.DOT)
-                                                                    .append(indexValue2LayerName(value)));
+                                                                    .append(IoTDBUtils.indexValue2LayerName(value)));
             }
             devicePathList.add(devicePath.toString());
             timeList.add(request.getTime());
@@ -198,13 +197,13 @@ public class IoTDBClient implements Client, HealthCheckable {
                 log.debug("SQL: {}, columnNames: {}", querySQL, wrapper.getColumnNames());
             }
 
-            List<String> columnNames = wrapper.getColumnNames();
             IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.get(modelName);
             List<String> indexes = tableMetaInfo.getIndexes();
+            List<String> columnNames = wrapper.getColumnNames();
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 Convert2Entity convert2Entity =
-                        new IoTDBDataConverter.ToEntity(modelName, rowRecord, tableMetaInfo, indexes, columnNames);
+                        new IoTDBDataConverter.ToEntity(tableMetaInfo, indexes, columnNames, rowRecord);
                 storageDataList.add(storageBuilder.storage2Entity(convert2Entity));
             }
             healthChecker.health();

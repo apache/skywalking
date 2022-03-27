@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.utils;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
+import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
 
@@ -56,5 +58,13 @@ public class IoTDBUtils {
 
     public static void addModelPath(String storageGroup, StringBuilder query, String modelName) {
         query.append(storageGroup).append(IoTDBClient.DOT).append(modelName);
+    }
+
+    public static Object getFieldValue(Field field) {
+        if (field.getDataType().equals(TSDataType.TEXT)) {
+            return field.getStringValue();
+        } else {
+            return field.getObjectValue(field.getDataType());
+        }
     }
 }
