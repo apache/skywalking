@@ -28,13 +28,12 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 public class DashboardSetting {
     private String id;
     private String configuration;
-    private long updateTime;
 
     public UITemplate toEntity() {
         UITemplate uiTemplate = new UITemplate();
         uiTemplate.setTemplateId(this.id);
         uiTemplate.setConfiguration(this.getConfiguration());
-        uiTemplate.setUpdateTime(this.updateTime);
+        uiTemplate.setUpdateTime(System.currentTimeMillis());
         uiTemplate.setDisabled(BooleanUtils.FALSE);
         return uiTemplate;
     }

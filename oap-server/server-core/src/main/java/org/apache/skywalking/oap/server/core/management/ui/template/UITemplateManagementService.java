@@ -68,4 +68,13 @@ public class UITemplateManagementService implements Service {
     public TemplateChangeStatus disableTemplate(String id) throws IOException {
         return getUITemplateManagementDAO().disableTemplate(id);
     }
+
+    public TemplateChangeStatus addOrUpdate(DashboardSetting setting) throws IOException {
+        DashboardConfiguration configuration = getUITemplateManagementDAO().getTemplate(setting.getId());
+        if (configuration == null) {
+            return getUITemplateManagementDAO().addTemplate(setting);
+        } else {
+            return getUITemplateManagementDAO().changeTemplate(setting);
+        }
+    }
 }

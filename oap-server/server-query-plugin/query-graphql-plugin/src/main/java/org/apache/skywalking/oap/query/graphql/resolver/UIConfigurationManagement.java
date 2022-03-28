@@ -64,13 +64,11 @@ public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLM
         DashboardSetting dashboardSetting = new DashboardSetting();
         //Backend generate the Id for new template
         dashboardSetting.setId(UUID.randomUUID().toString());
-        dashboardSetting.setUpdateTime(System.currentTimeMillis());
         dashboardSetting.setConfiguration(setting.getConfiguration());
         return getUITemplateManagementService().addTemplate(dashboardSetting);
     }
 
     public TemplateChangeStatus changeTemplate(DashboardSetting setting) throws IOException {
-        setting.setUpdateTime(System.currentTimeMillis());
         return getUITemplateManagementService().changeTemplate(setting);
     }
 
