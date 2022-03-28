@@ -49,6 +49,7 @@ public class UITemplateInitializer {
     };
     private final UITemplateManagementService uiTemplateManagementService;
     private final ObjectMapper mapper;
+
     public UITemplateInitializer(ModuleManager manager) {
         this.uiTemplateManagementService = manager.find(CoreModule.NAME)
                                                   .provider()
