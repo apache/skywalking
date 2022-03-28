@@ -385,16 +385,27 @@ jobs:
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
             env: ES_VERSION=7.15.0
 
-          - name: Profiling H2
-            config: test/e2e-v2/cases/profile/h2/e2e.yaml
-          - name: Profiling ES
-            config: test/e2e-v2/cases/profile/es/e2e.yaml
-          - name: Profiling MySQL
-            config: test/e2e-v2/cases/profile/mysql/e2e.yaml
-          - name: Profiling InfluxDB
-            config: test/e2e-v2/cases/profile/influxdb/e2e.yaml
-          - name: Profiling IoTDB
-            config: test/e2e-v2/cases/profile/iotdb/e2e.yaml
+          - name: Trace Profiling H2
+            config: test/e2e-v2/cases/profiling/trace/h2/e2e.yaml
+          - name: Trace Profiling ES
+            config: test/e2e-v2/cases/profiling/trace/es/e2e.yaml
+          - name: Trace Profiling MySQL
+            config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
+          - name: Trace Profiling InfluxDB
+            config: test/e2e-v2/cases/profiling/trace/influxdb/e2e.yaml
+          - name: Trace Profiling IoTDB
+            config: test/e2e-v2/cases/profiling/trace/iotdb/e2e.yaml
+
+          - name: EBPF Profiling H2
+            config: test/e2e-v2/cases/profiling/ebpf/h2/e2e.yaml
+          - name: EBPF Profiling ES
+            config: test/e2e-v2/cases/profiling/ebpf/es/e2e.yaml
+          - name: EBPF Profiling MySQL
+            config: test/e2e-v2/cases/profiling/ebpf/mysql/e2e.yaml
+          - name: EBPF Profiling InfluxDB
+            config: test/e2e-v2/cases/profiling/ebpf/influxdb/e2e.yaml
+          - name: EBPF Profiling IoTDB
+            config: test/e2e-v2/cases/profiling/ebpf/iotdb/e2e.yaml
 
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml

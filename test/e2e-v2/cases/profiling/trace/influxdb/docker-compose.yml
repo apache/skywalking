@@ -13,25 +13,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file is used to show how to write configuration files and can be used to test.
+version: '2.1'
 
-setup:
-  env: compose
-  file: docker-compose.yml
-  timeout: 20m
-  init-system-environment: ../../../script/env
-  steps:
-    - name: set PATH
-      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
-    - name: install yq
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
-    - name: install swctl
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+services:
+  influxdb:
+    image: influxdb:1.7.9
+    expose:
+      - 8086
+    networks:
+      - e2e
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/8086"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
 
-verify:
-  retry:
-    count: 20
-    interval: 3s
-  cases:
-    - includes:
-        - ../../profile/profiling-cases.yaml
+  provider:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: provider
+    depends_on:
+      oap:
+        condition: service_healthy
+    ports:
+    - 9090
+
+  oap:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: influxdb
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    ports:
+    - 12800
+
+networks:
+  e2e:

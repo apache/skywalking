@@ -13,25 +13,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file is used to show how to write configuration files and can be used to test.
-
-setup:
-  env: compose
-  file: docker-compose.yml
-  timeout: 20m
-  init-system-environment: ../../../script/env
-  steps:
-    - name: set PATH
-      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
-    - name: install yq
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
-    - name: install swctl
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
-
-verify:
-  retry:
-    count: 20
-    interval: 3s
-  cases:
-    - includes:
-        - ../../profile/profiling-cases.yaml
+{{- contains . }}
+- scheduleid: {{ notEmpty .scheduleid }}
+  taskid: {{ notEmpty .taskid }}
+  process:
+    id: {{ notEmpty .process.id }}
+    name: sqrt
+    serviceid: {{ b64enc "sqrt" }}.1
+    servicename: sqrt
+    instanceid: {{ b64enc "sqrt" }}.1_{{ b64enc "test-instance" }}
+    instancename: test-instance
+    layer: OS_LINUX
+    agentid: {{ notEmpty .process.agentid }}
+    detecttype: VM
+    attributes:
+      {{- contains .process.attributes }}
+      - name: host_ip
+        value: {{ notEmpty .value }}
+      - name: pid
+        value: {{ notEmpty .value }}
+      - name: command_line
+        value: /sqrt
+      {{- end }}
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
+{{- end }}

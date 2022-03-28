@@ -82,7 +82,7 @@ public class EBPFProfilingTaskQuery implements IEBPFProfilingTaskDAO {
             query.and(eq(EBPFProfilingTaskRecord.INSTANCE_ID, finder.getInstanceId()));
         }
         if (CollectionUtils.isNotEmpty(finder.getProcessIdList())) {
-            query.and(regex(EBPFProfilingTaskRecord.PROCESS_ID, Joiner.on("|").join(finder.getProcessIdList())));
+            query.and(regex(EBPFProfilingTaskRecord.PROCESS_ID, "/" + Joiner.on("|").join(finder.getProcessIdList()) + "/"));
         }
         if (targetType != null) {
             query.and(eq(EBPFProfilingTaskRecord.TARGET_TYPE, targetType.value()));
@@ -122,7 +122,7 @@ public class EBPFProfilingTaskQuery implements IEBPFProfilingTaskDAO {
             task.setProcessName((String) values.get(6));
             task.setTaskStartTime((long) values.get(7));
             task.setTriggerType(EBPFProfilingTriggerType.valueOf((int) values.get(8)));
-            task.setFixedTriggerDuration((long) values.get(9));
+            task.setFixedTriggerDuration(((Number) values.get(9)).longValue());
             task.setTargetType(EBPFProfilingTargetType.valueOf((int) values.get(10)));
             task.setCreateTime((long) values.get(11));
             task.setLastUpdateTime((long) values.get(12));

@@ -19,7 +19,7 @@ setup:
   env: compose
   file: docker-compose.yml
   timeout: 20m
-  init-system-environment: ../../../script/env
+  init-system-environment: ../../../../script/env
   steps:
     - name: set PATH
       command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
@@ -31,7 +31,7 @@ setup:
 verify:
   retry:
     count: 20
-    interval: 3s
+    interval: 10s
   cases:
     - includes:
-        - ../../profile/profiling-cases.yaml
+        - ../profiling-cases.yaml

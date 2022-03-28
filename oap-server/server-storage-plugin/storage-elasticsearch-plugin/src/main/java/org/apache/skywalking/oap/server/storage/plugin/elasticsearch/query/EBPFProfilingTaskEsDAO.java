@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.EBPFProfilingProcessFinder;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
@@ -59,10 +60,10 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
         if (finder.getFinderType() != null) {
             query.must(Query.term(EBPFProfilingTaskRecord.PROCESS_FIND_TYPE, finder.getFinderType().value()));
         }
-        if (finder.getServiceId() != null) {
+        if (StringUtil.isNotEmpty(finder.getServiceId())) {
             query.must(Query.term(EBPFProfilingTaskRecord.SERVICE_ID, finder.getServiceId()));
         }
-        if (finder.getInstanceId() != null) {
+        if (StringUtil.isNotEmpty(finder.getInstanceId())) {
             query.must(Query.term(EBPFProfilingTaskRecord.INSTANCE_ID, finder.getInstanceId()));
         }
         if (finder.getProcessIdList() != null) {
@@ -95,7 +96,7 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
         task.setServiceName(IDManager.ServiceID.analysisId(serviceId).getName());
         final String instanceId = (String) hit.getSource().get(EBPFProfilingTaskRecord.INSTANCE_ID);
         task.setInstanceId(instanceId);
-        task.setServiceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
+        task.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
         task.setProcessId((String) hit.getSource().get(EBPFProfilingTaskRecord.PROCESS_ID));
         task.setProcessName((String) hit.getSource().get(EBPFProfilingTaskRecord.PROCESS_NAME));
         task.setTaskStartTime(((Number) hit.getSource().get(EBPFProfilingTaskRecord.START_TIME)).longValue());

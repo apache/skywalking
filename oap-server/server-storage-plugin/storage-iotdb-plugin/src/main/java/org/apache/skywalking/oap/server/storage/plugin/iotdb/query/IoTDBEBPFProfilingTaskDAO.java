@@ -61,22 +61,21 @@ public class IoTDBEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         if (StringUtil.isNotEmpty(finder.getInstanceId())) {
             indexAndValueMap.put(IoTDBIndexes.INSTANCE_ID_INX, finder.getInstanceId());
         }
-        query = client.addQueryIndexValue(EBPFProfilingTaskRecord.INDEX_NAME, query, indexAndValueMap);
-
-        StringBuilder where = new StringBuilder(" where ");
         if (CollectionUtils.isNotEmpty(finder.getProcessIdList())) {
             final List<String> processIdList = finder.getProcessIdList();
-            if (CollectionUtils.isNotEmpty(processIdList)) {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < processIdList.size(); i++) {
-                    if (i > 0) {
-                        sb.append(", ");
-                    }
-                    sb.append("\"").append(processIdList.get(i)).append("\"");
+            for (int i = 0; i < processIdList.size(); i++) {
+                if (i > 0) {
+                    query.append(", ");
                 }
-                where.append(EBPFProfilingTaskRecord.PROCESS_ID).append(" in (\"").append(sb).append("\")").append(" and ");
+                final HashMap<String, String> indexWithProcessId = new HashMap<>(indexAndValueMap);
+                indexWithProcessId.put(IoTDBIndexes.PROCESS_ID_INX, processIdList.get(i));
+                query = client.addQueryIndexValue(EBPFProfilingTaskRecord.INDEX_NAME, query, indexWithProcessId);
             }
+        } else {
+            query = client.addQueryIndexValue(EBPFProfilingTaskRecord.INDEX_NAME, query, indexAndValueMap);
         }
+
+        StringBuilder where = new StringBuilder(" where ");
         if (taskStartTime > 0) {
             where.append(EBPFProfilingTaskRecord.START_TIME).append(" >= ").append(taskStartTime).append(" and ");
         }
