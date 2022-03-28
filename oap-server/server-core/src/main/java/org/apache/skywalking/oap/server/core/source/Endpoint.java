@@ -71,10 +71,6 @@ public class Endpoint extends Source {
     private boolean status;
     @Getter
     @Setter
-    @Deprecated
-    private int responseCode;
-    @Getter
-    @Setter
     private int httpResponseStatusCode;
     @Getter
     @Setter

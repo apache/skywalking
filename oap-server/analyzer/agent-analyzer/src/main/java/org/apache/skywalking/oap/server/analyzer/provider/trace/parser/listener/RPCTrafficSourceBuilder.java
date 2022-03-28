@@ -18,20 +18,11 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.Service;
@@ -39,11 +30,14 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-@RequiredArgsConstructor
-class SourceBuilder {
-    private final NamingControl namingControl;
-
+/**
+ * @since 9.0.0 Rename "SourceBuilder` to this. Add {@link EndpointSourceBuilder} for making source builder more specific.
+ *
+ * RPC traffic could be detected by server side or client side according to agent tech stack.
+ */
+class RPCTrafficSourceBuilder extends EndpointSourceBuilder {
     @Getter
     @Setter
     private String sourceServiceName;
@@ -54,8 +48,18 @@ class SourceBuilder {
     @Setter
     private String sourceServiceInstanceName;
     /**
+     * Same as {@link #sourceEndpointOwnerServiceName}
      * Source endpoint could be not owned by {@link #sourceServiceName}, such as in the MQ or un-instrumented proxy
-     * cases. This service always comes from the span.ref, so it is always a normal service.
+     * cases. This service always comes from the span.ref, so it is always a general service.
+     *
+     * @since 9.0.0
+     */
+    @Getter
+    @Setter
+    private Layer sourceEndpointOwnerServiceLayer;
+    /**
+     * Source endpoint could be not owned by {@link #sourceServiceName}, such as in the MQ or un-instrumented proxy
+     * cases. This service always comes from the span.ref, so it is always a general service.
      */
     @Getter
     @Setter
@@ -65,57 +69,18 @@ class SourceBuilder {
     private String sourceEndpointName;
     @Getter
     @Setter
-    private String destServiceName;
-    @Getter
-    @Setter
-    private Layer destLayer;
-    @Getter
-    @Setter
-    private String destServiceInstanceName;
-    @Getter
-    @Setter
-    private String destEndpointName;
-    @Getter
-    @Setter
     private int componentId;
-    @Getter
-    @Setter
-    private int latency;
-    @Getter
-    @Setter
-    private boolean status;
-    @Getter
-    @Setter
-    @Deprecated
-    private int responseCode;
-    @Getter
-    @Setter
-    private int httpResponseStatusCode;
-    @Getter
-    @Setter
-    private String rpcStatusCode;
-    @Getter
-    @Setter
-    private RequestType type;
-    @Getter
-    @Setter
-    private DetectPoint detectPoint;
-    @Getter
-    @Setter
-    private long timeBucket;
-    @Getter
-    private final List<String> tags = new ArrayList<>();
-    @Getter
-    private final Map<String, String> originalTags = new HashMap<>();
+
+    RPCTrafficSourceBuilder(final NamingControl namingControl) {
+        super(namingControl);
+    }
 
     void prepare() {
         this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
         this.sourceEndpointOwnerServiceName = namingControl.formatServiceName(sourceEndpointOwnerServiceName);
         this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
         this.sourceEndpointName = namingControl.formatEndpointName(sourceServiceName, sourceEndpointName);
-        this.destServiceName = namingControl.formatServiceName(destServiceName);
-        this.destServiceInstanceName = namingControl.formatInstanceName(destServiceInstanceName);
-        this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
+        super.prepare();
     }
 
     /**
@@ -129,7 +94,6 @@ class SourceBuilder {
         service.setLayer(destLayer);
         service.setLatency(latency);
         service.setStatus(status);
-        service.setResponseCode(responseCode);
         service.setHttpResponseStatusCode(httpResponseStatusCode);
         service.setRpcStatusCode(rpcStatusCode);
         service.setType(type);
@@ -154,7 +118,6 @@ class SourceBuilder {
         serviceRelation.setComponentId(componentId);
         serviceRelation.setLatency(latency);
         serviceRelation.setStatus(status);
-        serviceRelation.setResponseCode(responseCode);
         serviceRelation.setHttpResponseStatusCode(httpResponseStatusCode);
         serviceRelation.setRpcStatusCode(rpcStatusCode);
         serviceRelation.setType(type);
@@ -175,7 +138,6 @@ class SourceBuilder {
         serviceInstance.setEndpointName(destEndpointName);
         serviceInstance.setLatency(latency);
         serviceInstance.setStatus(status);
-        serviceInstance.setResponseCode(responseCode);
         serviceInstance.setHttpResponseStatusCode(httpResponseStatusCode);
         serviceInstance.setRpcStatusCode(rpcStatusCode);
         serviceInstance.setType(type);
@@ -203,7 +165,6 @@ class SourceBuilder {
         serviceInstanceRelation.setComponentId(componentId);
         serviceInstanceRelation.setLatency(latency);
         serviceInstanceRelation.setStatus(status);
-        serviceInstanceRelation.setResponseCode(responseCode);
         serviceInstanceRelation.setHttpResponseStatusCode(httpResponseStatusCode);
         serviceInstanceRelation.setRpcStatusCode(rpcStatusCode);
         serviceInstanceRelation.setType(type);
@@ -213,28 +174,7 @@ class SourceBuilder {
     }
 
     /**
-     * Endpoint meta and metrics of {@link #destEndpointName} related source. The metrics base on the OAL scripts.
-     */
-    Endpoint toEndpoint() {
-        Endpoint endpoint = new Endpoint();
-        endpoint.setName(destEndpointName);
-        endpoint.setServiceName(destServiceName);
-        endpoint.setServiceLayer(destLayer);
-        endpoint.setServiceInstanceName(destServiceInstanceName);
-        endpoint.setLatency(latency);
-        endpoint.setStatus(status);
-        endpoint.setResponseCode(responseCode);
-        endpoint.setHttpResponseStatusCode(httpResponseStatusCode);
-        endpoint.setRpcStatusCode(rpcStatusCode);
-        endpoint.setType(type);
-        endpoint.setTags(tags);
-        endpoint.setOriginalTags(originalTags);
-        endpoint.setTimeBucket(timeBucket);
-        return endpoint;
-    }
-
-    /**
-     * Endpoint depedency meta and metrics related source. The metrics base on the OAL scripts.
+     * Endpoint dependency meta and metrics related source. The metrics base on the OAL scripts.
      */
     EndpointRelation toEndpointRelation() {
         if (StringUtil.isEmpty(sourceEndpointName) || StringUtil.isEmpty(destEndpointName)) {
@@ -247,7 +187,7 @@ class SourceBuilder {
             endpointRelation.setServiceLayer(sourceLayer);
         } else {
             endpointRelation.setServiceName(sourceEndpointOwnerServiceName);
-            endpointRelation.setServiceLayer(Layer.GENERAL);
+            endpointRelation.setServiceLayer(sourceEndpointOwnerServiceLayer);
         }
         endpointRelation.setServiceInstanceName(sourceServiceInstanceName);
         endpointRelation.setChildEndpoint(destEndpointName);
@@ -257,7 +197,6 @@ class SourceBuilder {
         endpointRelation.setComponentId(componentId);
         endpointRelation.setRpcLatency(latency);
         endpointRelation.setStatus(status);
-        endpointRelation.setResponseCode(responseCode);
         endpointRelation.setHttpResponseStatusCode(httpResponseStatusCode);
         endpointRelation.setRpcStatusCode(rpcStatusCode);
         endpointRelation.setType(type);
@@ -293,10 +232,5 @@ class SourceBuilder {
         databaseAccess.setStatus(status);
         databaseAccess.setTimeBucket(timeBucket);
         return databaseAccess;
-    }
-
-    public void setTag(KeyStringValuePair tag) {
-        tags.add(tag.getKey().trim() + ":" + tag.getValue().trim());
-        originalTags.put(tag.getKey(), tag.getValue());
     }
 }

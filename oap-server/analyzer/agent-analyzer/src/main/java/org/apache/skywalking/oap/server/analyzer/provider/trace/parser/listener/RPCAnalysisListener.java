@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
-import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
@@ -32,15 +30,14 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
@@ -51,19 +48,20 @@ import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
 
 /**
- * MultiScopesSpanListener includes the most segment to source(s) logic.
- *
- * This listener traverses the whole segment.
+ * RPCAnalysisListener detects all RPC relative statistics.
  */
 @Slf4j
 @RequiredArgsConstructor
-public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitAnalysisListener, LocalAnalysisListener {
-    private final List<SourceBuilder> entrySourceBuilders = new ArrayList<>(10);
-    private final List<SourceBuilder> exitSourceBuilders = new ArrayList<>(10);
+public class RPCAnalysisListener extends CommonAnalysisListener implements EntryAnalysisListener, ExitAnalysisListener, LocalAnalysisListener {
+    private final List<RPCTrafficSourceBuilder> callingInTraffic = new ArrayList<>(10);
+    private final List<RPCTrafficSourceBuilder> callingOutTraffic = new ArrayList<>(10);
     private final List<DatabaseSlowStatementBuilder> dbSlowStatementBuilders = new ArrayList<>(10);
-    private final List<SourceBuilder> logicEndpointBuilders = new ArrayList<>(10);
+    private final List<EndpointSourceBuilder> logicEndpointBuilders = new ArrayList<>(10);
     private final Gson gson = new Gson();
     private final SourceReceiver sourceReceiver;
     private final AnalyzerModuleConfig config;
@@ -94,7 +92,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         if (span.getRefsCount() > 0) {
             for (int i = 0; i < span.getRefsCount(); i++) {
                 SegmentReference reference = span.getRefs(i);
-                SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
+                RPCTrafficSourceBuilder sourceBuilder = new RPCTrafficSourceBuilder(namingControl);
 
                 if (StringUtil.isEmpty(reference.getParentEndpoint())) {
                     sourceBuilder.setSourceEndpointName(Const.USER_ENDPOINT_NAME);
@@ -114,6 +112,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     } else {
                         sourceBuilder.setSourceLayer(Layer.VIRTUAL_GATEWAY);
                     }
+                    sourceBuilder.setSourceEndpointOwnerServiceLayer(Layer.GENERAL);
                 } else {
                     sourceBuilder.setSourceServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(reference.getParentServiceInstance());
@@ -126,10 +125,10 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(span.getComponentId());
                 setPublicAttrs(sourceBuilder, span);
-                entrySourceBuilders.add(sourceBuilder);
+                callingInTraffic.add(sourceBuilder);
             }
         } else {
-            SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
+            RPCTrafficSourceBuilder sourceBuilder = new RPCTrafficSourceBuilder(namingControl);
             sourceBuilder.setSourceServiceName(Const.USER_SERVICE_NAME);
             sourceBuilder.setSourceServiceInstanceName(Const.USER_INSTANCE_NAME);
             sourceBuilder.setSourceEndpointName(Const.USER_ENDPOINT_NAME);
@@ -142,7 +141,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setComponentId(span.getComponentId());
 
             setPublicAttrs(sourceBuilder, span);
-            entrySourceBuilders.add(sourceBuilder);
+            callingInTraffic.add(sourceBuilder);
         }
 
         parseLogicEndpoints(span, segmentObject);
@@ -158,7 +157,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             return;
         }
 
-        SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
+        RPCTrafficSourceBuilder sourceBuilder = new RPCTrafficSourceBuilder(namingControl);
 
         final String networkAddress = span.getPeer();
         if (StringUtil.isEmpty(networkAddress)) {
@@ -185,7 +184,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     networkAddressAlias.getRepresentServiceInstanceId());
             sourceBuilder.setDestServiceName(serviceIDDefinition.getName());
             /*
-             * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
+             * Some agents can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
              * Keeping dest instance name as NULL makes no instance relation generate from this exit span.
              */
             if (!config.shouldIgnorePeerIPDue2Virtual(span.getComponentId())) {
@@ -197,7 +196,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         sourceBuilder.setDetectPoint(DetectPoint.CLIENT);
         sourceBuilder.setComponentId(span.getComponentId());
         setPublicAttrs(sourceBuilder, span);
-        exitSourceBuilders.add(sourceBuilder);
+        callingOutTraffic.add(sourceBuilder);
 
         if (RequestType.DATABASE.equals(sourceBuilder.getType())) {
             boolean isSlowDBAccess = false;
@@ -239,17 +238,15 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         }
     }
 
-    private void setPublicAttrs(SourceBuilder sourceBuilder, SpanObject span) {
+    private void setPublicAttrs(RPCTrafficSourceBuilder sourceBuilder, SpanObject span) {
         long latency = span.getEndTime() - span.getStartTime();
         sourceBuilder.setTimeBucket(TimeBucket.getMinuteTimeBucket(span.getStartTime()));
         sourceBuilder.setLatency((int) latency);
-        sourceBuilder.setResponseCode(Const.NONE);
         sourceBuilder.setHttpResponseStatusCode(Const.NONE);
         span.getTagsList().forEach(tag -> {
             final String tagKey = tag.getKey();
             if (SpanTags.STATUS_CODE.equals(tagKey) || SpanTags.HTTP_RESPONSE_STATUS_CODE.equals(tagKey)) {
                 try {
-                    sourceBuilder.setResponseCode(Integer.parseInt(tag.getValue()));
                     sourceBuilder.setHttpResponseStatusCode(Integer.parseInt(tag.getValue()));
                 } catch (NumberFormatException e) {
                     log.warn("span {} has illegal status code {}", span, tag.getValue());
@@ -285,14 +282,14 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
 
     @Override
     public void build() {
-        entrySourceBuilders.forEach(entrySourceBuilder -> {
-            entrySourceBuilder.prepare();
-            sourceReceiver.receive(entrySourceBuilder.toService());
-            sourceReceiver.receive(entrySourceBuilder.toServiceInstance());
-            sourceReceiver.receive(entrySourceBuilder.toEndpoint());
-            sourceReceiver.receive(entrySourceBuilder.toServiceRelation());
-            sourceReceiver.receive(entrySourceBuilder.toServiceInstanceRelation());
-            EndpointRelation endpointRelation = entrySourceBuilder.toEndpointRelation();
+        callingInTraffic.forEach(callingIn -> {
+            callingIn.prepare();
+            sourceReceiver.receive(callingIn.toService());
+            sourceReceiver.receive(callingIn.toServiceInstance());
+            sourceReceiver.receive(callingIn.toEndpoint());
+            sourceReceiver.receive(callingIn.toServiceRelation());
+            sourceReceiver.receive(callingIn.toServiceInstanceRelation());
+            EndpointRelation endpointRelation = callingIn.toEndpointRelation();
             /*
              * Parent endpoint could be none, because in SkyWalking Cross Process Propagation Headers Protocol v2,
              * endpoint in ref could be empty, based on that, endpoint relation maybe can't be established.
@@ -306,20 +303,20 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             }
         });
 
-        exitSourceBuilders.forEach(exitSourceBuilder -> {
-            exitSourceBuilder.prepare();
-            sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
+        callingOutTraffic.forEach(callingOut -> {
+            callingOut.prepare();
+            sourceReceiver.receive(callingOut.toServiceRelation());
 
             /*
              * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
              */
-            final ServiceInstanceRelation serviceInstanceRelation = exitSourceBuilder.toServiceInstanceRelation();
+            final ServiceInstanceRelation serviceInstanceRelation = callingOut.toServiceInstanceRelation();
             if (serviceInstanceRelation != null) {
                 sourceReceiver.receive(serviceInstanceRelation);
             }
-            if (RequestType.DATABASE.equals(exitSourceBuilder.getType())) {
-                sourceReceiver.receive(exitSourceBuilder.toServiceMeta());
-                sourceReceiver.receive(exitSourceBuilder.toDatabaseAccess());
+            if (RequestType.DATABASE.equals(callingOut.getType())) {
+                sourceReceiver.receive(callingOut.toServiceMeta());
+                sourceReceiver.receive(callingOut.toDatabaseAccess());
             }
         });
 
@@ -335,7 +332,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     }
 
     /**
-     * Logic endpoint could be represent through an entry span or local span. It has special meaning from API
+     * Logic endpoint could represent through an entry span or local span. It has special meaning from API
      * perspective. But it is an actual RPC call.
      */
     private void parseLogicEndpoints(final SpanObject span, final SegmentObject segmentObject) {
@@ -358,7 +355,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     } else {
                         break;
                     }
-                    SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
+                    EndpointSourceBuilder sourceBuilder = new EndpointSourceBuilder(namingControl);
                     sourceBuilder.setTimeBucket(TimeBucket.getMinuteTimeBucket(span.getStartTime()));
                     sourceBuilder.setDestServiceName(segmentObject.getService());
                     sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
@@ -368,7 +365,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     sourceBuilder.setLatency(latency);
                     sourceBuilder.setStatus(status);
                     sourceBuilder.setType(RequestType.LOGIC);
-                    sourceBuilder.setResponseCode(Const.NONE);
                     logicEndpointBuilders.add(sourceBuilder);
                 default:
                     break;
@@ -379,7 +375,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     /**
      * Identify the layer of remote service. Such as  ${@link Layer#DATABASE} and ${@link Layer#CACHE}.
      */
-    private Layer identifyRemoteServiceLayer(SpanLayer spanLayer, String peer) {
+    protected Layer identifyRemoteServiceLayer(SpanLayer spanLayer, String peer) {
         switch (spanLayer) {
             case Unknown:
                 return Layer.UNDEFINED;
@@ -405,18 +401,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         }
     }
 
-    /**
-     * Identify the layer of span's service/instance owner. Such as  ${@link Layer#FAAS} and ${@link Layer#GENERAL}.
-     */
-    private Layer identifyServiceLayer(SpanLayer spanLayer) {
-        if (SpanLayer.FAAS.equals(spanLayer)) {
-            // function as a Service
-            return Layer.FAAS;
-        } else {
-            return Layer.GENERAL;
-        }
-    }
-
     public static class Factory implements AnalysisListenerFactory {
         private final SourceReceiver sourceReceiver;
         private final NetworkAddressAliasCache networkAddressAliasCache;
@@ -434,7 +418,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, AnalyzerModuleConfig config) {
-            return new MultiScopesAnalysisListener(
+            return new RPCAnalysisListener(
                 sourceReceiver, config, networkAddressAliasCache, namingControl);
         }
     }

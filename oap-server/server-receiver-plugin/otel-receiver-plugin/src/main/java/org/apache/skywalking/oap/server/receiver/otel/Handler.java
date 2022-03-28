@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.otel;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,8 +42,8 @@ public interface Handler {
             Class<?> c = each.load();
             if (Arrays.stream(c.getInterfaces()).anyMatch(interfaceClass -> interfaceClass.isAssignableFrom(Handler.class))) {
                 try {
-                    result.add((Handler) c.newInstance());
-                } catch (InstantiationException | IllegalAccessException e) {
+                    result.add((Handler) c.getDeclaredConstructor().newInstance());
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                     throw new HandlerInitializationException("failed to get instances of handler classed", e);
                 }
             }
