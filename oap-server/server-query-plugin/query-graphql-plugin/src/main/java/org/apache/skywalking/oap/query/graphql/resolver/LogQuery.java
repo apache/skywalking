@@ -19,7 +19,9 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
+
 import java.io.IOException;
+
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
@@ -27,6 +29,7 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.LogQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -62,20 +65,26 @@ public class LogQuery implements GraphQLQueryResolver {
         }
         Order queryOrder = isNull(condition.getQueryOrder()) ? Order.DES : condition.getQueryOrder();
         condition.getTags().forEach(tag -> {
-            tag.setKey(tag.getKey().trim());
-            tag.setValue(tag.getValue().trim());
+            if (tag != null) {
+                if (StringUtil.isNotEmpty(tag.getKey())) {
+                    tag.setKey(tag.getKey().trim());
+                }
+                if (StringUtil.isNotEmpty(tag.getValue())) {
+                    tag.setValue(tag.getValue().trim());
+                }
+            }
         });
         return getQueryService().queryLogs(
-            condition.getServiceId(),
-            condition.getServiceInstanceId(),
-            condition.getEndpointId(),
-            condition.getRelatedTrace(),
-            condition.getPaging(),
-            queryOrder,
-            startSecondTB, endSecondTB,
-            condition.getTags(),
-            condition.getKeywordsOfContent(),
-            condition.getExcludingKeywordsOfContent()
+                condition.getServiceId(),
+                condition.getServiceInstanceId(),
+                condition.getEndpointId(),
+                condition.getRelatedTrace(),
+                condition.getPaging(),
+                queryOrder,
+                startSecondTB, endSecondTB,
+                condition.getTags(),
+                condition.getKeywordsOfContent(),
+                condition.getExcludingKeywordsOfContent()
         );
     }
 }
