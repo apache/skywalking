@@ -1,0 +1,583 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "Mesh-Service-Relation",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 52,
+          "i": "0",
+          "type": "Tab",
+          "widget": {
+            "title": "Title"
+          },
+          "graph": {},
+          "standard": {},
+          "metrics": [
+            ""
+          ],
+          "metricTypes": [
+            ""
+          ],
+          "activedTabIndex": 1,
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 12,
+                  "h": 12,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Load (Server)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "CPM - Calls Per Minute"
+                  },
+                  "metrics": [
+                    "service_relation_server_cpm"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 12,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Successful Rate (Server)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "%",
+                    "divide": 100
+                  },
+                  "metrics": [
+                    "service_relation_server_call_sla"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 12,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Response Time Percentile (Server)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "ms",
+                    "metricLabels": "P50, P75, P90, P95, P99",
+                    "labelsIndex": "0,1,2,3,4"
+                  },
+                  "metrics": [
+                    "service_relation_server_percentile"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 12,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Response Time (Server)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "ms"
+                  },
+                  "metrics": [
+                    "service_relation_server_resp_time"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 12,
+                  "w": 8,
+                  "h": 12,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Response Time (Client)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "ms"
+                  },
+                  "metrics": [
+                    "service_relation_client_resp_time"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 8,
+                  "y": 12,
+                  "w": 8,
+                  "h": 12,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Response Time Percentile (Client)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "ms",
+                    "metricLabels": "P50, P75, P90, P95, P99",
+                    "labelsIndex": "0,1,2,3,4"
+                  },
+                  "metrics": [
+                    "service_relation_client_percentile"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 16,
+                  "y": 12,
+                  "w": 8,
+                  "h": 12,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Successful Rate (Client)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "divide": 100,
+                    "unit": "%",
+                    "metricLabels": "",
+                    "labelsIndex": ""
+                  },
+                  "metrics": [
+                    "service_relation_client_call_sla"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 36,
+                  "w": 12,
+                  "h": 12,
+                  "i": "7",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Load (Client)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "divide": 1,
+                    "unit": "CPM - Calls Per Minute",
+                    "metricLabels": "",
+                    "labelsIndex": ""
+                  },
+                  "metrics": [
+                    "service_relation_client_cpm"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 24,
+                  "w": 12,
+                  "h": 12,
+                  "i": "8",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Throughput (Server)",
+                    "tips": "This metrics is only avaible for TCP services"
+                  },
+                  "graph": {},
+                  "standard": {
+                    "unit": "Bytes"
+                  },
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 36,
+                  "w": 12,
+                  "h": 12,
+                  "i": "9",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Throughput  (Client)",
+                    "tips": "This metrics is only avaible for TCP services"
+                  },
+                  "graph": {},
+                  "standard": {
+                    "unit": "Bytes"
+                  },
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Topology",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Topology",
+                  "widget": {
+                    "title": "Title"
+                  },
+                  "graph": {
+                    "showDepth": true
+                  },
+                  "standard": {},
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Envoy",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 26,
+                  "w": 8,
+                  "h": 13,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Upstream Connection None Healthy Increase"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "Per Minute"
+                  },
+                  "metrics": [
+                    "envoy_sr_cluster_up_cx_none_healthy_incr"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 16,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "LB Healthy Panic Increase"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "Per Minute"
+                  },
+                  "metrics": [
+                    "envoy_sr_cluster_lb_healthy_panic_incr"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 8,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Upstream Request Pending Active"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "Per Minute"
+                  },
+                  "metrics": [
+                    "envoy_sr_cluster_up_rq_pending_active"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Upstream Connection Active"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "Per Minute"
+                  },
+                  "metrics": [
+                    "envoy_sr_cluster_up_cx_active"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Upstream Request Active"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "Per Minute"
+                  },
+                  "metrics": [
+                    "envoy_sr_cluster_up_rq_active"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Upstream Connection Increase"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "Per Minute"
+                  },
+                  "metrics": [
+                    "envoy_sr_cluster_up_cx_incr"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Upstream Request Increase"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "Per Minute"
+                  },
+                  "metrics": [
+                    "envoy_sr_cluster_up_rq_incr"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                }
+              ]
+            }
+          ],
+          "moved": false
+        }
+      ],
+      "layer": "MESH",
+      "entity": "ServiceRelation",
+      "name": "Mesh-Service-Relation",
+      "id": "Mesh-Service-Relation",
+      "isRoot": false
+    }
+  }
+]

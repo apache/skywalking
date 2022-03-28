@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
@@ -30,7 +28,6 @@ import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.metrics.ApdexMetrics;
-import org.apache.skywalking.oap.server.core.analysis.worker.ManagementStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
@@ -101,7 +98,6 @@ import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
@@ -385,19 +381,8 @@ public class CoreModuleProvider extends ModuleProvider {
         CacheUpdateTimer.INSTANCE.start(getManager(), moduleConfig.getMetricsDataTTL());
 
         try {
-            final File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates");
-            for (final File templateFile : templateFiles) {
-                if (!templateFile.getName().endsWith(".yml") && !templateFile.getName().endsWith(".yaml")) {
-                    continue;
-                }
-                new UITemplateInitializer(new FileInputStream(templateFile))
-                    .read()
-                    .forEach(uiTemplate -> {
-                        ManagementStreamProcessor.getInstance().in(uiTemplate);
-                    });
-            }
-
-        } catch (FileNotFoundException e) {
+            new UITemplateInitializer(getManager()).initAll();
+        } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }
