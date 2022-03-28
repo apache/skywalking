@@ -94,7 +94,7 @@ public class MeterProcessorTest {
     }
 
     @Test
-    public void testProcess() throws ModuleStartException {
+    public void testProcess() {
         AtomicReference<AvgHistogramFunction> data = new AtomicReference<>();
         doAnswer(invocationOnMock -> {
             if (AvgHistogramFunction.class.isAssignableFrom(invocationOnMock.getArgument(0).getClass())) {
