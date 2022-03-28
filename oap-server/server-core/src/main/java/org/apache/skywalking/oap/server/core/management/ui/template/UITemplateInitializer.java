@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
@@ -38,7 +37,6 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
  * Each config file should be only one dashboard setting json object.
  * The dashboard names should be different in the same Layer and entity.
  */
-@Slf4j
 public class UITemplateInitializer {
     public static Layer[] SUPPORTED_LAYER = new Layer[] {
         Layer.MESH,
