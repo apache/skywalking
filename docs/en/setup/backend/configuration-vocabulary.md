@@ -234,7 +234,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | query | graphql | - | GraphQL query implementation. | - |
 | - | - | enableLogTestTool | Enable the log testing API to test the LAL. **NOTE**: This API evaluates untrusted code on the OAP server. A malicious script can do significant damage (steal keys and secrets, remove files and directories, install malware, etc). As such, please enable this API only when you completely trust your users. | SW_QUERY_GRAPHQL_ENABLE_LOG_TEST_TOOL | false                                                                   |
 | - | - | maxQueryComplexity | Maximum complexity allowed for the GraphQL query that can be used to abort a query if the total number of data fields queried exceeds the defined threshold. | SW_QUERY_MAX_QUERY_COMPLEXITY | 100                                                                     |
-| - | - | enableUpdateUITemplate | Allow user add，disable and update UI template. | SW_ENABLE_UPDATE_UI_TEMPLATE | true                                                                    |
+| - | - | enableUpdateUITemplate | Allow user add，disable and update UI template. | SW_ENABLE_UPDATE_UI_TEMPLATE | false                                                                   |
 | alarm | default | - | Read [alarm doc](backend-alarm.md) for more details. | - |
 | telemetry | - | - | Read [telemetry doc](backend-telemetry.md) for more details. | - |
 | - | none| - | No op implementation. | - |

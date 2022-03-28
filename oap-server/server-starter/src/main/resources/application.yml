@@ -417,7 +417,7 @@ query:
     # abort a query if the total number of data fields queried exceeds the defined threshold.
     maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:100}
     # Allow user add, disable and update UI template
-    enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:true}
+    enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:false}
 
 alarm:
   selector: ${SW_ALARM:default}

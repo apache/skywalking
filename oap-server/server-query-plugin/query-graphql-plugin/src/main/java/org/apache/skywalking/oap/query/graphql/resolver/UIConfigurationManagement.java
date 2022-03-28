@@ -65,9 +65,12 @@ public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLM
     public TemplateChangeStatus addTemplate(NewDashboardSetting setting) throws IOException {
         if (!config.isEnableUpdateUITemplate()) {
             return TemplateChangeStatus.builder().status(false)
-                                                 .id("")
-                                                 .message("The environment variable SW_ENABLE_UPDATE_UI_TEMPLATE is false.")
-                                                 .build();
+                                       .id("")
+                                       .message(
+                                           "The dashboard creation has been disabled. Check SW_ENABLE_UPDATE_UI_TEMPLATE on " +
+                                               "configuration-vocabulary.md(https://skywalking.apache.org/docs/main/latest/en/setup/backend/configuration-vocabulary/#configuration-vocabulary) " +
+                                               "to activate it.")
+                                       .build();
         }
         DashboardSetting dashboardSetting = new DashboardSetting();
         //Backend generate the Id for new template
@@ -80,7 +83,10 @@ public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLM
         if (!config.isEnableUpdateUITemplate()) {
             return TemplateChangeStatus.builder().status(false)
                                        .id(setting.getId())
-                                       .message("The environment variable SW_ENABLE_UPDATE_UI_TEMPLATE is false.")
+                                       .message(
+                                           "The dashboard update has been disabled. Check SW_ENABLE_UPDATE_UI_TEMPLATE on " +
+                                               "configuration-vocabulary.md(https://skywalking.apache.org/docs/main/latest/en/setup/backend/configuration-vocabulary/#configuration-vocabulary) " +
+                                               "to activate it.")
                                        .build();
         }
         return getUITemplateManagementService().changeTemplate(setting);
@@ -90,7 +96,10 @@ public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLM
         if (!config.isEnableUpdateUITemplate()) {
             return TemplateChangeStatus.builder().status(false)
                                        .id(id)
-                                       .message("The environment variable SW_ENABLE_UPDATE_UI_TEMPLATE is false.")
+                                       .message(
+                                           "The dashboard disable has been disabled. Check SW_ENABLE_UPDATE_UI_TEMPLATE on " +
+                                               "configuration-vocabulary.md(https://skywalking.apache.org/docs/main/latest/en/setup/backend/configuration-vocabulary/#configuration-vocabulary) " +
+                                               "to activate it.")
                                        .build();
         }
         return getUITemplateManagementService().disableTemplate(id);

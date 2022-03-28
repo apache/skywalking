@@ -48,11 +48,13 @@ public class UITemplateInitializer {
         Layer.SO11Y_OAP
     };
     private final UITemplateManagementService uiTemplateManagementService;
-
+    private final ObjectMapper mapper;
     public UITemplateInitializer(ModuleManager manager) {
         this.uiTemplateManagementService = manager.find(CoreModule.NAME)
                                                   .provider()
                                                   .getService(UITemplateManagementService.class);
+        this.mapper = new ObjectMapper();
+        this.mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
     }
 
     public void initAll() throws IOException {
@@ -66,8 +68,6 @@ public class UITemplateInitializer {
     }
 
     public void initTemplate(File template) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
         JsonNode jsonNode = mapper.readTree(template);
         if (jsonNode.size() > 1) {
             throw new IllegalArgumentException(
@@ -89,7 +89,6 @@ public class UITemplateInitializer {
     private void verifyNameConflict(File template, String inId, String inName) throws IOException {
         List<DashboardConfiguration> configurations = uiTemplateManagementService.getAllTemplates(false);
         for (DashboardConfiguration config : configurations) {
-            ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(config.getConfiguration());
             String id = jsonNode.get("id").textValue();
             if (jsonNode.get("name").textValue().equals(inName) && !id.equals(inId)) {

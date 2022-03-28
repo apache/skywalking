@@ -17,7 +17,7 @@
 
 [
   {
-    "id": "Service-Relation",
+    "id": "General-Service-Relation",
     "configuration": {
       "children": [
         {

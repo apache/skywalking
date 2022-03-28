@@ -40,14 +40,14 @@ import org.junit.Test;
 public class UITemplateCheckerTest {
     @Test
     public void validateUITemplate() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
         Set<String> dashboardIds = new HashSet<>();
         Set<String> dashboardNames = new HashSet<>();
         for (Layer layer : UITemplateInitializer.SUPPORTED_LAYER) {
             File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + layer.name().toLowerCase(
                 Locale.ROOT));
             for (File template : templateFiles) {
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
                 JsonNode jsonNode = mapper.readTree(template);
                 if (jsonNode.size() > 1) {
                     throw new IllegalArgumentException(
