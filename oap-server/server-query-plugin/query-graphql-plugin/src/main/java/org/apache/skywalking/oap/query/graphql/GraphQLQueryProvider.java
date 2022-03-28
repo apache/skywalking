@@ -109,7 +109,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .file("query-protocol/profile.graphqls")
                      .resolvers(new ProfileQuery(getManager()), new ProfileMutation(getManager()))
                      .file("query-protocol/ui-configuration.graphqls")
-                     .resolvers(new UIConfigurationManagement(getManager()))
+                     .resolvers(new UIConfigurationManagement(getManager(), config))
                      .file("query-protocol/browser-log.graphqls")
                      .resolvers(new BrowserLogQuery(getManager()))
                      .file("query-protocol/event.graphqls")

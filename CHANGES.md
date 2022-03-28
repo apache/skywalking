@@ -154,6 +154,8 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Remove unused jars (log4j-api.jar) in classpath.
 * Bump up netty version to fix CVE.
 * Add Database Connection pool metric.
+* Re-implement UI template initialization for Booster UI.
+* Add environment variable `SW_ENABLE_UPDATE_UI_TEMPLATE` to control user edit UI template.
 
 #### Documentation
 

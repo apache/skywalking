@@ -1,0 +1,394 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "General-Endpoint",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 52,
+          "i": "0",
+          "type": "Tab",
+          "widget": {
+            "title": "Title"
+          },
+          "graph": {},
+          "standard": {},
+          "metrics": [
+            ""
+          ],
+          "metricTypes": [
+            ""
+          ],
+          "activedTabIndex": 1,
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Successful Rate in Current Service"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "topN": "10"
+                  },
+                  "standard": {
+                    "unit": "%",
+                    "divide": "100"
+                  },
+                  "metrics": [
+                    "endpoint_sla"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Slow Endpoints in Current Service"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "topN": "10"
+                  },
+                  "standard": {
+                    "unit": "ms"
+                  },
+                  "metrics": [
+                    "endpoint_resp_time"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Endpoint Load in Current Service",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "topN": "10"
+                  },
+                  "standard": {
+                    "unit": "CPM"
+                  },
+                  "metrics": [
+                    "endpoint_cpm"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 16,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Endpoint Response Time Percentile"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "ms",
+                    "metricLabels": "P50, P75, P90, P95, P99",
+                    "labelsIndex": "0,1,2,3,4"
+                  },
+                  "metrics": [
+                    "endpoint_percentile"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 8,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Endpoint Avg Response Time"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "ms"
+                  },
+                  "metrics": [
+                    "endpoint_resp_time"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 16,
+                  "y": 26,
+                  "w": 8,
+                  "h": 13,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Message Queue Avg Consuming Latency",
+                    "tips": "The avg latency of message consuming. Latency = timestamp(received) - timestamp(producing)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "ms"
+                  },
+                  "metrics": [
+                    "endpoint_mq_consume_latency"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 8,
+                  "y": 26,
+                  "w": 8,
+                  "h": 13,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Message Queue Consuming Count",
+                    "tips": "The number of consumed messages."
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {},
+                  "metrics": [
+                    "endpoint_mq_consume_count"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 26,
+                  "w": 8,
+                  "h": 13,
+                  "i": "7",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Endpoint Successful Rate"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "%",
+                    "divide": "100"
+                  },
+                  "metrics": [
+                    "endpoint_sla"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "8",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Endpoint Load"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {},
+                  "metrics": [
+                    "endpoint_cpm"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Topology",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Topology",
+                  "widget": {
+                    "title": "Title"
+                  },
+                  "graph": {
+                    "showDepth": true
+                  },
+                  "standard": {},
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false,
+                  "linkDashboard": "Endpoint-Relation",
+                  "nodeDashboard": [],
+                  "linkServerMetrics": [],
+                  "linkClientMetrics": [],
+                  "nodeMetrics": [],
+                  "legend": []
+                }
+              ]
+            },
+            {
+              "name": "Trace",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Trace",
+                  "widget": {
+                    "title": "Title"
+                  },
+                  "graph": {},
+                  "standard": {},
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Log",
+                  "widget": {
+                    "title": "Title"
+                  },
+                  "graph": {},
+                  "standard": {},
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
+            }
+          ],
+          "moved": false
+        }
+      ],
+      "layer": "GENERAL",
+      "entity": "Endpoint",
+      "name": "General-Endpoint",
+      "id": "General-Endpoint",
+      "isRoot": false
+    }
+  }
+]

@@ -1,0 +1,427 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "Mesh-Service",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 52,
+          "i": "0",
+          "type": "Tab",
+          "widget": {
+            "title": "Title"
+          },
+          "graph": {},
+          "standard": {},
+          "metrics": [
+            ""
+          ],
+          "metricTypes": [
+            ""
+          ],
+          "activedTabIndex": 4,
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 7,
+                  "h": 5,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Apdex"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUint": true
+                  },
+                  "standard": {
+                    "divide": "10000"
+                  },
+                  "metrics": [
+                    "service_apdex"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValue"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 7,
+                  "y": 0,
+                  "w": 9,
+                  "h": 5,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Successful Rate"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUint": true
+                  },
+                  "standard": {
+                    "divide": "100",
+                    "unit": "%"
+                  },
+                  "metrics": [
+                    "service_sla"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValue"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 5,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Load",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUint": true
+                  },
+                  "standard": {
+                    "divide": 100,
+                    "unit": "CPM / PPM"
+                  },
+                  "metrics": [
+                    "service_cpm"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValue"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 5,
+                  "w": 6,
+                  "h": 11,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Avg Response Time"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "ms"
+                  },
+                  "metrics": [
+                    "service_resp_time"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 6,
+                  "y": 5,
+                  "w": 6,
+                  "h": 11,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Apdex"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "divide": "10000"
+                  },
+                  "metrics": [
+                    "service_apdex"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 5,
+                  "w": 6,
+                  "h": 11,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Response Time Percentile"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "ms",
+                    "metricLabels": "P50, P75, P90, P95, P99",
+                    "labelsIndex": "0, 1, 2, 3, 4"
+                  },
+                  "metrics": [
+                    "service_percentile"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 18,
+                  "y": 5,
+                  "w": 6,
+                  "h": 11,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Successful Rate"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "divide": 100,
+                    "unit": "%"
+                  },
+                  "metrics": [
+                    "service_sla"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 16,
+                  "w": 6,
+                  "h": 11,
+                  "i": "7",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Load",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {
+                    "unit": "CPM / PPM",
+                    "divide": 1
+                  },
+                  "metrics": [
+                    "service_cpm"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 6,
+                  "y": 16,
+                  "w": 6,
+                  "h": 11,
+                  "i": "8",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Throughput",
+                    "tips": "This metrics is only avaible for TCP services"
+                  },
+                  "graph": {},
+                  "standard": {
+                    "unit": "Bytes"
+                  },
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Instance",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Title"
+                  },
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "Mesh-Instance",
+                    "fontSize": 12
+                  },
+                  "standard": {},
+                  "metrics": [
+                    "service_instance_cpm"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Endpoint",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Title"
+                  },
+                  "graph": {
+                    "type": "EndpointList",
+                    "dashboardName": "",
+                    "fontSize": 12,
+                    "showXAxis": false,
+                    "showYAxis": false
+                  },
+                  "standard": {},
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Topology",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Topology",
+                  "widget": {
+                    "title": "Title"
+                  },
+                  "graph": {
+                    "showDepth": true
+                  },
+                  "standard": {},
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Log",
+                  "widget": {
+                    "title": "Title"
+                  },
+                  "graph": {},
+                  "standard": {},
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
+            }
+          ],
+          "moved": false
+        }
+      ],
+      "layer": "MESH",
+      "entity": "Service",
+      "name": "Mesh-Service",
+      "id": "Mesh-Service"
+    }
+  }
+]

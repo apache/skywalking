@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.query.graphql.GraphQLQueryConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
@@ -42,6 +43,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLMutationResolver {
     private final ModuleManager manager;
     private UITemplateManagementService uiTemplateManagementService;
+    private final GraphQLQueryConfig config;
 
     private UITemplateManagementService getUITemplateManagementService() {
         if (uiTemplateManagementService == null) {
@@ -61,6 +63,12 @@ public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLM
     }
 
     public TemplateChangeStatus addTemplate(NewDashboardSetting setting) throws IOException {
+        if (!config.isEnableUpdateUITemplate()) {
+            return TemplateChangeStatus.builder().status(false)
+                                                 .id("")
+                                                 .message("The environment variable SW_ENABLE_UPDATE_UI_TEMPLATE is false.")
+                                                 .build();
+        }
         DashboardSetting dashboardSetting = new DashboardSetting();
         //Backend generate the Id for new template
         dashboardSetting.setId(UUID.randomUUID().toString());
@@ -69,10 +77,22 @@ public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLM
     }
 
     public TemplateChangeStatus changeTemplate(DashboardSetting setting) throws IOException {
+        if (!config.isEnableUpdateUITemplate()) {
+            return TemplateChangeStatus.builder().status(false)
+                                       .id(setting.getId())
+                                       .message("The environment variable SW_ENABLE_UPDATE_UI_TEMPLATE is false.")
+                                       .build();
+        }
         return getUITemplateManagementService().changeTemplate(setting);
     }
 
     public TemplateChangeStatus disableTemplate(String id) throws IOException {
+        if (!config.isEnableUpdateUITemplate()) {
+            return TemplateChangeStatus.builder().status(false)
+                                       .id(id)
+                                       .message("The environment variable SW_ENABLE_UPDATE_UI_TEMPLATE is false.")
+                                       .build();
+        }
         return getUITemplateManagementService().disableTemplate(id);
     }
 }
