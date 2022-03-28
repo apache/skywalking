@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
-
 import java.io.IOException;
-
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
@@ -75,16 +73,16 @@ public class LogQuery implements GraphQLQueryResolver {
             }
         });
         return getQueryService().queryLogs(
-                condition.getServiceId(),
-                condition.getServiceInstanceId(),
-                condition.getEndpointId(),
-                condition.getRelatedTrace(),
-                condition.getPaging(),
-                queryOrder,
-                startSecondTB, endSecondTB,
-                condition.getTags(),
-                condition.getKeywordsOfContent(),
-                condition.getExcludingKeywordsOfContent()
+            condition.getServiceId(),
+            condition.getServiceInstanceId(),
+            condition.getEndpointId(),
+            condition.getRelatedTrace(),
+            condition.getPaging(),
+            queryOrder,
+            startSecondTB, endSecondTB,
+            condition.getTags(),
+            condition.getKeywordsOfContent(),
+            condition.getExcludingKeywordsOfContent()
         );
     }
 }
