@@ -1,3 +1,4 @@
 jdk11 = true
-ignoreRules = [ "THREAD_SAFETY_VIOLATION", "MissingSummary", "SameNameButDifferent" ]
+ignoreRules = [ "THREAD_SAFETY_VIOLATION", "MissingSummary", "SameNameButDifferent", "NonAtomicVolatileUpdate", "EqualsGetClass"]
 setup = ".lift/setup.sh"
+ignoreFiles = ["/skywalking-ui/**", "apm-protocol/apm-network/target/**", "**/LICENSE**"]
