@@ -34,4 +34,4 @@ verify:
     interval: 3s
   cases:
     - includes:
-        - ../../profile/profiling-cases.yaml
+        - ../../profiling/trace/profiling-cases.yaml
