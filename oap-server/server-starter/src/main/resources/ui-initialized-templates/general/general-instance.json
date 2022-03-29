@@ -40,20 +40,20 @@
           "metricTypes": [
             ""
           ],
-          "activedTabIndex": 2,
+          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
               "children": [
                 {
-                  "x": 18,
-                  "y": 0,
-                  "w": 6,
+                  "x": 0,
+                  "y": 14,
+                  "w": 12,
                   "h": 13,
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Latency"
+                    "title": "Service Instance Latency (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -77,13 +77,12 @@
                 {
                   "x": 12,
                   "y": 0,
-                  "w": 6,
-                  "h": 13,
+                  "w": 12,
+                  "h": 14,
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Successful Rate",
-                    "tips": ""
+                    "title": "Service Instance Successful Rate (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -94,8 +93,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "%",
-                    "divide": "100"
                   },
                   "metrics": [
                     "service_instance_sla"
@@ -103,39 +100,22 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
-                },
-                {
-                  "x": 6,
-                  "y": 0,
-                  "w": 6,
-                  "h": 13,
-                  "i": "2",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "standard": {
-                    "unit": "%"
-                  },
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
                   "y": 0,
-                  "w": 6,
-                  "h": 13,
+                  "w": 12,
+                  "h": 14,
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Load",
+                    "title": "Service Instance Load (CPM)",
                     "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                   },
                   "graph": {
@@ -147,7 +127,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "CPM"
                   },
                   "metrics": [
                     "service_instance_cpm"
@@ -158,9 +137,9 @@
                   "moved": false
                 },
                 {
-                  "x": 0,
-                  "y": 13,
-                  "w": 6,
+                  "x": 12,
+                  "y": 14,
+                  "w": 12,
                   "h": 13,
                   "i": "10",
                   "type": "Widget",
@@ -247,7 +226,7 @@
                   "i": "5",
                   "type": "Widget",
                   "widget": {
-                    "title": "JVM Memory (Java Service)"
+                    "title": "JVM Memory (MB)"
                   },
                   "graph": {
                     "type": "Line",
@@ -258,8 +237,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "MB",
-                    "divide": "1048576"
                   },
                   "metrics": [
                     "instance_jvm_memory_noheap_max",
@@ -370,7 +347,7 @@
                   "i": "14",
                   "type": "Widget",
                   "widget": {
-                    "title": "JVM CPU"
+                    "title": "JVM CPU (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -381,7 +358,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "%"
                   },
                   "metrics": [
                     "instance_jvm_cpu"
@@ -428,7 +404,7 @@
                   "i": "6",
                   "type": "Widget",
                   "widget": {
-                    "title": "JVM GC Time"
+                    "title": "JVM GC Time (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -439,7 +415,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "ms"
                   },
                   "metrics": [
                     "instance_jvm_young_gc_time",
@@ -535,8 +510,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "MB",
-                    "divide": "1048576"
                   },
                   "metrics": [
                     "instance_clr_heap_memory"
@@ -592,7 +565,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "%"
                   },
                   "metrics": [
                     "instance_clr_cpu"
@@ -611,7 +583,6 @@
       "layer": "GENERAL",
       "entity": "ServiceInstance",
       "name": "General-Instance",
-      "id": "General-Instance",
       "isRoot": false
     }
   }

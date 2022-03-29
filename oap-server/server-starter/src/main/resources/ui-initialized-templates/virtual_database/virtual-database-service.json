@@ -1,0 +1,225 @@
+[
+  {
+    "id": "Virtual-Database-Service",
+    "configuration": {
+      "children": [
+        {
+          "x": 18,
+          "y": 13,
+          "w": 6,
+          "h": 14,
+          "i": "0",
+          "type": "Widget",
+          "widget": {
+            "title": "Un-Health Databases (Successful Rate)"
+          },
+          "graph": {
+            "type": "TopList"
+          },
+          "standard": {
+            "unit": "%",
+            "divide": "100",
+            "metricLabels": "P50,P75,P90,P95,P99",
+            "labelsIndex": "0,1,2,3,4"
+          },
+          "metrics": [
+            "database_access_sla"
+          ],
+          "metricTypes": [
+            "sortMetrics"
+          ],
+          "moved": false
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "w": 6,
+          "h": 14,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "All Database Loads"
+          },
+          "graph": {
+            "type": "TopList"
+          },
+          "standard": {
+            "unit": "%",
+            "divide": "100",
+            "metricLabels": "P50,P75,P90,P95,P99",
+            "labelsIndex": "0,1,2,3,4"
+          },
+          "metrics": [
+            "database_access_cpm"
+          ],
+          "metricTypes": [
+            "sortMetrics"
+          ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "w": 12,
+          "h": 14,
+          "i": "2",
+          "type": "Widget",
+          "widget": {
+            "title": "Slow Statements"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "unit": "%",
+            "divide": "100",
+            "metricLabels": "P50,P75,P90,P95,P99",
+            "labelsIndex": "0,1,2,3,4"
+          },
+          "metrics": [
+            "top_n_database_statement"
+          ],
+          "metricTypes": [
+            "readSampledRecords"
+          ],
+          "moved": false
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "3",
+          "type": "Widget",
+          "widget": {
+            "title": "Database Access Successful Rate"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "0": "1",
+            "1": "0",
+            "2": "0",
+            "unit": "%",
+            "divide": "100"
+          },
+          "metrics": [
+            "database_access_sla"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "4",
+          "type": "Widget",
+          "widget": {
+            "title": "Database Traffic"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "0": "1",
+            "unit": "CPM - calls per minute",
+            "divide": "1"
+          },
+          "metrics": [
+            "database_access_cpm"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "5",
+          "type": "Widget",
+          "widget": {
+            "title": "Database Access Latency Percentile"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "unit": "ms",
+            "metricLabels": "P50, P75, P90, P95, P99"
+          },
+          "metrics": [
+            "database_access_percentile"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "widget": {
+            "title": "Database Avg Response Time"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "unit": "%",
+            "divide": "100",
+            "metricLabels": "P50,P75,P90,P95,P99",
+            "labelsIndex": "0,1,2,3,4"
+          },
+          "metrics": [
+            "database_access_resp_time"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false
+        }
+      ],
+      "name": "Virtual-Database-Service",
+      "layer": "VIRTUAL_DATABASE",
+      "entity": "Service",
+      "isRoot": false
+    }
+  }
+]
