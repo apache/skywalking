@@ -25,12 +25,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * UITemplateInitializer load the template from the config file in json format. It depends on the UI implementation only.
@@ -41,9 +43,13 @@ public class UITemplateInitializer {
     public static Layer[] SUPPORTED_LAYER = new Layer[] {
         Layer.MESH,
         Layer.GENERAL,
+        Layer.OS_LINUX,
+        Layer.MESH_CP,
+        Layer.MESH_DP,
         Layer.K8S,
         Layer.BROWSER,
-        Layer.SO11Y_OAP
+        Layer.SO11Y_OAP,
+        Layer.VIRTUAL_DATABASE
     };
     private final UITemplateManagementService uiTemplateManagementService;
     private final ObjectMapper mapper;
@@ -73,26 +79,29 @@ public class UITemplateInitializer {
                 "File:  " + template.getName() + " should be only one dashboard setting json object.");
         }
         JsonNode configNode = jsonNode.get(0).get("configuration");
-        String inId = configNode.get("id").textValue();
-        String inName = configNode.get("name").textValue();
-
-        verifyNameConflict(template, inId, inName);
+        String inId = jsonNode.get(0).get("id").textValue();
+        String inNameKey = StringUtil.join('_', configNode.get("layer").textValue(), configNode.get("entity").textValue(), configNode.get("name").textValue());
+        verifyNameConflict(template, inId, inNameKey);
 
         DashboardSetting setting = new DashboardSetting();
         setting.setId(inId);
         setting.setConfiguration(configNode.toString());
 
-        uiTemplateManagementService.addOrUpdate(setting);
+        uiTemplateManagementService.addIfNotExist(setting);
     }
 
-    private void verifyNameConflict(File template, String inId, String inName) throws IOException {
+    private void verifyNameConflict(File template, String inId, String inNameKey) throws IOException {
         List<DashboardConfiguration> configurations = uiTemplateManagementService.getAllTemplates(false);
         for (DashboardConfiguration config : configurations) {
-            JsonNode jsonNode = mapper.readTree(config.getConfiguration());
-            String id = jsonNode.get("id").textValue();
-            if (jsonNode.get("name").textValue().equals(inName) && !id.equals(inId)) {
+            JsonNode configNode = mapper.readTree(config.getConfiguration());
+            String id = config.getId();
+            String nameKey = StringUtil.join(
+                '_', configNode.get("layer").textValue(), configNode.get("entity").textValue(),
+                configNode.get("name").textValue()
+            );
+            if (Objects.equals(nameKey, inNameKey) && !id.equals(inId)) {
                 throw new IllegalArgumentException(
-                    "File:  " + template.getName() + " name: " + inName + " conflict with exist configuration id: " + id);
+                    "File:  " + template.getName() + " layer_entity_name: " + inNameKey + " conflict with exist configuration id: " + id);
             }
         }
     }
