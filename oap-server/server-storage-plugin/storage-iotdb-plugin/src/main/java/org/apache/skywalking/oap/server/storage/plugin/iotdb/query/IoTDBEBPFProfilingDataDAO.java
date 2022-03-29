@@ -40,7 +40,8 @@ public class IoTDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
     private final StorageBuilder<EBPFProfilingDataRecord> storageBuilder = new EBPFProfilingDataRecord.Builder();
 
     @Override
-    public List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime) throws IOException {
+    public List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime)
+            throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, EBPFProfilingDataRecord.INDEX_NAME);
@@ -58,7 +59,8 @@ public class IoTDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingScheduleRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingScheduleRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         List<EBPFProfilingDataRecord> dataList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> dataList.add((EBPFProfilingDataRecord) storageData));
         return dataList;

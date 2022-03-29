@@ -42,11 +42,11 @@ public class IoTDBNetworkAddressAliasDAO implements INetworkAddressAliasDAO {
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, NetworkAddressAlias.INDEX_NAME);
         IoTDBUtils.addQueryAsterisk(NetworkAddressAlias.INDEX_NAME, query);
         query.append(" where ").append(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET).append(" >= ").append(timeBucket)
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         try {
             List<? super StorageData> storageDataList = client.filterQuery(NetworkAddressAlias.INDEX_NAME,
-                    query.toString(), storageBuilder);
+                                                                           query.toString(), storageBuilder);
             List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>(storageDataList.size());
             storageDataList.forEach(storageData -> networkAddressAliases.add((NetworkAddressAlias) storageData));
             return networkAddressAliases;

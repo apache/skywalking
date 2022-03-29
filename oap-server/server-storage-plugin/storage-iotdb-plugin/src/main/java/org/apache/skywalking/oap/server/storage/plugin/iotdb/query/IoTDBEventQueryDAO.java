@@ -58,7 +58,8 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(Event.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(Event.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         final Events events = new Events();
         int limitCount = 0;
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
@@ -133,28 +134,42 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         final Source source = condition.getSource();
         if (source != null) {
             if (!Strings.isNullOrEmpty(source.getService())) {
-                where.append(Event.SERVICE).append(" = \"").append(source.getService()).append("\"").append(" and ");
+                where.append(Event.SERVICE).append(" = \"")
+                     .append(source.getService()).append("\"")
+                     .append(" and ");
             }
             if (!Strings.isNullOrEmpty(source.getServiceInstance())) {
-                where.append(Event.SERVICE_INSTANCE).append(" = \"").append(source.getServiceInstance()).append("\"").append(" and ");
+                where.append(Event.SERVICE_INSTANCE).append(" = \"")
+                     .append(source.getServiceInstance()).append("\"")
+                     .append(" and ");
             }
             if (!Strings.isNullOrEmpty(source.getEndpoint())) {
-                where.append(Event.ENDPOINT).append(" = \"").append(source.getEndpoint()).append("\"").append(" and ");
+                where.append(Event.ENDPOINT).append(" = \"")
+                     .append(source.getEndpoint()).append("\"")
+                     .append(" and ");
             }
         }
         if (!Strings.isNullOrEmpty(condition.getName())) {
-            where.append(Event.NAME).append(" = \"").append(condition.getName()).append("\"").append(" and ");
+            where.append(Event.NAME).append(" = \"")
+                 .append(condition.getName()).append("\"")
+                 .append(" and ");
         }
         if (condition.getType() != null) {
-            where.append(Event.TYPE).append(" = \"").append(condition.getType().name()).append("\"").append(" and ");
+            where.append(Event.TYPE).append(" = \"")
+                 .append(condition.getType().name()).append("\"")
+                 .append(" and ");
         }
         final Duration time = condition.getTime();
         if (time != null) {
             if (time.getStartTimestamp() > 0) {
-                where.append(Event.START_TIME).append(" > ").append(time.getStartTimestamp()).append(" and ");
+                where.append(Event.START_TIME).append(" > ")
+                     .append(time.getStartTimestamp())
+                     .append(" and ");
             }
             if (time.getEndTimestamp() > 0) {
-                where.append(Event.END_TIME).append(" < ").append(time.getEndTimestamp()).append(" and ");
+                where.append(Event.END_TIME).append(" < ")
+                     .append(time.getEndTimestamp())
+                     .append(" and ");
             }
         }
         if (where.length() > 0) {
@@ -184,7 +199,8 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
     }
 
     private org.apache.skywalking.oap.server.core.query.type.event.Event parseEvent(final Event event) {
-        final org.apache.skywalking.oap.server.core.query.type.event.Event resultEvent = new org.apache.skywalking.oap.server.core.query.type.event.Event();
+        final org.apache.skywalking.oap.server.core.query.type.event.Event resultEvent =
+                new org.apache.skywalking.oap.server.core.query.type.event.Event();
         resultEvent.setUuid(event.getUuid());
         resultEvent.setSource(new Source(event.getService(), event.getServiceInstance(), event.getEndpoint()));
         resultEvent.setName(event.getName());

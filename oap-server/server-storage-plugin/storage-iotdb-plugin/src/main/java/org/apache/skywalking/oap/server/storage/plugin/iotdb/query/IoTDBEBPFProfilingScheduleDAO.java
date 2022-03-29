@@ -39,7 +39,8 @@ public class IoTDBEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO 
     private final StorageBuilder<EBPFProfilingScheduleRecord> storageBuilder = new EBPFProfilingScheduleRecord.Builder();
 
     @Override
-    public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket) throws IOException {
+    public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket)
+            throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, EBPFProfilingScheduleRecord.INDEX_NAME);
@@ -56,7 +57,8 @@ public class IoTDBEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO 
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingScheduleRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingScheduleRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         List<EBPFProfilingSchedule> scheduleList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> scheduleList.add(parseSchedule((EBPFProfilingScheduleRecord) storageData)));
         return scheduleList;

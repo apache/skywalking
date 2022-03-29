@@ -56,13 +56,19 @@ public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
 
         StringBuilder where = new StringBuilder(" where ");
         if (StringUtil.isNotEmpty(endpointName)) {
-            where.append(ProfileTaskRecord.ENDPOINT_NAME).append(" = \"").append(endpointName).append("\"").append(" and ");
+            where.append(ProfileTaskRecord.ENDPOINT_NAME).append(" = \"")
+                 .append(endpointName).append("\"")
+                 .append(" and ");
         }
         if (Objects.nonNull(startTimeBucket)) {
-            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTimeBucket)).append(" and ");
+            where.append(IoTDBClient.TIME).append(" >= ")
+                 .append(TimeBucket.getTimestamp(startTimeBucket))
+                 .append(" and ");
         }
         if (Objects.nonNull(endTimeBucket)) {
-            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTimeBucket)).append(" and ");
+            where.append(IoTDBClient.TIME).append(" <= ")
+                 .append(TimeBucket.getTimestamp(endTimeBucket))
+                 .append(" and ");
         }
         if (where.length() > 7) {
             int length = where.length();
@@ -74,9 +80,11 @@ public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         List<ProfileTask> profileTaskList = new ArrayList<>(storageDataList.size());
-        storageDataList.forEach(storageData -> profileTaskList.add(record2ProfileTask((ProfileTaskRecord) storageData)));
+        storageDataList.forEach(storageData ->
+                                        profileTaskList.add(record2ProfileTask((ProfileTaskRecord) storageData)));
         return profileTaskList;
     }
 
@@ -93,21 +101,22 @@ public class IoTDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
         IoTDBUtils.addQueryIndexValue(ProfileTaskRecord.INDEX_NAME, query, indexAndValueMap);
         query.append(" limit 1").append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         return record2ProfileTask((ProfileTaskRecord) storageDataList.get(0));
     }
 
     private static ProfileTask record2ProfileTask(ProfileTaskRecord record) {
         return ProfileTask.builder()
-                .id(record.id())
-                .serviceId(record.getServiceId())
-                .endpointName(record.getEndpointName())
-                .startTime(record.getStartTime())
-                .createTime(record.getCreateTime())
-                .duration(record.getDuration())
-                .minDurationThreshold(record.getMinDurationThreshold())
-                .dumpPeriod(record.getDumpPeriod())
-                .maxSamplingCount(record.getMaxSamplingCount())
-                .build();
+                          .id(record.id())
+                          .serviceId(record.getServiceId())
+                          .endpointName(record.getEndpointName())
+                          .startTime(record.getStartTime())
+                          .createTime(record.getCreateTime())
+                          .duration(record.getDuration())
+                          .minDurationThreshold(record.getMinDurationThreshold())
+                          .dumpPeriod(record.getDumpPeriod())
+                          .maxSamplingCount(record.getMaxSamplingCount())
+                          .build();
     }
 }

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.utils;
 
+import com.google.common.base.Splitter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -53,9 +54,10 @@ public class IoTDBDataConverter {
             this.timestamp = rowRecord.getTimestamp();
             this.fields = rowRecord.getFields();
             // field.get(0) -> Device, transform every layerName to indexValue
-            String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
+            List<String> layerNames = Splitter.onPattern(IoTDBClient.DOT)
+                                              .splitToList(fields.get(0).getStringValue());
             for (int i = 0; i < indexes.size(); i++) {
-                indexValues.add(IoTDBUtils.layerName2IndexValue(layerNames[i + 1]));
+                indexValues.add(IoTDBUtils.layerName2IndexValue(layerNames.get(i + 1)));
             }
         }
 

@@ -47,24 +47,27 @@ public class IoTDBProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
         IoTDBUtils.addQueryAsterisk(ProfileTaskLogRecord.INDEX_NAME, query);
         query.append(" limit ").append(fetchTaskLogMaxSize).append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskLogRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskLogRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         List<ProfileTaskLogRecord> profileTaskLogRecordList = new ArrayList<>(storageDataList.size());
-        storageDataList.forEach(storageData -> profileTaskLogRecordList.add((ProfileTaskLogRecord) storageData));
+        storageDataList.forEach(storageData ->
+                                        profileTaskLogRecordList.add((ProfileTaskLogRecord) storageData));
         // resort by self, because of the query result order by time.
         profileTaskLogRecordList.sort((ProfileTaskLogRecord r1, ProfileTaskLogRecord r2) ->
-                Long.compare(r2.getOperationTime(), r1.getOperationTime()));
+                                              Long.compare(r2.getOperationTime(), r1.getOperationTime()));
         List<ProfileTaskLog> profileTaskLogList = new ArrayList<>(profileTaskLogRecordList.size());
-        profileTaskLogRecordList.forEach(profileTaskLogRecord -> profileTaskLogList.add(parseLog(profileTaskLogRecord)));
+        profileTaskLogRecordList.forEach(profileTaskLogRecord ->
+                                                 profileTaskLogList.add(parseLog(profileTaskLogRecord)));
         return profileTaskLogList;
     }
 
     private ProfileTaskLog parseLog(ProfileTaskLogRecord record) {
         return ProfileTaskLog.builder()
-                .id(record.id())
-                .taskId(record.getTaskId())
-                .instanceId(record.getInstanceId())
-                .operationType(ProfileTaskLogOperationType.parse(record.getOperationType()))
-                .operationTime(record.getOperationTime())
-                .build();
+                             .id(record.id())
+                             .taskId(record.getTaskId())
+                             .instanceId(record.getInstanceId())
+                             .operationType(ProfileTaskLogOperationType.parse(record.getOperationType()))
+                             .operationTime(record.getOperationTime())
+                             .build();
     }
 }

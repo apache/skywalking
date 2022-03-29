@@ -67,9 +67,9 @@ public class IoTDBClient implements Client, HealthCheckable {
             final int sessionPoolSize = config.getSessionPoolSize() == 0 ?
                     Runtime.getRuntime().availableProcessors() * 2 : config.getSessionPoolSize();
             log.info("SessionPool Size: {}", sessionPoolSize);
-            sessionPool = new SessionPool(config.getHost(), config.getRpcPort(), config.getUsername(),
-                                          config.getPassword(), sessionPoolSize, false, false
-            );
+            sessionPool = new SessionPool(config.getHost(), config.getRpcPort(),
+                                          config.getUsername(), config.getPassword(),
+                                          sessionPoolSize, false, false);
             sessionPool.setStorageGroup(storageGroup);
 
             healthChecker.health();
@@ -117,8 +117,9 @@ public class IoTDBClient implements Client, HealthCheckable {
             // make an index value as a layer name of the storage path
             // every storage path has a fix order which has been set in IoTDBTableMetaInfo
             if (!request.getIndexes().isEmpty()) {
-                request.getIndexValues().forEach(value -> devicePath.append(IoTDBClient.DOT)
-                                                                    .append(IoTDBUtils.indexValue2LayerName(value)));
+                request.getIndexValues().forEach(
+                        value -> devicePath.append(IoTDBClient.DOT)
+                                           .append(IoTDBUtils.indexValue2LayerName(value)));
             }
             sessionPool.insertRecord(devicePath.toString(), request.getTime(),
                                      request.getMeasurements(), request.getMeasurementTypes(),
@@ -155,8 +156,9 @@ public class IoTDBClient implements Client, HealthCheckable {
             devicePath.append(storageGroup).append(IoTDBClient.DOT).append(request.getModelName());
             // make an index value as a layer name of the storage path
             if (!request.getIndexes().isEmpty()) {
-                request.getIndexValues().forEach(value -> devicePath.append(IoTDBClient.DOT)
-                                                                    .append(IoTDBUtils.indexValue2LayerName(value)));
+                request.getIndexValues().forEach(
+                        value -> devicePath.append(IoTDBClient.DOT)
+                                           .append(IoTDBUtils.indexValue2LayerName(value)));
             }
             devicePathList.add(devicePath.toString());
             timeList.add(request.getTime());

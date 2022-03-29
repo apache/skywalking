@@ -42,7 +42,9 @@ public class IoTDBAlarmQueryDAO implements IAlarmQueryDAO {
     private final StorageBuilder<AlarmRecord> storageBuilder = new AlarmRecord.Builder();
 
     @Override
-    public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB, long endTB, List<Tag> tags) throws IOException {
+    public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from,
+                           long startTB, long endTB, List<Tag> tags)
+            throws IOException {
         StringBuilder query = new StringBuilder();
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
@@ -74,7 +76,8 @@ public class IoTDBAlarmQueryDAO implements IAlarmQueryDAO {
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         Alarms alarms = new Alarms();
-        List<? super StorageData> storageDataList = client.filterQuery(AlarmRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(AlarmRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         int limitCount = 0;
         for (int i = from; i < storageDataList.size(); i++) {
             if (limitCount < limit) {
@@ -85,7 +88,8 @@ public class IoTDBAlarmQueryDAO implements IAlarmQueryDAO {
         }
         alarms.setTotal(storageDataList.size());
         // resort by self, because of the select query result order by time.
-        alarms.getMsgs().sort((AlarmMessage m1, AlarmMessage m2) -> Long.compare(m2.getStartTime(), m1.getStartTime()));
+        alarms.getMsgs().sort((AlarmMessage m1, AlarmMessage m2) ->
+                                      Long.compare(m2.getStartTime(), m1.getStartTime()));
         return alarms;
     }
 

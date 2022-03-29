@@ -74,26 +74,40 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
 
         StringBuilder where = new StringBuilder(" where ");
         if (startTB != 0 && endTB != 0) {
-            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB)).append(" and ");
-            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB)).append(" and ");
+            where.append(IoTDBClient.TIME).append(" >= ")
+                 .append(TimeBucket.getTimestamp(startTB))
+                 .append(" and ");
+            where.append(IoTDBClient.TIME).append(" <= ")
+                 .append(TimeBucket.getTimestamp(endTB))
+                 .append(" and ");
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
-            where.append(AbstractLogRecord.SERVICE_INSTANCE_ID).append(" = \"").append(serviceInstanceId).append("\"").append(" and ");
+            where.append(AbstractLogRecord.SERVICE_INSTANCE_ID)
+                 .append(" = \"").append(serviceInstanceId).append("\"")
+                 .append(" and ");
         }
         if (StringUtil.isNotEmpty(endpointId)) {
-            where.append(AbstractLogRecord.ENDPOINT_ID).append(" = \"").append(endpointId).append("\"").append(" and ");
+            where.append(AbstractLogRecord.ENDPOINT_ID)
+                 .append(" = \"").append(endpointId).append("\"")
+                 .append(" and ");
         }
         if (Objects.nonNull(relatedTrace)) {
             if (StringUtil.isNotEmpty(relatedTrace.getSegmentId())) {
-                where.append(AbstractLogRecord.TRACE_SEGMENT_ID).append(" = \"").append(relatedTrace.getSegmentId()).append("\"").append(" and ");
+                where.append(AbstractLogRecord.TRACE_SEGMENT_ID)
+                     .append(" = \"").append(relatedTrace.getSegmentId()).append("\"")
+                     .append(" and ");
             }
             if (Objects.nonNull(relatedTrace.getSpanId())) {
-                where.append(AbstractLogRecord.SPAN_ID).append(" = ").append(relatedTrace.getSpanId()).append(" and ");
+                where.append(AbstractLogRecord.SPAN_ID)
+                     .append(" = ").append(relatedTrace.getSpanId())
+                     .append(" and ");
             }
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             for (final Tag tag : tags) {
-                where.append(tag.getKey()).append(" = \"").append(tag.getValue()).append("\"").append(" and ");
+                where.append(tag.getKey()).append(" = \"")
+                     .append(tag.getValue()).append("\"")
+                     .append(" and ");
             }
         }
         if (where.length() > 7) {
@@ -104,7 +118,8 @@ public class IoTDBLogQueryDAO implements ILogQueryDAO {
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         Logs logs = new Logs();
-        List<? super StorageData> storageDataList = client.filterQuery(LogRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(LogRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         int limitCount = 0;
         for (int i = from; i < storageDataList.size(); i++) {
             if (limitCount < limit) {

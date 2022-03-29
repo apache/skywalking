@@ -37,7 +37,8 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 @RequiredArgsConstructor
 public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
     private final IoTDBClient client;
-    private final StorageBuilder<ProfileThreadSnapshotRecord> profileThreadSnapshotRecordBuilder = new ProfileThreadSnapshotRecord.Builder();
+    private final StorageBuilder<ProfileThreadSnapshotRecord> profileThreadSnapshotRecordBuilder =
+            new ProfileThreadSnapshotRecord.Builder();
     private final StorageBuilder<SegmentRecord> segmentRecordBuilder = new SegmentRecord.Builder();
 
     @Override
@@ -47,14 +48,16 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProfileThreadSnapshotRecord.INDEX_NAME);
         IoTDBUtils.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
         query.append(" where ").append(ProfileThreadSnapshotRecord.TASK_ID).append(" = \"").append(taskId).append("\"")
-                .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" = 0")
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
+             .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" = 0")
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(ProfileThreadSnapshotRecord.INDEX_NAME,
-                query.toString(), profileThreadSnapshotRecordBuilder);
+                                                                       query.toString(),
+                                                                       profileThreadSnapshotRecordBuilder);
         // We can insure the size of List, so use ArrayList to improve visit speed. (Other storage plugin use LinkedList)
         final List<String> segmentIds = new ArrayList<>(storageDataList.size());
-        storageDataList.forEach(storageData -> segmentIds.add(((ProfileThreadSnapshotRecord) storageData).getSegmentId()));
+        storageDataList.forEach(
+                storageData -> segmentIds.add(((ProfileThreadSnapshotRecord) storageData).getSegmentId()));
         if (segmentIds.isEmpty()) {
             return Collections.emptyList();
         }
@@ -75,14 +78,16 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
         List<SegmentRecord> segmentRecordList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> segmentRecordList.add((SegmentRecord) storageData));
         // resort by self, because of the select query result order by time.
-        segmentRecordList.sort((SegmentRecord r1, SegmentRecord r2) -> Long.compare(r2.getStartTime(), r1.getStartTime()));
+        segmentRecordList.sort((SegmentRecord r1, SegmentRecord r2) ->
+                                       Long.compare(r2.getStartTime(), r1.getStartTime()));
 
         List<BasicTrace> result = new ArrayList<>(segmentRecordList.size());
         segmentRecordList.forEach(segmentRecord -> {
             BasicTrace basicTrace = new BasicTrace();
             basicTrace.setSegmentId(segmentRecord.getSegmentId());
             basicTrace.setStart(String.valueOf(segmentRecord.getStartTime()));
-            basicTrace.getEndpointNames().add(IDManager.EndpointID.analysisId(segmentRecord.getEndpointId()).getEndpointName());
+            basicTrace.getEndpointNames().add(IDManager.EndpointID.analysisId(segmentRecord.getEndpointId())
+                                                                  .getEndpointName());
             basicTrace.setDuration(segmentRecord.getLatency());
             basicTrace.setError(BooleanUtils.valueToBoolean(segmentRecord.getIsError()));
             basicTrace.getTraceIds().add(segmentRecord.getTraceId());
@@ -102,20 +107,23 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
     }
 
     @Override
-    public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
+    public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence)
+            throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProfileThreadSnapshotRecord.INDEX_NAME);
         IoTDBUtils.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
         query.append(" where ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
-                .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ").append(minSequence)
-                .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" <= ").append(maxSequence)
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
+             .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ").append(minSequence)
+             .append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" <= ").append(maxSequence)
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(ProfileThreadSnapshotRecord.INDEX_NAME,
-                query.toString(), profileThreadSnapshotRecordBuilder);
+                                                                       query.toString(),
+                                                                       profileThreadSnapshotRecordBuilder);
         List<ProfileThreadSnapshotRecord> profileThreadSnapshotRecordList = new ArrayList<>(storageDataList.size());
-        storageDataList.forEach(storageData -> profileThreadSnapshotRecordList.add((ProfileThreadSnapshotRecord) storageData));
+        storageDataList.forEach(
+                storageData -> profileThreadSnapshotRecordList.add((ProfileThreadSnapshotRecord) storageData));
         return profileThreadSnapshotRecordList;
     }
 
@@ -126,10 +134,10 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, SegmentRecord.INDEX_NAME);
         IoTDBUtils.addQueryAsterisk(SegmentRecord.INDEX_NAME, query);
         query.append(" where ").append(SegmentRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME,
-                query.toString(), segmentRecordBuilder);
+                                                                       query.toString(), segmentRecordBuilder);
         if (storageDataList.isEmpty()) {
             return null;
         }
@@ -144,12 +152,12 @@ public class IoTDBProfileThreadSnapshotQueryDAO implements IProfileThreadSnapsho
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProfileThreadSnapshotRecord.INDEX_NAME);
         IoTDBUtils.addQueryAsterisk(ProfileThreadSnapshotRecord.INDEX_NAME, query);
         query.append(" where ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = \"").append(segmentId).append("\"")
-                .append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ").append(start)
-                .append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ").append(end)
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
+             .append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ").append(start)
+             .append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ").append(end)
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
         List<? super StorageData> storageDataList = client.filterQuery(ProfileThreadSnapshotRecord.INDEX_NAME,
-                query.toString(), profileThreadSnapshotRecordBuilder);
-
+                                                                       query.toString(),
+                                                                       profileThreadSnapshotRecordBuilder);
         if (aggType.equals("min_value")) {
             int minValue = Integer.MAX_VALUE;
             for (Object storageData : storageDataList) {

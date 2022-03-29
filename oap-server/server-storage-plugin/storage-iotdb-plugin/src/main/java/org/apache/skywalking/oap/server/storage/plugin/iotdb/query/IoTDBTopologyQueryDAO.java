@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
+import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,8 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
 
     @Override
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB, long endTB,
-                                                                          List<String> serviceIds) throws IOException {
+                                                                          List<String> serviceIds)
+            throws IOException {
         return loadServiceCalls(
                 ServiceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
                 ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
@@ -58,7 +60,8 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
 
     @Override
     public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(long startTB, long endTB,
-                                                                         List<String> serviceIds) throws IOException {
+                                                                         List<String> serviceIds)
+            throws IOException {
         return loadServiceCalls(
                 ServiceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
                 ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
@@ -67,7 +70,8 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB, long endTB) throws IOException {
+    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB, long endTB)
+            throws IOException {
         return loadServiceCalls(
                 ServiceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
                 ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
@@ -76,7 +80,8 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(long startTB, long endTB) throws IOException {
+    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(long startTB, long endTB)
+            throws IOException {
         return loadServiceCalls(
                 ServiceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
                 ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
@@ -87,7 +92,8 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId,
                                                                           String serverServiceId,
-                                                                          long startTB, long endTB) throws IOException {
+                                                                          long startTB, long endTB)
+            throws IOException {
         return loadServiceInstanceCalls(
                 ServiceInstanceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
                 ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
@@ -98,7 +104,8 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId,
                                                                           String serverServiceId,
-                                                                          long startTB, long endTB) throws IOException {
+                                                                          long startTB, long endTB)
+            throws IOException {
         return loadServiceInstanceCalls(
                 ServiceInstanceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
                 ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID,
@@ -107,7 +114,8 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadEndpointRelation(long startTB, long endTB, String destEndpointId) throws IOException {
+    public List<Call.CallDetail> loadEndpointRelation(long startTB, long endTB, String destEndpointId)
+            throws IOException {
         List<Call.CallDetail> calls = loadEndpointFromSide(
                 EndpointRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
                 EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
@@ -123,20 +131,20 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
 
     private List<Call.CallDetail> loadServiceCalls(String tableName, long startTB, long endTB,
                                                    String sourceCName, String destCName,
-                                                   List<String> serviceIds, DetectPoint detectPoint) throws IOException {
+                                                   List<String> serviceIds, DetectPoint detectPoint)
+            throws IOException {
         // This method don't use "group by" like other storage plugin.
         StringBuilder query = new StringBuilder();
         query.append("select ").append(ServiceRelationServerSideMetrics.COMPONENT_ID).append(" from ");
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, tableName);
         IoTDBUtils.addQueryAsterisk(tableName, query);
         query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB))
-                .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
+             .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
         if (serviceIds.size() > 0) {
             query.append(" and (");
             for (int i = 0; i < serviceIds.size(); i++) {
-                query.append(sourceCName).append(" = \"").append(serviceIds.get(i))
-                        .append("\" or ")
-                        .append(destCName).append(" = \"").append(serviceIds.get(i)).append("\"");
+                query.append(sourceCName).append(" = \"").append(serviceIds.get(i)).append("\" or ")
+                     .append(destCName).append(" = \"").append(serviceIds.get(i)).append("\"");
                 if (i != serviceIds.size() - 1) {
                     query.append(" or ");
                 }
@@ -158,8 +166,9 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 Call.CallDetail call = new Call.CallDetail();
-                String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
-                String entityId = IoTDBUtils.layerName2IndexValue(layerNames[2]);
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT)
+                                                  .splitToList(fields.get(0).getStringValue());
+                String entityId = IoTDBUtils.layerName2IndexValue(layerNames.get(2));
                 final int componentId = fields.get(1).getIntV();
                 call.buildFromServiceRelation(entityId, componentId, detectPoint);
                 calls.add(call);
@@ -184,12 +193,12 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, tableName);
         IoTDBUtils.addQueryAsterisk(tableName, query);
         query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB))
-                .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
+             .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
         query.append(" and ((").append(sourceCName).append(" = \"").append(sourceServiceId).append("\"")
-                .append(" and ").append(descCName).append(" = \"").append(destServiceId).append("\"")
-                .append(") or (").append(sourceCName).append(" = \"").append(destServiceId).append("\"")
-                .append(" and ").append(descCName).append(" = \"").append(sourceServiceId).append(" \"))")
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
+             .append(" and ").append(descCName).append(" = \"").append(destServiceId).append("\"")
+             .append(") or (").append(sourceCName).append(" = \"").append(destServiceId).append("\"")
+             .append(" and ").append(descCName).append(" = \"").append(sourceServiceId).append(" \"))")
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         SessionPool sessionPool = client.getSessionPool();
         SessionDataSetWrapper wrapper = null;
@@ -203,8 +212,9 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 Call.CallDetail call = new Call.CallDetail();
-                String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
-                String entityId = IoTDBUtils.layerName2IndexValue(layerNames[2]);
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT)
+                                                  .splitToList(fields.get(0).getStringValue());
+                String entityId = IoTDBUtils.layerName2IndexValue(layerNames.get(2));
                 final int componentId = fields.get(1).getIntV();
                 call.buildFromInstanceRelation(entityId, componentId, detectPoint);
                 calls.add(call);
@@ -228,9 +238,9 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, tableName);
         IoTDBUtils.addQueryAsterisk(tableName, query);
         query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB))
-                .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
+             .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
         query.append(" and ").append(isSourceId ? sourceCName : destCName).append(" = \"").append(id).append("\"")
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         SessionPool sessionPool = client.getSessionPool();
         SessionDataSetWrapper wrapper = null;
@@ -244,8 +254,9 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 Call.CallDetail call = new Call.CallDetail();
-                String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
-                String entityId = IoTDBUtils.layerName2IndexValue(layerNames[2]);
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT)
+                                                  .splitToList(fields.get(0).getStringValue());
+                String entityId = IoTDBUtils.layerName2IndexValue(layerNames.get(2));
                 call.buildFromEndpointRelation(entityId, DetectPoint.SERVER);
                 calls.add(call);
             }

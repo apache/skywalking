@@ -75,7 +75,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         IoTDBUtils.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME,
+                                                                       query.toString(), serviceBuilder);
         return buildServices(storageDataList);
     }
 
@@ -89,12 +90,14 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         IoTDBUtils.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME,
+                                                                       query.toString(), serviceBuilder);
         return buildServices(storageDataList);
     }
 
     @Override
-    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp, String serviceId) throws IOException {
+    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp, String serviceId)
+            throws IOException {
         final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
@@ -105,7 +108,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         query.append(" where ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ").append(minuteTimeBucket)
              .append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(InstanceTraffic.INDEX_NAME, query.toString(), instanceBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(InstanceTraffic.INDEX_NAME,
+                                                                       query.toString(), instanceBuilder);
         return buildInstances(storageDataList);
     }
 
@@ -119,7 +123,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         IoTDBUtils.addQueryIndexValue(ServiceTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME, query.toString(), serviceBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceTraffic.INDEX_NAME,
+                                                                       query.toString(), serviceBuilder);
         final List<ServiceInstance> instances = buildInstances(storageDataList);
         return instances.size() > 0 ? instances.get(0) : null;
     }
@@ -137,7 +142,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         }
         query.append(" limit ").append(limit).append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(EndpointTraffic.INDEX_NAME, query.toString(), endpointBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(EndpointTraffic.INDEX_NAME,
+                                                                       query.toString(), endpointBuilder);
         List<Endpoint> endpointList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> {
             EndpointTraffic endpointTraffic = (EndpointTraffic) storageData;
@@ -150,7 +156,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId, String agentId) throws IOException {
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId)
+            throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProcessTraffic.INDEX_NAME);
@@ -167,7 +174,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         IoTDBUtils.addQueryIndexValue(ProcessTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME, query.toString(), processBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME,
+                                                                       query.toString(), processBuilder);
         return buildProcesses(storageDataList);
     }
 
@@ -181,7 +189,8 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         IoTDBUtils.addQueryIndexValue(ProcessTraffic.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME, query.toString(), processBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME,
+                                                                       query.toString(), processBuilder);
         final List<Process> processes = buildProcesses(storageDataList);
         return processes.size() > 0 ? processes.get(0) : null;
     }
