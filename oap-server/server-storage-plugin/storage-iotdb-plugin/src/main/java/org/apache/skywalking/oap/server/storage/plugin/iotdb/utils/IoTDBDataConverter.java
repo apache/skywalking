@@ -54,7 +54,7 @@ public class IoTDBDataConverter {
             this.timestamp = rowRecord.getTimestamp();
             this.fields = rowRecord.getFields();
             // field.get(0) -> Device, transform every layerName to indexValue
-            List<String> layerNames = Splitter.onPattern(IoTDBClient.DOT)
+            List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"")
                                               .splitToList(fields.get(0).getStringValue());
             for (int i = 0; i < indexes.size(); i++) {
                 indexValues.add(IoTDBUtils.layerName2IndexValue(layerNames.get(i + 1)));

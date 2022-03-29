@@ -99,7 +99,7 @@ public class IoTDBTopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
                 List<Field> fields = rowRecord.getFields();
                 record.setName(fields.get(1).getStringValue());
 
-                String traceId = Splitter.on(IoTDBClient.DOT)
+                String traceId = Splitter.on(IoTDBClient.DOT + "\"")
                                          .splitToList(fields.get(0).getStringValue())
                                          .get(traceIdIdx + 1);
                 traceId = IoTDBUtils.layerName2IndexValue(traceId);

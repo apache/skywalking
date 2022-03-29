@@ -100,7 +100,7 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
-                List<String> layerNames = Splitter.on(IoTDBClient.DOT).splitToList(fields.get(0).getStringValue());
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"").splitToList(fields.get(0).getStringValue());
                 String entityId = IoTDBUtils.layerName2IndexValue(layerNames.get(2));
                 double value = Double.parseDouble(fields.get(1).getStringValue());
                 entityIdAndSumMap.merge(entityId, value, Double::sum);

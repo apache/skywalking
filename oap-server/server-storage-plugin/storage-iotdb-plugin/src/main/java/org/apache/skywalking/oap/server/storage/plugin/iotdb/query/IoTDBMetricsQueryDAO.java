@@ -133,7 +133,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
-                List<String> layerNames = Splitter.on(IoTDBClient.DOT)
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"")
                                                   .splitToList(fields.get(0).getStringValue());
                 String id = IoTDBUtils.layerName2IndexValue(layerNames.get(1));
 
@@ -201,7 +201,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
-                List<String> layerNames = Splitter.on(IoTDBClient.DOT)
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"")
                                                   .splitToList(fields.get(0).getStringValue());
                 String id = IoTDBUtils.layerName2IndexValue(layerNames.get(1));
 
@@ -256,7 +256,7 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
-                List<String> layerNames = Splitter.on(IoTDBClient.DOT)
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"")
                                                   .splitToList(fields.get(0).getStringValue());
                 String id = IoTDBUtils.layerName2IndexValue(layerNames.get(1));
 

@@ -166,7 +166,7 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 Call.CallDetail call = new Call.CallDetail();
-                List<String> layerNames = Splitter.on(IoTDBClient.DOT)
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"")
                                                   .splitToList(fields.get(0).getStringValue());
                 String entityId = IoTDBUtils.layerName2IndexValue(layerNames.get(2));
                 final int componentId = fields.get(1).getIntV();
@@ -212,7 +212,7 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 Call.CallDetail call = new Call.CallDetail();
-                List<String> layerNames = Splitter.on(IoTDBClient.DOT)
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"")
                                                   .splitToList(fields.get(0).getStringValue());
                 String entityId = IoTDBUtils.layerName2IndexValue(layerNames.get(2));
                 final int componentId = fields.get(1).getIntV();
@@ -254,7 +254,7 @@ public class IoTDBTopologyQueryDAO implements ITopologyQueryDAO {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
                 Call.CallDetail call = new Call.CallDetail();
-                List<String> layerNames = Splitter.on(IoTDBClient.DOT)
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"")
                                                   .splitToList(fields.get(0).getStringValue());
                 String entityId = IoTDBUtils.layerName2IndexValue(layerNames.get(2));
                 call.buildFromEndpointRelation(entityId, DetectPoint.SERVER);
