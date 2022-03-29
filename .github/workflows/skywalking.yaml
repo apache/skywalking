@@ -396,15 +396,15 @@ jobs:
           - name: Trace Profiling IoTDB
             config: test/e2e-v2/cases/profiling/trace/iotdb/e2e.yaml
 
-          - name: EBPF Profiling H2
+          - name: eBPF Profiling H2
             config: test/e2e-v2/cases/profiling/ebpf/h2/e2e.yaml
-          - name: EBPF Profiling ES
+          - name: eBPF Profiling ES
             config: test/e2e-v2/cases/profiling/ebpf/es/e2e.yaml
-          - name: EBPF Profiling MySQL
+          - name: eBPF Profiling MySQL
             config: test/e2e-v2/cases/profiling/ebpf/mysql/e2e.yaml
-          - name: EBPF Profiling InfluxDB
+          - name: eBPF Profiling InfluxDB
             config: test/e2e-v2/cases/profiling/ebpf/influxdb/e2e.yaml
-          - name: EBPF Profiling IoTDB
+          - name: eBPF Profiling IoTDB
             config: test/e2e-v2/cases/profiling/ebpf/iotdb/e2e.yaml
 
           - name: Kafka Basic
