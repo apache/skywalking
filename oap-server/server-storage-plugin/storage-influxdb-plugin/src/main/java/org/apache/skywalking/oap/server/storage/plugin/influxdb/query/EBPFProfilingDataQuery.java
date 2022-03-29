@@ -88,7 +88,7 @@ public class EBPFProfilingDataQuery implements IEBPFProfilingDataDAO {
                 data.setStacksBinary(new byte[0]);
             }
             data.setStackDumpCount(((Number) values.get(5)).longValue());
-            data.setUploadTime((Long) values.get(6));
+            data.setUploadTime(((Number) values.get(6)).longValue());
 
             dataList.add(data);
         }
