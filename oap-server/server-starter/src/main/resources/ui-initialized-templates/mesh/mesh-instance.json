@@ -44,14 +44,14 @@
               "name": "Overview",
               "children": [
                 {
-                  "x": 18,
-                  "y": 0,
-                  "w": 6,
-                  "h": 13,
+                  "x": 11,
+                  "y": 14,
+                  "w": 13,
+                  "h": 14,
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Latency"
+                    "title": "Service Instance Latency (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -62,7 +62,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "ms"
                   },
                   "metrics": [
                     "service_instance_resp_time"
@@ -73,15 +72,14 @@
                   "moved": false
                 },
                 {
-                  "x": 12,
-                  "y": 0,
-                  "w": 6,
-                  "h": 13,
+                  "x": 0,
+                  "y": 14,
+                  "w": 11,
+                  "h": 14,
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Successful Rate",
-                    "tips": ""
+                    "title": "Service Instance Successful Rate (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -92,8 +90,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "%",
-                    "divide": "100"
                   },
                   "metrics": [
                     "service_instance_sla"
@@ -104,36 +100,44 @@
                   "moved": false
                 },
                 {
-                  "x": 6,
+                  "x": 11,
                   "y": 0,
-                  "w": 6,
-                  "h": 13,
+                  "w": 13,
+                  "h": 14,
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Title"
+                    "title": "Service Throughput (Bytes)"
                   },
-                  "graph": {},
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
                   "standard": {
-                    "unit": "%"
                   },
                   "metrics": [
-                    ""
+                    "service_throughput_received",
+                    "service_throughput_sent"
                   ],
                   "metricTypes": [
-                    ""
+                    "readMetricsValues",
+                    "readMetricsValues"
                   ],
                   "moved": false
                 },
                 {
                   "x": 0,
                   "y": 0,
-                  "w": 6,
-                  "h": 13,
+                  "w": 11,
+                  "h": 14,
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Load",
+                    "title": "Service Instance Load (CPM / PPM)",
                     "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                   },
                   "graph": {
@@ -145,7 +149,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "CPM / PPM"
                   },
                   "metrics": [
                     "service_instance_cpm"
@@ -188,8 +191,7 @@
       ],
       "layer": "MESH",
       "entity": "ServiceInstance",
-      "name": "Mesh-Instance",
-      "id": "Mesh-Instance"
+      "name": "Mesh-Instance"
     }
   }
 ]
