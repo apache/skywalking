@@ -18,38 +18,82 @@
 
 package org.apache.skywalking.oap.server.core.management.ui.template;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import lombok.extern.slf4j.Slf4j;
-import org.yaml.snakeyaml.Yaml;
+import java.util.Locale;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
+import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
 /**
- * UITemplateInitializer load the template from the config file in YAML format. The template definition is by JSON
- * format in default, but it depends on the UI implementation only.
+ * UITemplateInitializer load the template from the config file in json format. It depends on the UI implementation only.
+ * Each config file should be only one dashboard setting json object.
+ * The dashboard names should be different in the same Layer and entity.
  */
-@Slf4j
 public class UITemplateInitializer {
-    private Map yamlData;
+    public static Layer[] SUPPORTED_LAYER = new Layer[] {
+        Layer.MESH,
+        Layer.GENERAL,
+        Layer.K8S,
+        Layer.BROWSER,
+        Layer.SO11Y_OAP
+    };
+    private final UITemplateManagementService uiTemplateManagementService;
+    private final ObjectMapper mapper;
 
-    public UITemplateInitializer(InputStream inputStream) {
-        Yaml yaml = new Yaml();
-        try {
-            yamlData = yaml.loadAs(inputStream, Map.class);
-        } finally {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                log.warn(e.getMessage(), e);
+    public UITemplateInitializer(ModuleManager manager) {
+        this.uiTemplateManagementService = manager.find(CoreModule.NAME)
+                                                  .provider()
+                                                  .getService(UITemplateManagementService.class);
+        this.mapper = new ObjectMapper();
+        this.mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
+    }
+
+    public void initAll() throws IOException {
+        for (Layer layer : UITemplateInitializer.SUPPORTED_LAYER) {
+            File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + layer.name().toLowerCase(
+                Locale.ROOT));
+            for (File file : templateFiles) {
+                initTemplate(file);
             }
         }
     }
 
-    public List<UITemplate> read() {
-        List<UITemplate> uiTemplates = new ArrayList<>();
-        //Todo: implement later when new template file ready
-        return uiTemplates;
+    public void initTemplate(File template) throws IOException {
+        JsonNode jsonNode = mapper.readTree(template);
+        if (jsonNode.size() > 1) {
+            throw new IllegalArgumentException(
+                "File:  " + template.getName() + " should be only one dashboard setting json object.");
+        }
+        JsonNode configNode = jsonNode.get(0).get("configuration");
+        String inId = configNode.get("id").textValue();
+        String inName = configNode.get("name").textValue();
+
+        verifyNameConflict(template, inId, inName);
+
+        DashboardSetting setting = new DashboardSetting();
+        setting.setId(inId);
+        setting.setConfiguration(configNode.toString());
+
+        uiTemplateManagementService.addOrUpdate(setting);
+    }
+
+    private void verifyNameConflict(File template, String inId, String inName) throws IOException {
+        List<DashboardConfiguration> configurations = uiTemplateManagementService.getAllTemplates(false);
+        for (DashboardConfiguration config : configurations) {
+            JsonNode jsonNode = mapper.readTree(config.getConfiguration());
+            String id = jsonNode.get("id").textValue();
+            if (jsonNode.get("name").textValue().equals(inName) && !id.equals(inId)) {
+                throw new IllegalArgumentException(
+                    "File:  " + template.getName() + " name: " + inName + " conflict with exist configuration id: " + id);
+            }
+        }
     }
 }
