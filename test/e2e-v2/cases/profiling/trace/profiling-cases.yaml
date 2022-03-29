@@ -40,10 +40,10 @@
             --duration=1 --min-duration-threshold=1500 \
             --dump-period=500 --max-sampling-count=5
       expected: expected/profile-create.yml
-    # profile list notified: sleep to wait agent notices and query profile list
+    # profiling list notified: sleep to wait agent notices and query profiling list
     - query: sleep 3 && swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=e2e-service-provider --endpoint-name=POST:/profile/{name}
       expected: expected/profile-list-notified.yml
-    # profile list finished:
+    # profiling list finished:
     - query: |
         curl -s -XPOST http://${provider_host}:${provider_9090}/profile/users?e2e=true -d '{"enableProfiling":"true","name":"SkyWalking"}' -H "Content-Type: application/json" > /dev/null;
         sleep 10;
