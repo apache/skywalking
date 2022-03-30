@@ -18,18 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingProcessFinderType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingProcessFinderType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.EBPFProfilingProcessFinder;
@@ -39,7 +34,12 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
-import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -50,11 +50,10 @@ public class IoTDBEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
     @Override
     public List<EBPFProfilingTask> queryTasks(EBPFProfilingProcessFinder finder,
                                               EBPFProfilingTargetType targetType,
-                                              long taskStartTime, long latestUpdateTime)
-            throws IOException {
+                                              long taskStartTime, long latestUpdateTime) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        IoTDBUtils.addModelPath(client.getStorageGroup(), query, EBPFProfilingTaskRecord.INDEX_NAME);
+        query = client.addModelPath(query, EBPFProfilingTaskRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(finder.getServiceId())) {
             indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, finder.getServiceId());
@@ -62,33 +61,26 @@ public class IoTDBEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         if (StringUtil.isNotEmpty(finder.getInstanceId())) {
             indexAndValueMap.put(IoTDBIndexes.INSTANCE_ID_INX, finder.getInstanceId());
         }
-        IoTDBUtils.addQueryIndexValue(EBPFProfilingTaskRecord.INDEX_NAME, query, indexAndValueMap);
-
-        StringBuilder where = new StringBuilder(" where ");
         if (CollectionUtils.isNotEmpty(finder.getProcessIdList())) {
             final List<String> processIdList = finder.getProcessIdList();
-            if (CollectionUtils.isNotEmpty(processIdList)) {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < processIdList.size(); i++) {
-                    if (i > 0) {
-                        sb.append(", ");
-                    }
-                    sb.append("\"").append(processIdList.get(i)).append("\"");
+            for (int i = 0; i < processIdList.size(); i++) {
+                if (i > 0) {
+                    query.append(", ");
                 }
-                where.append(EBPFProfilingTaskRecord.PROCESS_ID)
-                     .append(" in (\"").append(sb).append("\")")
-                     .append(" and ");
+                final HashMap<String, String> indexWithProcessId = new HashMap<>(indexAndValueMap);
+                indexWithProcessId.put(IoTDBIndexes.PROCESS_ID_INX, processIdList.get(i));
+                query = client.addQueryIndexValue(EBPFProfilingTaskRecord.INDEX_NAME, query, indexWithProcessId);
             }
+        } else {
+            query = client.addQueryIndexValue(EBPFProfilingTaskRecord.INDEX_NAME, query, indexAndValueMap);
         }
+
+        StringBuilder where = new StringBuilder(" where ");
         if (taskStartTime > 0) {
-            where.append(EBPFProfilingTaskRecord.START_TIME)
-                 .append(" >= ").append(taskStartTime)
-                 .append(" and ");
+            where.append(EBPFProfilingTaskRecord.START_TIME).append(" >= ").append(taskStartTime).append(" and ");
         }
         if (latestUpdateTime > 0) {
-            where.append(EBPFProfilingTaskRecord.LAST_UPDATE_TIME)
-                 .append(" > ").append(latestUpdateTime)
-                 .append(" and ");
+            where.append(EBPFProfilingTaskRecord.LAST_UPDATE_TIME).append(" > ").append(latestUpdateTime).append(" and ");
         }
         if (where.length() > 7) {
             int length = where.length();
@@ -97,8 +89,7 @@ public class IoTDBEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingTaskRecord.INDEX_NAME,
-                                                                       query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingTaskRecord.INDEX_NAME, query.toString(), storageBuilder);
         List<EBPFProfilingTask> taskList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> taskList.add(parseTask((EBPFProfilingTaskRecord) storageData)));
         return taskList;

@@ -38,7 +38,7 @@
           "metricTypes": [
             ""
           ],
-          "activedTabIndex": 3,
+          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
@@ -46,7 +46,7 @@
                 {
                   "x": 0,
                   "y": 0,
-                  "w": 7,
+                  "w": 8,
                   "h": 5,
                   "i": "0",
                   "type": "Widget",
@@ -56,11 +56,9 @@
                   "graph": {
                     "type": "Card",
                     "fontSize": 14,
-                    "textAlign": "center",
-                    "showUint": true
+                    "textAlign": "center"
                   },
                   "standard": {
-                    "divide": "10000"
                   },
                   "metrics": [
                     "service_apdex"
@@ -68,12 +66,17 @@
                   "metricTypes": [
                     "readMetricsValue"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "apdex"
+                    }
+                  ]
                 },
                 {
-                  "x": 7,
+                  "x": 8,
                   "y": 0,
-                  "w": 9,
+                  "w": 8,
                   "h": 5,
                   "i": "1",
                   "type": "Widget",
@@ -84,14 +87,9 @@
                     "type": "Card",
                     "fontSize": 14,
                     "textAlign": "center",
-                    "showUint": true
+                    "showUnit": true
                   },
                   "standard": {
-                    "0": "1",
-                    "1": "0",
-                    "2": "0",
-                    "divide": "100",
-                    "unit": "%"
                   },
                   "metrics": [
                     "service_sla"
@@ -99,7 +97,13 @@
                   "metricTypes": [
                     "readMetricsValue"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage",
+                      "unit": "%"
+                    }
+                  ]
                 },
                 {
                   "x": 16,
@@ -116,11 +120,9 @@
                     "type": "Card",
                     "fontSize": 14,
                     "textAlign": "center",
-                    "showUint": true
+                    "showUnit": true
                   },
                   "standard": {
-                    "divide": 100,
-                    "unit": "CPM"
                   },
                   "metrics": [
                     "service_cpm"
@@ -128,7 +130,12 @@
                   "metricTypes": [
                     "readMetricsValue"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "unit": "CPM"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -138,7 +145,7 @@
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Avg Response Time"
+                    "title": "Service Avg Response Time (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -149,7 +156,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "ms"
                   },
                   "metrics": [
                     "service_resp_time"
@@ -157,7 +163,11 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                    }
+                  ]
                 },
                 {
                   "x": 6,
@@ -178,7 +188,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "divide": "10000"
                   },
                   "metrics": [
                     "service_apdex"
@@ -186,7 +195,12 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "apdex"
+                    }
+                  ]
                 },
                 {
                   "x": 12,
@@ -196,7 +210,7 @@
                   "i": "5",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Response Time Percentile"
+                    "title": "Service Response Time Percentile (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -207,9 +221,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "ms",
-                    "metricLabels": "P50, P75, P90, P95, P99",
-                    "labelsIndex": "0, 1, 2, 3, 4"
                   },
                   "metrics": [
                     "service_percentile"
@@ -217,7 +228,13 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "label": "P50, P75, P90, P95, P99",
+                      "labelsIndex": "0, 1, 2, 3, 4"
+                    }
+                  ]
                 },
                 {
                   "x": 18,
@@ -227,7 +244,7 @@
                   "i": "6",
                   "type": "Widget",
                   "widget": {
-                    "title": "Successful Rate"
+                    "title": "Successful Rate (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -247,17 +264,22 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
                   "y": 16,
-                  "w": 6,
+                  "w": 8,
                   "h": 11,
                   "i": "7",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Load",
+                    "title": "Service Load (CPM)",
                     "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM)"
                   },
                   "graph": {
@@ -269,8 +291,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "divide": 1,
-                    "unit": "CPM"
                   },
                   "metrics": [
                     "service_cpm"
@@ -281,9 +301,9 @@
                   "moved": false
                 },
                 {
-                  "x": 6,
+                  "x": 8,
                   "y": 16,
-                  "w": 6,
+                  "w": 8,
                   "h": 11,
                   "i": "9",
                   "type": "Widget",
@@ -299,8 +319,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "divide": 1,
-                    "unit": ""
                   },
                   "metrics": [
                     "service_mq_consume_count"
@@ -311,14 +329,14 @@
                   "moved": false
                 },
                 {
-                  "x": 12,
+                  "x": 16,
                   "y": 16,
-                  "w": 6,
+                  "w": 8,
                   "h": 11,
                   "i": "10",
                   "type": "Widget",
                   "widget": {
-                    "title": "Message Queue Avg Consuming Latency",
+                    "title": "Message Queue Avg Consuming Latency (ms)",
                     "tips": "The avg latency of message consuming. Latency = timestamp(received) - timestamp(producing)"
                   },
                   "graph": {
@@ -330,14 +348,99 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "divide": "1",
-                    "unit": "ms"
                   },
                   "metrics": [
                     "service_mq_consume_latency"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 27,
+                  "w": 8,
+                  "h": 14,
+                  "i": "11",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM),"
+                  },
+                  "graph": {
+                    "type": "TopList"
+                  },
+                  "standard": {},
+                  "metrics": [
+                    "service_instance_cpm"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
+                  ],
+                  "metricConfig": [
+                    {
+                      "sortOrder": "DES",
+                      "calculation": "percentage"
+                    }
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 8,
+                  "y": 27,
+                  "w": 8,
+                  "h": 14,
+                  "i": "12",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Slow Service Instance (ms)"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "topN": "10"
+                  },
+                  "standard": {},
+                  "metrics": [
+                    "service_instance_resp_time"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
+                  ],
+                  "metricConfig": [
+                    {
+                      "sortOrder": "DES",
+                      "calculation": "percentage"
+                    }
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 16,
+                  "y": 27,
+                  "w": 8,
+                  "h": 14,
+                  "i": "13",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Instance Successful Rate (%)"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "topN": "10"
+                  },
+                  "standard": {},
+                  "metrics": [
+                    "service_instance_sla"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
+                  ],
+                  "metricConfig": [
+                    {
+                      "sortOrder": "ASC",
+                      "calculation": "percentage"
+                    }
                   ],
                   "moved": false
                 }
@@ -530,8 +633,7 @@
       ],
       "layer": "GENERAL",
       "entity": "Service",
-      "name": "General-Service",
-      "id": "General-Service"
+      "name": "General-Service"
     }
   }
 ]

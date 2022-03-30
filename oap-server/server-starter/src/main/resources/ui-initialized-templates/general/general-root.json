@@ -156,7 +156,6 @@
       "layer": "GENERAL",
       "entity": "All",
       "name": "General-Root",
-      "id": "General-Root",
       "isRoot": true
     }
   }

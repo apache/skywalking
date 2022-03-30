@@ -38,7 +38,7 @@
           "metricTypes": [
             ""
           ],
-          "activedTabIndex": 1,
+          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
@@ -51,15 +51,13 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Successful Rate in Current Service"
+                    "title": "Successful Rate in Current Service (%)"
                   },
                   "graph": {
                     "type": "TopList",
                     "topN": "10"
                   },
                   "standard": {
-                    "unit": "%",
-                    "divide": "100"
                   },
                   "metrics": [
                     "endpoint_sla"
@@ -67,7 +65,12 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
                 },
                 {
                   "x": 8,
@@ -77,14 +80,13 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Slow Endpoints in Current Service"
+                    "title": "Slow Endpoints in Current Service (ms)"
                   },
                   "graph": {
                     "type": "TopList",
                     "topN": "10"
                   },
                   "standard": {
-                    "unit": "ms"
                   },
                   "metrics": [
                     "endpoint_resp_time"
@@ -102,7 +104,7 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Load in Current Service",
+                    "title": "Endpoint Load in Current Service (CPM)",
                     "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                   },
                   "graph": {
@@ -110,7 +112,6 @@
                     "topN": "10"
                   },
                   "standard": {
-                    "unit": "CPM"
                   },
                   "metrics": [
                     "endpoint_cpm"
@@ -128,7 +129,7 @@
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Response Time Percentile"
+                    "title": "Endpoint Response Time Percentile (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -139,9 +140,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "ms",
-                    "metricLabels": "P50, P75, P90, P95, P99",
-                    "labelsIndex": "0,1,2,3,4"
                   },
                   "metrics": [
                     "endpoint_percentile"
@@ -149,7 +147,13 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "label": "P50, P75, P90, P95, P99",
+                      "labelsIndex": "0, 1, 2, 3, 4"
+                    }
+                  ]
                 },
                 {
                   "x": 8,
@@ -159,7 +163,7 @@
                   "i": "4",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Avg Response Time"
+                    "title": "Endpoint Avg Response Time (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -170,7 +174,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "ms"
                   },
                   "metrics": [
                     "endpoint_resp_time"
@@ -188,7 +191,7 @@
                   "i": "5",
                   "type": "Widget",
                   "widget": {
-                    "title": "Message Queue Avg Consuming Latency",
+                    "title": "Message Queue Avg Consuming Latency (ms)",
                     "tips": "The avg latency of message consuming. Latency = timestamp(received) - timestamp(producing)"
                   },
                   "graph": {
@@ -200,7 +203,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "ms"
                   },
                   "metrics": [
                     "endpoint_mq_consume_latency"
@@ -246,7 +248,7 @@
                   "i": "7",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Successful Rate"
+                    "title": "Endpoint Successful Rate (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -257,8 +259,6 @@
                     "showYAxis": true
                   },
                   "standard": {
-                    "unit": "%",
-                    "divide": "100"
                   },
                   "metrics": [
                     "endpoint_sla"
@@ -276,7 +276,7 @@
                   "i": "8",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Load"
+                    "title": "Endpoint Load (CPM)"
                   },
                   "graph": {
                     "type": "Line",
@@ -387,7 +387,6 @@
       "layer": "GENERAL",
       "entity": "Endpoint",
       "name": "General-Endpoint",
-      "id": "General-Endpoint",
       "isRoot": false
     }
   }

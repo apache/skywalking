@@ -48,8 +48,8 @@ public class IoTDBEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO 
 
         StringBuilder where = new StringBuilder(" where ");
         where.append(EBPFProfilingScheduleRecord.TASK_ID).append(" = \"").append(taskId).append("\" and ");
-        where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTimeBucket)).append(" and ");
-        where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(startTimeBucket)).append(" and ");
+        where.append(EBPFProfilingScheduleRecord.START_TIME).append(" >= ").append(TimeBucket.getTimestamp(startTimeBucket)).append(" and ");
+        where.append(EBPFProfilingScheduleRecord.START_TIME).append(" <= ").append(TimeBucket.getTimestamp(endTimeBucket)).append(" and ");
         if (where.length() > 7) {
             int length = where.length();
             where.delete(length - 5, length);
@@ -67,6 +67,7 @@ public class IoTDBEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO 
     public EBPFProfilingSchedule parseSchedule(EBPFProfilingScheduleRecord traffic) {
         final EBPFProfilingSchedule schedule = new EBPFProfilingSchedule();
         schedule.setTaskId(traffic.getTaskId());
+        schedule.setScheduleId(traffic.id());
         schedule.setProcessId(traffic.getProcessId());
         schedule.setStartTime(traffic.getStartTime());
         schedule.setEndTime(traffic.getEndTime());

@@ -55,10 +55,7 @@ public class UITemplateCheckerTest {
                 }
 
                 JsonNode configNode = jsonNode.get(0).get("configuration");
-                String inId = configNode.get("id").textValue();
-                Assert.assertEquals(
-                    "File: " + template + " has invalid id", jsonNode.get(0).get("id").textValue(), inId);
-
+                String inId = jsonNode.get(0).get("id").textValue();
                 String inName = configNode.get("name").textValue();
                 String inLayer = configNode.get("layer").textValue();
                 String inEntity = configNode.get("entity").textValue();
