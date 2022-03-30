@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -27,10 +30,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,11 +39,12 @@ public class IoTDBEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO 
     private final StorageBuilder<EBPFProfilingScheduleRecord> storageBuilder = new EBPFProfilingScheduleRecord.Builder();
 
     @Override
-    public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket) throws IOException {
+    public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket)
+            throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, EBPFProfilingScheduleRecord.INDEX_NAME);
-        query = client.addQueryAsterisk(EBPFProfilingScheduleRecord.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, EBPFProfilingScheduleRecord.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(EBPFProfilingScheduleRecord.INDEX_NAME, query);
 
         StringBuilder where = new StringBuilder(" where ");
         where.append(EBPFProfilingScheduleRecord.TASK_ID).append(" = \"").append(taskId).append("\" and ");
@@ -56,7 +57,8 @@ public class IoTDBEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO 
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingScheduleRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingScheduleRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         List<EBPFProfilingSchedule> scheduleList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> scheduleList.add(parseSchedule((EBPFProfilingScheduleRecord) storageData)));
         return scheduleList;

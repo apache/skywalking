@@ -148,6 +148,8 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Fix event type of export data is incorrect, it was `EventType.TOTAL` always.
 * Reduce redundancy ThreadLocal in MAL core. Improve MAL performance.
 * Trim tag's key and value in log query.
+* Refactor IoTDB storage plugin, add IoTDBDataConverter and fix ModifyCollectionInEnhancedForLoop bug.
+* Bump up iotdb-session to 0.12.5.
 
 #### UI
 

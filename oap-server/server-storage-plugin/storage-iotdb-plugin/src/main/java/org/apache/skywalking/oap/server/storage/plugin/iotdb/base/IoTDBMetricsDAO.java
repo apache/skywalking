@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -45,8 +46,8 @@ public class IoTDBMetricsDAO implements IMetricsDAO {
         query.append("select * from ");
         for (Metrics metric : metrics) {
             query.append(", ");
-            query = client.addModelPath(query, model.getName());
-            query.append(IoTDBClient.DOT).append(client.indexValue2LayerName(metric.id()));
+            IoTDBUtils.addModelPath(client.getStorageGroup(), query, model.getName());
+            query.append(IoTDBClient.DOT).append(IoTDBUtils.indexValue2LayerName(metric.id()));
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
         String queryString = query.toString().replaceFirst(", ", "");
@@ -59,7 +60,7 @@ public class IoTDBMetricsDAO implements IMetricsDAO {
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) {
         final long timestamp = TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling());
-        return new IoTDBInsertRequest(model.getName(), timestamp, metrics, storageBuilder);
+        return IoTDBInsertRequest.buildRequest(model.getName(), timestamp, metrics, storageBuilder);
     }
 
     @Override

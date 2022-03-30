@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -50,31 +51,42 @@ public class IoTDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
     @Override
     public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId,
                                                   BrowserErrorCategory category, long startSecondTB,
-                                                  long endSecondTB, int limit, int from) throws IOException {
+                                                  long endSecondTB, int limit, int from)
+            throws IOException {
         StringBuilder query = new StringBuilder();
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
         query.append("select * from ");
-        query = client.addModelPath(query, BrowserErrorLogRecord.INDEX_NAME);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, BrowserErrorLogRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
             indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
         }
-        query = client.addQueryIndexValue(BrowserErrorLogRecord.INDEX_NAME, query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(BrowserErrorLogRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
         if (startSecondTB != 0 && endSecondTB != 0) {
-            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startSecondTB)).append(" and ");
-            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endSecondTB)).append(" and ");
+            where.append(IoTDBClient.TIME).append(" >= ")
+                 .append(TimeBucket.getTimestamp(startSecondTB))
+                 .append(" and ");
+            where.append(IoTDBClient.TIME).append(" <= ")
+                 .append(TimeBucket.getTimestamp(endSecondTB))
+                 .append(" and ");
         }
         if (StringUtil.isNotEmpty(serviceVersionId)) {
-            where.append(BrowserErrorLogRecord.SERVICE_VERSION_ID).append(" = \"").append(serviceVersionId).append("\"").append(" and ");
+            where.append(BrowserErrorLogRecord.SERVICE_VERSION_ID)
+                 .append(" = \"").append(serviceVersionId).append("\"")
+                 .append(" and ");
         }
         if (StringUtil.isNotEmpty(pagePathId)) {
-            where.append(BrowserErrorLogRecord.PAGE_PATH_ID).append(" = \"").append(pagePathId).append("\"").append(" and ");
+            where.append(BrowserErrorLogRecord.PAGE_PATH_ID)
+                 .append(" = \"").append(pagePathId).append("\"")
+                 .append(" and ");
         }
         if (Objects.nonNull(category)) {
-            where.append(BrowserErrorLogRecord.ERROR_CATEGORY).append(" = ").append(category.getValue()).append(" and ");
+            where.append(BrowserErrorLogRecord.ERROR_CATEGORY)
+                 .append(" = ").append(category.getValue())
+                 .append(" and ");
         }
         if (where.length() > 7) {
             int length = where.length();
@@ -83,11 +95,13 @@ public class IoTDBBrowserLogQueryDAO implements IBrowserLogQueryDAO {
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(BrowserErrorLogRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(BrowserErrorLogRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         List<BrowserErrorLogRecord> browserErrorLogRecordList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> browserErrorLogRecordList.add((BrowserErrorLogRecord) storageData));
         // resort by self, because of the select query result order by time.
-        browserErrorLogRecordList.sort((BrowserErrorLogRecord b1, BrowserErrorLogRecord b2) -> Long.compare(b2.getTimestamp(), b1.getTimestamp()));
+        browserErrorLogRecordList.sort((BrowserErrorLogRecord b1, BrowserErrorLogRecord b2) ->
+                                               Long.compare(b2.getTimestamp(), b1.getTimestamp()));
         BrowserErrorLogs logs = new BrowserErrorLogs();
         int limitCount = 0;
         for (int i = from; i < browserErrorLogRecordList.size(); i++) {
