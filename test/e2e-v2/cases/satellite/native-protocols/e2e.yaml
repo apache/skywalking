@@ -96,41 +96,41 @@ verify:
     # native profile: create task
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
-          profile create --service-name=e2e-service-provider \
+          profiling trace create --service-name=e2e-service-provider \
             --endpoint-name=POST:/info \
             --start-time=$((($(date +%s)+5)*1000)) \
             --duration=1 --min-duration-threshold=0 \
             --dump-period=10 --max-sampling-count=9
       expected: expected/profile-create.yml
     # native profile: sleep to wait agent notices and query profile list
-    - query: sleep 10 && swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list -service-name=e2e-service-provider --endpoint-name=POST:/info
+    - query: sleep 10 && swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=e2e-service-provider --endpoint-name=POST:/info
       expected: expected/profile-list.yml
     # native profile: sleep to wait segment report and query profiled segment list
     - query: |
         curl -X POST http://${consumer_host}:${consumer_9092}/info > /dev/null;
         sleep 5;
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile segment-list --task-id=$( \
-          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list --service-name=e2e-service-provider --endpoint-name=POST:/info | yq e '.[0].id' - \
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/info | yq e '.[0].id' - \
         )
       expected: expected/profile-segment-list.yml
     # native profile: query profiled segment
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile profiled-segment --segment-id=$( \
-          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile segment-list --task-id=$( \
-            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list --service-name=e2e-service-provider --endpoint-name=POST:/info | yq e '.[0].id' - \
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace profiled-segment --segment-id=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
+            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/info | yq e '.[0].id' - \
           ) | yq e '.[0].segmentid' - \
         )
       expected: expected/profile-segment-detail.yml
     # native profile: query profiled segment
     - query: |
         segmentid=$( \
-          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile segment-list --task-id=$( \
-            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile list --service-name=e2e-service-provider --endpoint-name=POST:/info | yq e '.[0].id' - \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
+            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/info | yq e '.[0].id' - \
           ) | yq e '.[0].segmentid' - \
         );
-        start=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile profiled-segment --segment-id=$segmentid|yq e '.spans.[0].starttime' -);
-        end=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile profiled-segment --segment-id=$segmentid|yq e '.spans.[0].endtime' -);
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profile profiled-analyze --segment-id=$segmentid --time-ranges=$(echo $start"-"$end)
+        start=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace profiled-segment --segment-id=$segmentid|yq e '.spans.[0].starttime' -);
+        end=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace profiled-segment --segment-id=$segmentid|yq e '.spans.[0].endtime' -);
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace analysis --segment-id=$segmentid --time-ranges=$(echo $start"-"$end)
       expected: expected/profile-segment-analyze.yml
 
     # native CDS: using etcdctl to update trace span limit, "/users" should have more than one span because it need DB save

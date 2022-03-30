@@ -160,7 +160,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     @Override
     public List<Process> listProcesses(String serviceId, String instanceId, String agentId) throws IOException {
         final SelectQueryImpl query = select(
-                ID_COLUMN, ProcessTraffic.NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
+                ID_COLUMN, NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
                 ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES)
                 .from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
         final WhereQueryImpl<SelectQueryImpl> whereQuery = query.where();
@@ -180,10 +180,10 @@ public class MetadataQuery implements IMetadataQueryDAO {
     @Override
     public Process getProcess(String processId) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> where = select(
-                ID_COLUMN, ProcessTraffic.NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
+                ID_COLUMN, NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
                 ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES)
                 .from(client.getDatabase(), ProcessTraffic.INDEX_NAME)
-                .where(eq(TagName.ID_COLUMN, processId));
+                .where(eq(ID_COLUMN, processId));
         final List<Process> processes = buildProcesses(where);
         return processes.size() > 0 ? processes.get(0) : null;
     }

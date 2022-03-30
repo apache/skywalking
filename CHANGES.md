@@ -124,6 +124,8 @@ Release Notes.
 * Add complexity limitation for GraphQL query to avoid malicious query.
 * Add `Column.shardingKeyIdx` for column definition for BanyanDB.
 * Fix the configuration of `Aggregation` and `GC Count` metrics for oap self observability
+* E2E: Add verify OAP eBPF Profiling.
+* Let `multiGet` could query without tag value in the `InfluxDB` storage plugin.
 
 ```
 Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same 
