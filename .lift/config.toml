@@ -5,4 +5,5 @@ ignoreFiles = """
 skywalking-ui/
 apm-protocol/apm-network/target/
 *LICENSE*
+**/generated-sources/**
 """
