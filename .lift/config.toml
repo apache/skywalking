@@ -4,5 +4,5 @@ setup = ".lift/setup.sh"
 ignoreFiles = """
 skywalking-ui/
 apm-protocol/apm-network/target/
-and **/LICENSE**
+and *LICENSE*
 """
