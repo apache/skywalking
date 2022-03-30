@@ -86,8 +86,11 @@ public class IoTDBTableMetaInfo {
             indexes.add(IoTDBIndexes.AGENT_ID_INX);
         }
 
-        final IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.builder().model(model)
-                .columnAndTypeMap(columnAndTypeMap).indexes(indexes).build();
+        final IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.builder()
+                                                                   .model(model)
+                                                                   .columnAndTypeMap(columnAndTypeMap)
+                                                                   .indexes(indexes)
+                                                                   .build();
         TABLE_META_INFOS.put(model.getName(), tableMetaInfo);
     }
 

@@ -81,8 +81,8 @@ public class EBPFProfilingScheduleQuery implements IEBPFProfilingScheduleDAO {
             schedule.setScheduleId((String) values.get(1));
             schedule.setTaskId((String) values.get(2));
             schedule.setProcessId((String) values.get(3));
-            schedule.setStartTime((long) values.get(4));
-            schedule.setEndTime((long) values.get(5));
+            schedule.setStartTime(((Number) values.get(4)).longValue());
+            schedule.setEndTime(((Number) values.get(5)).longValue());
             schedules.add(schedule);
         }
         return schedules;

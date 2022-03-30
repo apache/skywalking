@@ -124,6 +124,8 @@ Release Notes.
 * Add complexity limitation for GraphQL query to avoid malicious query.
 * Add `Column.shardingKeyIdx` for column definition for BanyanDB.
 * Fix the configuration of `Aggregation` and `GC Count` metrics for oap self observability
+* E2E: Add verify OAP eBPF Profiling.
+* Let `multiGet` could query without tag value in the `InfluxDB` storage plugin.
 
 ```
 Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same 
@@ -146,6 +148,8 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Fix event type of export data is incorrect, it was `EventType.TOTAL` always.
 * Reduce redundancy ThreadLocal in MAL core. Improve MAL performance.
 * Trim tag's key and value in log query.
+* Refactor IoTDB storage plugin, add IoTDBDataConverter and fix ModifyCollectionInEnhancedForLoop bug.
+* Bump up iotdb-session to 0.12.5.
 
 #### UI
 

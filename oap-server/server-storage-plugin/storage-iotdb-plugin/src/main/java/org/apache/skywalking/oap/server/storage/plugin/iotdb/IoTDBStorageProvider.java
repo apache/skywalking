@@ -117,10 +117,10 @@ public class IoTDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(UITemplateManagementDAO.class, new IoTDBUITemplateManagementDAO(client));
 
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class,
-                new IoTDBProfileTaskLogQueryDAO(client, config.getFetchTaskLogMaxSize()));
+                                           new IoTDBProfileTaskLogQueryDAO(client, config.getFetchTaskLogMaxSize()));
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new IoTDBProfileTaskQueryDAO(client));
         this.registerServiceImplementation(IProfileThreadSnapshotQueryDAO.class,
-                new IoTDBProfileThreadSnapshotQueryDAO(client));
+                                           new IoTDBProfileThreadSnapshotQueryDAO(client));
 
         this.registerServiceImplementation(IAggregationQueryDAO.class, new IoTDBAggregationQueryDAO(client));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new IoTDBAlarmQueryDAO(client));
@@ -141,8 +141,8 @@ public class IoTDBStorageProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME)
-                .provider()
-                .getService(MetricsCreator.class);
+                                                   .provider()
+                                                   .getService(MetricsCreator.class);
         HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge(
                 "storage_iotdb", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         client.registerChecker(healthChecker);

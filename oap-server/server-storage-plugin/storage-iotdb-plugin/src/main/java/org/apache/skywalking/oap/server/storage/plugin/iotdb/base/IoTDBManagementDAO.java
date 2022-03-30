@@ -36,7 +36,8 @@ public class IoTDBManagementDAO implements IManagementDAO {
 
     @Override
     public void insert(Model model, ManagementData storageData) throws IOException {
-        IoTDBInsertRequest request = new IoTDBInsertRequest(model.getName(), 1L, storageData, storageBuilder);
+        IoTDBInsertRequest request =
+                IoTDBInsertRequest.buildRequest(model.getName(), 1L, storageData, storageBuilder);
         client.write(request);
     }
 }

@@ -27,7 +27,6 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -58,7 +57,7 @@ public class EBPFProfilingScheduleEsDAO extends EsDAO implements IEBPFProfilingS
                     .gte(TimeBucket.getTimestamp(startTimeBucket))
                     .lte(TimeBucket.getTimestamp(endTimeBucket)));
         final SearchBuilder search = Search.builder().query(query)
-                .sort(EBPFProfilingTaskRecord.CREATE_TIME, Sort.Order.DESC)
+                .sort(EBPFProfilingScheduleRecord.START_TIME, Sort.Order.DESC)
                 .size(scheduleTaskSize);
 
         final SearchResponse response = getClient().search(index, search.build());

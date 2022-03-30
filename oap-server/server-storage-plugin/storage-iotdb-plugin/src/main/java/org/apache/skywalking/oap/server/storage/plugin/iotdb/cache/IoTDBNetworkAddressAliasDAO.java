@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.Networ
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,14 +39,14 @@ public class IoTDBNetworkAddressAliasDAO implements INetworkAddressAliasDAO {
     public List<NetworkAddressAlias> loadLastUpdate(long timeBucket) {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, NetworkAddressAlias.INDEX_NAME);
-        query = client.addQueryAsterisk(NetworkAddressAlias.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, NetworkAddressAlias.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(NetworkAddressAlias.INDEX_NAME, query);
         query.append(" where ").append(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET).append(" >= ").append(timeBucket)
-                .append(IoTDBClient.ALIGN_BY_DEVICE);
+             .append(IoTDBClient.ALIGN_BY_DEVICE);
 
         try {
             List<? super StorageData> storageDataList = client.filterQuery(NetworkAddressAlias.INDEX_NAME,
-                    query.toString(), storageBuilder);
+                                                                           query.toString(), storageBuilder);
             List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>(storageDataList.size());
             storageDataList.forEach(storageData -> networkAddressAliases.add((NetworkAddressAlias) storageData));
             return networkAddressAliases;
