@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,12 +40,13 @@ public class IoTDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
     private final StorageBuilder<EBPFProfilingDataRecord> storageBuilder = new EBPFProfilingDataRecord.Builder();
 
     @Override
-    public List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime) throws IOException {
+    public List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime)
+            throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, EBPFProfilingDataRecord.INDEX_NAME);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, EBPFProfilingDataRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
-        query = client.addQueryIndexValue(EBPFProfilingDataRecord.INDEX_NAME, query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(EBPFProfilingDataRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
         where.append(EBPFProfilingDataRecord.TASK_ID).append(" = \"").append(taskId).append("\" and ");
@@ -57,7 +59,8 @@ public class IoTDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingDataRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingDataRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         List<EBPFProfilingDataRecord> dataList = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> dataList.add((EBPFProfilingDataRecord) storageData));
         return dataList;
