@@ -13,42 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
-services:
-  influxdb:
-    image: influxdb:1.7.9
-    expose:
-      - 8086
-    networks:
-      - e2e
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/8086"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
-
-  provider:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: provider
-    depends_on:
-      oap:
-        condition: service_healthy
-    ports:
-    - 9090
-
-  oap:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: oap
-    environment:
-      SW_STORAGE: influxdb
-    depends_on:
-      influxdb:
-        condition: service_healthy
-    ports:
-    - 12800
-
-networks:
-  e2e:
+{{- contains . }}
+- taskid: {{ notEmpty .taskid }}
+  processfindertype: PROCESS_ID
+  serviceid: {{ b64enc "sqrt" }}.1
+  servicename: sqrt
+  instanceid: {{ b64enc "sqrt" }}.1_{{ b64enc "test-instance" }}
+  instancename: test-instance
+  processid: {{ notEmpty .processid }}
+  processname: sqrt
+  taskstarttime: {{ gt .taskstarttime 0 }}
+  triggertype: FIXED_TIME
+  fixedtriggerduration: 60
+  targettype: ON_CPU
+  createtime: {{ gt .createtime 0 }}
+{{- end }}

@@ -16,44 +16,51 @@
 version: '2.1'
 
 services:
-  mysql:
-    image: mysql/mysql-server:8.0.13
+  h2db:
+    build:
+      context: ""
+      dockerfile: ../../../../script/dockerfile/Dockerfile.h2
     networks:
       - e2e
     expose:
-      - 3306
-    environment:
-      - MYSQL_ROOT_PASSWORD=root@1234
-      - MYSQL_DATABASE=swtest
-      - MYSQL_ROOT_HOST=%
+      - 1521
     healthcheck:
-      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306" ]
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/1521"]
       interval: 5s
       timeout: 60s
       retries: 120
 
-  provider:
+  oap:
     extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: provider
+      file: ../docker-compose.yml
+      service: oap
+    networks:
+      - e2e
+    environment:
+      SW_STORAGE: h2
+      SW_STORAGE_H2_URL: jdbc:h2:tcp://h2db:1521/skywalking-oap-db
+    depends_on:
+      h2db:
+        condition: service_healthy
+    ports:
+    - 12800
+
+  sqrt:
+    extends:
+      file: ../docker-compose.yml
+      service: sqrt
+    networks:
+      - e2e
+
+  rover:
+    extends:
+      file: ../docker-compose.yml
+      service: rover
+    networks:
+      - e2e
     depends_on:
       oap:
         condition: service_healthy
-    ports:
-    - 9090
-
-  oap:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: oap
-    environment:
-      SW_STORAGE: mysql
-    depends_on:
-      mysql:
-        condition: service_healthy
-    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
-    ports:
-    - 12800
 
 networks:
   e2e:
