@@ -3,7 +3,7 @@ ignoreRules = [ "THREAD_SAFETY_VIOLATION", "MissingSummary", "SameNameButDiffere
 setup = ".lift/setup.sh"
 ignoreFiles = """
 skywalking-ui/
-apm-protocol/apm-network/target/
+**/target/**
 *LICENSE*
 **/generated-sources/**
 """
