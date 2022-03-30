@@ -4,6 +4,5 @@ setup = ".lift/setup.sh"
 ignoreFiles = """
 skywalking-ui/
 **/target/**
-*LICENSE*
-**/generated-sources/**
+/dist-material/release-docs/
 """
