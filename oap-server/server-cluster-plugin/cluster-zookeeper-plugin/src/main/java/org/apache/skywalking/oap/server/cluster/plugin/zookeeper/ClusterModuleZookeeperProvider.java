@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import com.google.common.collect.Lists;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import org.apache.curator.RetryPolicy;
@@ -114,7 +115,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
                 }
             };
             builder.aclProvider(provider);
-            builder.authorization(config.getSchema(), config.getExpression().getBytes());
+            builder.authorization(config.getSchema(), config.getExpression().getBytes(StandardCharsets.UTF_8));
         }
         client = builder.build();
 

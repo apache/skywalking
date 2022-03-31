@@ -39,7 +39,7 @@ curator-client-4.3.0.jar
 curator-framework-4.3.0.jar
 curator-recipes-4.3.0.jar
 curator-x-discovery-4.3.0.jar
-error_prone_annotations-2.3.2.jar
+error_prone_annotations-2.11.0.jar
 failsafe-2.3.4.jar
 failureaccess-1.0.1.jar
 flatbuffers-java-1.12.0.jar
