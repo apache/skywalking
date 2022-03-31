@@ -457,7 +457,7 @@
                   },
                   "graph": {
                     "type": "InstanceList",
-                    "dashboardName": "V9-K8S-Node",
+                    "dashboardName": "K8S-Node",
                     "fontSize": 12
                   },
                   "standard": {},

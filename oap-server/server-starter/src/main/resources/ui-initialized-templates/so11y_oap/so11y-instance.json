@@ -22,20 +22,19 @@
       "children": [
         {
           "x": 12,
-          "y": 12,
+          "y": 0,
           "w": 6,
           "h": 13,
           "i": "0",
           "type": "Widget",
           "widget": {
-            "title": "GC Count"
+            "title": "GC Count (Per Minute)"
           },
           "graph": {
             "type": "Bar",
             "showBackground": true
           },
           "standard": {
-            "unit": "Per Minute"
           },
           "metrics": [
             "meter_oap_instance_jvm_gc_count"
@@ -47,13 +46,13 @@
         },
         {
           "x": 6,
-          "y": 12,
+          "y": 0,
           "w": 6,
           "h": 13,
           "i": "1",
           "type": "Widget",
           "widget": {
-            "title": "Memory"
+            "title": "Memory (MB)"
           },
           "graph": {
             "type": "Line",
@@ -64,15 +63,6 @@
             "showYAxis": true
           },
           "standard": {
-            "0": "1",
-            "1": "0",
-            "2": "4",
-            "3": "8",
-            "4": "5",
-            "5": "7",
-            "6": "6",
-            "unit": "MB",
-            "divide": "1048576"
           },
           "metrics": [
             "meter_oap_instance_jvm_memory_bytes_used"
@@ -84,13 +74,13 @@
         },
         {
           "x": 18,
-          "y": 12,
+          "y": 0,
           "w": 6,
           "h": 13,
           "i": "2",
           "type": "Widget",
           "widget": {
-            "title": "GC Time"
+            "title": "GC Time (ms)"
           },
           "graph": {
             "type": "Line",
@@ -101,7 +91,6 @@
             "showYAxis": true
           },
           "standard": {
-            "unit": "Millisecond"
           },
           "metrics": [
             "meter_oap_instance_jvm_young_gc_time",
@@ -115,20 +104,19 @@
         },
         {
           "x": 12,
-          "y": 25,
+          "y": 13,
           "w": 6,
           "h": 13,
           "i": "3",
           "type": "Widget",
           "widget": {
-            "title": "Mesh Analysis Count"
+            "title": "Mesh Analysis Count (Per Minute)"
           },
           "graph": {
             "type": "Bar",
             "showBackground": true
           },
           "standard": {
-            "unit": "Per Minute"
           },
           "metrics": [
             "meter_oap_instance_mesh_count",
@@ -142,13 +130,13 @@
         },
         {
           "x": 6,
-          "y": 25,
+          "y": 13,
           "w": 6,
           "h": 13,
           "i": "4",
           "type": "Widget",
           "widget": {
-            "title": "Trace Analysis Latency"
+            "title": "Trace Analysis Latency (ms)"
           },
           "graph": {
             "type": "Line",
@@ -159,8 +147,6 @@
             "showYAxis": true
           },
           "standard": {
-            "unit": "Millisecond",
-            "labelsIndex": "50,70,90,99"
           },
           "metrics": [
             "meter_oap_instance_trace_latency_percentile"
@@ -172,7 +158,7 @@
         },
         {
           "x": 12,
-          "y": 51,
+          "y": 39,
           "w": 6,
           "h": 13,
           "i": "5",
@@ -187,7 +173,6 @@
             "showYAxis": true
           },
           "standard": {
-            "unit": ""
           },
           "metrics": [
             "meter_oap_jvm_class_loaded_count",
@@ -203,20 +188,19 @@
         },
         {
           "x": 6,
-          "y": 38,
+          "y": 26,
           "w": 6,
           "h": 13,
           "i": "6",
           "type": "Widget",
           "widget": {
-            "title": "Persistence Count"
+            "title": "Persistence Count (Per 5 Minutes)"
           },
           "graph": {
             "type": "Bar",
             "showBackground": true
           },
           "standard": {
-            "unit": "Per 5 Minutes"
           },
           "metrics": [
             "meter_oap_instance_persistence_prepare_count",
@@ -230,7 +214,7 @@
         },
         {
           "x": 0,
-          "y": 51,
+          "y": 39,
           "w": 6,
           "h": 13,
           "i": "7",
@@ -247,7 +231,6 @@
             "showYAxis": true
           },
           "standard": {
-            "unit": ""
           },
           "metrics": [
             "meter_oap_jvm_thread_live_count",
@@ -263,13 +246,13 @@
         },
         {
           "x": 18,
-          "y": 38,
+          "y": 26,
           "w": 6,
           "h": 13,
           "i": "8",
           "type": "Widget",
           "widget": {
-            "title": "Persistence Execution Latency "
+            "title": "Persistence Execution Latency (ms)"
           },
           "graph": {
             "type": "Line",
@@ -280,8 +263,6 @@
             "showYAxis": true
           },
           "standard": {
-            "unit": "Millisecond",
-            "metricLabels": "50,70,90,99"
           },
           "metrics": [
             "meter_oap_instance_persistence_execute_percentile"
@@ -293,13 +274,13 @@
         },
         {
           "x": 12,
-          "y": 38,
+          "y": 26,
           "w": 6,
           "h": 13,
           "i": "9",
           "type": "Widget",
           "widget": {
-            "title": "Persistence Preparing Latency "
+            "title": "Persistence Preparing Latency (ms)"
           },
           "graph": {
             "type": "Line",
@@ -310,8 +291,6 @@
             "showYAxis": true
           },
           "standard": {
-            "unit": "Millisecond",
-            "metricLabels": "50,70,90,99"
           },
           "metrics": [
             "meter_oap_instance_persistence_prepare_percentile"
@@ -323,7 +302,7 @@
         },
         {
           "x": 6,
-          "y": 51,
+          "y": 39,
           "w": 6,
           "h": 13,
           "i": "10",
@@ -336,7 +315,6 @@
             "showBackground": true
           },
           "standard": {
-            "unit": ""
           },
           "metrics": [
             "meter_oap_jvm_thread_runnable_count",
@@ -354,13 +332,13 @@
         },
         {
           "x": 0,
-          "y": 38,
+          "y": 26,
           "w": 6,
           "h": 13,
           "i": "11",
           "type": "Widget",
           "widget": {
-            "title": "Aggregation"
+            "title": "Aggregation (Per Minute)"
           },
           "graph": {
             "type": "Line",
@@ -371,7 +349,6 @@
             "showYAxis": true
           },
           "standard": {
-            "unit": "Per Minute"
           },
           "metrics": [
             "meter_oap_instance_metrics_aggregation"
@@ -383,18 +360,23 @@
         },
         {
           "x": 18,
-          "y": 25,
+          "y": 13,
           "w": 6,
           "h": 13,
           "i": "12",
           "type": "Widget",
           "widget": {
-            "title": "Mesh Analysis Latency"
+            "title": "Mesh Analysis Latency (ms)"
           },
-          "graph": {},
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
           "standard": {
-            "unit": "Millisecond",
-            "metricLabels": "50,70,90,99"
           },
           "metrics": [
             "meter_oap_instance_mesh_latency_percentile"
@@ -402,24 +384,29 @@
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "label": "50,70,90,99",
+              "labelsIndex": "50,70,90,99"
+            }
+          ]
         },
         {
           "x": 0,
-          "y": 25,
+          "y": 13,
           "w": 6,
           "h": 13,
           "i": "13",
           "type": "Widget",
           "widget": {
-            "title": "Trace Analysis Count"
+            "title": "Trace Analysis Count (Per Minute)"
           },
           "graph": {
             "type": "Bar",
             "showBackground": true
           },
           "standard": {
-            "unit": "Per Minute"
           },
           "metrics": [
             "meter_oap_instance_trace_count",
@@ -433,13 +420,13 @@
         },
         {
           "x": 0,
-          "y": 12,
+          "y": 0,
           "w": 6,
           "h": 13,
           "i": "14",
           "type": "Widget",
           "widget": {
-            "title": "CPU"
+            "title": "CPU (%)"
           },
           "graph": {
             "type": "Line",
@@ -450,7 +437,6 @@
             "showYAxis": true
           },
           "standard": {
-            "unit": "%"
           },
           "metrics": [
             "meter_oap_instance_cpu_percentage"
@@ -461,11 +447,10 @@
           "moved": false
         }
       ],
-      "name": "Self-Observability-OAP-Instance",
       "layer": "SO11Y_OAP",
       "entity": "ServiceInstance",
-      "isRoot": false,
-      "id": "Self-Observability-OAP-Instance"
+      "name": "Self-Observability-OAP-Instance",
+      "isRoot": false
     }
   }
 ]

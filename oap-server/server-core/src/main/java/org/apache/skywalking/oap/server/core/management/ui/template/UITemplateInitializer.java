@@ -40,17 +40,19 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * The dashboard names should be different in the same Layer and entity.
  */
 public class UITemplateInitializer {
-    public static Layer[] SUPPORTED_LAYER = new Layer[] {
-        Layer.MESH,
-        Layer.GENERAL,
-        Layer.OS_LINUX,
-        Layer.MESH_CP,
-        Layer.MESH_DP,
-        Layer.K8S,
-        Layer.BROWSER,
-        Layer.SO11Y_OAP,
-        Layer.VIRTUAL_DATABASE,
-        Layer.SO11Y_SATELLITE
+    public static String[] UI_TEMPLATE_FOLDER = new String[] {
+        Layer.MESH.name(),
+        Layer.GENERAL.name(),
+        Layer.OS_LINUX.name(),
+        Layer.MESH_CP.name(),
+        Layer.MESH_DP.name(),
+        Layer.K8S.name(),
+        Layer.BROWSER.name(),
+        Layer.SO11Y_OAP.name(),
+        Layer.VIRTUAL_DATABASE.name(),
+        Layer.K8S_SERVICE.name(),
+        Layer.SO11Y_SATELLITE.name(),
+        "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
     private final ObjectMapper mapper;
@@ -64,8 +66,8 @@ public class UITemplateInitializer {
     }
 
     public void initAll() throws IOException {
-        for (Layer layer : UITemplateInitializer.SUPPORTED_LAYER) {
-            File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + layer.name().toLowerCase(
+        for (String folder : UITemplateInitializer.UI_TEMPLATE_FOLDER) {
+            File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + folder.toLowerCase(
                 Locale.ROOT));
             for (File file : templateFiles) {
                 initTemplate(file);
@@ -75,6 +77,9 @@ public class UITemplateInitializer {
 
     public void initTemplate(File template) throws IOException {
         JsonNode jsonNode = mapper.readTree(template);
+        if (jsonNode == null || jsonNode.size() == 0) {
+            return;
+        }
         if (jsonNode.size() > 1) {
             throw new IllegalArgumentException(
                 "File:  " + template.getName() + " should be only one dashboard setting json object.");

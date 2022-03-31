@@ -435,21 +435,21 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Title"
+                    "title": ""
                   },
                   "graph": {
                     "type": "EndpointList",
-                    "dashboardName": "",
+                    "dashboardName": "Mesh-Endpoint",
                     "fontSize": 12,
                     "showXAxis": false,
                     "showYAxis": false
                   },
                   "standard": {},
                   "metrics": [
-                    ""
+                    "endpoint_cpm"
                   ],
                   "metricTypes": [
-                    ""
+                    "readMetricsValues"
                   ],
                   "moved": false
                 }

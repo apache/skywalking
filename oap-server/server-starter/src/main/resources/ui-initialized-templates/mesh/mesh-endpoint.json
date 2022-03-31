@@ -57,15 +57,19 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "standard": {
-                  },
+                  "standard": {},
                   "metrics": [
                     "endpoint_sla"
                   ],
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
                 },
                 {
                   "x": 8,
@@ -81,8 +85,7 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "standard": {
-                  },
+                  "standard": {},
                   "metrics": [
                     "endpoint_resp_time"
                   ],
@@ -106,8 +109,7 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "standard": {
-                  },
+                  "standard": {},
                   "metrics": [
                     "endpoint_cpm"
                   ],
@@ -171,8 +173,7 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                  },
+                  "standard": {},
                   "metrics": [
                     "endpoint_resp_time"
                   ],
@@ -199,15 +200,19 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                  },
+                  "standard": {},
                   "metrics": [
                     "endpoint_sla"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -233,33 +238,6 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "moved": false
-                }
-              ]
-            },
-            {
-              "name": "Topology",
-              "children": [
-                {
-                  "x": 0,
-                  "y": 0,
-                  "w": 24,
-                  "h": 48,
-                  "i": "0",
-                  "type": "Topology",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {
-                    "showDepth": true
-                  },
-                  "standard": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
                   ],
                   "moved": false
                 }
@@ -296,8 +274,7 @@
       ],
       "layer": "MESH",
       "entity": "Endpoint",
-      "name": "Mesh-Endpoint",
-      "isRoot": false
+      "name": "Mesh-Endpoint"
     }
   }
 ]

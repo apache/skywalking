@@ -15,39 +15,6 @@
  * limitations under the License.
  */
 
-[
-  {
-    "id": "Self-Observability-OAP-Service",
-    "configuration": {
-      "children": [
-        {
-          "x": 0,
-          "y": 0,
-          "w": 24,
-          "h": 52,
-          "i": "0",
-          "type": "Widget",
-          "widget": {
-            "title": ""
-          },
-          "graph": {
-            "type": "InstanceList",
-            "dashboardName": "Self-Observability-OAP-Instance",
-            "fontSize": 12
-          },
-          "standard": {},
-          "metrics": [
-            "meter_oap_instance_cpu_percentage"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "moved": false
-        }
-      ],
-      "layer": "SO11Y_OAP",
-      "entity": "Service",
-      "name": "Self-Observability-OAP-Service"
-    }
-  }
-]
+/**
+ * Put the custom ui-template here
+ */
