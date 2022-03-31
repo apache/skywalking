@@ -35,6 +35,7 @@ public class InstanceEntityDescription implements EntityDescription {
     private final List<String> serviceKeys;
     private final List<String> instanceKeys;
     private final Layer layer;
+    private final String delimiter;
 
     @Override
     public List<String> getLabelKeys() {

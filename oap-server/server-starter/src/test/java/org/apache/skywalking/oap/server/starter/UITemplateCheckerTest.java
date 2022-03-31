@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateInitializer;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -44,11 +43,14 @@ public class UITemplateCheckerTest {
         mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
         Set<String> dashboardIds = new HashSet<>();
         Set<String> dashboardNames = new HashSet<>();
-        for (Layer layer : UITemplateInitializer.SUPPORTED_LAYER) {
-            File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + layer.name().toLowerCase(
+        for (String folder : UITemplateInitializer.UI_TEMPLATE_FOLDER) {
+            File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + folder.toLowerCase(
                 Locale.ROOT));
             for (File template : templateFiles) {
                 JsonNode jsonNode = mapper.readTree(template);
+                if (jsonNode == null || jsonNode.size() == 0) {
+                    continue;
+                }
                 if (jsonNode.size() > 1) {
                     throw new IllegalArgumentException(
                         "File:  " + template.getName() + " should be only one dashboard setting json object.");

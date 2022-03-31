@@ -126,6 +126,7 @@ Release Notes.
 * Fix the configuration of `Aggregation` and `GC Count` metrics for oap self observability
 * E2E: Add verify OAP eBPF Profiling.
 * Let `multiGet` could query without tag value in the `InfluxDB` storage plugin.
+* Adjust MAL for V9, remove some groups and add new Service func for custom delimiter.
 
 ```
 Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same 

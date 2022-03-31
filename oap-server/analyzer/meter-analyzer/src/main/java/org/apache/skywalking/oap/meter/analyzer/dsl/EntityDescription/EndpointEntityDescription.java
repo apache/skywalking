@@ -35,6 +35,7 @@ public class EndpointEntityDescription implements EntityDescription {
     private final List<String> serviceKeys;
     private final List<String> endpointKeys;
     private final Layer layer;
+    private final String delimiter;
 
     @Override
     public List<String> getLabelKeys() {
