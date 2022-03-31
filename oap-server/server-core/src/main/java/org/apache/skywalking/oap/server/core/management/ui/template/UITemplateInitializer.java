@@ -49,7 +49,8 @@ public class UITemplateInitializer {
         Layer.K8S,
         Layer.BROWSER,
         Layer.SO11Y_OAP,
-        Layer.VIRTUAL_DATABASE
+        Layer.VIRTUAL_DATABASE,
+        Layer.SO11Y_SATELLITE
     };
     private final UITemplateManagementService uiTemplateManagementService;
     private final ObjectMapper mapper;

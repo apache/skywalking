@@ -161,6 +161,7 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Add Database Connection pool metric.
 * Re-implement UI template initialization for Booster UI.
 * Add environment variable `SW_ENABLE_UPDATE_UI_TEMPLATE` to control user edit UI template.
+* Add the Self Observability template of the SkyWalking Satellite.
 
 #### Documentation
 

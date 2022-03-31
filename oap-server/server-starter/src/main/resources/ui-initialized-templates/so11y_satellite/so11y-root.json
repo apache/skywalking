@@ -1,0 +1,236 @@
+[
+  {
+    "id":"Self-Observability-Satellite-Root",
+    "configuration":{
+      "children":[
+        {
+          "x":8,
+          "y":0,
+          "w":8,
+          "h":14,
+          "i":"1",
+          "type":"Widget",
+          "widget":{
+            "title":"Connection Count"
+          },
+          "graph":{
+            "type":"Line",
+            "step":false,
+            "smooth":false,
+            "showSymbol":false,
+            "showXAxis":true,
+            "showYAxis":true
+          },
+          "standard":{
+            "unit":"Count"
+          },
+          "metrics":[
+            "satellite_service_grpc_connect_count"
+          ],
+          "metricTypes":[
+            "readMetricsValues"
+          ],
+          "moved":false
+        },
+        {
+          "x":0,
+          "y":0,
+          "w":8,
+          "h":14,
+          "i":"0",
+          "type":"Widget",
+          "widget":{
+            "title":"CPU"
+          },
+          "graph":{
+            "type":"Line",
+            "step":false,
+            "smooth":false,
+            "showSymbol":false,
+            "showXAxis":true,
+            "showYAxis":true
+          },
+          "standard":{
+            "unit":"%"
+          },
+          "metrics":[
+            "satellite_service_server_cpu_utilization"
+          ],
+          "metricTypes":[
+            "readMetricsValues"
+          ],
+          "moved":false
+        },
+        {
+          "x":16,
+          "y":0,
+          "w":8,
+          "h":14,
+          "i":"2",
+          "type":"Widget",
+          "widget":{
+            "title":"Queue Used Count",
+            "tips":"The used count of queue of pipeline"
+          },
+          "graph":{
+            "type":"Line",
+            "step":false,
+            "smooth":false,
+            "showSymbol":false,
+            "showXAxis":true,
+            "showYAxis":true
+          },
+          "standard":{
+
+          },
+          "metrics":[
+            "satellite_service_queue_used_count"
+          ],
+          "metricTypes":[
+            "readLabeledMetricsValues"
+          ],
+          "metricConfig":[
+
+          ],
+          "moved":false
+        },
+        {
+          "x":0,
+          "y":14,
+          "w":12,
+          "h":14,
+          "i":"3",
+          "type":"Widget",
+          "widget":{
+            "title":"Receive Event Count",
+            "tips":"Receive count of event from downstream"
+          },
+          "graph":{
+            "type":"Line",
+            "step":false,
+            "smooth":false,
+            "showSymbol":false,
+            "showXAxis":true,
+            "showYAxis":true
+          },
+          "standard":{
+
+          },
+          "metrics":[
+            "satellite_service_receive_event_count"
+          ],
+          "metricTypes":[
+            "readLabeledMetricsValues"
+          ],
+          "metricConfig":[
+
+          ],
+          "moved":false
+        },
+        {
+          "x":12,
+          "y":14,
+          "w":12,
+          "h":14,
+          "i":"4",
+          "type":"Widget",
+          "widget":{
+            "title":"Fetch Event Count",
+            "tips":"Fetch count of event from downstream"
+          },
+          "graph":{
+            "type":"Line",
+            "step":false,
+            "smooth":false,
+            "showSymbol":false,
+            "showXAxis":true,
+            "showYAxis":true
+          },
+          "standard":{
+
+          },
+          "metrics":[
+            "satellite_service_fetch_event_count"
+          ],
+          "metricTypes":[
+            "readLabeledMetricsValues"
+          ],
+          "metricConfig":[
+
+          ],
+          "moved":false
+        },
+        {
+          "x":0,
+          "y":28,
+          "w":12,
+          "h":15,
+          "i":"5",
+          "type":"Widget",
+          "widget":{
+            "title":"Queue Input Count",
+            "tips":"The event count of push to the queue"
+          },
+          "graph":{
+            "type":"Line",
+            "step":false,
+            "smooth":false,
+            "showSymbol":false,
+            "showXAxis":true,
+            "showYAxis":true
+          },
+          "standard":{
+
+          },
+          "metrics":[
+            "satellite_service_queue_input_count"
+          ],
+          "metricTypes":[
+            "readLabeledMetricsValues"
+          ],
+          "metricConfig":[
+
+          ],
+          "moved":false
+        },
+        {
+          "x":12,
+          "y":28,
+          "w":12,
+          "h":15,
+          "i":"6",
+          "type":"Widget",
+          "widget":{
+            "title":"Queue Output Count",
+            "tips":"The event count of push data to the upstream"
+          },
+          "graph":{
+            "type":"Line",
+            "step":false,
+            "smooth":false,
+            "showSymbol":false,
+            "showXAxis":true,
+            "showYAxis":true
+          },
+          "standard":{
+
+          },
+          "metrics":[
+            "satellite_service_send_event_count"
+          ],
+          "metricTypes":[
+            "readLabeledMetricsValues"
+          ],
+          "metricConfig":[
+
+          ],
+          "moved":false
+        }
+      ],
+      "layer":"SO11Y_SATELLITE",
+      "entity":"Service",
+      "name":"Self-Observability-Satellite-Root",
+      "isRoot":true
+    }
+  }
+]
