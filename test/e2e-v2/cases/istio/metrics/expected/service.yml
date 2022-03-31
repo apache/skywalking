@@ -15,7 +15,7 @@
 
 {{- contains . }}
 - id: {{ b64enc "e2e::istio-egressgateway" }}.1
-  name: istio-dp::e2e::istio-egressgateway
+  name: e2e::istio-egressgateway
   group: "istio-dp"
   shortname: e2e::istio-egressgateway
   normal: true
@@ -29,7 +29,7 @@
   layers:
     - MESH_DP
 - id: {{ b64enc "e2e::reviews" }}.1
-  name: istio-dp::e2e::reviews
+  name: e2e::reviews
   group: "istio-dp"
   shortname: e2e::reviews
   normal: true
@@ -43,7 +43,7 @@
   layers:
     - MESH_DP
 - id: {{ b64enc "e2e::details" }}.1
-  name: istio-dp::e2e::details
+  name: e2e::details
   group: "istio-dp"
   shortname: e2e::details
   normal: true
