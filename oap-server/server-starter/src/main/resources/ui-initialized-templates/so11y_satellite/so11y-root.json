@@ -22,7 +22,7 @@
       "children":[
         {
           "x":8,
-          "y":0,
+          "y":2,
           "w":8,
           "h":14,
           "i":"1",
@@ -48,7 +48,7 @@
         },
         {
           "x":0,
-          "y":0,
+          "y":2,
           "w":8,
           "h":14,
           "i":"0",
@@ -74,7 +74,7 @@
         },
         {
           "x":16,
-          "y":0,
+          "y":2,
           "w":8,
           "h":14,
           "i":"2",
@@ -104,7 +104,7 @@
         },
         {
           "x":0,
-          "y":14,
+          "y":16,
           "w":12,
           "h":14,
           "i":"3",
@@ -134,7 +134,7 @@
         },
         {
           "x":12,
-          "y":14,
+          "y":16,
           "w":12,
           "h":14,
           "i":"4",
@@ -164,7 +164,7 @@
         },
         {
           "x":0,
-          "y":28,
+          "y":30,
           "w":12,
           "h":15,
           "i":"5",
@@ -194,7 +194,7 @@
         },
         {
           "x":12,
-          "y":28,
+          "y":30,
           "w":12,
           "h":15,
           "i":"6",
@@ -220,6 +220,29 @@
           "metricConfig":[
 
           ],
+          "moved":false
+        },
+        {
+          "x":0,
+          "y":0,
+          "w":24,
+          "h":2,
+          "i":"8",
+          "type":"Text",
+          "metricTypes":[
+            ""
+          ],
+          "metrics":[
+            ""
+          ],
+          "graph":{
+            "fontColor":"black",
+            "backgroundColor":"white",
+            "content":"Satellite: an open-source agent designed for the cloud-native infrastructures, which provides a low-cost, high-efficient, and more secure way to collect telemetry data. It is the recommended load balancer for telemetry collecting.",
+            "fontSize":14,
+            "textAlign":"left",
+            "url":"https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-load-balancer/"
+          },
           "moved":false
         }
       ],
