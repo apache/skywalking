@@ -35,7 +35,6 @@
             "dashboardName": "Mesh-Data-Plane-Instance",
             "fontSize": 12
           },
-          "standard": {},
           "metrics": [
             ""
           ],

@@ -31,7 +31,6 @@
             "title": "Title"
           },
           "graph": {},
-          "standard": {},
           "metrics": [
             ""
           ],
@@ -58,7 +57,6 @@
                     "fontSize": 14,
                     "textAlign": "center"
                   },
-                  "standard": {},
                   "metrics": [
                     "service_apdex"
                   ],
@@ -88,7 +86,6 @@
                     "textAlign": "center",
                     "showUnit": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_sla"
                   ],
@@ -120,7 +117,6 @@
                     "textAlign": "center",
                     "showUnit": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_cpm"
                   ],
@@ -152,7 +148,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_resp_time"
                   ],
@@ -182,7 +177,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_apdex"
                   ],
@@ -214,7 +208,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_percentile"
                   ],
@@ -246,10 +239,6 @@
                     "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
-                    "divide": 100,
-                    "unit": "%"
                   },
                   "metrics": [
                     "service_sla"
@@ -283,7 +272,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_cpm"
                   ],
@@ -310,7 +298,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_mq_consume_count"
                   ],
@@ -338,7 +325,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_mq_consume_latency"
                   ],
@@ -361,7 +347,6 @@
                   "graph": {
                     "type": "TopList"
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_cpm"
                   ],
@@ -390,7 +375,6 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_resp_time"
                   ],
@@ -419,7 +403,6 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_sla"
                   ],
@@ -454,7 +437,6 @@
                     "dashboardName": "General-Instance",
                     "fontSize": 12
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_cpm"
                   ],
@@ -485,7 +467,6 @@
                     "showXAxis": false,
                     "showYAxis": false
                   },
-                  "standard": {},
                   "metrics": [
                     "endpoint_cpm"
                   ],
@@ -512,7 +493,6 @@
                   "graph": {
                     "showDepth": true
                   },
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -556,7 +536,6 @@
                     "title": "Title"
                   },
                   "graph": {},
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -581,7 +560,6 @@
                     "title": "Title"
                   },
                   "graph": {},
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -606,7 +584,6 @@
                     "title": "Title"
                   },
                   "graph": {},
-                  "standard": {},
                   "metrics": [
                     ""
                   ],

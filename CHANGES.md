@@ -151,6 +151,7 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * E2E: Add verify OAP eBPF Profiling.
 * Let `multiGet` could query without tag value in the `InfluxDB` storage plugin.
 * Adjust MAL for V9, remove some groups, add a new Service function for the custom delimiter.
+* Fix `DatabaseSlowStatement` miss set service catalog.
 
 #### UI
 
