@@ -35,8 +35,8 @@
   normal: false
   layers:
     - VIRTUAL_DATABASE
-- id: {{ b64enc "oap::oap-server" }}.1
-  name: oap::oap-server
+- id: {{ b64enc "oap-server" }}.1
+  name: oap-server
   group: oap
   shortname: oap-server
   normal: true

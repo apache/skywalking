@@ -14,43 +14,43 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "istio-dp::e2e::istio-egressgateway" }}.1
+- id: {{ b64enc "e2e::istio-egressgateway" }}.1
   name: istio-dp::e2e::istio-egressgateway
   group: "istio-dp"
   shortname: e2e::istio-egressgateway
   normal: true
   layers:
     - MESH_DP
-- id: {{ b64enc "istio-dp::e2e::istio-ingressgateway" }}.1
-  name: istio-dp::e2e::istio-ingressgateway
+- id: {{ b64enc "e2e::istio-ingressgateway" }}.1
+  name: e2e::istio-ingressgateway
   group: "istio-dp"
   shortname: e2e::istio-ingressgateway
   normal: true
   layers:
     - MESH_DP
-- id: {{ b64enc "istio-dp::e2e::reviews" }}.1
+- id: {{ b64enc "e2e::reviews" }}.1
   name: istio-dp::e2e::reviews
   group: "istio-dp"
   shortname: e2e::reviews
   normal: true
   layers:
     - MESH_DP
-- id: {{ b64enc "istio-dp::e2e::productpage" }}.1
-  name: istio-dp::e2e::productpage
+- id: {{ b64enc "e2e::productpage" }}.1
+  name: e2e::productpage
   group: "istio-dp"
   shortname: e2e::productpage
   normal: true
   layers:
     - MESH_DP
-- id: {{ b64enc "istio-dp::e2e::details" }}.1
+- id: {{ b64enc "e2e::details" }}.1
   name: istio-dp::e2e::details
   group: "istio-dp"
   shortname: e2e::details
   normal: true
   layers:
     - MESH_DP
-- id: {{ b64enc "istio-dp::e2e::ratings" }}.1
-  name: istio-dp::e2e::ratings
+- id: {{ b64enc "e2e::ratings" }}.1
+  name: e2e::ratings
   group: "istio-dp"
   shortname: e2e::ratings
   normal: true
