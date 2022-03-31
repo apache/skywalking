@@ -16,42 +16,42 @@
 {{- contains . }}
 - id: {{ b64enc "e2e::istio-egressgateway" }}.1
   name: e2e::istio-egressgateway
-  group: ""
+  group: "e2e"
   shortname: e2e::istio-egressgateway
   normal: true
   layers:
     - MESH_DP
 - id: {{ b64enc "e2e::istio-ingressgateway" }}.1
   name: e2e::istio-ingressgateway
-  group: ""
+  group: "e2e"
   shortname: e2e::istio-ingressgateway
   normal: true
   layers:
     - MESH_DP
 - id: {{ b64enc "e2e::reviews" }}.1
   name: e2e::reviews
-  group: ""
+  group: "e2e"
   shortname: e2e::reviews
   normal: true
   layers:
     - MESH_DP
 - id: {{ b64enc "e2e::productpage" }}.1
   name: e2e::productpage
-  group: ""
+  group: "e2e"
   shortname: e2e::productpage
   normal: true
   layers:
     - MESH_DP
 - id: {{ b64enc "e2e::details" }}.1
   name: e2e::details
-  group: ""
+  group: "e2e"
   shortname: e2e::details
   normal: true
   layers:
     - MESH_DP
 - id: {{ b64enc "e2e::ratings" }}.1
   name: e2e::ratings
-  group: ""
+  group: "e2e"
   shortname: e2e::ratings
   normal: true
   layers:

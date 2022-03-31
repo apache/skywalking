@@ -14,7 +14,7 @@
 # limitations under the License.
 
 metricPrefix: meter_vm
-expSuffix: tag({tags -> tags.host = 'vm::' + tags.host}).service(['host'], Layer.OS_LINUX)
+expSuffix: service(['host'], Layer.OS_LINUX)
 entities:
   hostPatterns:
     - .+
