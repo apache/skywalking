@@ -31,7 +31,6 @@
             "title": "Title"
           },
           "graph": {},
-          "standard": {},
           "metrics": [
             ""
           ],
@@ -57,8 +56,6 @@
                     "type": "Card",
                     "fontSize": 14,
                     "textAlign": "center"
-                  },
-                  "standard": {
                   },
                   "metrics": [
                     "service_apdex"
@@ -88,8 +85,6 @@
                     "fontSize": 14,
                     "textAlign": "center",
                     "showUnit": true
-                  },
-                  "standard": {
                   },
                   "metrics": [
                     "service_sla"
@@ -122,8 +117,6 @@
                     "textAlign": "center",
                     "showUnit": true
                   },
-                  "standard": {
-                  },
                   "metrics": [
                     "service_cpm"
                   ],
@@ -155,8 +148,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                  },
                   "metrics": [
                     "service_resp_time"
                   ],
@@ -165,8 +156,7 @@
                   ],
                   "moved": false,
                   "metricConfig": [
-                    {
-                    }
+                    {}
                   ]
                 },
                 {
@@ -186,8 +176,6 @@
                     "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
                   },
                   "metrics": [
                     "service_apdex"
@@ -219,8 +207,6 @@
                     "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
                   },
                   "metrics": [
                     "service_percentile"
@@ -254,10 +240,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                    "divide": 100,
-                    "unit": "%"
-                  },
                   "metrics": [
                     "service_sla"
                   ],
@@ -290,8 +272,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                  },
                   "metrics": [
                     "service_cpm"
                   ],
@@ -317,8 +297,6 @@
                     "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
                   },
                   "metrics": [
                     "service_mq_consume_count"
@@ -347,8 +325,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                  },
                   "metrics": [
                     "service_mq_consume_latency"
                   ],
@@ -365,13 +341,12 @@
                   "i": "11",
                   "type": "Widget",
                   "widget": {
-                    "title": "",
+                    "title": "Service Instances Load (CPM)",
                     "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM),"
                   },
                   "graph": {
                     "type": "TopList"
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_cpm"
                   ],
@@ -400,7 +375,6 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_resp_time"
                   ],
@@ -429,7 +403,6 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_sla"
                   ],
@@ -464,7 +437,6 @@
                     "dashboardName": "General-Instance",
                     "fontSize": 12
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_cpm"
                   ],
@@ -495,7 +467,6 @@
                     "showXAxis": false,
                     "showYAxis": false
                   },
-                  "standard": {},
                   "metrics": [
                     "endpoint_cpm"
                   ],
@@ -522,7 +493,6 @@
                   "graph": {
                     "showDepth": true
                   },
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -566,7 +536,6 @@
                     "title": "Title"
                   },
                   "graph": {},
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -591,7 +560,6 @@
                     "title": "Title"
                   },
                   "graph": {},
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -616,7 +584,6 @@
                     "title": "Title"
                   },
                   "graph": {},
-                  "standard": {},
                   "metrics": [
                     ""
                   ],

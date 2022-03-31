@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-expSuffix: tag({tags -> tags.service = 'satellite::' + tags.service}).service(['service'], Layer.SO11Y_SATELLITE)
+expSuffix: service(['service'], Layer.SO11Y_SATELLITE)
 metricPrefix: satellite
 metricsRules:
   - name: service_receive_event_count

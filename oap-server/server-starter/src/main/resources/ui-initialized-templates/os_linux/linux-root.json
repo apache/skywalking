@@ -36,9 +36,8 @@
             "fontSize": 12,
             "showXAxis": false,
             "showYAxis": false,
-            "showGroup": true
+            "showGroup": false
           },
-          "standard": {},
           "metrics": [
             "meter_vm_cpu_total_percentage"
           ],
@@ -48,10 +47,11 @@
           "moved": false
         }
       ],
+      "name": "Linux-Root",
       "layer": "OS_LINUX",
       "entity": "All",
-      "name": "Linux-Root",
-      "isRoot": true
+      "isRoot": true,
+      "id": "Linux-Root"
     }
   }
 ]

@@ -31,16 +31,13 @@
             "title": "Title"
           },
           "graph": {},
-          "standard": {
-            "unit": "%"
-          },
           "metrics": [
             ""
           ],
           "metricTypes": [
             ""
           ],
-          "activedTabIndex": 0,
+          "activedTabIndex": 4,
           "children": [
             {
               "name": "Overview",
@@ -62,9 +59,6 @@
                     "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
-                    "unit": "ms"
                   },
                   "metrics": [
                     "service_instance_resp_time"
@@ -91,8 +85,6 @@
                     "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
                   },
                   "metrics": [
                     "service_instance_sla"
@@ -126,8 +118,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                  },
                   "metrics": [
                     "service_instance_cpm"
                   ],
@@ -154,7 +144,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "meter_datasource"
                   ],
@@ -179,7 +168,6 @@
                     "title": "Title"
                   },
                   "graph": {},
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -204,7 +192,6 @@
                     "title": "Title"
                   },
                   "graph": {},
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -236,8 +223,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                  },
                   "metrics": [
                     "instance_jvm_memory_noheap_max",
                     "instance_jvm_memory_noheap",
@@ -250,7 +235,21 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    }
+                  ]
                 },
                 {
                   "x": 18,
@@ -270,7 +269,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "meter_thread_pool"
                   ],
@@ -297,7 +295,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "instance_jvm_thread_live_count",
                     "instance_jvm_thread_daemon_count",
@@ -357,8 +354,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                  },
                   "metrics": [
                     "instance_jvm_cpu"
                   ],
@@ -414,8 +409,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                  },
                   "metrics": [
                     "instance_jvm_young_gc_time",
                     "instance_jvm_old_gc_time",
@@ -442,7 +435,6 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "standard": {},
                   "metrics": [
                     "instance_jvm_young_gc_count",
                     "instance_jvm_old_gc_count",
@@ -453,7 +445,18 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    }
+                  ]
                 }
               ]
             },
@@ -478,7 +481,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "instance_clr_available_worker_threads",
                     "instance_clr_available_completion_port_threads",
@@ -499,7 +501,7 @@
                   "i": "8",
                   "type": "Widget",
                   "widget": {
-                    "title": "CLR Heap Memory"
+                    "title": "CLR Heap Memory (MB)"
                   },
                   "graph": {
                     "type": "Line",
@@ -509,15 +511,18 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                  },
                   "metrics": [
                     "instance_clr_heap_memory"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToMB"
+                    }
+                  ]
                 },
                 {
                   "x": 6,
@@ -564,8 +569,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                  },
                   "metrics": [
                     "instance_clr_cpu"
                   ],
@@ -583,6 +586,7 @@
       "layer": "GENERAL",
       "entity": "ServiceInstance",
       "name": "General-Instance",
+      "id": "General-Instance",
       "isRoot": false
     }
   }

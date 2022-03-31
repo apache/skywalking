@@ -17,41 +17,36 @@
 
 [
   {
-    "id": "Self-Observability-OAP-Root",
+    "id": "K8S-Service-Root",
     "configuration": {
       "children": [
         {
           "x": 0,
           "y": 0,
           "w": 24,
-          "h": 52,
+          "h": 50,
           "i": "0",
           "type": "Widget",
-          "widget": {
-            "title": "Title"
-          },
+          "metricTypes": [
+            ""
+          ],
+          "metrics": [
+            ""
+          ],
+          "moved": false,
           "graph": {
             "type": "ServiceList",
-            "dashboardName": "Self-Observability-OAP-Service",
+            "dashboardName": "K8S-Service-Service",
             "fontSize": 12,
             "showXAxis": false,
             "showYAxis": false,
             "showGroup": true
-          },
-          "standard": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "moved": false
+          }
         }
       ],
-      "layer": "SO11Y_OAP",
+      "layer": "K8S_SERVICE",
       "entity": "All",
-      "name": "Self-Observability-OAP-Root",
-      "id": "Self-Observability-OAP-Root",
+      "name": "K8S-Service-Root",
       "isRoot": true
     }
   }

@@ -123,9 +123,6 @@ Release Notes.
 * Remove hard requirement of BASE64 encoding for binary field.
 * Add complexity limitation for GraphQL query to avoid malicious query.
 * Add `Column.shardingKeyIdx` for column definition for BanyanDB.
-* Fix the configuration of `Aggregation` and `GC Count` metrics for oap self observability
-* E2E: Add verify OAP eBPF Profiling.
-* Let `multiGet` could query without tag value in the `InfluxDB` storage plugin.
 
 ```
 Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same 
@@ -150,6 +147,11 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Trim tag's key and value in log query.
 * Refactor IoTDB storage plugin, add IoTDBDataConverter and fix ModifyCollectionInEnhancedForLoop bug.
 * Bump up iotdb-session to 0.12.5.
+* Fix the configuration of `Aggregation` and `GC Count` metrics for oap self observability
+* E2E: Add verify OAP eBPF Profiling.
+* Let `multiGet` could query without tag value in the `InfluxDB` storage plugin.
+* Adjust MAL for V9, remove some groups, add a new Service function for the custom delimiter.
+* Add service catalog `DatabaseSlowStatement`.
 * Add `Error Prone Annotations` dependency to suppress warnings, which are not errors.
 
 #### UI
@@ -162,6 +164,7 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Add Database Connection pool metric.
 * Re-implement UI template initialization for Booster UI.
 * Add environment variable `SW_ENABLE_UPDATE_UI_TEMPLATE` to control user edit UI template.
+* Add the Self Observability template of the SkyWalking Satellite.
 
 #### Documentation
 
