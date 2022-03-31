@@ -32,6 +32,7 @@ public class ServiceEntityDescription implements EntityDescription {
     private final ScopeType scopeType = ScopeType.SERVICE;
     private final List<String> serviceKeys;
     private final Layer layer;
+    private final String delimiter;
 
     @Override
     public List<String> getLabelKeys() {

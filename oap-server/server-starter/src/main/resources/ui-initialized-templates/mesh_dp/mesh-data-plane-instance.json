@@ -43,8 +43,7 @@
             "envoy_cluster_up_rq_active"
           ],
           "metricTypes": [
-            "readLabeledMetricsValues",
-            "readMetricsValues"
+            "readLabeledMetricsValues"
           ],
           "moved": false
         },

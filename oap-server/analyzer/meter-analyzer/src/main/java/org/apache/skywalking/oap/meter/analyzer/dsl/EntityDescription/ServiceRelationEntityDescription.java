@@ -37,6 +37,7 @@ public class ServiceRelationEntityDescription implements EntityDescription {
     private final List<String> destServiceKeys;
     private final DetectPoint detectPoint;
     private final Layer layer;
+    private final String delimiter;
 
     @Override
     public List<String> getLabelKeys() {

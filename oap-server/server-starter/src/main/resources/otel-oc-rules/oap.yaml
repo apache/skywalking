@@ -29,7 +29,7 @@
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
 filter: "{ tags -> tags.job_name == 'skywalking-so11y' }" # The OpenTelemetry job name
-expSuffix: tag({tags -> tags.service = 'oap::' + tags.service}).instance(['service'], ['host_name'], Layer.SO11Y_OAP)
+expSuffix: instance(['service'], ['host_name'], Layer.SO11Y_OAP)
 metricPrefix: meter_oap
 metricsRules:
   - name: instance_cpu_percentage
