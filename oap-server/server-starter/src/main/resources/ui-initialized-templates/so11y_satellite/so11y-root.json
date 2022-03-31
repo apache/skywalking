@@ -22,7 +22,7 @@
             "showYAxis":true
           },
           "standard":{
-            "unit":"Count"
+
           },
           "metrics":[
             "satellite_service_grpc_connect_count"
@@ -40,7 +40,7 @@
           "i":"0",
           "type":"Widget",
           "widget":{
-            "title":"CPU"
+            "title":"CPU (%)"
           },
           "graph":{
             "type":"Line",
@@ -51,7 +51,7 @@
             "showYAxis":true
           },
           "standard":{
-            "unit":"%"
+
           },
           "metrics":[
             "satellite_service_server_cpu_utilization"

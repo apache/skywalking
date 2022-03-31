@@ -14,9 +14,9 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "satellite::satellite-service" }}.1
-  name: satellite::satellite-service
-  group: satellite
+- id: {{ b64enc "satellite-service" }}.1
+  name: satellite-service
+  group: ""
   shortname: satellite-service
   normal: true
   layers:
