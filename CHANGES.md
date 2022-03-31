@@ -168,6 +168,7 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 
 #### Documentation
 
+* Reconstruction doc menu for v9.
 * Update backend-alarm.md doc, support op "=" to "==".
 * Update backend-meter.md doc .
 * Add <STAM: Enhancing Topology Auto Detection For A Highly Distributed and Large-Scale Application System> paper.
