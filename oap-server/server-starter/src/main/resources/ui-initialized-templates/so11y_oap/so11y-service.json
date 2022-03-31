@@ -47,7 +47,8 @@
       ],
       "layer": "SO11Y_OAP",
       "entity": "Service",
-      "name": "Self-Observability-OAP-Service"
+      "name": "Self-Observability-OAP-Service",
+      "isRoot": true
     }
   }
 ]

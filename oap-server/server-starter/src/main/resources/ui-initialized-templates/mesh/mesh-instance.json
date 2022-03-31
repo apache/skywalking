@@ -31,21 +31,20 @@
             "title": "Title"
           },
           "graph": {},
-          "standard": {},
           "metrics": [
             ""
           ],
           "metricTypes": [
             ""
           ],
-          "activedTabIndex": 0,
+          "activedTabIndex": 2,
           "children": [
             {
               "name": "Overview",
               "children": [
                 {
                   "x": 11,
-                  "y": 38,
+                  "y": 14,
                   "w": 13,
                   "h": 14,
                   "i": "0",
@@ -61,7 +60,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_resp_time"
                   ],
@@ -72,7 +70,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 38,
+                  "y": 14,
                   "w": 11,
                   "h": 14,
                   "i": "1",
@@ -88,7 +86,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_sla"
                   ],
@@ -99,7 +96,7 @@
                 },
                 {
                   "x": 11,
-                  "y": 24,
+                  "y": 0,
                   "w": 13,
                   "h": 14,
                   "i": "2",
@@ -115,7 +112,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_throughput_received",
                     "service_throughput_sent"
@@ -128,7 +124,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 24,
+                  "y": 0,
                   "w": 11,
                   "h": 14,
                   "i": "3",
@@ -145,37 +141,11 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_cpm"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "moved": false
-                }
-              ]
-            },
-            {
-              "name": "Log",
-              "children": [
-                {
-                  "x": 0,
-                  "y": 0,
-                  "w": 24,
-                  "h": 48,
-                  "i": "0",
-                  "type": "Log",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "standard": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
                   ],
                   "moved": false
                 }
@@ -202,7 +172,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "envoy_cluster_up_rq_active"
                   ],
@@ -229,7 +198,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "envoy_total_connections_used",
                     "envoy_parent_connections_used"
@@ -258,7 +226,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "envoy_cluster_membership_healthy"
                   ],
@@ -285,7 +252,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "envoy_cluster_up_cx_incr"
                   ],
@@ -312,7 +278,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "envoy_cluster_up_rq_pending_active"
                   ],
@@ -329,7 +294,7 @@
                   "i": "15",
                   "type": "Widget",
                   "widget": {
-                    "title": "Heap Memory Used"
+                    "title": "Heap Memory Used (MB)"
                   },
                   "graph": {
                     "type": "Line",
@@ -338,10 +303,6 @@
                     "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
-                    "unit": "MB",
-                    "divide": "1048576"
                   },
                   "metrics": [
                     "envoy_memory_allocated_max",
@@ -359,7 +320,27 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    }
+                  ]
                 },
                 {
                   "x": 18,
@@ -379,7 +360,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "envoy_bug_failures"
                   ],
@@ -406,7 +386,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "envoy_worker_threads_max",
                     "envoy_worker_threads"
@@ -435,7 +414,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "envoy_cluster_up_cx_active"
                   ],
@@ -462,12 +440,35 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "envoy_cluster_up_rq_incr"
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
+                  ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Envoy Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Log",
+                  "widget": {
+                    "title": "Title"
+                  },
+                  "graph": {},
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
                   ],
                   "moved": false
                 }
