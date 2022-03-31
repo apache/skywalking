@@ -30,6 +30,7 @@
     <properties>
         <slf4j.version>1.7.30</slf4j.version>
         <log4j.version>2.17.1</log4j.version>
+        <google.error_prone_annotations>2.11.0</google.error_prone_annotations>
         <graphql-java-tools.version>12.0.2</graphql-java-tools.version>
         <graphql-java.version>17.3</graphql-java.version>
         <graphql-java-extended-scalars.version>17.0</graphql-java-extended-scalars.version>
@@ -121,6 +122,11 @@
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
                 <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>${google.error_prone_annotations}</version>
             </dependency>
             <dependency>
                 <groupId>com.graphql-java-kickstart</groupId>

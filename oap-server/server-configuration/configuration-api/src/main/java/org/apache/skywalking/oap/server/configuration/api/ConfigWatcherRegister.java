@@ -208,7 +208,7 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
 
     public abstract Optional<GroupConfigTable> readGroupConfig(Set<String> keys);
 
-    public class Register {
+    static class Register {
         private Map<String, WatcherHolder> register = new HashMap<>();
 
         private boolean containsKey(String key) {
@@ -255,7 +255,7 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
     }
 
     @Getter
-    protected class WatcherHolder {
+    protected static class WatcherHolder {
         private ConfigChangeWatcher watcher;
         private final String key;
 

@@ -121,6 +121,7 @@ public class TraceQuery implements ITraceQueryDAO {
             case SUCCESS:
                 recallQuery.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
                 break;
+            default:
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             WhereNested<WhereQueryImpl<SelectQueryImpl>> nested = recallQuery.andNested();

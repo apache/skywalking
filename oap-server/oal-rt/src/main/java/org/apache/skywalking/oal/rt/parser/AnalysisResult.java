@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.Getter;
@@ -91,7 +92,7 @@ public class AnalysisResult {
 
     public void addPersistentField(String fieldName, String columnName, Class<?> type) {
         if (persistentFields == null) {
-            persistentFields = new LinkedList<>();
+            persistentFields = new ArrayList<>();
         }
         DataColumn dataColumn = new DataColumn(fieldName, columnName, type);
         persistentFields.add(dataColumn);

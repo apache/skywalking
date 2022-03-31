@@ -65,7 +65,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
         countQuery.and(eq(ProfileThreadSnapshotRecord.TASK_ID, taskId))
                   .and(eq(ProfileThreadSnapshotRecord.SEQUENCE, 0));
 
-        final LinkedList<String> segments = new LinkedList<>();
+        final List<String> segments = new ArrayList<>();
         QueryResult.Series series = client.queryForSingleSeries(countQuery);
         if (Objects.isNull(series)) {
             return Collections.emptyList();

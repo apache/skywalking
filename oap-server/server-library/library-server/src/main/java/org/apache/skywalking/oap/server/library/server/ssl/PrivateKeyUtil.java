@@ -67,7 +67,7 @@ public class PrivateKeyUtil {
             0x4, (byte) 0x82, (byte) ((pkcs1Length >> 8) & 0xff), (byte) (pkcs1Length & 0xff) // Octet string + length
         };
         StringBuilder pkcs8 = new StringBuilder(PKCS_8_PEM_HEADER);
-        pkcs8.append("\n").append(new String(Base64.getEncoder().encode(join(pkcs8Header, pkcs1Bytes))));
+        pkcs8.append("\n").append(new String(Base64.getEncoder().encode(join(pkcs8Header, pkcs1Bytes)), StandardCharsets.UTF_8));
         pkcs8.append("\n").append(PKCS_8_PEM_FOOTER);
         return new ByteArrayInputStream(pkcs8.toString().getBytes());
     }

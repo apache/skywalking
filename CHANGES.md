@@ -150,6 +150,7 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Trim tag's key and value in log query.
 * Refactor IoTDB storage plugin, add IoTDBDataConverter and fix ModifyCollectionInEnhancedForLoop bug.
 * Bump up iotdb-session to 0.12.5.
+* Add `Error Prone Annotations` dependency to suppress warnings, which are not errors.
 
 #### UI
 

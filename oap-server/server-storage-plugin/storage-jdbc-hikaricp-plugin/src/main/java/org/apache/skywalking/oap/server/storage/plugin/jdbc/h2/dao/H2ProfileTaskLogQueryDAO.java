@@ -18,20 +18,18 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 public class H2ProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
     private JDBCHikariCPClient h2Client;
@@ -50,7 +48,7 @@ public class H2ProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
-                final LinkedList<ProfileTaskLog> tasks = new LinkedList<>();
+                final List<ProfileTaskLog> tasks = new ArrayList<>();
                 while (resultSet.next()) {
                     tasks.add(parseLog(resultSet));
                 }

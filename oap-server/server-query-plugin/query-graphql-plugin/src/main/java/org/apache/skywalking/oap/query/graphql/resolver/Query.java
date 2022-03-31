@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
+import com.google.errorprone.annotations.Keep;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.server.core.version.Version;
 
@@ -25,6 +26,6 @@ import org.apache.skywalking.oap.server.core.version.Version;
  * Root Query Resolver.
  */
 public class Query implements GraphQLQueryResolver {
-    @SuppressWarnings("unused") // Used in GraphQL query
+    @Keep // GraphQL picks this as version
     private final String version = Version.CURRENT.toString();
 }
