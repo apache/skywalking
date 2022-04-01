@@ -32,6 +32,9 @@ Release Notes.
 * Improve CI with the GHA new feature "run failed jobs".
 * Fix `./mvnw compile` not work if `./mvnw install` is not executed at least once.
 * Add `JD_PRESERVE_LINE_FEEDS=true` in official code style file.
+* Upgrade OAP dependencies gson(2.9.0), guava(31.1), jackson(2.13.2), protobuf-java(3.18.4).
+* Remove commons-pool and commons-dbcp from OAP dependencies(Not used before).
+* Upgrade webapp dependencies gson(2.9.0), spring boot(2.6.5), jackson(2.13.2.2), spring cloud(2021.0.1).
 
 #### OAP Server
 
