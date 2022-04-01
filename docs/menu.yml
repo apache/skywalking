@@ -26,7 +26,7 @@ catalog:
             path: "/en/concepts-and-designs/overview"
           - name: "Project Goals"
             path: "/en/concepts-and-designs/project-goals"
-      - name: "Probe"
+      - name: "Agents"
         catalog:
           - name: "Introduction"
             path: "/en/concepts-and-designs/probe-introduction"
@@ -34,10 +34,10 @@ catalog:
             path: "/en/concepts-and-designs/service-agent"
           - name: "Manual Instrument SDK"
             path: "/en/concepts-and-designs/manual-sdk"
-          - name: "Service Mesh probe"
-            path: "/en/concepts-and-designs/service-mesh-probe"
           - name: "STAM Paper, Streaming Topology Analysis Method"
             path: "/en/papers/stam"
+          - name: "SDK Profiling to Fix the Blind Spot"
+            path: "/en/concepts-and-designs/sdk-profiling"
       - name: "Backend"
         catalog:
           - name: "Overview"
