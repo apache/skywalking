@@ -81,7 +81,7 @@
           "i": "4",
           "type": "Widget",
           "widget": {
-            "title": "Database Traffic (CPM)"
+            "title": "Database Traffic (calls / min)"
           },
           "graph": {
             "type": "Line",
@@ -107,7 +107,7 @@
           "i": "5",
           "type": "Widget",
           "widget": {
-            "title": "Database Access Latency Percentile"
+            "title": "Database Access Latency Percentile (ms)"
           },
           "graph": {
             "type": "Line",
