@@ -428,7 +428,6 @@ dayjs	1.10.7:	https://github.com/iamkun/dayjs	MIT
 lodash	4.17.21:	https://github.com/lodash/lodash	MIT
 vue-i18n 9.1.9:  https://github.com/kazupon/vue-i18n   MIT
 pinia	2.0.5:	https://github.com/posva/pinia	MIT
-normalize-wheel-es 1.1.1:  https://github.com/sxzz/normalize-wheel-es   MIT
 async-validator 4.0.7:  https://github.com/yiminghe/async-validator   MIT
 axios 0.24.0:  https://github.com/axios/axios   MIT
 memoize-one 6.0.0:  https://github.com/alexreardon/memoize-one  MIT
@@ -458,8 +457,9 @@ d3 7.3.0: https://github.com/d3/d3  ISC
 ========================================
 BSD licenses
 ========================================
-zrender 5.2.1: https://github.com/ecomfe/zrender BSD-3-Clause License
-tslib 2.3.0: https://github.com/Microsoft/tslib 0BSD License
+normalize-wheel-es 1.1.1:  https://github.com/sxzz/normalize-wheel-es   BSD
+zrender 5.2.1: https://github.com/ecomfe/zrender BSD-3-Clause
+tslib 2.3.0: https://github.com/Microsoft/tslib 0BSD
 
 ========================================
 Public Domain licenses
