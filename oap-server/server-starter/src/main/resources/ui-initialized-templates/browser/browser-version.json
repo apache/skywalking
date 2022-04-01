@@ -34,17 +34,18 @@
             "type": "Bar",
             "showBackground": true
           },
-          "standard": {
-            "divide": 100,
-            "unit": "%"
-          },
           "metrics": [
             "browser_app_single_version_error_sum"
           ],
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "percentage"
+            }
+          ]
         },
         {
           "x": 0,
@@ -64,17 +65,18 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {
-            "divide": 100,
-            "unit": "%"
-          },
           "metrics": [
             "browser_app_single_version_error_rate"
           ],
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "percentage"
+            }
+          ]
         },
         {
           "x": 0,
@@ -93,10 +95,6 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "divide": 100,
-            "unit": "%"
           },
           "metrics": [
             "browser_app_single_version_pv"
