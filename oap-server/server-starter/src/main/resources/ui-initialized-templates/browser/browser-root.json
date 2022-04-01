@@ -44,8 +44,13 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "metricConfig": [],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "label": "PV",
+              "unit": "calls / min"
+            }
+          ]
         }
       ],
       "layer": "BROWSER",
