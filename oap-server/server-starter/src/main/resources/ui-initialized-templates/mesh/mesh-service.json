@@ -31,7 +31,6 @@
             "title": "Title"
           },
           "graph": {},
-          "standard": {},
           "metrics": [
             ""
           ],
@@ -58,7 +57,6 @@
                     "fontSize": 14,
                     "textAlign": "center"
                   },
-                  "standard": {},
                   "metrics": [
                     "service_apdex"
                   ],
@@ -80,7 +78,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Successful Rate"
+                    "title": "Success Rate"
                   },
                   "graph": {
                     "type": "Card",
@@ -88,7 +86,6 @@
                     "textAlign": "center",
                     "showUnit": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_sla"
                   ],
@@ -111,8 +108,8 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Load",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
+                    "title": "Service Load (calls or packets / min)",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services, this means Packets Per Minute (packets / min)"
                   },
                   "graph": {
                     "type": "Card",
@@ -120,7 +117,6 @@
                     "textAlign": "center",
                     "showUnit": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_cpm"
                   ],
@@ -130,15 +126,15 @@
                   "moved": false,
                   "metricConfig": [
                     {
-                      "unit": "CPM / PPM"
+                      "unit": "calls or packets / min"
                     }
                   ]
                 },
                 {
-                  "x": 0,
+                  "x": 8,
                   "y": 5,
                   "w": 8,
-                  "h": 12,
+                  "h": 11,
                   "i": "3",
                   "type": "Widget",
                   "widget": {
@@ -152,20 +148,22 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_resp_time"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {}
+                  ]
                 },
                 {
-                  "x": 8,
-                  "y": 17,
+                  "x": 0,
+                  "y": 5,
                   "w": 8,
-                  "h": 12,
+                  "h": 11,
                   "i": "4",
                   "type": "Widget",
                   "widget": {
@@ -179,7 +177,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_apdex"
                   ],
@@ -194,10 +191,10 @@
                   ]
                 },
                 {
-                  "x": 8,
+                  "x": 16,
                   "y": 5,
                   "w": 8,
-                  "h": 12,
+                  "h": 11,
                   "i": "5",
                   "type": "Widget",
                   "widget": {
@@ -211,7 +208,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_percentile"
                   ],
@@ -228,13 +224,13 @@
                 },
                 {
                   "x": 0,
-                  "y": 17,
+                  "y": 16,
                   "w": 8,
-                  "h": 12,
+                  "h": 11,
                   "i": "6",
                   "type": "Widget",
                   "widget": {
-                    "title": "Successful Rate (%)"
+                    "title": "Success Rate (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -244,25 +240,29 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_sla"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
                 },
                 {
-                  "x": 16,
-                  "y": 17,
+                  "x": 8,
+                  "y": 16,
                   "w": 8,
-                  "h": 12,
+                  "h": 11,
                   "i": "7",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Load (CPM / PPM)",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
+                    "title": "Service Load (calls or packets / min)",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services, this means Packets Per Minute (packets / min)"
                   },
                   "graph": {
                     "type": "Line",
@@ -272,7 +272,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_cpm"
                   ],
@@ -283,10 +282,10 @@
                 },
                 {
                   "x": 16,
-                  "y": 5,
+                  "y": 16,
                   "w": 8,
-                  "h": 12,
-                  "i": "8",
+                  "h": 11,
+                  "i": "9",
                   "type": "Widget",
                   "widget": {
                     "title": "Service Throughput (Bytes)",
@@ -300,7 +299,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_throughput_received",
                     "service_throughput_sent"
@@ -313,19 +311,18 @@
                 },
                 {
                   "x": 0,
-                  "y": 29,
+                  "y": 27,
                   "w": 8,
                   "h": 14,
-                  "i": "9",
+                  "i": "11",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instances Load (CPM / PPM)"
+                    "title": "Service Instances Load (calls or packets / min)",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services, this means Packets Per Minute (packets / min)"
                   },
                   "graph": {
-                    "type": "TopList",
-                    "topN": "10"
+                    "type": "TopList"
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_cpm"
                   ],
@@ -334,6 +331,7 @@
                   ],
                   "metricConfig": [
                     {
+                      "sortOrder": "DES",
                       "calculation": "percentage"
                     }
                   ],
@@ -341,18 +339,18 @@
                 },
                 {
                   "x": 8,
-                  "y": 29,
+                  "y": 27,
                   "w": 8,
                   "h": 14,
-                  "i": "10",
+                  "i": "12",
                   "type": "Widget",
                   "widget": {
                     "title": "Slow Service Instance (ms)"
                   },
                   "graph": {
-                    "type": "TopList"
+                    "type": "TopList",
+                    "topN": "10"
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_resp_time"
                   ],
@@ -361,6 +359,7 @@
                   ],
                   "metricConfig": [
                     {
+                      "sortOrder": "DES",
                       "calculation": "percentage"
                     }
                   ],
@@ -368,18 +367,18 @@
                 },
                 {
                   "x": 16,
-                  "y": 29,
+                  "y": 27,
                   "w": 8,
                   "h": 14,
-                  "i": "11",
+                  "i": "13",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Successful Rate (%)"
+                    "title": "Service Instance Success Rate (%)"
                   },
                   "graph": {
-                    "type": "TopList"
+                    "type": "TopList",
+                    "topN": "10"
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_sla"
                   ],
@@ -388,8 +387,81 @@
                   ],
                   "metricConfig": [
                     {
+                      "sortOrder": "ASC",
                       "calculation": "percentage"
                     }
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 16,
+                  "y": 41,
+                  "w": 8,
+                  "h": 13,
+                  "i": "20",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Success Rate in Current Service (%)"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "topN": "10"
+                  },
+                  "metrics": [
+                    "endpoint_sla"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
+                  ],
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 41,
+                  "w": 8,
+                  "h": 13,
+                  "i": "21",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Slow Endpoints in Current Service (ms)"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "topN": "10"
+                  },
+                  "metrics": [
+                    "endpoint_resp_time"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 41,
+                  "w": 8,
+                  "h": 13,
+                  "i": "22",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Endpoint Load in Current Service (calls or packets / min)",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services, this means Packets Per Minute (packets / min)"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "topN": "10"
+                  },
+                  "metrics": [
+                    "endpoint_cpm"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
                   ],
                   "moved": false
                 }
@@ -406,21 +478,26 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Title"
+                    "title": ""
                   },
                   "graph": {
                     "type": "InstanceList",
                     "dashboardName": "Mesh-Instance",
                     "fontSize": 12
                   },
-                  "standard": {},
                   "metrics": [
                     "service_instance_cpm"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "label": "Load",
+                      "unit": "calls or packets / min"
+                    }
+                  ]
                 }
               ]
             },
@@ -444,14 +521,19 @@
                     "showXAxis": false,
                     "showYAxis": false
                   },
-                  "standard": {},
                   "metrics": [
                     "endpoint_cpm"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "label": "Load",
+                      "unit": "calls or packets / min"
+                    }
+                  ]
                 }
               ]
             },
@@ -462,7 +544,7 @@
                   "x": 0,
                   "y": 0,
                   "w": 24,
-                  "h": 49,
+                  "h": 48,
                   "i": "0",
                   "type": "Topology",
                   "widget": {
@@ -471,14 +553,92 @@
                   "graph": {
                     "showDepth": true
                   },
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
                   "metricTypes": [
                     ""
                   ],
-                  "moved": false
+                  "moved": false,
+                  "linkDashboard": "Mesh-Service-Relation",
+                  "nodeDashboard": [
+                    {
+                      "scope": "Service",
+                      "dashboard": "Mesh-Service"
+                    },
+                    {
+                      "scope": "ServiceInstance",
+                      "dashboard": "Mesh-Instance"
+                    },
+                    {
+                      "scope": "Endpoint",
+                      "dashboard": "Mesh-Endpoint"
+                    }
+                  ],
+                  "linkServerMetrics": [
+                    "service_relation_server_resp_time",
+                    "service_relation_server_cpm"
+                  ],
+                  "linkClientMetrics": [
+                    "service_relation_client_cpm",
+                    "service_relation_client_resp_time"
+                  ],
+                  "nodeMetrics": [
+                    "service_cpm",
+                    "service_sla",
+                    "service_resp_time"
+                  ],
+                  "legend": [
+                    {
+                      "name": "service_sla",
+                      "condition": "<",
+                      "value": "9500"
+                    },
+                    {
+                      "name": "service_cpm",
+                      "condition": ">",
+                      "value": "1"
+                    }
+                  ],
+                  "description": {
+                    "healthy": "Healthy",
+                    "unhealthy": "Success Rate < 95% and Traffic > 1 calls or packets / min"
+                  },
+                  "nodeMetricConfig": [
+                    {
+                      "unit": "calls or packets / min",
+                      "label": "Load"
+                    },
+                    {
+                      "calculation": "percentage",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Latency"
+                    }
+                  ],
+                  "linkServerMetricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "Server Latency"
+                    },
+                    {
+                      "unit": "calls or packets / min",
+                      "label": "Server Load"
+                    }
+                  ],
+                  "linkClientMetricConfig": [
+                    {
+                      "unit": "calls or packets / min",
+                      "label": "Client Load"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Client Latency"
+                    }
+                  ]
                 }
               ]
             },
@@ -496,7 +656,6 @@
                     "title": "Title"
                   },
                   "graph": {},
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -513,7 +672,8 @@
       ],
       "layer": "MESH",
       "entity": "Service",
-      "name": "Mesh-Service"
+      "name": "Mesh-Service",
+      "id": "Mesh-Service"
     }
   }
 ]

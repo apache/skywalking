@@ -63,7 +63,7 @@
           ],
           "moved": false,
           "widget": {
-            "title": "Service Memory Resources (MB)"
+            "title": "Service Memory Resources (Mi)"
           },
           "graph": {
             "type": "Area",
@@ -171,7 +171,7 @@
           ],
           "moved": false,
           "widget": {
-            "title": "Pod Memory Usage"
+            "title": "Pod Memory Usage (Mi)"
           },
           "graph": {
             "type": "Line",
@@ -180,7 +180,12 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          }
+          },
+          "metricConfig": [
+            {
+              "calculation": "byteToMB"
+            }
+          ]
         },
         {
           "x": 0,
@@ -233,7 +238,8 @@
       ],
       "layer": "K8S_SERVICE",
       "entity": "Service",
-      "name": "K8S-Service-Service"
+      "name": "K8S-Service-Service",
+      "id": "K8S-Service-Service"
     }
   }
 ]

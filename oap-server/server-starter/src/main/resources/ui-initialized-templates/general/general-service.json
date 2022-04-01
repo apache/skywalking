@@ -78,7 +78,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Successful Rate"
+                    "title": "Success Rate"
                   },
                   "graph": {
                     "type": "Card",
@@ -108,8 +108,8 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Load",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM)"
+                    "title": "Service Load (calls / min)",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min)"
                   },
                   "graph": {
                     "type": "Card",
@@ -126,7 +126,7 @@
                   "moved": false,
                   "metricConfig": [
                     {
-                      "unit": "CPM"
+                      "unit": "calls / min"
                     }
                   ]
                 },
@@ -230,7 +230,7 @@
                   "i": "6",
                   "type": "Widget",
                   "widget": {
-                    "title": "Successful Rate (%)"
+                    "title": "Success Rate (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -261,8 +261,8 @@
                   "i": "7",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Load (CPM)",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM)"
+                    "title": "Service Load (calls / min)",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min)"
                   },
                   "graph": {
                     "type": "Line",
@@ -341,8 +341,8 @@
                   "i": "11",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instances Load (CPM)",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM),"
+                    "title": "Service Instances Load (calls / min)",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min),"
                   },
                   "graph": {
                     "type": "TopList"
@@ -397,7 +397,7 @@
                   "i": "13",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Successful Rate (%)"
+                    "title": "Service Instance Success Rate (%)"
                   },
                   "graph": {
                     "type": "TopList",
@@ -414,6 +414,79 @@
                       "sortOrder": "ASC",
                       "calculation": "percentage"
                     }
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 16,
+                  "y": 41,
+                  "w": 8,
+                  "h": 13,
+                  "i": "20",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Success Rate in Current Service (%)"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "topN": "10"
+                  },
+                  "metrics": [
+                    "endpoint_sla"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
+                  ],
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 41,
+                  "w": 8,
+                  "h": 13,
+                  "i": "21",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Slow Endpoints in Current Service (ms)"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "topN": "10"
+                  },
+                  "standard": {},
+                  "metrics": [
+                    "endpoint_resp_time"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 41,
+                  "w": 8,
+                  "h": 13,
+                  "i": "22",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Endpoint Load in Current Service (calls / min)",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "topN": "10"
+                  },
+                  "metrics": [
+                    "endpoint_cpm"
+                  ],
+                  "metricTypes": [
+                    "sortMetrics"
                   ],
                   "moved": false
                 }
@@ -443,7 +516,13 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "label": "Load",
+                      "unit": "calls / min"
+                    }
+                  ]
                 }
               ]
             },
@@ -473,7 +552,13 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "label": "Load",
+                      "unit": "calls / min"
+                    }
+                  ]
                 }
               ]
             },
@@ -484,7 +569,7 @@
                   "x": 0,
                   "y": 0,
                   "w": 24,
-                  "h": 47,
+                  "h": 48,
                   "i": "0",
                   "type": "Topology",
                   "widget": {
@@ -515,10 +600,70 @@
                       "dashboard": "General-Endpoint"
                     }
                   ],
-                  "linkServerMetrics": [],
-                  "linkClientMetrics": [],
-                  "nodeMetrics": [],
-                  "legend": []
+                  "linkServerMetrics": [
+                    "service_relation_server_resp_time",
+                    "service_relation_server_cpm"
+                  ],
+                  "linkClientMetrics": [
+                    "service_relation_client_cpm",
+                    "service_relation_client_resp_time"
+                  ],
+                  "nodeMetrics": [
+                    "service_cpm",
+                    "service_sla",
+                    "service_resp_time"
+                  ],
+                  "legend": [
+                    {
+                      "name": "service_sla",
+                      "condition": "<",
+                      "value": "9500"
+                    },
+                    {
+                      "name": "service_cpm",
+                      "condition": ">",
+                      "value": "1"
+                    }
+                  ],
+                  "description": {
+                    "healthy": "Healthy",
+                    "unhealthy": "Success Rate < 95% and Traffic > 1 call/min"
+                  },
+                  "nodeMetricConfig": [
+                    {
+                      "unit": "calls / min",
+                      "label": "Load"
+                    },
+                    {
+                      "calculation": "percentage",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Latency"
+                    }
+                  ],
+                  "linkServerMetricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "Server Latency"
+                    },
+                    {
+                      "unit": "calls / min",
+                      "label": "Server Load"
+                    }
+                  ],
+                  "linkClientMetricConfig": [
+                    {
+                      "unit": "calls / min",
+                      "label": "Client Load"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Client Latency"
+                    }
+                  ]
                 }
               ]
             },
@@ -600,7 +745,8 @@
       ],
       "layer": "GENERAL",
       "entity": "Service",
-      "name": "General-Service"
+      "name": "General-Service",
+      "id": "General-Service"
     }
   }
 ]
