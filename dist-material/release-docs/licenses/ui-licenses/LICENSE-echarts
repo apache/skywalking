@@ -209,15 +209,14 @@
 Apache ECharts Subcomponents:
 
 The Apache ECharts project contains subcomponents with separate copyright
-notices and license terms. Your use of the source code for the these
-subcomponents is subject to the terms and conditions of the following
+notices and license terms. Your use of the source code for these
+subcomponents is also subject to the terms and conditions of the following
 licenses.
 
-[BSD 3-Clause] <https://github.com/ecomfe/zrender> is used as the render
-engine. See <licenses/LICENSE-zrender> for details.
-
-[BSD 3-Clause] Some of the implementation listed below refer to the logics
-from <https://github.com/d3/d3>: <src/chart/treemap/treemapLayout.js>,
-<src/chart/tree/layoutHelper.js>, <src/chart/graph/forceHelper.js>,
-<src/util/array/nest.js>, <src/scale/Time.js>.
-See <licenses/LICENSE-d3> for details.
+BSD 3-Clause (d3.js):
+The following files embed [d3.js](https://github.com/d3/d3) BSD 3-Clause:
+    `/src/chart/treemap/treemapLayout.ts`,
+    `/src/chart/tree/layoutHelper.ts`,
+    `/src/chart/graph/forceHelper.ts`,
+    `/src/util/number.ts`
+See `/licenses/LICENSE-d3` for details of the license.
