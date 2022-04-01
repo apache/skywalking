@@ -286,20 +286,23 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             callingIn.prepare();
             sourceReceiver.receive(callingIn.toService());
             sourceReceiver.receive(callingIn.toServiceInstance());
-            sourceReceiver.receive(callingIn.toEndpoint());
             sourceReceiver.receive(callingIn.toServiceRelation());
             sourceReceiver.receive(callingIn.toServiceInstanceRelation());
-            EndpointRelation endpointRelation = callingIn.toEndpointRelation();
-            /*
-             * Parent endpoint could be none, because in SkyWalking Cross Process Propagation Headers Protocol v2,
-             * endpoint in ref could be empty, based on that, endpoint relation maybe can't be established.
-             * So, I am making this source as optional.
-             *
-             * Also, since 6.6.0, source endpoint could be none, if this trace begins by an internal task(local span or exit span), such as Timer,
-             * rather than, normally begin as an entry span, like a RPC server side.
-             */
-            if (endpointRelation != null) {
-                sourceReceiver.receive(endpointRelation);
+            if (Layer.FAAS != callingIn.getDestLayer()) {
+                // Service is equivalent to endpoint in FAAS (function as a service)
+                sourceReceiver.receive(callingIn.toEndpoint());
+                EndpointRelation endpointRelation = callingIn.toEndpointRelation();
+                /*
+                 * Parent endpoint could be none, because in SkyWalking Cross Process Propagation Headers Protocol v2,
+                 * endpoint in ref could be empty, based on that, endpoint relation maybe can't be established.
+                 * So, I am making this source as optional.
+                 *
+                 * Also, since 6.6.0, source endpoint could be none, if this trace begins by an internal task(local span or exit span), such as Timer,
+                 * rather than, normally begin as an entry span, like a RPC server side.
+                 */
+                if (endpointRelation != null) {
+                    sourceReceiver.receive(endpointRelation);
+                }
             }
         });
 

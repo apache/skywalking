@@ -126,9 +126,11 @@ public enum Layer {
      */
     private final boolean isNormal;
     private static final Map<Integer, Layer> DICTIONARY = new HashMap<>();
+    private static final Map<String, Layer> DICTIONARY_NAME = new HashMap<>();
 
     static {
-        Arrays.stream(Layer.values()).collect(Collectors.toMap(Layer::value, layer -> layer)).forEach(DICTIONARY::put);
+        DICTIONARY.putAll(Arrays.stream(Layer.values()).collect(Collectors.toMap(Layer::value, layer -> layer)));
+        DICTIONARY_NAME.putAll(Arrays.stream(Layer.values()).collect(Collectors.toMap(Layer::name, layer -> layer)));
     }
 
     Layer(int value, boolean isNormal) {
@@ -144,6 +146,14 @@ public enum Layer {
         Layer layer = DICTIONARY.get(value);
         if (layer == null) {
             throw new UnexpectedException("Unknown Layer value");
+        }
+        return layer;
+    }
+
+    public static Layer nameOf(String name) {
+        Layer layer = DICTIONARY_NAME.get(name);
+        if (layer == null) {
+            return Layer.GENERAL;
         }
         return layer;
     }

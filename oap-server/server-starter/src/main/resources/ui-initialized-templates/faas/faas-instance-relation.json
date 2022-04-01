@@ -1,0 +1,154 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "Faas-Instance-Relation",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 36,
+          "w": 24,
+          "h": 12,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "Response Time Percentile"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "divide": 100,
+            "unit": "%",
+            "metricLabels": "P50, P75, P90, P95, P99"
+          },
+          "metrics": [
+            "service_instance_relation_client_percentile"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 24,
+          "w": 24,
+          "h": 12,
+          "i": "2",
+          "type": "Widget",
+          "widget": {
+            "title": "Successful Rate"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "divide": 100,
+            "unit": "%"
+          },
+          "metrics": [
+            "service_instance_relation_client_call_sla"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 12,
+          "w": 24,
+          "h": 12,
+          "i": "3",
+          "type": "Widget",
+          "widget": {
+            "title": "Load"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "divide": 100,
+            "unit": "%",
+            "metricLabels": "P50, P75, P90, P95, P99",
+            "labelsIndex": "0,1,2,3,4"
+          },
+          "metrics": [
+            "service_instance_relation_client_cpm"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 12,
+          "i": "4",
+          "type": "Widget",
+          "widget": {
+            "title": "Response Time"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "divide": 100,
+            "unit": "%",
+            "metricLabels": "P50, P75, P90, P95, P99",
+            "labelsIndex": "0,1,2,3,4"
+          },
+          "metrics": [
+            "service_instance_relation_client_resp_time"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false
+        }
+      ],
+      "name": "Faas-Instance-Relation",
+      "layer": "FAAS",
+      "entity": "ServiceInstanceRelation"
+    }
+  }
+]
