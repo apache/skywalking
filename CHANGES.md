@@ -177,6 +177,7 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Add <STAM: Enhancing Topology Auto Detection For A Highly Distributed and Large-Scale Application System> paper.
 * Add Academy menu for recommending articles.
 * Remove `All` source relative document and examples.
+* Update ui licenses.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/112?closed=1)
 
