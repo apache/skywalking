@@ -76,7 +76,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Successful Rate (%)"
+                    "title": "Service Instance Success Rate (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -107,8 +107,8 @@
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Load (CPM)",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
+                    "title": "Service Instance Load (calls / min)",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services, this means Packets Per Minute (PPM)"
                   },
                   "graph": {
                     "type": "Line",

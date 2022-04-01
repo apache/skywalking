@@ -28,7 +28,7 @@
           "i": "0",
           "type": "Widget",
           "widget": {
-            "title": "Service Response Time Percentile"
+            "title": "Service Response Time Percentile (ms)"
           },
           "graph": {
             "type": "Line",
@@ -38,18 +38,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {
-            "divide": 100,
-            "unit": "%",
-            "metricLabels": "P50, P75, P90, P95, P99"
-          },
           "metrics": [
             "endpoint_relation_percentile"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "label": "P50, P75, P90, P95, P99",
+              "labelsIndex": "0,1,2,3,4"
+            }
+          ]
         },
         {
           "x": 0,
@@ -59,7 +60,7 @@
           "i": "1",
           "type": "Widget",
           "widget": {
-            "title": "Successful Rate"
+            "title": "Success Rate (%)"
           },
           "graph": {
             "type": "Line",
@@ -69,17 +70,18 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {
-            "divide": 100,
-            "unit": "%"
-          },
           "metrics": [
             "endpoint_relation_sla"
           ],
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "percentage"
+            }
+          ]
         },
         {
           "x": 0,
@@ -89,7 +91,7 @@
           "i": "2",
           "type": "Widget",
           "widget": {
-            "title": "Load"
+            "title": "Load (calls / min)"
           },
           "graph": {
             "type": "Line",
@@ -98,12 +100,6 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "divide": 100,
-            "unit": "%",
-            "metricLabels": "P50, P75, P90, P95, P99",
-            "labelsIndex": "0, 1, 2, 3, 4"
           },
           "metrics": [
             "endpoint_relation_cpm"
@@ -121,7 +117,7 @@
           "i": "3",
           "type": "Widget",
           "widget": {
-            "title": "Response Time"
+            "title": "Response Time (ms)"
           },
           "graph": {
             "type": "Line",
@@ -130,12 +126,6 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "divide": 100,
-            "unit": "%",
-            "metricLabels": "P50, P75, P90, P95, P99",
-            "labelsIndex": "0, 1, 2, 3, 4"
           },
           "metrics": [
             "endpoint_relation_resp_time"

@@ -31,7 +31,6 @@
             "title": "Title"
           },
           "graph": {},
-          "standard": {},
           "metrics": [
             ""
           ],
@@ -41,7 +40,7 @@
           "activedTabIndex": 1,
           "children": [
             {
-              "name": "Services",
+              "name": "Service",
               "children": [
                 {
                   "x": 0,
@@ -61,14 +60,19 @@
                     "showYAxis": false,
                     "showGroup": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_cpm"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "label": "Service Load",
+                      "unit": "calls / min"
+                    }
+                  ]
                 }
               ]
             },
@@ -88,7 +92,6 @@
                   "graph": {
                     "showDepth": true
                   },
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -119,8 +122,62 @@
                     "service_relation_client_cpm",
                     "service_relation_client_resp_time"
                   ],
-                  "nodeMetrics": [],
-                  "legend": []
+                  "nodeMetrics": [
+                    "service_cpm",
+                    "service_sla",
+                    "service_resp_time"
+                  ],
+                  "legend": [
+                    {
+                      "name": "service_sla",
+                      "condition": "<",
+                      "value": "9500"
+                    },
+                    {
+                      "name": "service_cpm",
+                      "condition": ">",
+                      "value": "1"
+                    }
+                  ],
+                  "description": {
+                    "healthy": "Healthy",
+                    "unhealthy": "Success Rate < 95% and Traffic > 1 calls / min"
+                  },
+                  "nodeMetricConfig": [
+                    {
+                      "unit": "calls / min",
+                      "label": "Load"
+                    },
+                    {
+                      "calculation": "percentage",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Latency"
+                    }
+                  ],
+                  "linkServerMetricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "Server Latency"
+                    },
+                    {
+                      "unit": "calls / min",
+                      "label": "Server Load"
+                    }
+                  ],
+                  "linkClientMetricConfig": [
+                    {
+                      "unit": "calls / min",
+                      "label": "Client Load"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Client Latency"
+                    }
+                  ]
                 }
               ]
             },
@@ -153,6 +210,7 @@
           "moved": false
         }
       ],
+      "id": "General-Root",
       "layer": "GENERAL",
       "entity": "All",
       "name": "General-Root",

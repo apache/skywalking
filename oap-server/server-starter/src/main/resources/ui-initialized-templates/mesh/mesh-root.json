@@ -79,7 +79,7 @@
                   "x": 0,
                   "y": 0,
                   "w": 24,
-                  "h": 49,
+                  "h": 48,
                   "i": "0",
                   "type": "Topology",
                   "widget": {
@@ -88,7 +88,6 @@
                   "graph": {
                     "showDepth": true
                   },
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -111,10 +110,70 @@
                       "dashboard": "Mesh-Endpoint"
                     }
                   ],
-                  "linkServerMetrics": [],
-                  "linkClientMetrics": [],
-                  "nodeMetrics": [],
-                  "legend": []
+                  "linkServerMetrics": [
+                    "service_relation_server_resp_time",
+                    "service_relation_server_cpm"
+                  ],
+                  "linkClientMetrics": [
+                    "service_relation_client_cpm",
+                    "service_relation_client_resp_time"
+                  ],
+                  "nodeMetrics": [
+                    "service_cpm",
+                    "service_sla",
+                    "service_resp_time"
+                  ],
+                  "legend": [
+                    {
+                      "name": "service_sla",
+                      "condition": "<",
+                      "value": "9500"
+                    },
+                    {
+                      "name": "service_cpm",
+                      "condition": ">",
+                      "value": "1"
+                    }
+                  ],
+                  "description": {
+                    "healthy": "Healthy",
+                    "unhealthy": "Success Rate < 95% and Traffic > 1 calls or packets / min"
+                  },
+                  "nodeMetricConfig": [
+                    {
+                      "unit": "calls or packets / min",
+                      "label": "Load"
+                    },
+                    {
+                      "calculation": "percentage",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Latency"
+                    }
+                  ],
+                  "linkServerMetricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "Server Latency"
+                    },
+                    {
+                      "unit": "calls or packets / min",
+                      "label": "Server Load"
+                    }
+                  ],
+                  "linkClientMetricConfig": [
+                    {
+                      "unit": "calls or packets / min",
+                      "label": "Client Load"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Client Latency"
+                    }
+                  ]
                 }
               ]
             }

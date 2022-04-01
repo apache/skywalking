@@ -31,7 +31,6 @@
             "title": "Title"
           },
           "graph": {},
-          "standard": {},
           "metrics": [
             ""
           ],
@@ -44,85 +43,10 @@
               "name": "Overview",
               "children": [
                 {
-                  "x": 16,
-                  "y": 0,
-                  "w": 8,
-                  "h": 13,
-                  "i": "0",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Successful Rate in Current Service (%)"
-                  },
-                  "graph": {
-                    "type": "TopList",
-                    "topN": "10"
-                  },
-                  "standard": {},
-                  "metrics": [
-                    "endpoint_sla"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
-                  ],
-                  "moved": false,
-                  "metricConfig": [
-                    {
-                      "calculation": "percentage"
-                    }
-                  ]
-                },
-                {
-                  "x": 8,
-                  "y": 0,
-                  "w": 8,
-                  "h": 13,
-                  "i": "1",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Slow Endpoints in Current Service (ms)"
-                  },
-                  "graph": {
-                    "type": "TopList",
-                    "topN": "10"
-                  },
-                  "standard": {},
-                  "metrics": [
-                    "endpoint_resp_time"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
-                  ],
-                  "moved": false
-                },
-                {
-                  "x": 0,
-                  "y": 0,
-                  "w": 8,
-                  "h": 13,
-                  "i": "2",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Endpoint Load in Current Service (CPM / PPM)",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
-                  },
-                  "graph": {
-                    "type": "TopList",
-                    "topN": "10"
-                  },
-                  "standard": {},
-                  "metrics": [
-                    "endpoint_cpm"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
-                  ],
-                  "moved": false
-                },
-                {
-                  "x": 16,
-                  "y": 13,
-                  "w": 8,
-                  "h": 13,
+                  "x": 11,
+                  "y": 14,
+                  "w": 13,
+                  "h": 14,
                   "i": "3",
                   "type": "Widget",
                   "widget": {
@@ -156,10 +80,10 @@
                   ]
                 },
                 {
-                  "x": 8,
-                  "y": 13,
-                  "w": 8,
-                  "h": 13,
+                  "x": 11,
+                  "y": 0,
+                  "w": 13,
+                  "h": 14,
                   "i": "4",
                   "type": "Widget",
                   "widget": {
@@ -173,7 +97,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "endpoint_resp_time"
                   ],
@@ -184,9 +107,9 @@
                 },
                 {
                   "x": 0,
-                  "y": 26,
-                  "w": 8,
-                  "h": 13,
+                  "y": 14,
+                  "w": 11,
+                  "h": 14,
                   "i": "7",
                   "type": "Widget",
                   "widget": {
@@ -200,7 +123,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "endpoint_sla"
                   ],
@@ -216,13 +138,13 @@
                 },
                 {
                   "x": 0,
-                  "y": 13,
-                  "w": 8,
-                  "h": 13,
+                  "y": 0,
+                  "w": 11,
+                  "h": 14,
                   "i": "8",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Load (CPM / PPM)"
+                    "title": "Endpoint Load  (calls or packets / min)"
                   },
                   "graph": {
                     "type": "Line",
@@ -232,7 +154,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "endpoint_cpm"
                   ],
@@ -257,7 +178,6 @@
                     "title": "Title"
                   },
                   "graph": {},
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -274,7 +194,8 @@
       ],
       "layer": "MESH",
       "entity": "Endpoint",
-      "name": "Mesh-Endpoint"
+      "name": "Mesh-Endpoint",
+      "id": "Mesh-Endpoint"
     }
   }
 ]
