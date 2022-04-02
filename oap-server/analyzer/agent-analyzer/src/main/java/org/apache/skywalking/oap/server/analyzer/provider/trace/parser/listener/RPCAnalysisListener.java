@@ -288,8 +288,9 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             sourceReceiver.receive(callingIn.toServiceInstance());
             sourceReceiver.receive(callingIn.toServiceRelation());
             sourceReceiver.receive(callingIn.toServiceInstanceRelation());
-            if (Layer.FAAS != callingIn.getDestLayer()) {
-                // Service is equivalent to endpoint in FAAS (function as a service)
+            // Service is equivalent to endpoint in FAAS (function as a service)
+            // Don't generate endpoint and endpoint dependency to avoid unnecessary costs.
+            if (Layer.FAAS != callingIn.getDestLayer()) {        
                 sourceReceiver.receive(callingIn.toEndpoint());
                 EndpointRelation endpointRelation = callingIn.toEndpointRelation();
                 /*
