@@ -12,6 +12,12 @@ SkyWalking 8.0+ uses v3 protocols. Agents don't have to keep the same versions a
 8.9.0+ | \> = 8.0.0 | All | All | All | All | All | All | \> = 0.4.0 |
 9.0.0+ | \> = 8.0.0 | All | All | All | All | All | All | \> = 0.4.0 |
 
+## SkyWalking Satellite with Native Agent
+
+|Satellite|Java|Python|NodeJS|LUA|Kong|Browser Agent|Rust|
+----------- | ---------- | --------- | --------- |--------- |--------- |--------- |--------- |
+| \> = 0.4.0| \> = 8.0.0 | \> = 0.7.0 | No | No | No | No | All |
+
 ## Ecosystem Agents
 
 All following agent implementations are a part of SkyWalking ecosystem. All the source codes and their distributions
