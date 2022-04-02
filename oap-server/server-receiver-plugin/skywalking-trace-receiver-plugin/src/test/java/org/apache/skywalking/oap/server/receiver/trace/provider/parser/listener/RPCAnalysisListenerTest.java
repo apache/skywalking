@@ -155,9 +155,9 @@ public class RPCAnalysisListenerTest {
         Assert.assertEquals(6, receivedSources.size());
         final Service service = (Service) receivedSources.get(0);
         final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(1);
-        final Endpoint endpoint = (Endpoint) receivedSources.get(2);
-        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(3);
-        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(4);
+        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(2);
+        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(3);
+        final Endpoint endpoint = (Endpoint) receivedSources.get(4);
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(5);
         Assert.assertEquals("mock-service", service.getName());
         Assert.assertEquals(500, service.getHttpResponseStatusCode());
@@ -220,9 +220,9 @@ public class RPCAnalysisListenerTest {
         Assert.assertEquals(6, receivedSources.size());
         final Service service = (Service) receivedSources.get(0);
         final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(1);
-        final Endpoint endpoint = (Endpoint) receivedSources.get(2);
-        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(3);
-        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(4);
+        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(2);
+        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(3);
+        final Endpoint endpoint = (Endpoint) receivedSources.get(4);
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(5);
         Assert.assertEquals("mock-service", service.getName());
         Assert.assertEquals("mock-instance", serviceInstance.getName());
@@ -282,9 +282,9 @@ public class RPCAnalysisListenerTest {
         Assert.assertEquals(6, receivedSources.size());
         final Service service = (Service) receivedSources.get(0);
         final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(1);
-        final Endpoint endpoint = (Endpoint) receivedSources.get(2);
-        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(3);
-        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(4);
+        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(2);
+        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(3);
+        final Endpoint endpoint = (Endpoint) receivedSources.get(4);
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(5);
         Assert.assertEquals("mock-service", service.getName());
         Assert.assertEquals("mock-instance", serviceInstance.getName());
