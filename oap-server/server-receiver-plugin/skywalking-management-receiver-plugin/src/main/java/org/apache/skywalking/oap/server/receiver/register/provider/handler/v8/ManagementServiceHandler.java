@@ -21,13 +21,10 @@ package org.apache.skywalking.oap.server.receiver.register.provider.handler.v8;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.management.v3.InstancePingPkg;
 import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -38,8 +35,8 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-@Slf4j
 public final class ManagementServiceHandler {
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingControl;
@@ -55,13 +52,10 @@ public final class ManagementServiceHandler {
      * Identify the layer of instance. Such as ${@link Layer#FAAS}.
      */
     private Layer identifyInstanceLayer(String layer) {
-        try {
-            return Layer.nameOf(layer);
-        } catch (UnexpectedException e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
-            }
+        if (StringUtil.isEmpty(layer)) {
             return Layer.GENERAL;
+        } else {
+            return Layer.nameOf(layer);
         }
     }
 
