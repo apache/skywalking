@@ -151,7 +151,11 @@ public enum Layer {
     }
 
     public static Layer nameOf(String name) {
-        return DICTIONARY_NAME.get(name);
+        Layer layer = DICTIONARY_NAME.get(name);
+        if (layer == null) {
+            throw new UnexpectedException("Unknown Layer name");
+        }
+        return layer;
     }
 
     public boolean isNormal() {
