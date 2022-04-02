@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.core.analysis;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
@@ -126,9 +125,13 @@ public enum Layer {
      */
     private final boolean isNormal;
     private static final Map<Integer, Layer> DICTIONARY = new HashMap<>();
+    private static final Map<String, Layer> DICTIONARY_NAME = new HashMap<>();
 
     static {
-        Arrays.stream(Layer.values()).collect(Collectors.toMap(Layer::value, layer -> layer)).forEach(DICTIONARY::put);
+        Arrays.stream(Layer.values()).forEach(l -> {
+            DICTIONARY.put(l.value, l);
+            DICTIONARY_NAME.put(l.name(), l);
+        });
     }
 
     Layer(int value, boolean isNormal) {
@@ -144,6 +147,14 @@ public enum Layer {
         Layer layer = DICTIONARY.get(value);
         if (layer == null) {
             throw new UnexpectedException("Unknown Layer value");
+        }
+        return layer;
+    }
+
+    public static Layer nameOf(String name) {
+        Layer layer = DICTIONARY_NAME.get(name);
+        if (layer == null) {
+            throw new UnexpectedException("Unknown Layer name");
         }
         return layer;
     }

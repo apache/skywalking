@@ -52,6 +52,7 @@ public class UITemplateInitializer {
         Layer.VIRTUAL_DATABASE.name(),
         Layer.K8S_SERVICE.name(),
         Layer.SO11Y_SATELLITE.name(),
+        Layer.FAAS.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

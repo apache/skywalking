@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public final class ManagementServiceHandler {
     private final SourceReceiver sourceReceiver;
@@ -47,13 +48,24 @@ public final class ManagementServiceHandler {
                                           .getService(NamingControl.class);
     }
 
+    /**
+     * Identify the layer of instance. Such as ${@link Layer#FAAS}.
+     */
+    private Layer identifyInstanceLayer(String layer) {
+        if (StringUtil.isEmpty(layer)) {
+            return Layer.GENERAL;
+        } else {
+            return Layer.nameOf(layer);
+        }
+    }
+
     public Commands reportInstanceProperties(final InstanceProperties request) {
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         final String serviceName = namingControl.formatServiceName(request.getService());
         final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
-        serviceInstanceUpdate.setLayer(Layer.GENERAL);
+        serviceInstanceUpdate.setLayer(identifyInstanceLayer(request.getLayer()));
 
         JsonObject properties = new JsonObject();
         List<String> ipv4List = new ArrayList<>();
@@ -77,18 +89,19 @@ public final class ManagementServiceHandler {
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         final String serviceName = namingControl.formatServiceName(request.getService());
         final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
+        final Layer layer = identifyInstanceLayer(request.getLayer());
 
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
         serviceInstanceUpdate.setTimeBucket(timeBucket);
-        serviceInstanceUpdate.setLayer(Layer.GENERAL);
+        serviceInstanceUpdate.setLayer(layer);
         sourceReceiver.receive(serviceInstanceUpdate);
 
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setName(serviceName);
         serviceMeta.setTimeBucket(timeBucket);
-        serviceMeta.setLayer(Layer.GENERAL);
+        serviceMeta.setLayer(layer);
         sourceReceiver.receive(serviceMeta);
 
         return Commands.newBuilder().build();
