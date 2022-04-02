@@ -17,7 +17,7 @@
 
 [
   {
-    "id": "Faas-Service",
+    "id": "FaaS-Function",
     "configuration": {
       "children": [
         {
@@ -37,7 +37,7 @@
           "metricTypes": [
             ""
           ],
-          "activedTabIndex": 1,
+          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
@@ -160,7 +160,7 @@
                   ]
                 },
                 {
-                  "x": 12,
+                  "x": 6,
                   "y": 5,
                   "w": 6,
                   "h": 11,
@@ -192,7 +192,7 @@
                   ]
                 },
                 {
-                  "x": 6,
+                  "x": 12,
                   "y": 5,
                   "w": 6,
                   "h": 11,
@@ -350,7 +350,7 @@
                   },
                   "graph": {
                     "type": "InstanceList",
-                    "dashboardName": "Faas-Instance",
+                    "dashboardName": "FaaS-Instance",
                     "fontSize": 12
                   },
                   "metrics": [
@@ -362,7 +362,8 @@
                   "moved": false,
                   "metricConfig": [
                     {
-                      "label": "Function Instance Load (calls / min)"
+                      "label": "Load",
+                      "unit": "calls / min"
                     }
                   ]
                 }
@@ -375,7 +376,7 @@
                   "x": 0,
                   "y": 0,
                   "w": 24,
-                  "h": 47,
+                  "h": 48,
                   "i": "0",
                   "type": "Topology",
                   "widget": {
@@ -391,21 +392,81 @@
                     ""
                   ],
                   "moved": false,
-                  "linkDashboard": "Faas-Service-Relation",
+                  "linkDashboard": "FaaS-Function-Relation",
                   "nodeDashboard": [
                     {
                       "scope": "Service",
-                      "dashboard": "Faas-Service"
+                      "dashboard": "FaaS-Function"
                     },
                     {
                       "scope": "ServiceInstance",
-                      "dashboard": "Faas-Instance"
+                      "dashboard": "FaaS-Instance"
                     }
                   ],
-                  "linkServerMetrics": [],
-                  "linkClientMetrics": [],
-                  "nodeMetrics": [],
-                  "legend": []
+                  "linkServerMetrics": [
+                    "service_relation_server_resp_time",
+                    "service_relation_server_cpm"
+                  ],
+                  "linkClientMetrics": [
+                    "service_relation_client_cpm",
+                    "service_relation_client_resp_time"
+                  ],
+                  "nodeMetrics": [
+                    "service_cpm",
+                    "service_sla",
+                    "service_resp_time"
+                  ],
+                  "legend": [
+                    {
+                      "name": "service_sla",
+                      "condition": "<",
+                      "value": "9500"
+                    },
+                    {
+                      "name": "service_cpm",
+                      "condition": ">",
+                      "value": "1"
+                    }
+                  ],
+                  "description": {
+                    "healthy": "Healthy",
+                    "unhealthy": "Success Rate < 95% and Traffic > 1 call/min"
+                  },
+                  "nodeMetricConfig": [
+                    {
+                      "unit": "calls / min",
+                      "label": "Load"
+                    },
+                    {
+                      "calculation": "percentage",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Latency"
+                    }
+                  ],
+                  "linkServerMetricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "Server Latency"
+                    },
+                    {
+                      "unit": "calls / min",
+                      "label": "Server Load"
+                    }
+                  ],
+                  "linkClientMetricConfig": [
+                    {
+                      "unit": "calls / min",
+                      "label": "Client Load"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Client Latency"
+                    }
+                  ]
                 }
               ]
             },
@@ -439,7 +500,9 @@
       ],
       "layer": "FAAS",
       "entity": "Service",
-      "name": "Faas-Service"
+      "name": "FaaS-Function",
+      "id": "FaaS-Function",
+      "isRoot": false
     }
   }
 ]

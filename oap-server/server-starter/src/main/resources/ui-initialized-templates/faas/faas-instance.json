@@ -17,7 +17,7 @@
 
 [
   {
-    "id": "Faas-Instance",
+    "id": "FaaS-Instance",
     "configuration": {
       "children": [
         {
@@ -44,9 +44,9 @@
               "children": [
                 {
                   "x": 0,
-                  "y": 28,
+                  "y": 29,
                   "w": 24,
-                  "h": 13,
+                  "h": 14,
                   "i": "0",
                   "type": "Widget",
                   "widget": {
@@ -72,7 +72,7 @@
                   "x": 0,
                   "y": 14,
                   "w": 24,
-                  "h": 14,
+                  "h": 15,
                   "i": "1",
                   "type": "Widget",
                   "widget": {
@@ -158,7 +158,9 @@
       ],
       "layer": "FAAS",
       "entity": "ServiceInstance",
-      "name": "Faas-Instance"
+      "name": "FaaS-Instance",
+      "id": "FaaS-Instance",
+      "isRoot": false
     }
   }
 ]

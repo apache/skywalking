@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.register.provider.handler.v8;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.management.v3.InstancePingPkg;
 import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
@@ -47,13 +48,20 @@ public final class ManagementServiceHandler {
                                           .getService(NamingControl.class);
     }
 
+    /**
+     * Identify the layer of instance. Such as ${@link Layer#FAAS}.
+     */
+    private Layer identifyInstanceLayer(String layer) {
+        return Optional.ofNullable(Layer.nameOf(layer)).orElse(Layer.GENERAL);
+    }
+
     public Commands reportInstanceProperties(final InstanceProperties request) {
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         final String serviceName = namingControl.formatServiceName(request.getService());
         final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
-        serviceInstanceUpdate.setLayer(Layer.nameOf(request.getLayer()));
+        serviceInstanceUpdate.setLayer(identifyInstanceLayer(request.getLayer()));
 
         JsonObject properties = new JsonObject();
         List<String> ipv4List = new ArrayList<>();
@@ -77,7 +85,7 @@ public final class ManagementServiceHandler {
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         final String serviceName = namingControl.formatServiceName(request.getService());
         final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
-        final Layer layer = Layer.nameOf(request.getLayer());
+        final Layer layer = identifyInstanceLayer(request.getLayer());
 
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));

@@ -17,7 +17,7 @@
 
 [
   {
-    "id": "Faas-Service-Relation",
+    "id": "FaaS-Function-Relation",
     "configuration": {
       "children": [
         {
@@ -31,7 +31,6 @@
             "title": "Title"
           },
           "graph": {},
-          "standard": {},
           "metrics": [
             ""
           ],
@@ -51,7 +50,7 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Load (Function)"
+                    "title": "Load (Server) (calls / min)"
                   },
                   "graph": {
                     "type": "Line",
@@ -60,9 +59,6 @@
                     "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
-                    "unit": "CPM - Calls Per Minute"
                   },
                   "metrics": [
                     "service_relation_server_cpm"
@@ -80,7 +76,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Successful Rate (Function)"
+                    "title": "Success Rate (Server) (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -90,17 +86,18 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                    "unit": "%",
-                    "divide": 100
-                  },
                   "metrics": [
                     "service_relation_server_call_sla"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
                 },
                 {
                   "x": 12,
@@ -110,7 +107,7 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Response Time Percentile (Function)"
+                    "title": "Response Time Percentile (Server) (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -120,18 +117,20 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                    "unit": "ms",
-                    "metricLabels": "P50, P75, P90, P95, P99",
-                    "labelsIndex": "0,1,2,3,4"
-                  },
                   "metrics": [
                     "service_relation_server_percentile"
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "key": "P50, P75, P90, P95, P99",
+                      "labelsIndex": "0,1,2,3,4",
+                      "label": "P50, P75, P90, P95, P99"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -141,7 +140,7 @@
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "Response Time (Function)"
+                    "title": "Response Time (Server) (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -150,9 +149,6 @@
                     "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
-                    "unit": "ms"
                   },
                   "metrics": [
                     "service_relation_server_resp_time"
@@ -170,7 +166,7 @@
                   "i": "4",
                   "type": "Widget",
                   "widget": {
-                    "title": "Response Time (Client)"
+                    "title": "Response Time (Client) (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -179,9 +175,6 @@
                     "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
-                    "unit": "ms"
                   },
                   "metrics": [
                     "service_relation_client_resp_time"
@@ -199,7 +192,7 @@
                   "i": "5",
                   "type": "Widget",
                   "widget": {
-                    "title": "Response Time Percentile (Client)"
+                    "title": "Response Time Percentile (Client) (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -209,18 +202,20 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                    "unit": "ms",
-                    "metricLabels": "P50, P75, P90, P95, P99",
-                    "labelsIndex": "0,1,2,3,4"
-                  },
                   "metrics": [
                     "service_relation_client_percentile"
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "key": "P50, P75, P90, P95, P99",
+                      "labelsIndex": "0,1,2,3,4",
+                      "label": "P50, P75, P90, P95, P99"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -230,7 +225,7 @@
                   "i": "6",
                   "type": "Widget",
                   "widget": {
-                    "title": "Successful Rate (Client)"
+                    "title": "Success Rate (Client) (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -240,19 +235,18 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                    "divide": 100,
-                    "unit": "%",
-                    "metricLabels": "",
-                    "labelsIndex": ""
-                  },
                   "metrics": [
                     "service_relation_client_call_sla"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
                 },
                 {
                   "x": 12,
@@ -262,7 +256,7 @@
                   "i": "7",
                   "type": "Widget",
                   "widget": {
-                    "title": "Load (Client)"
+                    "title": "Load (Client) (calls / min)"
                   },
                   "graph": {
                     "type": "Line",
@@ -271,12 +265,6 @@
                     "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
-                    "divide": 1,
-                    "unit": "CPM - Calls Per Minute",
-                    "metricLabels": "",
-                    "labelsIndex": ""
                   },
                   "metrics": [
                     "service_relation_client_cpm"
@@ -304,19 +292,65 @@
                   "graph": {
                     "showDepth": true
                   },
-                  "standard": {
-                    "divide": 1,
-                    "unit": "CPM - Calls Per Minute",
-                    "metricLabels": "",
-                    "labelsIndex": ""
-                  },
                   "metrics": [
                     ""
                   ],
                   "metricTypes": [
                     ""
                   ],
-                  "moved": false
+                  "moved": false,
+                  "linkDashboard": "FaaS-Instance-Relation",
+                  "nodeDashboard": "FaaS-Instance",
+                  "linkServerMetrics": [
+                    "service_instance_relation_server_resp_time",
+                    "service_instance_relation_server_cpm"
+                  ],
+                  "linkClientMetrics": [
+                    "service_instance_relation_client_resp_time",
+                    "service_instance_relation_client_cpm"
+                  ],
+                  "nodeMetrics": [
+                    "service_instance_sla",
+                    "service_instance_cpm",
+                    "service_instance_resp_time"
+                  ],
+                  "legend": [],
+                  "description": {},
+                  "nodeMetricConfig": [
+                    {
+                      "unit": "%",
+                      "calculation": "percentage",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "unit": "calls / min",
+                      "label": "Load"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Latency"
+                    }
+                  ],
+                  "linkServerMetricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "Server Latency"
+                    },
+                    {
+                      "unit": "calls / min ",
+                      "label": "Server Load"
+                    }
+                  ],
+                  "linkClientMetricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "Client Latency"
+                    },
+                    {
+                      "unit": "calls / min",
+                      "label": "Client Load"
+                    }
+                  ]
                 }
               ]
             }
@@ -324,9 +358,10 @@
           "moved": false
         }
       ],
-      "name": "Faas-Service-Relation",
       "layer": "FAAS",
       "entity": "ServiceRelation",
+      "name": "FaaS-Function-Relation",
+      "id": "FaaS-Function-Relation",
       "isRoot": false
     }
   }

@@ -17,12 +17,12 @@
 
 [
   {
-    "id": "Faas-Root",
+    "id": "FaaS-Root",
     "configuration": {
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 2,
           "w": 24,
           "h": 52,
           "i": "1",
@@ -31,7 +31,6 @@
             "title": "Title"
           },
           "graph": {},
-          "standard": {},
           "metrics": [
             ""
           ],
@@ -41,7 +40,7 @@
           "activedTabIndex": 0,
           "children": [
             {
-              "name": "Functions",
+              "name": "Function",
               "children": [
                 {
                   "x": 0,
@@ -55,13 +54,12 @@
                   },
                   "graph": {
                     "type": "ServiceList",
-                    "dashboardName": "Faas-Service",
+                    "dashboardName": "FaaS-Function",
                     "fontSize": 12,
                     "showXAxis": false,
                     "showYAxis": false,
                     "showGroup": false
                   },
-                  "standard": {},
                   "metrics": [
                     "service_cpm"
                   ],
@@ -71,7 +69,8 @@
                   "moved": false,
                   "metricConfig": [
                     {
-                      "label": "Function Load (calls / min)"
+                      "label": "Load",
+                      "unit": "calls / min"
                     }
                   ]
                 }
@@ -93,7 +92,6 @@
                   "graph": {
                     "showDepth": true
                   },
-                  "standard": {},
                   "metrics": [
                     ""
                   ],
@@ -101,15 +99,15 @@
                     ""
                   ],
                   "moved": false,
-                  "linkDashboard": "Faas-Service-Relation",
+                  "linkDashboard": "Function-Function-Relation",
                   "nodeDashboard": [
                     {
                       "scope": "Service",
-                      "dashboard": "Faas-Service"
+                      "dashboard": "FaaS-Function"
                     },
                     {
                       "scope": "ServiceInstance",
-                      "dashboard": "Faas-Instance"
+                      "dashboard": "FaaS-Instance"
                     }
                   ],
                   "linkServerMetrics": [
@@ -120,8 +118,62 @@
                     "service_relation_client_cpm",
                     "service_relation_client_resp_time"
                   ],
-                  "nodeMetrics": [],
-                  "legend": []
+                  "nodeMetrics": [
+                    "service_cpm",
+                    "service_sla",
+                    "service_resp_time"
+                  ],
+                  "legend": [
+                    {
+                      "name": "service_sla",
+                      "condition": "<",
+                      "value": "9500"
+                    },
+                    {
+                      "name": "service_cpm",
+                      "condition": ">",
+                      "value": "1"
+                    }
+                  ],
+                  "description": {
+                    "healthy": "Healthy",
+                    "unhealthy": "Success Rate < 95% and Traffic > 1 calls / min"
+                  },
+                  "nodeMetricConfig": [
+                    {
+                      "unit": "calls / min",
+                      "label": "Load"
+                    },
+                    {
+                      "calculation": "percentage",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Latency"
+                    }
+                  ],
+                  "linkServerMetricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "Server Latency"
+                    },
+                    {
+                      "unit": "calls / min",
+                      "label": "Server Load"
+                    }
+                  ],
+                  "linkClientMetricConfig": [
+                    {
+                      "unit": "calls / min",
+                      "label": "Client Load"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Client Latency"
+                    }
+                  ]
                 }
               ]
             },
@@ -152,11 +204,35 @@
             }
           ],
           "moved": false
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "2",
+          "type": "Text",
+          "metricTypes": [
+            ""
+          ],
+          "metrics": [
+            ""
+          ],
+          "graph": {
+            "fontColor": "black",
+            "backgroundColor": "white",
+            "content": "FaaS (Function-as-a-Service) is a type of cloud-computing service that allows you to execute code in response to events without the complex infrastructure typically associated with building and launching microservices applications. OpenFunction as a FaaS platform, provides out-of-box observability with SkyWalking integration.",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://github.com/OpenFunction/samples/blob/main/functions/tracing/README.md"
+          },
+          "moved": false
         }
       ],
+      "id": "FaaS-Root",
       "layer": "FAAS",
       "entity": "All",
-      "name": "Faas-Root",
+      "name": "FaaS-Root",
       "isRoot": true
     }
   }

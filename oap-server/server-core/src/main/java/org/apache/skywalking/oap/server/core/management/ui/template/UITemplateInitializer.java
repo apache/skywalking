@@ -35,9 +35,9 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
- * UITemplateInitializer load the template from the config file in json format. It depends on the UI implementation
- * only. Each config file should be only one dashboard setting json object. The dashboard names should be different in
- * the same Layer and entity.
+ * UITemplateInitializer load the template from the config file in json format. It depends on the UI implementation only.
+ * Each config file should be only one dashboard setting json object.
+ * The dashboard names should be different in the same Layer and entity.
  */
 public class UITemplateInitializer {
     public static String[] UI_TEMPLATE_FOLDER = new String[] {
@@ -87,10 +87,7 @@ public class UITemplateInitializer {
         }
         JsonNode configNode = jsonNode.get(0).get("configuration");
         String inId = jsonNode.get(0).get("id").textValue();
-        String inNameKey = StringUtil.join(
-            '_', configNode.get("layer").textValue(), configNode.get("entity").textValue(),
-            configNode.get("name").textValue()
-        );
+        String inNameKey = StringUtil.join('_', configNode.get("layer").textValue(), configNode.get("entity").textValue(), configNode.get("name").textValue());
         verifyNameConflict(template, inId, inNameKey);
 
         DashboardSetting setting = new DashboardSetting();

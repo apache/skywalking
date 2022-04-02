@@ -151,11 +151,7 @@ public enum Layer {
     }
 
     public static Layer nameOf(String name) {
-        Layer layer = DICTIONARY_NAME.get(name);
-        if (layer == null) {
-            return Layer.GENERAL;
-        }
-        return layer;
+        return DICTIONARY_NAME.get(name);
     }
 
     public boolean isNormal() {
