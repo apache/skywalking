@@ -22,13 +22,13 @@
       "children": [
         {
           "x": 16,
-          "y": 45,
+          "y": 30,
           "w": 8,
           "h": 15,
           "i": "0",
           "type": "Widget",
           "widget": {
-            "title": "Page FMP Latency"
+            "title": "Page FMP Latency (ms)"
           },
           "graph": {
             "type": "Line",
@@ -37,12 +37,6 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "divide": 1,
-            "unit": "ms",
-            "metricLabels": "P50,P75,P90,P95,P99",
-            "labelsIndex": "0,1,2,3,4"
           },
           "metrics": [
             "browser_app_page_fmp_percentile"
@@ -50,17 +44,24 @@
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "key": "P50, P75, P90, P95, P99",
+              "labelsIndex": "0,1,2,3,4",
+              "label": "P50, P75, P90, P95, P99"
+            }
+          ]
         },
         {
           "x": 8,
-          "y": 45,
+          "y": 30,
           "w": 8,
           "h": 15,
           "i": "1",
           "type": "Widget",
           "widget": {
-            "title": "Page First Pack Latency"
+            "title": "Page First Pack Latency (ms)"
           },
           "graph": {
             "type": "Line",
@@ -69,12 +70,6 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "divide": 1,
-            "unit": "ms",
-            "metricLabels": "P50,P75,P90,P95,P99",
-            "labelsIndex": "0,1,2,3,4"
           },
           "metrics": [
             "browser_app_page_first_pack_percentile"
@@ -82,17 +77,24 @@
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "key": "P50, P75, P90, P95, P99",
+              "labelsIndex": "0,1,2,3,4",
+              "label": "P50, P75, P90, P95, P99"
+            }
+          ]
         },
         {
           "x": 0,
-          "y": 30,
+          "y": 15,
           "w": 8,
           "h": 15,
           "i": "2",
           "type": "Widget",
           "widget": {
-            "title": "Page FPT Latency"
+            "title": "Page FPT Latency (ms)"
           },
           "graph": {
             "type": "Line",
@@ -101,10 +103,6 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "unit": "ms",
-            "metricLabels": "P50, P75, P90, P95, P99"
           },
           "metrics": [
             "browser_app_page_fpt_percentile"
@@ -112,17 +110,24 @@
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "key": "P50, P75, P90, P95, P99",
+              "labelsIndex": "0,1,2,3,4",
+              "label": "P50, P75, P90, P95, P99"
+            }
+          ]
         },
         {
           "x": 16,
-          "y": 30,
+          "y": 15,
           "w": 8,
           "h": 15,
           "i": "3",
           "type": "Widget",
           "widget": {
-            "title": "Page DOM Ready Latency"
+            "title": "Page DOM Ready Latency (ms)"
           },
           "graph": {
             "type": "Line",
@@ -131,12 +136,6 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "divide": 1,
-            "unit": "ms",
-            "metricLabels": "P50,P75,P90,P95,P99",
-            "labelsIndex": "0,1,2,3,4"
           },
           "metrics": [
             "browser_app_page_dom_ready_percentile"
@@ -144,17 +143,24 @@
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "key": "P50, P75, P90, P95, P99",
+              "labelsIndex": "0,1,2,3,4",
+              "label": "P50, P75, P90, P95, P99"
+            }
+          ]
         },
         {
           "x": 8,
-          "y": 30,
+          "y": 15,
           "w": 8,
           "h": 15,
           "i": "4",
           "type": "Widget",
           "widget": {
-            "title": "Page TTL Latency"
+            "title": "Page TTL Latency (ms)"
           },
           "graph": {
             "type": "Line",
@@ -163,12 +169,6 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "divide": 1,
-            "unit": "ms",
-            "metricLabels": "P50,P75,P90,P95,P99",
-            "labelsIndex": "0,1,2,3,4"
           },
           "metrics": [
             "browser_app_page_ttl_percentile"
@@ -176,99 +176,24 @@
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "key": "P50, P75, P90, P95, P99",
+              "labelsIndex": "0,1,2,3,4",
+              "label": "P50, P75, P90, P95, P99"
+            }
+          ]
         },
         {
           "x": 0,
-          "y": 0,
-          "w": 8,
-          "h": 15,
-          "i": "5",
-          "type": "Widget",
-          "widget": {
-            "title": "Top Hot Pages  (CPM - calls per minute)"
-          },
-          "graph": {
-            "type": "TopList",
-            "topN": "10"
-          },
-          "standard": {
-            "divide": 1,
-            "unit": "ms",
-            "metricLabels": "P50,P75,P90,P95,P99",
-            "labelsIndex": "0,1,2,3,4"
-          },
-          "metrics": [
-            "browser_app_page_pv"
-          ],
-          "metricTypes": [
-            "sortMetrics"
-          ],
-          "moved": false
-        },
-        {
-          "x": 16,
-          "y": 0,
-          "w": 8,
-          "h": 15,
-          "i": "6",
-          "type": "Widget",
-          "widget": {
-            "title": "Top Unstable Pages / Error Count"
-          },
-          "graph": {
-            "type": "TopList",
-            "topN": "10"
-          },
-          "standard": {
-            "divide": 1,
-            "unit": "ms",
-            "metricLabels": "P50,P75,P90,P95,P99",
-            "labelsIndex": "0,1,2,3,4"
-          },
-          "metrics": [
-            "browser_app_page_error_sum"
-          ],
-          "metricTypes": [
-            "sortMetrics"
-          ],
-          "moved": false
-        },
-        {
-          "x": 8,
-          "y": 0,
-          "w": 8,
-          "h": 15,
-          "i": "7",
-          "type": "Widget",
-          "widget": {
-            "title": "Top Unstable Pages / Error Rate"
-          },
-          "graph": {
-            "type": "TopList",
-            "topN": "10"
-          },
-          "standard": {
-            "divide": 100,
-            "unit": "%"
-          },
-          "metrics": [
-            "browser_app_page_error_rate"
-          ],
-          "metricTypes": [
-            "sortMetrics"
-          ],
-          "moved": false
-        },
-        {
-          "x": 0,
-          "y": 45,
+          "y": 30,
           "w": 8,
           "h": 15,
           "i": "8",
           "type": "Widget",
           "widget": {
-            "title": "Page Load Latency"
+            "title": "Page Load Latency (ms)"
           },
           "graph": {
             "type": "Line",
@@ -277,12 +202,6 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "divide": 1,
-            "unit": "ms",
-            "metricLabels": "P50,P75,P90,P95,P99",
-            "labelsIndex": "0,1,2,3,4"
           },
           "metrics": [
             "browser_app_page_load_page_percentile"
@@ -290,17 +209,24 @@
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "key": "0,1,2,3,4",
+              "label": "P50, P75, P90, P95, P99",
+              "labelsIndex": "0,1,2,3,4"
+            }
+          ]
         },
         {
           "x": 12,
-          "y": 15,
+          "y": 0,
           "w": 12,
           "h": 15,
           "i": "9",
           "type": "Widget",
           "widget": {
-            "title": "Page Performance"
+            "title": "Page Performance (ms)"
           },
           "graph": {
             "type": "Line",
@@ -309,10 +235,6 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "divide": 1,
-            "unit": "ms"
           },
           "metrics": [
             "browser_app_page_res_avg",
@@ -342,7 +264,7 @@
         },
         {
           "x": 0,
-          "y": 15,
+          "y": 0,
           "w": 12,
           "h": 15,
           "i": "10",
@@ -353,12 +275,6 @@
           "graph": {
             "type": "Bar",
             "showBackground": true
-          },
-          "standard": {
-            "divide": 1,
-            "unit": "ms",
-            "metricLabels": "P50,P75,P90,P95,P99",
-            "labelsIndex": "0,1,2,3,4"
           },
           "metrics": [
             "browser_app_page_resource_error_sum",

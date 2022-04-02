@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.configuration.zookeeper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +55,7 @@ public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
             ChildData data = this.childrenCache.getCurrentData(this.prefix + s);
             String itemValue = null;
             if (data != null && data.getData() != null) {
-                itemValue = new String(data.getData());
+                itemValue = new String(data.getData(), StandardCharsets.UTF_8);
             }
             table.add(new ConfigTable.ConfigItem(s, itemValue));
         });
@@ -66,21 +67,22 @@ public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
         GroupConfigTable table = new GroupConfigTable();
         keys.forEach(key -> {
             GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
-                try {
-                    client.getChildren().forPath(this.prefix + key).forEach(itemName -> {
-                        byte[] data = null;
-                        try {
-                            data = client.getData().forPath(this.prefix + key + "/" + itemName);
-                        } catch (Exception e) {
-                            log.error(e.getMessage(), e);
-                        }
-                        groupConfigItems.add(
-                            new ConfigTable.ConfigItem(itemName, data == null ? null : new String(data)));
-                    });
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                }
-                table.addGroupConfigItems(groupConfigItems);
+            try {
+                client.getChildren().forPath(this.prefix + key).forEach(itemName -> {
+                    byte[] data = null;
+                    try {
+                        data = client.getData().forPath(this.prefix + key + "/" + itemName);
+                    } catch (Exception e) {
+                        log.error(e.getMessage(), e);
+                    }
+                    groupConfigItems.add(
+                        new ConfigTable.ConfigItem(
+                            itemName, data == null ? null : new String(data, StandardCharsets.UTF_8)));
+                });
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+            table.addGroupConfigItems(groupConfigItems);
         });
         return Optional.of(table);
     }

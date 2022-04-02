@@ -36,22 +36,27 @@
             "fontSize": 12,
             "showXAxis": false,
             "showYAxis": false,
-            "showGroup": true
+            "showGroup": false
           },
-          "standard": {},
           "metrics": [
             "database_access_resp_time"
           ],
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "unit": "ms",
+              "label": "Latency"
+            }
+          ]
         }
       ],
+      "id": "Virtual-Database-Root",
       "layer": "VIRTUAL_DATABASE",
       "entity": "All",
       "name": "Virtual-Database-Root",
-      "id": "Virtual-Database-Root",
       "isRoot": true
     }
   }

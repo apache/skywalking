@@ -34,7 +34,6 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @Slf4j
 public class LogHandler extends AbstractKafkaHandler {
 
-    private final KafkaFetcherConfig config;
     private final HistogramMetrics histogram;
     private final CounterMetrics errorCounter;
     private final ILogAnalyzerService logAnalyzerService;
@@ -42,7 +41,6 @@ public class LogHandler extends AbstractKafkaHandler {
     public LogHandler(final ModuleManager moduleManager,
                       final KafkaFetcherConfig config) {
         super(moduleManager, config);
-        this.config = config;
         this.logAnalyzerService = moduleManager.find(LogAnalyzerModule.NAME)
                                                .provider()
                                                .getService(ILogAnalyzerService.class);

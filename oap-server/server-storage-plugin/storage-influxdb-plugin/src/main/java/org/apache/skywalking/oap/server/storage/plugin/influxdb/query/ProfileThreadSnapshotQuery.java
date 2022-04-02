@@ -25,17 +25,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.influxdb.dto.QueryResult;
@@ -65,7 +64,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
         countQuery.and(eq(ProfileThreadSnapshotRecord.TASK_ID, taskId))
                   .and(eq(ProfileThreadSnapshotRecord.SEQUENCE, 0));
 
-        final LinkedList<String> segments = new LinkedList<>();
+        final List<String> segments = new ArrayList<>();
         QueryResult.Series series = client.queryForSingleSeries(countQuery);
         if (Objects.isNull(series)) {
             return Collections.emptyList();

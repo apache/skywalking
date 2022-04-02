@@ -31,14 +31,13 @@
             "title": "Title"
           },
           "graph": {},
-          "standard": {},
           "metrics": [
             ""
           ],
           "metricTypes": [
             ""
           ],
-          "activedTabIndex": 1,
+          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
@@ -51,16 +50,13 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "CPU Resources"
+                    "title": "CPU Resources (m)"
                   },
                   "graph": {
                     "type": "Area",
                     "opacity": 0.4,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
-                    "unit": "m"
                   },
                   "metrics": [
                     "k8s_cluster_cpu_cores",
@@ -84,7 +80,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Memory Resources"
+                    "title": "Memory Resources (Gi)"
                   },
                   "graph": {
                     "type": "Area",
@@ -92,15 +88,11 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                    "unit": "GB",
-                    "divide": 1073741824
-                  },
                   "metrics": [
-                    "k8s_cluster_memory_total",
                     "k8s_cluster_memory_requests",
+                    "k8s_cluster_memory_allocatable",
                     "k8s_cluster_memory_limits",
-                    "k8s_cluster_memory_allocatable"
+                    "k8s_cluster_memory_total"
                   ],
                   "metricTypes": [
                     "readMetricsValues",
@@ -108,7 +100,21 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToGB"
+                    },
+                    {
+                      "calculation": "byteToGB"
+                    },
+                    {
+                      "calculation": "byteToGB"
+                    },
+                    {
+                      "calculation": "byteToGB"
+                    }
+                  ]
                 },
                 {
                   "x": 16,
@@ -118,17 +124,13 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Storage Resources"
+                    "title": "Storage Resources (Gi)"
                   },
                   "graph": {
                     "type": "Area",
                     "opacity": 0.4,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "standard": {
-                    "unit": "GB",
-                    "divide": 1073741824
                   },
                   "metrics": [
                     "k8s_cluster_storage_total",
@@ -138,7 +140,15 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToGB"
+                    },
+                    {
+                      "calculation": "byteToGB"
+                    }
+                  ]
                 },
                 {
                   "x": 16,
@@ -156,7 +166,6 @@
                     "tableHeaderCol1": "Container-Pod-Waiting Reason",
                     "tableHeaderCol2": ""
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_pod_status_waiting"
                   ],
@@ -177,11 +186,10 @@
                   },
                   "graph": {
                     "type": "Table",
-                    "showTableValues": true,
+                    "showTableValues": false,
                     "tableHeaderCol1": "Status-Service",
                     "tableHeaderCol2": ""
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_service_pod_status"
                   ],
@@ -206,7 +214,6 @@
                     "tableHeaderCol1": "Status-Pod",
                     "tableHeaderCol2": ""
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_pod_status_not_running"
                   ],
@@ -231,7 +238,6 @@
                     "tableHeaderCol1": "Status-Node",
                     "tableHeaderCol2": ""
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_node_status"
                   ],
@@ -256,7 +262,6 @@
                     "tableHeaderCol1": "Deployment",
                     "tableHeaderCol2": "Replicas"
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_deployment_spec_replicas"
                   ],
@@ -277,11 +282,10 @@
                   },
                   "graph": {
                     "type": "Table",
-                    "showTableValues": true,
+                    "showTableValues": false,
                     "tableHeaderCol1": "Deployment-Available",
                     "tableHeaderCol2": ""
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_deployment_status"
                   ],
@@ -306,7 +310,6 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_container_total"
                   ],
@@ -331,7 +334,6 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_pod_total"
                   ],
@@ -356,7 +358,6 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_service_total"
                   ],
@@ -381,7 +382,6 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_node_total"
                   ],
@@ -406,7 +406,6 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_namespace_total"
                   ],
@@ -431,7 +430,6 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_cluster_deployment_total"
                   ],
@@ -457,17 +455,22 @@
                   },
                   "graph": {
                     "type": "InstanceList",
-                    "dashboardName": "V9-K8S-Node",
+                    "dashboardName": "K8S-Node",
                     "fontSize": 12
                   },
-                  "standard": {},
                   "metrics": [
                     "k8s_node_cpu_usage"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "label": "CPU Usage",
+                      "unit": "m"
+                    }
+                  ]
                 }
               ]
             }

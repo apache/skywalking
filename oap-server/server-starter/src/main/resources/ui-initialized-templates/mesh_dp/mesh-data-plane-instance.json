@@ -21,297 +21,348 @@
     "configuration": {
       "children": [
         {
-          "x": 18,
-          "y": 13,
-          "w": 6,
-          "h": 13,
-          "i": "0",
-          "type": "Widget",
-          "widget": {
-            "title": "Upstream Request Active"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "standard": {},
-          "metrics": [
-            "envoy_cluster_up_rq_active"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 6,
-          "y": 0,
-          "w": 6,
-          "h": 13,
-          "i": "1",
-          "type": "Widget",
-          "widget": {
-            "title": "Connections Used"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "standard": {},
-          "metrics": [
-            "envoy_total_connections_used",
-            "envoy_parent_connections_used"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 0,
-          "y": 13,
-          "w": 6,
-          "h": 13,
-          "i": "2",
-          "type": "Widget",
-          "widget": {
-            "title": "Membership Healthy"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "standard": {},
-          "metrics": [
-            "envoy_cluster_membership_healthy"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 12,
-          "y": 13,
-          "w": 6,
-          "h": 13,
-          "i": "3",
-          "type": "Widget",
-          "widget": {
-            "title": "Upstream Connection Increase"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "standard": {},
-          "metrics": [
-            "envoy_cluster_up_cx_incr"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 6,
-          "y": 26,
-          "w": 6,
-          "h": 13,
-          "i": "4",
-          "type": "Widget",
-          "widget": {
-            "title": "Upstream Request Pending Active"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "standard": {},
-          "metrics": [
-            "envoy_cluster_up_rq_pending_active"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "moved": false
-        },
-        {
           "x": 0,
           "y": 0,
-          "w": 6,
-          "h": 13,
-          "i": "5",
-          "type": "Widget",
-          "widget": {
-            "title": "Heap Memory Used"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "standard": {
-            "unit": "MB",
-            "divide": "1048576"
-          },
-          "metrics": [
-            "envoy_memory_allocated_max",
-            "envoy_heap_memory_used",
-            "envoy_memory_allocated",
-            "envoy_memory_physical_size",
-            "envoy_memory_physical_size_max",
-            "envoy_heap_memory_max_used"
-          ],
+          "w": 24,
+          "h": 51,
+          "i": "10",
+          "type": "Tab",
           "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+            ""
           ],
-          "moved": false
-        },
-        {
-          "x": 18,
-          "y": 0,
-          "w": 6,
-          "h": 13,
-          "i": "6",
-          "type": "Widget",
-          "widget": {
-            "title": "Envoy Bug Failure"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "standard": {},
           "metrics": [
-            "envoy_bug_failures"
+            ""
           ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 12,
-          "y": 0,
-          "w": 6,
-          "h": 13,
-          "i": "7",
-          "type": "Widget",
-          "widget": {
-            "title": "Concurrency"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "standard": {},
-          "metrics": [
-            "envoy_worker_threads_max",
-            "envoy_worker_threads"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 6,
-          "y": 13,
-          "w": 6,
-          "h": 13,
-          "i": "8",
-          "type": "Widget",
-          "widget": {
-            "title": "Upstream Connection Active"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "standard": {},
-          "metrics": [
-            "envoy_cluster_up_cx_active"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 0,
-          "y": 26,
-          "w": 6,
-          "h": 13,
-          "i": "9",
-          "type": "Widget",
-          "widget": {
-            "title": "Upstream Request Increase"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "standard": {},
-          "metrics": [
-            "envoy_cluster_up_rq_incr"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "activedTabIndex": 1,
+          "children": [
+            {
+              "name": "Envoy Proxy",
+              "children": [
+                {
+                  "x": 18,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Upstream Request Active"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "envoy_cluster_up_rq_active"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Connections Used"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "standard": {},
+                  "metrics": [
+                    "envoy_total_connections_used",
+                    "envoy_parent_connections_used"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Membership Healthy"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "envoy_cluster_membership_healthy"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Upstream Connection Increase"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "envoy_cluster_up_cx_incr"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 6,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Upstream Request Pending Active"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "envoy_cluster_up_rq_pending_active"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Heap Memory Used (MB)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "envoy_memory_allocated_max",
+                    "envoy_heap_memory_used",
+                    "envoy_memory_allocated",
+                    "envoy_memory_physical_size",
+                    "envoy_memory_physical_size_max",
+                    "envoy_heap_memory_max_used"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Envoy Bug Failure"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "envoy_bug_failures"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "7",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Concurrency"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "envoy_worker_threads_max",
+                    "envoy_worker_threads"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 6,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "8",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Upstream Connection Active"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "envoy_cluster_up_cx_active"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "9",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Upstream Request Increase"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "envoy_cluster_up_rq_incr"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Envoy Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 47,
+                  "i": "0",
+                  "type": "Log",
+                  "metricTypes": [
+                    ""
+                  ],
+                  "metrics": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
+            }
           ],
           "moved": false
         }
       ],
-      "name": "Mesh-Data-Plane-Instance",
       "layer": "MESH_DP",
       "entity": "ServiceInstance",
+      "name": "Mesh-Data-Plane-Instance",
+      "id": "Mesh-Data-Plane-Instance",
       "isRoot": false
     }
   }

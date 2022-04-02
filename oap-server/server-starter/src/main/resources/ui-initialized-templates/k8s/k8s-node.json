@@ -28,7 +28,7 @@
           "i": "0",
           "type": "Widget",
           "widget": {
-            "title": "CPU Usage"
+            "title": "CPU Usage (m)"
           },
           "graph": {
             "type": "Line",
@@ -37,9 +37,6 @@
             "showSymbol": false,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "unit": "m"
           },
           "metrics": [
             "k8s_node_cpu_usage"
@@ -57,7 +54,7 @@
           "i": "1",
           "type": "Widget",
           "widget": {
-            "title": "Network I/O"
+            "title": "Network I/O (KB/s)"
           },
           "graph": {
             "type": "Line",
@@ -67,10 +64,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {
-            "divide": 1024,
-            "unit": "KB/s"
-          },
           "metrics": [
             "k8s_node_network_receive",
             "k8s_node_network_transmit"
@@ -79,7 +72,15 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "byteToKB"
+            },
+            {
+              "calculation": "byteToKB"
+            }
+          ]
         },
         {
           "x": 8,
@@ -97,7 +98,6 @@
             "tableHeaderCol1": "",
             "tableHeaderCol2": ""
           },
-          "standard": {},
           "metrics": [
             "k8s_node_node_status"
           ],
@@ -114,17 +114,13 @@
           "i": "3",
           "type": "Widget",
           "widget": {
-            "title": "Storage Resources"
+            "title": "Storage Resources (Gi)"
           },
           "graph": {
             "type": "Area",
             "opacity": 0.4,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "divide": 1073741824,
-            "unit": "GB"
           },
           "metrics": [
             "k8s_node_storage_total",
@@ -134,7 +130,15 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "byteToGB"
+            },
+            {
+              "calculation": "byteToGB"
+            }
+          ]
         },
         {
           "x": 16,
@@ -144,16 +148,13 @@
           "i": "5",
           "type": "Widget",
           "widget": {
-            "title": "CPU Resources"
+            "title": "CPU Resources (m)"
           },
           "graph": {
             "type": "Area",
             "opacity": 0.4,
             "showXAxis": true,
             "showYAxis": true
-          },
-          "standard": {
-            "unit": "m"
           },
           "metrics": [
             "k8s_node_cpu_cores_limits",
@@ -177,7 +178,7 @@
           "i": "6",
           "type": "Widget",
           "widget": {
-            "title": "Memory Resources"
+            "title": "Memory Resources (Gi)"
           },
           "graph": {
             "type": "Area",
@@ -185,15 +186,11 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {
-            "divide": 1073741824,
-            "unit": "GB"
-          },
           "metrics": [
             "k8s_node_memory_total",
+            "k8s_node_memory_limits",
             "k8s_node_memory_allocatable",
-            "k8s_node_memory_requests",
-            "k8s_node_memory_limits"
+            "k8s_node_memory_requests"
           ],
           "metricTypes": [
             "readMetricsValues",
@@ -201,7 +198,21 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "byteToGB"
+            },
+            {
+              "calculation": "byteToGB"
+            },
+            {
+              "calculation": "byteToGB"
+            },
+            {
+              "calculation": "byteToGB"
+            }
+          ]
         },
         {
           "x": 0,
@@ -211,7 +222,7 @@
           "i": "7",
           "type": "Widget",
           "widget": {
-            "title": "Memory Usage"
+            "title": "Memory Usage (Gi)"
           },
           "graph": {
             "type": "Line",
@@ -221,17 +232,18 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {
-            "divide": 1073741824,
-            "unit": "GB"
-          },
           "metrics": [
             "k8s_node_memory_usage"
           ],
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "byteToGB"
+            }
+          ]
         },
         {
           "x": 0,
@@ -251,7 +263,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {},
           "metrics": [
             "k8s_node_pod_total"
           ],

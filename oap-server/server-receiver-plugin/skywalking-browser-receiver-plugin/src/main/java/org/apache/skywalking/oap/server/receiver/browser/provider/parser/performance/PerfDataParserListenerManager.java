@@ -17,14 +17,14 @@
 
 package org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.listener.PerfDataListenerFactory;
 
 public class PerfDataParserListenerManager {
     @Getter
-    private final List<PerfDataListenerFactory> perfDataListenerFactories = new LinkedList<>();
+    private final List<PerfDataListenerFactory> perfDataListenerFactories = new ArrayList<>();
 
     public void add(final PerfDataListenerFactory factory) {
         perfDataListenerFactories.add(factory);

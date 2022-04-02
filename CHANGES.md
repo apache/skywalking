@@ -32,6 +32,9 @@ Release Notes.
 * Improve CI with the GHA new feature "run failed jobs".
 * Fix `./mvnw compile` not work if `./mvnw install` is not executed at least once.
 * Add `JD_PRESERVE_LINE_FEEDS=true` in official code style file.
+* Upgrade OAP dependencies gson(2.9.0), guava(31.1), jackson(2.13.2), protobuf-java(3.18.4).
+* Remove commons-pool and commons-dbcp from OAP dependencies(Not used before).
+* Upgrade webapp dependencies gson(2.9.0), spring boot(2.6.5), jackson(2.13.2.2), spring cloud(2021.0.1).
 
 #### OAP Server
 
@@ -123,9 +126,6 @@ Release Notes.
 * Remove hard requirement of BASE64 encoding for binary field.
 * Add complexity limitation for GraphQL query to avoid malicious query.
 * Add `Column.shardingKeyIdx` for column definition for BanyanDB.
-* Fix the configuration of `Aggregation` and `GC Count` metrics for oap self observability
-* E2E: Add verify OAP eBPF Profiling.
-* Let `multiGet` could query without tag value in the `InfluxDB` storage plugin.
 
 ```
 Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same 
@@ -150,6 +150,12 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Trim tag's key and value in log query.
 * Refactor IoTDB storage plugin, add IoTDBDataConverter and fix ModifyCollectionInEnhancedForLoop bug.
 * Bump up iotdb-session to 0.12.5.
+* Fix the configuration of `Aggregation` and `GC Count` metrics for oap self observability
+* E2E: Add verify OAP eBPF Profiling.
+* Let `multiGet` could query without tag value in the `InfluxDB` storage plugin.
+* Adjust MAL for V9, remove some groups, add a new Service function for the custom delimiter.
+* Add service catalog `DatabaseSlowStatement`.
+* Add `Error Prone Annotations` dependency to suppress warnings, which are not errors.
 
 #### UI
 
@@ -161,14 +167,18 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Add Database Connection pool metric.
 * Re-implement UI template initialization for Booster UI.
 * Add environment variable `SW_ENABLE_UPDATE_UI_TEMPLATE` to control user edit UI template.
+* Add the Self Observability template of the SkyWalking Satellite.
 
 #### Documentation
 
+* Reconstruction doc menu for v9.
 * Update backend-alarm.md doc, support op "=" to "==".
 * Update backend-meter.md doc .
 * Add <STAM: Enhancing Topology Auto Detection For A Highly Distributed and Large-Scale Application System> paper.
 * Add Academy menu for recommending articles.
 * Remove `All` source relative document and examples.
+* Update Booster UI's dependency licenses.
+* Add profiling doc, and remove service mesh intro doc(not necessary).
 * Add compatibility of SkyWalking Satellite with native agent.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/112?closed=1)

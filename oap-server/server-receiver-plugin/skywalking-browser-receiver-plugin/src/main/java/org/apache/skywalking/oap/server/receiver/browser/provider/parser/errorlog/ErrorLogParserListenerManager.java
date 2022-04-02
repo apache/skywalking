@@ -17,14 +17,14 @@
 
 package org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener.ErrorLogListenerFactory;
 
 public class ErrorLogParserListenerManager {
     @Getter
-    private final List<ErrorLogListenerFactory> errorLogAnalysisListeners = new LinkedList<>();
+    private final List<ErrorLogListenerFactory> errorLogAnalysisListeners = new ArrayList<>();
 
     public void add(final ErrorLogListenerFactory factory) {
         errorLogAnalysisListeners.add(factory);

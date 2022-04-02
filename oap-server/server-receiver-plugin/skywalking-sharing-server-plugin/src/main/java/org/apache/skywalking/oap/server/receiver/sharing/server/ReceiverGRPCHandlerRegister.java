@@ -22,7 +22,7 @@ import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
@@ -31,7 +31,7 @@ public class ReceiverGRPCHandlerRegister implements GRPCHandlerRegister {
 
     @Setter
     private GRPCHandlerRegister grpcHandlerRegister;
-    private List<ServerInterceptor> interceptors = new LinkedList<>();
+    private List<ServerInterceptor> interceptors = new ArrayList<>();
 
     @Override
     public void addHandler(BindableService handler) {

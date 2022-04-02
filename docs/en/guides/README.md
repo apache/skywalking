@@ -5,7 +5,7 @@ There are many ways you can contribute to the SkyWalking community.
 - Download our [releases](http://skywalking.apache.org/downloads/), try to monitor your applications, and provide feedback to us.
 - Read our source codes. For details, reach out to us.
 - If you find any bugs, [submit an issue](https://github.com/apache/skywalking/issues). You can also try to fix it.
-- Find [help wanted issues](https://github.com/apache/skywalking/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22). This is a good place for you to start.
+- Find [`good first issue` issues](https://github.com/apache/skywalking/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22). This is a good place for you to start.
 - Submit an issue or start a discussion at [GitHub issue](https://github.com/apache/skywalking/issues/new).
 - See all mail list discussions at [website list review](https://lists.apache.org/list.html?dev@skywalking.apache.org).
 If you are already a SkyWalking committer, you can log in and use the mail list in the browser mode. Otherwise, subscribe following the step below.
@@ -13,11 +13,10 @@ If you are already a SkyWalking committer, you can log in and use the mail list 
 Mail to `dev-subscribe@skywalking.apache.org`, and follow the instructions in the reply to subscribe to the mail list.
 
 ## Contact Us
-All of the following channels are open to the community.
-* Submit an [issue](https://github.com/apache/skywalking/issues)
+All the following channels are open to the community.
+* Submit an [issue](https://github.com/apache/skywalking/issues) for an issue or feature proposal.
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`. Follow the instructions in the reply to subscribe to the mail list.
-* [Gitter](https://gitter.im/openskywalking/Lobby)
-* QQ Group: 392443393
+* Submit a [discussion](https://github.com/apache/skywalking/issues) to ask questions.
 
 ## Become an official Apache SkyWalking Committer
 The PMC assesses the contributions of every contributor, including their code contributions. It also  promotes, votes on, and invites new committers and PMC members according to the Apache guides.
@@ -38,7 +37,7 @@ and leaves them for `maven-failsafe-plugin` to run, which is bound to the `verif
 Therefore, to run the UTs, try `./mvnw clean test`, which only runs the UTs but not the ITs.
 
 If you would like to run the ITs, please set the property `skipITs` to false
-as well as the the profiles of the modules whose ITs you want to run.
+as well as the profiles of the modules whose ITs you want to run.
 E.g. if you would like to run the ITs in `oap-server`, try `./mvnw -Pbackend clean verify -DskipITs=false`,
 and if you would like to run all the ITs, simply run `./mvnw clean verify -DskipITs=false`.
 
@@ -114,16 +113,6 @@ storage implementor in addition to the official one.
 - [Source and scope extension for new metrics](source-extension.md). For analysis of a new metric which SkyWalking
 hasn't yet provided, add a new receiver.
 You would most likely have to add a new source and scope. To learn how to do this, read the document.
-
-### UI developer
-Our UI consists of static pages and the web container.
-
-- [RocketBot UI](https://github.com/apache/skywalking-rocketbot-ui) is SkyWalking's primary UI since the 6.1 release.
-It is built with vue + typescript. Learn more at the rocketbot repository.
-- **Web container** source codes are in the `apm-webapp` module. This is a simple zuul proxy which hosts
-static resources and sends GraphQL query requests to the backend.
-- [Legacy UI repository](https://github.com/apache/skywalking-ui) is retained, but not included
-in SkyWalking releases since 6.0.0-GA.
 
 ### OAP backend dependency management
 > This section is only applicable to dependencies of the backend module.
