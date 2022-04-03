@@ -59,7 +59,7 @@
           "graph": {
             "fontColor": "blue",
             "backgroundColor": "white",
-            "content": "Observe Service status and resources from K8S side.",
+            "content": "Observe Service status and resources from Kubernetes.",
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-k8s-monitoring/"
