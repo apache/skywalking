@@ -22,7 +22,7 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 2,
           "w": 24,
           "h": 52,
           "i": "1",
@@ -207,6 +207,29 @@
               ]
             }
           ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "100",
+          "type": "Text",
+          "metricTypes": [
+            ""
+          ],
+          "metrics": [
+            ""
+          ],
+          "graph": {
+            "fontColor": "blue",
+            "backgroundColor": "white",
+            "content": "Observe Service through telemetry data collected from SkyWalking Agent.",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/service-agent/server-agents/"
+          },
           "moved": false
         }
       ],

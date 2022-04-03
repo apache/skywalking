@@ -242,7 +242,7 @@
                   "i": "13",
                   "type": "Widget",
                   "widget": {
-                    "title": "Upstream Connection Increase"
+                    "title": "Upstream Connection Increase (Per Minute)"
                   },
                   "graph": {
                     "type": "Line",
@@ -430,7 +430,7 @@
                   "i": "19",
                   "type": "Widget",
                   "widget": {
-                    "title": "Upstream Request Increase"
+                    "title": "Upstream Request Increase (Per Minute)"
                   },
                   "graph": {
                     "type": "Line",

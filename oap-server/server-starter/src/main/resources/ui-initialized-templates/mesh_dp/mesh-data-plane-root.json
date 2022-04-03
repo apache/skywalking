@@ -22,7 +22,7 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 2,
           "w": 24,
           "h": 51,
           "i": "0",
@@ -45,6 +45,29 @@
             ""
           ],
           "metricConfig": [],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "100",
+          "type": "Text",
+          "metricTypes": [
+            ""
+          ],
+          "metrics": [
+            ""
+          ],
+          "graph": {
+            "fontColor": "black",
+            "backgroundColor": "white",
+            "content": "Observe Envoy Proxy through Envoy Metrics Service.",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/envoy/metrics_service_setting/"
+          },
           "moved": false
         }
       ],

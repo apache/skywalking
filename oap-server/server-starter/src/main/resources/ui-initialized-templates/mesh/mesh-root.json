@@ -22,7 +22,7 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 2,
           "w": 24,
           "h": 52,
           "i": "1",
@@ -184,6 +184,29 @@
               ]
             }
           ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "100",
+          "type": "Text",
+          "metricTypes": [
+            ""
+          ],
+          "metrics": [
+            ""
+          ],
+          "graph": {
+            "fontColor": "blue",
+            "backgroundColor": "white",
+            "content": "Observe Service Mesh through telemetry data collected from Envoy Access Log Service (ALS).",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/envoy/als_setting/"
+          },
           "moved": false
         }
       ],
