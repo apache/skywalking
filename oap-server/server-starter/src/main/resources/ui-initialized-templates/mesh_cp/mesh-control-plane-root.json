@@ -22,7 +22,7 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 2,
           "w": 24,
           "h": 51,
           "i": "0",
@@ -38,13 +38,35 @@
             "showYAxis": false,
             "showGroup": true
           },
-          "standard": {},
           "metrics": [
             ""
           ],
           "metricTypes": [
             ""
           ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "100",
+          "type": "Text",
+          "metricTypes": [
+            ""
+          ],
+          "metrics": [
+            ""
+          ],
+          "graph": {
+            "fontColor": "blue",
+            "backgroundColor": "white",
+            "content": "Provides monitoring of the behavior of Istio through its self-monitoring metrics.",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/istio/readme/"
+          },
           "moved": false
         }
       ],

@@ -22,7 +22,7 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 2,
           "w": 24,
           "h": 51,
           "i": "0",
@@ -51,6 +51,29 @@
               "unit": "%"
             }
           ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "100",
+          "type": "Text",
+          "metricTypes": [
+            ""
+          ],
+          "metrics": [
+            ""
+          ],
+          "graph": {
+            "fontColor": "blue",
+            "backgroundColor": "white",
+            "content": "Provides monitoring of the status and resources of the VMs running Linux.",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-vm-monitoring/"
+          },
+          "moved": false
         }
       ],
       "name": "Linux-Root",

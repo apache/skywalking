@@ -22,7 +22,7 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 2,
           "w": 24,
           "h": 51,
           "i": "0",
@@ -51,12 +51,35 @@
               "unit": "calls / min"
             }
           ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "100",
+          "type": "Text",
+          "metricTypes": [
+            ""
+          ],
+          "metrics": [
+            ""
+          ],
+          "graph": {
+            "fontColor": "blue",
+            "backgroundColor": "white",
+            "content": "Provides Browser-Side monitoring of Web-App, Versions and Pages, through Apache SkyWalking Client JS.",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/service-agent/browser-agent/"
+          },
+          "moved": false
         }
       ],
+      "id": "Browser-Root",
       "layer": "BROWSER",
       "entity": "All",
       "name": "Browser-Root",
-      "id": "Browser-Root",
       "isRoot": true
     }
   }
