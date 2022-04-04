@@ -1,7 +1,7 @@
-# VMs monitoring 
+# VMs monitoring (Linux)
 SkyWalking leverages Prometheus node-exporter to collect metrics data from the VMs, and leverages OpenTelemetry Collector to transfer the metrics to
 [OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).  
-We define the VM entity as a `Service` in OAP, and use `vm::` as a prefix to identify it.  
+VM entity as a `Service` in OAP, and on the `Layer: OS_LINUX`.  
 
 ## Data flow
 1. The Prometheus node-exporter collects metrics data from the VMs.
@@ -15,7 +15,7 @@ We define the VM entity as a `Service` in OAP, and use `vm::` as a prefix to ide
 2. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/). This is an example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../../../../test/e2e-v2/cases/vm/prometheus-node-exporter/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
    
-## Supported Metrics
+## Supported Metrics (Lin)
 
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|-----|-----|-----|-----|
@@ -35,7 +35,7 @@ We define the VM entity as a `Service` in OAP, and use `vm::` as a prefix to ide
 ## Customizing 
 You can customize your own metrics/expression/dashboard panel.   
 The metrics definition and expression rules are found in `/config/otel-oc-rules/vm.yaml`.  
-The dashboard panel confirmations are found in `/config/ui-initialized-templates/vm.yml`.
+The dashboard panel confirmations are found in `/config/ui-initialized-templates/os_linux`.
 
 ## Blog
 For more details, see blog article [SkyWalking 8.4 provides infrastructure monitoring](https://skywalking.apache.org/blog/2021-02-07-infrastructure-monitoring/).
