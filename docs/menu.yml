@@ -143,6 +143,8 @@ catalog:
         path: "/en/setup/backend/ui-setup"
       - name: "Official Dashboards"
         catalog:
+          - name: "Overview"
+            path: "/en/ui/readme"
           - name: "General Service"
             catalog:
               - name: "Server Agents"
@@ -177,8 +179,6 @@ catalog:
                 path: "/en/setup/backend/backend-health-check"
       - name: "CLI Setup"
         path: "https://github.com/apache/skywalking-cli"
-  - name: "UI Introduction"
-    path: "/en/ui/readme"
   - name: "Contributing Guides"
     catalog:
       - name: "Contribute"
