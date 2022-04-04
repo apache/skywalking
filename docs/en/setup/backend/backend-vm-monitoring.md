@@ -1,4 +1,4 @@
-# VMs monitoring (Linux)
+# Linux Monitoring
 SkyWalking leverages Prometheus node-exporter to collect metrics data from the VMs, and leverages OpenTelemetry Collector to transfer the metrics to
 [OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).  
 VM entity as a `Service` in OAP, and on the `Layer: OS_LINUX`.  
