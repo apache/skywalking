@@ -180,6 +180,7 @@ NOTICE, this sharding concept is NOT just for splitting data into different data
 * Remove `All` source relative document and examples.
 * Update Booster UI's dependency licenses.
 * Add profiling doc, and remove service mesh intro doc(not necessary).
+* Add a doc for virtual database.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/112?closed=1)
 
