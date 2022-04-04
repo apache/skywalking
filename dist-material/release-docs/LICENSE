@@ -235,8 +235,8 @@ The text of each license is the standard Apache 2.0 license.
     SnakeYAML 1.28: http://www.snakeyaml.org , Apache 2.0
     Joda-Time 2.10.5: http://www.joda.org/joda-time/ , Apache 2.0
     Joda-Convert 2.2.1: http://www.joda.org/joda-convert/ , Apache 2.0
-    Spring Framework 5.3.17: https://github.com/spring-projects/spring-framework, Apache 2.0
-    Spring Boot 2.6.5: https://spring.io/, Apache 2.0
+    Spring Framework 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
+    Spring Boot 2.6.6: https://spring.io/, Apache 2.0
     Spring Cloud Gateway 3.1.1: https://spring.io/projects/spring-cloud, Apache-2.0
     Spring Cloud Load Balancer 3.1.1: https://spring.io/projects/spring-cloud, Apache-2.0
     Spring Web 5.3.15 https://spring.io/, Apache-2.0
