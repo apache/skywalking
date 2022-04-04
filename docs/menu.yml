@@ -165,6 +165,10 @@ catalog:
                 path: "/en/setup/backend/backend-vm-monitoring"
           - name: "Browser Monitoring"
             path: "/en/setup/service-agent/browser-agent"
+          - name: "Database Monitoring"
+            catalog:
+              - name: "Virtual Database"
+                path: "en/setup/service-agent/virtual-database"
           - name: "Self Observability"
             catalog:
               - name: "OAP Telemetry"
