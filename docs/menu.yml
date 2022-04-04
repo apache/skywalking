@@ -168,7 +168,7 @@ catalog:
           - name: "Database Monitoring"
             catalog:
               - name: "Virtual Database"
-                path: "en/setup/service-agent/virtual-database"
+                path: "/en/setup/service-agent/virtual-database"
           - name: "Self Observability"
             catalog:
               - name: "OAP Telemetry"
