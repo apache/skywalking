@@ -33,7 +33,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.boot.version>2.6.6</spring.boot.version>
         <gson.version>2.9.0</gson.version>
-        <apache-httpclient.version>4.5.3</apache-httpclient.version>
+        <apache-httpclient.version>4.5.13</apache-httpclient.version>
         <spring-cloud-dependencies.version>2021.0.1</spring-cloud-dependencies.version>
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <logback-classic.version>1.2.3</logback-classic.version>
