@@ -26,7 +26,7 @@ commons-beanutils-1.9.4.jar
 commons-codec-1.11.jar
 commons-collections4-4.4.jar
 commons-compress-1.21.jar
-commons-io-2.6.jar
+commons-io-2.7.jar
 commons-lang3-3.12.0.jar
 commons-logging-1.2.jar
 commons-text-1.4.jar
@@ -132,7 +132,7 @@ netty-transport-native-unix-common-4.1.68.Final-linux-x86_64.jar
 okhttp-3.14.9.jar
 okio-1.17.2.jar
 perfmark-api-0.23.0.jar
-postgresql-42.3.2.jar
+postgresql-42.3.3.jar
 proto-google-common-protos-2.0.1.jar
 protobuf-java-3.19.4.jar
 protobuf-java-util-3.19.4.jar

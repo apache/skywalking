@@ -249,11 +249,12 @@ The text of each license is the standard Apache 2.0 license.
     Apache: zookeeper 3.5.7: https://github.com/apache/zookeeper, Apache 2.0
     Apache: commons-collections 3.2.2: https://github.com/apache/commons-collections, Apache 2.0
     Apache: commons-configuration 1.8: https://github.com/apache/commons-configuration, Apache 2.0
-    Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
+    Apache: commons-io 2.7: https://github.com/apache/commons-io, Apache 2.0
     Apache: commons-compress 1.21: https://github.com/apache/commons-compress, Apache 2.0
     Apache: commons-collections4 4.4: https://mvnrepository.com/artifact/org.apache.commons/commons-collections4, Apache 2.0
     Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
     Apache: Tomcat-embed 9.0.56 https://tomcat.apache.org, Apache 2.0
+    Apache: httpclient 4.5.13 https://hc.apache.org/, Apache 2.0
     netty 4.1.68: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     netty: netty-tcnative-boringssl-static 2.0.43:  https://github.com/netty/netty-tcnative, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
@@ -372,7 +373,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Google: protobuf-java-util 3.19.4: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
 
     zstd-jni 1.4.3-1: https://github.com/luben/zstd-jni, BSD-3-Clause
-    postgresql 42.3.2: https://jdbc.postgresql.org/about/license.html, BSD-2-Clause
+    postgresql 42.3.3: https://jdbc.postgresql.org/about/license.html, BSD-2-Clause
     LatencyUtils 2.0.3: https://github.com/LatencyUtils/LatencyUtils, BSD-2-Clause
 
 ========================================================================
