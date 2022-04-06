@@ -334,6 +334,26 @@
                   ]
                 }
               ]
+            },
+            {
+              "name": "Trace",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Trace",
+                  "metricTypes": [
+                    ""
+                  ],
+                  "metrics": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
             }
           ],
           "moved": false
