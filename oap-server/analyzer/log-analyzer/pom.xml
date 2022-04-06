@@ -20,7 +20,7 @@
     <parent>
         <artifactId>analyzer</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.0.0-SNAPSHOT</version>
+        <version>9.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -48,4 +48,8 @@
         </dependency>
     </dependencies>
 
+
+  <scm>
+    <tag>v9.0.0</tag>
+  </scm>
 </project>
