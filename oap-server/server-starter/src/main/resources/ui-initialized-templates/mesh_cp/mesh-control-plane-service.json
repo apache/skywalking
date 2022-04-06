@@ -105,7 +105,7 @@
           "i": "3",
           "type": "Widget",
           "widget": {
-            "title": "Memory"
+            "title": "Memory (MB)"
           },
           "graph": {
             "type": "Area",
@@ -138,7 +138,24 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "byteToMB"
+            },
+            {
+              "calculation": "byteToMB"
+            },
+            {
+              "calculation": "byteToMB"
+            },
+            {
+              "calculation": "byteToMB"
+            },
+            {
+              "calculation": "byteToMB"
+            }
+          ]
         },
         {
           "x": 8,
@@ -336,9 +353,10 @@
           "moved": false
         }
       ],
-      "name": "Mesh-Control-Plane-Service",
       "layer": "MESH_CP",
       "entity": "Service",
+      "name": "Mesh-Control-Plane-Service",
+      "id": "Mesh-Control-Plane-Service",
       "isRoot": false
     }
   }
