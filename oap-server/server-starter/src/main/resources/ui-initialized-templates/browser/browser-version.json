@@ -22,85 +22,132 @@
       "children": [
         {
           "x": 0,
-          "y": 24,
-          "w": 24,
-          "h": 12,
-          "i": "0",
-          "type": "Widget",
-          "widget": {
-            "title": "Error Count  of The Selected Version"
-          },
-          "graph": {
-            "type": "Bar",
-            "showBackground": true
-          },
-          "metrics": [
-            "browser_app_single_version_error_sum"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "moved": false,
-          "metricConfig": [
-            {
-              "calculation": "percentage"
-            }
-          ]
-        },
-        {
-          "x": 0,
-          "y": 12,
-          "w": 24,
-          "h": 12,
-          "i": "1",
-          "type": "Widget",
-          "widget": {
-            "title": "Error Rate  of The Selected Version"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "browser_app_single_version_error_rate"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "moved": false,
-          "metricConfig": [
-            {
-              "calculation": "percentage"
-            }
-          ]
-        },
-        {
-          "x": 0,
           "y": 0,
           "w": 24,
-          "h": 12,
-          "i": "2",
-          "type": "Widget",
+          "h": 52,
+          "i": "12",
+          "type": "Tab",
           "widget": {
-            "title": "Load of The Selected Version (CPM - calls per minute) "
+            "title": "Title"
           },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
+          "graph": {},
           "metrics": [
-            "browser_app_single_version_pv"
+            ""
           ],
           "metricTypes": [
-            "readMetricsValues"
+            ""
+          ],
+          "activedTabIndex": 0,
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 24,
+                  "h": 12,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Error Count  of The Selected Version"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metrics": [
+                    "browser_app_single_version_error_sum"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 12,
+                  "w": 24,
+                  "h": 12,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Error Rate  of The Selected Version"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "browser_app_single_version_error_rate"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 12,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Load of The Selected Version (CPM - calls per minute) "
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "browser_app_single_version_pv"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Trace",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Trace",
+                  "metricTypes": [
+                    ""
+                  ],
+                  "metrics": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
+            }
           ],
           "moved": false
         }
