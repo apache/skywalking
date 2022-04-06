@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.storage.query;
 import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
+import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.DAO;
@@ -56,4 +57,17 @@ public interface IMetadataQueryDAO extends DAO {
      * @return list of endpoint matching the given conditions.
      */
     List<Endpoint> findEndpoint(final String keyword, final String serviceId, final int limit) throws IOException;
+
+    /**
+     * @param serviceId the service of the processes.
+     * @param instanceId the service instance of the process.
+     * @param agentId the agent id which reports the process.
+     * @return list of processes matching the given conditions.
+     */
+    List<Process> listProcesses(final String serviceId, final String instanceId, final String agentId) throws IOException;
+
+    /**
+     * @param processId the id of the process.
+     */
+    Process getProcess(final String processId) throws IOException;
 }

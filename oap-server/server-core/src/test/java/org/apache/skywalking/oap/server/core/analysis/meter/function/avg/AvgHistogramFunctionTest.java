@@ -29,7 +29,8 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -92,8 +93,8 @@ public class AvgHistogramFunctionTest {
         inst.calculate();
 
         final int[] results = inst.getDataset().sortedValues(new HeatMap.KeyComparator(true)).stream()
-            .flatMapToInt(l -> IntStream.of(l.intValue()))
-            .toArray();
+                                  .flatMapToInt(l -> IntStream.of(l.intValue()))
+                                  .toArray();
         Assert.assertArrayEquals(new int[] {
             1,
             3,
@@ -192,15 +193,18 @@ public class AvgHistogramFunctionTest {
         );
         inst.calculate();
 
-        final StorageHashMapBuilder storageBuilder = inst.builder().newInstance();
+        final StorageBuilder storageBuilder = inst.builder().newInstance();
 
         // Simulate the storage layer do, convert the datatable to string.
-        Map<String, Object> map = storageBuilder.entity2Storage(inst);
+        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+        storageBuilder.entity2Storage(inst, toStorage);
+        final Map<String, Object> map = toStorage.obtain();
         map.put(SUMMATION, ((DataTable) map.get(SUMMATION)).toStorageData());
         map.put(COUNT, ((DataTable) map.get(COUNT)).toStorageData());
         map.put(DATASET, ((DataTable) map.get(DATASET)).toStorageData());
 
-        final AvgHistogramFunction inst2 = (AvgHistogramFunction) storageBuilder.storage2Entity(map);
+        final AvgHistogramFunction inst2 = (AvgHistogramFunction) storageBuilder.storage2Entity(
+            new HashMapConverter.ToEntity(map));
         Assert.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
         Assert.assertEquals(inst.getDataset(), inst2.getDataset());
@@ -250,8 +254,8 @@ public class AvgHistogramFunctionTest {
         inst.calculate();
 
         int[] results = inst.getDataset().sortedValues(new HeatMap.KeyComparator(true)).stream()
-            .flatMapToInt(l -> IntStream.of(l.intValue()))
-            .toArray();
+                            .flatMapToInt(l -> IntStream.of(l.intValue()))
+                            .toArray();
         Assert.assertArrayEquals(new int[] {
             1,
             3,

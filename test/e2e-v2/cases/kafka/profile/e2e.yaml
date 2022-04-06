@@ -21,6 +21,8 @@ setup:
   timeout: 20m
   init-system-environment: ../../../script/env
   steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
     - name: install yq
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
     - name: install swctl
@@ -32,4 +34,4 @@ verify:
     interval: 3s
   cases:
     - includes:
-        - ../../profile/profile-cases.yaml
+        - ../../profiling/trace/profiling-cases.yaml

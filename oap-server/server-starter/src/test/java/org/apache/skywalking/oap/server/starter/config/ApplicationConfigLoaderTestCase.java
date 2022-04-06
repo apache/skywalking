@@ -55,7 +55,7 @@ public class ApplicationConfigLoaderTestCase {
 
     @Test
     public void testLoadListTypeConfig() {
-        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver-zipkin")
                 .getProviderConfiguration("default");
         List<String> instanceNameRule = (List<String>) providerConfig.get("instanceNameRule");
         assertEquals(2, instanceNameRule.size());
@@ -63,7 +63,7 @@ public class ApplicationConfigLoaderTestCase {
 
     @Test
     public void testLoadStringTypeConfig() {
-        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver-zipkin")
                 .getProviderConfiguration("default");
         String host = (String) providerConfig.get("host");
         assertEquals("0.0.0.0", host);
@@ -71,7 +71,7 @@ public class ApplicationConfigLoaderTestCase {
 
     @Test
     public void testLoadIntegerTypeConfig() {
-        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver-zipkin")
                 .getProviderConfiguration("default");
         Integer port = (Integer) providerConfig.get("port");
         assertEquals(Integer.valueOf(9411), port);

@@ -27,6 +27,7 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
@@ -75,7 +76,7 @@ public class NetworkAddressAliasDAO implements INetworkAddressAliasDAO {
                 for (int i = 1; i < columns.size(); i++) {
                     map.put(columnAndFieldMap.get(columns.get(i)), values.get(i));
                 }
-                networkAddressAliases.add(builder.storage2Entity(map));
+                networkAddressAliases.add(builder.storage2Entity(new HashMapConverter.ToEntity(map)));
             }
         } catch (IOException e) {
             log.error(e.getMessage(), e);

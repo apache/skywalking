@@ -18,23 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @SuperDataset
 @Stream(name = SegmentRecord.INDEX_NAME, scopeId = DefaultScopeDefine.SEGMENT, builder = SegmentRecord.Builder.class, processor = RecordStreamProcessor.class)
@@ -45,7 +42,6 @@ public class SegmentRecord extends Record {
     public static final String TRACE_ID = "trace_id";
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_INSTANCE_ID = "service_instance_id";
-    public static final String ENDPOINT_NAME = "endpoint_name";
     public static final String ENDPOINT_ID = "endpoint_id";
     public static final String START_TIME = "start_time";
     public static final String LATENCY = "latency";
@@ -63,11 +59,11 @@ public class SegmentRecord extends Record {
     private String traceId;
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID)
+    @Column(columnName = SERVICE_ID, shardingKeyIdx = 0)
     private String serviceId;
     @Setter
     @Getter
-    @Column(columnName = SERVICE_INSTANCE_ID)
+    @Column(columnName = SERVICE_INSTANCE_ID, shardingKeyIdx = 1)
     private String serviceInstanceId;
     @Setter
     @Getter
@@ -83,7 +79,7 @@ public class SegmentRecord extends Record {
     private int latency;
     @Setter
     @Getter
-    @Column(columnName = IS_ERROR)
+    @Column(columnName = IS_ERROR, shardingKeyIdx = 2)
     private int isError;
     @Setter
     @Getter
@@ -91,7 +87,7 @@ public class SegmentRecord extends Record {
     private byte[] dataBinary;
     @Setter
     @Getter
-    @Column(columnName = TAGS)
+    @Column(columnName = TAGS, indexOnly = true)
     private List<String> tags;
     /**
      * Tags raw data is a duplicate field of {@link #tags}. Some storage don't support array values in a single column.
@@ -106,48 +102,37 @@ public class SegmentRecord extends Record {
         return segmentId;
     }
 
-    public static class Builder implements StorageHashMapBuilder<SegmentRecord> {
-
+    public static class Builder implements StorageBuilder<SegmentRecord> {
         @Override
-        public Map<String, Object> entity2Storage(SegmentRecord storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(SEGMENT_ID, storageData.getSegmentId());
-            map.put(TRACE_ID, storageData.getTraceId());
-            map.put(SERVICE_ID, storageData.getServiceId());
-            map.put(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
-            map.put(ENDPOINT_ID, storageData.getEndpointId());
-            map.put(START_TIME, storageData.getStartTime());
-            map.put(LATENCY, storageData.getLatency());
-            map.put(IS_ERROR, storageData.getIsError());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            if (CollectionUtils.isEmpty(storageData.getDataBinary())) {
-                map.put(DATA_BINARY, Const.EMPTY_STRING);
-            } else {
-                map.put(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
-            }
-            map.put(TAGS, storageData.getTags());
-            return map;
+        public SegmentRecord storage2Entity(final Convert2Entity converter) {
+            SegmentRecord record = new SegmentRecord();
+            record.setSegmentId((String) converter.get(SEGMENT_ID));
+            record.setTraceId((String) converter.get(TRACE_ID));
+            record.setServiceId((String) converter.get(SERVICE_ID));
+            record.setServiceInstanceId((String) converter.get(SERVICE_INSTANCE_ID));
+            record.setEndpointId((String) converter.get(ENDPOINT_ID));
+            record.setStartTime(((Number) converter.get(START_TIME)).longValue());
+            record.setLatency(((Number) converter.get(LATENCY)).intValue());
+            record.setIsError(((Number) converter.get(IS_ERROR)).intValue());
+            record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            record.setDataBinary(converter.getWith(DATA_BINARY, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
+            // Don't read the tags as they have been in the data binary already.
+            return record;
         }
 
         @Override
-        public SegmentRecord storage2Entity(Map<String, Object> dbMap) {
-            SegmentRecord record = new SegmentRecord();
-            record.setSegmentId((String) dbMap.get(SEGMENT_ID));
-            record.setTraceId((String) dbMap.get(TRACE_ID));
-            record.setServiceId((String) dbMap.get(SERVICE_ID));
-            record.setServiceInstanceId((String) dbMap.get(SERVICE_INSTANCE_ID));
-            record.setEndpointId((String) dbMap.get(ENDPOINT_ID));
-            record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
-            record.setLatency(((Number) dbMap.get(LATENCY)).intValue());
-            record.setIsError(((Number) dbMap.get(IS_ERROR)).intValue());
-            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            if (StringUtil.isEmpty((String) dbMap.get(DATA_BINARY))) {
-                record.setDataBinary(new byte[] {});
-            } else {
-                record.setDataBinary(Base64.getDecoder().decode((String) dbMap.get(DATA_BINARY)));
-            }
-            // Don't read the tags as they has been in the data binary already.
-            return record;
+        public void entity2Storage(final SegmentRecord storageData, final Convert2Storage converter) {
+            converter.accept(SEGMENT_ID, storageData.getSegmentId());
+            converter.accept(TRACE_ID, storageData.getTraceId());
+            converter.accept(SERVICE_ID, storageData.getServiceId());
+            converter.accept(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
+            converter.accept(ENDPOINT_ID, storageData.getEndpointId());
+            converter.accept(START_TIME, storageData.getStartTime());
+            converter.accept(LATENCY, storageData.getLatency());
+            converter.accept(IS_ERROR, storageData.getIsError());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(DATA_BINARY, storageData.getDataBinary());
+            converter.accept(TAGS, storageData.getTags());
         }
     }
 }

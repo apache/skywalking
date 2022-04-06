@@ -18,15 +18,15 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PersistenceColumns {
-    private List<PersistenceField> stringFields = new LinkedList<>();
-    private List<PersistenceField> longFields = new LinkedList<>();
-    private List<PersistenceField> doubleFields = new LinkedList<>();
-    private List<PersistenceField> intFields = new LinkedList<>();
-    private List<PersistenceField> objectFields = new LinkedList<>();
+    private List<PersistenceField> stringFields = new ArrayList<>();
+    private List<PersistenceField> longFields = new ArrayList<>();
+    private List<PersistenceField> doubleFields = new ArrayList<>();
+    private List<PersistenceField> intFields = new ArrayList<>();
+    private List<PersistenceField> objectFields = new ArrayList<>();
 
     public void addStringField(String fieldName) {
         stringFields.add(new PersistenceField(fieldName, "String"));

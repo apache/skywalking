@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.sum;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +25,7 @@ import lombok.ToString;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
@@ -36,17 +35,19 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @ToString
 @MeterFunction(functionName = "sum")
-public abstract class SumFunction extends Metrics implements AcceptableValue<Long>, LongValueHolder {
+public abstract class SumFunction extends Meter implements AcceptableValue<Long>, LongValueHolder {
     protected static final String VALUE = "value";
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(columnName = ENTITY_ID, length = 512, shardingKeyIdx = 0)
     private String entityId;
 
     @Setter
@@ -135,34 +136,32 @@ public abstract class SumFunction extends Metrics implements AcceptableValue<Lon
     }
 
     @Override
-    public Class<? extends StorageHashMapBuilder<?>> builder() {
+    public Class<? extends StorageBuilder<?>> builder() {
         return SumStorageBuilder.class;
     }
 
-    public static class SumStorageBuilder implements StorageHashMapBuilder<SumFunction> {
+    public static class SumStorageBuilder implements StorageBuilder<SumFunction> {
         @Override
-        public SumFunction storage2Entity(final Map<String, Object> dbMap) {
+        public SumFunction storage2Entity(final Convert2Entity converter) {
             final SumFunction metrics = new SumFunction() {
                 @Override
                 public AcceptableValue<Long> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
-            metrics.setValue(((Number) dbMap.get(VALUE)).longValue());
-            metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            metrics.setServiceId((String) dbMap.get(InstanceTraffic.SERVICE_ID));
-            metrics.setEntityId((String) dbMap.get(ENTITY_ID));
+            metrics.setValue(((Number) converter.get(VALUE)).longValue());
+            metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            metrics.setServiceId((String) converter.get(InstanceTraffic.SERVICE_ID));
+            metrics.setEntityId((String) converter.get(ENTITY_ID));
             return metrics;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(final SumFunction storageData) {
-            final Map<String, Object> map = new HashMap<>();
-            map.put(VALUE, storageData.getValue());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
-            map.put(ENTITY_ID, storageData.getEntityId());
-            return map;
+        public void entity2Storage(final SumFunction storageData, final Convert2Storage converter) {
+            converter.accept(VALUE, storageData.getValue());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
+            converter.accept(ENTITY_ID, storageData.getEntityId());
         }
     }
 

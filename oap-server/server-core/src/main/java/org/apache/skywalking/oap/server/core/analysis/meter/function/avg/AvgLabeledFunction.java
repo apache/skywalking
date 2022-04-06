@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import lombok.Getter;
@@ -28,6 +26,7 @@ import lombok.ToString;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
@@ -35,19 +34,21 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @MeterFunction(functionName = "avgLabeled")
 @ToString
-public abstract class AvgLabeledFunction extends Metrics implements AcceptableValue<DataTable>, LabeledValueHolder {
+public abstract class AvgLabeledFunction extends Meter implements AcceptableValue<DataTable>, LabeledValueHolder {
     protected static final String SUMMATION = "summation";
     protected static final String COUNT = "count";
     protected static final String VALUE = "value";
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(columnName = ENTITY_ID, length = 512, shardingKeyIdx = 0)
     private String entityId;
 
     /**
@@ -169,34 +170,32 @@ public abstract class AvgLabeledFunction extends Metrics implements AcceptableVa
         return AvgLabeledStorageBuilder.class;
     }
 
-    public static class AvgLabeledStorageBuilder implements StorageHashMapBuilder<AvgLabeledFunction> {
+    public static class AvgLabeledStorageBuilder implements StorageBuilder<AvgLabeledFunction> {
         @Override
-        public AvgLabeledFunction storage2Entity(final Map<String, Object> dbMap) {
+        public AvgLabeledFunction storage2Entity(final Convert2Entity converter) {
             AvgLabeledFunction metrics = new AvgLabeledFunction() {
                 @Override
                 public AcceptableValue<DataTable> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
-            metrics.setSummation(new DataTable((String) dbMap.get(SUMMATION)));
-            metrics.setValue(new DataTable((String) dbMap.get(VALUE)));
-            metrics.setCount(new DataTable((String) dbMap.get(COUNT)));
-            metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            metrics.setServiceId((String) dbMap.get(InstanceTraffic.SERVICE_ID));
-            metrics.setEntityId((String) dbMap.get(ENTITY_ID));
+            metrics.setSummation(new DataTable((String) converter.get(SUMMATION)));
+            metrics.setValue(new DataTable((String) converter.get(VALUE)));
+            metrics.setCount(new DataTable((String) converter.get(COUNT)));
+            metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            metrics.setServiceId((String) converter.get(InstanceTraffic.SERVICE_ID));
+            metrics.setEntityId((String) converter.get(ENTITY_ID));
             return metrics;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(final AvgLabeledFunction storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(SUMMATION, storageData.getSummation());
-            map.put(VALUE, storageData.getValue());
-            map.put(COUNT, storageData.getCount());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
-            map.put(ENTITY_ID, storageData.getEntityId());
-            return map;
+        public void entity2Storage(final AvgLabeledFunction storageData, final Convert2Storage converter) {
+            converter.accept(SUMMATION, storageData.getSummation());
+            converter.accept(VALUE, storageData.getValue());
+            converter.accept(COUNT, storageData.getCount());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
+            converter.accept(ENTITY_ID, storageData.getEntityId());
         }
     }
 

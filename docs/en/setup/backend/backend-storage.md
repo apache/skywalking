@@ -10,7 +10,7 @@ storage:
 Natively supported storage:
 - H2
 - OpenSearch
-- ElasticSearch 6, 7
+- ElasticSearch 6, 7, 8
 - MySQL
 - TiDB
 - InfluxDB
@@ -50,8 +50,8 @@ Since 8.8.0, SkyWalking rebuilds the ElasticSearch client on top of ElasticSearc
 correct request formats according to the server side version, hence you don't need to download different binaries
 and don't need to configure different storage selector for different ElasticSearch server side version anymore.
 
-For now, SkyWalking supports ElasticSearch 6.x, ElasticSearch 7.x, and OpenSearch 1.x, their configurations are as
-follows:
+For now, SkyWalking supports ElasticSearch 6.x, ElasticSearch 7.x, ElasticSearch 8.x, and OpenSearch 1.x, their
+configurations are as follows:
 
 ```yaml
 storage:

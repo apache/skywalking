@@ -29,14 +29,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.enumeration.Language;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
+import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
@@ -224,5 +229,96 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             serviceInstances.add(serviceInstance);
         }
         return serviceInstances;
+    }
+
+    @Override
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(5);
+        sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
+        if (StringUtil.isNotEmpty(serviceId) || StringUtil.isNotEmpty(instanceId) || StringUtil.isNotEmpty(agentId)) {
+            sql.append(" where ");
+        }
+
+        if (StringUtil.isNotEmpty(serviceId)) {
+            sql.append(ProcessTraffic.SERVICE_ID).append("=?");
+            condition.add(serviceId);
+        }
+        if (StringUtil.isNotEmpty(instanceId)) {
+            if (!condition.isEmpty()) {
+                sql.append(" and ");
+            }
+            sql.append(ProcessTraffic.INSTANCE_ID).append("=?");
+            condition.add(instanceId);
+        }
+        if (StringUtil.isNotEmpty(agentId)) {
+            if (!condition.isEmpty()) {
+                sql.append(" and ");
+            }
+            sql.append(ProcessTraffic.AGENT_ID).append("=?");
+            condition.add(agentId);
+        }
+
+        sql.append(" limit ").append(metadataQueryMaxSize);
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                    connection, sql.toString(), condition.toArray(new Object[0]))) {
+                return buildProcesses(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public Process getProcess(String processId) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(5);
+        sql.append("select * from ").append(ProcessTraffic.INDEX_NAME).append(" where ");
+        sql.append(H2TableInstaller.ID_COLUMN).append(" = ?");
+        condition.add(processId);
+        sql.append(" limit ").append(metadataQueryMaxSize);
+
+        try (Connection connection = h2Client.getConnection()) {
+            ResultSet resultSet = h2Client.executeQuery(
+                    connection, sql.toString(), condition.toArray(new Object[0]));
+            final List<Process> processes = buildProcesses(resultSet);
+            return processes.size() > 0 ? processes.get(0) : null;
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    private List<Process> buildProcesses(ResultSet resultSet) throws SQLException {
+        List<Process> processes = new ArrayList<>();
+        while (resultSet.next()) {
+            final Process process = new Process();
+            process.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
+            process.setName(resultSet.getString(ProcessTraffic.NAME));
+            final String serviceId = resultSet.getString(ProcessTraffic.SERVICE_ID);
+            process.setServiceId(serviceId);
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(serviceId);
+            process.setServiceName(serviceIDDefinition.getName());
+            final String instanceId = resultSet.getString(ProcessTraffic.INSTANCE_ID);
+            process.setInstanceId(instanceId);
+            final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(instanceId);
+            process.setInstanceName(instanceIDDefinition.getName());
+            process.setLayer(Layer.valueOf(resultSet.getInt(ProcessTraffic.LAYER)).name());
+            process.setAgentId(resultSet.getString(ProcessTraffic.AGENT_ID));
+            process.setDetectType(ProcessDetectType.valueOf(resultSet.getInt(ProcessTraffic.DETECT_TYPE)).name());
+            String propertiesString = resultSet.getString(ProcessTraffic.PROPERTIES);
+            if (!Strings.isNullOrEmpty(propertiesString)) {
+                JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
+                for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
+                    String key = property.getKey();
+                    String value = property.getValue().getAsString();
+                    process.getAttributes().add(new Attribute(key, value));
+                }
+            }
+
+            processes.add(process);
+        }
+        return processes;
     }
 }

@@ -37,7 +37,7 @@ import zipkin2.codec.SpanBytesEncoder;
 
 @RequiredArgsConstructor
 public class SpanForward {
-    private static final String DEFAULT_SERVICE_INSTANCE_NAME = " unknown_instance";
+    private static final String DEFAULT_SERVICE_INSTANCE_NAME = "unknown_instance";
     private final NamingControl namingControl;
     private final SourceReceiver receiver;
     private final ZipkinReceiverConfig config;

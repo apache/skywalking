@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.relation.instance;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,8 +27,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @Stream(name = ServiceInstanceRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INSTANCE_RELATION,
     builder = ServiceInstanceRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
@@ -68,7 +68,7 @@ public class ServiceInstanceRelationServerSideMetrics extends Metrics {
     private int componentId;
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(columnName = ENTITY_ID, length = 512, shardingKeyIdx = 0)
     private String entityId;
 
     @Override
@@ -148,32 +148,30 @@ public class ServiceInstanceRelationServerSideMetrics extends Metrics {
         return remoteBuilder;
     }
 
-    public static class Builder implements StorageHashMapBuilder<ServiceInstanceRelationServerSideMetrics> {
-
+    public static class Builder implements StorageBuilder<ServiceInstanceRelationServerSideMetrics> {
         @Override
-        public ServiceInstanceRelationServerSideMetrics storage2Entity(Map<String, Object> dbMap) {
+        public ServiceInstanceRelationServerSideMetrics storage2Entity(final Convert2Entity converter) {
             ServiceInstanceRelationServerSideMetrics metrics = new ServiceInstanceRelationServerSideMetrics();
-            metrics.setEntityId((String) dbMap.get(ENTITY_ID));
-            metrics.setSourceServiceId((String) dbMap.get(SOURCE_SERVICE_ID));
-            metrics.setSourceServiceInstanceId((String) dbMap.get(SOURCE_SERVICE_INSTANCE_ID));
-            metrics.setDestServiceId((String) dbMap.get(DEST_SERVICE_ID));
-            metrics.setDestServiceInstanceId((String) dbMap.get(DEST_SERVICE_INSTANCE_ID));
-            metrics.setComponentId(((Number) dbMap.get(COMPONENT_ID)).intValue());
-            metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            metrics.setEntityId((String) converter.get(ENTITY_ID));
+            metrics.setSourceServiceId((String) converter.get(SOURCE_SERVICE_ID));
+            metrics.setSourceServiceInstanceId((String) converter.get(SOURCE_SERVICE_INSTANCE_ID));
+            metrics.setDestServiceId((String) converter.get(DEST_SERVICE_ID));
+            metrics.setDestServiceInstanceId((String) converter.get(DEST_SERVICE_INSTANCE_ID));
+            metrics.setComponentId(((Number) converter.get(COMPONENT_ID)).intValue());
+            metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return metrics;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(ServiceInstanceRelationServerSideMetrics storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(ENTITY_ID, storageData.getEntityId());
-            map.put(SOURCE_SERVICE_ID, storageData.getSourceServiceId());
-            map.put(SOURCE_SERVICE_INSTANCE_ID, storageData.getSourceServiceInstanceId());
-            map.put(DEST_SERVICE_ID, storageData.getDestServiceId());
-            map.put(DEST_SERVICE_INSTANCE_ID, storageData.getDestServiceInstanceId());
-            map.put(COMPONENT_ID, storageData.getComponentId());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            return map;
+        public void entity2Storage(final ServiceInstanceRelationServerSideMetrics storageData,
+                                   final Convert2Storage converter) {
+            converter.accept(ENTITY_ID, storageData.getEntityId());
+            converter.accept(SOURCE_SERVICE_ID, storageData.getSourceServiceId());
+            converter.accept(SOURCE_SERVICE_INSTANCE_ID, storageData.getSourceServiceInstanceId());
+            converter.accept(DEST_SERVICE_ID, storageData.getDestServiceId());
+            converter.accept(DEST_SERVICE_INSTANCE_ID, storageData.getDestServiceInstanceId());
+            converter.accept(COMPONENT_ID, storageData.getComponentId());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
         }
     }
 }

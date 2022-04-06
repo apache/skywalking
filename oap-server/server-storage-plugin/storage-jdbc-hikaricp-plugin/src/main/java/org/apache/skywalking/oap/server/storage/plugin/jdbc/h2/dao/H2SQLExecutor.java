@@ -27,9 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
@@ -43,7 +45,7 @@ public class H2SQLExecutor {
     protected <T extends StorageData> List<StorageData> getByIDs(JDBCHikariCPClient h2Client,
                                                                  String modelName,
                                                                  String[] ids,
-                                                                 StorageHashMapBuilder<T> storageBuilder) throws IOException {
+                                                                 StorageBuilder<T> storageBuilder) throws IOException {
         /*
          * Although H2 database or other database support createArrayOf and setArray operate,
          * Mysql 5.1.44 driver doesn't.
@@ -70,7 +72,7 @@ public class H2SQLExecutor {
     }
 
     protected <T extends StorageData> StorageData getByID(JDBCHikariCPClient h2Client, String modelName, String id,
-                                                          StorageHashMapBuilder<T> storageBuilder) throws IOException {
+                                                          StorageBuilder<T> storageBuilder) throws IOException {
         try (Connection connection = h2Client.getConnection();
              ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id = ?", id)) {
             return toStorageData(rs, modelName, storageBuilder);
@@ -80,7 +82,7 @@ public class H2SQLExecutor {
     }
 
     protected StorageData getByColumn(JDBCHikariCPClient h2Client, String modelName, String columnName, Object value,
-                                      StorageHashMapBuilder<? extends StorageData> storageBuilder) throws IOException {
+                                      StorageBuilder<? extends StorageData> storageBuilder) throws IOException {
         try (Connection connection = h2Client.getConnection();
              ResultSet rs = h2Client.executeQuery(
                  connection, "SELECT * FROM " + modelName + " WHERE " + columnName + " = ?", value)) {
@@ -91,27 +93,30 @@ public class H2SQLExecutor {
     }
 
     protected StorageData toStorageData(ResultSet rs, String modelName,
-                                        StorageHashMapBuilder<? extends StorageData> storageBuilder) throws SQLException {
+                                        StorageBuilder<? extends StorageData> storageBuilder) throws SQLException {
         if (rs.next()) {
             Map<String, Object> data = new HashMap<>();
             List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
             for (ModelColumn column : columns) {
                 data.put(column.getColumnName().getName(), rs.getObject(column.getColumnName().getStorageName()));
             }
-            return storageBuilder.storage2Entity(data);
+            return storageBuilder.storage2Entity(new HashMapConverter.ToEntity(data));
         }
         return null;
     }
 
     protected <T extends StorageData> SQLExecutor getInsertExecutor(String modelName, T metrics,
-                                                                    StorageHashMapBuilder<T> storageBuilder) throws IOException {
-        return getInsertExecutor(modelName, metrics, storageBuilder, 1);
+                                                                    StorageBuilder<T> storageBuilder,
+                                                                    Convert2Storage<Map<String, Object>> converter) throws IOException {
+        return getInsertExecutor(modelName, metrics, storageBuilder, converter, 1);
     }
 
     protected <T extends StorageData> SQLExecutor getInsertExecutor(String modelName, T metrics,
-                                                                    StorageHashMapBuilder<T> storageBuilder,
+                                                                    StorageBuilder<T> storageBuilder,
+                                                                    Convert2Storage<Map<String, Object>> converter,
                                                                     int maxSizeOfArrayColumn) throws IOException {
-        Map<String, Object> objectMap = storageBuilder.entity2Storage(metrics);
+        storageBuilder.entity2Storage(metrics, converter);
+        Map<String, Object> objectMap = converter.obtain();
 
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + modelName + " VALUES");
         List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
@@ -149,8 +154,10 @@ public class H2SQLExecutor {
     }
 
     protected <T extends StorageData> SQLExecutor getUpdateExecutor(String modelName, T metrics,
-                                                                    StorageHashMapBuilder<T> storageBuilder) throws IOException {
-        Map<String, Object> objectMap = storageBuilder.entity2Storage(metrics);
+                                                                    StorageBuilder<T> storageBuilder) throws IOException {
+        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+        storageBuilder.entity2Storage(metrics, toStorage);
+        Map<String, Object> objectMap = toStorage.obtain();
 
         SQLBuilder sqlBuilder = new SQLBuilder("UPDATE " + modelName + " SET ");
         List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();

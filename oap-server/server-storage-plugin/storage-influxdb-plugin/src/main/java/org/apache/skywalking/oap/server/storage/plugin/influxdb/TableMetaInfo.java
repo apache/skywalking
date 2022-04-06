@@ -27,6 +27,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -73,6 +74,11 @@ public class TableMetaInfo {
                     storageAndTagMap.put(ServiceTraffic.GROUP, InfluxConstants.TagName.SERVICE_GROUP);
                     storageAndTagMap.put(ServiceTraffic.LAYER, InfluxConstants.TagName.LAYER);
                     storageAndTagMap.put(ServiceTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
+                }
+                case ProcessTraffic.INDEX_NAME: {
+                    storageAndTagMap.put(ProcessTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
+                    storageAndTagMap.put(ProcessTraffic.INSTANCE_ID, InfluxConstants.TagName.INSTANCE_ID);
+                    storageAndTagMap.put(ProcessTraffic.AGENT_ID, InfluxConstants.TagName.AGENT_ID);
                 }
             }
         } else {

@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
+import com.google.errorprone.annotations.Keep;
 import graphql.kickstart.tools.GraphQLMutationResolver;
+import org.apache.skywalking.oap.server.core.version.Version;
 
 /**
  * Root mutation resolver.
  */
 public class Mutation implements GraphQLMutationResolver {
-    private String version = "8.0";
+    @Keep // GraphQL picks this as version
+    private String version = Version.CURRENT.toString();
 }

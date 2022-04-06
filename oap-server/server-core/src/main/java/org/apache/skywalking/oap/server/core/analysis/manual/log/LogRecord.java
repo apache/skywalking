@@ -17,8 +17,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.log;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -26,6 +24,8 @@ import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcess
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 
 @SuperDataset
 @Stream(name = LogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.LOG, builder = LogRecord.Builder.class, processor = RecordStreamProcessor.class)
@@ -46,21 +46,18 @@ public class LogRecord extends AbstractLogRecord {
     }
 
     public static class Builder extends AbstractLogRecord.Builder<LogRecord> {
-
         @Override
-        public LogRecord storage2Entity(final Map<String, Object> dbMap) {
+        public LogRecord storage2Entity(final Convert2Entity converter) {
             LogRecord record = new LogRecord();
-            map2Data(record, dbMap);
-            record.setUniqueId((String) dbMap.get(UNIQUE_ID));
+            map2Data(record, converter);
+            record.setUniqueId((String) converter.get(UNIQUE_ID));
             return record;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(final LogRecord record) {
-            Map<String, Object> dbMap = new HashMap<>();
-            data2Map(dbMap, record);
-            dbMap.put(UNIQUE_ID, record.getUniqueId());
-            return dbMap;
+        public void entity2Storage(final LogRecord record, final Convert2Storage converter) {
+            data2Map(record, converter);
+            converter.accept(UNIQUE_ID, record.getUniqueId());
         }
     }
 

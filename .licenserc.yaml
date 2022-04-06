@@ -26,7 +26,7 @@ header:
     - '.github/PULL_REQUEST_TEMPLATE'
     - '**/.gitignore'
     - '.gitmodules'
-    - '.muse'
+    - '.lift'
     - '.mvn'
     - 'apm-protocol/apm-network/src/main/proto/.gitignore'
     - 'codeStyle.xml'

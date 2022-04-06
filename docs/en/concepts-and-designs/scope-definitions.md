@@ -1,22 +1,6 @@
 # Scopes and Fields
 Using the Aggregation Function, the requests will be grouped by time and **Group Key(s)** in each scope.
 
-### SCOPE `All`
-
-| Name | Remarks | Group Key | Type | 
-|---|---|---|---|
-| name  | The service name of each request.  |   | string |
-| serviceInstanceName  | The name of the service instance ID.  |   | string |
-| endpoint  | The endpoint path of each request.  |   | string |
-| latency  | The time taken by each request. |   |  int(in ms)  |
-| status  | The success or failure of the request.  |   | bool(true for success)  |
-| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
-| httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
-| rpcStatusCode | The string value of the rpc response code. | | string |
-| type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
-| tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
-| tag | The key-value pair of span tags in the segment. | | `Map<String, String>` |
-
 ### SCOPE `Service`
 
 This calculates the metrics data from each request of the service. 

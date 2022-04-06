@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -34,6 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedInde
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * StorageModels manages all models detected by the core.
@@ -57,7 +57,9 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
         List<ModelColumn> modelColumns = new ArrayList<>();
         List<ExtraQueryIndex> extraQueryIndices = new ArrayList<>();
-        retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices, scopeId);
+        ShardingKeyChecker checker = new ShardingKeyChecker();
+        retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices, scopeId, checker);
+        checker.check(storage.getModelName());
 
         Model model = new Model(
             storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
@@ -99,7 +101,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                            final String modelName,
                            final List<ModelColumn> modelColumns,
                            final List<ExtraQueryIndex> extraQueryIndices,
-                           final int scopeId) {
+                           final int scopeId,
+                           ShardingKeyChecker checker) {
         if (log.isDebugEnabled()) {
             log.debug("Analysis {} to generate Model.", clazz.getName());
         }
@@ -125,14 +128,20 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                         }
                     }
                 }
-                modelColumns.add(
-                    new ModelColumn(
-                        new ColumnName(modelName, column.columnName()), field.getType(), field.getGenericType(),
-                        column.matchQuery(), column.storageOnly(), column.dataType().isValue(), columnLength,
-                        column.analyzer()
-                    ));
+
+                final ModelColumn modelColumn = new ModelColumn(
+                    new ColumnName(modelName, column.columnName()), field.getType(), field.getGenericType(),
+                    column.matchQuery(), column.storageOnly(), column.indexOnly(), column.dataType().isValue(),
+                    columnLength,
+                    column.analyzer(), column.shardingKeyIdx()
+                );
+                if (column.shardingKeyIdx() > -1) {
+                    checker.accept(modelName, modelColumn);
+                }
+
+                modelColumns.add(modelColumn);
                 if (log.isDebugEnabled()) {
-                    log.debug("The field named {} with the {} type", column.columnName(), field.getType());
+                    log.debug("The field named [{}] with the [{}] type", column.columnName(), field.getType());
                 }
                 if (column.dataType().isValue()) {
                     ValueColumnMetadata.INSTANCE.putIfAbsent(
@@ -158,7 +167,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {
-            retrieval(clazz.getSuperclass(), modelName, modelColumns, extraQueryIndices, scopeId);
+            retrieval(clazz.getSuperclass(), modelName, modelColumns, extraQueryIndices, scopeId, checker);
         }
     }
 
@@ -179,5 +188,40 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     @Override
     public List<Model> allModels() {
         return models;
+    }
+
+    private class ShardingKeyChecker {
+        private ArrayList<ModelColumn> keys = new ArrayList<>();
+
+        /**
+         * @throws IllegalStateException if sharding key indices are conflicting.
+         */
+        private void accept(String modelName, ModelColumn modelColumn) throws IllegalStateException {
+            final int idx = modelColumn.getShardingKeyIdx();
+            while (idx + 1 > keys.size()) {
+                keys.add(null);
+            }
+            ModelColumn exist = keys.get(idx);
+            if (exist != null) {
+                throw new IllegalStateException(
+                    modelName + "'s "
+                        + "Column [" + exist.getColumnName() + "] and column [" + modelColumn.getColumnName()
+                        + " are conflicting with sharding key index=" + modelColumn.getShardingKeyIdx());
+            }
+            keys.set(idx, modelColumn);
+        }
+
+        /**
+         * @param modelName model name of the entity
+         * @throws IllegalStateException if sharding key indices are not continuous
+         */
+        private void check(String modelName) throws IllegalStateException {
+            for (int i = 0; i < keys.size(); i++) {
+                final ModelColumn modelColumn = keys.get(i);
+                if (modelColumn == null) {
+                    throw new IllegalStateException("Sharding key index=" + i + " is missing in " + modelName);
+                }
+            }
+        }
     }
 }

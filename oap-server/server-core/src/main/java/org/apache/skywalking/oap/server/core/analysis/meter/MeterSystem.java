@@ -225,7 +225,9 @@ public class MeterSystem implements Service {
             metricsClass.addMethod(CtNewMethod.make(
                 ""
                     + "public org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue createNew() {"
-                    + "    return new " + METER_CLASS_PACKAGE + className + "();"
+                    + "    org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue meterVar = new " + METER_CLASS_PACKAGE + className + "();"
+                    + "    ((org.apache.skywalking.oap.server.core.analysis.meter.Meter)meterVar).initMeta(\"" + metricsName + "\", " + type.getScopeId() + ");"
+                    + "    return meterVar;"
                     + " }"
                 , metricsClass));
         } catch (CannotCompileException e) {

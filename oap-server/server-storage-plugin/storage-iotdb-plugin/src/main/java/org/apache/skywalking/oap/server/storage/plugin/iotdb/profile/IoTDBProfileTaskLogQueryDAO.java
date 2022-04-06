@@ -23,47 +23,51 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
 public class IoTDBProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<ProfileTaskLogRecord> storageBuilder = new ProfileTaskLogRecord.Builder();
+    private final StorageBuilder<ProfileTaskLogRecord> storageBuilder = new ProfileTaskLogRecord.Builder();
     private final int fetchTaskLogMaxSize;
 
     @Override
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, ProfileTaskLogRecord.INDEX_NAME);
-        query = client.addQueryAsterisk(ProfileTaskLogRecord.INDEX_NAME, query);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProfileTaskLogRecord.INDEX_NAME);
+        IoTDBUtils.addQueryAsterisk(ProfileTaskLogRecord.INDEX_NAME, query);
         query.append(" limit ").append(fetchTaskLogMaxSize).append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskLogRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(ProfileTaskLogRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         List<ProfileTaskLogRecord> profileTaskLogRecordList = new ArrayList<>(storageDataList.size());
-        storageDataList.forEach(storageData -> profileTaskLogRecordList.add((ProfileTaskLogRecord) storageData));
+        storageDataList.forEach(storageData ->
+                                        profileTaskLogRecordList.add((ProfileTaskLogRecord) storageData));
         // resort by self, because of the query result order by time.
         profileTaskLogRecordList.sort((ProfileTaskLogRecord r1, ProfileTaskLogRecord r2) ->
-                Long.compare(r2.getOperationTime(), r1.getOperationTime()));
+                                              Long.compare(r2.getOperationTime(), r1.getOperationTime()));
         List<ProfileTaskLog> profileTaskLogList = new ArrayList<>(profileTaskLogRecordList.size());
-        profileTaskLogRecordList.forEach(profileTaskLogRecord -> profileTaskLogList.add(parseLog(profileTaskLogRecord)));
+        profileTaskLogRecordList.forEach(profileTaskLogRecord ->
+                                                 profileTaskLogList.add(parseLog(profileTaskLogRecord)));
         return profileTaskLogList;
     }
 
     private ProfileTaskLog parseLog(ProfileTaskLogRecord record) {
         return ProfileTaskLog.builder()
-                .id(record.id())
-                .taskId(record.getTaskId())
-                .instanceId(record.getInstanceId())
-                .operationType(ProfileTaskLogOperationType.parse(record.getOperationType()))
-                .operationTime(record.getOperationTime())
-                .build();
+                             .id(record.id())
+                             .taskId(record.getTaskId())
+                             .instanceId(record.getInstanceId())
+                             .operationType(ProfileTaskLogOperationType.parse(record.getOperationType()))
+                             .operationTime(record.getOperationTime())
+                             .build();
     }
 }

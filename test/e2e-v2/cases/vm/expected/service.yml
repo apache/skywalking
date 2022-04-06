@@ -14,10 +14,10 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "vm::vm-service" }}.1
-  name: vm::vm-service
+- id: {{ b64enc "vm-service" }}.1
+  name: vm-service
   shortname: vm-service
-  group: vm
+  group: ""
   normal: true
   layers:
     - OS_LINUX

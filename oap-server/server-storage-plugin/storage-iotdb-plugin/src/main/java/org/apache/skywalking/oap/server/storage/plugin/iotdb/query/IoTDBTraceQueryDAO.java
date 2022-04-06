@@ -36,18 +36,19 @@ import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @RequiredArgsConstructor
 public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<SegmentRecord> storageBuilder = new SegmentRecord.Builder();
+    private final StorageBuilder<SegmentRecord> storageBuilder = new SegmentRecord.Builder();
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
@@ -59,7 +60,7 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
         // This method maybe have poor efficiency. It queries all data which meets a condition without select function.
         // https://github.com/apache/iotdb/discussions/3888
         query.append("select * from ");
-        query = client.addModelPath(query, SegmentRecord.INDEX_NAME);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, SegmentRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
             indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
@@ -67,12 +68,16 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
         if (!Strings.isNullOrEmpty(traceId)) {
             indexAndValueMap.put(IoTDBIndexes.TRACE_ID_IDX, traceId);
         }
-        query = client.addQueryIndexValue(SegmentRecord.INDEX_NAME, query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(SegmentRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
         if (startSecondTB != 0 && endSecondTB != 0) {
-            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startSecondTB)).append(" and ");
-            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endSecondTB)).append(" and ");
+            where.append(IoTDBClient.TIME).append(" >= ")
+                 .append(TimeBucket.getTimestamp(startSecondTB))
+                 .append(" and ");
+            where.append(IoTDBClient.TIME).append(" <= ")
+                 .append(TimeBucket.getTimestamp(endSecondTB))
+                 .append(" and ");
         }
         if (minDuration != 0) {
             where.append(SegmentRecord.LATENCY).append(" >= ").append(minDuration).append(" and ");
@@ -81,14 +86,20 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
             where.append(SegmentRecord.LATENCY).append(" <= ").append(maxDuration).append(" and ");
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
-            where.append(SegmentRecord.SERVICE_INSTANCE_ID).append(" = \"").append(serviceInstanceId).append("\"").append(" and ");
+            where.append(SegmentRecord.SERVICE_INSTANCE_ID
+                 ).append(" = \"").append(serviceInstanceId).append("\"")
+                 .append(" and ");
         }
         if (!Strings.isNullOrEmpty(endpointId)) {
-            where.append(SegmentRecord.ENDPOINT_ID).append(" = \"").append(endpointId).append("\"").append(" and ");
+            where.append(SegmentRecord.ENDPOINT_ID)
+                 .append(" = \"").append(endpointId).append("\"")
+                 .append(" and ");
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             for (final Tag tag : tags) {
-                where.append(tag.getKey()).append(" = \"").append(tag.getValue()).append("\"").append(" and ");
+                where.append(tag.getKey()).append(" = \"")
+                     .append(tag.getValue()).append("\"")
+                     .append(" and ");
             }
         }
         switch (traceState) {
@@ -107,7 +118,8 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         TraceBrief traceBrief = new TraceBrief();
-        List<? super StorageData> storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         int limitCount = 0;
         for (int i = from; i < storageDataList.size(); i++) {
             if (limitCount < limit) {
@@ -116,7 +128,8 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
                 BasicTrace basicTrace = new BasicTrace();
                 basicTrace.setSegmentId(segmentRecord.getSegmentId());
                 basicTrace.setStart(String.valueOf(segmentRecord.getStartTime()));
-                basicTrace.getEndpointNames().add(IDManager.EndpointID.analysisId(segmentRecord.getEndpointId()).getEndpointName());
+                basicTrace.getEndpointNames().add(
+                        IDManager.EndpointID.analysisId(segmentRecord.getEndpointId()).getEndpointName());
                 basicTrace.setDuration(segmentRecord.getLatency());
                 basicTrace.setError(BooleanUtils.valueToBoolean(segmentRecord.getIsError()));
                 basicTrace.getTraceIds().add(segmentRecord.getTraceId());
@@ -128,11 +141,12 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
         switch (queryOrder) {
             case BY_START_TIME:
                 traceBrief.getTraces().sort((BasicTrace b1, BasicTrace b2) ->
-                        Long.compare(Long.parseLong(b2.getStart()), Long.parseLong(b1.getStart())));
+                                                    Long.compare(Long.parseLong(b2.getStart()),
+                                                                 Long.parseLong(b1.getStart())));
                 break;
             case BY_DURATION:
                 traceBrief.getTraces().sort((BasicTrace b1, BasicTrace b2) ->
-                        Integer.compare(b2.getDuration(), b1.getDuration()));
+                                                    Integer.compare(b2.getDuration(), b1.getDuration()));
                 break;
         }
         return traceBrief;
@@ -142,13 +156,14 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        query = client.addModelPath(query, SegmentRecord.INDEX_NAME);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, SegmentRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBIndexes.TRACE_ID_IDX, traceId);
-        query = client.addQueryIndexValue(SegmentRecord.INDEX_NAME, query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(SegmentRecord.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME, query.toString(), storageBuilder);
+        List<? super StorageData> storageDataList = client.filterQuery(SegmentRecord.INDEX_NAME,
+                                                                       query.toString(), storageBuilder);
         List<SegmentRecord> segmentRecords = new ArrayList<>(storageDataList.size());
         storageDataList.forEach(storageData -> segmentRecords.add((SegmentRecord) storageData));
         return segmentRecords;

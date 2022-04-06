@@ -31,12 +31,15 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
@@ -60,6 +63,9 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.profile.IoTDBProfil
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBAggregationQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBAlarmQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBEBPFProfilingDataDAO;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBEBPFProfilingScheduleDAO;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.query.IoTDBMetadataQueryDAO;
@@ -111,10 +117,10 @@ public class IoTDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(UITemplateManagementDAO.class, new IoTDBUITemplateManagementDAO(client));
 
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class,
-                new IoTDBProfileTaskLogQueryDAO(client, config.getFetchTaskLogMaxSize()));
+                                           new IoTDBProfileTaskLogQueryDAO(client, config.getFetchTaskLogMaxSize()));
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new IoTDBProfileTaskQueryDAO(client));
         this.registerServiceImplementation(IProfileThreadSnapshotQueryDAO.class,
-                new IoTDBProfileThreadSnapshotQueryDAO(client));
+                                           new IoTDBProfileThreadSnapshotQueryDAO(client));
 
         this.registerServiceImplementation(IAggregationQueryDAO.class, new IoTDBAggregationQueryDAO(client));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new IoTDBAlarmQueryDAO(client));
@@ -126,13 +132,17 @@ public class IoTDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new IoTDBTopNRecordsQueryDAO(client));
         this.registerServiceImplementation(ITopologyQueryDAO.class, new IoTDBTopologyQueryDAO(client));
         this.registerServiceImplementation(ITraceQueryDAO.class, new IoTDBTraceQueryDAO(client));
+
+        this.registerServiceImplementation(IEBPFProfilingTaskDAO.class, new IoTDBEBPFProfilingTaskDAO(client));
+        this.registerServiceImplementation(IEBPFProfilingScheduleDAO.class, new IoTDBEBPFProfilingScheduleDAO(client));
+        this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new IoTDBEBPFProfilingDataDAO(client));
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME)
-                .provider()
-                .getService(MetricsCreator.class);
+                                                   .provider()
+                                                   .getService(MetricsCreator.class);
         HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge(
                 "storage_iotdb", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         client.registerChecker(healthChecker);

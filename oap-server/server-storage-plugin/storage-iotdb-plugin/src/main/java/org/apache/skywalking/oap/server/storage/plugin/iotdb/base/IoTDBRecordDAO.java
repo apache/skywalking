@@ -29,18 +29,19 @@ import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 
 @RequiredArgsConstructor
 public class IoTDBRecordDAO implements IRecordDAO {
-    private final StorageHashMapBuilder<Record> storageBuilder;
+    private final StorageBuilder<Record> storageBuilder;
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) {
         final long timestamp = TimeBucket.getTimestamp(record.getTimeBucket(), model.getDownsampling());
-        IoTDBInsertRequest request = new IoTDBInsertRequest(model.getName(), timestamp, record, storageBuilder);
+        IoTDBInsertRequest request =
+                IoTDBInsertRequest.buildRequest(model.getName(), timestamp, record, storageBuilder);
 
         // transform tags of SegmentRecord, LogRecord, AlarmRecord to tag1, tag2, ...
         List<String> measurements = request.getMeasurements();

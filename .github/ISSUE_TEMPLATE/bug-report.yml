@@ -54,7 +54,7 @@ body:
       multiple: false
       options:
         - "OAP server (apache/skywalking)"
-        - "UI (apache/skywalking-rocketbot-ui)"
+        - "UI (apache/skywalking-booster-ui)"
         - "Java Agent (apache/skywalking-java)"
         - "Python Agent (apache/skywalking-python)"
         - "NodeJS Server Side Agent (apache/skywalking-nodejs)"

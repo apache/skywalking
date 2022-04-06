@@ -18,22 +18,19 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.zipkin;
 
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @SuperDataset
 @Stream(name = ZipkinSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ZIPKIN_SPAN, builder = ZipkinSpanRecord.Builder.class, processor = RecordStreamProcessor.class)
@@ -63,11 +60,11 @@ public class ZipkinSpanRecord extends Record {
     private String spanId;
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID)
+    @Column(columnName = SERVICE_ID, shardingKeyIdx = 0)
     private String serviceId;
     @Setter
     @Getter
-    @Column(columnName = SERVICE_INSTANCE_ID)
+    @Column(columnName = SERVICE_INSTANCE_ID, shardingKeyIdx = 1)
     private String serviceInstanceId;
     @Setter
     @Getter
@@ -91,7 +88,7 @@ public class ZipkinSpanRecord extends Record {
     private int latency;
     @Setter
     @Getter
-    @Column(columnName = IS_ERROR)
+    @Column(columnName = IS_ERROR, shardingKeyIdx = 2)
     private int isError;
     @Setter
     @Getter
@@ -111,54 +108,43 @@ public class ZipkinSpanRecord extends Record {
         return traceId + "-" + spanId;
     }
 
-    public static class Builder implements StorageHashMapBuilder<ZipkinSpanRecord> {
-
+    public static class Builder implements StorageBuilder<ZipkinSpanRecord> {
         @Override
-        public Map<String, Object> entity2Storage(ZipkinSpanRecord storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(TRACE_ID, storageData.getTraceId());
-            map.put(SPAN_ID, storageData.getSpanId());
-            map.put(SERVICE_ID, storageData.getServiceId());
-            map.put(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
-            map.put(ENDPOINT_NAME, storageData.getEndpointName());
-            map.put(ENDPOINT_ID, storageData.getEndpointId());
-            map.put(START_TIME, storageData.getStartTime());
-            map.put(END_TIME, storageData.getEndTime());
-            map.put(LATENCY, storageData.getLatency());
-            map.put(IS_ERROR, storageData.getIsError());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            if (CollectionUtils.isEmpty(storageData.getDataBinary())) {
-                map.put(DATA_BINARY, Const.EMPTY_STRING);
-            } else {
-                map.put(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
-            }
-            map.put(ENCODE, storageData.getEncode());
-            map.put(TAGS, storageData.getTags());
-            return map;
+        public ZipkinSpanRecord storage2Entity(final Convert2Entity converter) {
+            ZipkinSpanRecord record = new ZipkinSpanRecord();
+            record.setTraceId((String) converter.get(TRACE_ID));
+            record.setSpanId((String) converter.get(SPAN_ID));
+            record.setServiceId((String) converter.get(SERVICE_ID));
+            record.setServiceInstanceId((String) converter.get(SERVICE_INSTANCE_ID));
+            record.setEndpointName((String) converter.get(ENDPOINT_NAME));
+            record.setEndpointId((String) converter.get(ENDPOINT_ID));
+            record.setStartTime(((Number) converter.get(START_TIME)).longValue());
+            record.setEndTime(((Number) converter.get(END_TIME)).longValue());
+            record.setLatency(((Number) converter.get(LATENCY)).intValue());
+            record.setIsError(((Number) converter.get(IS_ERROR)).intValue());
+            record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            record.setDataBinary(converter.getWith(DATA_BINARY, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
+            record.setEncode(((Number) converter.get(ENCODE)).intValue());
+            // Don't read the tags as they have been in the data binary already.
+            return record;
         }
 
         @Override
-        public ZipkinSpanRecord storage2Entity(Map<String, Object> dbMap) {
-            ZipkinSpanRecord record = new ZipkinSpanRecord();
-            record.setTraceId((String) dbMap.get(TRACE_ID));
-            record.setSpanId((String) dbMap.get(SPAN_ID));
-            record.setServiceId((String) dbMap.get(SERVICE_ID));
-            record.setServiceInstanceId((String) dbMap.get(SERVICE_INSTANCE_ID));
-            record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
-            record.setEndpointId((String) dbMap.get(ENDPOINT_ID));
-            record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
-            record.setEndTime(((Number) dbMap.get(END_TIME)).longValue());
-            record.setLatency(((Number) dbMap.get(LATENCY)).intValue());
-            record.setIsError(((Number) dbMap.get(IS_ERROR)).intValue());
-            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            if (StringUtil.isEmpty((String) dbMap.get(DATA_BINARY))) {
-                record.setDataBinary(new byte[] {});
-            } else {
-                record.setDataBinary(Base64.getDecoder().decode((String) dbMap.get(DATA_BINARY)));
-            }
-            record.setEncode(((Number) dbMap.get(ENCODE)).intValue());
-            // Don't read the tags as they has been in the data binary already.
-            return record;
+        public void entity2Storage(final ZipkinSpanRecord storageData, final Convert2Storage converter) {
+            converter.accept(TRACE_ID, storageData.getTraceId());
+            converter.accept(SPAN_ID, storageData.getSpanId());
+            converter.accept(SERVICE_ID, storageData.getServiceId());
+            converter.accept(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
+            converter.accept(ENDPOINT_NAME, storageData.getEndpointName());
+            converter.accept(ENDPOINT_ID, storageData.getEndpointId());
+            converter.accept(START_TIME, storageData.getStartTime());
+            converter.accept(END_TIME, storageData.getEndTime());
+            converter.accept(LATENCY, storageData.getLatency());
+            converter.accept(IS_ERROR, storageData.getIsError());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(DATA_BINARY, storageData.getDataBinary());
+            converter.accept(ENCODE, storageData.getEncode());
+            converter.accept(TAGS, storageData.getTags());
         }
     }
 }

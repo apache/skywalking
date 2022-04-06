@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
+import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,6 +41,7 @@ import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -49,11 +51,12 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
     @Override
     public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration,
                                             List<KeyValue> additionalConditions) throws IOException {
-        // This method maybe have poor efficiency. It queries all data which meets a condition without aggregation function.
+        // This method maybe have poor efficiency.
+        // It queries all data which meets a condition without aggregation function.
         // https://github.com/apache/iotdb/issues/4006
         StringBuilder query = new StringBuilder();
         query.append(String.format("select %s from ", valueColumnName));
-        query = client.addModelPath(query, condition.getName());
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, condition.getName());
 
         Map<String, String> indexAndValueMap = new HashMap<>();
         List<KeyValue> measurementConditions = new ArrayList<>();
@@ -68,17 +71,17 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
             }
         }
         if (!indexAndValueMap.isEmpty()) {
-            query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
+            IoTDBUtils.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
         } else {
-            query = client.addQueryAsterisk(condition.getName(), query);
+            IoTDBUtils.addQueryAsterisk(condition.getName(), query);
         }
 
         query.append(" where ").append(IoTDBClient.TIME).append(" >= ").append(duration.getStartTimestamp())
-                .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(duration.getEndTimestamp());
+             .append(" and ").append(IoTDBClient.TIME).append(" <= ").append(duration.getEndTimestamp());
         if (!measurementConditions.isEmpty()) {
             for (KeyValue measurementCondition : measurementConditions) {
                 query.append(" and ").append(measurementCondition.getKey()).append(" = \"")
-                        .append(measurementCondition.getValue()).append("\"");
+                     .append(measurementCondition.getValue()).append("\"");
             }
         }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
@@ -97,8 +100,8 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
-                String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
-                String entityId = client.layerName2IndexValue(layerNames[2]);
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"").splitToList(fields.get(0).getStringValue());
+                String entityId = IoTDBUtils.layerName2IndexValue(layerNames.get(2));
                 double value = Double.parseDouble(fields.get(1).getStringValue());
                 entityIdAndSumMap.merge(entityId, value, Double::sum);
                 entityIdAndCountMap.merge(entityId, 1, Integer::sum);
@@ -122,7 +125,8 @@ public class IoTDBAggregationQueryDAO implements IAggregationQueryDAO {
 
         if (condition.getOrder().equals(Order.DES)) {
             topEntities.sort((SelectedRecord t1, SelectedRecord t2) ->
-                    Double.compare(Double.parseDouble(t2.getValue()), Double.parseDouble(t1.getValue())));
+                                     Double.compare(Double.parseDouble(t2.getValue()),
+                                                    Double.parseDouble(t1.getValue())));
         } else {
             topEntities.sort(Comparator.comparingDouble((SelectedRecord t) -> Double.parseDouble(t.getValue())));
         }

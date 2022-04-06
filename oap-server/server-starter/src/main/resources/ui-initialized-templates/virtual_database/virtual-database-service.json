@@ -1,0 +1,168 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "Virtual-Database-Service",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 13,
+          "w": 24,
+          "h": 24,
+          "i": "2",
+          "type": "Widget",
+          "widget": {
+            "title": "Slow Statements (ms)"
+          },
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "metrics": [
+            "top_n_database_statement"
+          ],
+          "metricTypes": [
+            "readSampledRecords"
+          ],
+          "moved": false
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "3",
+          "type": "Widget",
+          "widget": {
+            "title": "Database Access Successful Rate (%)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "database_access_sla"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "percentage"
+            }
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "4",
+          "type": "Widget",
+          "widget": {
+            "title": "Database Traffic (calls / min)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "database_access_cpm"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "5",
+          "type": "Widget",
+          "widget": {
+            "title": "Database Access Latency Percentile (ms)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "database_access_percentile"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "moved": false,
+          "metricConfig": [
+            {
+              "label": "P50, P75, P90, P95, P99",
+              "labelsIndex": "0,1,2,3,4"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "widget": {
+            "title": "Database Avg Response Time (ms)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "database_access_resp_time"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false
+        }
+      ],
+      "layer": "VIRTUAL_DATABASE",
+      "entity": "Service",
+      "name": "Virtual-Database-Service",
+      "id": "Virtual-Database-Service",
+      "isRoot": false
+    }
+  }
+]

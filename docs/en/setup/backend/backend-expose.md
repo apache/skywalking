@@ -17,7 +17,6 @@ receiver-sharing-server:
     restMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
     restMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
     restIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
-    restAcceptorPriorityDelta: ${SW_RECEIVER_SHARING_JETTY_DELTA:0}
     restAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
     httpMaxRequestHeaderSize: ${SW_RECEIVER_SHARING_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
     # For gRPC server

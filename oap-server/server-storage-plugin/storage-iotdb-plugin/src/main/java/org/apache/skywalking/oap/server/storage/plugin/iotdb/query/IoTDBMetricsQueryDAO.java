@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
+import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
+import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,7 +54,10 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
     private final IoTDBClient client;
 
     @Override
-    public long readMetricsValue(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
+    public long readMetricsValue(MetricsCondition condition,
+                                 String valueColumnName,
+                                 Duration duration)
+            throws IOException {
         final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         final Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
         if (function == Function.Latest) {
@@ -67,18 +72,20 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
             op = "sum";
         }
         query.append(String.format("select %s(%s) from ", op, valueColumnName));
-        query = client.addModelPath(query, condition.getName());
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, condition.getName());
         final String entityId = condition.getEntity().buildId();
         if (entityId != null) {
             Map<String, String> indexAndValueMap = new HashMap<>();
             indexAndValueMap.put(IoTDBIndexes.ENTITY_ID_IDX, entityId);
-            query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
+            IoTDBUtils.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
         } else {
-            query = client.addQueryAsterisk(condition.getName(), query);
+            IoTDBUtils.addQueryAsterisk(condition.getName(), query);
         }
-        query.append(" where ").append(String.format("%s >= %s and %s <= %s",
-                        IoTDBClient.TIME, duration.getStartTimestamp(), IoTDBClient.TIME, duration.getEndTimestamp()))
-                .append(" group by level = 3");
+        query.append(" where ")
+             .append(String.format("%s >= %s and %s <= %s",
+                                   IoTDBClient.TIME, duration.getStartTimestamp(),
+                                   IoTDBClient.TIME, duration.getEndTimestamp()))
+             .append(" group by level = 3");
 
         List<Double> results = client.queryWithAgg(query.toString());
         if (results.size() > 0) {
@@ -100,10 +107,10 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(valueColumnName).append(" from ");
         for (String id : ids) {
-            query = client.addModelPath(query, condition.getName());
+            IoTDBUtils.addModelPath(client.getStorageGroup(), query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
             indexAndValueMap.put(IoTDBIndexes.ID_IDX, id);
-            query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
+            IoTDBUtils.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
             query.append(", ");
         }
         String queryString = query.toString();
@@ -126,8 +133,9 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
-                String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
-                String id = client.layerName2IndexValue(layerNames[1]);
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"")
+                                                  .splitToList(fields.get(0).getStringValue());
+                String id = IoTDBUtils.layerName2IndexValue(layerNames.get(1));
 
                 Field valueField = fields.get(1);
                 TSDataType valueType = valueField.getDataType();
@@ -150,12 +158,18 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
                 sessionPool.closeResultSet(wrapper);
             }
         }
-        metricsValues.setValues(Util.sortValues(intValues, ids, ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())));
+        metricsValues.setValues(
+                Util.sortValues(intValues, ids,
+                                ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())));
         return metricsValues;
     }
 
     @Override
-    public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition, String valueColumnName, List<String> labels, Duration duration) throws IOException {
+    public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition,
+                                                        String valueColumnName,
+                                                        List<String> labels,
+                                                        Duration duration)
+            throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> ids.add(pointOfTime.id(condition.getEntity().buildId())));
@@ -163,10 +177,10 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(valueColumnName).append(" from ");
         for (String id : ids) {
-            query = client.addModelPath(query, condition.getName());
+            IoTDBUtils.addModelPath(client.getStorageGroup(), query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
             indexAndValueMap.put(IoTDBIndexes.ID_IDX, id);
-            query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
+            IoTDBUtils.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
             query.append(", ");
         }
         String queryString = query.toString();
@@ -187,8 +201,9 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
-                String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
-                String id = client.layerName2IndexValue(layerNames[1]);
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"")
+                                                  .splitToList(fields.get(0).getStringValue());
+                String id = IoTDBUtils.layerName2IndexValue(layerNames.get(1));
 
                 DataTable multipleValues = new DataTable(5);
                 multipleValues.toObject(fields.get(1).getStringValue());
@@ -205,7 +220,10 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
     }
 
     @Override
-    public HeatMap readHeatMap(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
+    public HeatMap readHeatMap(MetricsCondition condition,
+                               String valueColumnName,
+                               Duration duration)
+            throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> ids.add(pointOfTime.id(condition.getEntity().buildId())));
@@ -213,10 +231,10 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(valueColumnName).append(" from ");
         for (String id : ids) {
-            query = client.addModelPath(query, condition.getName());
+            IoTDBUtils.addModelPath(client.getStorageGroup(), query, condition.getName());
             Map<String, String> indexAndValueMap = new HashMap<>();
             indexAndValueMap.put(IoTDBIndexes.ID_IDX, id);
-            query = client.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
+            IoTDBUtils.addQueryIndexValue(condition.getName(), query, indexAndValueMap);
             query.append(", ");
         }
         String queryString = query.toString();
@@ -238,8 +256,9 @@ public class IoTDBMetricsQueryDAO implements IMetricsQueryDAO {
             while (wrapper.hasNext()) {
                 RowRecord rowRecord = wrapper.next();
                 List<Field> fields = rowRecord.getFields();
-                String[] layerNames = fields.get(0).getStringValue().split("\\" + IoTDBClient.DOT + "\"");
-                String id = client.layerName2IndexValue(layerNames[1]);
+                List<String> layerNames = Splitter.on(IoTDBClient.DOT + "\"")
+                                                  .splitToList(fields.get(0).getStringValue());
+                String id = IoTDBUtils.layerName2IndexValue(layerNames.get(1));
 
                 heatMap.buildColumn(id, fields.get(1).getStringValue(), defaultValue);
             }

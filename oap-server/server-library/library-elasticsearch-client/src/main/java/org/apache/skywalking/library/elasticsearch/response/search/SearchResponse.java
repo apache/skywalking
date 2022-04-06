@@ -18,6 +18,7 @@
 package org.apache.skywalking.library.elasticsearch.response.search;
 
 import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,4 +27,6 @@ import lombok.Setter;
 public final class SearchResponse {
     private SearchHits hits = new SearchHits();
     private Map<String, Object> aggregations;
+    @JsonProperty("_scroll_id")
+    private String scrollId;
 }
