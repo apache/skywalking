@@ -9,7 +9,7 @@ Release Notes.
 
 
 #### OAP Server
-
+* Add kafka-fetcher consumers number,enhance consumption capacity.
 
 #### UI
 
