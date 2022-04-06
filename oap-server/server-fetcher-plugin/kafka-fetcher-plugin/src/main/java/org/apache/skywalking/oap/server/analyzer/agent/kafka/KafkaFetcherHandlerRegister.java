@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -42,17 +43,17 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.KafkaHandler;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.server.pool.CustomThreadFactory;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Configuring and initializing a KafkaConsumer client as a dispatcher to delivery Kafka Message to registered handler by topic.
  */
 @Slf4j
-public class KafkaFetcherHandlerRegister implements Runnable {
+public class KafkaFetcherHandlerRegister {
 
     private ImmutableMap.Builder<String, KafkaHandler> builder = ImmutableMap.builder();
     private ImmutableMap<String, KafkaHandler> handlerMap;
@@ -67,6 +68,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
     private int threadPoolQueueSize = 10000;
     private final ThreadPoolExecutor executor;
     private final boolean enableKafkaMessageAutoCommit;
+    private List<KafkaConsumer<String, Bytes>> consumers = Lists.newArrayList();
 
     public KafkaFetcherHandlerRegister(KafkaFetcherConfig config) {
         this.config = config;
@@ -90,9 +92,14 @@ public class KafkaFetcherHandlerRegister implements Runnable {
 
         enableKafkaMessageAutoCommit = (boolean) properties.getOrDefault(
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
-        consumer = new KafkaConsumer<>(properties, new StringDeserializer(), new BytesDeserializer());
-        executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize,
-                                          60, TimeUnit.SECONDS,
+        int nums = config.getConsumers() > 0 ? config.getConsumers() : 1;
+        while (nums-- > 0) {
+            KafkaConsumer<String, Bytes> consumer = new KafkaConsumer<>(
+                properties, new StringDeserializer(), new BytesDeserializer());
+
+            consumers.add(consumer);
+        }
+        executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize, 60, TimeUnit.SECONDS,
                                           new ArrayBlockingQueue<>(threadPoolQueueSize),
                                           new CustomThreadFactory("KafkaConsumer"),
                                           new ThreadPoolExecutor.CallerRunsPolicy()
@@ -106,25 +113,28 @@ public class KafkaFetcherHandlerRegister implements Runnable {
 
     public void start() throws ModuleStartException {
         handlerMap = builder.build();
-
         createTopicIfNeeded(handlerMap.keySet(), properties);
-
-        if (isSharding) {
-            consumer.assign(topicPartitions);
-        } else {
-            consumer.subscribe(handlerMap.keySet());
+        for (KafkaConsumer<String, Bytes> consumer : consumers) {
+            if (isSharding) {
+                consumer.assign(topicPartitions);
+            } else {
+                consumer.subscribe(handlerMap.keySet());
+            }
+            consumer.seekToEnd(consumer.assignment());
+            executor.submit(() -> {
+                runTask(consumer, 500L);
+            });
         }
-        consumer.seekToEnd(consumer.assignment());
-        executor.submit(this);
     }
 
-    @Override
-    public void run() {
+    private void runTask(final KafkaConsumer<String, Bytes> consumer, final long millis) {
         while (true) {
             try {
-                ConsumerRecords<String, Bytes> consumerRecords = consumer.poll(Duration.ofMillis(500L));
+                ConsumerRecords<String, Bytes> consumerRecords = consumer.poll(Duration.ofMillis(millis));
                 if (!consumerRecords.isEmpty()) {
-                    for (final ConsumerRecord<String, Bytes> record : consumerRecords) {
+                    Iterator<ConsumerRecord<String, Bytes>> iterator = consumerRecords.iterator();
+                    while (iterator.hasNext()) {
+                        ConsumerRecord<String, Bytes> record = iterator.next();
                         executor.submit(() -> handlerMap.get(record.topic()).handle(record));
                     }
                     if (!enableKafkaMessageAutoCommit) {
