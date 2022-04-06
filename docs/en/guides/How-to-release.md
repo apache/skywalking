@@ -118,7 +118,6 @@ Release Candidate:
  * sha512 checksums
    - sha512xxxxyyyzzz apache-skywalking-apm-x.x.x-src.tgz
    - sha512xxxxyyyzzz apache-skywalking-apm-bin-x.x.x.tar.gz
-   - sha512xxxxyyyzzz apache-skywalking-apm-bin-x.x.x.zip
 
 Maven 2 staging repository:
 
@@ -132,7 +131,7 @@ Release CommitID :
 
  * https://github.com/apache/skywalking/tree/(Git Commit ID)
  * Git submodule
-   * skywalking-ui: https://github.com/apache/skywalking-rocketbot-ui/tree/(Git Commit ID)
+   * skywalking-ui: https://github.com/apache/skywalking-booster-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/skywalking-data-collect-protocol/tree/(Git Commit ID)
    * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/skywalking-query-protocol/tree/(Git Commit ID)
 
@@ -172,7 +171,6 @@ Release Candidate:
  * sha512 checksums
    - sha512xxxxyyyzzz apache-skywalking-apm-x.x.x-src.tgz
    - sha512xxxxyyyzzz apache-skywalking-apm-bin-x.x.x.tar.gz
-   - sha512xxxxyyyzzz apache-skywalking-apm-bin-x.x.x.zip
 
 Maven 2 staging repository:
 
@@ -186,7 +184,7 @@ Release CommitID :
 
  * https://github.com/apache/skywalking/tree/(Git Commit ID)
  * Git submodule
-   * skywalking-ui: https://github.com/apache/skywalking-rocketbot-ui/tree/(Git Commit ID)
+   * skywalking-ui: https://github.com/apache/skywalking-booster-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/skywalking-data-collect-protocol/tree/(Git Commit ID)
    * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/skywalking-query-protocol/tree/(Git Commit ID)
 
