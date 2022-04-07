@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
-final class KubernetesNodeRegistry implements ResourceEventHandler<V1Node> {
+public final class KubernetesNodeRegistry implements ResourceEventHandler<V1Node> {
     private final Set<String> nodeIPs;
 
     private final ExecutorService executor;

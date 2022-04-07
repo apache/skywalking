@@ -27,7 +27,7 @@
   - name: ipv4s
     value: ""
   {{- end}}
-  language: UNKNOWN
+  language: NODEJS
   instanceuuid: {{ b64enc "provider" }}.1_{{ b64enc "provider-instance" }}
   layer: GENERAL
 {{- end}}

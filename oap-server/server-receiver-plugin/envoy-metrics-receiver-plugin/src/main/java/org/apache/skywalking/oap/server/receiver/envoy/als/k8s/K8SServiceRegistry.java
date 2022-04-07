@@ -64,9 +64,9 @@ public class K8SServiceRegistry {
 
     protected final ServiceNameFormatter serviceNameFormatter;
 
-    private final EnvoyMetricReceiverConfig config;
+    protected final KubernetesNodeRegistry nodeRegistry;
 
-    private final KubernetesNodeRegistry nodeRegistry;
+    private final EnvoyMetricReceiverConfig config;
 
     public K8SServiceRegistry(final EnvoyMetricReceiverConfig config) {
         this.config = config;
