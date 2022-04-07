@@ -20,8 +20,8 @@ on:
   pull_request:
     paths-ignore:
       - "**"
-      - "!*.md"
-      - "!*.txt"
+      - "!**/*.md"
+      - "!**/*.txt"
       - "!skywalking-ui"
       - "!.asf.yaml"
       - "!.dlc.yaml"
@@ -29,7 +29,7 @@ on:
       - "!docs/menu.yml"
       - "!.github/workflows/codeql.yaml"
       - "!dist-material/release-docs"
-      - "!*/component-libraries.yml"
+      - "!**/component-libraries.yml"
 
 concurrency:
   group: skywalking-fake-${{ github.event.pull_request.number || github.ref }}
