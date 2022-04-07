@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.profiling.ebpf;
 
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -28,27 +29,31 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraf
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.analyze.EBPFProfilingAnalyzer;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingTaskCondition;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskPrepare;
 import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.EBPFProfilingProcessFinder;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IProcessServiceLabelDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -57,10 +62,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class EBPFProfilingQueryService implements Service {
+    private static final Gson GSON = new Gson();
+
     private final ModuleManager moduleManager;
     private final CoreModuleConfig config;
     private final StorageModels storageModels;
 
+    private IMetadataQueryDAO metadataQueryDAO;
+    private IProcessServiceLabelDAO processServiceLabelDAO;
     private IEBPFProfilingTaskDAO taskDAO;
     private IEBPFProfilingScheduleDAO scheduleDAO;
     private EBPFProfilingAnalyzer profilingAnalyzer;
@@ -118,13 +127,39 @@ public class EBPFProfilingQueryService implements Service {
         return profilingAnalyzer;
     }
 
-    public List<EBPFProfilingTask> queryEBPFProfilingTasks(EBPFProfilingTaskCondition condition) throws IOException {
-        return getTaskDAO().queryTasks(EBPFProfilingProcessFinder.builder()
-                        .finderType(condition.getFinderType())
-                        .serviceId(condition.getServiceId())
-                        .instanceId(condition.getInstanceId())
-                        .processIdList(Arrays.asList(condition.getProcessId()))
-                .build(), null, 0, 0);
+    public IMetadataQueryDAO getMetadataQueryDAO() {
+        if (metadataQueryDAO == null) {
+            metadataQueryDAO = moduleManager.find(StorageModule.NAME)
+                    .provider()
+                    .getService(IMetadataQueryDAO.class);
+        }
+        return metadataQueryDAO;
+    }
+
+    public IProcessServiceLabelDAO getProcessServiceLabelDAO() {
+        if (processServiceLabelDAO == null) {
+            processServiceLabelDAO = moduleManager.find(StorageModule.NAME)
+                    .provider()
+                    .getService(IProcessServiceLabelDAO.class);
+        }
+        return processServiceLabelDAO;
+    }
+
+    public EBPFProfilingTaskPrepare queryPrepareCreateEBPFProfilingTaskData(String serviceId) throws IOException {
+        final EBPFProfilingTaskPrepare prepare = new EBPFProfilingTaskPrepare();
+        final long processesCount = getMetadataQueryDAO().getProcessesCount(serviceId, null, null);
+        if (processesCount <= 0) {
+            prepare.setCouldProfiling(false);
+            prepare.setProcessLabels(Collections.emptyList());
+            return prepare;
+        }
+        prepare.setCouldProfiling(true);
+        prepare.setProcessLabels(getProcessServiceLabelDAO().queryAllLabels(serviceId));
+        return prepare;
+    }
+
+    public List<EBPFProfilingTask> queryEBPFProfilingTasks(String serviceId) throws IOException {
+        return getTaskDAO().queryTasks(Arrays.asList(serviceId), null, 0, 0);
     }
 
     public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId, Duration duration) throws IOException {
@@ -147,8 +182,8 @@ public class EBPFProfilingQueryService implements Service {
         return schedules;
     }
 
-    public EBPFProfilingAnalyzation getEBPFProfilingAnalyzation(String taskId, List<EBPFProfilingAnalyzeTimeRange> timeRanges) throws IOException {
-        return getProfilingAnalyzer().analyze(taskId, timeRanges);
+    public EBPFProfilingAnalyzation getEBPFProfilingAnalyzation(List<String> scheduleIdList, List<EBPFProfilingAnalyzeTimeRange> timeRanges) throws IOException {
+        return getProfilingAnalyzer().analyze(scheduleIdList, timeRanges);
     }
 
     private Process convertProcess(ProcessTraffic traffic) {
@@ -168,6 +203,9 @@ public class EBPFProfilingQueryService implements Service {
             for (String key : traffic.getProperties().keySet()) {
                 process.getAttributes().add(new Attribute(key, traffic.getProperties().get(key).getAsString()));
             }
+        }
+        if (StringUtil.isNotEmpty(traffic.getLabelsJson())) {
+            process.getLabels().addAll(GSON.<List<String>>fromJson(traffic.getLabelsJson(), ArrayList.class));
         }
         return process;
     }

@@ -22,28 +22,22 @@ cases:
     expected: expected/instance.yml
   - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process ls --service-name sqrt
     expected: expected/process.yml
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf create prepare --service-name sqrt
+    expected: expected/profiling-create-prepare.yml
   - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf create fixed --process-id=$( \
-        swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process ls --service-name sqrt| yq e '.[0].id' - \
-      ) --duration=1m
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf create fixed --service-name sqrt --labels e2e-label --duration 1m
     expected: expected/profiling-create.yml
-  - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --process-id=$( \
-        swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process ls --service-name sqrt| yq e '.[0].id' - \
-      )
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt
     expected: expected/profiling-task-list.yml
   - query: |
       swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$( \
-        swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --process-id=$( \
-          swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process ls --service-name sqrt| yq e '.[0].id' - \
-        ) |yq e '.[0].taskid' - \
+        swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt |yq e '.[0].taskid' -
       )
     expected: expected/profiling-schedule-list.yml
   - query: |
-      taskid=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --process-id=$( \
-        swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process ls --service-name sqrt| yq e '.[0].id' - \
-      ) |yq e '.[0].taskid' -);
+      taskid=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt |yq e '.[0].taskid' -)
+      scheduleid=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid |yq e '.[0].scheduleid' -);
       start=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].starttime' -)
       end=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].endtime' -)
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf analysis --task-id=$taskid --time-ranges=$start-$end
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf analysis --schedule-id=$scheduleid --time-ranges=$start-$end
     expected: expected/profiling-analysis.yml

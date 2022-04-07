@@ -234,8 +234,42 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public List<Process> listProcesses(String serviceId, String instanceId, String agentId) throws IOException {
         StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
+        List<Object> condition = new ArrayList<>(3);
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId);
+        sql.append(" limit ").append(metadataQueryMaxSize);
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                    connection, sql.toString(), condition.toArray(new Object[0]))) {
+                return buildProcesses(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public long getProcessesCount(String serviceId, String instanceId, String agentId) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(3);
+        sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId);
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                    connection, sql.toString(), condition.toArray(new Object[0]))) {
+                if (!resultSet.next()) {
+                    return 0;
+                }
+                return resultSet.getLong("total");
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    private void appendProcessWhereQuery(StringBuilder sql, List<Object> condition, String serviceId, String instanceId, String agentId) {
         if (StringUtil.isNotEmpty(serviceId) || StringUtil.isNotEmpty(instanceId) || StringUtil.isNotEmpty(agentId)) {
             sql.append(" where ");
         }
@@ -257,17 +291,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             }
             sql.append(ProcessTraffic.AGENT_ID).append("=?");
             condition.add(agentId);
-        }
-
-        sql.append(" limit ").append(metadataQueryMaxSize);
-
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(
-                    connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildProcesses(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
         }
     }
 
@@ -315,6 +338,11 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                     String value = property.getValue().getAsString();
                     process.getAttributes().add(new Attribute(key, value));
                 }
+            }
+            final String labelJsonString = resultSet.getString(ProcessTraffic.LABELS_JSON);
+            if (!Strings.isNullOrEmpty(labelJsonString)) {
+                List<String> labels = GSON.<List<String>>fromJson(labelJsonString, ArrayList.class);
+                process.getLabels().addAll(labels);
             }
 
             processes.add(process);

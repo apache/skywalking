@@ -41,13 +41,16 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDete
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.Process;
+import org.apache.skywalking.oap.server.core.source.ProcessServiceLabel;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProcessServiceImplBase implements GRPCHandler {
 
@@ -83,6 +86,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
         processes.stream().forEach(e -> {
             sourceReceiver.receive(e._1);
             builder.addProcesses(e._2);
+            processServiceLabels(e._1.getServiceName(), e._1.isServiceNormal(), e._1.getLabels(), e._1.getTimeBucket());
         });
 
         responseObserver.onNext(builder.build());
@@ -106,6 +110,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
             processUpdate.setLayer(layer);
             processUpdate.setServiceNormal(true);
             processUpdate.setName(entity.getProcessName());
+            processUpdate.setLabels(entity.getLabelsList());
             processUpdate.setTimeBucket(timeBucket);
             sourceReceiver.receive(processUpdate);
 
@@ -123,6 +128,9 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
             serviceMeta.setTimeBucket(timeBucket);
             serviceMeta.setLayer(layer);
             sourceReceiver.receive(serviceMeta);
+
+            // service label
+            processServiceLabels(serviceName, true, processUpdate.getLabels(), timeBucket);
         });
 
         responseObserver.onNext(Commands.newBuilder().build());
@@ -147,6 +155,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
         properties.addProperty(ProcessTraffic.PropertyUtil.PID, hostProcess.getPid());
         properties.addProperty(ProcessTraffic.PropertyUtil.COMMAND_LINE, hostProcess.getCmd());
         process.setProperties(properties);
+        process.setLabels(hostProcess.getEntity().getLabelsList());
 
         // timestamp
         process.setTimeBucket(
@@ -161,5 +170,23 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
                         .build())
                 .build();
         return Tuple.of(process, downstream);
+    }
+
+    /**
+     * Append service label
+     */
+    private void processServiceLabels(String serviceName, boolean isServiceNormal, List<String> labels, long timeBucket) {
+        if (CollectionUtils.isEmpty(labels)) {
+            return;
+        }
+        for (String label : labels) {
+            final ProcessServiceLabel serviceLabel = new ProcessServiceLabel();
+            serviceLabel.setServiceName(serviceName);
+            serviceLabel.setServiceNormal(isServiceNormal);
+            serviceLabel.setLabel(label);
+            serviceLabel.setTimeBucket(timeBucket);
+
+            sourceReceiver.receive(serviceLabel);
+        }
     }
 }

@@ -18,19 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.profiling.ebpf;
 
+import com.google.common.base.Joiner;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingProcessFinderType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingTaskFixedTimeCreationRequest;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskCreationResult;
-import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.EBPFProfilingProcessFinder;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IProcessServiceLabelDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -38,16 +39,19 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 public class EBPFProfilingMutationService implements Service {
+    private static final Gson GSON = new Gson();
     public static final int FIXED_TIME_MIN_DURATION = (int) TimeUnit.SECONDS.toSeconds(60);
 
     private final ModuleManager moduleManager;
     private IEBPFProfilingTaskDAO processProfilingTaskDAO;
+    private IProcessServiceLabelDAO processServiceLabelDAO;
     private IMetadataQueryDAO metadataQueryDAO;
 
     private IEBPFProfilingTaskDAO getProcessProfilingTaskDAO() {
@@ -68,6 +72,15 @@ public class EBPFProfilingMutationService implements Service {
         return metadataQueryDAO;
     }
 
+    public IProcessServiceLabelDAO getProcessServiceLabelDAO() {
+        if (processServiceLabelDAO == null) {
+            this.processServiceLabelDAO = moduleManager.find(StorageModule.NAME)
+                    .provider()
+                    .getService(IProcessServiceLabelDAO.class);
+        }
+        return processServiceLabelDAO;
+    }
+
     /**
      * Create eBPF Profiling task with {@link EBPFProfilingTriggerType#FIXED_TIME}
      */
@@ -85,16 +98,11 @@ public class EBPFProfilingMutationService implements Service {
 
         // create task
         final EBPFProfilingTaskRecord task = new EBPFProfilingTaskRecord();
-        task.setProcessFindType(request.getProcessFinder().getFinderType().value());
-        if (request.getProcessFinder().getFinderType() == EBPFProfilingProcessFinderType.PROCESS_ID) {
-            final Process process = getMetadataQueryDAO().getProcess(request.getProcessFinder().getProcessId());
-            if (process == null) {
-                return buildError("could not found process");
-            }
-            task.setServiceId(process.getServiceId());
-            task.setInstanceId(process.getInstanceId());
-            task.setProcessId(process.getId());
-            task.setProcessName(process.getName());
+        task.setServiceId(request.getServiceId());
+        if (CollectionUtils.isNotEmpty(request.getProcessLabels())) {
+            task.setProcessLabelsJson(GSON.toJson(request.getProcessLabels()));
+        } else {
+            task.setProcessLabelsJson(Const.EMPTY_STRING);
         }
         task.setStartTime(request.getStartTime());
         task.setTriggerType(EBPFProfilingTriggerType.FIXED_TIME.value());
@@ -113,18 +121,27 @@ public class EBPFProfilingMutationService implements Service {
     }
 
     private String checkCreateRequest(EBPFProfilingTaskFixedTimeCreationRequest request) throws IOException {
-        String err = "";
+        String err = null;
 
-        // validate process finder
-        if (request.getProcessFinder() == null) {
-            return "The process finder could not be null";
+        err = requiredNotEmpty(err, "service", request.getServiceId());
+
+        // the service must have processes
+        if (err == null && getMetadataQueryDAO().getProcessesCount(request.getServiceId(), null, null) <= 0) {
+            err = "current service haven't any process";
         }
-        if (request.getProcessFinder().getFinderType() == null) {
-            return "The process find type could not be null";
-        }
-        switch (request.getProcessFinder().getFinderType()) {
-            case PROCESS_ID:
-                err = requiredNotEmpty(err, "process id", request.getProcessFinder().getProcessId());
+
+        // the process label must be existed
+        if (err == null && CollectionUtils.isNotEmpty(request.getProcessLabels())) {
+            final List<String> existingLabels = getProcessServiceLabelDAO().queryAllLabels(request.getServiceId());
+            List<String> notExistLabels = new ArrayList<>(existingLabels.size());
+            for (String processLabel : request.getProcessLabels()) {
+                if (!existingLabels.contains(processLabel)) {
+                    notExistLabels.add(processLabel);
+                }
+            }
+            if (notExistLabels.size() > 0) {
+                err = String.format("The label %s are not exist", Joiner.on(", ").join(notExistLabels));
+            }
         }
         if (err != null) {
             return err;
@@ -143,10 +160,7 @@ public class EBPFProfilingMutationService implements Service {
 
         // query exist processes
         final List<EBPFProfilingTask> tasks = getProcessProfilingTaskDAO().queryTasks(
-                EBPFProfilingProcessFinder.builder()
-                        .finderType(request.getProcessFinder().getFinderType())
-                        .processIdList(Arrays.asList(request.getProcessFinder().getProcessId()))
-                        .build(), request.getTargetType(), calculateStartTime(request), 0);
+                Arrays.asList(request.getServiceId()), request.getTargetType(), calculateStartTime(request), 0);
         if (CollectionUtils.isNotEmpty(tasks)) {
             return "already have profiling task at this time";
         }

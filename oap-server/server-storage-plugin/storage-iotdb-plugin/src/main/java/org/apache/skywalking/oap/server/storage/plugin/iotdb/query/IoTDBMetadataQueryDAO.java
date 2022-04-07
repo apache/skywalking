@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
 import com.google.common.base.Strings;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
@@ -54,6 +55,8 @@ import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 @Slf4j
 @RequiredArgsConstructor
 public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
+    private static final Gson GSON = new Gson();
+
     private final IoTDBClient client;
     private final StorageBuilder<ServiceTraffic> serviceBuilder = new ServiceTraffic.Builder();
     private final StorageBuilder<EndpointTraffic> endpointBuilder = new EndpointTraffic.Builder();
@@ -160,6 +163,25 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
             throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
+        appendProcessFromQuery(query, serviceId, instanceId, agentId);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME,
+                                                                       query.toString(), processBuilder);
+        return buildProcesses(storageDataList);
+    }
+
+    @Override
+    public long getProcessesCount(String serviceId, String instanceId, String agentId) throws IOException {
+        StringBuilder query = new StringBuilder();
+        query.append("select count(" + ProcessTraffic.PROPERTIES + ") from ");
+        appendProcessFromQuery(query, serviceId, instanceId, agentId);
+
+        final List<Double> results = client.queryWithAgg(query.toString());
+        return results.size() > 0 ? results.get(0).longValue() : 0;
+    }
+
+    private void appendProcessFromQuery(StringBuilder query, String serviceId, String instanceId, String agentId) {
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProcessTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
@@ -172,11 +194,6 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
             indexAndValueMap.put(IoTDBIndexes.AGENT_ID_INX, agentId);
         }
         IoTDBUtils.addQueryIndexValue(ProcessTraffic.INDEX_NAME, query, indexAndValueMap);
-        query.append(IoTDBClient.ALIGN_BY_DEVICE);
-
-        List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME,
-                                                                       query.toString(), processBuilder);
-        return buildProcesses(storageDataList);
     }
 
     @Override
@@ -266,6 +283,11 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
                     String value = property.getValue().getAsString();
                     process.getAttributes().add(new Attribute(key, value));
                 }
+            }
+            final String labelsJson = processTraffic.getLabelsJson();
+            if (StringUtil.isNotEmpty(labelsJson)) {
+                final List<String> labels = GSON.<List<String>>fromJson(labelsJson, ArrayList.class);
+                process.getLabels().addAll(labels);
             }
             processes.add(process);
         });

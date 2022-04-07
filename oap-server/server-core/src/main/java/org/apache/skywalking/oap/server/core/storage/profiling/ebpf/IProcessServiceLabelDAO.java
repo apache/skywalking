@@ -18,21 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.storage.profiling.ebpf;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingProcessFinderType;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
+import java.io.IOException;
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class EBPFProfilingProcessFinder {
-    private EBPFProfilingProcessFinderType finderType;
-    private String serviceId;
-    private String instanceId;
-    private List<String> processIdList;
+/**
+ * Process Service Label Query
+ */
+public interface IProcessServiceLabelDAO extends DAO {
+
+    /**
+     * Query all labels from service
+     */
+    List<String> queryAllLabels(String serviceId) throws IOException;
 }

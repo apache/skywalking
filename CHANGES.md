@@ -7,9 +7,9 @@ Release Notes.
 
 #### Project
 
-
 #### OAP Server
-
+* [Breaking Change] Update the eBPF Profiling task to the service level,
+  please delete index/table: `ebpf_profiling_task`, `process_traffic`.
 
 #### UI
 

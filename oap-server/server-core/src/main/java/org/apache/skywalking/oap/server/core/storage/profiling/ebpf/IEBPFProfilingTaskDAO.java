@@ -32,12 +32,12 @@ public interface IEBPFProfilingTaskDAO extends DAO {
 
     /**
      * list profiling tasks
-     * @param finder process finder config
+     * @param serviceIdList which service is belong
      * @param targetType profiling task target type
      * @param taskStartTime profiling task start timestamp, bigger than or equals
      * @param latestUpdateTime  profiling task last update timestamp, bigger than
      */
-    List<EBPFProfilingTask> queryTasks(EBPFProfilingProcessFinder finder,
+    List<EBPFProfilingTask> queryTasks(List<String> serviceIdList,
                                        EBPFProfilingTargetType targetType,
                                        long taskStartTime, long latestUpdateTime) throws IOException;
 }

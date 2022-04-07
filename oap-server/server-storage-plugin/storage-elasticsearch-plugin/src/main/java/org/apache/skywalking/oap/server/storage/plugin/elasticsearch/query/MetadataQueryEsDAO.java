@@ -19,12 +19,15 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -58,6 +61,8 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchC
 import static org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic.PropertyUtil.LANGUAGE;
 
 public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
+    private static final Gson GSON = new Gson();
+
     private final int queryMaxSize;
     private final int scrollingBatchSize;
 
@@ -203,6 +208,26 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
         final BoolQueryBuilder query = Query.bool();
         final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+        appendProcessWhereQuery(query, serviceId, instanceId, agentId);
+        final SearchResponse results = getClient().search(index, search.build());
+
+        return buildProcesses(results);
+    }
+
+    @Override
+    public long getProcessesCount(String serviceId, String instanceId, String agentId) throws IOException {
+        final String index =
+                IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
+
+        final BoolQueryBuilder query = Query.bool();
+        final SearchBuilder search = Search.builder().query(query).size(0);
+        appendProcessWhereQuery(query, serviceId, instanceId, agentId);
+        final SearchResponse results = getClient().search(index, search.build());
+
+        return results.getHits().getTotal();
+    }
+
+    private void appendProcessWhereQuery(BoolQueryBuilder query, String serviceId, String instanceId, String agentId) {
         if (StringUtil.isNotEmpty(serviceId)) {
             query.must(Query.term(ProcessTraffic.SERVICE_ID, serviceId));
         }
@@ -212,9 +237,6 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         if (StringUtil.isNotEmpty(agentId)) {
             query.must(Query.term(ProcessTraffic.AGENT_ID, agentId));
         }
-        final SearchResponse results = getClient().search(index, search.build());
-
-        return buildProcesses(results);
     }
 
     @Override
@@ -309,6 +331,11 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                     String value = property.getValue().getAsString();
                     process.getAttributes().add(new Attribute(key, value));
                 }
+            }
+            final String labelsJson = processTraffic.getLabelsJson();
+            if (StringUtils.isNotEmpty(labelsJson)) {
+                final List<String> labels = GSON.<List<String>>fromJson(labelsJson, ArrayList.class);
+                process.getLabels().addAll(labels);
             }
             processes.add(process);
         }

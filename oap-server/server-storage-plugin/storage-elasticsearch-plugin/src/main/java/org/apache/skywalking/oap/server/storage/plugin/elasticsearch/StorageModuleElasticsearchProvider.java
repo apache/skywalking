@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IProcessServiceLabelDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -71,6 +72,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ESEve
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.LogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetadataQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProcessServiceLabelEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskLogEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileThreadSnapshotQueryEsDAO;
@@ -205,6 +207,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                 new EBPFProfilingScheduleEsDAO(elasticSearchClient, config));
         this.registerServiceImplementation(IEBPFProfilingDataDAO.class,
                 new EBPFProfilingDataEsDAO(elasticSearchClient, config));
+        this.registerServiceImplementation(IProcessServiceLabelDAO.class,
+                new ProcessServiceLabelEsDAO(elasticSearchClient, config));
     }
 
     @Override

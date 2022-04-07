@@ -161,8 +161,28 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public List<Process> listProcesses(String serviceId, String instanceId, String agentId) throws IOException {
         final SelectQueryImpl query = select(
                 ID_COLUMN, NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
-                ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES)
+                ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES,
+                ProcessTraffic.LABELS_JSON)
                 .from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(query, serviceId, instanceId, agentId);
+        return buildProcesses(query);
+    }
+
+    @Override
+    public long getProcessesCount(String serviceId, String instanceId, String agentId) throws IOException {
+        final SelectQueryImpl query = select().count(ProcessTraffic.PROPERTIES).from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(query, serviceId, instanceId, agentId);
+
+        List<QueryResult.Result> results = client.query(query);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), results);
+        }
+
+        List<QueryResult.Series> counter = results.get(0).getSeries();
+        return ((Number) counter.get(0).getValues().get(0).get(1)).longValue();
+    }
+
+    private void appendProcessWhereQuery(SelectQueryImpl query, String serviceId, String instanceId, String agentId) {
         final WhereQueryImpl<SelectQueryImpl> whereQuery = query.where();
         if (StringUtil.isNotEmpty(serviceId)) {
             whereQuery.and(eq(TagName.SERVICE_ID, serviceId));
@@ -173,8 +193,6 @@ public class MetadataQuery implements IMetadataQueryDAO {
         if (StringUtil.isNotEmpty(agentId)) {
             whereQuery.and(eq(TagName.AGENT_ID, agentId));
         }
-
-        return buildProcesses(query);
     }
 
     @Override
@@ -288,6 +306,11 @@ public class MetadataQuery implements IMetadataQueryDAO {
                     String value = property.getValue().getAsString();
                     process.getAttributes().add(new Attribute(key, value));
                 }
+            }
+            String labelJson = (String) values.get(9);
+            if (!Strings.isNullOrEmpty(labelJson)) {
+                List<String> labels = GSON.<List<String>>fromJson(labelJson, ArrayList.class);
+                process.getLabels().addAll(labels);
             }
             instances.add(process);
         }

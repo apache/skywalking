@@ -18,70 +18,49 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
 
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS_SERVICE_LABEL;
 
-@ScopeDeclaration(id = PROCESS, name = "Process")
+@ScopeDeclaration(id = PROCESS_SERVICE_LABEL, name = "ProcessServiceLabel")
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
-public class Process extends Source {
+public class ProcessServiceLabel extends Source {
     private volatile String entityId;
 
     @Override
     public int scope() {
-        return PROCESS;
+        return PROCESS_SERVICE_LABEL;
     }
 
     @Override
     public String getEntityId() {
         if (entityId == null) {
-            entityId = IDManager.ProcessID.buildId(instanceId, name);
+            entityId = serviceId + Const.ID_CONNECTOR + new String(Base64.getEncoder()
+                    .encode(label.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
         }
         return entityId;
     }
 
     @Getter
-    private String instanceId;
-    @Getter
     private String serviceId;
-    @Getter
     @Setter
-    private String name;
     @Getter
-    @Setter
-    private String serviceName;
-    @Getter
-    @Setter
-    private String instanceName;
-    @Getter
-    @Setter
-    private Layer layer;
-    @Getter
-    @Setter
     private boolean isServiceNormal;
-    @Getter
-    @Setter
-    private String agentId;
-    @Getter
-    @Setter
-    private ProcessDetectType detectType;
-    @Getter
-    @Setter
-    private JsonObject properties;
     @Setter
     @Getter
-    private List<String> labels;
+    private String serviceName;
+    @Setter
+    @Getter
+    private String label;
 
     @Override
     public void prepare() {
         serviceId = IDManager.ServiceID.buildId(serviceName, isServiceNormal);
-        instanceId = IDManager.ServiceInstanceID.buildId(serviceId, instanceName);
     }
 }
