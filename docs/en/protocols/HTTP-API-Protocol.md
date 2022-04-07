@@ -17,9 +17,9 @@ Input:
 {
 	"service": "User Service Name",
 	"serviceInstance": "User Service Instance Name",
-	"properties": [{
-		"language": "Lua"
-	}]
+	"properties": [
+		{ "key": "language", "value": "Lua" }
+	]
 }
 ```
 
@@ -97,7 +97,7 @@ Input:
 }
 ```
  OutPut:
- 
+
  ```json
 
 ```
@@ -180,7 +180,7 @@ Input:
 }]
 ```
  OutPut:
- 
+
  ```json
 
 ```
