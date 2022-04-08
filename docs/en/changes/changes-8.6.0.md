@@ -1,9 +1,5 @@
-Changes by Version
-==================
-Release Notes.
+## 8.6.0
 
-8.6.0
-------------------
 #### Project
 * Add OpenSearch as storage option.
 * Upgrade Kubernetes Java client dependency to 11.0.

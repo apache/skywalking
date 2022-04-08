@@ -1,5 +1,4 @@
-8.0.0
-------------------
+## 8.0.0
 
 #### Project
 * v3 protocol is added and implemented. All previous releases are incompatible with 8.x releases.

@@ -1,5 +1,5 @@
-8.2.0
-------------------
+## 8.2.0
+
 #### Project
 * Support Browser monitoring.
 * Add e2e test for ALS solution of service mesh observability.

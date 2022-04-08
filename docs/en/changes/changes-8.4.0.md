@@ -1,9 +1,5 @@
-Changes by Version
-==================
-Release Notes.
+## 8.4.0
 
-8.4.0
-------------------
 #### Project
 * Incompatible with previous releases when use H2/MySQL/TiDB storage options, due to support multiple alarm rules triggered for one entity.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.

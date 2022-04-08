@@ -1,9 +1,4 @@
-Changes by Version
-==================
-Release Notes.
-
-8.7.0
-------------------
+## 8.7.0
 
 #### Project
 
