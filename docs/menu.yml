@@ -232,7 +232,7 @@ catalog:
       - name: "8.0.0"
         path: "/en/changes/changes-8.0.0"
       - name: "6.x"
-        path: "/en/changes/changes-7.x"
+        path: "/en/changes/changes-6.x"
       - name: "5.x"
         path: "/en/changes/changes-5.x"
 
