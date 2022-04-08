@@ -1,5 +1,5 @@
-8.1.0
-------------------
+## 8.1.0
+
 #### Project
 * Support Kafka as an optional trace, JVM metrics, profiling snapshots and meter system data transport layer.
 * Support Meter system, including the native metrics APIs and the Spring Sleuth adoption.

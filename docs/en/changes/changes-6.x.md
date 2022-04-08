@@ -1,5 +1,4 @@
-6.6.0
-------------------
+## 6.6.0
 
 #### Project
 - [**IMPORTANT**] Local span and exit span are not treated as endpoint detected at client and local. Only entry span is the endpoint. Reduce the load of register and memory cost.
@@ -52,8 +51,7 @@
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/37?closed=1)
 
-6.5.0
-------------------
+## 6.5.0
 
 #### Project
 - TTL E2E test (#3437)
@@ -127,8 +125,7 @@ All issues and pull requests are [here](https://github.com/apache/skywalking/mil
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/36?closed=1)
 
 
-6.4.0
-------------------
+## 6.4.0
 
 #### Project
 * Highly recommend to upgrade due to Pxx metrics calculation bug.
@@ -185,8 +182,7 @@ All issues and pull requests are [here](https://github.com/apache/skywalking/mil
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/35?closed=1)
 
 
-6.3.0
-------------------
+## 6.3.0
 
 #### Project
 * e2e tests have been added, and verify every pull request.
@@ -254,8 +250,7 @@ All issues and pull requests are [here](https://github.com/apache/skywalking/mil
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/34?closed=1)
 
 
-6.2.0
-------------------
+## 6.2.0
 
 #### Project
 * ElasticSearch implementation performance improved, and CHANGED totally. Must delete all existing indexes to do upgrade.
@@ -317,8 +312,7 @@ All issues and pull requests are [here](https://github.com/apache/skywalking/mil
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/33?closed=1)
 
-6.1.0
-------------------
+## 6.1.0
 
 #### Project
 **SkyWalking graduated as Apache Top Level Project**.
@@ -389,8 +383,7 @@ Significantly cost less CPU in low payload.**
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/32?closed=1)
 
 
-6.0.0-GA
-------------------
+## 6.0.0-GA
 
 #### Java Agent
 - Support gson plugin(optional).
@@ -429,8 +422,7 @@ All issues and pull requests are [here](https://github.com/apache/skywalking/mil
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/30?closed=1)
 
-6.0.0-beta
-------------------
+## 6.0.0-beta
 
 #### Protocol
 - Provide Trace Data Protocol v2
@@ -488,8 +480,7 @@ All issues and pull requests are [here](https://github.com/apache/skywalking/mil
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/31?closed=1)
 
-6.0.0-alpha
-------------------
+## 6.0.0-alpha
 
 SkyWalking 6 is totally new milestone for the project. At this point, we are not just a distributing
 tracing system with analysis and visualization capabilities. We are an **Observability Analysis Platform(OAL)**.
