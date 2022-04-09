@@ -1,9 +1,5 @@
-Changes by Version
-==================
-Release Notes.
+## 8.6.0
 
-8.6.0
-------------------
 #### Project
 * Add OpenSearch as storage option.
 * Upgrade Kubernetes Java client dependency to 11.0.
@@ -92,4 +88,4 @@ Release Notes.
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/84?closed=1)
 
 ------------------
-Find change logs of all versions [here](../changes).
+Find change logs of all versions [here]().

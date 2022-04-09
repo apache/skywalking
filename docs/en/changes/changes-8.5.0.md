@@ -1,9 +1,5 @@
-Changes by Version
-==================
-Release Notes.
+## 8.5.0
 
-8.5.0
-------------------
 #### Project
 * **Incompatible Change**. Indices and templates of ElasticSearch(6/7, including zipkin-elasticsearch7) storage option have been changed.
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
