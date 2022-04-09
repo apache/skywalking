@@ -103,6 +103,12 @@ jobs:
             -Dmaven.test.skip \
             -Dmaven.javadoc.skip \
             -Dcheckstyle.skip
+      - name: Cache maven repository again
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
       - uses: actions/upload-artifact@v2
         name: Upload distribution tar
         with:
@@ -167,6 +173,18 @@ jobs:
           path: dist
       - name: Check Dependencies Licenses
         run: tools/dependencies/check-LICENSE.sh
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        name: Upload self
+        with:
+          name: skywalking
+          path: ./
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        name: Upload SkyWalking Maven
+        with:
+          name: skywalking-maven-repository
+          path: ~/.m2/repository/org/apache/skywalking
 
   unit-test:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
