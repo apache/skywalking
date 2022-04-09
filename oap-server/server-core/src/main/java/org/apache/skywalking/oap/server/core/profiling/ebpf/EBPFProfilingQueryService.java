@@ -154,7 +154,12 @@ public class EBPFProfilingQueryService implements Service {
             return prepare;
         }
         prepare.setCouldProfiling(true);
-        prepare.setProcessLabels(getProcessServiceLabelDAO().queryAllLabels(serviceId));
+        final List<String> processLabels = getProcessServiceLabelDAO().queryAllLabels(serviceId);
+        if (processLabels != null && !processLabels.isEmpty()) {
+            prepare.setProcessLabels(processLabels.stream().distinct().collect(Collectors.toList()));
+        } else {
+            prepare.setProcessLabels(Collections.emptyList());
+        }
         return prepare;
     }
 
