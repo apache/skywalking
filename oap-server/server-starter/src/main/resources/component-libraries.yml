@@ -410,6 +410,9 @@ AWSLambdaGatewayAPIHTTP:
 AWSLambdaGatewayAPIREST:
   id: 126
   languages: Java,C#,Node.js,Python
+Apache-ShenYu:
+  id: 127
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
