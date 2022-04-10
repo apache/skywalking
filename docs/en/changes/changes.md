@@ -8,6 +8,7 @@
 
 #### UI
 * General service instance: move `Thread Pool` from JVM to Overview, fix `JVM GC Count` calculation.
+* Add Apache ShenYu (incubating) component LOGO.
 
 #### Documentation
 
