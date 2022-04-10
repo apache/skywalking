@@ -4,7 +4,7 @@
 
 
 #### OAP Server
-* Add component definition for `Apache ShenYu (incubating)`.
+* Add component definition(ID=127) for `Apache ShenYu (incubating)`.
 
 #### UI
 * General service instance: move `Thread Pool` from JVM to Overview, fix `JVM GC Count` calculation.
