@@ -90,8 +90,8 @@ staticConfig:
     service: oap-server
 ...
 ```
-### Service discovery (k8s)
-If you deploy an oap-server cluster on k8s, the oap-server instance (pod) would not have a static IP or hostname. We can leverage [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes) to discover the oap-server instance, and scrape & transfer the metrics to OAP [OpenTelemetry receiver](opentelemetry-receiver.md). 
+### Service discovery on Kubernetes
+If you deploy an oap-server cluster on Kubernetes, the oap-server instance (pod) would not have a static IP or hostname. We can leverage [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes) to discover the oap-server instance, and scrape & transfer the metrics to OAP [OpenTelemetry receiver](opentelemetry-receiver.md). 
 
 On how to install SkyWalking on k8s, you can refer to [Apache SkyWalking Kubernetes](https://github.com/apache/skywalking-kubernetes).
 
