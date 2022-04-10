@@ -58,7 +58,7 @@ public class ServiceLabelRecord extends Metrics {
 
     @Column(columnName = SERVICE_ID)
     private String serviceId;
-    @Column(columnName = LABEL)
+    @Column(columnName = LABEL, length = 50)
     private String label;
 
     @Override
