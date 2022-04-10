@@ -7,7 +7,7 @@
   please delete index/table: `ebpf_profiling_task`, `process_traffic`.
 
 #### UI
-
+* General service instance: move `Thread Pool` from JVM to Overview, fix `JVM GC Count` calculation.
 
 #### Documentation
 

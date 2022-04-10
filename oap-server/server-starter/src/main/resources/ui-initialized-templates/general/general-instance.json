@@ -37,7 +37,7 @@
           "metricTypes": [
             ""
           ],
-          "activedTabIndex": 4,
+          "activedTabIndex": 3,
           "children": [
             {
               "name": "Overview",
@@ -151,6 +151,32 @@
                     "readLabeledMetricsValues"
                   ],
                   "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 27,
+                  "w": 12,
+                  "h": 14,
+                  "i": "16",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Thread Pool"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "meter_thread_pool"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "moved": false
                 }
               ]
             },
@@ -206,9 +232,9 @@
               "name": "JVM",
               "children": [
                 {
-                  "x": 6,
+                  "x": 8,
                   "y": 0,
-                  "w": 6,
+                  "w": 8,
                   "h": 13,
                   "i": "5",
                   "type": "Widget",
@@ -252,35 +278,9 @@
                   ]
                 },
                 {
-                  "x": 18,
+                  "x": 8,
                   "y": 13,
-                  "w": 6,
-                  "h": 13,
-                  "i": "16",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Thread Pool"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": false,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metrics": [
-                    "meter_thread_pool"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "moved": false
-                },
-                {
-                  "x": 0,
-                  "y": 13,
-                  "w": 6,
+                  "w": 8,
                   "h": 13,
                   "i": "12",
                   "type": "Widget",
@@ -308,9 +308,9 @@
                   "moved": false
                 },
                 {
-                  "x": 6,
+                  "x": 16,
                   "y": 13,
-                  "w": 6,
+                  "w": 8,
                   "h": 13,
                   "i": "13",
                   "type": "Widget",
@@ -321,7 +321,6 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "standard": {},
                   "metrics": [
                     "instance_jvm_thread_timed_waiting_state_thread_count",
                     "instance_jvm_thread_blocked_state_thread_count",
@@ -339,7 +338,7 @@
                 {
                   "x": 0,
                   "y": 0,
-                  "w": 6,
+                  "w": 8,
                   "h": 13,
                   "i": "14",
                   "type": "Widget",
@@ -363,10 +362,10 @@
                   "moved": false
                 },
                 {
-                  "x": 12,
-                  "y": 13,
-                  "w": 6,
-                  "h": 13,
+                  "x": 0,
+                  "y": 26,
+                  "w": 8,
+                  "h": 12,
                   "i": "15",
                   "type": "Widget",
                   "widget": {
@@ -378,7 +377,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "instance_jvm_class_loaded_class_count",
                     "instance_jvm_class_total_loaded_class_count",
@@ -392,9 +390,9 @@
                   "moved": false
                 },
                 {
-                  "x": 12,
+                  "x": 16,
                   "y": 0,
-                  "w": 6,
+                  "w": 8,
                   "h": 13,
                   "i": "6",
                   "type": "Widget",
@@ -422,9 +420,9 @@
                   "moved": false
                 },
                 {
-                  "x": 18,
-                  "y": 0,
-                  "w": 6,
+                  "x": 0,
+                  "y": 13,
+                  "w": 8,
                   "h": 13,
                   "i": "7",
                   "type": "Widget",
@@ -445,18 +443,7 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false,
-                  "metricConfig": [
-                    {
-                      "calculation": "byteToMB"
-                    },
-                    {
-                      "calculation": "byteToMB"
-                    },
-                    {
-                      "calculation": "byteToMB"
-                    }
-                  ]
+                  "moved": false
                 }
               ]
             },
@@ -538,7 +525,6 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "standard": {},
                   "metrics": [
                     "instance_clr_gen1_collect_count",
                     "instance_clr_gen0_collect_count",
