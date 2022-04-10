@@ -105,26 +105,14 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
     private List<EBPFProfilingTaskCommand> buildProfilingCommands(EBPFProfilingTask task, List<Process> processes) {
         final ArrayList<EBPFProfilingTaskCommand> commands = new ArrayList<>(processes.size());
         for (Process process : processes) {
-            // The service id must matches between process and task
+            // The service id must match between process and task
             if (!Objects.equals(process.getServiceId(), task.getServiceId())) {
                 continue;
             }
 
-            // If the task haven't labeled requirement, them just add the process
-            boolean shouldAdd = false;
-            if (CollectionUtils.isEmpty(task.getProcessLabels())) {
-                shouldAdd = true;
-            } else {
-                // If the process have matched one of the task label, them need to add the command
-                for (String label : task.getProcessLabels()) {
-                    if (process.getLabels().contains(label)) {
-                        shouldAdd = true;
-                        break;
-                    }
-                }
-            }
-
-            if (shouldAdd) {
+            // If the task doesn't require a label or the process match all labels in task
+            if (CollectionUtils.isEmpty(task.getProcessLabels())
+                    || process.getLabels().containsAll(task.getProcessLabels())) {
                 commands.add(commandService.newEBPFProfilingTaskCommand(task, process.getId()));
             }
         }
