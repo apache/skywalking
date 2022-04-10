@@ -60,7 +60,7 @@ public class HTTPServer implements Server {
             .http1MaxHeaderSize(config.getMaxRequestHeaderSize())
             .idleTimeout(Duration.ofMillis(config.getIdleTimeOut()))
             .decorator(Route.ofCatchAll(), (delegate, ctx, req) -> {
-                if (!this.allowedMethods.contains(ctx.method())) {
+                if (!allowedMethods.contains(ctx.method())) {
                     return HttpResponse.of(HttpStatus.METHOD_NOT_ALLOWED);
                 }
                 return delegate.serve(ctx, req);
