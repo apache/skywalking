@@ -26,16 +26,16 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS_SERVICE_LABEL;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_LABEL;
 
-@ScopeDeclaration(id = PROCESS_SERVICE_LABEL, name = "ProcessServiceLabel")
+@ScopeDeclaration(id = SERVICE_LABEL, name = "ServiceLabel")
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
-public class ProcessServiceLabel extends Source {
+public class ProcessLabel extends Source {
     private volatile String entityId;
 
     @Override
     public int scope() {
-        return PROCESS_SERVICE_LABEL;
+        return SERVICE_LABEL;
     }
 
     @Override

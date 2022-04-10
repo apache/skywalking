@@ -23,8 +23,8 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
-import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessServiceLabelRecord;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IProcessServiceLabelDAO;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -33,10 +33,10 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexC
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ProcessServiceLabelEsDAO extends EsDAO implements IProcessServiceLabelDAO {
+public class ServiceLabelEsDAO extends EsDAO implements IServiceLabelDAO {
     private int maxSize;
 
-    public ProcessServiceLabelEsDAO(ElasticSearchClient client, StorageModuleElasticsearchConfig config) {
+    public ServiceLabelEsDAO(ElasticSearchClient client, StorageModuleElasticsearchConfig config) {
         super(client);
         this.maxSize = config.getMetadataQueryMaxSize();
     }
@@ -44,10 +44,10 @@ public class ProcessServiceLabelEsDAO extends EsDAO implements IProcessServiceLa
     @Override
     public List<String> queryAllLabels(String serviceId) {
         final String index =
-                IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessServiceLabelRecord.INDEX_NAME);
+                IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceLabelRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
 
-        query.must(Query.term(ProcessServiceLabelRecord.SERVICE_ID, serviceId));
+        query.must(Query.term(ServiceLabelRecord.SERVICE_ID, serviceId));
         final SearchBuilder search = Search.builder().query(query).size(maxSize);
 
         final SearchResponse response = getClient().search(index, search.build());
@@ -55,6 +55,6 @@ public class ProcessServiceLabelEsDAO extends EsDAO implements IProcessServiceLa
     }
 
     private String parseLabel(final SearchHit hit) {
-        return (String) hit.getSource().get(ProcessServiceLabelRecord.LABEL);
+        return (String) hit.getSource().get(ServiceLabelRecord.LABEL);
     }
 }

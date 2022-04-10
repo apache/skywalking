@@ -19,9 +19,9 @@ package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessServiceLabelRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IProcessServiceLabelDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
@@ -35,22 +35,22 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
-public class IoTDBProcessServiceLabelQueryDAO implements IProcessServiceLabelDAO {
+public class IoTDBServiceLabelQueryDAO implements IServiceLabelDAO {
     private final IoTDBClient client;
-    private final StorageBuilder<ProcessServiceLabelRecord> storageBuilder = new ProcessServiceLabelRecord.Builder();
+    private final StorageBuilder<ServiceLabelRecord> storageBuilder = new ServiceLabelRecord.Builder();
 
     @Override
     public List<String> queryAllLabels(String serviceId) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProcessServiceLabelRecord.INDEX_NAME);
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, ServiceLabelRecord.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
-        IoTDBUtils.addQueryIndexValue(ProcessServiceLabelRecord.INDEX_NAME, query, indexAndValueMap);
+        IoTDBUtils.addQueryIndexValue(ServiceLabelRecord.INDEX_NAME, query, indexAndValueMap);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
-        List<? super StorageData> storageDataList = client.filterQuery(ProcessServiceLabelRecord.INDEX_NAME,
+        List<? super StorageData> storageDataList = client.filterQuery(ServiceLabelRecord.INDEX_NAME,
                 query.toString(), storageBuilder);
-        return storageDataList.stream().map(t -> ((ProcessServiceLabelRecord) t).getLabel()).collect(Collectors.toList());
+        return storageDataList.stream().map(t -> ((ServiceLabelRecord) t).getLabel()).collect(Collectors.toList());
     }
 }

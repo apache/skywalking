@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskCreationResult;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IProcessServiceLabelDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -51,7 +51,7 @@ public class EBPFProfilingMutationService implements Service {
 
     private final ModuleManager moduleManager;
     private IEBPFProfilingTaskDAO processProfilingTaskDAO;
-    private IProcessServiceLabelDAO processServiceLabelDAO;
+    private IServiceLabelDAO serviceLabelDAO;
     private IMetadataQueryDAO metadataQueryDAO;
 
     private IEBPFProfilingTaskDAO getProcessProfilingTaskDAO() {
@@ -72,13 +72,13 @@ public class EBPFProfilingMutationService implements Service {
         return metadataQueryDAO;
     }
 
-    public IProcessServiceLabelDAO getProcessServiceLabelDAO() {
-        if (processServiceLabelDAO == null) {
-            this.processServiceLabelDAO = moduleManager.find(StorageModule.NAME)
+    public IServiceLabelDAO getServiceLabelDAO() {
+        if (serviceLabelDAO == null) {
+            this.serviceLabelDAO = moduleManager.find(StorageModule.NAME)
                     .provider()
-                    .getService(IProcessServiceLabelDAO.class);
+                    .getService(IServiceLabelDAO.class);
         }
-        return processServiceLabelDAO;
+        return serviceLabelDAO;
     }
 
     /**
@@ -132,7 +132,7 @@ public class EBPFProfilingMutationService implements Service {
 
         // the process label must be existed
         if (err == null && CollectionUtils.isNotEmpty(request.getProcessLabels())) {
-            final List<String> existingLabels = getProcessServiceLabelDAO().queryAllLabels(request.getServiceId());
+            final List<String> existingLabels = getServiceLabelDAO().queryAllLabels(request.getServiceId());
             List<String> notExistLabels = new ArrayList<>(existingLabels.size());
             for (String processLabel : request.getProcessLabels()) {
                 if (!existingLabels.contains(processLabel)) {

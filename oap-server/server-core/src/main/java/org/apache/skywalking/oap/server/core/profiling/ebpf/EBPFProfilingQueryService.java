@@ -43,7 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IProcessServiceLabelDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -69,7 +69,7 @@ public class EBPFProfilingQueryService implements Service {
     private final StorageModels storageModels;
 
     private IMetadataQueryDAO metadataQueryDAO;
-    private IProcessServiceLabelDAO processServiceLabelDAO;
+    private IServiceLabelDAO serviceLabelDAO;
     private IEBPFProfilingTaskDAO taskDAO;
     private IEBPFProfilingScheduleDAO scheduleDAO;
     private EBPFProfilingAnalyzer profilingAnalyzer;
@@ -136,13 +136,13 @@ public class EBPFProfilingQueryService implements Service {
         return metadataQueryDAO;
     }
 
-    public IProcessServiceLabelDAO getProcessServiceLabelDAO() {
-        if (processServiceLabelDAO == null) {
-            processServiceLabelDAO = moduleManager.find(StorageModule.NAME)
+    public IServiceLabelDAO getServiceLabelDAO() {
+        if (serviceLabelDAO == null) {
+            serviceLabelDAO = moduleManager.find(StorageModule.NAME)
                     .provider()
-                    .getService(IProcessServiceLabelDAO.class);
+                    .getService(IServiceLabelDAO.class);
         }
-        return processServiceLabelDAO;
+        return serviceLabelDAO;
     }
 
     public EBPFProfilingTaskPrepare queryPrepareCreateEBPFProfilingTaskData(String serviceId) throws IOException {
@@ -154,7 +154,7 @@ public class EBPFProfilingQueryService implements Service {
             return prepare;
         }
         prepare.setCouldProfiling(true);
-        final List<String> processLabels = getProcessServiceLabelDAO().queryAllLabels(serviceId);
+        final List<String> processLabels = getServiceLabelDAO().queryAllLabels(serviceId);
         if (processLabels != null && !processLabels.isEmpty()) {
             prepare.setProcessLabels(processLabels.stream().distinct().collect(Collectors.toList()));
         } else {

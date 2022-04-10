@@ -34,25 +34,25 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS_SERVICE_LABEL;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_LABEL;
 
 /**
  * Process have multiple labels, such as tag.
- * {@link ProcessServiceLabelRecord} could combine them in the service level.
+ * {@link ServiceLabelRecord} could combine them in the service level.
  * It could help to quickly locate the similar process by the service and label.
  */
 @Setter
 @Getter
-@Stream(name = ProcessServiceLabelRecord.INDEX_NAME, scopeId = PROCESS_SERVICE_LABEL,
-        builder = ProcessServiceLabelRecord.Builder.class, processor = MetricsStreamProcessor.class)
+@Stream(name = ServiceLabelRecord.INDEX_NAME, scopeId = SERVICE_LABEL,
+        builder = ServiceLabelRecord.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
 @EqualsAndHashCode(of = {
         "serviceId",
         "label"
 })
-public class ProcessServiceLabelRecord extends Metrics {
+public class ServiceLabelRecord extends Metrics {
 
-    public static final String INDEX_NAME = "process_service_label";
+    public static final String INDEX_NAME = "service_label";
     public static final String SERVICE_ID = "service_id";
     public static final String LABEL = "label";
 
@@ -107,18 +107,18 @@ public class ProcessServiceLabelRecord extends Metrics {
         return this.hashCode();
     }
 
-    public static class Builder implements StorageBuilder<ProcessServiceLabelRecord> {
+    public static class Builder implements StorageBuilder<ServiceLabelRecord> {
 
         @Override
-        public ProcessServiceLabelRecord storage2Entity(Convert2Entity converter) {
-            final ProcessServiceLabelRecord record = new ProcessServiceLabelRecord();
+        public ServiceLabelRecord storage2Entity(Convert2Entity converter) {
+            final ServiceLabelRecord record = new ServiceLabelRecord();
             record.setServiceId((String) converter.get(SERVICE_ID));
             record.setLabel((String) converter.get(LABEL));
             return record;
         }
 
         @Override
-        public void entity2Storage(ProcessServiceLabelRecord entity, Convert2Storage converter) {
+        public void entity2Storage(ServiceLabelRecord entity, Convert2Storage converter) {
             converter.accept(SERVICE_ID, entity.getServiceId());
             converter.accept(LABEL, entity.getLabel());
         }

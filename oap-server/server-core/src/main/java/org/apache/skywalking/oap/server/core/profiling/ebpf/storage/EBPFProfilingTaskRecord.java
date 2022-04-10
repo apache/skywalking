@@ -52,7 +52,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
 
     @Column(columnName = SERVICE_ID)
     private String serviceId;
-    @Column(columnName = PROCESS_LABELS_JSON)
+    @Column(columnName = PROCESS_LABELS_JSON, length = 1000)
     private String processLabelsJson;
     @Column(columnName = START_TIME)
     private long startTime;

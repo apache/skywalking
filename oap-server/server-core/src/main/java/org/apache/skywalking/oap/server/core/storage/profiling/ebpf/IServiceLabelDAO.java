@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Process Service Label Query
  */
-public interface IProcessServiceLabelDAO extends DAO {
+public interface IServiceLabelDAO extends DAO {
 
     /**
      * Query all labels from service

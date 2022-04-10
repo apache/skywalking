@@ -19,8 +19,8 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessServiceLabelRecord;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IProcessServiceLabelDAO;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
@@ -37,18 +37,18 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ProcessServiceLabelQuery implements IProcessServiceLabelDAO {
+public class ServiceLabelQuery implements IServiceLabelDAO {
     private final InfluxClient client;
 
     @Override
     public List<String> queryAllLabels(String serviceId) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> query = select(
-                ProcessServiceLabelRecord.LABEL
+                ServiceLabelRecord.LABEL
         )
-                .from(client.getDatabase(), ProcessServiceLabelRecord.INDEX_NAME)
+                .from(client.getDatabase(), ServiceLabelRecord.INDEX_NAME)
                 .where();
 
-        query.and(eq(ProcessServiceLabelRecord.SERVICE_ID, serviceId));
+        query.and(eq(ServiceLabelRecord.SERVICE_ID, serviceId));
 
         return parseLabels(query);
     }

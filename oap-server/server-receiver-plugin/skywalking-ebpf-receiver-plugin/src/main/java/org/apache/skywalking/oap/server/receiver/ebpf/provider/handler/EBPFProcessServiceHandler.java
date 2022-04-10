@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDete
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.Process;
-import org.apache.skywalking.oap.server.core.source.ProcessServiceLabel;
+import org.apache.skywalking.oap.server.core.source.ProcessLabel;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -86,7 +86,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
         processes.stream().forEach(e -> {
             sourceReceiver.receive(e._1);
             builder.addProcesses(e._2);
-            processServiceLabels(e._1.getServiceName(), e._1.isServiceNormal(), e._1.getLabels(), e._1.getTimeBucket());
+            handleServiceLabels(e._1.getServiceName(), e._1.isServiceNormal(), e._1.getLabels(), e._1.getTimeBucket());
         });
 
         responseObserver.onNext(builder.build());
@@ -130,7 +130,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
             sourceReceiver.receive(serviceMeta);
 
             // service label
-            processServiceLabels(serviceName, true, processUpdate.getLabels(), timeBucket);
+            handleServiceLabels(serviceName, true, processUpdate.getLabels(), timeBucket);
         });
 
         responseObserver.onNext(Commands.newBuilder().build());
@@ -175,12 +175,12 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
     /**
      * Append service label
      */
-    private void processServiceLabels(String serviceName, boolean isServiceNormal, List<String> labels, long timeBucket) {
+    private void handleServiceLabels(String serviceName, boolean isServiceNormal, List<String> labels, long timeBucket) {
         if (CollectionUtils.isEmpty(labels)) {
             return;
         }
         for (String label : labels) {
-            final ProcessServiceLabel serviceLabel = new ProcessServiceLabel();
+            final ProcessLabel serviceLabel = new ProcessLabel();
             serviceLabel.setServiceName(serviceName);
             serviceLabel.setServiceNormal(isServiceNormal);
             serviceLabel.setLabel(label);

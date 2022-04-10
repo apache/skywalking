@@ -18,8 +18,8 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import lombok.AllArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessServiceLabelRecord;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IProcessServiceLabelDAO;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
 import java.io.IOException;
@@ -30,16 +30,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
-public class H2ProcessServiceLabelQueryDAO implements IProcessServiceLabelDAO {
+public class H2ServiceLabelQueryDAO implements IServiceLabelDAO {
     private JDBCHikariCPClient h2Client;
 
     @Override
     public List<String> queryAllLabels(String serviceId) throws IOException {
         final StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(1);
-        sql.append("select " + ProcessServiceLabelRecord.LABEL + " from ")
-                .append(ProcessServiceLabelRecord.INDEX_NAME)
-                .append(" where ").append(ProcessServiceLabelRecord.SERVICE_ID).append(" = ?");
+        sql.append("select " + ServiceLabelRecord.LABEL + " from ")
+                .append(ServiceLabelRecord.INDEX_NAME)
+                .append(" where ").append(ServiceLabelRecord.SERVICE_ID).append(" = ?");
         condition.add(serviceId);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -55,7 +55,7 @@ public class H2ProcessServiceLabelQueryDAO implements IProcessServiceLabelDAO {
     private List<String> parseLabels(ResultSet resultSet) throws SQLException {
         final List<String> labels = new ArrayList<>();
         while (resultSet.next()) {
-            labels.add(resultSet.getString(ProcessServiceLabelRecord.LABEL));
+            labels.add(resultSet.getString(ServiceLabelRecord.LABEL));
         }
         return labels;
     }

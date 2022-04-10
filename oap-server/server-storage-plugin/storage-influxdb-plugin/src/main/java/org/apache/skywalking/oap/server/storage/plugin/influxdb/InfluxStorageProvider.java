@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.management.UITemplateManage
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IProcessServiceLabelDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
@@ -65,7 +65,7 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.LogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetadataQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetricsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.NetworkAddressAliasDAO;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProcessServiceLabelQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ServiceLabelQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskLogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileThreadSnapshotQuery;
@@ -138,7 +138,7 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IEBPFProfilingTaskDAO.class, new EBPFProfilingTaskQuery(client));
         this.registerServiceImplementation(IEBPFProfilingScheduleDAO.class, new EBPFProfilingScheduleQuery(client));
         this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new EBPFProfilingDataQuery(client));
-        this.registerServiceImplementation(IProcessServiceLabelDAO.class, new ProcessServiceLabelQuery(client));
+        this.registerServiceImplementation(IServiceLabelDAO.class, new ServiceLabelQuery(client));
     }
 
     @Override
