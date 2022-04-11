@@ -1,10 +1,11 @@
 ## 9.1.0
 
 #### Project
-
+* Upgrade zipkin to 2.23.16.
 
 #### OAP Server
 * Add component definition(ID=127) for `Apache ShenYu (incubating)`.
+* Fix Zipkin receiver: Decode spans error, missing `Layer` for V9 and wrong time bucket for generate Service and Endpoint.
 
 #### UI
 * General service instance: move `Thread Pool` from JVM to Overview, fix `JVM GC Count` calculation.
