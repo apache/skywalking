@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Check license header
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Check code style
@@ -88,15 +88,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - name: Cache maven repository
-        uses: actions/cache@v2
+      - uses: actions/setup-java@v3
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          distribution: 'temurin'
+          java-version: '8'
+          cache: 'maven'
       - name: Build distribution tar
         run: |
           ./mvnw clean install -B -q \
@@ -119,7 +118,7 @@ jobs:
       matrix:
         java-version: [ 8, 11, 17 ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: actions/download-artifact@v2
@@ -152,15 +151,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - name: Cache maven repository
-        uses: actions/cache@v2
+      - uses: actions/setup-java@v3
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          distribution: 'temurin'
+          java-version: '8'
+          cache: 'maven'
       - uses: actions/download-artifact@v2
         with:
           name: dist
@@ -182,7 +180,7 @@ jobs:
           - os: ubuntu
             java-version: 11
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Cache maven repository
@@ -208,7 +206,7 @@ jobs:
       matrix:
         java-version: [ 8, 11 ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Cache maven repository
@@ -454,7 +452,7 @@ jobs:
           - name: So11y
             config: test/e2e-v2/cases/so11y/e2e.yaml
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: actions/download-artifact@v2
@@ -491,7 +489,7 @@ jobs:
         analyzer: [ k8s-mesh, mx-mesh ]
         istio_version: [ 1.7.1, 1.8.2, 1.9.1, 1.10.3, 1.11.4, 1.12.0, 1.13.1 ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: actions/download-artifact@v2
@@ -524,7 +522,7 @@ jobs:
       matrix:
         java-version: [ 8, 11, 17 ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: actions/download-artifact@v2
