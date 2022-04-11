@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -51,7 +52,8 @@ public class NetworkAddressAlias extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = ADDRESS, shardingKeyIdx = 0)
+    @Column(columnName = ADDRESS)
+    @BanyanDBShardingKey(index = 0)
     private String address;
     @Setter
     @Getter

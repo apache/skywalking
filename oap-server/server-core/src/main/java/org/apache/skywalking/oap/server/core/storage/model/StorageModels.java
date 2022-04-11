@@ -27,7 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBGlobalIndex;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
 import org.apache.skywalking.oap.server.core.storage.annotation.MultipleQueryUnifiedIndex;
 import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
@@ -62,8 +65,12 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         checker.check(storage.getModelName());
 
         Model model = new Model(
-            storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
-            storage.getDownsampling(), record,
+            storage.getModelName(),
+            modelColumns,
+            extraQueryIndices,
+            scopeId,
+            storage.getDownsampling(),
+            record,
             isSuperDatasetModel(aClass),
             FunctionCategory.uniqueFunctionName(aClass),
             storage.isTimeRelativeID()
@@ -129,13 +136,36 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     }
                 }
 
-                final ModelColumn modelColumn = new ModelColumn(
-                    new ColumnName(modelName, column.columnName()), field.getType(), field.getGenericType(),
-                    column.matchQuery(), column.storageOnly(), column.indexOnly(), column.dataType().isValue(),
-                    columnLength,
-                    column.analyzer(), column.shardingKeyIdx()
+                // ElasticSearch extension
+                final ElasticSearchMatchQuery elasticSearchAnalyzer = field.getAnnotation(
+                    ElasticSearchMatchQuery.class);
+                ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
+                    elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer()
                 );
-                if (column.shardingKeyIdx() > -1) {
+
+                // BanyanDB extension
+                final BanyanDBShardingKey banyanDBShardingKey = field.getAnnotation(BanyanDBShardingKey.class);
+                final BanyanDBGlobalIndex banyanDBGlobalIndex = field.getAnnotation(BanyanDBGlobalIndex.class);
+                BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
+                    banyanDBShardingKey == null ? -1 : banyanDBShardingKey.index(),
+                    banyanDBGlobalIndex == null ? null : banyanDBGlobalIndex.extraFields()
+                );
+
+                final ModelColumn modelColumn = new ModelColumn(
+                    new ColumnName(
+                        modelName,
+                        column.columnName()
+                    ),
+                    field.getType(),
+                    field.getGenericType(),
+                    column.storageOnly(),
+                    column.indexOnly(),
+                    column.dataType().isValue(),
+                    columnLength,
+                    elasticSearchExtension,
+                    banyanDBExtension
+                );
+                if (banyanDBExtension.isShardingKey()) {
                     checker.accept(modelName, modelColumn);
                 }
 
@@ -197,7 +227,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
          * @throws IllegalStateException if sharding key indices are conflicting.
          */
         private void accept(String modelName, ModelColumn modelColumn) throws IllegalStateException {
-            final int idx = modelColumn.getShardingKeyIdx();
+            final int idx = modelColumn.getBanyanDBExtension().getShardingKeyIdx();
             while (idx + 1 > keys.size()) {
                 keys.add(null);
             }
@@ -206,7 +236,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 throw new IllegalStateException(
                     modelName + "'s "
                         + "Column [" + exist.getColumnName() + "] and column [" + modelColumn.getColumnName()
-                        + " are conflicting with sharding key index=" + modelColumn.getShardingKeyIdx());
+                        + " are conflicting with sharding key index=" + modelColumn.getBanyanDBExtension()
+                                                                                   .getShardingKeyIdx());
             }
             keys.set(idx, modelColumn);
         }

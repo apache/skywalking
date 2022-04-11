@@ -25,7 +25,10 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBGlobalIndex;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
@@ -47,11 +50,13 @@ public abstract class AbstractLogRecord extends Record {
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID, shardingKeyIdx = 0)
+    @Column(columnName = SERVICE_ID)
+    @BanyanDBShardingKey(index = 0)
     private String serviceId;
     @Setter
     @Getter
-    @Column(columnName = SERVICE_INSTANCE_ID, shardingKeyIdx = 1)
+    @Column(columnName = SERVICE_INSTANCE_ID)
+    @BanyanDBShardingKey(index = 1)
     private String serviceInstanceId;
     @Setter
     @Getter
@@ -64,6 +69,7 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = TRACE_SEGMENT_ID, length = 150)
+    @BanyanDBGlobalIndex(extraFields = {SPAN_ID})
     private String traceSegmentId;
     @Setter
     @Getter
@@ -75,7 +81,8 @@ public abstract class AbstractLogRecord extends Record {
     private int contentType = ContentType.NONE.value();
     @Setter
     @Getter
-    @Column(columnName = CONTENT, length = 1_000_000, matchQuery = true, analyzer = Column.AnalyzerType.OAP_LOG_ANALYZER)
+    @Column(columnName = CONTENT, length = 1_000_000)
+    @ElasticSearchMatchQuery(analyzer = ElasticSearchMatchQuery.AnalyzerType.OAP_LOG_ANALYZER)
     private String content;
     @Setter
     @Getter

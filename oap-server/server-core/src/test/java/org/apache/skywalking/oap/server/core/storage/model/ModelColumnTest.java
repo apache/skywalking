@@ -19,31 +19,35 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ModelColumnTest {
     @Test
     public void testColumnDefine() {
-        ModelColumn column = new ModelColumn(new ColumnName("", "abc"), byte[].class, byte[].class, true,
+        ModelColumn column = new ModelColumn(new ColumnName("", "abc"), byte[].class, byte[].class,
                                              false, false, true, 0,
-                                             Column.AnalyzerType.OAP_ANALYZER, 0
+                                             new ElasticSearchExtension(
+                                                 ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
+                                             new BanyanDBExtension(-1, null)
         );
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
 
-        column = new ModelColumn(new ColumnName("", "abc"), DataTable.class, DataTable.class, true,
+        column = new ModelColumn(new ColumnName("", "abc"), DataTable.class, DataTable.class,
                                  false, false, true, 200,
-                                 Column.AnalyzerType.OAP_ANALYZER, 0
+                                 new ElasticSearchExtension(ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
+                                 new BanyanDBExtension(-1, null)
         );
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
         Assert.assertEquals(200, column.getLength());
 
-        column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class, true,
+        column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
                                  false, false, true, 200,
-                                 Column.AnalyzerType.OAP_ANALYZER, 0
+                                 new ElasticSearchExtension(ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
+                                 new BanyanDBExtension(-1, null)
         );
         Assert.assertEquals(false, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
@@ -52,16 +56,20 @@ public class ModelColumnTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConflictDefinition() {
         ModelColumn column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
-                                             true, true, false, true, 200,
-                                             Column.AnalyzerType.OAP_ANALYZER, 0
+                                             true, false, true, 200,
+                                             new ElasticSearchExtension(
+                                                 ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
+                                             new BanyanDBExtension(-1, null)
         );
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConflictDefinitionIndexOnly() {
         ModelColumn column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
-                                             true, true, true, false, 200,
-                                             Column.AnalyzerType.OAP_ANALYZER, 0
+                                             true, true, false, 200,
+                                             new ElasticSearchExtension(
+                                                 ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
+                                             new BanyanDBExtension(-1, null)
         );
     }
 }
