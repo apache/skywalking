@@ -150,7 +150,7 @@ swagger-annotations-1.6.3.jar
 tsfile-0.12.5.jar
 vavr-0.10.3.jar
 vavr-match-0.10.3.jar
-zipkin-2.9.1.jar
+zipkin-2.23.16.jar
 zookeeper-3.5.7.jar
 zookeeper-jute-3.5.7.jar
 zstd-jni-1.4.3-1.jar

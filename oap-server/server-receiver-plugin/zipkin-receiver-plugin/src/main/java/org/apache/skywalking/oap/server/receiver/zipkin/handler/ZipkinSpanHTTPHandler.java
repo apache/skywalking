@@ -109,7 +109,7 @@ public class ZipkinSpanHTTPHandler {
         final HistogramMetrics.Timer timer = histogram.createTimer();
         final HttpResponse response = HttpResponse.from(req.aggregate().thenApply(request -> {
             final HttpData httpData = UnzippingBytesRequestConverter.convertRequest(ctx, request);
-            final List<Span> spanList = decoder.decodeList(httpData.byteBuf().array());
+            final List<Span> spanList = decoder.decodeList(httpData.byteBuf().nioBuffer());
             final SpanForward forward = new SpanForward(namingControl, sourceReceiver, config);
             forward.send(spanList);
             return HttpResponse.of(HttpStatus.OK);
