@@ -65,6 +65,7 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = TRACE_ID, length = 150)
+    @BanyanDBGlobalIndex(extraFields = {})
     private String traceId;
     @Setter
     @Getter
