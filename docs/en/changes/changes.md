@@ -9,8 +9,9 @@
 * Add component definition(ID=127) for `Apache ShenYu (incubating)`.
 * Fix Zipkin receiver: Decode spans error, missing `Layer` for V9 and wrong time bucket for generate Service and
   Endpoint.
-* [Refactor] Move ElasticSearch and BanyanDB specific configurations out of column.
+* [Refactor] Move SQLDatabase(H2/MySQL/PostgreSQL), ElasticSearch and BanyanDB specific configurations out of column.
 * Support BanyanDB global index for entities. Log and Segment record entities declare this new feature.
+* Remove unnecessary analyzer settings in columns of templates. Many were added due to analyzer's default value.
 
 #### UI
 

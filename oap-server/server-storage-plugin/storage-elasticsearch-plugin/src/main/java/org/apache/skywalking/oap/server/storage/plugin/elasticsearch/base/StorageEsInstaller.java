@@ -214,6 +214,9 @@ public class StorageEsInstaller extends ModelInstaller {
     private Map getAnalyzerSetting(List<ModelColumn> analyzerTypes) throws StorageException {
         AnalyzerSetting analyzerSetting = new AnalyzerSetting();
         for (final ModelColumn column : analyzerTypes) {
+            if (!column.getElasticSearchExtension().needMatchQuery()) {
+                continue;
+            }
             AnalyzerSetting setting = AnalyzerSetting.Generator.getGenerator(
                                                          column.getElasticSearchExtension().getAnalyzer())
                                                                .getGenerateFunc()

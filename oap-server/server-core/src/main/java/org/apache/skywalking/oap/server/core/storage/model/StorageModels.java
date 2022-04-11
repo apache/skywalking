@@ -59,15 +59,13 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         DefaultScopeDefine.nameOf(scopeId);
 
         List<ModelColumn> modelColumns = new ArrayList<>();
-        List<ExtraQueryIndex> extraQueryIndices = new ArrayList<>();
         ShardingKeyChecker checker = new ShardingKeyChecker();
-        retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices, scopeId, checker);
+        retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker);
         checker.check(storage.getModelName());
 
         Model model = new Model(
             storage.getModelName(),
             modelColumns,
-            extraQueryIndices,
             scopeId,
             storage.getDownsampling(),
             record,
@@ -107,7 +105,6 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     private void retrieval(final Class<?> clazz,
                            final String modelName,
                            final List<ModelColumn> modelColumns,
-                           final List<ExtraQueryIndex> extraQueryIndices,
                            final int scopeId,
                            ShardingKeyChecker checker) {
         if (log.isDebugEnabled()) {
@@ -136,6 +133,24 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     }
                 }
 
+                // SQL Database extension
+                SQLDatabaseExtension sqlDatabaseExtension = new SQLDatabaseExtension();
+                List<QueryUnifiedIndex> indexDefinitions = new ArrayList<>();
+                if (field.isAnnotationPresent(QueryUnifiedIndex.class)) {
+                    indexDefinitions.add(field.getAnnotation(QueryUnifiedIndex.class));
+                }
+
+                if (field.isAnnotationPresent(MultipleQueryUnifiedIndex.class)) {
+                    Collections.addAll(indexDefinitions, field.getAnnotation(MultipleQueryUnifiedIndex.class).value());
+                }
+
+                indexDefinitions.forEach(indexDefinition -> {
+                    sqlDatabaseExtension.appendIndex(new SQLDatabaseExtension.MultiColumnsIndex(
+                        column.columnName(),
+                        indexDefinition.withColumns()
+                    ));
+                });
+
                 // ElasticSearch extension
                 final ElasticSearchMatchQuery elasticSearchAnalyzer = field.getAnnotation(
                     ElasticSearchMatchQuery.class);
@@ -162,6 +177,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     column.indexOnly(),
                     column.dataType().isValue(),
                     columnLength,
+                    sqlDatabaseExtension,
                     elasticSearchExtension,
                     banyanDBExtension
                 );
@@ -179,25 +195,11 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                         column.defaultValue(), scopeId
                     );
                 }
-
-                List<QueryUnifiedIndex> indexDefinitions = new ArrayList<>();
-                if (field.isAnnotationPresent(QueryUnifiedIndex.class)) {
-                    indexDefinitions.add(field.getAnnotation(QueryUnifiedIndex.class));
-                }
-
-                if (field.isAnnotationPresent(MultipleQueryUnifiedIndex.class)) {
-                    Collections.addAll(indexDefinitions, field.getAnnotation(MultipleQueryUnifiedIndex.class).value());
-                }
-
-                indexDefinitions.forEach(indexDefinition -> extraQueryIndices.add(new ExtraQueryIndex(
-                    column.columnName(),
-                    indexDefinition.withColumns()
-                )));
             }
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {
-            retrieval(clazz.getSuperclass(), modelName, modelColumns, extraQueryIndices, scopeId, checker);
+            retrieval(clazz.getSuperclass(), modelName, modelColumns, scopeId, checker);
         }
     }
 
@@ -210,8 +212,12 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
     private void followColumnNameRules(Model model) {
         columnNameOverrideRule.forEach((oldName, newName) -> {
-            model.getColumns().forEach(column -> column.getColumnName().overrideName(oldName, newName));
-            model.getExtraQueryIndices().forEach(extraQueryIndex -> extraQueryIndex.overrideName(oldName, newName));
+            model.getColumns().forEach(column -> {
+                column.getColumnName().overrideName(oldName, newName);
+                column.getSqlDatabaseExtension()
+                      .getIndices()
+                      .forEach(extraQueryIndex -> extraQueryIndex.overrideName(oldName, newName));
+            });
         });
     }
 

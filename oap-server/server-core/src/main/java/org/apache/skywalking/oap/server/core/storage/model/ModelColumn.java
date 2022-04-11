@@ -45,6 +45,12 @@ public class ModelColumn {
     private final int length;
 
     /**
+     * Hold configurations especially for SQL Database, such as MySQL, H2, PostgreSQL
+     *
+     * @since 9.1.0
+     */
+    private SQLDatabaseExtension sqlDatabaseExtension;
+    /**
      * Hold configurations especially for ElasticSearch
      *
      * @since 9.1.0
@@ -64,12 +70,14 @@ public class ModelColumn {
                        boolean indexOnly,
                        boolean isValue,
                        int length,
+                       SQLDatabaseExtension sqlDatabaseExtension,
                        ElasticSearchExtension elasticSearchExtension,
                        BanyanDBExtension banyanDBExtension) {
         this.columnName = columnName;
         this.type = type;
         this.genericType = genericType;
         this.length = length;
+        this.sqlDatabaseExtension = sqlDatabaseExtension;
         this.elasticSearchExtension = elasticSearchExtension;
         /*
          * byte[] and {@link IntKeyLongValueHashMap} could never be query.

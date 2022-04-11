@@ -28,6 +28,7 @@ public class ModelColumnTest {
     public void testColumnDefine() {
         ModelColumn column = new ModelColumn(new ColumnName("", "abc"), byte[].class, byte[].class,
                                              false, false, true, 0,
+                                             new SQLDatabaseExtension(),
                                              new ElasticSearchExtension(
                                                  ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
                                              new BanyanDBExtension(-1, null)
@@ -37,6 +38,7 @@ public class ModelColumnTest {
 
         column = new ModelColumn(new ColumnName("", "abc"), DataTable.class, DataTable.class,
                                  false, false, true, 200,
+                                 new SQLDatabaseExtension(),
                                  new ElasticSearchExtension(ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
                                  new BanyanDBExtension(-1, null)
         );
@@ -46,6 +48,7 @@ public class ModelColumnTest {
 
         column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
                                  false, false, true, 200,
+                                 new SQLDatabaseExtension(),
                                  new ElasticSearchExtension(ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
                                  new BanyanDBExtension(-1, null)
         );
@@ -57,6 +60,7 @@ public class ModelColumnTest {
     public void testConflictDefinition() {
         ModelColumn column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
                                              true, false, true, 200,
+                                             new SQLDatabaseExtension(),
                                              new ElasticSearchExtension(
                                                  ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
                                              new BanyanDBExtension(-1, null)
@@ -67,6 +71,7 @@ public class ModelColumnTest {
     public void testConflictDefinitionIndexOnly() {
         ModelColumn column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
                                              true, true, false, 200,
+                                             new SQLDatabaseExtension(),
                                              new ElasticSearchExtension(
                                                  ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
                                              new BanyanDBExtension(-1, null)
