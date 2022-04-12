@@ -49,15 +49,13 @@ public @interface Column {
     int defaultValue() default 0;
 
     /**
-     * The column is just saved, never used in query.
+     * The column is just saved, never used as a query condition.
      */
     boolean storageOnly() default false;
 
     /**
-     * The column(field) is just indexed, never stored. Note: this feature only supported by elasticsearch and don't
-     * support mappings update due to ElasticSearch server's limitation.
-     *
-     * NOTICE, metrics should not use this, as the OAP core merges indices of metrics automatically.
+     * The column(field) is just indexed, never stored(not available in query projection).
+     * Note: this feature only supported by elasticsearch.
      */
     boolean indexOnly() default false;
 
