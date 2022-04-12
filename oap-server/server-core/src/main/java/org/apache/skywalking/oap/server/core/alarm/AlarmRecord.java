@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcess
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
@@ -68,7 +69,8 @@ public class AlarmRecord extends Record {
     private String id1;
     @Column(columnName = START_TIME)
     private long startTime;
-    @Column(columnName = ALARM_MESSAGE, matchQuery = true)
+    @Column(columnName = ALARM_MESSAGE)
+    @ElasticSearchMatchQuery
     private String alarmMessage;
     @Column(columnName = RULE_NAME)
     private String ruleName;

@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-set -e
+set -ex
 
 tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist
 

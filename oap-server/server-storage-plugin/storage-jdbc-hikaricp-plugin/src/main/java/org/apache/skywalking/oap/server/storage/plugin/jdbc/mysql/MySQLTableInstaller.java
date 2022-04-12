@@ -25,9 +25,9 @@ import java.sql.SQLException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.model.ExtraQueryIndex;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseExtension;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
@@ -76,7 +76,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
                                       Model model) throws JDBCClientException {
         int indexSeq = 0;
         for (final ModelColumn modelColumn : model.getColumns()) {
-            if (!modelColumn.isStorageOnly() && modelColumn.getLength() < 256) {
+            if (modelColumn.shouldIndex() && modelColumn.getLength() < 256) {
                 final Class<?> type = modelColumn.getType();
                 if (List.class.isAssignableFrom(type)) {
                     for (int i = 0; i < maxSizeOfArrayColumn; i++) {
@@ -104,22 +104,25 @@ public class MySQLTableInstaller extends H2TableInstaller {
             }
         }
 
-        for (final ExtraQueryIndex extraQueryIndex : model.getExtraQueryIndices()) {
-            SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-            tableIndexSQL.append(model.getName().toUpperCase())
-                         .append("_")
-                         .append(String.valueOf(indexSeq++))
-                         .append("_IDX ");
-            tableIndexSQL.append(" ON ").append(model.getName()).append("(");
-            final String[] columns = extraQueryIndex.getColumns();
-            for (int i = 0; i < columns.length; i++) {
-                tableIndexSQL.append(columns[i]);
-                if (i < columns.length - 1) {
-                    tableIndexSQL.append(",");
+        for (final ModelColumn modelColumn : model.getColumns()) {
+            for (final SQLDatabaseExtension.MultiColumnsIndex index : modelColumn.getSqlDatabaseExtension()
+                                                                                 .getIndices()) {
+                SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+                tableIndexSQL.append(model.getName().toUpperCase())
+                             .append("_")
+                             .append(String.valueOf(indexSeq++))
+                             .append("_IDX ");
+                tableIndexSQL.append(" ON ").append(model.getName()).append("(");
+                final String[] columns = index.getColumns();
+                for (int i = 0; i < columns.length; i++) {
+                    tableIndexSQL.append(columns[i]);
+                    if (i < columns.length - 1) {
+                        tableIndexSQL.append(",");
+                    }
                 }
+                tableIndexSQL.append(")");
+                createIndex(client, connection, model, tableIndexSQL);
             }
-            tableIndexSQL.append(")");
-            createIndex(client, connection, model, tableIndexSQL);
         }
     }
 
