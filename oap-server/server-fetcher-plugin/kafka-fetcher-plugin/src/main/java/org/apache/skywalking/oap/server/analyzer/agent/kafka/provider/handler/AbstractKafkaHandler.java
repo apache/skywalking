@@ -45,10 +45,4 @@ public abstract class AbstractKafkaHandler implements KafkaHandler {
     }
 
     protected abstract String getPlainTopic();
-
-    @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
-    }
-
 }
