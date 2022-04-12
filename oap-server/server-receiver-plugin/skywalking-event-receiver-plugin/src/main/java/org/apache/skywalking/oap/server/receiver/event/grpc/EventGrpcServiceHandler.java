@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.event.v3.Event;
 import org.apache.skywalking.apm.network.event.v3.EventServiceGrpc;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerModule;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerService;
@@ -66,6 +67,12 @@ public class EventGrpcServiceHandler extends EventServiceGrpc.EventServiceImplBa
             @Override
             public void onNext(final Event event) {
                 try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                    // Check event's layer
+                    if (event.getLayer().isEmpty()) {
+                        throw new IllegalArgumentException("layer field is required since v9.0.0, please upgrade your event report tools");
+                    }
+                    Layer.nameOf(event.getLayer());
+
                     eventAnalyzerService.analyze(event);
                 } catch (Exception e) {
                     errorCounter.inc();

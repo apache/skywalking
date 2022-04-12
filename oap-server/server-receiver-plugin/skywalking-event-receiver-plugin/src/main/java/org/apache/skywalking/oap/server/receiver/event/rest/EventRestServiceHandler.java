@@ -18,12 +18,15 @@
 package org.apache.skywalking.oap.server.receiver.event.rest;
 
 import com.linecorp.armeria.server.annotation.Post;
+
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.event.v3.Event;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerService;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -41,27 +44,35 @@ public class EventRestServiceHandler {
 
     public EventRestServiceHandler(final ModuleManager manager) {
         final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
-                                                     .provider()
-                                                     .getService(MetricsCreator.class);
+                .provider()
+                .getService(MetricsCreator.class);
 
         eventAnalyzerService = manager.find(EventAnalyzerModule.NAME)
-                                      .provider()
-                                      .getService(EventAnalyzerService.class);
+                .provider()
+                .getService(EventAnalyzerService.class);
 
         histogram = metricsCreator.createHistogramMetric(
-            "event_in_latency", "The process latency of event data",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
+                "event_in_latency", "The process latency of event data",
+                new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
         errorCounter = metricsCreator.createCounter(
-            "event_error_count", "The error number of event analysis",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
+                "event_error_count", "The error number of event analysis",
+                new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
     }
 
     @Post("/v3/events")
     public Commands collectEvents(final List<Event> events) {
         try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
-            events.forEach(eventAnalyzerService::analyze);
+            events.forEach(e -> {
+                // Check event's layer
+                if (e.getLayer().isEmpty()) {
+                    throw new IllegalArgumentException("layer field is required since v9.0.0, please upgrade your event report tools");
+                }
+                Layer.nameOf(e.getLayer());
+
+                eventAnalyzerService.analyze(e);
+            });
             return Commands.newBuilder().build();
         } catch (Exception e) {
             errorCounter.inc();

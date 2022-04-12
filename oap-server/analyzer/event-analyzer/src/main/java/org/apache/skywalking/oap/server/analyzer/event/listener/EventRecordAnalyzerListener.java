@@ -51,9 +51,6 @@ public class EventRecordAnalyzerListener implements EventAnalyzerListener {
 
     @Override
     public void parse(final org.apache.skywalking.apm.network.event.v3.Event e) {
-        if (e.getLayer().isEmpty()) {
-            throw new IllegalArgumentException("layer field is required since v9.0.0, please upgrade your event report tools");
-        }
         event.setLayer(Layer.nameOf(e.getLayer()));
 
         event.setUuid(e.getUuid());
