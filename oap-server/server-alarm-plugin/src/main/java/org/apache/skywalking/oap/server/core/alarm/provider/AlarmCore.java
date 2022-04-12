@@ -75,13 +75,13 @@ public class AlarmCore {
                     lastExecuteTime = checkTime.minusSeconds(checkTime.getSecondOfMinute());
                 }
 
-                if (alarmMessageList.size() > 0) {
-                    if (alarmRulesWatcher.getCompositeRules().size() > 0) {
+                if (!alarmMessageList.isEmpty()) {
+                    if (!alarmRulesWatcher.getCompositeRules().isEmpty()) {
                         List<AlarmMessage> messages = alarmRulesWatcher.getCompositeRuleEvaluator().evaluate(alarmRulesWatcher.getCompositeRules(), alarmMessageList);
                         alarmMessageList.addAll(messages);
                     }
                     List<AlarmMessage> filteredMessages = alarmMessageList.stream().filter(msg -> !msg.isOnlyAsCondition()).collect(Collectors.toList());
-                    if (filteredMessages.size() > 0) {
+                    if (!filteredMessages.isEmpty()) {
                         allCallbacks.forEach(callback -> callback.doAlarm(filteredMessages));
                     }
                 }
