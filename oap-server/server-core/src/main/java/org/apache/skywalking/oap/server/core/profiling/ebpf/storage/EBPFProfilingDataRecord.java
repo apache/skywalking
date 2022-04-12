@@ -24,6 +24,7 @@ import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -48,7 +49,8 @@ public class EBPFProfilingDataRecord extends Record {
     public static final String STACKS_BINARY = "dump_binary";
     public static final String UPLOAD_TIME = "upload_time";
 
-    @Column(columnName = TASK_ID, length = 600, shardingKeyIdx = 0)
+    @Column(columnName = TASK_ID, length = 600)
+    @BanyanDBShardingKey(index = 0)
     private String taskId;
     @Column(columnName = SCHEDULE_ID, length = 600)
     private String scheduleId;

@@ -74,12 +74,10 @@ public class StorageModelsTest {
         Assert.assertEquals(false, model.getColumns().get(2).isStorageOnly());
         Assert.assertEquals(true, model.getColumns().get(3).isStorageOnly());
 
-        final List<ExtraQueryIndex> extraQueryIndices = model.getExtraQueryIndices();
-        Assert.assertEquals(3, extraQueryIndices.size());
         Assert.assertArrayEquals(new String[] {
             "column2",
             "column"
-        }, extraQueryIndices.get(2).getColumns());
+        }, model.getColumns().get(2).getSqlDatabaseExtension().getIndices().get(1).getColumns());
     }
 
     @Stream(name = "StorageModelsTest", scopeId = -1, builder = TestModel.Builder.class, processor = MetricsStreamProcessor.class)

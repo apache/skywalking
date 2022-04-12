@@ -36,13 +36,13 @@ public class TimeSeriesUtilsTest {
 
     @Before
     public void prepare() {
-        superDatasetModel = new Model("superDatasetModel", Lists.newArrayList(), Lists.newArrayList(),
+        superDatasetModel = new Model("superDatasetModel", Lists.newArrayList(),
                                       0, DownSampling.Minute, true, true, "", true
         );
-        normalRecordModel = new Model("normalRecordModel", Lists.newArrayList(), Lists.newArrayList(),
+        normalRecordModel = new Model("normalRecordModel", Lists.newArrayList(),
                                       0, DownSampling.Minute, true, false, "", true
         );
-        normalMetricsModel = new Model("normalMetricsModel", Lists.newArrayList(), Lists.newArrayList(),
+        normalMetricsModel = new Model("normalMetricsModel", Lists.newArrayList(),
                                        0, DownSampling.Minute, false, false, "", true
         );
         TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(1);

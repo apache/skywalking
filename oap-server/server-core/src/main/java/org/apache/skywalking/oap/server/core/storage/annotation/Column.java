@@ -49,11 +49,6 @@ public @interface Column {
     int defaultValue() default 0;
 
     /**
-     * Match query means using analyzer(if storage have) to do key word match query.
-     */
-    boolean matchQuery() default false;
-
-    /**
      * The column is just saved, never used in query.
      */
     boolean storageOnly() default false;
@@ -93,57 +88,6 @@ public @interface Column {
      * @since 8.0.0
      */
     ValueDataType dataType() default ValueDataType.NOT_VALUE;
-
-    /**
-     * The storage analyzer mode.
-     *
-     * @since 8.4.0
-     */
-    AnalyzerType analyzer() default AnalyzerType.OAP_ANALYZER;
-
-    /**
-     * Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same
-     * row for column-oriented database).
-     * For example,
-     * ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded
-     * by service ID
-     * [ServiceA(encoded ID): 01-28 18:30 values-1, 01-28 18:31 values-2, 01-28 18:32 values-3, 01-28 18:32 values-4]
-     *
-     * BanyanDB is the 1st storage implementation supporting this. It would make continuous time series metrics stored
-     * closely and compressed better.
-     *
-     * 1. One entity could have multiple sharding keys
-     * 2. If no column is appointed for this, {@link org.apache.skywalking.oap.server.core.storage.StorageData#id}
-     * would be used by the storage implementation accordingly.
-     *
-     * NOTICE, this sharding concept is NOT just for splitting data into different database instances or physical
-     * files.
-     *
-     * @return non-negative if this column be used for sharding. -1 means not as a sharding key
-     * @since 9.0.0
-     */
-    int shardingKeyIdx() default -1;
-
-    /**
-     * The analyzer declares the text analysis mode.
-     */
-    enum AnalyzerType {
-        /**
-         * The default analyzer.
-         */
-        OAP_ANALYZER("oap_analyzer"),
-        /**
-         * The log analyzer.
-         */
-        OAP_LOG_ANALYZER("oap_log_analyzer");
-
-        @Getter
-        private final String name;
-
-        AnalyzerType(final String name) {
-            this.name = name;
-        }
-    }
 
     /**
      * ValueDataType represents the data structure of value column. The persistent way of the value column determine the

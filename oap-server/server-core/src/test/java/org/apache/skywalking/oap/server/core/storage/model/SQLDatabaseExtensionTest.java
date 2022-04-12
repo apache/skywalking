@@ -21,10 +21,11 @@ package org.apache.skywalking.oap.server.core.storage.model;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ExtraQueryIndexTest {
+public class SQLDatabaseExtensionTest {
     @Test
     public void testIndexColumns() {
-        final ExtraQueryIndex extraQueryIndex = new ExtraQueryIndex("a1", new String[] {"a2"});
+        final SQLDatabaseExtension.MultiColumnsIndex extraQueryIndex = new SQLDatabaseExtension.MultiColumnsIndex(
+            "a1", new String[] {"a2"});
         Assert.assertArrayEquals(new String[] {
             "a1",
             "a2"
@@ -33,6 +34,7 @@ public class ExtraQueryIndexTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testIllegalIndexColumns() {
-        ExtraQueryIndex extraQueryIndex = new ExtraQueryIndex("a1", new String[0]);
+        SQLDatabaseExtension.MultiColumnsIndex extraQueryIndex = new SQLDatabaseExtension.MultiColumnsIndex(
+            "a1", new String[0]);
     }
 }
