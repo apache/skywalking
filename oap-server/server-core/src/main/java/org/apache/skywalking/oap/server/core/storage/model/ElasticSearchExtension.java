@@ -16,24 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
+package org.apache.skywalking.oap.server.core.storage.model;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.utils.Bytes;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
 
 /**
- * A Handler for dealing Message reported by agent. It is binding to a topic of Kafka, and deserialize.
+ * ElasticSearchExtension represents extra metadata for columns, but specific for ElasticSearch usages.
+ *
+ * @since 9.1.0
  */
-public interface KafkaHandler {
-
+@Getter
+@RequiredArgsConstructor
+public class ElasticSearchExtension {
     /**
-     * A topic of Kafka is handled.
+     * The analyzer policy appointed to fuzzy query, especially for ElasticSearch.
+     * When it is null, it means no need to build match query, no `copy_to` column, and no analyzer assigned.
      */
-    String getTopic();
+    private final ElasticSearchMatchQuery.AnalyzerType analyzer;
 
-    /**
-     * Deserialize and push it to downstream.
-     */
-    void handle(ConsumerRecord<String, Bytes> record);
-
+    public boolean needMatchQuery() {
+        return analyzer != null;
+    }
 }

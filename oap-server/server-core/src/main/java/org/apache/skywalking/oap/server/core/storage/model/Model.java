@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 public class Model {
     private final String name;
     private final List<ModelColumn> columns;
-    private final List<ExtraQueryIndex> extraQueryIndices;
     private final int scopeId;
     private final DownSampling downsampling;
     private final boolean record;
@@ -42,7 +41,6 @@ public class Model {
 
     public Model(final String name,
                  final List<ModelColumn> columns,
-                 final List<ExtraQueryIndex> extraQueryIndices,
                  final int scopeId,
                  final DownSampling downsampling,
                  final boolean record,
@@ -51,7 +49,6 @@ public class Model {
                  boolean timeRelativeID) {
         this.name = name;
         this.columns = columns;
-        this.extraQueryIndices = extraQueryIndices;
         this.scopeId = scopeId;
         this.downsampling = downsampling;
         this.isTimeSeries = !DownSampling.None.equals(downsampling);

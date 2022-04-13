@@ -43,6 +43,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -74,7 +75,8 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, shardingKeyIdx = 0)
+    @Column(columnName = ENTITY_ID)
+    @BanyanDBShardingKey(index = 0)
     private String entityId;
     @Getter
     @Setter

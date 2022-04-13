@@ -1,5 +1,5 @@
-5.1.0
-------------------
+## 5.1.0
+
 #### Agent Changes
   - Fix spring inherit issue in another way
   - Fix classloader dead lock in jdk7+ - 5.x
@@ -10,8 +10,7 @@
   - Fix too many open files.
   - Fix the buffer file cannot delete.
 
-5.0.0-GA
-------------------
+## 5.0.0-GA
 
 #### Agent Changes
   - Add several package names ignore in agent settings. Classes in these packages would be enhanced, even plugin declared.
@@ -27,8 +26,7 @@
   - Update new live demo address.
 
 
-5.0.0-RC2
-------------------
+## 5.0.0-RC2
 
 #### Agent Changes
   - Support ActiveMQ 5.x
@@ -67,8 +65,7 @@
 [Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/27?closed=1)
 
 
-5.0.0-beta2
-------------------
+## 5.0.0-beta2
 
 #### UI -> Collector GraphQL query protocol
   - Add order and status in trace query. 
@@ -130,9 +127,8 @@
   - Add incubating sections in doc.
 
 [Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/28?closed=1)
-  
-5.0.0-beta
-------------------
+
+## 5.0.0-beta
  
 #### UI -> Collector GraphQL query protocol
   - Replace all tps to throughput/cpm(calls per min)
@@ -192,9 +188,8 @@
    - Sync all English document to Chinese.
  
 [Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/24?closed=1)
- 
-5.0.0-alpha
-------------------
+
+## 5.0.0-alpha
  
 #### Agent -> Collector protocol
  - Remove C++ keywords

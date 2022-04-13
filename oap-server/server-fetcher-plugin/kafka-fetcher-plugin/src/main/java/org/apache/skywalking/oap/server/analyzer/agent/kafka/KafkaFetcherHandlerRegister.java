@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.analyzer.agent.kafka;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Iterator;
@@ -39,12 +38,10 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
-import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.KafkaHandler;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.server.pool.CustomThreadFactory;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -58,14 +55,9 @@ public class KafkaFetcherHandlerRegister {
     private ImmutableMap.Builder<String, KafkaHandler> builder = ImmutableMap.builder();
     private ImmutableMap<String, KafkaHandler> handlerMap;
 
-    private List<TopicPartition> topicPartitions = Lists.newArrayList();
-    private KafkaConsumer<String, Bytes> consumer = null;
     private final KafkaFetcherConfig config;
-    private final boolean isSharding;
     private final Properties properties;
 
-    private int threadPoolSize = Runtime.getRuntime().availableProcessors() * 2;
-    private int threadPoolQueueSize = 10000;
     private final ThreadPoolExecutor executor;
     private final boolean enableKafkaMessageAutoCommit;
     private List<KafkaConsumer<String, Bytes>> consumers = Lists.newArrayList();
@@ -78,14 +70,11 @@ public class KafkaFetcherHandlerRegister {
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, config.getGroupId());
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
 
-        if (config.isSharding() && StringUtil.isNotEmpty(config.getConsumePartitions())) {
-            isSharding = true;
-        } else {
-            isSharding = false;
-        }
+        int threadPoolSize = Runtime.getRuntime().availableProcessors() * 2;
         if (config.getKafkaHandlerThreadPoolSize() > 0) {
             threadPoolSize = config.getKafkaHandlerThreadPoolSize();
         }
+        int threadPoolQueueSize = 10000;
         if (config.getKafkaHandlerThreadPoolQueueSize() > 0) {
             threadPoolQueueSize = config.getKafkaHandlerThreadPoolQueueSize();
         }
@@ -108,34 +97,29 @@ public class KafkaFetcherHandlerRegister {
 
     public void register(KafkaHandler handler) {
         builder.put(handler.getTopic(), handler);
-        topicPartitions.addAll(handler.getTopicPartitions());
     }
 
     public void start() throws ModuleStartException {
         handlerMap = builder.build();
+        builder = null;
+
         createTopicIfNeeded(handlerMap.keySet(), properties);
         for (KafkaConsumer<String, Bytes> consumer : consumers) {
-            if (isSharding) {
-                consumer.assign(topicPartitions);
-            } else {
-                consumer.subscribe(handlerMap.keySet());
-            }
+            consumer.subscribe(handlerMap.keySet());
             consumer.seekToEnd(consumer.assignment());
             executor.submit(() -> {
-                runTask(consumer, 500L);
+                runTask(consumer);
             });
         }
     }
 
-    private void runTask(final KafkaConsumer<String, Bytes> consumer, final long millis) {
+    private void runTask(final KafkaConsumer<String, Bytes> consumer) {
         while (true) {
             try {
-                ConsumerRecords<String, Bytes> consumerRecords = consumer.poll(Duration.ofMillis(millis));
+                ConsumerRecords<String, Bytes> consumerRecords = consumer.poll(Duration.ofMillis(500L));
                 if (!consumerRecords.isEmpty()) {
-                    Iterator<ConsumerRecord<String, Bytes>> iterator = consumerRecords.iterator();
-                    while (iterator.hasNext()) {
-                        ConsumerRecord<String, Bytes> record = iterator.next();
-                        executor.submit(() -> handlerMap.get(record.topic()).handle(record));
+                    for (final ConsumerRecord<String, Bytes> record : consumerRecords) {
+                        executor.submit(() -> Objects.requireNonNull(handlerMap.get(record.topic())).handle(record));
                     }
                     if (!enableKafkaMessageAutoCommit) {
                         consumer.commitAsync();
@@ -148,7 +132,12 @@ public class KafkaFetcherHandlerRegister {
     }
 
     private void createTopicIfNeeded(Collection<String> topics, Properties properties) throws ModuleStartException {
-        AdminClient adminClient = AdminClient.create(properties);
+        Properties adminProps = new Properties();
+        adminProps.putAll(properties);
+        // remove 'group.id' to avoid unknown configure warning.
+        adminProps.remove(ConsumerConfig.GROUP_ID_CONFIG);
+
+        AdminClient adminClient = AdminClient.create(adminProps);
         Set<String> missedTopics = adminClient.describeTopics(topics)
                 .values()
                 .entrySet()
@@ -165,7 +154,7 @@ public class KafkaFetcherHandlerRegister {
                 .collect(Collectors.toSet());
 
         if (!missedTopics.isEmpty()) {
-            log.info("Topics" + missedTopics.toString() + " not exist.");
+            log.info("Topics " + missedTopics + " not exist.");
             List<NewTopic> newTopicList = missedTopics.stream()
                     .map(topic -> new NewTopic(
                             topic,

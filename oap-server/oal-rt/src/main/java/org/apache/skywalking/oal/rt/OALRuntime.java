@@ -71,6 +71,7 @@ import org.apache.skywalking.oap.server.core.source.oal.rt.metrics.MetricClassPa
 import org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder.MetricBuilderClassPackageHolder;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -269,7 +270,8 @@ public class OALRuntime implements OALEngine {
                 }
                 if (field.isID()) {
                     // Add shardingKeyIdx = 0 to column annotation.
-                    columnAnnotation.addMemberValue("shardingKeyIdx", new IntegerMemberValue(constPool, 0));
+                    Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDBShardingKey.class.getName(), constPool);
+                    banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
                 }
                 annotationsAttribute.addAnnotation(columnAnnotation);
 

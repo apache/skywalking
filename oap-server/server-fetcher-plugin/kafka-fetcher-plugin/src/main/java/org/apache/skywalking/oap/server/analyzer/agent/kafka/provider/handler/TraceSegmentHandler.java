@@ -69,7 +69,7 @@ public class TraceSegmentHandler extends AbstractKafkaHandler {
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        try (HistogramMetrics.Timer ignore = histogram.createTimer()) {
+        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
             SegmentObject segment = SegmentObject.parseFrom(record.value().get());
             if (log.isDebugEnabled()) {
                 log.debug(

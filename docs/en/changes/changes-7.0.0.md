@@ -1,5 +1,4 @@
-7.0.0
-------------------
+## 7.0.0
 
 #### Project
 * SkyWalking discards the supports of JDK 1.6 and 1.7 on the java agent side. The minimal requirement of JDK is JDK8.

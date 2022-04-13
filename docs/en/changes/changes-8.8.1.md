@@ -1,9 +1,4 @@
-Changes by Version
-==================
-Release Notes.
-
-8.8.1
-------------------
+## 8.8.1
 
 #### OAP Server
 * Fix wrong (de)serializer of ElasticSearch client for OpenSearch storage.

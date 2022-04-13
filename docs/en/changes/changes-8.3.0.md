@@ -1,8 +1,4 @@
-Changes by Version
-==================
-Release Notes.
-
-8.3.0
+## 8.3.0
 ------------------
 #### Project
 * Test: ElasticSearch version 7.0.0 and 7.9.3 as storage are E2E tested. 

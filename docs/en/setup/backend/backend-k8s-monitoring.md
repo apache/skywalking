@@ -1,4 +1,4 @@
-# K8s monitoring 
+# Kubernetes (K8s) monitoring 
 SkyWalking leverages K8s kube-state-metrics and cAdvisor for collecting metrics data from K8s, and leverages OpenTelemetry Collector to transfer the metrics to
 [OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md). This feature requires authorizing the OAP Server to access K8s's `API Server`.
 
@@ -14,11 +14,11 @@ SkyWalking leverages K8s kube-state-metrics and cAdvisor for collecting metrics 
 For a quick start, we have provided a full example of configuration and recommended version , you can refer to [showcase](https://github.com/apache/skywalking-showcase/tree/main/deploy/platform/kubernetes/feature-kubernetes-monitor).
 4. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
-## K8s Cluster Monitoring
-K8s cluster monitoring provide monitoring of the status and resources of the K8S Cluster, including the whole 
+## Kubernetes Cluster Monitoring
+K8s cluster monitoring provide monitoring of the status and resources of the K8s Cluster, including the whole 
 cluster and each node. K8s cluster as a `Service` in OAP, K8s node as a `Instance` in OAP, and land on the `Layer: K8S`.
 
-### K8s Cluster Supported Metrics
+### Kubernetes Cluster Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|
 | Node Total |      | k8s_cluster_node_total | The number of nodes | K8s kube-state-metrics|
@@ -38,7 +38,7 @@ cluster and each node. K8s cluster as a `Service` in OAP, K8s node as a `Instanc
 | Pod Status Waiting |      | k8s_cluster_pod_status_waiting | The pods and containers which are currently in the waiting status, with reasons shown | K8s kube-state-metrics|
 | Pod Status Terminated |      | k8s_cluster_container_status_terminated | The pods and containers which are currently in the terminated status, with reasons shown | K8s kube-state-metrics|
 
-### K8s Cluster Node Supported Metrics
+### Kubernetes Cluster Node Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|
 | Pod Total |      | k8s_node_pod_total | The number of pods in this node | K8s kube-state-metrics |
@@ -50,11 +50,11 @@ cluster and each node. K8s cluster as a `Service` in OAP, K8s node as a `Instanc
 | Memory Usage | Gi   | k8s_node_memory_usage | The totaly memory usage | cAdvisor |
 | Network I/O| KB/s | k8s_node_network_receive<br />k8s_node_network_transmit | The network receive and transmit | cAdvisor |
 
-## K8s Service Monitoring
+## Kubernetes Service Monitoring
 K8s Service Monitoring provide observe service status and resources from Kubernetes.
 K8s Service as a `Service` in OAP and land on the `Layer: K8S_SERVICE`.
 
-### K8s Service Supported Metrics
+### Kubernetes Service Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|-----|-----|-----|-----|
 | Service Pod Total |  | k8s_service_pod_total | The number of pods | K8s kube-state-metrics |

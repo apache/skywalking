@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -48,7 +49,8 @@ public abstract class HistogramFunction extends Meter implements AcceptableValue
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512, shardingKeyIdx = 0)
+    @Column(columnName = ENTITY_ID, length = 512)
+    @BanyanDBShardingKey(index = 0)
     private String entityId;
     @Getter
     @Setter

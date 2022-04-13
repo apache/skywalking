@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.zipkin.trace;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -62,7 +63,8 @@ public class SpanForward {
             zipkinSpan.setStartTime(startTime);
             long timeBucket = TimeBucket.getRecordTimeBucket(zipkinSpan.getStartTime());
             zipkinSpan.setTimeBucket(timeBucket);
-
+            long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(zipkinSpan.getStartTime());
+            
             String spanName = span.name();
             if (!StringUtil.isEmpty(spanName)) {
                 final String endpointName = namingControl.formatEndpointName(serviceName, spanName);
@@ -73,7 +75,7 @@ public class SpanForward {
                 EndpointMeta endpointMeta = new EndpointMeta();
                 endpointMeta.setServiceName(serviceName);
                 endpointMeta.setEndpoint(endpointName);
-                endpointMeta.setTimeBucket(timeBucket);
+                endpointMeta.setTimeBucket(minuteTimeBucket);
                 receiver.receive(endpointMeta);
             }
             long latency = span.durationAsLong() / 1000;
@@ -94,7 +96,8 @@ public class SpanForward {
             // No instance name is required in the Zipkin model.
             ServiceMeta serviceMeta = new ServiceMeta();
             serviceMeta.setName(serviceName);
-            serviceMeta.setTimeBucket(timeBucket);
+            serviceMeta.setTimeBucket(minuteTimeBucket);
+            serviceMeta.setLayer(Layer.GENERAL);
             receiver.receive(serviceMeta);
         });
     }

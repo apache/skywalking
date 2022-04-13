@@ -287,7 +287,7 @@ The text of each license is the standard Apache 2.0 license.
     servo 0.10.1: https://github.com/Netflix/servo, Apache 2.0
     validation-api 1.1.0.Final: http://beanvalidation.org/licensing/, Apache 2.0
     HikariCP 3.1.0: https://github.com/brettwooldridge/HikariCP, Apache 2.0
-    zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
+    zipkin 2.23.16: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
     kubernetes-client 14.0.0: https://github.com/kubernetes-client/java, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
