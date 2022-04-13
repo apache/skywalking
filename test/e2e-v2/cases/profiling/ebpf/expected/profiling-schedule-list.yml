@@ -35,6 +35,11 @@
       - name: command_line
         value: /sqrt
       {{- end }}
+    labels:
+      {{- contains .process.labels }}
+      - e2e-label1
+      - e2e-label2
+      {{- end }}
   starttime: {{ gt .starttime 0 }}
   endtime: {{ gt .endtime 0 }}
 {{- end }}

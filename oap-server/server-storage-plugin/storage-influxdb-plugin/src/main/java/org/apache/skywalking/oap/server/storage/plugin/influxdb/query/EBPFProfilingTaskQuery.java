@@ -19,17 +19,15 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import com.google.common.base.Joiner;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingProcessFinderType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.EBPFProfilingProcessFinder;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
@@ -51,17 +49,15 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 @Slf4j
 @RequiredArgsConstructor
 public class EBPFProfilingTaskQuery implements IEBPFProfilingTaskDAO {
+    private static final Gson GSON = new Gson();
     private final InfluxClient client;
 
     @Override
-    public List<EBPFProfilingTask> queryTasks(EBPFProfilingProcessFinder finder, EBPFProfilingTargetType targetType, long taskStartTime, long latestUpdateTime) throws IOException {
+    public List<EBPFProfilingTask> queryTasks(List<String> serviceIdList, EBPFProfilingTargetType targetType, long taskStartTime, long latestUpdateTime) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> query = select(
                 InfluxConstants.ID_COLUMN,
-                EBPFProfilingTaskRecord.PROCESS_FIND_TYPE,
                 EBPFProfilingTaskRecord.SERVICE_ID,
-                EBPFProfilingTaskRecord.INSTANCE_ID,
-                EBPFProfilingTaskRecord.PROCESS_ID,
-                EBPFProfilingTaskRecord.PROCESS_NAME,
+                EBPFProfilingTaskRecord.PROCESS_LABELS_JSON,
                 EBPFProfilingTaskRecord.START_TIME,
                 EBPFProfilingTaskRecord.TRIGGER_TYPE,
                 EBPFProfilingTaskRecord.FIXED_TRIGGER_DURATION,
@@ -72,18 +68,7 @@ public class EBPFProfilingTaskQuery implements IEBPFProfilingTaskDAO {
                 .from(client.getDatabase(), EBPFProfilingTaskRecord.INDEX_NAME)
                 .where();
 
-        if (finder.getFinderType() != null) {
-            query.and(eq(EBPFProfilingTaskRecord.PROCESS_FIND_TYPE, finder.getFinderType().value()));
-        }
-        if (StringUtil.isNotEmpty(finder.getServiceId())) {
-            query.and(eq(EBPFProfilingTaskRecord.SERVICE_ID, finder.getServiceId()));
-        }
-        if (StringUtil.isNotEmpty(finder.getInstanceId())) {
-            query.and(eq(EBPFProfilingTaskRecord.INSTANCE_ID, finder.getInstanceId()));
-        }
-        if (CollectionUtils.isNotEmpty(finder.getProcessIdList())) {
-            query.and(regex(EBPFProfilingTaskRecord.PROCESS_ID, "/" + Joiner.on("|").join(finder.getProcessIdList()) + "/"));
-        }
+        query.and(regex(EBPFProfilingTaskRecord.SERVICE_ID, "/" + Joiner.on("|").join(serviceIdList) + "/"));
         if (targetType != null) {
             query.and(eq(EBPFProfilingTaskRecord.TARGET_TYPE, targetType.value()));
         }
@@ -111,21 +96,21 @@ public class EBPFProfilingTaskQuery implements IEBPFProfilingTaskDAO {
         for (List<Object> values : series.getValues()) {
             final EBPFProfilingTask task = new EBPFProfilingTask();
             task.setTaskId((String) values.get(1));
-            task.setProcessFinderType(EBPFProfilingProcessFinderType.valueOf(((Number) values.get(2)).intValue()));
-            final String serviceId = (String) values.get(3);
+            final String serviceId = (String) values.get(2);
             task.setServiceId(serviceId);
             task.setServiceName(IDManager.ServiceID.analysisId(serviceId).getName());
-            final String instanceId = (String) values.get(4);
-            task.setInstanceId(instanceId);
-            task.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
-            task.setProcessId((String) values.get(5));
-            task.setProcessName((String) values.get(6));
-            task.setTaskStartTime(((Number) values.get(7)).longValue());
-            task.setTriggerType(EBPFProfilingTriggerType.valueOf(((Number) values.get(8)).intValue()));
-            task.setFixedTriggerDuration(((Number) values.get(9)).longValue());
-            task.setTargetType(EBPFProfilingTargetType.valueOf(((Number) values.get(10)).intValue()));
-            task.setCreateTime(((Number) values.get(11)).longValue());
-            task.setLastUpdateTime(((Number) values.get(12)).longValue());
+            final String processLabelString = (String) values.get(3);
+            if (StringUtil.isNotEmpty(processLabelString)) {
+                task.setProcessLabels(GSON.<List<String>>fromJson(processLabelString, ArrayList.class));
+            } else {
+                task.setProcessLabels(Collections.emptyList());
+            }
+            task.setTaskStartTime(((Number) values.get(4)).longValue());
+            task.setTriggerType(EBPFProfilingTriggerType.valueOf(((Number) values.get(5)).intValue()));
+            task.setFixedTriggerDuration(((Number) values.get(6)).longValue());
+            task.setTargetType(EBPFProfilingTargetType.valueOf(((Number) values.get(7)).intValue()));
+            task.setCreateTime(((Number) values.get(8)).longValue());
+            task.setLastUpdateTime(((Number) values.get(9)).longValue());
             tasks.add(task);
         }
 

@@ -56,6 +56,7 @@ public class ProcessTraffic extends Metrics {
     public static final String PROPERTIES = "properties";
     public static final String LAST_PING_TIME_BUCKET = "last_ping";
     public static final String DETECT_TYPE = "detect_type";
+    public static final String LABELS_JSON = "labels_json";
 
     private static final Gson GSON = new Gson();
 
@@ -103,6 +104,11 @@ public class ProcessTraffic extends Metrics {
     @Column(columnName = PROPERTIES, storageOnly = true, length = 50000)
     private JsonObject properties;
 
+    @Setter
+    @Getter
+    @Column(columnName = LABELS_JSON, storageOnly = true, length = 500)
+    private String labelsJson;
+
     @Override
     public boolean combine(Metrics metrics) {
         final ProcessTraffic processTraffic = (ProcessTraffic) metrics;
@@ -115,6 +121,9 @@ public class ProcessTraffic extends Metrics {
         }
         if (processTraffic.getDetectType() > 0) {
             this.detectType = processTraffic.getDetectType();
+        }
+        if (StringUtil.isNotEmpty(processTraffic.getLabelsJson())) {
+            this.labelsJson = processTraffic.getLabelsJson();
         }
         return true;
     }
@@ -135,6 +144,7 @@ public class ProcessTraffic extends Metrics {
         if (StringUtil.isNotEmpty(propString)) {
             setProperties(GSON.fromJson(propString, JsonObject.class));
         }
+        setLabelsJson(remoteData.getDataStrings(5));
         setLastPingTimestamp(remoteData.getDataLongs(0));
         setDetectType(remoteData.getDataIntegers(1));
         setTimeBucket(remoteData.getDataLongs(1));
@@ -153,6 +163,7 @@ public class ProcessTraffic extends Metrics {
         } else {
             builder.addDataStrings(GSON.toJson(properties));
         }
+        builder.addDataStrings(labelsJson);
         builder.addDataLongs(lastPingTimestamp);
         builder.addDataIntegers(detectType);
         builder.addDataLongs(getTimeBucket());
@@ -180,6 +191,7 @@ public class ProcessTraffic extends Metrics {
             if (StringUtil.isNotEmpty(propString)) {
                 processTraffic.setProperties(GSON.fromJson(propString, JsonObject.class));
             }
+            processTraffic.setLabelsJson((String) converter.get(LABELS_JSON));
             processTraffic.setLastPingTimestamp(((Number) converter.get(LAST_PING_TIME_BUCKET)).longValue());
             processTraffic.setDetectType(((Number) converter.get(DETECT_TYPE)).intValue());
             processTraffic.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
@@ -198,6 +210,7 @@ public class ProcessTraffic extends Metrics {
             } else {
                 converter.accept(PROPERTIES, Const.EMPTY_STRING);
             }
+            converter.accept(LABELS_JSON, storageData.getLabelsJson());
             converter.accept(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
             converter.accept(DETECT_TYPE, storageData.getDetectType());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());

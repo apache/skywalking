@@ -118,7 +118,7 @@ public class EBPFProfilingAnalyzeContext {
         }
 
         @Override
-        public List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime) throws IOException {
+        public List<EBPFProfilingDataRecord> queryData(List<String> taskIdList, long beginTime, long endTime) throws IOException {
             final ArrayList<EBPFProfilingDataRecord> records = new ArrayList<>();
             for (; beginTime < endTime; beginTime++) {
                 if (symbols.size() <= (int) beginTime) {

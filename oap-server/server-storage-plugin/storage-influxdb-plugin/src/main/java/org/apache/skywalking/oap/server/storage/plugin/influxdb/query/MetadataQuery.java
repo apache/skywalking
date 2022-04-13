@@ -59,6 +59,7 @@ import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxCon
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @RequiredArgsConstructor
@@ -158,11 +159,34 @@ public class MetadataQuery implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId, String agentId) throws IOException {
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId,
+                                       final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         final SelectQueryImpl query = select(
                 ID_COLUMN, NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
-                ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES)
+                ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES,
+                ProcessTraffic.LABELS_JSON)
                 .from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(query, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        return buildProcesses(query);
+    }
+
+    @Override
+    public long getProcessesCount(String serviceId, String instanceId, String agentId,
+                                  final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
+        final SelectQueryImpl query = select().count(ProcessTraffic.PROPERTIES).from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(query, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
+
+        List<QueryResult.Result> results = client.query(query);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), results);
+        }
+
+        List<QueryResult.Series> counter = results.get(0).getSeries();
+        return ((Number) counter.get(0).getValues().get(0).get(1)).longValue();
+    }
+
+    private void appendProcessWhereQuery(SelectQueryImpl query, String serviceId, String instanceId, String agentId,
+                                         final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) {
         final WhereQueryImpl<SelectQueryImpl> whereQuery = query.where();
         if (StringUtil.isNotEmpty(serviceId)) {
             whereQuery.and(eq(TagName.SERVICE_ID, serviceId));
@@ -173,8 +197,12 @@ public class MetadataQuery implements IMetadataQueryDAO {
         if (StringUtil.isNotEmpty(agentId)) {
             whereQuery.and(eq(TagName.AGENT_ID, agentId));
         }
-
-        return buildProcesses(query);
+        if (lastPingStartTimeBucket > 0) {
+            whereQuery.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
+        }
+        if (lastPingEndTimeBucket > 0) {
+            whereQuery.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingEndTimeBucket));
+        }
     }
 
     @Override
@@ -288,6 +316,11 @@ public class MetadataQuery implements IMetadataQueryDAO {
                     String value = property.getValue().getAsString();
                     process.getAttributes().add(new Attribute(key, value));
                 }
+            }
+            String labelJson = (String) values.get(9);
+            if (!Strings.isNullOrEmpty(labelJson)) {
+                List<String> labels = GSON.<List<String>>fromJson(labelJson, ArrayList.class);
+                process.getLabels().addAll(labels);
             }
             instances.add(process);
         }

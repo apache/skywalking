@@ -15,13 +15,13 @@
 
 {{- contains . }}
 - taskid: {{ notEmpty .taskid }}
-  processfindertype: PROCESS_ID
   serviceid: {{ b64enc "sqrt" }}.1
   servicename: sqrt
-  instanceid: {{ b64enc "sqrt" }}.1_{{ b64enc "test-instance" }}
-  instancename: test-instance
-  processid: {{ notEmpty .processid }}
-  processname: sqrt
+  processlabels:
+    {{- contains .processlabels }}
+    - e2e-label1
+    - e2e-label2
+    {{- end }}
   taskstarttime: {{ gt .taskstarttime 0 }}
   triggertype: FIXED_TIME
   fixedtriggerduration: 60
