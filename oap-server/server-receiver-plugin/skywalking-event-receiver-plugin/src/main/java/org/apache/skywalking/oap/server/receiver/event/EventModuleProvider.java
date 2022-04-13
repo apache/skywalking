@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.receiver.event;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -58,10 +58,10 @@ public class EventModuleProvider extends ModuleProvider {
                                                                     .getService(GRPCHandlerRegister.class);
         final EventGrpcServiceHandler eventGRPCServiceHandler = new EventGrpcServiceHandler(getManager());
         grpcHandlerRegister.addHandler(eventGRPCServiceHandler);
-        JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME)
-                                                                .provider()
-                                                                .getService(JettyHandlerRegister.class);
-        jettyHandlerRegister.addHandler(new EventRestServiceHandler(getManager()));
+        HTTPHandlerRegister httpHandlerRegister = getManager().find(SharingServerModule.NAME)
+                                                              .provider()
+                                                              .getService(HTTPHandlerRegister.class);
+        httpHandlerRegister.addHandler(new EventRestServiceHandler(getManager()));
     }
 
     @Override

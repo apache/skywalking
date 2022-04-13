@@ -36,14 +36,12 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
 public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase implements GRPCHandler {
-    private final ModuleManager moduleManager;
     private HistogramMetrics histogram;
     private CounterMetrics errorCounter;
 
     private ISegmentParserService segmentParserService;
 
     public TraceSegmentReportServiceHandler(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
         this.segmentParserService = moduleManager.find(AnalyzerModule.NAME)
                                                  .provider()
                                                  .getService(ISegmentParserService.class);

@@ -1,0 +1,363 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "Mesh-Control-Plane-Service",
+    "configuration": {
+      "children": [
+        {
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 12,
+          "i": "0",
+          "type": "Widget",
+          "widget": {
+            "title": "CPU"
+          },
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "unit": "%"
+          },
+          "metrics": [
+            "meter_istio_cpu"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 12,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "Goroutines"
+          },
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {},
+          "metrics": [
+            "meter_istio_go_goroutines"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 12,
+          "i": "2",
+          "type": "Widget",
+          "widget": {
+            "title": "Istio Versions"
+          },
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {},
+          "metrics": [
+            "meter_istio_pilot_version"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 12,
+          "i": "3",
+          "type": "Widget",
+          "widget": {
+            "title": "Memory (MB)"
+          },
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "0": "1",
+            "1": "0",
+            "2": "4",
+            "3": "8",
+            "4": "5",
+            "5": "7",
+            "6": "6",
+            "unit": "MB",
+            "divide": "1048576"
+          },
+          "metrics": [
+            "meter_istio_go_stack_inuse",
+            "meter_istio_virtual_memory",
+            "meter_istio_go_alloc",
+            "meter_istio_resident_memory",
+            "meter_istio_go_heap_inuse"
+          ],
+          "metricTypes": [
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues"
+          ],
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "byteToMB"
+            },
+            {
+              "calculation": "byteToMB"
+            },
+            {
+              "calculation": "byteToMB"
+            },
+            {
+              "calculation": "byteToMB"
+            },
+            {
+              "calculation": "byteToMB"
+            }
+          ]
+        },
+        {
+          "x": 8,
+          "y": 12,
+          "w": 8,
+          "h": 14,
+          "i": "4",
+          "type": "Widget",
+          "widget": {
+            "title": "Pilot Errors"
+          },
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {},
+          "metrics": [
+            "meter_istio_pilot_xds_cds_reject",
+            "meter_istio_pilot_xds_eds_reject",
+            "meter_istio_pilot_xds_rds_reject",
+            "meter_istio_pilot_xds_lds_reject",
+            "meter_istio_pilot_xds_write_timeout"
+          ],
+          "metricTypes": [
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 16,
+          "y": 12,
+          "w": 8,
+          "h": 14,
+          "i": "5",
+          "type": "Widget",
+          "widget": {
+            "title": "Proxy Push Time"
+          },
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {
+            "unit": "%"
+          },
+          "metrics": [
+            "meter_istio_pilot_proxy_push_percentile"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 12,
+          "w": 8,
+          "h": 14,
+          "i": "6",
+          "type": "Widget",
+          "widget": {
+            "title": "Pilot pushes"
+          },
+          "graph": {
+            "type": "Bar",
+            "showBackground": true
+          },
+          "standard": {},
+          "metrics": [
+            "meter_istio_pilot_xds_pushes"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 12,
+          "y": 40,
+          "w": 12,
+          "h": 14,
+          "i": "7",
+          "type": "Widget",
+          "widget": {
+            "title": "Sidecar Injection"
+          },
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {},
+          "metrics": [
+            "meter_istio_sidecar_injection_success_total"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 12,
+          "y": 26,
+          "w": 12,
+          "h": 14,
+          "i": "8",
+          "type": "Widget",
+          "widget": {
+            "title": "ADS Monitoring"
+          },
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {},
+          "metrics": [
+            "meter_istio_pilot_xds",
+            "meter_istio_pilot_services",
+            "meter_istio_pilot_virt_services"
+          ],
+          "metricTypes": [
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 40,
+          "w": 12,
+          "h": 14,
+          "i": "9",
+          "type": "Widget",
+          "widget": {
+            "title": "Configuration Validation"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "standard": {},
+          "metrics": [
+            "meter_istio_galley_validation_passed",
+            "meter_istio_galley_validation_failed"
+          ],
+          "metricTypes": [
+            "readMetricsValues",
+            "readMetricsValues"
+          ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 26,
+          "w": 12,
+          "h": 14,
+          "i": "10",
+          "type": "Widget",
+          "widget": {
+            "title": "Conflicts"
+          },
+          "graph": {
+            "type": "Bar",
+            "showBackground": true
+          },
+          "standard": {},
+          "metrics": [
+            "meter_istio_pilot_conflict_ol_tcp_tcp",
+            "meter_istio_pilot_conflict_il",
+            "meter_istio_pilot_conflict_ol_tcp_http",
+            "meter_istio_pilot_conflict_ol_http_tcp"
+          ],
+          "metricTypes": [
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues"
+          ],
+          "moved": false
+        }
+      ],
+      "layer": "MESH_CP",
+      "entity": "Service",
+      "name": "Mesh-Control-Plane-Service",
+      "id": "Mesh-Control-Plane-Service",
+      "isRoot": false
+    }
+  }
+]

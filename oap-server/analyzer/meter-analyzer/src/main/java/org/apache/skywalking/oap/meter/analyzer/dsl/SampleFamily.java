@@ -22,21 +22,19 @@ import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
-
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EndpointEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.InstanceEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceRelationEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.K8sRetagType;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -50,14 +48,11 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
-
 import groovy.lang.Closure;
 import io.vavr.Function2;
 import io.vavr.Function3;
@@ -69,6 +64,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * SampleFamily represents a collection of {@link Sample}.
@@ -437,7 +433,19 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new ServiceEntityDescription(labelKeys, layer));
+        return createMeterSamples(new ServiceEntityDescription(labelKeys, layer, Const.POINT));
+    }
+
+    public SampleFamily service(List<String> labelKeys, String delimiter, Layer layer) {
+        Preconditions.checkArgument(labelKeys.size() > 0);
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            ctx.scopeType = ScopeType.SERVICE;
+            ctx.scopeLabels.addAll(labelKeys);
+        });
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return createMeterSamples(new ServiceEntityDescription(labelKeys, layer, delimiter));
     }
 
     public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys, Layer layer) {
@@ -451,7 +459,7 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new InstanceEntityDescription(serviceKeys, instanceKeys, layer));
+        return createMeterSamples(new InstanceEntityDescription(serviceKeys, instanceKeys, layer, Const.POINT));
     }
 
     public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys, Layer layer) {
@@ -465,7 +473,7 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new EndpointEntityDescription(serviceKeys, endpointKeys, layer));
+        return createMeterSamples(new EndpointEntityDescription(serviceKeys, endpointKeys, layer, Const.POINT));
     }
 
     public SampleFamily serviceRelation(DetectPoint detectPoint, List<String> sourceServiceKeys, List<String> destServiceKeys, Layer layer) {
@@ -479,7 +487,7 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint, layer));
+        return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint, layer, Const.POINT));
     }
 
     private SampleFamily createMeterSamples(EntityDescription entityDescription) {
@@ -593,11 +601,12 @@ public class SampleFamily {
             }).toArray(Sample[]::new);
         }
 
-        private static String dim(List<Sample> samples, List<String> labelKeys) {
+        private static String dim(List<Sample> samples, List<String> labelKeys, String delimiter) {
             String name = labelKeys.stream()
                                    .map(k -> samples.get(0).labels.getOrDefault(k, ""))
-                                   .collect(Collectors.joining("."));
-            return CharMatcher.is('.').trimFrom(name);
+                                   .filter(v -> !StringUtil.isEmpty(v))
+                                   .collect(Collectors.joining(StringUtil.isEmpty(delimiter) ? Const.POINT : delimiter));
+            return name;
         }
 
         private static MeterEntity buildMeterEntity(List<Sample> samples,
@@ -606,28 +615,28 @@ public class SampleFamily {
                 case SERVICE:
                     ServiceEntityDescription serviceEntityDescription = (ServiceEntityDescription) entityDescription;
                     return MeterEntity.newService(
-                        InternalOps.dim(samples, serviceEntityDescription.getServiceKeys()),
+                        InternalOps.dim(samples, serviceEntityDescription.getServiceKeys(), serviceEntityDescription.getDelimiter()),
                         serviceEntityDescription.getLayer()
                     );
                 case SERVICE_INSTANCE:
                     InstanceEntityDescription instanceEntityDescription = (InstanceEntityDescription) entityDescription;
                     return MeterEntity.newServiceInstance(
-                        InternalOps.dim(samples, instanceEntityDescription.getServiceKeys()),
-                        InternalOps.dim(samples, instanceEntityDescription.getInstanceKeys()),
+                        InternalOps.dim(samples, instanceEntityDescription.getServiceKeys(), instanceEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, instanceEntityDescription.getInstanceKeys(), instanceEntityDescription.getDelimiter()),
                         instanceEntityDescription.getLayer()
                     );
                 case ENDPOINT:
                     EndpointEntityDescription endpointEntityDescription = (EndpointEntityDescription) entityDescription;
                     return MeterEntity.newEndpoint(
-                        InternalOps.dim(samples, endpointEntityDescription.getServiceKeys()),
-                        InternalOps.dim(samples, endpointEntityDescription.getEndpointKeys()),
+                        InternalOps.dim(samples, endpointEntityDescription.getServiceKeys(), endpointEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, endpointEntityDescription.getEndpointKeys(), endpointEntityDescription.getDelimiter()),
                         endpointEntityDescription.getLayer()
                     );
                 case SERVICE_RELATION:
                     ServiceRelationEntityDescription serviceRelationEntityDescription = (ServiceRelationEntityDescription) entityDescription;
                     return MeterEntity.newServiceRelation(
-                        InternalOps.dim(samples, serviceRelationEntityDescription.getSourceServiceKeys()),
-                        InternalOps.dim(samples, serviceRelationEntityDescription.getDestServiceKeys()),
+                        InternalOps.dim(samples, serviceRelationEntityDescription.getSourceServiceKeys(), serviceRelationEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, serviceRelationEntityDescription.getDestServiceKeys(), serviceRelationEntityDescription.getDelimiter()),
                         serviceRelationEntityDescription.getDetectPoint(), serviceRelationEntityDescription.getLayer()
                     );
                 default:

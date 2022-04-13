@@ -22,8 +22,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 
 import java.io.IOException;
@@ -32,11 +32,12 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class IoTDBManagementDAO implements IManagementDAO {
     private final IoTDBClient client;
-    private final StorageHashMapBuilder<ManagementData> storageBuilder;
+    private final StorageBuilder<ManagementData> storageBuilder;
 
     @Override
     public void insert(Model model, ManagementData storageData) throws IOException {
-        IoTDBInsertRequest request = new IoTDBInsertRequest(model.getName(), 1L, storageData, storageBuilder);
+        IoTDBInsertRequest request =
+                IoTDBInsertRequest.buildRequest(model.getName(), 1L, storageData, storageBuilder);
         client.write(request);
     }
 }

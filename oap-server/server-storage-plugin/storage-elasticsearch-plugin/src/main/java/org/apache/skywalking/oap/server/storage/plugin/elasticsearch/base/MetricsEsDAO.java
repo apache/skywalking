@@ -29,8 +29,9 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
@@ -41,10 +42,10 @@ import static java.util.stream.Collectors.groupingBy;
 
 @Slf4j
 public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
-    protected final StorageHashMapBuilder<Metrics> storageBuilder;
+    protected final StorageBuilder<Metrics> storageBuilder;
 
     protected MetricsEsDAO(ElasticSearchClient client,
-                           StorageHashMapBuilder<Metrics> storageBuilder) {
+                           StorageBuilder<Metrics> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
@@ -90,7 +91,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
                                          .collect(Collectors.toList());
             final SearchResponse response = getClient().ids(tableName, ids);
             response.getHits().getHits().forEach(hit -> {
-                Metrics source = storageBuilder.storage2Entity(hit.getSource());
+                Metrics source = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(hit.getSource()));
                 result.add(source);
             });
         });
@@ -100,8 +101,9 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) {
-        Map<String, Object> builder =
-            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(metrics));
+        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+        storageBuilder.entity2Storage(metrics, toStorage);
+        Map<String, Object> builder = IndexController.INSTANCE.appendMetricTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareInsert(modelName, id, builder);
@@ -109,8 +111,10 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
 
     @Override
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) {
+        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+        storageBuilder.entity2Storage(metrics, toStorage);
         Map<String, Object> builder =
-            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(metrics));
+            IndexController.INSTANCE.appendMetricTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareUpdate(modelName, id, builder);

@@ -22,6 +22,9 @@ import java.io.ByteArrayInputStream;
 import java.util.Properties;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -32,9 +35,9 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
@@ -61,6 +64,9 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.Netwo
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AlarmQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.BrowserLogQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.EBPFProfilingDataEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.EBPFProfilingScheduleEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.EBPFProfilingTaskEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ESEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.LogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetadataQueryEsDAO;
@@ -156,8 +162,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
             indexNameConverter(config.getNamespace()), config.getConnectTimeout(),
-            config.getSocketTimeout(), config.getNumHttpClientThread(),
-            config.getResponseTimeout()
+            config.getSocketTimeout(), config.getResponseTimeout(),
+            config.getNumHttpClientThread()
         );
         this.registerServiceImplementation(
             IBatchDAO.class,
@@ -168,15 +174,13 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearchClient));
         this.registerServiceImplementation(
-            INetworkAddressAliasDAO.class, new NetworkAddressAliasEsDAO(elasticSearchClient, config
-                .getResultWindowMaxSize()));
+            INetworkAddressAliasDAO.class, new NetworkAddressAliasEsDAO(elasticSearchClient, config));
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(
             ITraceQueryDAO.class, new TraceQueryEsDAO(elasticSearchClient, config.getSegmentQueryMaxSize()));
         this.registerServiceImplementation(IBrowserLogQueryDAO.class, new BrowserLogQueryEsDAO(elasticSearchClient));
-        this.registerServiceImplementation(
-            IMetadataQueryDAO.class, new MetadataQueryEsDAO(elasticSearchClient, config.getMetadataQueryMaxSize()));
+        this.registerServiceImplementation(IMetadataQueryDAO.class, new MetadataQueryEsDAO(elasticSearchClient, config));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new AggregationQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new AlarmQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQueryEsDAO(elasticSearchClient));
@@ -194,6 +198,13 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             UITemplateManagementDAO.class, new UITemplateManagementEsDAO(elasticSearchClient));
 
         this.registerServiceImplementation(IEventQueryDAO.class, new ESEventQueryDAO(elasticSearchClient));
+
+        this.registerServiceImplementation(IEBPFProfilingTaskDAO.class,
+                new EBPFProfilingTaskEsDAO(elasticSearchClient, config));
+        this.registerServiceImplementation(IEBPFProfilingScheduleDAO.class,
+                new EBPFProfilingScheduleEsDAO(elasticSearchClient, config));
+        this.registerServiceImplementation(IEBPFProfilingDataDAO.class,
+                new EBPFProfilingDataEsDAO(elasticSearchClient, config));
     }
 
     @Override

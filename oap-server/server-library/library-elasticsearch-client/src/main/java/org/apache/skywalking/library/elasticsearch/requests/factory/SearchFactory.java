@@ -18,14 +18,20 @@
 package org.apache.skywalking.library.elasticsearch.requests.factory;
 
 import com.linecorp.armeria.common.HttpRequest;
-import java.util.Map;
+import org.apache.skywalking.library.elasticsearch.requests.search.Scroll;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 
 public interface SearchFactory {
     /**
      * Returns a request to search documents.
      */
-    HttpRequest search(Search search, Map<String, ?> queryParams, String... index);
+    HttpRequest search(Search search, SearchParams params, String... index);
+
+    /**
+     * Returns a request to retrieve the next batch of results for a scrolling search.
+     */
+    HttpRequest scroll(Scroll scroll);
 
     /**
      * Returns a request to search documents.

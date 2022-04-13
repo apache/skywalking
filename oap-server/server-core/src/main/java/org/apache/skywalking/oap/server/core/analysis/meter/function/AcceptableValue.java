@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 /**
  * Indicate this function accepting the data of type T.
@@ -35,7 +35,7 @@ public interface AcceptableValue<T> {
     /**
      * @return builder
      */
-    Class<? extends StorageHashMapBuilder> builder();
+    Class<? extends StorageBuilder> builder();
 
     void setTimeBucket(long timeBucket);
 

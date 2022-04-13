@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -71,7 +70,7 @@ public class ServiceManagementHandler extends AbstractKafkaHandler {
         }
     }
 
-    private final void serviceReportProperties(InstanceProperties request) {
+    private void serviceReportProperties(InstanceProperties request) {
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         final String serviceName = namingLengthControl.formatServiceName(request.getService());
         final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
@@ -92,14 +91,14 @@ public class ServiceManagementHandler extends AbstractKafkaHandler {
                 properties.addProperty(prop.getKey(), prop.getValue());
             }
         });
-        properties.addProperty(InstanceTraffic.PropertyUtil.IPV4S, ipv4List.stream().collect(Collectors.joining(",")));
+        properties.addProperty(InstanceTraffic.PropertyUtil.IPV4S, String.join(",", ipv4List));
         serviceInstanceUpdate.setProperties(properties);
         serviceInstanceUpdate.setTimeBucket(
             TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute));
         sourceReceiver.receive(serviceInstanceUpdate);
     }
 
-    private final void keepAlive(InstancePingPkg request) {
+    private void keepAlive(InstancePingPkg request) {
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         final String serviceName = namingLengthControl.formatServiceName(request.getService());
         final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
@@ -117,7 +116,6 @@ public class ServiceManagementHandler extends AbstractKafkaHandler {
 
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setName(serviceName);
-        serviceMeta.setNormal(true);
         serviceMeta.setTimeBucket(timeBucket);
         serviceMeta.setLayer(Layer.GENERAL);
         sourceReceiver.receive(serviceMeta);

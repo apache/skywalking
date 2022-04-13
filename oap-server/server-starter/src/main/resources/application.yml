@@ -77,7 +77,6 @@ core:
     restMinThreads: ${SW_CORE_REST_JETTY_MIN_THREADS:1}
     restMaxThreads: ${SW_CORE_REST_JETTY_MAX_THREADS:200}
     restIdleTimeOut: ${SW_CORE_REST_JETTY_IDLE_TIMEOUT:30000}
-    restAcceptorPriorityDelta: ${SW_CORE_REST_JETTY_DELTA:0}
     restAcceptQueueSize: ${SW_CORE_REST_JETTY_QUEUE_SIZE:0}
     httpMaxRequestHeaderSize: ${SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
@@ -133,7 +132,7 @@ storage:
     namespace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
-    connectTimeout: ${SW_STORAGE_ES_CONNECT_TIMEOUT:500}
+    connectTimeout: ${SW_STORAGE_ES_CONNECT_TIMEOUT:3000}
     socketTimeout: ${SW_STORAGE_ES_SOCKET_TIMEOUT:30000}
     responseTimeout: ${SW_STORAGE_ES_RESPONSE_TIMEOUT:15000}
     numHttpClientThread: ${SW_STORAGE_ES_NUM_HTTP_CLIENT_THREAD:0}
@@ -156,7 +155,8 @@ storage:
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:15}
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
     resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
-    metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
+    metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:10000}
+    scrollingBatchSize: ${SW_STORAGE_ES_SCROLLING_BATCH_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
     oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
@@ -273,7 +273,7 @@ agent-analyzer:
     # Nginx and Envoy agents can't get the real remote address.
     # Exit spans with the component in the list would not generate the client-side instance relation metrics.
     noUpstreamRealAddressAgents: ${SW_NO_UPSTREAM_REAL_ADDRESS:6000,9000}
-    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool} # Which files could be meter analyzed, files split by ","
+    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite,spring-sleuth} # Which files could be meter analyzed, files split by ","
 
 log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
@@ -295,7 +295,6 @@ receiver-sharing-server:
     restMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
     restMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
     restIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
-    restAcceptorPriorityDelta: ${SW_RECEIVER_SHARING_JETTY_DELTA:0}
     restAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
     httpMaxRequestHeaderSize: ${SW_RECEIVER_SHARING_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
     # For gRPC server
@@ -331,7 +330,7 @@ receiver-profile:
   default:
 
 receiver-zabbix:
-  selector: ${SW_RECEIVER_ZABBIX:-}
+  selector: ${SW_RECEIVER_ZABBIX:default}
   default:
     port: ${SW_RECEIVER_ZABBIX_PORT:10051}
     host: ${SW_RECEIVER_ZABBIX_HOST:0.0.0.0}
@@ -368,8 +367,6 @@ kafka-fetcher:
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableNativeProtoLog: ${SW_KAFKA_FETCHER_ENABLE_NATIVE_PROTO_LOG:true}
     enableNativeJsonLog: ${SW_KAFKA_FETCHER_ENABLE_NATIVE_JSON_LOG:true}
-    isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
-    consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
     kafkaHandlerThreadPoolSize: ${SW_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
     kafkaHandlerThreadPoolQueueSize: ${SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:-1}
 
@@ -378,12 +375,12 @@ receiver-meter:
   default:
 
 receiver-otel:
-  selector: ${SW_OTEL_RECEIVER:-}
+  selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
-    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane"}
+    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane,k8s-node,oap,vm"}
 
-receiver_zipkin:
+receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
     host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
@@ -395,12 +392,6 @@ receiver_zipkin:
     jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
     jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
     instanceNameRule: ${SW_RECEIVER_ZIPKIN_INSTANCE_NAME_RULE:[spring.instance_id,node_id]}
-
-receiver_jaeger:
-  selector: ${SW_RECEIVER_JAEGER:-}
-  default:
-    gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
-    gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
 
 receiver-browser:
   selector: ${SW_RECEIVER_BROWSER:default}
@@ -415,12 +406,16 @@ receiver-log:
 query:
   selector: ${SW_QUERY:graphql}
   graphql:
-    path: ${SW_QUERY_GRAPHQL_PATH:/graphql}
     # Enable the log testing API to test the LAL.
     # NOTE: This API evaluates untrusted code on the OAP server.
     # A malicious script can do significant damage (steal keys and secrets, remove files and directories, install malware, etc).
     # As such, please enable this API only when you completely trust your users.
     enableLogTestTool: ${SW_QUERY_GRAPHQL_ENABLE_LOG_TEST_TOOL:false}
+    # Maximum complexity allowed for the GraphQL query that can be used to
+    # abort a query if the total number of data fields queried exceeds the defined threshold.
+    maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:100}
+    # Allow user add, disable and update UI template
+    enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:false}
 
 alarm:
   selector: ${SW_ALARM:default}
@@ -511,4 +506,8 @@ configuration-discovery:
 
 receiver-event:
   selector: ${SW_RECEIVER_EVENT:default}
+  default:
+
+receiver-ebpf:
+  selector: ${SW_RECEIVER_EBPF:default}
   default:

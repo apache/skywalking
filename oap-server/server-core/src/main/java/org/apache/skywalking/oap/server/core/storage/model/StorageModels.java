@@ -24,16 +24,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBGlobalIndex;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
 import org.apache.skywalking.oap.server.core.storage.annotation.MultipleQueryUnifiedIndex;
 import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * StorageModels manages all models detected by the core.
@@ -56,12 +59,16 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         DefaultScopeDefine.nameOf(scopeId);
 
         List<ModelColumn> modelColumns = new ArrayList<>();
-        List<ExtraQueryIndex> extraQueryIndices = new ArrayList<>();
-        retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices, scopeId);
+        ShardingKeyChecker checker = new ShardingKeyChecker();
+        retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker);
+        checker.check(storage.getModelName());
 
         Model model = new Model(
-            storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
-            storage.getDownsampling(), record,
+            storage.getModelName(),
+            modelColumns,
+            scopeId,
+            storage.getDownsampling(),
+            record,
             isSuperDatasetModel(aClass),
             FunctionCategory.uniqueFunctionName(aClass),
             storage.isTimeRelativeID()
@@ -98,8 +105,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     private void retrieval(final Class<?> clazz,
                            final String modelName,
                            final List<ModelColumn> modelColumns,
-                           final List<ExtraQueryIndex> extraQueryIndices,
-                           final int scopeId) {
+                           final int scopeId,
+                           ShardingKeyChecker checker) {
         if (log.isDebugEnabled()) {
             log.debug("Analysis {} to generate Model.", clazz.getName());
         }
@@ -125,22 +132,9 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                         }
                     }
                 }
-                modelColumns.add(
-                    new ModelColumn(
-                        new ColumnName(modelName, column.columnName()), field.getType(), field.getGenericType(),
-                        column.matchQuery(), column.storageOnly(), column.dataType().isValue(), columnLength,
-                        column.analyzer()
-                    ));
-                if (log.isDebugEnabled()) {
-                    log.debug("The field named {} with the {} type", column.columnName(), field.getType());
-                }
-                if (column.dataType().isValue()) {
-                    ValueColumnMetadata.INSTANCE.putIfAbsent(
-                        modelName, column.columnName(), column.dataType(), column.function(),
-                        column.defaultValue(), scopeId
-                    );
-                }
 
+                // SQL Database extension
+                SQLDatabaseExtension sqlDatabaseExtension = new SQLDatabaseExtension();
                 List<QueryUnifiedIndex> indexDefinitions = new ArrayList<>();
                 if (field.isAnnotationPresent(QueryUnifiedIndex.class)) {
                     indexDefinitions.add(field.getAnnotation(QueryUnifiedIndex.class));
@@ -150,15 +144,62 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     Collections.addAll(indexDefinitions, field.getAnnotation(MultipleQueryUnifiedIndex.class).value());
                 }
 
-                indexDefinitions.forEach(indexDefinition -> extraQueryIndices.add(new ExtraQueryIndex(
-                    column.columnName(),
-                    indexDefinition.withColumns()
-                )));
+                indexDefinitions.forEach(indexDefinition -> {
+                    sqlDatabaseExtension.appendIndex(new SQLDatabaseExtension.MultiColumnsIndex(
+                        column.columnName(),
+                        indexDefinition.withColumns()
+                    ));
+                });
+
+                // ElasticSearch extension
+                final ElasticSearchMatchQuery elasticSearchAnalyzer = field.getAnnotation(
+                    ElasticSearchMatchQuery.class);
+                ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
+                    elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer()
+                );
+
+                // BanyanDB extension
+                final BanyanDBShardingKey banyanDBShardingKey = field.getAnnotation(BanyanDBShardingKey.class);
+                final BanyanDBGlobalIndex banyanDBGlobalIndex = field.getAnnotation(BanyanDBGlobalIndex.class);
+                BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
+                    banyanDBShardingKey == null ? -1 : banyanDBShardingKey.index(),
+                    banyanDBGlobalIndex == null ? null : banyanDBGlobalIndex.extraFields()
+                );
+
+                final ModelColumn modelColumn = new ModelColumn(
+                    new ColumnName(
+                        modelName,
+                        column.columnName()
+                    ),
+                    field.getType(),
+                    field.getGenericType(),
+                    column.storageOnly(),
+                    column.indexOnly(),
+                    column.dataType().isValue(),
+                    columnLength,
+                    sqlDatabaseExtension,
+                    elasticSearchExtension,
+                    banyanDBExtension
+                );
+                if (banyanDBExtension.isShardingKey()) {
+                    checker.accept(modelName, modelColumn);
+                }
+
+                modelColumns.add(modelColumn);
+                if (log.isDebugEnabled()) {
+                    log.debug("The field named [{}] with the [{}] type", column.columnName(), field.getType());
+                }
+                if (column.dataType().isValue()) {
+                    ValueColumnMetadata.INSTANCE.putIfAbsent(
+                        modelName, column.columnName(), column.dataType(), column.function(),
+                        column.defaultValue(), scopeId
+                    );
+                }
             }
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {
-            retrieval(clazz.getSuperclass(), modelName, modelColumns, extraQueryIndices, scopeId);
+            retrieval(clazz.getSuperclass(), modelName, modelColumns, scopeId, checker);
         }
     }
 
@@ -171,13 +212,53 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
     private void followColumnNameRules(Model model) {
         columnNameOverrideRule.forEach((oldName, newName) -> {
-            model.getColumns().forEach(column -> column.getColumnName().overrideName(oldName, newName));
-            model.getExtraQueryIndices().forEach(extraQueryIndex -> extraQueryIndex.overrideName(oldName, newName));
+            model.getColumns().forEach(column -> {
+                column.getColumnName().overrideName(oldName, newName);
+                column.getSqlDatabaseExtension()
+                      .getIndices()
+                      .forEach(extraQueryIndex -> extraQueryIndex.overrideName(oldName, newName));
+            });
         });
     }
 
     @Override
     public List<Model> allModels() {
         return models;
+    }
+
+    private class ShardingKeyChecker {
+        private ArrayList<ModelColumn> keys = new ArrayList<>();
+
+        /**
+         * @throws IllegalStateException if sharding key indices are conflicting.
+         */
+        private void accept(String modelName, ModelColumn modelColumn) throws IllegalStateException {
+            final int idx = modelColumn.getBanyanDBExtension().getShardingKeyIdx();
+            while (idx + 1 > keys.size()) {
+                keys.add(null);
+            }
+            ModelColumn exist = keys.get(idx);
+            if (exist != null) {
+                throw new IllegalStateException(
+                    modelName + "'s "
+                        + "Column [" + exist.getColumnName() + "] and column [" + modelColumn.getColumnName()
+                        + " are conflicting with sharding key index=" + modelColumn.getBanyanDBExtension()
+                                                                                   .getShardingKeyIdx());
+            }
+            keys.set(idx, modelColumn);
+        }
+
+        /**
+         * @param modelName model name of the entity
+         * @throws IllegalStateException if sharding key indices are not continuous
+         */
+        private void check(String modelName) throws IllegalStateException {
+            for (int i = 0; i < keys.size(); i++) {
+                final ModelColumn modelColumn = keys.get(i);
+                if (modelColumn == null) {
+                    throw new IllegalStateException("Sharding key index=" + i + " is missing in " + modelName);
+                }
+            }
+        }
     }
 }

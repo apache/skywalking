@@ -38,7 +38,7 @@ SkyWalking supports to collect telemetry (metrics, traces, and logs) data from m
 and multiple formats,
 including
 1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
-1. Go and C++ SDKs.
+1. Go, C++, and Rust SDKs.
 1. LUA agent especially for Nginx, OpenResty and Apache APISIX.
 1. Browser agent.
 1. Service Mesh Observability. Control plane and data plane. 
@@ -51,10 +51,6 @@ for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM
 
 # Documentation
 - [Official documentation](https://skywalking.apache.org/docs/#SkyWalking)
-- [The paper of STAM](https://wu-sheng.github.io/STAM/), Streaming Topology Analysis Method.
-- [Blog](https://skywalking.apache.org/blog/2020-04-13-apache-skywalking-profiling/) about Use Profiling to Fix the Blind Spot of Distributed Tracing
-- [Blog](https://skywalking.apache.org/blog/2020-12-03-obs-service-mesh-with-sw-and-als/) about observing Istio + Envoy service mesh with ALS solution.
-- [Blog](https://skywalking.apache.org/blog/obs-service-mesh-vm-with-sw-and-als/) about observing Istio + Envoy service mesh with ALS Metadata-Exchange mechanism (in VMs and / or Kubernetes).
 
 NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous releases.
 

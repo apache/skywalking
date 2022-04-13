@@ -51,7 +51,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
 import org.apache.skywalking.oal.rt.output.DispatcherContext;
 import org.apache.skywalking.oal.rt.parser.AnalysisResult;
@@ -72,9 +71,11 @@ import org.apache.skywalking.oap.server.core.source.oal.rt.metrics.MetricClassPa
 import org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder.MetricBuilderClassPackageHolder;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * OAL Runtime is the class generation engine, which load the generated classes from OAL scrip definitions. This runtime
@@ -266,6 +267,11 @@ public class OALRuntime implements OALEngine {
                 columnAnnotation.addMemberValue("columnName", new StringMemberValue(field.getColumnName(), constPool));
                 if (field.getType().equals(String.class)) {
                     columnAnnotation.addMemberValue("length", new IntegerMemberValue(constPool, field.getLength()));
+                }
+                if (field.isID()) {
+                    // Add shardingKeyIdx = 0 to column annotation.
+                    Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDBShardingKey.class.getName(), constPool);
+                    banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
                 }
                 annotationsAttribute.addAnnotation(columnAnnotation);
 

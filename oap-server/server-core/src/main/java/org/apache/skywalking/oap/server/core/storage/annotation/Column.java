@@ -49,30 +49,30 @@ public @interface Column {
     int defaultValue() default 0;
 
     /**
-     * Match query means using analyzer(if storage have) to do key word match query.
-     */
-    boolean matchQuery() default false;
-
-    /**
-     * The column is just saved, never used in query.
+     * The column is just saved, never used as a query condition.
      */
     boolean storageOnly() default false;
+
+    /**
+     * The column(field) is just indexed, never stored(not available in query projection).
+     * Note: this feature only supported by elasticsearch.
+     */
+    boolean indexOnly() default false;
 
     /**
      * @return the length of this column, this is only for {@link String} column. The usage of this depends on the
      * storage implementation.
      *
-     * Notice, different lengths may cause different types.
-     * Such as, over 16383 would make the type in MySQL to be MEDIUMTEXT, due to database varchar max=16383
-     *
+     * Notice, different lengths may cause different types. Such as, over 16383 would make the type in MySQL to be
+     * MEDIUMTEXT, due to database varchar max=16383.
      * @since 7.1.0
      */
     int length() default 200;
 
     /**
      * The return name of system environment could provide an override value of the length limitation.
-     * @return the variable name of system environment.
      *
+     * @return the variable name of system environment.
      * @since 8.2.0
      */
     String lengthEnvVariable() default "";
@@ -86,34 +86,6 @@ public @interface Column {
      * @since 8.0.0
      */
     ValueDataType dataType() default ValueDataType.NOT_VALUE;
-
-    /**
-     * The storage analyzer mode.
-     *
-     * @since 8.4.0
-     */
-    AnalyzerType analyzer() default AnalyzerType.OAP_ANALYZER;
-
-    /**
-     * The analyzer declares the text analysis mode.
-     */
-    enum AnalyzerType {
-        /**
-         * The default analyzer.
-         */
-        OAP_ANALYZER("oap_analyzer"),
-        /**
-         * The log analyzer.
-         */
-        OAP_LOG_ANALYZER("oap_log_analyzer");
-
-        @Getter
-        private final String name;
-
-        AnalyzerType(final String name) {
-            this.name = name;
-        }
-    }
 
     /**
      * ValueDataType represents the data structure of value column. The persistent way of the value column determine the

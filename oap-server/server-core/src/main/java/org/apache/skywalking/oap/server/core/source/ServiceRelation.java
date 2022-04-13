@@ -56,8 +56,6 @@ public class ServiceRelation extends Source {
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "source_name", requireDynamicActive = true)
     private String sourceServiceName;
-    @Setter
-    private boolean isSourceNormal;
     @Getter
     @Setter
     private String sourceServiceInstanceName;
@@ -73,8 +71,6 @@ public class ServiceRelation extends Source {
     @Getter
     @Setter
     private Layer destLayer;
-    @Setter
-    private boolean isDestNormal;
     @Getter
     @Setter
     private String destServiceInstanceName;
@@ -90,10 +86,6 @@ public class ServiceRelation extends Source {
     @Getter
     @Setter
     private boolean status;
-    @Getter
-    @Setter
-    @Deprecated
-    private int responseCode;
     @Getter
     @Setter
     private int httpResponseStatusCode;
@@ -118,7 +110,7 @@ public class ServiceRelation extends Source {
 
     @Override
     public void prepare() {
-        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, isSourceNormal);
-        destServiceId = IDManager.ServiceID.buildId(destServiceName, isDestNormal);
+        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, sourceLayer.isNormal());
+        destServiceId = IDManager.ServiceID.buildId(destServiceName, destLayer.isNormal());
     }
 }

@@ -20,60 +20,62 @@ package org.apache.skywalking.oap.server.core.alarm.provider.welink;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
+import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.common.MediaType;
+import com.linecorp.armeria.server.ServerBuilder;
+import com.linecorp.armeria.testing.junit4.server.ServerRule;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+public class WeLinkHookCallbackTest {
+    private final AtomicBoolean isSuccess = new AtomicBoolean();
+    private final AtomicInteger count = new AtomicInteger();
 
-public class WeLinkHookCallbackTest implements Servlet {
+    @Rule
+    public final ServerRule server = new ServerRule() {
+        @Override
+        protected void configure(ServerBuilder sb) {
+            sb.serviceUnder("/welinkhook", (ctx, req) -> HttpResponse.from(
+                req.aggregate().thenApply(r -> {
+                    final String content = r.content().toStringUtf8();
+                    final JsonObject jsonObject = new Gson().fromJson(content, JsonObject.class);
 
-    private Server server;
-    private int port;
-    private volatile boolean isSuccess = false;
-    private int count;
+                    if (count.get() == 0) {
+                        String clientId = jsonObject.get("client_id").getAsString();
+                        if (clientId != null) {
+                            count.incrementAndGet();
+                        }
+                    } else if (count.get() >= 1) {
+                        String appMsgId = jsonObject.get("app_msg_id").getAsString();
+                        if (appMsgId != null) {
+                            count.incrementAndGet();
+                        }
+                    }
+                    if (count.get() == 2) {
+                        isSuccess.set(true);
+                    }
 
-    @Before
-    public void init() throws Exception {
-        server = new Server(new InetSocketAddress("127.0.0.1", 0));
-        ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
-        servletContextHandler.setContextPath("/welinkhook");
-        server.setHandler(servletContextHandler);
-        ServletHolder servletHolder = new ServletHolder();
-        servletHolder.setServlet(this);
-        servletContextHandler.addServlet(servletHolder, "/api/auth/v2/tickets");
-        servletContextHandler.addServlet(servletHolder, "/api/welinkim/v1/im-service/chat/group-chat");
-        server.start();
-        port = server.getURI().getPort();
-        assertTrue(port > 0);
-    }
+                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON, "{}");
+                })));
+        }
+    };
 
     @Test
     public void testWeLinkDoAlarm() {
         List<WeLinkSettings.WebHookUrl> webHooks = new ArrayList<>();
         webHooks.add(new WeLinkSettings.WebHookUrl("clientId", "clientSecret",
-                                                   "http://127.0.0.1:" + port + "/welinkhook/api/auth/v2/tickets",
-                                                   "http://127.0.0.1:" + port + "/welinkhook/api/welinkim/v1/im-service/chat/group-chat",
+                                                   "http://127.0.0.1:" + server.httpPort() + "/welinkhook/api/auth/v2/tickets",
+                                                   "http://127.0.0.1:" + server.httpPort() + "/welinkhook/api/welinkim/v1/im-service/chat/group-chat",
                                                    "robotName", "1,2,3"
         ));
         Rules rules = new Rules();
@@ -84,7 +86,7 @@ public class WeLinkHookCallbackTest implements Servlet {
         WeLinkHookCallback welinkHookCallback = new WeLinkHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
-        alarmMessage.setScopeId(DefaultScopeDefine.ALL);
+        alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
         alarmMessages.add(alarmMessage);
@@ -94,61 +96,6 @@ public class WeLinkHookCallbackTest implements Servlet {
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
         alarmMessages.add(anotherAlarmMessage);
         welinkHookCallback.doAlarm(alarmMessages);
-        Assert.assertTrue(isSuccess);
+        Assert.assertTrue(isSuccess.get());
     }
-
-    @After
-    public void stop() throws Exception {
-        server.stop();
-    }
-
-    @Override
-    public void init(ServletConfig servletConfig) {
-    }
-
-    @Override
-    public ServletConfig getServletConfig() {
-        return null;
-    }
-
-    @Override
-    public void service(ServletRequest request, ServletResponse response) throws IOException {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        if (httpServletRequest.getContentType().equals("application/json")) {
-            InputStream inputStream = request.getInputStream();
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            byte[] buffer = new byte[2048];
-            int readCntOnce;
-
-            while ((readCntOnce = inputStream.read(buffer)) >= 0) {
-                out.write(buffer, 0, readCntOnce);
-            }
-            JsonObject jsonObject = new Gson().fromJson(new String(out.toByteArray()), JsonObject.class);
-
-            if (count == 0) {
-                String clientId = jsonObject.get("client_id").getAsString();
-                count = clientId == null ? count : count + 1;
-                ((HttpServletResponse) response).setStatus(200);
-            } else if (count >= 1) {
-                String appMsgId = jsonObject.get("app_msg_id").getAsString();
-                count = appMsgId == null ? count : count + 1;
-                ((HttpServletResponse) response).setStatus(200);
-            } else {
-                ((HttpServletResponse) response).setStatus(500);
-            }
-            if (count == 2) {
-                isSuccess = true;
-            }
-        }
-    }
-
-    @Override
-    public String getServletInfo() {
-        return null;
-    }
-
-    @Override
-    public void destroy() {
-    }
-
 }

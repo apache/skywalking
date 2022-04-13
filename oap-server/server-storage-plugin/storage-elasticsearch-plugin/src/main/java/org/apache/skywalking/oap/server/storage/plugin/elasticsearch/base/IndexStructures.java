@@ -36,9 +36,13 @@ public class IndexStructures {
         Map<String, Object> properties =
             structures.containsKey(tableName) ?
                 structures.get(tableName).properties : new HashMap<>();
+        Mappings.Source source =
+                    structures.containsKey(tableName) ?
+                        structures.get(tableName).source : new Mappings.Source();
         return Mappings.builder()
                        .type(ElasticSearchClient.TYPE)
                        .properties(properties)
+                       .source(source)
                        .build();
     }
 
@@ -52,8 +56,7 @@ public class IndexStructures {
             || mapping.getProperties().isEmpty()) {
             return;
         }
-        Map<String, Object> properties = mapping.getProperties();
-        Fields fields = new Fields(properties);
+        Fields fields = new Fields(mapping);
         if (structures.containsKey(tableName)) {
             structures.get(tableName).appendNewFields(fields);
         } else {
@@ -63,6 +66,8 @@ public class IndexStructures {
 
     /**
      * Returns mappings with fields that not exist in the input mappings.
+     * The input mappings should be history mapping from current index.
+     * Do not return _source config to avoid current index update conflict.
      */
     public Mappings diffStructure(String tableName, Mappings mappings) {
         if (!structures.containsKey(tableName)) {
@@ -70,7 +75,7 @@ public class IndexStructures {
         }
         Map<String, Object> properties = mappings.getProperties();
         Map<String, Object> diffProperties =
-            structures.get(tableName).diffFields(new Fields(properties));
+            structures.get(tableName).diffFields(new Fields(mappings));
         return Mappings.builder()
                        .type(ElasticSearchClient.TYPE)
                        .properties(diffProperties)
@@ -89,7 +94,7 @@ public class IndexStructures {
         }
         return structures.containsKey(tableName)
             && structures.get(tableName)
-                         .containsAllFields(new Fields(mappings.getProperties()));
+                         .containsAllFields(new Fields(mappings));
     }
 
     /**
@@ -97,32 +102,36 @@ public class IndexStructures {
      */
     public static class Fields {
         private final Map<String, Object> properties;
+        private Mappings.Source source;
 
-        private Fields(Map<String, Object> properties) {
-            this.properties = properties;
+        private Fields(Mappings mapping) {
+            this.properties = mapping.getProperties();
+            this.source = mapping.getSource();
         }
 
         /**
          * Returns ture when the input fields have already been stored in the properties.
          */
         private boolean containsAllFields(Fields fields) {
-            return fields.properties.entrySet().stream()
-                                    .allMatch(item -> this.properties.containsKey(item.getKey()));
+            if (this.properties.size() < fields.properties.size()) {
+                return false;
+            }
+            boolean isContains = fields.properties.entrySet().stream()
+                    .allMatch(item -> Objects.equals(properties.get(item.getKey()), item.getValue()));
+            if (!isContains) {
+                return false;
+            }
+            return Objects.equals(this.source, fields.source);
         }
 
         /**
-         * Append new fields to the properties when have new fields.
+         * Append new fields and update.
+         * Properties combine input and exist, update property's attribute, won't remove old one.
+         * Source will be updated to the input.
          */
         private void appendNewFields(Fields fields) {
-            Map<String, Object> newFields =
-                fields.properties.entrySet()
-                                 .stream()
-                                 .filter(e -> !this.properties.containsKey(e.getKey()))
-                                 .collect(Collectors.toMap(
-                                     Map.Entry::getKey,
-                                     Map.Entry::getValue
-                                 ));
-            properties.putAll(newFields);
+            properties.putAll(fields.properties);
+            source = fields.source;
         }
 
         /**

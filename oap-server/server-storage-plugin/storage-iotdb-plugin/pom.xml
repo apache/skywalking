@@ -21,7 +21,7 @@
     <parent>
         <artifactId>server-storage-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.0.0-SNAPSHOT</version>
+        <version>9.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -62,8 +62,8 @@
             </exclusions>
         </dependency>
         <dependency>
-                <groupId>org.lz4</groupId>
-                <artifactId>lz4-java</artifactId>
+            <groupId>org.lz4</groupId>
+            <artifactId>lz4-java</artifactId>
         </dependency>
     </dependencies>
 </project>

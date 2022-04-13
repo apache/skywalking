@@ -22,9 +22,7 @@ import com.google.common.base.Strings;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collector;
@@ -34,6 +32,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
@@ -44,8 +43,11 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -63,7 +65,7 @@ import static java.util.stream.Collectors.mapping;
  */
 @MeterFunction(functionName = "avgHistogramPercentile")
 @Slf4j
-public abstract class AvgHistogramPercentileFunction extends Metrics implements AcceptableValue<PercentileArgument>, MultiIntValuesHolder {
+public abstract class AvgHistogramPercentileFunction extends Meter implements AcceptableValue<PercentileArgument>, MultiIntValuesHolder {
     private static final String DEFAULT_GROUP = "pD";
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
@@ -74,6 +76,7 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID)
+    @BanyanDBShardingKey(index = 0)
     private String entityId;
     @Getter
     @Setter
@@ -327,37 +330,34 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
         return AvgPercentileFunctionBuilder.class;
     }
 
-    public static class AvgPercentileFunctionBuilder implements StorageHashMapBuilder<AvgHistogramPercentileFunction> {
-
+    public static class AvgPercentileFunctionBuilder implements StorageBuilder<AvgHistogramPercentileFunction> {
         @Override
-        public AvgHistogramPercentileFunction storage2Entity(final Map<String, Object> dbMap) {
+        public AvgHistogramPercentileFunction storage2Entity(final Convert2Entity converter) {
             AvgHistogramPercentileFunction metrics = new AvgHistogramPercentileFunction() {
                 @Override
                 public AcceptableValue<PercentileArgument> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
-            metrics.setDataset(new DataTable((String) dbMap.get(DATASET)));
-            metrics.setSummation(new DataTable((String) dbMap.get(SUMMATION)));
-            metrics.setCount(new DataTable((String) dbMap.get(COUNT)));
-            metrics.setRanks(new IntList((String) dbMap.get(RANKS)));
-            metrics.setPercentileValues(new DataTable((String) dbMap.get(VALUE)));
-            metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            metrics.setEntityId((String) dbMap.get(ENTITY_ID));
+            metrics.setDataset(new DataTable((String) converter.get(DATASET)));
+            metrics.setSummation(new DataTable((String) converter.get(SUMMATION)));
+            metrics.setCount(new DataTable((String) converter.get(COUNT)));
+            metrics.setRanks(new IntList((String) converter.get(RANKS)));
+            metrics.setPercentileValues(new DataTable((String) converter.get(VALUE)));
+            metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            metrics.setEntityId((String) converter.get(ENTITY_ID));
             return metrics;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(final AvgHistogramPercentileFunction storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(SUMMATION, storageData.getSummation());
-            map.put(COUNT, storageData.getCount());
-            map.put(DATASET, storageData.getDataset());
-            map.put(RANKS, storageData.getRanks());
-            map.put(VALUE, storageData.getPercentileValues());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(ENTITY_ID, storageData.getEntityId());
-            return map;
+        public void entity2Storage(final AvgHistogramPercentileFunction storageData, final Convert2Storage converter) {
+            converter.accept(SUMMATION, storageData.getSummation());
+            converter.accept(COUNT, storageData.getCount());
+            converter.accept(DATASET, storageData.getDataset());
+            converter.accept(RANKS, storageData.getRanks());
+            converter.accept(VALUE, storageData.getPercentileValues());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(ENTITY_ID, storageData.getEntityId());
         }
     }
 

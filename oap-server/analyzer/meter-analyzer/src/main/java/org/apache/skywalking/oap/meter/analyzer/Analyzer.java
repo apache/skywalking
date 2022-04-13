@@ -92,8 +92,6 @@ public class Analyzer {
         return analyzer;
     }
 
-    private static final String FUNCTION_NAME_TEMP = "%s%s";
-
     private List<String> samples;
 
     private final String metricName;
@@ -250,7 +248,7 @@ public class Analyzer {
                               final String dataType,
                               final DownsamplingType downsamplingType) {
         String functionName = String.format(
-            FUNCTION_NAME_TEMP, downsamplingType.toString().toLowerCase(), StringUtils.capitalize(dataType));
+            "%s%s", downsamplingType.toString().toLowerCase(), StringUtils.capitalize(dataType));
         meterSystem.create(metricName, functionName, scopeType);
     }
 
@@ -272,6 +270,7 @@ public class Analyzer {
                     toService(requireNonNull(entity.getSourceServiceName()), entity.getLayer());
                     clientSide(entity);
                     break;
+                default:
             }
         } else {
             toService(requireNonNull(entity.getServiceName()), entity.getLayer());
@@ -298,7 +297,6 @@ public class Analyzer {
     private void toService(String serviceName, Layer layer) {
         ServiceTraffic s = new ServiceTraffic();
         s.setName(requireNonNull(serviceName));
-        s.setNormal(true);
         s.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
         s.setLayer(layer);
         MetricsStreamProcessor.getInstance().in(s);

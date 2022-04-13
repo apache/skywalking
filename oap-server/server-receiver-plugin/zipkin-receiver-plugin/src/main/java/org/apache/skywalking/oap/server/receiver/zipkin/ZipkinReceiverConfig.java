@@ -31,10 +31,9 @@ public class ZipkinReceiverConfig extends ModuleConfig {
     private String host;
     private int port;
     private String contextPath;
-    private int jettyMinThreads = 1;
-    private int jettyMaxThreads = 200;
-    private long jettyIdleTimeOut = 30000;
-    private int jettyAcceptorPriorityDelta = 0;
-    private int jettyAcceptQueueSize = 0;
+    private int maxThreads = 200;
+    private long idleTimeOut = 30000;
+    private int acceptorPriorityDelta = 0;
+    private int acceptQueueSize = 0;
     private List<String> instanceNameRule = new ArrayList<>();
 }

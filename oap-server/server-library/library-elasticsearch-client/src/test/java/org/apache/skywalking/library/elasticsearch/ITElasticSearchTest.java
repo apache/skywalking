@@ -45,6 +45,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RequiredArgsConstructor
@@ -88,6 +89,7 @@ public class ITElasticSearchTest {
                                    .asCompatibleSubstituteFor(
                                        "docker.elastic.co/elasticsearch/elasticsearch-oss"))
                     .withEnv("plugins.security.disabled", "true")
+                    .withStartupTimeout(java.time.Duration.ofMinutes(5))
             }
         });
     }
@@ -122,9 +124,14 @@ public class ITElasticSearchTest {
             "metric_table", ImmutableMap.of("type", "keyword"),
             "service_id", ImmutableMap.of("type", "keyword")
         );
+
+        final Mappings.Source sourceConf = new Mappings.Source();
+        sourceConf.getExcludes().add("test");
+
         final Mappings mappings = Mappings.builder()
                                           .type("_doc")
                                           .properties(properties)
+                                          .source(sourceConf)
                                           .build();
 
         assertThat(templateClient.createOrUpdate(name, ImmutableMap.of(), mappings, 0))
@@ -137,6 +144,12 @@ public class ITElasticSearchTest {
             .map(IndexTemplate::getMappings)
             .map(Mappings::getProperties)
             .hasValue(mappings.getProperties());
+        assertThat(templateClient.get(name))
+            .isPresent()
+            .map(IndexTemplate::getMappings)
+            .map(Mappings::getSource)
+            .map(Mappings.Source::getExcludes)
+            .hasValue(mappings.getSource().getExcludes());
     }
 
     @Test
@@ -177,13 +190,18 @@ public class ITElasticSearchTest {
     @Test
     public void testSearch() {
         final String index = "test-index";
+        final Mappings.Source sourceConf = new Mappings.Source();
+        sourceConf.getExcludes().add("key3");
         assertTrue(
             client.index().create(
                 index,
                 Mappings.builder()
                         .type("type")
                         .properties(ImmutableMap.of("key1", ImmutableMap.of("type", "keyword")))
-                        .properties(ImmutableMap.of("key2", ImmutableMap.of("type", "keyword")))
+                        .properties(ImmutableMap.of("key2", ImmutableMap.of("type", "keyword"),
+                                                    "key3", ImmutableMap.of("type", "keyword")
+                        ))
+                        .source(sourceConf)
                         .build(),
                 null
             )
@@ -197,7 +215,7 @@ public class ITElasticSearchTest {
                             .index(index)
                             .type(type)
                             .id("id" + i)
-                            .doc(ImmutableMap.of("key1", "val" + i, "key2", "val" + (i + 1)
+                            .doc(ImmutableMap.of("key1", "val" + i, "key2", "val" + (i + 1), "key3", "val" + (i + 2)
                             ))
                             .build(), null);
         }
@@ -208,6 +226,15 @@ public class ITElasticSearchTest {
             );
             assertEquals(1, response.getHits().getTotal());
             assertEquals("val1", response.getHits().iterator().next().getSource().get("key1"));
+        });
+        //test indexOnly
+        await().atMost(Duration.ONE_MINUTE).untilAsserted(() -> {
+            SearchResponse response = client.search(
+                Search.builder().query(Query.bool().must(Query.term("key3", "val3"))).build()
+            );
+            assertEquals(1, response.getHits().getTotal());
+            assertEquals("val1", response.getHits().iterator().next().getSource().get("key1"));
+            assertNull("indexOnly fields should not be stored", response.getHits().iterator().next().getSource().get("key3"));
         });
 
         await().atMost(Duration.ONE_MINUTE)

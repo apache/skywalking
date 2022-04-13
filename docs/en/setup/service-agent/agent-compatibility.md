@@ -4,12 +4,13 @@ SkyWalking 8.0+ uses v3 protocols. Agents don't have to keep the same versions a
 
 ## SkyWalking Native Agents
 
-|OAP Server Version|Java|Python|NodeJS|LUA|Kong|Browser Agent|Satellite|
------------ | ---------- | --------- | --------- |--------- |--------- |--------- |----- |
-8.0.1 - 8.1.0 | 8.0.0 - 8.3.0 | < = 0.6.0| < = 0.3.0 | All | All | No | No |
-8.2.0 - 8.3.0 | 8.0.0 - 8.3.0 | < = 0.6.0| < = 0.3.0 | All | All | All | No |
-8.4.0 - 8.8.1 | \> = 8.0.0 | All | All | All | All | All | No |
-8.9.0+ | \> = 8.0.0 | All | All | All | All | All | \> = 0.4.0 |
+|OAP Server Version|Java|Python|NodeJS|LUA|Kong|Browser Agent|Rust|Satellite|
+----------- | ---------- | --------- | --------- |--------- |--------- |--------- |--------- |--------- |
+8.0.1 - 8.1.0 | 8.0.0 - 8.3.0 | < = 0.6.0| < = 0.3.0 | All | All | No | All | No |
+8.2.0 - 8.3.0 | 8.0.0 - 8.3.0 | < = 0.6.0| < = 0.3.0 | All | All | All | All | No |
+8.4.0 - 8.8.1 | \> = 8.0.0 | All | All | All | All | All | All | No |
+8.9.0+ | \> = 8.0.0 | All | All | All | All | All | All | \> = 0.4.0 |
+9.0.0+ | \> = 8.0.0 | All | All | All | All | All | All | \> = 0.4.0 |
 
 ## Ecosystem Agents
 
@@ -20,6 +21,7 @@ don't belong to the Apache Software Foundation.
 ----------- | ---------- | --------- | --------- |--------- |
 8.0.1 - 8.3.0 | 1.0.0 - 1.3.0 | 0.4.0 - 0.6.0 | < = 0.2.0 | \> = 3.0.0|
 8.4.0+ | \> = 1.0.0 | \> = 0.4.0  | All | \> = 3.0.0|
+9.0.0+ | \> = 1.0.0 | \> = 0.4.0  | All | \> = 3.0.0|
 
 All these projects are maintained by their own communities, please reach them if you face any compatibility issue.
 

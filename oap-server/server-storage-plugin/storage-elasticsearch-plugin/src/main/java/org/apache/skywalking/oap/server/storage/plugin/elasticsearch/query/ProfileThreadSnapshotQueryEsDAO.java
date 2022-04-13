@@ -36,9 +36,10 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -165,7 +166,8 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
 
         List<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
         for (SearchHit searchHit : response.getHits().getHits()) {
-            ProfileThreadSnapshotRecord record = builder.storage2Entity(searchHit.getSource());
+            ProfileThreadSnapshotRecord record = builder.storage2Entity(
+                new HashMapConverter.ToEntity(searchHit.getSource()));
 
             result.add(record);
         }
@@ -211,7 +213,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
                  .must(Query.term(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
                  .must(Query.range(ProfileThreadSnapshotRecord.DUMP_TIME).gte(start).lte(end));
 
-        final SearchBuilder search = 
+        final SearchBuilder search =
             Search.builder()
                   .query(query).size(0)
                   .aggregation(aggregationBuilder);

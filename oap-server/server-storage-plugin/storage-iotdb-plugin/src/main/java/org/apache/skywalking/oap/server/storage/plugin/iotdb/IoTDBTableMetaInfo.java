@@ -76,9 +76,21 @@ public class IoTDBTableMetaInfo {
         if (storageAndIndexMap.containsValue(IoTDBIndexes.TRACE_ID_IDX)) {
             indexes.add(IoTDBIndexes.TRACE_ID_IDX);
         }
+        if (storageAndIndexMap.containsValue(IoTDBIndexes.INSTANCE_ID_INX)) {
+            indexes.add(IoTDBIndexes.INSTANCE_ID_INX);
+        }
+        if (storageAndIndexMap.containsValue(IoTDBIndexes.PROCESS_ID_INX)) {
+            indexes.add(IoTDBIndexes.PROCESS_ID_INX);
+        }
+        if (storageAndIndexMap.containsValue(IoTDBIndexes.AGENT_ID_INX)) {
+            indexes.add(IoTDBIndexes.AGENT_ID_INX);
+        }
 
-        final IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.builder().model(model)
-                .columnAndTypeMap(columnAndTypeMap).indexes(indexes).build();
+        final IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.builder()
+                                                                   .model(model)
+                                                                   .columnAndTypeMap(columnAndTypeMap)
+                                                                   .indexes(indexes)
+                                                                   .build();
         TABLE_META_INFOS.put(model.getName(), tableMetaInfo);
     }
 

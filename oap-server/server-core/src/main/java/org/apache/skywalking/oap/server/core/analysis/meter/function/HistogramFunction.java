@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,13 +25,17 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 /**
  * Histogram includes data range buckets and the amount matched/grouped in the buckets. This is for original histogram
@@ -42,12 +44,13 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @MeterFunction(functionName = "histogram")
 @Slf4j
 @ToString
-public abstract class HistogramFunction extends Metrics implements AcceptableValue<BucketedValues> {
+public abstract class HistogramFunction extends Meter implements AcceptableValue<BucketedValues> {
     public static final String DATASET = "dataset";
 
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID, length = 512)
+    @BanyanDBShardingKey(index = 0)
     private String entityId;
     @Getter
     @Setter
@@ -143,33 +146,30 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
     }
 
     @Override
-    public Class<? extends StorageHashMapBuilder> builder() {
+    public Class<? extends HistogramFunctionBuilder> builder() {
         return HistogramFunctionBuilder.class;
     }
 
-    public static class HistogramFunctionBuilder implements StorageHashMapBuilder<HistogramFunction> {
-
+    public static class HistogramFunctionBuilder implements StorageBuilder<HistogramFunction> {
         @Override
-        public HistogramFunction storage2Entity(final Map<String, Object> dbMap) {
+        public HistogramFunction storage2Entity(final Convert2Entity converter) {
             HistogramFunction metrics = new HistogramFunction() {
                 @Override
                 public AcceptableValue<BucketedValues> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
-            metrics.setDataset(new DataTable((String) dbMap.get(DATASET)));
-            metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            metrics.setEntityId((String) dbMap.get(ENTITY_ID));
+            metrics.setDataset(new DataTable((String) converter.get(DATASET)));
+            metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            metrics.setEntityId((String) converter.get(ENTITY_ID));
             return metrics;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(final HistogramFunction storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(DATASET, storageData.getDataset());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(ENTITY_ID, storageData.getEntityId());
-            return map;
+        public void entity2Storage(final HistogramFunction storageData, final Convert2Storage converter) {
+            converter.accept(DATASET, storageData.getDataset());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(ENTITY_ID, storageData.getEntityId());
         }
     }
 

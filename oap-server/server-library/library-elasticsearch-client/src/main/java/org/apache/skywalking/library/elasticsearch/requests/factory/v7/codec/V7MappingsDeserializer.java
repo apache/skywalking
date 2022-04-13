@@ -22,7 +22,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 
@@ -36,12 +37,20 @@ final class V7MappingsDeserializer extends JsonDeserializer<Mappings> {
             p.getCodec().readValue(p, new TypeReference<Map<String, Object>>() {
             });
 
-        final Iterator<Map.Entry<String, Object>> it = m.entrySet().iterator();
-        if (it.hasNext()) {
-            final Map.Entry<String, Object> first = it.next();
+        if (m.size() > 0) {
+            Map<String, Object> properties = (Map<String, Object>) m.get("properties");
+            Map<String, Object> source = (Map<String, Object>) m.get("_source");
             final Mappings mappings = new Mappings();
             mappings.setType("_doc");
-            mappings.setProperties((Map<String, Object>) first.getValue());
+            if (properties != null) {
+                mappings.setProperties(properties);
+            }
+            if (source != null) {
+                Object excludes = source.get("excludes");
+                if (excludes != null) {
+                    mappings.getSource().setExcludes(new HashSet<>((ArrayList<String>) excludes));
+                }
+            }
             return mappings;
         }
         return null;

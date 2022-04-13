@@ -64,9 +64,9 @@
                 <include>envoy-metrics-rules/*.yaml</include>
                 <include>meter-analyzer-config/*.yaml</include>
                 <include>zabbix-rules/*.yaml</include>
-                <include>openapi-definitions/*</include>
+                <include>openapi-definitions/*/*.yaml</include>
                 <include>otel-oc-rules/*</include>
-                <include>ui-initialized-templates/*</include>
+                <include>ui-initialized-templates/*/*.json</include>
                 <include>lal/*</include>
                 <include>log-mal-rules/*</include>
             </includes>

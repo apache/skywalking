@@ -18,27 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.DATA_BINARY;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.ENDPOINT_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.IS_ERROR;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.LATENCY;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.SEGMENT_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.SERVICE_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.SERVICE_INSTANCE_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.START_TIME;
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.TAGS;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.TIME_BUCKET;
-import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.TRACE_ID;
 
 /**
  * H2/MySQL is different from standard {@link org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.Builder},
@@ -53,45 +39,15 @@ public class H2SegmentRecordBuilder extends AbstractSearchTagBuilder<Record> {
     }
 
     @Override
-    public Map<String, Object> entity2Storage(Record record) {
-        SegmentRecord storageData = (SegmentRecord) record;
-        Map<String, Object> map = new HashMap<>();
-        map.put(SEGMENT_ID, storageData.getSegmentId());
-        map.put(TRACE_ID, storageData.getTraceId());
-        map.put(SERVICE_ID, storageData.getServiceId());
-        map.put(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
-        map.put(ENDPOINT_ID, storageData.getEndpointId());
-        map.put(START_TIME, storageData.getStartTime());
-        map.put(LATENCY, storageData.getLatency());
-        map.put(IS_ERROR, storageData.getIsError());
-        map.put(TIME_BUCKET, storageData.getTimeBucket());
-        if (CollectionUtils.isEmpty(storageData.getDataBinary())) {
-            map.put(DATA_BINARY, Const.EMPTY_STRING);
-        } else {
-            map.put(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
-        }
-        analysisSearchTag(storageData.getTagsRawData(), map);
-        return map;
+    public Record storage2Entity(final Convert2Entity converter) {
+        return new SegmentRecord.Builder().storage2Entity(converter);
     }
 
     @Override
-    public Record storage2Entity(Map<String, Object> dbMap) {
-        SegmentRecord record = new SegmentRecord();
-        record.setSegmentId((String) dbMap.get(SEGMENT_ID));
-        record.setTraceId((String) dbMap.get(TRACE_ID));
-        record.setServiceId((String) dbMap.get(SERVICE_ID));
-        record.setServiceInstanceId((String) dbMap.get(SERVICE_INSTANCE_ID));
-        record.setEndpointId((String) dbMap.get(ENDPOINT_ID));
-        record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
-        record.setLatency(((Number) dbMap.get(LATENCY)).intValue());
-        record.setIsError(((Number) dbMap.get(IS_ERROR)).intValue());
-        record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-        if (StringUtil.isEmpty((String) dbMap.get(DATA_BINARY))) {
-            record.setDataBinary(new byte[] {});
-        } else {
-            record.setDataBinary(Base64.getDecoder().decode((String) dbMap.get(DATA_BINARY)));
-        }
-        // Don't read the tags as they has been in the data binary already.
-        return record;
+    public void entity2Storage(final Record record, final Convert2Storage converter) {
+        SegmentRecord storageData = (SegmentRecord) record;
+        final SegmentRecord.Builder builder = new SegmentRecord.Builder();
+        builder.entity2Storage(storageData, converter);
+        analysisSearchTag(storageData.getTagsRawData(), converter);
     }
 }

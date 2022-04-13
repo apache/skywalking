@@ -18,16 +18,16 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
-import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
+import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 
 /**
  * Synchronize storage H2 implements
@@ -35,9 +35,9 @@ import java.sql.SQLException;
 public class H2NoneStreamDAO extends H2SQLExecutor implements INoneStreamDAO {
 
     private JDBCHikariCPClient h2Client;
-    private StorageHashMapBuilder<NoneStream> storageBuilder;
+    private StorageBuilder<NoneStream> storageBuilder;
 
-    public H2NoneStreamDAO(JDBCHikariCPClient h2Client, StorageHashMapBuilder<NoneStream> storageBuilder) {
+    public H2NoneStreamDAO(JDBCHikariCPClient h2Client, StorageBuilder<NoneStream> storageBuilder) {
         this.h2Client = h2Client;
         this.storageBuilder = storageBuilder;
     }
@@ -45,7 +45,7 @@ public class H2NoneStreamDAO extends H2SQLExecutor implements INoneStreamDAO {
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
-            SQLExecutor insertExecutor = getInsertExecutor(model.getName(), noneStream, storageBuilder);
+            SQLExecutor insertExecutor = getInsertExecutor(model.getName(), noneStream, storageBuilder, new HashMapConverter.ToStorage());
             insertExecutor.invoke(connection);
         } catch (IOException | SQLException e) {
             throw new IOException(e.getMessage(), e);

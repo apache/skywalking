@@ -71,6 +71,14 @@ public class ScopeDefaultColumn {
 
         Class type();
 
+        /**
+         * Declare this virtual column is representing an entity ID of this source and generated metrics.
+         * Typically, metric ID = timestamp + entity ID
+         *
+         * This takes {@link ISource#getEntityId()}'s return as the value.
+         *
+         * @return TRUE if this is an ID column.
+         */
         boolean isID() default false;
 
         /**

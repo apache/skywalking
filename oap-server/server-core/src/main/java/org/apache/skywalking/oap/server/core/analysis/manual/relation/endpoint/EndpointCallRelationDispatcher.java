@@ -31,6 +31,7 @@ public class EndpointCallRelationDispatcher implements SourceDispatcher<Endpoint
             case SERVER:
                 serverSide(source);
                 break;
+            default:
         }
     }
 

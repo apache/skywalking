@@ -19,12 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.oap.server.library.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+import org.apache.skywalking.oap.server.library.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 
@@ -33,9 +33,9 @@ public class NoneStreamDAO implements INoneStreamDAO {
     private static final AtomicRangeInteger SUFFIX = new AtomicRangeInteger(0, PADDING_SIZE);
 
     private final InfluxClient client;
-    private final StorageHashMapBuilder<NoneStream> storageBuilder;
+    private final StorageBuilder<NoneStream> storageBuilder;
 
-    public NoneStreamDAO(InfluxClient client, StorageHashMapBuilder<NoneStream> storageBuilder) {
+    public NoneStreamDAO(InfluxClient client, StorageBuilder<NoneStream> storageBuilder) {
         this.client = client;
         this.storageBuilder = storageBuilder;
     }
