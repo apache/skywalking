@@ -12,6 +12,7 @@
 * [Refactor] Move SQLDatabase(H2/MySQL/PostgreSQL), ElasticSearch and BanyanDB specific configurations out of column.
 * Support BanyanDB global index for entities. Log and Segment record entities declare this new feature.
 * Remove unnecessary analyzer settings in columns of templates. Many were added due to analyzer's default value.
+* Simplify the Kafka Fetch configuration in cluster mode.
 
 #### UI
 

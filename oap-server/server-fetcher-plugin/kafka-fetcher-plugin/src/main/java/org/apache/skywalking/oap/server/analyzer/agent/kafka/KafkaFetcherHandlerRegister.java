@@ -124,7 +124,12 @@ public class KafkaFetcherHandlerRegister implements Runnable {
     }
 
     private void createTopicIfNeeded(Collection<String> topics, Properties properties) throws ModuleStartException {
-        AdminClient adminClient = AdminClient.create(properties);
+        Properties adminProps = new Properties();
+        adminProps.putAll(properties);
+        // remove 'group.id' to avoid unknown configure warning.
+        adminProps.remove(ConsumerConfig.GROUP_ID_CONFIG);
+
+        AdminClient adminClient = AdminClient.create(adminProps);
         Set<String> missedTopics = adminClient.describeTopics(topics)
                 .values()
                 .entrySet()
@@ -141,7 +146,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
                 .collect(Collectors.toSet());
 
         if (!missedTopics.isEmpty()) {
-            log.info("Topics" + missedTopics + " not exist.");
+            log.info("Topics " + missedTopics + " not exist.");
             List<NewTopic> newTopicList = missedTopics.stream()
                     .map(topic -> new NewTopic(
                             topic,
