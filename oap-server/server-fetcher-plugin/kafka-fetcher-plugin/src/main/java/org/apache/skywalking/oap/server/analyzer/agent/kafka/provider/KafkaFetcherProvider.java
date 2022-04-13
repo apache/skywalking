@@ -42,7 +42,7 @@ import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 @Slf4j
 public class KafkaFetcherProvider extends ModuleProvider {
     private KafkaFetcherHandlerRegister handlerRegister;
-    private KafkaFetcherConfig config;
+    private final KafkaFetcherConfig config;
 
     public KafkaFetcherProvider() {
         config = new KafkaFetcherConfig();
@@ -64,7 +64,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
     }
 
     @Override
-    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    public void prepare() throws ServiceNotProvidedException {
         handlerRegister = new KafkaFetcherHandlerRegister(config);
     }
 
