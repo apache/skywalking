@@ -71,11 +71,11 @@ public class MeterServiceHandler extends AbstractKafkaHandler {
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        try (HistogramMetrics.Timer timer = histogramBatch.createTimer()) {
+        try (HistogramMetrics.Timer ignored = histogramBatch.createTimer()) {
             MeterDataCollection meterDataCollection = MeterDataCollection.parseFrom(record.value().get());
             MeterProcessor processor = processService.createProcessor();
             meterDataCollection.getMeterDataList().forEach(meterData -> {
-                try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                try (HistogramMetrics.Timer ignored2 = histogram.createTimer()) {
                     processor.read(meterData);
                 } catch (Exception e) {
                     errorCounter.inc();

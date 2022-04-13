@@ -93,7 +93,7 @@ public class JVMMetricsHandler extends AbstractKafkaHandler {
             builder.setServiceInstance(namingLengthControl.formatInstanceName(builder.getServiceInstance()));
 
             builder.getMetricsList().forEach(jvmMetric -> {
-                try (Timer timer = histogram.createTimer()) {
+                try (Timer ignored2 = histogram.createTimer()) {
                     jvmSourceDispatcher.sendMetric(builder.getService(), builder.getServiceInstance(), jvmMetric);
                 } catch (Exception e) {
                     errorCounter.inc();

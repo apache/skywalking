@@ -63,11 +63,6 @@ public class LogHandler extends AbstractKafkaHandler {
     }
 
     @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
-    }
-
-    @Override
     protected String getPlainTopic() {
         return config.getTopicNameOfLogs();
     }
