@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -157,7 +156,6 @@ public class H2EventQueryDAO implements IEventQueryDAO {
         event.setParameters(resultSet.getString(Event.PARAMETERS));
         event.setStartTime(resultSet.getLong(Event.START_TIME));
         event.setEndTime(resultSet.getLong(Event.END_TIME));
-        event.setLayer(Layer.UNDEFINED.name());
 
         return event;
     }

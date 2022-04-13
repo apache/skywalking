@@ -26,7 +26,6 @@ import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.source.Event;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -106,7 +105,6 @@ public class EventQueryDAO implements IEventQueryDAO {
         event.setParameters((String) data.get(Event.PARAMETERS));
         event.setStartTime(((Number) data.get(Event.START_TIME)).longValue());
         event.setEndTime(((Number) data.get(Event.END_TIME)).longValue());
-        event.setLayer(Layer.UNDEFINED.name());
 
         return event;
     }

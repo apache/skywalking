@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -210,7 +209,6 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         resultEvent.setParameters(event.getParameters());
         resultEvent.setStartTime(event.getStartTime());
         resultEvent.setEndTime(event.getEndTime());
-        resultEvent.setLayer(Layer.UNDEFINED.name());
         return resultEvent;
     }
 }
