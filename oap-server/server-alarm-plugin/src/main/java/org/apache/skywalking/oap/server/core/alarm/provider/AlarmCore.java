@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Alarm core includes metrics values in certain time windows based on alarm settings. By using its internal timer
- * trigger and the alarm rules to decides whether send the alarm to database and webhook(s)
+ * trigger and the alarm rules to decide whether send the alarm to database and webhook(s)
  */
 public class AlarmCore {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlarmCore.class);
