@@ -20,16 +20,18 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.EndpointInfo;
@@ -100,11 +102,9 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         return endpointInfo;
     }
 
-    public List<Process> listProcesses(final String serviceId, final String instanceId) throws IOException {
-        if (StringUtils.isEmpty(serviceId) && StringUtils.isEmpty(instanceId)) {
-            return Collections.emptyList();
-        }
-        return getMetadataQueryDAO().listProcesses(serviceId, instanceId, null, 0, 0);
+    public List<Process> listProcesses(final Duration duration, final String instanceId) throws IOException {
+        return getMetadataQueryDAO().listProcesses(null, instanceId, null,
+                duration.getStartTimeBucket(), duration.getEndTimeBucket());
     }
 
     public Process getProcess(String processId) throws IOException {
@@ -114,12 +114,14 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         return getMetadataQueryDAO().getProcess(processId);
     }
 
-    public Long estimateProcessScale(String serviceId, List<String> labels, Duration duration) throws IOException {
-        if (StringUtils.isEmpty(serviceId) || duration == null) {
+    public Long estimateProcessScale(String serviceId, List<String> labels) throws IOException {
+        if (StringUtils.isEmpty(serviceId)) {
             return 0L;
         }
+        final long endTimestamp = System.currentTimeMillis();
+        final long startTimestamp = endTimestamp - TimeUnit.MINUTES.toMillis(10);
         final List<Process> processes = getMetadataQueryDAO().listProcesses(serviceId, null, null,
-                duration.getStartTimeBucket(), duration.getEndTimeBucket());
+                TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute), TimeBucket.getTimeBucket(endTimestamp, DownSampling.Minute));
         return CollectionUtils.isEmpty(processes) ?
                 0L :
                 processes.stream().filter(p -> p.getLabels().containsAll(labels)).count();

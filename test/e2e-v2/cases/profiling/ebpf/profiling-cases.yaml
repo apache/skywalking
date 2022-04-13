@@ -20,7 +20,7 @@ cases:
     expected: expected/service.yml
   - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml instance ls --service-name sqrt
     expected: expected/instance.yml
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process ls --service-name sqrt
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process ls --service-name sqrt --instance-name test-instance
     expected: expected/process.yml
   - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf create prepare --service-name sqrt
     expected: expected/profiling-create-prepare.yml
