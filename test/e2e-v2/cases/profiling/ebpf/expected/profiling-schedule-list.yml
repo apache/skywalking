@@ -36,7 +36,10 @@
         value: /sqrt
       {{- end }}
     labels:
-      - e2e-label
+      {{- contains .process.labels }}
+      - e2e-label1
+      - e2e-label2
+      {{- end }}
   starttime: {{ gt .starttime 0 }}
   endtime: {{ gt .endtime 0 }}
 {{- end }}

@@ -15,4 +15,7 @@
 
 couldprofiling: true
 processlabels:
-  - e2e-label
+  {{- contains .processlabels }}
+  - e2e-label1
+  - e2e-label2
+  {{- end }}

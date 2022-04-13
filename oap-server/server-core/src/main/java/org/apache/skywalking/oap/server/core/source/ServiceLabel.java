@@ -30,7 +30,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 
 @ScopeDeclaration(id = SERVICE_LABEL, name = "ServiceLabel")
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
-public class ProcessLabel extends Source {
+public class ServiceLabel extends Source {
     private volatile String entityId;
 
     @Override

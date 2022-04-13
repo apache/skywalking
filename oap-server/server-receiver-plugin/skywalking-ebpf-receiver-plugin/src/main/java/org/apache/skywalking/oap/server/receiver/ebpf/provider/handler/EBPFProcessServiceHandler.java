@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDete
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.Process;
-import org.apache.skywalking.oap.server.core.source.ProcessLabel;
+import org.apache.skywalking.oap.server.core.source.ServiceLabel;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -180,7 +180,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
             return;
         }
         for (String label : labels) {
-            final ProcessLabel serviceLabel = new ProcessLabel();
+            final ServiceLabel serviceLabel = new ServiceLabel();
             serviceLabel.setServiceName(serviceName);
             serviceLabel.setServiceNormal(isServiceNormal);
             serviceLabel.setLabel(label);

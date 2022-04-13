@@ -232,11 +232,12 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId, String agentId) throws IOException {
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId,
+                                       final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId);
+        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -254,7 +255,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
         sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId);
+        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, 0, 0);
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
@@ -269,7 +270,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         }
     }
 
-    private void appendProcessWhereQuery(StringBuilder sql, List<Object> condition, String serviceId, String instanceId, String agentId) {
+    private void appendProcessWhereQuery(StringBuilder sql, List<Object> condition, String serviceId, String instanceId,
+                                         String agentId, final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) {
         if (StringUtil.isNotEmpty(serviceId) || StringUtil.isNotEmpty(instanceId) || StringUtil.isNotEmpty(agentId)) {
             sql.append(" where ");
         }
@@ -291,6 +293,20 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             }
             sql.append(ProcessTraffic.AGENT_ID).append("=?");
             condition.add(agentId);
+        }
+        if (lastPingStartTimeBucket > 0) {
+            if (!condition.isEmpty()) {
+                sql.append(" and ");
+            }
+            sql.append(ProcessTraffic.LAST_PING_TIME_BUCKET).append(">=?");
+            condition.add(lastPingStartTimeBucket);
+        }
+        if (lastPingEndTimeBucket > 0) {
+            if (!condition.isEmpty()) {
+                sql.append(" and ");
+            }
+            sql.append(ProcessTraffic.LAST_PING_TIME_BUCKET).append("<=?");
+            condition.add(lastPingEndTimeBucket);
         }
     }
 

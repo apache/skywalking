@@ -24,8 +24,10 @@ cases:
     expected: expected/process.yml
   - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf create prepare --service-name sqrt
     expected: expected/profiling-create-prepare.yml
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process estimate scale --service-name sqrt --labels e2e-label1,e2e-label2
+    expected: expected/process-estimate-scale.yml
   - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf create fixed --service-name sqrt --labels e2e-label --duration 1m
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf create fixed --service-name sqrt --labels e2e-label1,e2e-label2 --duration 1m
     expected: expected/profiling-create.yml
   - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt
     expected: expected/profiling-task-list.yml

@@ -78,7 +78,7 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
         final long latestUpdateTime = request.getLatestUpdateTime();
         try {
             // find exists process from agent
-            final List<Process> processes = metadataQueryDAO.listProcesses(null, null, agentId);
+            final List<Process> processes = metadataQueryDAO.listProcesses(null, null, agentId, 0, 0);
             if (CollectionUtils.isEmpty(processes)) {
                 responseObserver.onNext(Commands.newBuilder().build());
                 responseObserver.onCompleted();

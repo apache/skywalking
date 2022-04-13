@@ -18,7 +18,10 @@
   serviceid: {{ b64enc "sqrt" }}.1
   servicename: sqrt
   processlabels:
-    - e2e-label
+    {{- contains .processlabels }}
+    - e2e-label1
+    - e2e-label2
+    {{- end }}
   taskstarttime: {{ gt .taskstarttime 0 }}
   triggertype: FIXED_TIME
   fixedtriggerduration: 60

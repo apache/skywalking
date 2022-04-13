@@ -50,9 +50,11 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     public static final String CREATE_TIME = "create_time";
     public static final String LAST_UPDATE_TIME = "last_update_time";
 
+    public static final int PROCESS_LABELS_JSON_MAX_LENGTH = 1000;
+
     @Column(columnName = SERVICE_ID)
     private String serviceId;
-    @Column(columnName = PROCESS_LABELS_JSON, length = 1000)
+    @Column(columnName = PROCESS_LABELS_JSON, length = PROCESS_LABELS_JSON_MAX_LENGTH)
     private String processLabelsJson;
     @Column(columnName = START_TIME)
     private long startTime;

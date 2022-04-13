@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.EndpointInfo;
 import org.apache.skywalking.oap.server.core.query.type.Process;
@@ -38,6 +39,7 @@ import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 public class MetadataQueryService implements org.apache.skywalking.oap.server.library.module.Service {
 
@@ -102,7 +104,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         if (StringUtils.isEmpty(serviceId) && StringUtils.isEmpty(instanceId)) {
             return Collections.emptyList();
         }
-        return getMetadataQueryDAO().listProcesses(serviceId, instanceId, null);
+        return getMetadataQueryDAO().listProcesses(serviceId, instanceId, null, 0, 0);
     }
 
     public Process getProcess(String processId) throws IOException {
@@ -110,6 +112,17 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
             return null;
         }
         return getMetadataQueryDAO().getProcess(processId);
+    }
+
+    public Long estimateProcessScale(String serviceId, List<String> labels, Duration duration) throws IOException {
+        if (StringUtils.isEmpty(serviceId) || duration == null) {
+            return 0L;
+        }
+        final List<Process> processes = getMetadataQueryDAO().listProcesses(serviceId, null, null,
+                duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        return CollectionUtils.isEmpty(processes) ?
+                0L :
+                processes.stream().filter(p -> p.getLabels().containsAll(labels)).count();
     }
 
     private List<Service> combineServices(List<Service> services) {

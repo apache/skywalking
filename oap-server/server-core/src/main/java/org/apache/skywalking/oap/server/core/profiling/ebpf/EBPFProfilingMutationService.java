@@ -130,7 +130,7 @@ public class EBPFProfilingMutationService implements Service {
             err = "current service haven't any process";
         }
 
-        // the process label must be existed
+        // the request label must be legal
         if (err == null && CollectionUtils.isNotEmpty(request.getProcessLabels())) {
             final List<String> existingLabels = getServiceLabelDAO().queryAllLabels(request.getServiceId());
             List<String> notExistLabels = new ArrayList<>(existingLabels.size());
@@ -140,7 +140,13 @@ public class EBPFProfilingMutationService implements Service {
                 }
             }
             if (notExistLabels.size() > 0) {
-                err = String.format("The label %s are not exist", Joiner.on(", ").join(notExistLabels));
+                err = String.format("The service doesn't have processes with label(s) %s.", Joiner.on(", ").join(notExistLabels));
+            } else {
+                final String labelJson = GSON.toJson(request.getProcessLabels());
+                if (labelJson.length() > EBPFProfilingTaskRecord.PROCESS_LABELS_JSON_MAX_LENGTH) {
+                    err = String.format("The labels length is bigger than %d, please reduce the labels count",
+                            EBPFProfilingTaskRecord.PROCESS_LABELS_JSON_MAX_LENGTH);
+                }
             }
         }
         if (err != null) {

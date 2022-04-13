@@ -114,6 +114,7 @@ public class ServiceLabelRecord extends Metrics {
             final ServiceLabelRecord record = new ServiceLabelRecord();
             record.setServiceId((String) converter.get(SERVICE_ID));
             record.setLabel((String) converter.get(LABEL));
+            record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return record;
         }
 
@@ -121,6 +122,7 @@ public class ServiceLabelRecord extends Metrics {
         public void entity2Storage(ServiceLabelRecord entity, Convert2Storage converter) {
             converter.accept(SERVICE_ID, entity.getServiceId());
             converter.accept(LABEL, entity.getLabel());
+            converter.accept(TIME_BUCKET, entity.getTimeBucket());
         }
     }
 }

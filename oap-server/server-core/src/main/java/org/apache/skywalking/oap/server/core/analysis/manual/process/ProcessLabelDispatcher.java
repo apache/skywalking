@@ -19,11 +19,11 @@ package org.apache.skywalking.oap.server.core.analysis.manual.process;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.ProcessLabel;
+import org.apache.skywalking.oap.server.core.source.ServiceLabel;
 
-public class ProcessLabelDispatcher implements SourceDispatcher<ProcessLabel> {
+public class ProcessLabelDispatcher implements SourceDispatcher<ServiceLabel> {
     @Override
-    public void dispatch(ProcessLabel source) {
+    public void dispatch(ServiceLabel source) {
         final ServiceLabelRecord record = new ServiceLabelRecord();
         record.setServiceId(source.getServiceId());
         record.setLabel(source.getLabel());

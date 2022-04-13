@@ -102,6 +102,10 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
         return getMetadataQueryService().getProcess(processId);
     }
 
+    public Long estimateProcessScale(String serviceId, List<String> labels, Duration duration) throws IOException {
+        return getMetadataQueryService().estimateProcessScale(serviceId, labels, duration);
+    }
+
     public TimeInfo getTimeInfo() {
         TimeInfo timeInfo = new TimeInfo();
         SimpleDateFormat timezoneFormat = new SimpleDateFormat("ZZZZZZ");

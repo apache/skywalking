@@ -159,11 +159,25 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId, String agentId)
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId,
+                                       final long lastPingStartTimeBucket, final long lastPingEndTimeBucket)
             throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
         appendProcessFromQuery(query, serviceId, instanceId, agentId);
+        StringBuilder where = new StringBuilder();
+        if (lastPingStartTimeBucket > 0) {
+            where.append(ProcessTraffic.LAST_PING_TIME_BUCKET).append(" >= ").append(lastPingStartTimeBucket);
+        }
+        if (lastPingEndTimeBucket > 0) {
+            if (where.length() > 0) {
+                where.append(" and ");
+            }
+            where.append(ProcessTraffic.LAST_PING_TIME_BUCKET).append(" <= ").append(lastPingEndTimeBucket);
+        }
+        if (where.length() > 0) {
+            query.append(" where ").append(where);
+        }
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME,
