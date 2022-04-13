@@ -217,13 +217,14 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public long getProcessesCount(String serviceId, String instanceId, String agentId) throws IOException {
+    public long getProcessesCount(String serviceId, String instanceId, String agentId,
+                                  final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         final String index =
                 IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query = Query.bool();
         final SearchBuilder search = Search.builder().query(query).size(0);
-        appendProcessWhereQuery(query, serviceId, instanceId, agentId, 0, 0);
+        appendProcessWhereQuery(query, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
         final SearchResponse results = getClient().search(index, search.build());
 
         return results.getHits().getTotal();

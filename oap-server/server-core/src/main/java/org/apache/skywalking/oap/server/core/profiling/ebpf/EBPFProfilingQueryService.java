@@ -22,8 +22,10 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -57,6 +59,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -147,7 +150,12 @@ public class EBPFProfilingQueryService implements Service {
 
     public EBPFProfilingTaskPrepare queryPrepareCreateEBPFProfilingTaskData(String serviceId) throws IOException {
         final EBPFProfilingTaskPrepare prepare = new EBPFProfilingTaskPrepare();
-        final long processesCount = getMetadataQueryDAO().getProcessesCount(serviceId, null, null);
+        // query process count in last 10 minutes
+        final long endTimestamp = System.currentTimeMillis();
+        final long startTimestamp = endTimestamp - TimeUnit.MINUTES.toMillis(10);
+        final long processesCount = getMetadataQueryDAO().getProcessesCount(serviceId, null, null,
+                TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute),
+                TimeBucket.getTimeBucket(endTimestamp, DownSampling.Minute));
         if (processesCount <= 0) {
             prepare.setCouldProfiling(false);
             prepare.setProcessLabels(Collections.emptyList());

@@ -164,7 +164,40 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
             throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        appendProcessFromQuery(query, serviceId, instanceId, agentId);
+        appendProcessFromQuery(query, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME,
+                                                                       query.toString(), processBuilder);
+        return buildProcesses(storageDataList);
+    }
+
+    @Override
+    public long getProcessesCount(String serviceId, String instanceId, String agentId,
+                                  final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
+        StringBuilder query = new StringBuilder();
+        query.append("select count(" + ProcessTraffic.PROPERTIES + ") from ");
+        appendProcessFromQuery(query, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
+
+        final List<Double> results = client.queryWithAgg(query.toString());
+        return results.size() > 0 ? results.get(0).longValue() : 0;
+    }
+
+    private void appendProcessFromQuery(StringBuilder query, String serviceId, String instanceId, String agentId,
+                                        final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) {
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProcessTraffic.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        if (StringUtil.isNotEmpty(serviceId)) {
+            indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
+        }
+        if (StringUtil.isNotEmpty(instanceId)) {
+            indexAndValueMap.put(IoTDBIndexes.INSTANCE_ID_INX, instanceId);
+        }
+        if (StringUtil.isNotEmpty(agentId)) {
+            indexAndValueMap.put(IoTDBIndexes.AGENT_ID_INX, agentId);
+        }
+        IoTDBUtils.addQueryIndexValue(ProcessTraffic.INDEX_NAME, query, indexAndValueMap);
+
         StringBuilder where = new StringBuilder();
         if (lastPingStartTimeBucket > 0) {
             where.append(ProcessTraffic.LAST_PING_TIME_BUCKET).append(" >= ").append(lastPingStartTimeBucket);
@@ -178,36 +211,6 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
         if (where.length() > 0) {
             query.append(" where ").append(where);
         }
-        query.append(IoTDBClient.ALIGN_BY_DEVICE);
-
-        List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME,
-                                                                       query.toString(), processBuilder);
-        return buildProcesses(storageDataList);
-    }
-
-    @Override
-    public long getProcessesCount(String serviceId, String instanceId, String agentId) throws IOException {
-        StringBuilder query = new StringBuilder();
-        query.append("select count(" + ProcessTraffic.PROPERTIES + ") from ");
-        appendProcessFromQuery(query, serviceId, instanceId, agentId);
-
-        final List<Double> results = client.queryWithAgg(query.toString());
-        return results.size() > 0 ? results.get(0).longValue() : 0;
-    }
-
-    private void appendProcessFromQuery(StringBuilder query, String serviceId, String instanceId, String agentId) {
-        IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProcessTraffic.INDEX_NAME);
-        Map<String, String> indexAndValueMap = new HashMap<>();
-        if (StringUtil.isNotEmpty(serviceId)) {
-            indexAndValueMap.put(IoTDBIndexes.SERVICE_ID_IDX, serviceId);
-        }
-        if (StringUtil.isNotEmpty(instanceId)) {
-            indexAndValueMap.put(IoTDBIndexes.INSTANCE_ID_INX, instanceId);
-        }
-        if (StringUtil.isNotEmpty(agentId)) {
-            indexAndValueMap.put(IoTDBIndexes.AGENT_ID_INX, agentId);
-        }
-        IoTDBUtils.addQueryIndexValue(ProcessTraffic.INDEX_NAME, query, indexAndValueMap);
     }
 
     @Override

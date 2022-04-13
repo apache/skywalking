@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskCreatio
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
-import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -52,7 +51,6 @@ public class EBPFProfilingMutationService implements Service {
     private final ModuleManager moduleManager;
     private IEBPFProfilingTaskDAO processProfilingTaskDAO;
     private IServiceLabelDAO serviceLabelDAO;
-    private IMetadataQueryDAO metadataQueryDAO;
 
     private IEBPFProfilingTaskDAO getProcessProfilingTaskDAO() {
         if (processProfilingTaskDAO == null) {
@@ -61,15 +59,6 @@ public class EBPFProfilingMutationService implements Service {
                     .getService(IEBPFProfilingTaskDAO.class);
         }
         return processProfilingTaskDAO;
-    }
-
-    private IMetadataQueryDAO getMetadataQueryDAO() {
-        if (metadataQueryDAO == null) {
-            this.metadataQueryDAO = moduleManager.find(StorageModule.NAME)
-                    .provider()
-                    .getService(IMetadataQueryDAO.class);
-        }
-        return metadataQueryDAO;
     }
 
     public IServiceLabelDAO getServiceLabelDAO() {
@@ -124,11 +113,6 @@ public class EBPFProfilingMutationService implements Service {
         String err = null;
 
         err = requiredNotEmpty(err, "service", request.getServiceId());
-
-        // the service must have processes
-        if (err == null && getMetadataQueryDAO().getProcessesCount(request.getServiceId(), null, null) <= 0) {
-            err = "current service haven't any process";
-        }
 
         // the request label must be legal
         if (err == null && CollectionUtils.isNotEmpty(request.getProcessLabels())) {

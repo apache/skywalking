@@ -251,11 +251,13 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public long getProcessesCount(String serviceId, String instanceId, String agentId) throws IOException {
+    public long getProcessesCount(String serviceId, String instanceId, String agentId,
+                                  final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
         sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, 0, 0);
+        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId,
+                lastPingStartTimeBucket, lastPingEndTimeBucket);
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(

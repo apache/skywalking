@@ -74,7 +74,8 @@ public interface IMetadataQueryDAO extends DAO {
      * @param agentId the agent id which reports the process.
      * @return the size of processes
      */
-    long getProcessesCount(final String serviceId, final String instanceId, final String agentId) throws IOException;
+    long getProcessesCount(final String serviceId, final String instanceId, final String agentId,
+                           final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException;
 
     /**
      * @param processId the id of the process.
