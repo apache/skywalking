@@ -13,26 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-events:
-  {{- contains .events }}
-  - uuid: abcde
-    source:
-      service: e2e-service
-      serviceinstance: e2e-service-instance
-      endpoint: /e2e-endpoint
-    name: Upgrade
-    type: Normal
-    message: Upgrade from {fromVersion} to {toVersion}
-    parameters:
-      {{- contains .parameters }}
-      - key: fromVersion
-        value: v1
-      - key: toVersion
-        value: v2
-      {{- end }}
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    layer: GENERAL
-  {{- end }}
-total: 1
-
+level=fatal msg="rpc error: code = InvalidArgument desc = Unknown Layer name"
