@@ -486,16 +486,31 @@
                     "fontSize": 12
                   },
                   "metrics": [
-                    "service_instance_cpm"
+                    "service_instance_cpm",
+                    "service_instance_sla",
+                    "service_instance_resp_time"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
                   "moved": false,
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls or packets / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Latency",
+                      "unit": "ms"
                     }
                   ]
                 }
@@ -522,16 +537,31 @@
                     "showYAxis": false
                   },
                   "metrics": [
-                    "endpoint_cpm"
+                    "endpoint_cpm",
+                    "endpoint_sla",
+                    "endpoint_resp_time"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
                   "moved": false,
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls or packets / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Latency",
+                      "unit": "ms"
                     }
                   ]
                 }

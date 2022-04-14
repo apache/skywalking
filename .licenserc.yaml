@@ -49,6 +49,8 @@ header:
     - 'skywalking-ui/node'
     - 'skywalking-ui/.browserslistrc'
     - 'skywalking-ui/.prettierrc'
+    - 'skywalking-ui/src/types/auto-imports.d.ts'
+    - 'skywalking-ui/src/types/components.d.ts'
     - '**/src/main/fbs/istio/**'
     - '**/src/main/proto/envoy/**'
     - '**/src/main/proto/udpa/**'

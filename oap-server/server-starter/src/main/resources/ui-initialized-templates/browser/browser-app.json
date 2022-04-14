@@ -284,16 +284,24 @@
                     "fontSize": 12
                   },
                   "metrics": [
-                    "browser_app_single_version_pv"
+                    "browser_app_single_version_pv",
+                    "browser_app_single_version_error_rage"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
                   "moved": false,
                   "metricConfig": [
                     {
                       "label": "PV",
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Error Rate"
                     }
                   ]
                 }
@@ -320,16 +328,24 @@
                     "showYAxis": false
                   },
                   "metrics": [
-                    "browser_app_page_pv"
+                    "browser_app_page_pv",
+                    "browser_app_page_error_rate"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
                   "moved": false,
                   "metricConfig": [
                     {
                       "label": "PV",
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Error Rate"
                     }
                   ]
                 }

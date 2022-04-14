@@ -39,16 +39,24 @@
             "showGroup": true
           },
           "metrics": [
-            "browser_app_pv"
+            "browser_app_pv",
+            "browser_app_error_rage"
           ],
           "metricTypes": [
+            "readMetricsValues",
             "readMetricsValues"
           ],
           "moved": false,
           "metricConfig": [
             {
               "label": "PV",
-              "unit": "calls / min"
+              "unit": "calls / min",
+              "calculation": "average"
+            },
+            {
+              "calculation": "percentageAvg",
+              "unit": "%",
+              "label": "Error Rate"
             }
           ]
         },

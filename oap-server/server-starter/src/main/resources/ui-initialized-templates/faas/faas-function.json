@@ -354,16 +354,31 @@
                     "fontSize": 12
                   },
                   "metrics": [
-                    "service_instance_cpm"
+                    "service_instance_cpm",
+                    "service_instance_sla",
+                    "service_instance_resp_time"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
                   "moved": false,
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Latency",
+                      "unit": "ms"
                     }
                   ]
                 }
