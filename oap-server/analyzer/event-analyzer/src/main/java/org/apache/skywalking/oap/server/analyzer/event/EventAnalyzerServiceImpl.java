@@ -39,7 +39,7 @@ public class EventAnalyzerServiceImpl implements EventAnalyzerService, EventAnal
         final Event.Builder eb = event.toBuilder();
         if (event.getStartTime() <= 0 && event.getEndTime() <= 0) {
             log.warn(
-                "Event start time {} and end time are both invalid, they will be set to current time, eventId: {}",
+                "Event start time {} and end time {} are both invalid, they will be set to current time, eventId: {}",
                 event.getStartTime(),
                 event.getEndTime(),
                 event.getUuid());
