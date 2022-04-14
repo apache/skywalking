@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import com.google.gson.Gson;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -29,10 +30,9 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingProcessFinderType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.EBPFProfilingProcessFinder;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
@@ -40,10 +40,15 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskDAO {
+    private static final Gson GSON = new Gson();
+
     private final int taskMaxSize;
 
     public EBPFProfilingTaskEsDAO(ElasticSearchClient client, StorageModuleElasticsearchConfig config) {
@@ -52,23 +57,12 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
     }
 
     @Override
-    public List<EBPFProfilingTask> queryTasks(EBPFProfilingProcessFinder finder, EBPFProfilingTargetType targetType, long taskStartTime, long latestUpdateTime) throws IOException {
+    public List<EBPFProfilingTask> queryTasks(List<String> serviceIdList, EBPFProfilingTargetType targetType, long taskStartTime, long latestUpdateTime) throws IOException {
         final String index =
                 IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingTaskRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
 
-        if (finder.getFinderType() != null) {
-            query.must(Query.term(EBPFProfilingTaskRecord.PROCESS_FIND_TYPE, finder.getFinderType().value()));
-        }
-        if (StringUtil.isNotEmpty(finder.getServiceId())) {
-            query.must(Query.term(EBPFProfilingTaskRecord.SERVICE_ID, finder.getServiceId()));
-        }
-        if (StringUtil.isNotEmpty(finder.getInstanceId())) {
-            query.must(Query.term(EBPFProfilingTaskRecord.INSTANCE_ID, finder.getInstanceId()));
-        }
-        if (finder.getProcessIdList() != null) {
-            query.must(Query.terms(EBPFProfilingTaskRecord.PROCESS_ID, finder.getProcessIdList()));
-        }
+        query.must(Query.terms(EBPFProfilingTaskRecord.SERVICE_ID, serviceIdList));
         if (targetType != null) {
             query.must(Query.term(EBPFProfilingTaskRecord.TARGET_TYPE, targetType.value()));
         }
@@ -88,24 +82,25 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
     }
 
     private EBPFProfilingTask parseTask(final SearchHit hit) {
-        final EBPFProfilingTask task = new EBPFProfilingTask();
-        task.setTaskId(hit.getId());
-        task.setProcessFinderType(EBPFProfilingProcessFinderType.valueOf(((Number) hit.getSource().get(EBPFProfilingTaskRecord.PROCESS_FIND_TYPE)).intValue()));
-        final String serviceId = (String) hit.getSource().get(EBPFProfilingTaskRecord.SERVICE_ID);
-        task.setServiceId(serviceId);
-        task.setServiceName(IDManager.ServiceID.analysisId(serviceId).getName());
-        final String instanceId = (String) hit.getSource().get(EBPFProfilingTaskRecord.INSTANCE_ID);
-        task.setInstanceId(instanceId);
-        task.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
-        task.setProcessId((String) hit.getSource().get(EBPFProfilingTaskRecord.PROCESS_ID));
-        task.setProcessName((String) hit.getSource().get(EBPFProfilingTaskRecord.PROCESS_NAME));
-        task.setTaskStartTime(((Number) hit.getSource().get(EBPFProfilingTaskRecord.START_TIME)).longValue());
-        task.setTriggerType(EBPFProfilingTriggerType.valueOf(((Number) hit.getSource().get(EBPFProfilingTaskRecord.TRIGGER_TYPE)).intValue()));
-        task.setFixedTriggerDuration(((Number) hit.getSource().get(EBPFProfilingTaskRecord.FIXED_TRIGGER_DURATION)).longValue());
-        task.setTargetType(EBPFProfilingTargetType.valueOf(((Number) hit.getSource().get(EBPFProfilingTaskRecord.TARGET_TYPE)).intValue()));
-        task.setCreateTime(((Number) hit.getSource().get(EBPFProfilingTaskRecord.CREATE_TIME)).longValue());
-        task.setLastUpdateTime(((Number) hit.getSource().get(EBPFProfilingTaskRecord.LAST_UPDATE_TIME)).longValue());
+        final Map<String, Object> sourceAsMap = hit.getSource();
+        final EBPFProfilingTaskRecord.Builder builder = new EBPFProfilingTaskRecord.Builder();
+        final EBPFProfilingTaskRecord record = builder.storage2Entity(new HashMapConverter.ToEntity(sourceAsMap));
 
+        final EBPFProfilingTask task = new EBPFProfilingTask();
+        task.setTaskId(record.id());
+        task.setServiceId(record.getServiceId());
+        task.setServiceName(IDManager.ServiceID.analysisId(record.getServiceId()).getName());
+        if (StringUtil.isNotEmpty(record.getProcessLabelsJson())) {
+            task.setProcessLabels(GSON.<List<String>>fromJson(record.getProcessLabelsJson(), ArrayList.class));
+        } else {
+            task.setProcessLabels(Collections.emptyList());
+        }
+        task.setTaskStartTime(record.getStartTime());
+        task.setTriggerType(EBPFProfilingTriggerType.valueOf(record.getTriggerType()));
+        task.setFixedTriggerDuration(record.getFixedTriggerDuration());
+        task.setTargetType(EBPFProfilingTargetType.valueOf(record.getTargetType()));
+        task.setCreateTime(record.getCreateTime());
+        task.setLastUpdateTime(record.getLastUpdateTime());
         return task;
     }
 }

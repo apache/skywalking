@@ -47,12 +47,12 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
     }
 
     @Override
-    public List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime) throws IOException {
+    public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) throws IOException {
         final String index =
                 IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingDataRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
         final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
-        query.must(Query.term(EBPFProfilingDataRecord.TASK_ID, taskId));
+        query.must(Query.terms(EBPFProfilingDataRecord.SCHEDULE_ID, scheduleIdList));
         query.must(Query.range(EBPFProfilingDataRecord.UPLOAD_TIME).gte(beginTime).lt(endTime));
 
         final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);

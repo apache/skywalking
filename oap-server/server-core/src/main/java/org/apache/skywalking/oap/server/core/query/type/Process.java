@@ -47,8 +47,10 @@ public class Process {
     @Setter
     private String detectType;
     private final List<Attribute> attributes;
+    private final List<String> labels;
 
     public Process() {
         this.attributes = new ArrayList<>();
+        this.labels = new ArrayList<>();
     }
 }

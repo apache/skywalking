@@ -69,7 +69,7 @@ public class EBPFProfilingAnalyzer {
     /**
      * search data and analyze
      */
-    public EBPFProfilingAnalyzation analyze(String taskId, List<EBPFProfilingAnalyzeTimeRange> ranges) throws IOException {
+    public EBPFProfilingAnalyzation analyze(List<String> scheduleIdList, List<EBPFProfilingAnalyzeTimeRange> ranges) throws IOException {
         EBPFProfilingAnalyzation analyzation = new EBPFProfilingAnalyzation();
 
         String timeRangeValidate = validateIsOutOfTimeRangeLimit(ranges);
@@ -82,7 +82,7 @@ public class EBPFProfilingAnalyzer {
         long queryDataMaxTimestamp = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(maxQueryTimeoutInSecond);
         final Stream<EBPFProfilingStack> stackStream = buildTimeRanges(ranges).parallelStream().map(r -> {
             try {
-                return fetchDataThreadPool.submit(() -> getDataDAO().queryData(taskId, r.getMinTime(), r.getMaxTime()))
+                return fetchDataThreadPool.submit(() -> getDataDAO().queryData(scheduleIdList, r.getMinTime(), r.getMaxTime()))
                         .get(queryDataMaxTimestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);

@@ -49,13 +49,13 @@ public class CommandService implements Service {
     /**
      * Used to notify the eBPF Profiling task to the eBPF agent side
      */
-    public EBPFProfilingTaskCommand newEBPFProfilingTaskCommand(EBPFProfilingTask task) {
+    public EBPFProfilingTaskCommand newEBPFProfilingTaskCommand(EBPFProfilingTask task, String processId) {
         final String serialNumber = UUID.randomUUID().toString();
         EBPFProfilingTaskCommand.FixedTrigger fixedTrigger = null;
         if (Objects.equals(task.getTriggerType(), EBPFProfilingTriggerType.FIXED_TIME)) {
             fixedTrigger = new EBPFProfilingTaskCommand.FixedTrigger(task.getFixedTriggerDuration());
         }
-        return new EBPFProfilingTaskCommand(serialNumber, task.getTaskId(), task.getProcessId(), task.getCreateTime(),
+        return new EBPFProfilingTaskCommand(serialNumber, task.getTaskId(), processId, task.getCreateTime(),
                 task.getLastUpdateTime(), task.getTriggerType().name(), fixedTrigger, task.getTargetType().name());
     }
 

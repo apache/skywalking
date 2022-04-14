@@ -22,17 +22,15 @@ import lombok.Data;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 
+import java.util.List;
+
 @Data
 public class EBPFProfilingTask {
 
     private String taskId;
-    private EBPFProfilingProcessFinderType processFinderType;
     private String serviceId;
     private String serviceName;
-    private String instanceId;
-    private String instanceName;
-    private String processId;
-    private String processName;
+    private List<String> processLabels;
     private long taskStartTime;
     private EBPFProfilingTriggerType triggerType;
     private long fixedTriggerDuration;

@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.utils.IoTDBUtils;
 
 @Slf4j
@@ -40,7 +42,7 @@ public class IoTDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
     private final StorageBuilder<EBPFProfilingDataRecord> storageBuilder = new EBPFProfilingDataRecord.Builder();
 
     @Override
-    public List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime)
+    public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime)
             throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
@@ -49,7 +51,8 @@ public class IoTDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
         IoTDBUtils.addQueryIndexValue(EBPFProfilingDataRecord.INDEX_NAME, query, indexAndValueMap);
 
         StringBuilder where = new StringBuilder(" where ");
-        where.append(EBPFProfilingDataRecord.TASK_ID).append(" = \"").append(taskId).append("\" and ");
+        where.append(EBPFProfilingDataRecord.SCHEDULE_ID).append(" in (").append(
+                scheduleIdList.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(","))).append(") and ");
         where.append(EBPFProfilingDataRecord.UPLOAD_TIME).append(" >= ").append(beginTime).append(" and ");
         where.append(EBPFProfilingDataRecord.UPLOAD_TIME).append(" <= ").append(endTime).append(" and ");
         if (where.length() > 7) {
