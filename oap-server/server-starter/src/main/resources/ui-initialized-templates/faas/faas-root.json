@@ -61,16 +61,37 @@
                     "showGroup": false
                   },
                   "metrics": [
-                    "service_cpm"
+                    "service_cpm",
+                    "service_sla",
+                    "service_resp_time",
+                    "service_apdex"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
                   "moved": false,
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Latency",
+                      "unit": "ms"
+                    },
+                    {
+                      "calculation": "apdexAvg",
+                      "label": "Apdex"
                     }
                   ]
                 }
