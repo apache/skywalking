@@ -499,7 +499,7 @@
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls / min",
+                      "unit": "calls or packets / min",
                       "calculation": "average"
                     },
                     {
@@ -550,7 +550,7 @@
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls / min",
+                      "unit": "calls or packets / min",
                       "calculation": "average"
                     },
                     {

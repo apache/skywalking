@@ -37,16 +37,24 @@
           },
           "standard": {},
           "metrics": [
-            "meter_oap_instance_cpu_percentage"
+            "meter_oap_instance_cpu_percentage",
+            "meter_oap_instance_persistence_execute_count"
           ],
           "metricTypes": [
+            "readMetricsValues",
             "readMetricsValues"
           ],
           "moved": false,
           "metricConfig": [
             {
-              "label": "CPU",
-              "unit": "%"
+              "label": "CPU Avg Usage",
+              "unit": "%",
+              "calculation": "average"
+            },
+            {
+              "label": "Persistence Count",
+              "unit": "Per 5 Minutes",
+              "calculation": "average"
             }
           ]
         },

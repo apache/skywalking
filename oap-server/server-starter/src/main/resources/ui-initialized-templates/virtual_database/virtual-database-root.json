@@ -39,16 +39,31 @@
             "showGroup": false
           },
           "metrics": [
-            "database_access_resp_time"
+            "database_access_resp_time",
+            "database_access_sla",
+            "database_access_cpm"
           ],
           "metricTypes": [
+            "readMetricsValues",
+            "readMetricsValues",
             "readMetricsValues"
           ],
           "moved": false,
           "metricConfig": [
             {
               "unit": "ms",
-              "label": "Latency"
+              "label": "Latency",
+              "calculation": "average"
+            },
+            {
+              "label": "Successful Rate",
+              "unit": "%",
+              "calculation": "percentageAvg"
+            },
+            {
+              "label": "Traffic",
+              "unit": "calls / min",
+              "calculation": "average"
             }
           ]
         },
