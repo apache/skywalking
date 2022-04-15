@@ -17,7 +17,7 @@
   please delete index/table: `ebpf_profiling_task`, `process_traffic`.
 * Fix event can't split service ID into 2 parts.
 * Fix OAP Self-Observability metric `GC Time` calculation.
-* Set `SW_QUERY_MAX_QUERY_COMPLEXITY` default vale to `1000`
+* Set `SW_QUERY_MAX_QUERY_COMPLEXITY` default value to `1000`
 * Webapp module (for UI) enabled compression.
 
 #### UI
