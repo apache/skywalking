@@ -210,7 +210,7 @@ public class H2EventQueryDAO implements IEventQueryDAO {
 
         if (!isNullOrEmpty(condition.getLayer())) {
             conditions.add(Event.LAYER + "=?");
-            parameters.add(condition.getLayer());
+            parameters.add(String.valueOf(Layer.nameOf(condition.getLayer()).value()));
         }
 
         return Tuple.of(conditions.build(), parameters.build());
