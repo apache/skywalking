@@ -47,8 +47,9 @@
           "moved": false,
           "metricConfig": [
             {
-              "label": "CPU",
-              "unit": "%"
+              "label": "CPU Usage",
+              "unit": "%",
+              "calculation": "average"
             }
           ]
         },
@@ -76,11 +77,11 @@
           "moved": false
         }
       ],
-      "name": "Linux-Root",
+      "id": "Linux-Root",
       "layer": "OS_LINUX",
       "entity": "All",
-      "isRoot": true,
-      "id": "Linux-Root"
+      "name": "Linux-Root",
+      "isRoot": true
     }
   }
 ]

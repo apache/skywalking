@@ -28,10 +28,14 @@
           "i": "0",
           "type": "Widget",
           "metricTypes": [
-            ""
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues"
           ],
           "metrics": [
-            ""
+            "k8s_service_pod_total",
+            "k8s_service_cpu_cores_requests",
+            "k8s_service_cpu_cores_limits"
           ],
           "moved": false,
           "graph": {
@@ -41,7 +45,23 @@
             "showXAxis": false,
             "showYAxis": false,
             "showGroup": true
-          }
+          },
+          "metricConfig": [
+            {
+              "calculation": "average",
+              "label": "Pod"
+            },
+            {
+              "label": "CPU Requests",
+              "calculation": "average",
+              "unit": "m"
+            },
+            {
+              "label": "CPU Limits",
+              "unit": "m",
+              "calculation": "average"
+            }
+          ]
         },
         {
           "x": 0,
@@ -67,6 +87,7 @@
           "moved": false
         }
       ],
+      "id": "K8S-Service-Root",
       "layer": "K8S_SERVICE",
       "entity": "All",
       "name": "K8S-Service-Root",
