@@ -55,7 +55,7 @@ import org.apache.skywalking.oap.server.library.server.pool.CustomThreadFactory;
 @Slf4j
 public class KafkaFetcherHandlerRegister {
 
-    private ImmutableMap.Builder<String, KafkaHandler> builder;
+    private ImmutableMap.Builder<String, KafkaHandler> builder = ImmutableMap.builder();
     private ImmutableMap<String, KafkaHandler> handlerMap;
 
     private final KafkaFetcherConfig config;
