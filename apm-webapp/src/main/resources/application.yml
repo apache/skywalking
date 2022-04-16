@@ -16,7 +16,8 @@
 
 server:
   port: 8080
-
+  compression:
+    enabled: true
 spring:
   cloud:
     gateway:

@@ -15,13 +15,18 @@
 * Simplify the Kafka Fetch configuration in cluster mode.
 * [Breaking Change] Update the eBPF Profiling task to the service level,
   please delete index/table: `ebpf_profiling_task`, `process_traffic`.
+* Fix event can't split service ID into 2 parts.
+* Fix OAP Self-Observability metric `GC Time` calculation.
+* Set `SW_QUERY_MAX_QUERY_COMPLEXITY` default value to `1000`
+* Webapp module (for UI) enabled compression.
 
 #### UI
 
 * General service instance: move `Thread Pool` from JVM to Overview, fix `JVM GC Count` calculation.
 * Add Apache ShenYu (incubating) component LOGO.
+* Show more metrics on service/instance/endpoint list on the dashboards.
+* Support average values of metrics on the service/list/endpoint table widgets, with pop-up linear graph
 
 #### Documentation
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/128?closed=1)
-
