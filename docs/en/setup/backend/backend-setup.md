@@ -19,7 +19,7 @@ Requirement: **JDK8 to JDK17 are tested**. Other versions are not tested and may
 
 Before you start, you should know that the main purpose of quickstart is to help you obtain a basic configuration for previews/demo. Performance and long-term running are not our goals.
 
-For production/QA/tests environments, see [Backend and UI deployment documents](#deploy-backend-and-ui).
+For production/QA/tests environments, see [Backend and UI deployment documents](ui-setup.md).
 
 You can use `bin/startup.sh` (or cmd) to start up the backend and UI with their default settings, set out as follows:
 
