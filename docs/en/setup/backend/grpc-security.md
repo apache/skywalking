@@ -31,7 +31,7 @@ We need the following files:
 By default, the communication between OAP nodes and the communication between receiver and probe share the same gRPC server. That means once you enabling SSL for receivers and probes, the OAP nodes will enable it too.
 
 
-**NOTE**: SkyWalking **does not** support to enable mTLS on `OAP server nodes communication`. That means you have to enable `receiver-sharing-server` for enabling mTLS on communication between probes ang OAP servers. More details see [Enable mTLS mode on gRPC receiver](#Enable_mTLS_mode_on_gRPC_receiver).
+**NOTE**: SkyWalking **does not** support to enable mTLS on `OAP server nodes communication`. That means you have to enable `receiver-sharing-server` for enabling mTLS on communication between probes ang OAP servers. More details see [Enable mTLS mode on gRPC receiver](#enable-mtls-mode-on-grpc-receiver).
 
 
 You can enable gRPC SSL by adding the following lines to `application.yml/core/default`.

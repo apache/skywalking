@@ -71,7 +71,7 @@ Please follow the [REPORTING GUIDELINES](https://www.apache.org/foundation/polic
 # Contact Us
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
 * Send `Request to join SkyWalking slack` mail to the mail list(`dev@skywalking.apache.org`), we will invite you in.
-* Twitter, [ASFSkyWalking](https://twitter.com/ASFSkyWalking)
+* Twitter, [ASFSkyWalking](https://twitter.com/AsfSkyWalking)
 * QQ Group: 901167865(Recommended), 392443393
 * [bilibili B站 视频](https://space.bilibili.com/390683219)
 
