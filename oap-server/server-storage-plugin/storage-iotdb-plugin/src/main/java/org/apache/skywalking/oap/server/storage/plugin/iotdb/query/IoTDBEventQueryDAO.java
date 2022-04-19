@@ -172,6 +172,9 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
                      .append(" and ");
             }
         }
+        if (!Strings.isNullOrEmpty(condition.getLayer())) {
+            where.append(Event.LAYER).append(" = \"").append(condition.getLayer()).append("\"").append(" and ");
+        }
         if (where.length() > 0) {
             int length = where.length();
             where.delete(length - 5, length);
@@ -209,6 +212,7 @@ public class IoTDBEventQueryDAO implements IEventQueryDAO {
         resultEvent.setParameters(event.getParameters());
         resultEvent.setStartTime(event.getStartTime());
         resultEvent.setEndTime(event.getEndTime());
+        resultEvent.setLayer(event.getLayer().name());
         return resultEvent;
     }
 }
