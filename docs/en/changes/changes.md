@@ -20,6 +20,7 @@
 * Set `SW_QUERY_MAX_QUERY_COMPLEXITY` default value to `1000`
 * Webapp module (for UI) enabled compression.
 * [Breaking Change] Add layer field to event, report an event without layer is not allowed.
+* Fix ES flush thread stops when flush schedule task throws exception, such as ElasticSearch flush failed.
 
 #### UI
 
