@@ -37,13 +37,13 @@ public class H2EBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
     private JDBCHikariCPClient h2Client;
 
     @Override
-    public List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime) throws IOException {
+    public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) throws IOException {
         final StringBuilder sql = new StringBuilder();
         final StringBuilder conditionSql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(4);
+        List<Object> condition = new ArrayList<>(scheduleIdList.size() + 2);
         sql.append("select * from ").append(EBPFProfilingDataRecord.INDEX_NAME);
 
-        appendCondition(conditionSql, condition, EBPFProfilingDataRecord.TASK_ID, "=", taskId);
+        appendListCondition(conditionSql, condition, EBPFProfilingDataRecord.SCHEDULE_ID, scheduleIdList);
         appendCondition(conditionSql, condition, EBPFProfilingDataRecord.UPLOAD_TIME, ">=", beginTime);
         appendCondition(conditionSql, condition, EBPFProfilingDataRecord.UPLOAD_TIME, "<", endTime);
 
@@ -86,5 +86,20 @@ public class H2EBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
         }
         conditionSql.append(filed).append(compare).append("?");
         condition.add(data);
+    }
+
+    private <T> void appendListCondition(StringBuilder conditionSql, List<Object> condition, String filed, List<T> data) {
+        if (conditionSql.length() > 0) {
+            conditionSql.append(" and ");
+        }
+        conditionSql.append(filed).append(" in (");
+        for (int i = 0; i < data.size(); i++) {
+            if (i > 0) {
+                conditionSql.append(", ");
+            }
+            conditionSql.append("?");
+            condition.add(data.get(i));
+        }
+        conditionSql.append(")");
     }
 }

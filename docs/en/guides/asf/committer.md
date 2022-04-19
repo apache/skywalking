@@ -105,7 +105,7 @@ The PMC member should add the new committer to the official committer list throu
 ### Set up the Apache ID and dev env
 1. Go to [Apache Account Utility Platform](https://id.apache.org/), create your password, set up your personal mailbox (`Forwarding email address`) and GitHub account(`Your GitHub Username`). An organizational invite will be sent to you via email shortly thereafter (within 2 hours).
 1. If you would like to use the `xxx@apache.org` email service, please refer to [here](https://infra.apache.org/committer-email.html). Gmail is recommended, because this forwarding mode is not easy to find in most mailbox service settings.
-1. Follow the [authorized GitHub 2FA wiki](https://help.github.com/articles/configuring-two-factor-authentication-via-a-totp-mobile-app/) to enable two-factor authorization (2FA) on [Github](http://github.com/). When you set 2FA to "off", it will be delisted by the corresponding Apache committer write permission group until you set it up again. (**NOTE: Treat your recovery codes with the same level of attention as you would your password!**)
+1. Follow the [authorized GitHub 2FA wiki](https://docs.github.com/en/authentication/securing-your-account-with-two-factor-authentication-2fa/configuring-two-factor-authentication#configuring-two-factor-authentication-using-a-totp-mobile-app) to enable two-factor authorization (2FA) on [Github](http://github.com/). When you set 2FA to "off", it will be delisted by the corresponding Apache committer write permission group until you set it up again. (**NOTE: Treat your recovery codes with the same level of attention as you would your password!**)
 1. Use [GitBox Account Linking Utility](https://gitbox.apache.org/setup/) to obtain write permission of the SkyWalking project.
 1. Follow this [doc](https://github.com/apache/skywalking-website#how-to-add-a-new-committer) to update the website.
 
@@ -136,7 +136,7 @@ The V.P. and chair of the PMC is the secretary, who is responsible for initializ
 
 In most cases, a new PMC member is nominated from the committer team. But it is also possible to become a PMC member directly, so long as the PMC agrees to the nomination and is confident that the candidate is ready. For instance, this can be demonstrated by the fact that he/she has been an Apache member, an Apache officer, or a PMC member of another project.
 
-The new PMC voting process should also follow the `[DISCUSS]`, `[VOTE]` and `[RESULT][VOTE]` procedures using a private mail list, just like the [voting process for new committers](#new-committer-nomination).
+The new PMC voting process should also follow the `[DISCUSS]`, `[VOTE]` and `[RESULT][VOTE]` procedures using a private mail list, just like the [voting process for new committers](#nominate-new-committer).
 Before sending the invitation, the PMC [must also send a NOTICE mail to the Apache board](http://www.apache.org/dev/pmc.html#newpmc).
 ```
 To: board@apache.org

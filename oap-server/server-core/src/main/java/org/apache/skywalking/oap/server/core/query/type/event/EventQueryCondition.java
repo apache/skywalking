@@ -43,5 +43,7 @@ public class EventQueryCondition {
 
     private Order order;
 
+    private String layer;
+
     private Pagination paging;
 }

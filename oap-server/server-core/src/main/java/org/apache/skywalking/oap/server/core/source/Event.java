@@ -44,6 +44,7 @@ import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlan
 @Getter
 @Setter
 @ScopeDeclaration(id = EVENT, name = "Event", catalog = SERVICE_CATALOG_NAME)
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 @Stream(name = Event.INDEX_NAME, scopeId = EVENT, builder = Event.Builder.class, processor = MetricsStreamProcessor.class)
 @EqualsAndHashCode(
     callSuper = false,

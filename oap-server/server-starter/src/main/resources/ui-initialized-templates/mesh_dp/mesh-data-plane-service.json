@@ -36,12 +36,30 @@
             "fontSize": 12
           },
           "metrics": [
-            ""
+            "envoy_total_connections_used",
+            "envoy_worker_threads",
+            "envoy_bug_failures"
           ],
           "metricTypes": [
-            ""
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "label": "Connections Used",
+              "calculation": "average"
+            },
+            {
+              "label": "Work Threads",
+              "calculation": "average"
+            },
+            {
+              "calculation": "average",
+              "label": "Bug Failures"
+            }
+          ]
         }
       ],
       "layer": "MESH_DP",

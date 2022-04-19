@@ -32,4 +32,9 @@
     - name: command_line
       value: /sqrt
     {{- end }}
+  labels:
+    {{- contains .labels }}
+    - e2e-label1
+    - e2e-label2
+    {{- end }}
 {{- end }}

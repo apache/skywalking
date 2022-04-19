@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
+import com.google.common.base.Joiner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
@@ -35,9 +36,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lt;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.regex;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
@@ -46,7 +47,7 @@ public class EBPFProfilingDataQuery implements IEBPFProfilingDataDAO {
     private final InfluxClient client;
 
     @Override
-    public List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime) throws IOException {
+    public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> query = select(
                 EBPFProfilingDataRecord.SCHEDULE_ID,
                 EBPFProfilingDataRecord.TASK_ID,
@@ -58,7 +59,7 @@ public class EBPFProfilingDataQuery implements IEBPFProfilingDataDAO {
                 .from(client.getDatabase(), EBPFProfilingDataRecord.INDEX_NAME)
                 .where();
 
-        query.and(eq(EBPFProfilingDataRecord.TASK_ID, taskId));
+        query.and(regex(EBPFProfilingDataRecord.SCHEDULE_ID, "/" + Joiner.on("|").join(scheduleIdList) + "/"));
         query.and(gte(EBPFProfilingDataRecord.UPLOAD_TIME, beginTime));
         query.and(lt(EBPFProfilingDataRecord.UPLOAD_TIME, endTime));
 

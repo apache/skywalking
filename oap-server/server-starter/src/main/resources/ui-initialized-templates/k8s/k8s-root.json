@@ -36,15 +36,45 @@
             "fontSize": 12,
             "showXAxis": false,
             "showYAxis": false,
-            "showGroup": true
+            "showGroup": false
           },
           "metrics": [
-            ""
+            "k8s_cluster_node_total",
+            "k8s_cluster_namespace_total",
+            "k8s_cluster_deployment_total",
+            "k8s_cluster_service_total",
+            "k8s_cluster_pod_total"
           ],
           "metricTypes": [
-            ""
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "average",
+              "label": "Node"
+            },
+            {
+              "calculation": "average",
+              "label": "Namespace"
+            },
+            {
+              "calculation": "average",
+              "label": "Deployment"
+            },
+            {
+              "calculation": "average",
+              "label": "Service"
+            },
+            {
+              "calculation": "average",
+              "label": "Pod"
+            }
+          ]
         },
         {
           "x": 0,
@@ -70,11 +100,11 @@
           "moved": false
         }
       ],
+      "id": "K8S-Root",
       "layer": "K8S",
       "entity": "All",
       "name": "K8S-Root",
-      "isRoot": true,
-      "id": "K8S-Root"
+      "isRoot": true
     }
   }
 ]

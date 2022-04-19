@@ -81,7 +81,7 @@
           "i": "2",
           "type": "Widget",
           "widget": {
-            "title": "GC Time (ms)"
+            "title": "GC Time (ms / min)"
           },
           "graph": {
             "type": "Line",
