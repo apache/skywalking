@@ -26,6 +26,7 @@ import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.source.Event;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -105,6 +106,7 @@ public class EventQueryDAO implements IEventQueryDAO {
         event.setParameters((String) data.get(Event.PARAMETERS));
         event.setStartTime(((Number) data.get(Event.START_TIME)).longValue());
         event.setEndTime(((Number) data.get(Event.END_TIME)).longValue());
+        event.setLayer(Layer.valueOf(((Number) data.get(Event.LAYER)).intValue()).name());
 
         return event;
     }
@@ -171,6 +173,11 @@ public class EventQueryDAO implements IEventQueryDAO {
                 countWhereQuery.and(lt(Event.END_TIME, startTime.getEndTimestamp()));
             }
         }
+
+        if (!isNullOrEmpty(condition.getLayer())) {
+            recallWhereQuery.and(eq(InfluxConstants.TagName.LAYER, condition.getLayer()));
+            countWhereQuery.and(eq(InfluxConstants.TagName.LAYER, condition.getLayer()));
+        }
     }
 
     protected void buildQueryByCondition(List<WhereQueryImpl<SelectQueryImpl>> queries, List<EventQueryCondition> conditions) {
@@ -222,6 +229,12 @@ public class EventQueryDAO implements IEventQueryDAO {
                     countOrNested.and(lt(Event.END_TIME, startTime.getEndTimestamp()));
                 }
             }
+
+            if (!isNullOrEmpty(c.getLayer())) {
+                recallOrNested.and(eq(InfluxConstants.TagName.LAYER, c.getLayer()));
+                countOrNested.and(eq(InfluxConstants.TagName.LAYER, c.getLayer()));
+            }
+
             recallOrNested.close();
             countOrNested.close();
         });
