@@ -44,20 +44,20 @@ public class EventRestServiceHandler {
 
     public EventRestServiceHandler(final ModuleManager manager) {
         final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
-                .provider()
-                .getService(MetricsCreator.class);
+                                                     .provider()
+                                                     .getService(MetricsCreator.class);
 
         eventAnalyzerService = manager.find(EventAnalyzerModule.NAME)
-                .provider()
-                .getService(EventAnalyzerService.class);
+                                      .provider()
+                                      .getService(EventAnalyzerService.class);
 
         histogram = metricsCreator.createHistogramMetric(
-                "event_in_latency", "The process latency of event data",
-                new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
+            "event_in_latency", "The process latency of event data",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
         errorCounter = metricsCreator.createCounter(
-                "event_error_count", "The error number of event analysis",
-                new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
+            "event_error_count", "The error number of event analysis",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
     }
 
