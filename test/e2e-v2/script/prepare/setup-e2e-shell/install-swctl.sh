@@ -32,7 +32,7 @@ install_swctl() {
 if ! command -v swctl &> /dev/null; then
   echo "swctl is not installed"
   install_swctl
-elif ! echo "$(swctl --version)" | grep -q "${SW_CTL_COMMIT}"; then
+elif ! swctl --version | grep -q "${SW_CTL_COMMIT}"; then
   # Check if the installed version is correct
   echo "swctl is already installed, but version is not ${SW_CTL_COMMIT}, will re-install it"
   install_swctl

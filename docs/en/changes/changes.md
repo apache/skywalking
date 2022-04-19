@@ -19,7 +19,7 @@
 * Fix OAP Self-Observability metric `GC Time` calculation.
 * Set `SW_QUERY_MAX_QUERY_COMPLEXITY` default value to `1000`
 * Webapp module (for UI) enabled compression.
-* [Breaking Change] Add layer field to event, report an event without layer will not be allowed.
+* [Breaking Change] Add layer field to event, report an event without layer is not allowed.
 
 #### UI
 
