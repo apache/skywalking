@@ -21,7 +21,7 @@
 * Webapp module (for UI) enabled compression.
 * [Breaking Change] Add layer field to event, report an event without layer is not allowed.
 * Fix ES flush thread stops when flush schedule task throws exception, such as ElasticSearch flush failed.
-
+* Fix ES BulkProcessor in BatchProcessEsDAO Initialize multiple times and create multiple ES flush schedule task.
 #### UI
 
 * General service instance: move `Thread Pool` from JVM to Overview, fix `JVM GC Count` calculation.
