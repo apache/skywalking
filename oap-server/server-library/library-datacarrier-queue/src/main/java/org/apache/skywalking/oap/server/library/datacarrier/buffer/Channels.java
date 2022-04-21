@@ -83,6 +83,9 @@ public class Channels<T> {
         return this.bufferChannels.length;
     }
 
+    /**
+     * @return the whole size of channels.
+     */
     public long size() {
         return size;
     }

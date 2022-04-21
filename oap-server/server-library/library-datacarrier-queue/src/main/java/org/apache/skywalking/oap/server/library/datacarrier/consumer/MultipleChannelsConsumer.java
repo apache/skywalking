@@ -147,7 +147,7 @@ public class MultipleChannelsConsumer extends Thread {
                 }
 
                 if (!consumeList.isEmpty()) {
-                    priority = (priority + (int) (consumeList.size() * 100 / channels.getChannelSize() * channels.size())) / 2;
+                    priority = (priority + (int) (consumeList.size() * 100 / channels.size())) / 2;
                     try {
                         consumer.consume(consumeList);
                     } catch (Throwable t) {
