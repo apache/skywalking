@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.server;
 
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.List;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
 
 public class HTTPHandlerRegisterImpl implements HTTPHandlerRegister {
@@ -29,7 +31,7 @@ public class HTTPHandlerRegisterImpl implements HTTPHandlerRegister {
     }
 
     @Override
-    public void addHandler(Object httpService) {
-        server.addHandler(httpService);
+    public void addHandler(final Object httpService, final List<HttpMethod> httpMethods) {
+        server.addHandler(httpService, httpMethods);
     }
 }
