@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 @Slf4j
 public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
-    private BulkProcessor bulkProcessor;
+    private volatile BulkProcessor bulkProcessor;
     private final int bulkActions;
     private final int flushInterval;
     private final int concurrentRequests;
@@ -50,7 +50,11 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     @Override
     public void insert(InsertRequest insertRequest) {
         if (bulkProcessor == null) {
-            this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
+            synchronized (this) {
+                if (bulkProcessor == null) {
+                    this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
+                }
+            }
         }
 
         this.bulkProcessor.add(((IndexRequestWrapper) insertRequest).getRequest());
@@ -59,7 +63,11 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     @Override
     public CompletableFuture<Void> flush(List<PrepareRequest> prepareRequests) {
         if (bulkProcessor == null) {
-            this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
+            synchronized (this) {
+                if (bulkProcessor == null) {
+                    this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
+                }
+            }
         }
 
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
