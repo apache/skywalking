@@ -28,7 +28,7 @@
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>25</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <modules>
