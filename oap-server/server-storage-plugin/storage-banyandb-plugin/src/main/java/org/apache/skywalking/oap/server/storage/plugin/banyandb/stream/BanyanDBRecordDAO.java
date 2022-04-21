@@ -29,7 +29,6 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetadata;
 
 import java.io.IOException;
 
@@ -39,17 +38,15 @@ public class BanyanDBRecordDAO implements IRecordDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        StreamMetadata metadata = MetadataRegistry.INSTANCE.findStreamMetadata(model.getName());
+        MetadataRegistry.PartialMetadata metadata = MetadataRegistry.INSTANCE.findSchema(model.getName());
         if (metadata == null) {
             throw new IOException(model.getName() + " is not registered");
         }
         StreamWrite streamWrite = new StreamWrite(metadata.getGroup(), // group name
                 model.getName(), // index-name
                 record.id(), // identity
-                TimeBucket.getTimestamp(record.getTimeBucket(), model.getDownsampling()), // timestamp
-                metadata.getDataFamilySize(), // length of the "data" tag family
-                metadata.getSearchableFamilySize()); // length of the "searchable" tag family
-        Convert2Storage<StreamWrite> convert2Storage = new BanyanDBConverter.StreamToStorage(metadata, streamWrite);
+                TimeBucket.getTimestamp(record.getTimeBucket(), model.getDownsampling())); // timestamp
+        Convert2Storage<StreamWrite> convert2Storage = new BanyanDBConverter.StreamToStorage(streamWrite);
         storageBuilder.entity2Storage(record, convert2Storage);
 
         return new BanyanDBStreamInsertRequest(convert2Storage.obtain());

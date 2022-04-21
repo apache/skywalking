@@ -18,28 +18,27 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetadata;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * {@link org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord} is a stream
+ * {@link ProfileTaskLogRecord} is a stream
  */
 public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implements IProfileTaskLogQueryDAO {
-    private final StreamMetadata profileTaskLogRecord =
-            MetadataRegistry.INSTANCE.findStreamMetadata(ProfileTaskLogRecord.INDEX_NAME);
+    private final MetadataRegistry.PartialMetadata profileTaskLogRecord =
+            MetadataRegistry.INSTANCE.findSchema(ProfileTaskLogRecord.INDEX_NAME);
 
     private final int queryMaxSize;
 
@@ -51,12 +50,11 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
     @Override
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
         StreamQueryResponse resp = query(profileTaskLogRecord,
-                ImmutableList.of(ProfileTaskLogRecord.OPERATION_TIME, ProfileTaskLogRecord.INSTANCE_ID),
+                ImmutableSet.of(ProfileTaskLogRecord.OPERATION_TIME, ProfileTaskLogRecord.INSTANCE_ID,
+                        ProfileTaskLogRecord.TASK_ID, ProfileTaskLogRecord.OPERATION_TYPE),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.setDataProjections(ImmutableList.of(ProfileTaskLogRecord.TASK_ID,
-                                ProfileTaskLogRecord.OPERATION_TYPE));
                         query.setLimit(BanyanDBProfileTaskLogQueryDAO.this.queryMaxSize);
                     }
                 });
@@ -72,15 +70,13 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
     private ProfileTaskLog parseTaskLog(RowEntity data) {
         return ProfileTaskLog.builder()
                 .id(data.getId())
-                .taskId(data.getValue(StreamMetadata.TAG_FAMILY_DATA, ProfileTaskLogRecord.TASK_ID))
+                .taskId(data.getTagValue(ProfileTaskLogRecord.TASK_ID))
                 .instanceId(
-                        data.getValue(StreamMetadata.TAG_FAMILY_DATA, ProfileTaskLogRecord.INSTANCE_ID))
+                        data.getTagValue(ProfileTaskLogRecord.INSTANCE_ID))
                 .operationType(ProfileTaskLogOperationType.parse(
-                        ((Number) data.getValue(StreamMetadata.TAG_FAMILY_DATA,
-                                ProfileTaskLogRecord.OPERATION_TYPE)).intValue()))
+                        ((Number) data.getTagValue(ProfileTaskLogRecord.OPERATION_TYPE)).intValue()))
                 .operationTime(
-                        ((Number) data.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE,
-                                ProfileTaskLogRecord.OPERATION_TIME)).longValue())
+                        ((Number) data.getTagValue(ProfileTaskLogRecord.OPERATION_TIME)).longValue())
                 .build();
     }
 }

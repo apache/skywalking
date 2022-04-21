@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -34,7 +34,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetadata;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,8 +44,8 @@ import java.util.Objects;
  * which can be used to build a {@link org.apache.skywalking.oap.server.core.query.type.AlarmMessage}
  */
 public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarmQueryDAO {
-    private final StreamMetadata alarmRecordMetadata =
-            MetadataRegistry.INSTANCE.findStreamMetadata(AlarmRecord.INDEX_NAME);
+    private final MetadataRegistry.PartialMetadata alarmRecordMetadata =
+            MetadataRegistry.INSTANCE.findSchema(AlarmRecord.INDEX_NAME);
 
     public BanyanDBAlarmQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -60,13 +59,11 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
         }
 
         StreamQueryResponse resp = query(alarmRecordMetadata,
-                ImmutableList.of(AlarmRecord.SCOPE, AlarmRecord.START_TIME),
+                ImmutableSet.of(AlarmRecord.SCOPE, AlarmRecord.START_TIME, AlarmRecord.ID0, AlarmRecord.ID1, AlarmRecord.ALARM_MESSAGE, AlarmRecord.TAGS_RAW_DATA),
                 tsRange,
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.setDataProjections(ImmutableList.of(AlarmRecord.ID0, AlarmRecord.ID1, AlarmRecord.ALARM_MESSAGE, AlarmRecord.TAGS_RAW_DATA));
-
                         if (Objects.nonNull(scopeId)) {
                             query.appendCondition(eq(AlarmRecord.SCOPE, (long) scopeId));
                         }
@@ -90,7 +87,7 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
         for (final RowEntity rowEntity : resp.getElements()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();
             AlarmRecord alarmRecord = builder.storage2Entity(
-                    new BanyanDBConverter.StreamToEntity(this.alarmRecordMetadata, rowEntity)
+                    new BanyanDBConverter.StreamToEntity(rowEntity)
             );
 
             AlarmMessage message = new AlarmMessage();

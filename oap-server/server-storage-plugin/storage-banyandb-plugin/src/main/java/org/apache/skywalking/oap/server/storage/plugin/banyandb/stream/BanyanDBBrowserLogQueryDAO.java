@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
@@ -34,18 +34,16 @@ import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetadata;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Objects;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord} is a stream
  */
 public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements IBrowserLogQueryDAO {
-    private final StreamMetadata browserErrorLogRecordMetadata =
-            MetadataRegistry.INSTANCE.findStreamMetadata(BrowserErrorLogRecord.INDEX_NAME);
+    private final MetadataRegistry.PartialMetadata browserErrorLogRecordMetadata =
+            MetadataRegistry.INSTANCE.findSchema(BrowserErrorLogRecord.INDEX_NAME);
 
     public BanyanDBBrowserLogQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -58,13 +56,12 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
         }
 
-        StreamQueryResponse resp = query(browserErrorLogRecordMetadata, ImmutableList.of(BrowserErrorLogRecord.SERVICE_ID,
+        StreamQueryResponse resp = query(browserErrorLogRecordMetadata, ImmutableSet.of(BrowserErrorLogRecord.SERVICE_ID,
                 BrowserErrorLogRecord.SERVICE_VERSION_ID,
                 BrowserErrorLogRecord.PAGE_PATH_ID,
-                BrowserErrorLogRecord.ERROR_CATEGORY), tsRange, new QueryBuilder() {
+                BrowserErrorLogRecord.ERROR_CATEGORY, BrowserErrorLogRecord.DATA_BINARY), tsRange, new QueryBuilder() {
             @Override
             public void apply(StreamQuery query) {
-                query.setDataProjections(Collections.singletonList(BrowserErrorLogRecord.DATA_BINARY));
                 query.appendCondition(eq(BrowserErrorLogRecord.SERVICE_ID, serviceId));
 
                 if (StringUtil.isNotEmpty(serviceVersionId)) {
@@ -88,8 +85,7 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
         logs.setTotal(resp.size());
 
         for (final RowEntity rowEntity : resp.getElements()) {
-            final byte[] dataBinary =
-                    rowEntity.getValue(StreamMetadata.TAG_FAMILY_DATA, BrowserErrorLogRecord.DATA_BINARY);
+            final byte[] dataBinary = rowEntity.getTagValue(BrowserErrorLogRecord.DATA_BINARY);
             if (dataBinary != null && dataBinary.length > 0) {
                 BrowserErrorLog log = parserDataBinary(dataBinary);
                 logs.getLogs().add(log);
