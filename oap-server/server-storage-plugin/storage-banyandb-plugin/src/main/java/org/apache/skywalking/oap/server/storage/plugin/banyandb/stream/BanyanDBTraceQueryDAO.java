@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -39,7 +39,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetadata;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,8 +46,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITraceQueryDAO {
-    private final StreamMetadata segmentRecordMetadata =
-            MetadataRegistry.INSTANCE.findStreamMetadata(SegmentRecord.INDEX_NAME);
+    private final MetadataRegistry.PartialMetadata segmentRecordMetadata =
+            MetadataRegistry.INSTANCE.findSchema(SegmentRecord.INDEX_NAME);
 
     public BanyanDBTraceQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -117,7 +116,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
         }
 
         StreamQueryResponse resp = query(segmentRecordMetadata,
-                ImmutableList.of(SegmentRecord.TRACE_ID, // 0 - trace_id
+                ImmutableSet.of(SegmentRecord.TRACE_ID, // 0 - trace_id
                         SegmentRecord.IS_ERROR, // 1 - is_error
                         SegmentRecord.SERVICE_ID, // 2 - service_id
                         SegmentRecord.SERVICE_INSTANCE_ID, // 3 - service_instance_id
@@ -133,15 +132,15 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             BasicTrace basicTrace = new BasicTrace();
 
             basicTrace.setSegmentId(row.getId());
-            basicTrace.setStart(String.valueOf(row.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.START_TIME)));
+            basicTrace.setStart(String.valueOf(row.getTagValue(SegmentRecord.START_TIME)));
             basicTrace.getEndpointNames().add(IDManager.EndpointID.analysisId(
-                    row.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.ENDPOINT_ID)
+                    row.getTagValue(SegmentRecord.ENDPOINT_ID)
             ).getEndpointName());
-            basicTrace.setDuration(((Number) row.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.LATENCY)).intValue());
+            basicTrace.setDuration(((Number) row.getTagValue(SegmentRecord.LATENCY)).intValue());
             basicTrace.setError(BooleanUtils.valueToBoolean(
-                    ((Number) row.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.IS_ERROR)).intValue()
+                    ((Number) row.getTagValue(SegmentRecord.IS_ERROR)).intValue()
             ));
-            basicTrace.getTraceIds().add(row.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, SegmentRecord.TRACE_ID));
+            basicTrace.getTraceIds().add(row.getTagValue(SegmentRecord.TRACE_ID));
 
             traceBrief.getTraces().add(basicTrace);
         }
@@ -152,17 +151,17 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         StreamQueryResponse resp = query(segmentRecordMetadata,
-                ImmutableList.of(SegmentRecord.TRACE_ID,
+                ImmutableSet.of(SegmentRecord.TRACE_ID,
                         SegmentRecord.IS_ERROR,
                         SegmentRecord.SERVICE_ID,
                         SegmentRecord.SERVICE_INSTANCE_ID,
                         SegmentRecord.ENDPOINT_ID,
                         SegmentRecord.LATENCY,
-                        SegmentRecord.START_TIME),
+                        SegmentRecord.START_TIME,
+                        SegmentRecord.DATA_BINARY),
                 new QueryBuilder() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.setDataProjections(Collections.singletonList(SegmentRecord.DATA_BINARY));
                         query.appendCondition(eq(SegmentRecord.TRACE_ID, traceId));
                     }
                 });
@@ -171,7 +170,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
         for (final RowEntity rowEntity : resp.getElements()) {
             SegmentRecord segmentRecord = new SegmentRecord.Builder().storage2Entity(
-                    new BanyanDBConverter.StreamToEntity(segmentRecordMetadata, rowEntity));
+                    new BanyanDBConverter.StreamToEntity(rowEntity));
             segmentRecords.add(segmentRecord);
         }
 

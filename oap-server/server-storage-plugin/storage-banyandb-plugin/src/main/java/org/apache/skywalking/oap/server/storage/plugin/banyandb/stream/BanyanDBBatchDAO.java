@@ -31,7 +31,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> implements IBatchDAO {
     private StreamBulkWriteProcessor bulkProcessor;
-
     private final int maxBulkSize;
     private final int flushInterval;
     private final int concurrency;

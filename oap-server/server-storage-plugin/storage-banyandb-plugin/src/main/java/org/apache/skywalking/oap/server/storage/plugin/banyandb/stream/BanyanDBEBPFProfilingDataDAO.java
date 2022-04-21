@@ -16,23 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
-import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-public class BanyanDBProfileTaskQueryDAO implements IProfileTaskQueryDAO {
+public class BanyanDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
     @Override
-    public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
+    public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) throws IOException {
         return Collections.emptyList();
-    }
-
-    @Override
-    public ProfileTask getById(String id) throws IOException {
-        return null;
     }
 }

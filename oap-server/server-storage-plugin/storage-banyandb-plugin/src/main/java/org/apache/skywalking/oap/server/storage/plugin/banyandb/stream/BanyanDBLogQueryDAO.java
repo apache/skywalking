@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
@@ -41,7 +41,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.StreamMetadata;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,8 +50,8 @@ import java.util.Objects;
  * {@link org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord} is a stream
  */
 public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQueryDAO {
-    private final StreamMetadata logRecordMetadata =
-            MetadataRegistry.INSTANCE.findStreamMetadata(LogRecord.INDEX_NAME);
+    private final MetadataRegistry.PartialMetadata logRecordMetadata =
+            MetadataRegistry.INSTANCE.findSchema(LogRecord.INDEX_NAME);
 
     public BanyanDBLogQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -66,8 +65,6 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
         final QueryBuilder query = new QueryBuilder() {
             @Override
             public void apply(StreamQuery query) {
-                query.setDataProjections(ImmutableList.of(AbstractLogRecord.CONTENT_TYPE, AbstractLogRecord.CONTENT, AbstractLogRecord.TAGS_RAW_DATA));
-
                 if (StringUtil.isNotEmpty(serviceId)) {
                     query.appendCondition(eq(AbstractLogRecord.SERVICE_ID, serviceId));
                 }
@@ -105,32 +102,31 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
         }
 
         StreamQueryResponse resp = query(logRecordMetadata,
-                ImmutableList.of(AbstractLogRecord.SERVICE_ID, AbstractLogRecord.SERVICE_INSTANCE_ID,
+                ImmutableSet.of(AbstractLogRecord.SERVICE_ID, AbstractLogRecord.SERVICE_INSTANCE_ID,
                         AbstractLogRecord.ENDPOINT_ID, AbstractLogRecord.TRACE_ID, AbstractLogRecord.TRACE_SEGMENT_ID,
-                        AbstractLogRecord.SPAN_ID), tsRange, query);
+                        AbstractLogRecord.SPAN_ID, AbstractLogRecord.CONTENT_TYPE, AbstractLogRecord.CONTENT,
+                        AbstractLogRecord.TAGS_RAW_DATA), tsRange, query);
 
         Logs logs = new Logs();
         logs.setTotal(resp.size());
 
         for (final RowEntity rowEntity : resp.getElements()) {
             Log log = new Log();
-            log.setServiceId(rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, AbstractLogRecord.SERVICE_ID));
+            log.setServiceId(rowEntity.getTagValue(AbstractLogRecord.SERVICE_ID));
             log.setServiceInstanceId(
-                    rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, AbstractLogRecord.SERVICE_INSTANCE_ID));
+                    rowEntity.getTagValue(AbstractLogRecord.SERVICE_INSTANCE_ID));
             log.setEndpointId(
-                    rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, AbstractLogRecord.ENDPOINT_ID));
+                    rowEntity.getTagValue(AbstractLogRecord.ENDPOINT_ID));
             if (log.getEndpointId() != null) {
                 log.setEndpointName(
                         IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
             }
-            log.setTraceId(rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, AbstractLogRecord.TRACE_ID));
-            log.setTimestamp(((Number) rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE,
-                    AbstractLogRecord.TIMESTAMP)).longValue());
+            log.setTraceId(rowEntity.getTagValue(AbstractLogRecord.TRACE_ID));
+            log.setTimestamp(((Number) rowEntity.getTagValue(AbstractLogRecord.TIMESTAMP)).longValue());
             log.setContentType(ContentType.instanceOf(
-                    ((Number) rowEntity.getValue(StreamMetadata.TAG_FAMILY_DATA,
-                            AbstractLogRecord.CONTENT_TYPE)).intValue()));
-            log.setContent(rowEntity.getValue(StreamMetadata.TAG_FAMILY_SEARCHABLE, AbstractLogRecord.CONTENT));
-            byte[] dataBinary = rowEntity.getValue(StreamMetadata.TAG_FAMILY_DATA, AbstractLogRecord.TAGS_RAW_DATA);
+                    ((Number) rowEntity.getTagValue(AbstractLogRecord.CONTENT_TYPE)).intValue()));
+            log.setContent(rowEntity.getTagValue(AbstractLogRecord.CONTENT));
+            byte[] dataBinary = rowEntity.getTagValue(AbstractLogRecord.TAGS_RAW_DATA);
             if (dataBinary != null && dataBinary.length > 0) {
                 parserDataBinary(dataBinary, log.getTags());
             }

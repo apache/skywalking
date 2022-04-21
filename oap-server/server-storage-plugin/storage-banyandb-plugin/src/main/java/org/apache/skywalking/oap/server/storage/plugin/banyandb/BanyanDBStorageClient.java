@@ -23,8 +23,7 @@ import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.banyandb.v1.client.metadata.Group;
-import org.apache.skywalking.banyandb.v1.client.metadata.IndexRule;
+import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
@@ -32,25 +31,17 @@ import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckab
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * BanyanDBStorageClient is a simple wrapper for the underlying {@link BanyanDBClient},
  * which implement {@link Client} and {@link HealthCheckable}.
  */
 public class BanyanDBStorageClient implements Client, HealthCheckable {
-    private final BanyanDBClient client;
-    private final Map<String, Group> groupMap;
+    final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
 
     public BanyanDBStorageClient(String host, int port) {
         this.client = new BanyanDBClient(host, port);
-        this.groupMap = new ConcurrentHashMap<>();
-    }
-
-    public Group define(Group group) {
-        return groupMap.computeIfAbsent(group.getName(), s -> client.define(group));
     }
 
     @Override
@@ -63,22 +54,19 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         this.client.close();
     }
 
-    public StreamQueryResponse query(StreamQuery streamQuery) {
+    public StreamQueryResponse query(StreamQuery streamQuery) throws BanyanDBException {
         try {
-            StreamQueryResponse response = this.client.queryStreams(streamQuery);
+            StreamQueryResponse response = this.client.query(streamQuery);
             this.healthChecker.health();
             return response;
-        } catch (Throwable t) {
-            healthChecker.unHealth(t);
-            throw t;
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw ex;
         }
     }
 
-    public void define(StreamMetadata streamMetadata) {
-        Stream stream = this.client.define(streamMetadata.getStream());
-        if (stream != null) {
-            this.client.defineIndexRules(stream, streamMetadata.getIndexRules().toArray(new IndexRule[]{}));
-        }
+    public void define(Stream stream) throws BanyanDBException {
+        this.client.define(stream);
     }
 
     public void write(StreamWrite streamWrite) {
