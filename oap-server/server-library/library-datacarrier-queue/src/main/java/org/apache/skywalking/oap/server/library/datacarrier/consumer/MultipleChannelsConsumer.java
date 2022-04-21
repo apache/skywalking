@@ -78,7 +78,7 @@ public class MultipleChannelsConsumer extends Thread {
         newList.addAll(consumeTargets);
         newList.add(group);
         consumeTargets = newList;
-        size += channels.size();
+        size += channels.capacity();
     }
 
     public long size() {
@@ -100,7 +100,7 @@ public class MultipleChannelsConsumer extends Thread {
          *
          * if 'size of last fetched data' > 0
          *
-         * priority = 'size of last fetched data' * 100 / {@link Channels#size()} * {@link Channels#getChannelSize()}
+         * priority = 'size of last fetched data' * 100 / {@link Channels#capacity()} 
          *
          * else
          *
@@ -149,7 +149,7 @@ public class MultipleChannelsConsumer extends Thread {
                 }
 
                 if (!consumeList.isEmpty()) {
-                    priority = (priority + (int) (consumeList.size() * 100 / channels.size())) / 2;
+                    priority = (priority + (int) (consumeList.size() * 100 / channels.capacity())) / 2;
                     try {
                         consumer.consume(consumeList);
                     } catch (Throwable t) {

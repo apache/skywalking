@@ -86,7 +86,7 @@ public class Channels<T> {
     /**
      * @return the whole size of slots in the whole channels.
      */
-    public long size() {
+    public long capacity() {
         return size;
     }
 
