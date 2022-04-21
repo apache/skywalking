@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.register.provider;
 
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
@@ -63,7 +65,9 @@ public class RegisterModuleProvider extends ModuleProvider {
         HTTPHandlerRegister httpHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(HTTPHandlerRegister.class);
-        httpHandlerRegister.addHandler(new ManagementServiceHTTPHandler(getManager()));
+        httpHandlerRegister.addHandler(new ManagementServiceHTTPHandler(getManager()),
+                                       Collections.singletonList(HttpMethod.POST)
+        );
     }
 
     @Override

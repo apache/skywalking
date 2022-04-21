@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -69,7 +71,9 @@ public class TraceModuleProvider extends ModuleProvider {
         grpcHandlerRegister.addHandler(traceSegmentReportServiceHandler);
         grpcHandlerRegister.addHandler(new TraceSegmentReportServiceHandlerCompat(traceSegmentReportServiceHandler));
 
-        httpHandlerRegister.addHandler(new TraceSegmentReportHandler(getManager()));
+        httpHandlerRegister.addHandler(new TraceSegmentReportHandler(getManager()),
+                                       Collections.singletonList(HttpMethod.POST)
+        );
     }
 
     @Override

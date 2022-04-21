@@ -27,17 +27,19 @@ import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.logging.LoggingService;
 import java.net.InetSocketAddress;
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.library.server.Server;
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 public class HTTPServer implements Server {
     private final HTTPServerConfig config;
     private ServerBuilder sb;
+    private final Set<HttpMethod> allowedMethods = new HashSet<>();
 
     public HTTPServer(HTTPServerConfig config) {
         this.config = config;
@@ -58,7 +60,7 @@ public class HTTPServer implements Server {
             .http1MaxHeaderSize(config.getMaxRequestHeaderSize())
             .idleTimeout(Duration.ofMillis(config.getIdleTimeOut()))
             .decorator(Route.ofCatchAll(), (delegate, ctx, req) -> {
-                if (!this.isMethodAllowed(ctx.method())) {
+                if (!this.allowedMethods.contains(ctx.method())) {
                     return HttpResponse.of(HttpStatus.METHOD_NOT_ALLOWED);
                 }
                 return delegate.serve(ctx, req);
@@ -72,7 +74,13 @@ public class HTTPServer implements Server {
         log.info("Server root context path: {}", contextPath);
     }
 
-    public void addHandler(Object handler) {
+    /**
+     * @param handler        Specific service provider.
+     * @param allowedMethods The default allowed method is "POST". Other methods response "405, Method Not Allowed". Set
+     *                       this when an handler needs to provide other methods.
+     */
+    public void addHandler(Object handler, List<HttpMethod> allowedMethods) {
+        requireNonNull(allowedMethods, "allowedMethods");
         log.info(
             "Bind handler {} into http server {}:{}",
             handler.getClass().getSimpleName(), config.getHost(), config.getPort()
@@ -81,15 +89,11 @@ public class HTTPServer implements Server {
         sb.annotatedService()
           .pathPrefix(config.getContextPath())
           .build(handler);
+        this.allowedMethods.addAll(allowedMethods);
     }
 
     @Override
     public void start() {
         sb.build().start().join();
-    }
-
-    private boolean isMethodAllowed(HttpMethod method) {
-        List<String> allowedMethods = Arrays.asList(this.config.getAllowedHttpMethods().toUpperCase(Locale.ROOT).split(","));
-        return allowedMethods.contains(method.name().toUpperCase(Locale.ROOT));
     }
 }

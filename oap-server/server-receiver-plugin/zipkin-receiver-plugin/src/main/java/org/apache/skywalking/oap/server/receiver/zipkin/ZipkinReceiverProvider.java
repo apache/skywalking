@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin;
 
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -74,7 +76,9 @@ public class ZipkinReceiverProvider extends ModuleProvider {
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.initialize();
 
-        httpServer.addHandler(new ZipkinSpanHTTPHandler(config, getManager()));
+        httpServer.addHandler(new ZipkinSpanHTTPHandler(config, getManager()),
+                              Collections.singletonList(HttpMethod.POST)
+        );
     }
 
     @Override
