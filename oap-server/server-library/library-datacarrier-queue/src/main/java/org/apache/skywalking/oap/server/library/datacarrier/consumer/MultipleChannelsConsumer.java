@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.library.datacarrier.consumer;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.datacarrier.buffer.Channels;
 import org.apache.skywalking.oap.server.library.datacarrier.buffer.QueueBuffer;
 
@@ -48,8 +49,8 @@ public class MultipleChannelsConsumer extends Thread {
         while (running) {
             boolean hasData = false;
             for (Group target : consumeTargets) {
-                boolean consume = target.consume(consumeList);
-                hasData = hasData || consume;
+                boolean consumed = target.consume(consumeList);
+                hasData = hasData || consumed;
             }
 
             if (!hasData) {
@@ -88,6 +89,7 @@ public class MultipleChannelsConsumer extends Thread {
         running = false;
     }
 
+    @Slf4j
     private static class Group {
         private Channels channels;
         private IConsumer consumer;
@@ -133,6 +135,7 @@ public class MultipleChannelsConsumer extends Thread {
          */
         private boolean consume(List consumeList) {
             try {
+                log.debug("consumer {}, priority {}", consumer.getClass().getName(), priority);
                 if (priority < 50) {
                     priority += 10;
                     return false;
@@ -169,6 +172,7 @@ public class MultipleChannelsConsumer extends Thread {
                 consumer.nothingToConsume();
                 return false;
             } finally {
+                log.debug("consumer {}, new priority {}", consumer.getClass().getName(), priority);
                 consumer.onExit();
             }
         }
