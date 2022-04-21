@@ -77,14 +77,14 @@ public class Channels<T> {
     }
 
     /**
-     * get channelSize
+     * @return the number of channels
      */
     public int getChannelSize() {
         return this.bufferChannels.length;
     }
 
     /**
-     * @return the whole size of channels.
+     * @return the whole size of slots in the whole channels.
      */
     public long size() {
         return size;

@@ -135,7 +135,9 @@ public class MultipleChannelsConsumer extends Thread {
          */
         private boolean consume(List consumeList) {
             try {
-                log.debug("consumer {}, priority {}", consumer.getClass().getName(), priority);
+                if (log.isTraceEnabled()) {
+                    log.trace("consumer {}, priority {}", consumer.getClass().getName(), priority);
+                }
                 if (priority < 50) {
                     priority += 10;
                     return false;
@@ -172,7 +174,9 @@ public class MultipleChannelsConsumer extends Thread {
                 consumer.nothingToConsume();
                 return false;
             } finally {
-                log.debug("consumer {}, new priority {}", consumer.getClass().getName(), priority);
+                if (log.isTraceEnabled()) {
+                    log.trace("consumer {}, new priority {}", consumer.getClass().getName(), priority);
+                }
                 consumer.onExit();
             }
         }

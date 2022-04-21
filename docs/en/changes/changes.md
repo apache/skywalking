@@ -6,6 +6,9 @@
 
 #### OAP Server
 
+* [Critical] Fix the priority mechanism of DataCarrier's MultipleChannelsConsumer failure. This critical bug could stop
+  message consuming if the data are pushed into queue in small pieces but continuously.
+  (Notice, this could cause gRPC/HTTP thread pool blocking, and start rejecting telemetry data reporting.)
 * Add component definition(ID=127) for `Apache ShenYu (incubating)`.
 * Fix Zipkin receiver: Decode spans error, missing `Layer` for V9 and wrong time bucket for generate Service and
   Endpoint.
@@ -13,8 +16,8 @@
 * Support BanyanDB global index for entities. Log and Segment record entities declare this new feature.
 * Remove unnecessary analyzer settings in columns of templates. Many were added due to analyzer's default value.
 * Simplify the Kafka Fetch configuration in cluster mode.
-* [Breaking Change] Update the eBPF Profiling task to the service level,
-  please delete index/table: `ebpf_profiling_task`, `process_traffic`.
+* [Breaking Change] Update the eBPF Profiling task to the service level, please delete
+  index/table: `ebpf_profiling_task`, `process_traffic`.
 * Fix event can't split service ID into 2 parts.
 * Fix OAP Self-Observability metric `GC Time` calculation.
 * Set `SW_QUERY_MAX_QUERY_COMPLEXITY` default value to `1000`
