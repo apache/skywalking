@@ -29,7 +29,7 @@ public class ReceiverHTTPHandlerRegister implements HTTPHandlerRegister {
     private HTTPHandlerRegister httpHandlerRegister;
 
     @Override
-    public void addHandler(final Object httpService, final List<HttpMethod> allowedMethods) {
-        httpHandlerRegister.addHandler(httpService, allowedMethods);
+    public void addHandler(final Object httpService, final List<HttpMethod> httpMethods) {
+        httpHandlerRegister.addHandler(httpService, httpMethods);
     }
 }

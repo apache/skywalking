@@ -31,7 +31,7 @@ public class HTTPHandlerRegisterImpl implements HTTPHandlerRegister {
     }
 
     @Override
-    public void addHandler(final Object httpService, final List<HttpMethod> allowedMethods) {
-        server.addHandler(httpService, allowedMethods);
+    public void addHandler(final Object httpService, final List<HttpMethod> httpMethods) {
+        server.addHandler(httpService, httpMethods);
     }
 }

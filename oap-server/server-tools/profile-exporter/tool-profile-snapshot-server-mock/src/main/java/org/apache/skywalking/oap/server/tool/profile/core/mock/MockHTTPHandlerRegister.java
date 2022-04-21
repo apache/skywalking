@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
  */
 public class MockHTTPHandlerRegister implements HTTPHandlerRegister {
     @Override
-    public void addHandler(final Object httpService, final List<HttpMethod> allowedMethods) {
+    public void addHandler(final Object httpService, final List<HttpMethod> httpMethods) {
 
     }
 }

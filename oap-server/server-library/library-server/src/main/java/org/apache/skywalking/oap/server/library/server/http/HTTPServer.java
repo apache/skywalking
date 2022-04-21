@@ -76,10 +76,9 @@ public class HTTPServer implements Server {
 
     /**
      * @param handler        Specific service provider.
-     * @param allowedMethods The default allowed method is "POST". Other methods response "405, Method Not Allowed". Set
-     *                       this when an handler needs to provide other methods.
+     * @param httpMethods    Register the http methods which the handler service accepts. Other methods respond "405, Method Not Allowed".
      */
-    public void addHandler(Object handler, List<HttpMethod> allowedMethods) {
+    public void addHandler(Object handler, List<HttpMethod> httpMethods) {
         requireNonNull(allowedMethods, "allowedMethods");
         log.info(
             "Bind handler {} into http server {}:{}",
@@ -89,7 +88,7 @@ public class HTTPServer implements Server {
         sb.annotatedService()
           .pathPrefix(config.getContextPath())
           .build(handler);
-        this.allowedMethods.addAll(allowedMethods);
+        this.allowedMethods.addAll(httpMethods);
     }
 
     @Override
