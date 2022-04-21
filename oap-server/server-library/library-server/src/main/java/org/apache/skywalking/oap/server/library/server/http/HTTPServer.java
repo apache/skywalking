@@ -27,6 +27,9 @@ import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.logging.LoggingService;
 import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.library.server.Server;
@@ -55,7 +58,7 @@ public class HTTPServer implements Server {
             .http1MaxHeaderSize(config.getMaxRequestHeaderSize())
             .idleTimeout(Duration.ofMillis(config.getIdleTimeOut()))
             .decorator(Route.ofCatchAll(), (delegate, ctx, req) -> {
-                if (ctx.method() != HttpMethod.POST) {
+                if (!this.isMethodAllowed(ctx.method())) {
                     return HttpResponse.of(HttpStatus.METHOD_NOT_ALLOWED);
                 }
                 return delegate.serve(ctx, req);
@@ -83,5 +86,10 @@ public class HTTPServer implements Server {
     @Override
     public void start() {
         sb.build().start().join();
+    }
+
+    private boolean isMethodAllowed(HttpMethod method) {
+        List<String> allowedMethods = Arrays.asList(this.config.getAllowedHttpMethods().toUpperCase(Locale.ROOT).split(","));
+        return allowedMethods.contains(method.name().toUpperCase(Locale.ROOT));
     }
 }

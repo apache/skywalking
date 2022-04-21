@@ -41,4 +41,11 @@ public class HTTPServerConfig {
     private int acceptQueueSize = 0;
     @Builder.Default
     private int maxRequestHeaderSize = 8192;
+    /**
+     * The default allowed method is "POST". Other methods response "405, Method Not Allowed".
+     * Configure this when an HTTP Server needs to provide other methods and split by `,`.
+     * e.g. "POST,GET".
+     */
+    @Builder.Default
+    private String allowedHttpMethods = "POST";
 }
