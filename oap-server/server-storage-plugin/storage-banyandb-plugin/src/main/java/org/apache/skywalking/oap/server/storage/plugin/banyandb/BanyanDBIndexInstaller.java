@@ -19,9 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.banyandb.v1.client.metadata.Catalog;
-import org.apache.skywalking.banyandb.v1.client.metadata.Duration;
+import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
+import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Group;
+import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -43,25 +44,39 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     @Override
     protected boolean isExists(Model model) throws StorageException {
-        // TODO: get from BanyanDB and make a diff?
-        return false;
+        final MetadataRegistry.PartialMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model);
+        try {
+            final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
+            // first check group
+            Group g = metadata.getOrCreateGroup(c);
+            if (g == null) {
+                throw new StorageException("fail to create group " + metadata.getGroup());
+            }
+            log.info("group {} created", g.name());
+            // then check entity schema
+            return metadata.findRemoteSchema(c).isPresent();
+        } catch (BanyanDBException ex) {
+            throw new StorageException("fail to check existence", ex);
+        }
     }
 
     @Override
     protected void createTable(Model model) throws StorageException {
-        if (model.isTimeSeries() && model.isRecord()) { // stream
-            StreamMetadata metaInfo = MetadataRegistry.INSTANCE.registerModel(model, this.configService);
-            if (metaInfo != null) {
-                log.info("install index {}", model.getName());
-                ((BanyanDBStorageClient) client).define(
-                        new Group(metaInfo.getGroup(), Catalog.STREAM, 2, 10, Duration.ofDays(7))
-                );
-                ((BanyanDBStorageClient) client).define(metaInfo);
+        try {
+            if (model.isTimeSeries() && model.isRecord()) { // stream
+                Stream stream = (Stream) MetadataRegistry.INSTANCE.registerModel(model, this.configService);
+                if (stream != null) {
+                    log.info("install stream schema {}", model.getName());
+                    ((BanyanDBStorageClient) client).define(stream);
+                }
+            } else if (model.isTimeSeries() && !model.isRecord()) { // measure
+                // TODO: dynamically register Measure
+                log.info("skip measure index {}", model.getName());
+            } else if (!model.isTimeSeries()) { // UITemplate
+                log.info("skip property index {}", model.getName());
             }
-        } else if (model.isTimeSeries() && !model.isRecord()) { // measure
-            log.info("skip measure index {}", model.getName());
-        } else if (!model.isTimeSeries()) { // UITemplate
-            log.info("skip property index {}", model.getName());
+        } catch (BanyanDBException ex) {
+            throw new StorageException("fail to install schema", ex);
         }
     }
 }
