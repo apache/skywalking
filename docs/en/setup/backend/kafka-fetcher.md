@@ -31,6 +31,7 @@ kafka-fetcher:
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
+    consumers: ${SW_KAFKA_FETCHER_CONSUMERS:1}
 ```
 
 In the cluster mode, all topics have the same number of partitions. Set `"isSharding"` to `"true"` and assign the partitions to consume for the OAP server.  Use commas to separate multiple partitions for the OAP server.
@@ -46,6 +47,7 @@ kafka-fetcher:
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:true}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:1,3,5}
+    consumers: ${SW_KAFKA_FETCHER_CONSUMERS:1}
     kafkaConsumerConfig:
       enable.auto.commit: true
       ...
@@ -62,6 +64,7 @@ kafka-fetcher:
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:true}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:1,3,5}
+    consumers: ${SW_KAFKA_FETCHER_CONSUMERS:1}
     mm2SourceAlias: ${SW_KAFKA_MM2_SOURCE_ALIAS:""}
     mm2SourceSeparator: ${SW_KAFKA_MM2_SOURCE_SEPARATOR:""}
     kafkaConsumerConfig:

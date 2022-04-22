@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.List;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 
@@ -27,7 +29,7 @@ public class ReceiverHTTPHandlerRegister implements HTTPHandlerRegister {
     private HTTPHandlerRegister httpHandlerRegister;
 
     @Override
-    public void addHandler(Object httpService) {
-        httpHandlerRegister.addHandler(httpService);
+    public void addHandler(final Object httpService, final List<HttpMethod> httpMethods) {
+        httpHandlerRegister.addHandler(httpService, httpMethods);
     }
 }

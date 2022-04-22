@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.oap.server.receiver.browser.provider;
 
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
@@ -87,7 +89,7 @@ public class BrowserModuleProvider extends ModuleProvider {
         httpHandlerRegister.addHandler(
             new BrowserPerfServiceHTTPHandler(getManager(), moduleConfig,
                                               errorLogParserListenerManager,
-                                              perfDataListenerManager()));
+                                              perfDataListenerManager()), Collections.singletonList(HttpMethod.POST));
     }
 
     @Override
