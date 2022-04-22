@@ -25,6 +25,8 @@
 * HTTPServer support the handler register with allowed HTTP methods.
 * [Critical] Revert [**Enhance DataCarrier#MultipleChannelsConsumer to add
   priority**](https://github.com/apache/skywalking/pull/8664) to avoid consuming issues.
+* Fix the problem that some configurations (such as group.id) did not take effect due to the override order when using the kafkaConsumerConfig property to extend the configuration in Kafka Fetcher.
+* Remove build time from the OAP version.
 
 #### UI
 
