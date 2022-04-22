@@ -65,9 +65,9 @@ public class KafkaFetcherHandlerRegister implements Runnable {
         this.config = config;
 
         properties = new Properties();
-        properties.putAll(config.getKafkaConsumerConfig());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, config.getGroupId());
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
+        properties.putAll(config.getKafkaConsumerConfig());
 
         int threadPoolSize = Runtime.getRuntime().availableProcessors() * 2;
         if (config.getKafkaHandlerThreadPoolSize() > 0) {
