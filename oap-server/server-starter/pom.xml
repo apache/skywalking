@@ -357,7 +357,6 @@
                     <includeOnlyProperties>
                         <includeOnlyProperty>^git.build.version$</includeOnlyProperty>
                         <includeOnlyProperty>^git.commit.id$</includeOnlyProperty>
-                        <includeOnlyProperty>^git.build.time$</includeOnlyProperty>
                     </includeOnlyProperties>
                 </configuration>
             </plugin>
