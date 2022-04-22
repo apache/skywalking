@@ -31,6 +31,8 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+import java.io.IOException;
+
 @Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
     private final ConfigService configService;
@@ -75,7 +77,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             } else if (!model.isTimeSeries()) { // UITemplate
                 log.info("skip property index {}", model.getName());
             }
-        } catch (BanyanDBException ex) {
+        } catch (IOException ex) {
             throw new StorageException("fail to install schema", ex);
         }
     }
