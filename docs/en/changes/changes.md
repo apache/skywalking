@@ -13,8 +13,8 @@
 * Support BanyanDB global index for entities. Log and Segment record entities declare this new feature.
 * Remove unnecessary analyzer settings in columns of templates. Many were added due to analyzer's default value.
 * Simplify the Kafka Fetch configuration in cluster mode.
-* [Breaking Change] Update the eBPF Profiling task to the service level,
-  please delete index/table: `ebpf_profiling_task`, `process_traffic`.
+* [Breaking Change] Update the eBPF Profiling task to the service level, please delete
+  index/table: `ebpf_profiling_task`, `process_traffic`.
 * Fix event can't split service ID into 2 parts.
 * Fix OAP Self-Observability metric `GC Time` calculation.
 * Set `SW_QUERY_MAX_QUERY_COMPLEXITY` default value to `1000`
@@ -22,7 +22,9 @@
 * [Breaking Change] Add layer field to event, report an event without layer is not allowed.
 * Fix ES flush thread stops when flush schedule task throws exception, such as ElasticSearch flush failed.
 * Fix ES BulkProcessor in BatchProcessEsDAO was initialized multiple times and created multiple ES flush schedule tasks.
-* HTTPServer support the handler register with allowed HTTP methods. 
+* HTTPServer support the handler register with allowed HTTP methods.
+* [Critical] Revert [**Enhance DataCarrier#MultipleChannelsConsumer to add
+  priority**](https://github.com/apache/skywalking/pull/8664) to avoid consuming issues.
 
 #### UI
 
