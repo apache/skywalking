@@ -82,6 +82,31 @@
             <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
 
+        <!-- data generator -->
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-tools/data-generator/target/</directory>
+            <includes>
+                <include>data-generator-${project.version}.jar</include>
+            </includes>
+            <outputDirectory>oap-libs</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-tools/data-generator/src/main/assembly/bin</directory>
+            <outputDirectory>tools/data-generator/bin</outputDirectory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-tools/data-generator/src/main/resources</directory>
+            <outputDirectory>tools/data-generator/config</outputDirectory>
+            <includes>
+                <include>application.yml</include>
+            </includes>
+        </fileSet>
+        <!-- data generator -->
+
         <!-- Profile exporter tools -->
         <fileSet>
             <directory>${project.basedir}/../tools/profile-exporter</directory>

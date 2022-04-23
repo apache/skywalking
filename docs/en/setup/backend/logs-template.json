@@ -1,0 +1,83 @@
+{
+    "timestamp": {
+        "type": "sequence",
+        "min": "1649643929000",
+        "max": "1649653929000"
+    },
+    "serviceName": {
+        "type": "randomString",
+        "length": "20",
+        "prefix": "test_svc_name_",
+        "letters": true,
+        "numbers": true
+    },
+    "serviceInstanceName": {
+        "type": "randomString",
+        "length": "20",
+        "prefix": "test_svc_inst_name_",
+        "letters": true,
+        "numbers": true
+    },
+    "endpointName": {
+        "type": "randomString",
+        "length": "20",
+        "prefix": "test_endpoint_",
+        "letters": true,
+        "numbers": true
+    },
+    "traceId": {
+        "type": "randomString",
+        "length": "20",
+        "prefix": "test_trace_id_",
+        "letters": true,
+        "numbers": true
+    },
+    "traceSegmentId": {
+        "type": "randomString",
+        "length": "20",
+        "prefix": "test",
+        "letters": true,
+        "numbers": true
+    },
+    "spanId": {
+        "type": "randomInt",
+        "min": "0",
+        "max": "5"
+    },
+    "contentType": {
+        "type": "randomInt",
+        "min": 1,
+        "max": 1
+    },
+    "content": {
+        "type": "randomString",
+        "length": "10",
+        "prefix": "test",
+        "letters": true,
+        "numbers": true
+    },
+    "error": {
+        "type": "randomBool"
+    },
+    "tags": {
+        "type": "randomList",
+        "size": 5,
+        "item": {
+            "key": {
+                "type": "randomString",
+                "length": "10",
+                "prefix": "test",
+                "letters": true,
+                "numbers": true,
+                "domainSize": 10
+            },
+            "value": {
+                "type": "randomString",
+                "length": "10",
+                "prefix": "test",
+                "letters": true,
+                "numbers": true
+            }
+        }
+    }
+}
