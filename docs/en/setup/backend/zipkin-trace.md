@@ -1,8 +1,7 @@
 ## Zipkin receiver
-The Zipkin receiver makes the OAP server work as an alternative Zipkin server implementation. It supports Zipkin v1/v2 formats through HTTP service.
+The Zipkin receiver makes the OAP server work as an alternative Zipkin server implementation. It supports Zipkin v1/v2 formats through the HTTP service.
 Make sure you use this with `SW_STORAGE=zipkin-elasticsearch` option to activate Zipkin storage implementation.
-Once this receiver and storage are activated, SkyWalking's native traces would be ignored, and SkyWalking wouldn't analyze topology, metrics, and endpoint
-dependency from Zipkin's trace.
+Once this receiver and storage are activated, SkyWalking's native traces would be ignored, and SkyWalking wouldn't analyze topology, metrics, and endpoint dependency from Zipkin's trace.
 
 Use the following config to activate it.
 ```yaml

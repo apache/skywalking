@@ -1,7 +1,7 @@
 # Slow Database Statement
-Slow Database statements are crucial in order for you to identify bottlenecks of a system which relies on the database.
+Slow Database statements are crucial for you to identify bottlenecks of a system which relies on databases.
 
-Slow DB statements are based on sampling. Right now, the core samples the top 50 slowest every 10 minutes.
+Slow DB statements are based on sampling. Right now, the core samples are the top 50 slowest every 10 minutes.
 Note that the duration of these statements must be slower than the threshold.
 
 Here's the format of the settings (in milliseconds):

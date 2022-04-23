@@ -1,6 +1,6 @@
 # Compatibility
 
-SkyWalking 8.0+ uses v3 protocols. Agents don't have to keep the same versions as the OAP backend.
+SkyWalking 8.0+ uses v3 protocols. Agents don't have to keep the identical versions as the OAP backend.
 
 ## SkyWalking Native Agents
 
@@ -14,7 +14,7 @@ SkyWalking 8.0+ uses v3 protocols. Agents don't have to keep the same versions a
 
 ## Ecosystem Agents
 
-All following agent implementations are a part of SkyWalking ecosystem. All the source codes and their distributions
+All following agent implementations are a part of the SkyWalking ecosystem. All the source codes and their distributions
 don't belong to the Apache Software Foundation.
 
 |OAP Server Version|DotNet|Go2sky|cpp2sky|PHP agent|
@@ -23,8 +23,8 @@ don't belong to the Apache Software Foundation.
 8.4.0+ | \> = 1.0.0 | \> = 0.4.0  | All | \> = 3.0.0|
 9.0.0+ | \> = 1.0.0 | \> = 0.4.0  | All | \> = 3.0.0|
 
-All these projects are maintained by their own communities, please reach them if you face any compatibility issue.
+All these projects are maintained by their own communities, and please reach them if you face any compatibility issues.
 
 ___
-All above compatibility are only references, if you face `unimplemented` error, it means you need to upgrade OAP backend
+All above compatibility are only references, and if you face an `unimplemented` error, it means you need to upgrade the OAP backend
 to support newer features in the agents.
