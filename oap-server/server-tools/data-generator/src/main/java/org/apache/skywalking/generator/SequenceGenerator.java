@@ -20,6 +20,7 @@
 package org.apache.skywalking.generator;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -35,7 +36,7 @@ public final class SequenceGenerator implements Generator<Long> {
     private final long step;
     private final Integer fluctuation;
     private final Integer domainSize;
-    private final ThreadLocalRandom random = ThreadLocalRandom.current();
+    private final Random random = ThreadLocalRandom.current();
     private final Set<Long> domain = new HashSet<>();
     private volatile Long last;
 

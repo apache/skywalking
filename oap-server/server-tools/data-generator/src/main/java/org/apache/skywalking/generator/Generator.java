@@ -32,9 +32,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @Type(value = BoolGenerator.class, name = "randomBool"),
     @Type(value = IntGenerator.class, name = "randomInt"),
     @Type(value = ListGenerator.class, name = "randomList"),
-    @Type(value = FixedIntGenerator.class, name = "fixedInt"),
     @Type(value = FixedStringGenerator.class, name = "fixedString"),
-    @Type(value = FixedBoolGenerator.class, name = "fixedBool"),
     @Type(value = SequenceGenerator.class, name = "sequence"),
     @Type(value = UUIDGenerator.class, name = "uuid"),
 })

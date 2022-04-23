@@ -108,7 +108,22 @@ you need a string.
 
 ### `randomBool` (`boolean`)
 
-This generator generates a `Boolean` value, `true` or `false` with a possibility of 50%.
+This generator generates a `Boolean` value, `true` or `false` with a default possibility of 50%, while you can change the `possibility` below.
+
+#### `possibility` (`double`, `[0, 1]`)
+
+`possibility` is a `double` value `>= 0` and `<= 1`, it's `0.5` by default, meaning **about** half of the generated values are `true`.
+
+To always return a fixed boolean value `true`, you can just set the `possibility` to `1`, to always return a fixed boolean value `false`, you can set the `possibility` to `0`
+
+```json
+"error": {
+    "type": "randomBool",
+    "possibility": "0.9"
+}
+```
+
+> 90 percent of the generated values are `true`.
 
 ### `randomInt` (`long`)
 
@@ -159,31 +174,9 @@ list of `Tag`, the `item` should be the prototype of `Tag`, which can be compose
 }
 ```
 
-### `fixedInt` (`int`)
-
-This generator always returns a fixed `value` of integer.
-
-```json
-"error": {
-    "type": "fixedInt",
-    "value": "0"
-}
-```
-
 ### `fixedString` (`string`)
 
 This generator always returns a fixed `value` of string.
-
-### `fixedBool` (`boolean`)
-
-This generator always returns a fixed `value` of boolean.
-
-```json
-"error": {
-    "type": "fixedBool",
-    "value": "false"
-}
-```
 
 ### `sequence` (`long`)
 

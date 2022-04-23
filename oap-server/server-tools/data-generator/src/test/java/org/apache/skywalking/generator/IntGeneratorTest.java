@@ -17,35 +17,20 @@
  * under the License.
  */
 
-package org.apache.skywalking.generator;
+ package org.apache.skywalking.generator;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Data;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
-@JsonDeserialize(builder = FixedBoolGenerator.Builder.class)
-public final class FixedBoolGenerator implements Generator<Boolean> {
-    private final boolean value;
-
-    public FixedBoolGenerator(Builder builder) {
-        value = builder.value;
-    }
-
-    @Override
-    public Boolean next() {
-        return value;
-    }
-
-    @Data
-    public static class Builder {
-        private boolean value;
-
-        public FixedBoolGenerator build() {
-            return new FixedBoolGenerator(this);
+public class IntGeneratorTest {
+    @Test
+    public void testFixedInt() {
+        final IntGenerator.Builder builder = new IntGenerator.Builder();
+        builder.setMin(1L);
+        builder.setMax(1L);
+        final IntGenerator generator = builder.build();
+        for (int i = 0; i < 100; i++) {
+            assertEquals(1, generator.next().intValue());
         }
-    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(next());
     }
 }

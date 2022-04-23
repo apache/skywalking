@@ -45,8 +45,9 @@
         "max": "5"
     },
     "contentType": {
-        "type": "fixedInt",
-        "value": "1"
+        "type": "randomInt",
+        "min": 1,
+        "max": 1
     },
     "content": {
         "type": "randomString",

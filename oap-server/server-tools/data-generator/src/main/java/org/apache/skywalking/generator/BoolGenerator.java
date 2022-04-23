@@ -20,19 +20,22 @@
 package org.apache.skywalking.generator;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 
 @JsonDeserialize(builder = BoolGenerator.Builder.class)
 public final class BoolGenerator implements Generator<Boolean> {
-    private final Random random = new Random();
+    private final Random random = ThreadLocalRandom.current();
+    private final double possibility;
 
     public BoolGenerator(Builder builder) {
+        possibility = builder.possibility;
     }
 
     @Override
     public Boolean next() {
-        return Math.abs(random.nextDouble()) > 0.5;
+        return random.nextDouble() < possibility;
     }
 
     @Override
@@ -42,6 +45,8 @@ public final class BoolGenerator implements Generator<Boolean> {
 
     @Data
     public static class Builder {
+        private double possibility = .5;
+
         public BoolGenerator build() {
             return new BoolGenerator(this);
         }
