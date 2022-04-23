@@ -1,16 +1,16 @@
 # Init mode
 The SkyWalking backend supports multiple storage implementors. Most of them would automatically initialize the storage, 
-such as Elastic Search or Database, when the backend starts up at first.
+such as Elastic Search or Database, when the backend starts up first.
 
 But there may be some unexpected events that may occur with the storage, such as
-`When multiple Elastic Search indexes are created concurrently, these backend instances would start up at the same time.`,
+`When multiple Elastic Search indexes are created concurrently, these backend instances would startup at the same time.`,
 When there is a change, the APIs of Elastic Search would be blocked without reporting any exception.
 This often happens on container management platforms, such as k8s.
 
 This is where you need the **Init mode** startup.
 
 ## Solution
-Only one single instance should run in the **Init mode** before other instances start up.
+Only a single instance should run in the **Init mode** before other instances start up.
 And this instance will exit graciously after all initialization steps are done.
 
 Use `oapServiceInit.sh`/`oapServiceInit.bat` to start up backend. You should see the following logs:

@@ -1,8 +1,9 @@
 # Dynamic Configuration
 SkyWalking Configurations are mostly set through `application.yml` and OS system environment variables.
-At the same time, some of them support dynamic settings from upstream management system.
 
-Currently, SkyWalking supports the 2 types of dynamic configurations: Single and Group.
+At the same time, some of them support dynamic settings from an upstream management system.
+
+Currently, SkyWalking supports two types of dynamic configurations: Single and Group.
 
 This feature depends on upstream service, so it is **DISABLED** by default.
 
@@ -40,7 +41,7 @@ Supported configurations are as follows:
 |configuration-discovery.default.agentConfigurations| The ConfigurationDiscovery settings. | See [`configuration-discovery.md`](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/configuration-discovery.md). |
 
 ## Group Configuration
-Group Configuration is a config key that corresponds to a group sub config items. A sub config item is a key value pair. The logic structure is:
+Group Configuration is a config key corresponding to a group sub config item. A sub config item is a key-value pair. The logic structure is:
 ```
 {configKey}: |{subItemkey1}:{subItemValue1}
              |{subItemkey2}:{subItemValue2}
@@ -68,4 +69,3 @@ Supported configurations are as follows:
 - [Apollo Implementation](./dynamic-config-apollo.md)
 - [Kuberbetes Configmap Implementation](./dynamic-config-configmap.md)
 - [Nacos Implementation](./dynamic-config-nacos.md)
-

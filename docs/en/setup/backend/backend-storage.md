@@ -1,5 +1,5 @@
 # Backend storage
-The SkyWalking storage is pluggable. We have provided the following storage solutions, which allows you to easily
+The SkyWalking storage is pluggable. We have provided the following storage solutions, which allow you to easily
 use one of them by specifying it as the `selector` in `application.yml`：
 
 ```yaml
@@ -19,7 +19,7 @@ Natively supported storage:
 
 
 ## H2
-Activate H2 as storage, set storage provider to **H2** In-Memory Databases. Default in distribution package.
+Activate H2 as storage, set storage provider to **H2** In-Memory Databases. Default in the distribution package.
 Please read `Database URL Overview` in [H2 official document](http://www.h2database.com/html/features.html).
 You can set the target to H2 in **Embedded**, **Server** and **Mixed** modes.
 
@@ -38,7 +38,7 @@ storage:
 ## OpenSearch
 
 OpenSearch storage shares the same configurations as ElasticSearch.
-In order to activate OpenSearch as storage, set storage provider to **elasticsearch**.
+In order to activate OpenSearch as storage, set the storage provider to **elasticsearch**.
 
 ## ElasticSearch
 
@@ -47,8 +47,8 @@ License (SSPL), which is incompatible with Apache License 2.0. This license chan
 version 7.11. So please choose the suitable ElasticSearch version according to your usage.
 
 Since 8.8.0, SkyWalking rebuilds the ElasticSearch client on top of ElasticSearch REST API and automatically picks up
-correct request formats according to the server side version, hence you don't need to download different binaries
-and don't need to configure different storage selector for different ElasticSearch server side version anymore.
+correct request formats according to the server-side version, hence you don't need to download different binaries
+and don't need to configure different storage selectors for different ElasticSearch server-side versions anymore.
 
 For now, SkyWalking supports ElasticSearch 6.x, ElasticSearch 7.x, ElasticSearch 8.x, and OpenSearch 1.x, their
 configurations are as follows:
@@ -108,9 +108,9 @@ storage:
 ### Daily Index Step
 Daily index step(`storage/elasticsearch/dayStep`, default 1) represents the index creation period. In this period, metrics for several days (dayStep value) are saved.
 
-In most cases, users don't need to change the value manually, as SkyWalking is designed to observe large scale distributed systems.
+In most cases, users don't need to change the value manually, as SkyWalking is designed to observe large-scale distributed systems.
 But in some cases, users may want to set a long TTL value, such as more than 60 days. However, their ElasticSearch cluster may not be powerful enough due to low traffic in the production environment.
-This value could be increased to 5 (or more), if users could ensure a single index could support the metrics and traces for these days (5 in this case).
+This value could be increased to 5 (or more) if users could ensure a single index could support the metrics and traces for these days (5 in this case).
 
 For example, if dayStep == 11, 
 1. Data in [2000-01-01, 2000-01-11] will be merged into the index-20000101.
@@ -119,11 +119,11 @@ For example, if dayStep == 11,
 `storage/elasticsearch/superDatasetDayStep` overrides the `storage/elasticsearch/dayStep` if the value is positive.
 This would affect the record-related entities, such as trace segments. In some cases, the size of metrics is much smaller than the record (trace). This would improve the shards balance in the ElasticSearch cluster.
  
-NOTE: TTL deletion would be affected by these steps. You should set an extra dayStep in your TTL. For example, if you want to have TTL == 30 days and dayStep == 10, you are commended to set TTL = 40.
+NOTE: TTL deletion would be affected by these steps. You should set an extra dayStep in your TTL. For example, if you want to have TTL == 30 days and dayStep == 10, you are recommended to set TTL = 40.
 
 ### Secrets Management File Of ElasticSearch Authentication
 The value of `secretsManagementFile` should point to the secrets management file absolute path. 
-The file includes username, password, and JKS password of the ElasticSearch server in the properties format.
+The file includes the username, password, and JKS password of the ElasticSearch server in the properties format.
 ```properties
 user=xxx
 password=yyy
@@ -133,7 +133,7 @@ trustStorePass=zzz
 The major difference between using `user, password, trustStorePass` configs in the `application.yaml` file is that the **Secrets Management File** is being watched by the OAP server. 
 Once it is changed manually or through a 3rd party tool, such as [Vault](https://github.com/hashicorp/vault), 
 the storage provider will use the new username, password, and JKS password to establish the connection and close the old one. If the information exists in the file,
-the `user/password` will be overrided.
+the `user/password` will be overridden.
 
 ### Advanced Configurations For Elasticsearch Index
 You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)
@@ -155,11 +155,11 @@ You could add the following configuration to `elasticsearch.yml`, and set the va
 thread_pool.index.queue_size: 1000 # Only suitable for ElasticSearch 6
 thread_pool.write.queue_size: 1000 # Suitable for ElasticSearch 6 and 7
 
-# When you face query error at trace page, remember to check this.
+# When you face a query error on the traces page, remember to check this.
 index.max_result_window: 1000000
 ```
 
-We strongly recommend that you read more about these configurations from ElasticSearch's official document, since they have a direct impact on the performance of ElasticSearch.
+We strongly recommend that you read more about these configurations from ElasticSearch's official documentation since they directly impact the performance of ElasticSearch.
 
 
 ### ElasticSearch with Zipkin trace extension
@@ -184,13 +184,13 @@ storage:
 ```
 
 ### About Namespace
-When namespace is set, all index names in ElasticSearch will use it as prefix.
+When a namespace is set, all index names in ElasticSearch will use it as the prefix.
 
 ## MySQL
-Active MySQL as storage, set storage provider to **mysql**. 
+Activate MySQL as storage, and set storage provider to **mysql**. 
 
 **NOTE:** MySQL driver is NOT allowed in Apache official distribution and source codes. 
-Please download MySQL driver on your own. Copy the connection driver jar to `oap-libs`.
+Please download the MySQL driver on your own. Copy the connection driver jar to `oap-libs`.
 
 ```yaml
 storage:
@@ -208,12 +208,12 @@ storage:
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
 ```
-All connection-related settings, including URL link, username, and password are found in `application.yml`. 
-Only part of the settings are listed here. See the [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
+All connection-related settings, including URL link, username, and password, are found in `application.yml`. 
+Only part of the settings is listed here. See the [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
 To understand the function of the parameter `rewriteBatchedStatements=true` in MySQL, see the [MySQL official document](https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-performance-extensions.html#cj-conn-prop_rewriteBatchedStatements).
 
 ## TiDB
-Tested TiDB Server 4.0.8 version and MySQL Client driver 8.0.13 version are currently available.
+Tested TiDB Server 4.0.8 version, and MySQL Client driver 8.0.13 version is currently available.
 Activate TiDB as storage, and set storage provider to **tidb**. 
 
 ```yaml
@@ -254,10 +254,10 @@ storage:
     duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
     fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
 ```
-All connection related settings, including URL link, username, and password are found in `application.yml`. For metadata storage provider settings, refer to the configurations of **H2/MySQL** above.
+All connection-related settings, including URL link, username, and password, are found in `application.yml`. For metadata storage provider settings, refer to **H2/MySQL** configurations above.
 
 ## PostgreSQL
-PostgreSQL jdbc driver uses version 42.3.2. It supports PostgreSQL 8.2 or newer.
+PostgreSQL JDBC driver uses version 42.3.2. It supports PostgreSQL 8.2 or newer.
 Activate PostgreSQL as storage, and set storage provider to **postgresql**. 
 
 ```yaml
@@ -278,8 +278,8 @@ storage:
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
 ```
-All connection-related settings, including URL link, username, and password are found in `application.yml`. 
-Only part of the settings are listed here. Please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
+All connection-related settings, including URL link, username, and password, are found in `application.yml`. 
+Only part of the settings is listed here. Please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
 
 ## IoTDB
 IoTDB is a time-series database from Apache, which is one of the storage plugin options.  
@@ -297,7 +297,7 @@ storage:
     sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:8} # If it's zero, the SessionPool size will be 2*CPU_Cores
     fetchTaskLogMaxSize: ${SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
 ```
-All connection related settings, including host, rpcPort, username, and password are found in `application.yml`. Please ensure the IoTDB version >= 0.12.3.
+All connection-related settings, including host, rpcPort, username, and password, are found in `application.yml`. Please ensure the IoTDB version >= 0.12.3.
 
 ## More storage extension solutions
 Follow the [Storage extension development guide](../../guides/storage-extention.md) 

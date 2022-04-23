@@ -1,5 +1,5 @@
 # Dynamic Configuration Zookeeper Implementation
-[Zookeeper](https://github.com/apache/zookeeper) is also supported as Dynamic Configuration Center (DCC). To use it, please configure as follows:
+[Zookeeper](https://github.com/apache/zookeeper) is also supported as a Dynamic Configuration Center (DCC). To use it, please configure it as follows:
 
 ```yaml
 configuration:

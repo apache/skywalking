@@ -22,8 +22,8 @@ kafka-fetcher:
 
 ### Manual Meter API
 
-Custom metrics may be collected by Manual Meter API.
-Custom metrics collected cannot be used directly, they should be configured in `meter-analyzer-config` configuration files, which is described in next part.
+Custom metrics may be collected by the Manual Meter API.
+Custom metrics collected cannot be used directly; they should be configured in the `meter-analyzer-config` configuration files described in the next part.
 
 The receiver adds labels with `key = service` and `key = instance` to the collected data samples,
 and values from service and service instance name defined in SkyWalking Agent,

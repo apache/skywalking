@@ -1,9 +1,9 @@
 # Metrics Exporter
 SkyWalking provides the essential functions of metrics aggregation, alarm, and analysis. 
-In the real world, many may want to forward their data to a 3rd party system for an in-depth analysis or otherwise.
+In many real-world scenarios, users may want to forward their data to a 3rd party system for further in-depth analysis.
 **Metrics Exporter** has made that possible.
 
-Metrics exporter is an independent module that has to be manually activated.
+The metrics exporter is an independent module that has to be manually activated.
 
 Right now, we provide the following exporters:
 1. gRPC exporter
@@ -77,5 +77,5 @@ Return the expected metrics name list with event type (incremental or total). Al
 Return empty list, if you want to export all metrics in the incremental event type.
 
 ### Export implementation
-Stream service. All subscribed metrics will be sent here based on the OAP core schedule. Also, if the OAP is deployed as cluster, 
+Stream service. All subscribed metrics will be sent here based on the OAP core schedule. Also, if the OAP is deployed as a cluster, 
 this method will be called concurrently. For metrics value, you need to follow `#type` to choose `#longValue` or `#doubleValue`.

@@ -1,5 +1,5 @@
 # Kubernetes (K8s) monitoring 
-SkyWalking leverages K8s kube-state-metrics and cAdvisor for collecting metrics data from K8s, and leverages OpenTelemetry Collector to transfer the metrics to
+SkyWalking leverages K8s kube-state-metrics (KSM) and cAdvisor for collecting metrics data from K8s. It leverages OpenTelemetry Collector to transfer the metrics to
 [OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md). This feature requires authorizing the OAP Server to access K8s's `API Server`.
 
 ## Data flow
@@ -11,12 +11,11 @@ SkyWalking leverages K8s kube-state-metrics and cAdvisor for collecting metrics 
 1. Setup [kube-state-metric](https://github.com/kubernetes/kube-state-metrics#kubernetes-deployment).
 2. cAdvisor is integrated into `kubelet` by default.
 3. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). For details on Prometheus Receiver in OpenTelemetry Collector for K8s, refer to [here](https://github.com/prometheus/prometheus/blob/main/documentation/examples/prometheus-kubernetes.yml). 
-For a quick start, we have provided a full example of configuration and recommended version , you can refer to [showcase](https://github.com/apache/skywalking-showcase/tree/main/deploy/platform/kubernetes/feature-kubernetes-monitor).
+For a quick start, we have provided a complete example of configuration and recommended version; you can refer to [showcase](https://github.com/apache/skywalking-showcase/tree/main/deploy/platform/kubernetes/feature-kubernetes-monitor).
 4. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ## Kubernetes Cluster Monitoring
-K8s cluster monitoring provide monitoring of the status and resources of the K8s Cluster, including the whole 
-cluster and each node. K8s cluster as a `Service` in OAP, K8s node as a `Instance` in OAP, and land on the `Layer: K8S`.
+K8s cluster monitoring provides monitoring of the status and resources of the whole cluster and each node. K8s cluster as a `Service` in OAP, K8s node as an `Instance` in OAP, and land on the `Layer: K8S`.
 
 ### Kubernetes Cluster Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
@@ -51,7 +50,7 @@ cluster and each node. K8s cluster as a `Service` in OAP, K8s node as a `Instanc
 | Network I/O| KB/s | k8s_node_network_receive<br />k8s_node_network_transmit | The network receive and transmit | cAdvisor |
 
 ## Kubernetes Service Monitoring
-K8s Service Monitoring provide observe service status and resources from Kubernetes.
+K8s Service Monitoring provides observabilities into service status and resources from Kubernetes.
 K8s Service as a `Service` in OAP and land on the `Layer: K8S_SERVICE`.
 
 ### Kubernetes Service Supported Metrics
@@ -67,7 +66,7 @@ K8s Service as a `Service` in OAP and land on the `Layer: K8S_SERVICE`.
 | Pod Terminated |  | k8s_service_pod_status_terminated | The pods and containers which are currently in the terminated status, with reasons shown | K8s kube-state-metrics |
 | Pod Restarts |  | k8s_service_pod_status_restarts_total | The number of per container restarts related to the pods | K8s kube-state-metrics |
 
-## Customizing 
+## Customizations
 You can customize your own metrics/expression/dashboard panel.   
 The metrics definition and expression rules are found in `/config/otel-oc-rules/k8s-cluster.yaml，/config/otel-oc-rules/k8s-node.yaml, /config/otel-oc-rules/k8s-service.yaml`.  
 The K8s Cluster dashboard panel configurations are found in `/config/ui-initialized-templates/k8s`.
