@@ -34,7 +34,10 @@
 * General service instance: move `Thread Pool` from JVM to Overview, fix `JVM GC Count` calculation.
 * Add Apache ShenYu (incubating) component LOGO.
 * Show more metrics on service/instance/endpoint list on the dashboards.
-* Support average values of metrics on the service/list/endpoint table widgets, with pop-up linear graph
+* Support average values of metrics on the service/list/endpoint table widgets, with pop-up linear graph.
+* Fix viewLogs button query no data.
+* Fix UTC when page loads.
+* Implement the eBPF profile widget on dashboard.
 
 #### Documentation
 
