@@ -42,9 +42,6 @@ import java.util.Objects;
  * {@link org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord} is a stream
  */
 public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements IBrowserLogQueryDAO {
-    private final MetadataRegistry.PartialMetadata browserErrorLogRecordMetadata =
-            MetadataRegistry.INSTANCE.findSchema(BrowserErrorLogRecord.INDEX_NAME);
-
     public BanyanDBBrowserLogQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -56,10 +53,10 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
         }
 
-        StreamQueryResponse resp = query(browserErrorLogRecordMetadata, ImmutableSet.of(BrowserErrorLogRecord.SERVICE_ID,
+        StreamQueryResponse resp = query(BrowserErrorLogRecord.INDEX_NAME, ImmutableSet.of(BrowserErrorLogRecord.SERVICE_ID,
                 BrowserErrorLogRecord.SERVICE_VERSION_ID,
                 BrowserErrorLogRecord.PAGE_PATH_ID,
-                BrowserErrorLogRecord.ERROR_CATEGORY, BrowserErrorLogRecord.DATA_BINARY), tsRange, new QueryBuilder() {
+                BrowserErrorLogRecord.ERROR_CATEGORY, BrowserErrorLogRecord.DATA_BINARY), tsRange, new QueryBuilder<StreamQuery>() {
             @Override
             public void apply(StreamQuery query) {
                 query.appendCondition(eq(BrowserErrorLogRecord.SERVICE_ID, serviceId));

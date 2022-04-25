@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Group;
+import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
@@ -72,8 +73,11 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     ((BanyanDBStorageClient) client).define(stream);
                 }
             } else if (model.isTimeSeries() && !model.isRecord()) { // measure
-                // TODO: dynamically register Measure
-                log.info("skip measure index {}", model.getName());
+                Measure measure = (Measure) MetadataRegistry.INSTANCE.registerModel(model, this.configService);
+                if (measure != null) {
+                    log.info("install measure schema {}", model.getName());
+                    ((BanyanDBStorageClient) client).define(measure);
+                }
             } else if (!model.isTimeSeries()) { // UITemplate
                 log.info("skip property index {}", model.getName());
             }

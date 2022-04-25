@@ -46,16 +46,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITraceQueryDAO {
-    private final MetadataRegistry.PartialMetadata segmentRecordMetadata =
-            MetadataRegistry.INSTANCE.findSchema(SegmentRecord.INDEX_NAME);
-
     public BanyanDBTraceQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
-        final QueryBuilder q = new QueryBuilder() {
+        final QueryBuilder<StreamQuery> q = new QueryBuilder<StreamQuery>() {
             @Override
             public void apply(StreamQuery query) {
                 if (minDuration != 0) {
@@ -115,7 +112,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
         }
 
-        StreamQueryResponse resp = query(segmentRecordMetadata,
+        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
                 ImmutableSet.of(SegmentRecord.TRACE_ID, // 0 - trace_id
                         SegmentRecord.IS_ERROR, // 1 - is_error
                         SegmentRecord.SERVICE_ID, // 2 - service_id
@@ -150,7 +147,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        StreamQueryResponse resp = query(segmentRecordMetadata,
+        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
                 ImmutableSet.of(SegmentRecord.TRACE_ID,
                         SegmentRecord.IS_ERROR,
                         SegmentRecord.SERVICE_ID,
@@ -159,7 +156,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                         SegmentRecord.LATENCY,
                         SegmentRecord.START_TIME,
                         SegmentRecord.DATA_BINARY),
-                new QueryBuilder() {
+                new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
                         query.appendCondition(eq(SegmentRecord.TRACE_ID, traceId));
@@ -170,7 +167,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
         for (final RowEntity rowEntity : resp.getElements()) {
             SegmentRecord segmentRecord = new SegmentRecord.Builder().storage2Entity(
-                    new BanyanDBConverter.StreamToEntity(rowEntity));
+                    new BanyanDBConverter.StreamToEntity(MetadataRegistry.INSTANCE.findMetadata(SegmentRecord.INDEX_NAME), rowEntity));
             segmentRecords.add(segmentRecord);
         }
 

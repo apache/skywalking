@@ -44,9 +44,6 @@ import java.util.Objects;
  * which can be used to build a {@link org.apache.skywalking.oap.server.core.query.type.AlarmMessage}
  */
 public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarmQueryDAO {
-    private final MetadataRegistry.PartialMetadata alarmRecordMetadata =
-            MetadataRegistry.INSTANCE.findSchema(AlarmRecord.INDEX_NAME);
-
     public BanyanDBAlarmQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -58,10 +55,10 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
 
-        StreamQueryResponse resp = query(alarmRecordMetadata,
+        StreamQueryResponse resp = query(AlarmRecord.INDEX_NAME,
                 ImmutableSet.of(AlarmRecord.SCOPE, AlarmRecord.START_TIME, AlarmRecord.ID0, AlarmRecord.ID1, AlarmRecord.ALARM_MESSAGE, AlarmRecord.TAGS_RAW_DATA),
                 tsRange,
-                new QueryBuilder() {
+                new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
                         if (Objects.nonNull(scopeId)) {
@@ -87,7 +84,7 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
         for (final RowEntity rowEntity : resp.getElements()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();
             AlarmRecord alarmRecord = builder.storage2Entity(
-                    new BanyanDBConverter.StreamToEntity(rowEntity)
+                    new BanyanDBConverter.StreamToEntity(MetadataRegistry.INSTANCE.findMetadata(AlarmRecord.INDEX_NAME), rowEntity)
             );
 
             AlarmMessage message = new AlarmMessage();

@@ -38,11 +38,11 @@ public class BanyanDBRecordDAO implements IRecordDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        MetadataRegistry.PartialMetadata metadata = MetadataRegistry.INSTANCE.findSchema(model.getName());
-        if (metadata == null) {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model.getName());
+        if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
-        StreamWrite streamWrite = new StreamWrite(metadata.getGroup(), // group name
+        StreamWrite streamWrite = new StreamWrite(schema.getMetadata().getGroup(), // group name
                 model.getName(), // index-name
                 record.id(), // identity
                 TimeBucket.getTimestamp(record.getTimeBucket(), model.getDownsampling())); // timestamp

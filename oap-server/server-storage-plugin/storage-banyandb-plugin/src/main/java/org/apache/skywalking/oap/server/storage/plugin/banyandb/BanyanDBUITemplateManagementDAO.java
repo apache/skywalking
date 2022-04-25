@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;

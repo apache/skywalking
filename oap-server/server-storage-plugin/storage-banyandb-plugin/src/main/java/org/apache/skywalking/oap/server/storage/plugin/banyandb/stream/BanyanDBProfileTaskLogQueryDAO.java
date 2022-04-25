@@ -37,9 +37,6 @@ import java.util.List;
  * {@link ProfileTaskLogRecord} is a stream
  */
 public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implements IProfileTaskLogQueryDAO {
-    private final MetadataRegistry.PartialMetadata profileTaskLogRecord =
-            MetadataRegistry.INSTANCE.findSchema(ProfileTaskLogRecord.INDEX_NAME);
-
     private final int queryMaxSize;
 
     public BanyanDBProfileTaskLogQueryDAO(BanyanDBStorageClient client, int queryMaxSize) {
@@ -49,10 +46,10 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
 
     @Override
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
-        StreamQueryResponse resp = query(profileTaskLogRecord,
+        StreamQueryResponse resp = query(ProfileTaskLogRecord.INDEX_NAME,
                 ImmutableSet.of(ProfileTaskLogRecord.OPERATION_TIME, ProfileTaskLogRecord.INSTANCE_ID,
                         ProfileTaskLogRecord.TASK_ID, ProfileTaskLogRecord.OPERATION_TYPE),
-                new QueryBuilder() {
+                new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
                         query.setLimit(BanyanDBProfileTaskLogQueryDAO.this.queryMaxSize);

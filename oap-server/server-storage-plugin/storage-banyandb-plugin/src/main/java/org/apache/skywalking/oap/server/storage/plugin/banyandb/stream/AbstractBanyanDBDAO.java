@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
+import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
+import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
+import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -39,17 +42,21 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         super(client);
     }
 
-    protected StreamQueryResponse query(MetadataRegistry.PartialMetadata metadata, Set<String> searchableTags, QueryBuilder builder) throws IOException {
-        return this.query(metadata, searchableTags, null, builder);
+    protected StreamQueryResponse query(String modelName, Set<String> tags, QueryBuilder<StreamQuery> builder) throws IOException {
+        return this.query(modelName, tags, null, builder);
     }
 
-    protected StreamQueryResponse query(MetadataRegistry.PartialMetadata metadata, Set<String> searchableTags, TimestampRange timestampRange,
-                                        QueryBuilder builder) throws IOException {
+    protected StreamQueryResponse query(String modelName, Set<String> tags, TimestampRange timestampRange,
+                                        QueryBuilder<StreamQuery> builder) throws IOException {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        if (schema == null) {
+            throw new IllegalStateException("schema is not registered");
+        }
         final StreamQuery query;
         if (timestampRange == null) {
-            query = new StreamQuery(metadata.getGroup(), metadata.getName(), LARGEST_TIME_RANGE, searchableTags);
+            query = new StreamQuery(schema.getMetadata().getGroup(), schema.getMetadata().getName(), LARGEST_TIME_RANGE, tags);
         } else {
-            query = new StreamQuery(metadata.getGroup(), metadata.getName(), timestampRange, searchableTags);
+            query = new StreamQuery(schema.getMetadata().getGroup(), schema.getMetadata().getName(), timestampRange, tags);
         }
 
         builder.apply(query);
@@ -57,8 +64,31 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return getClient().query(query);
     }
 
-    protected abstract static class QueryBuilder {
-        abstract void apply(final StreamQuery query);
+    protected MeasureQueryResponse query(String modelName, Set<String> tags, Set<String> fields,
+                                         QueryBuilder<MeasureQuery> builder) throws IOException {
+        return this.query(modelName, tags, fields, null, builder);
+    }
+
+    protected MeasureQueryResponse query(String modelName, Set<String> tags, Set<String> fields,
+                                         TimestampRange timestampRange, QueryBuilder<MeasureQuery> builder) throws IOException {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        if (schema == null) {
+            throw new IllegalStateException("schema is not registered");
+        }
+        final MeasureQuery query;
+        if (timestampRange == null) {
+            query = new MeasureQuery(schema.getMetadata().getGroup(), schema.getMetadata().getName(), LARGEST_TIME_RANGE, tags, fields);
+        } else {
+            query = new MeasureQuery(schema.getMetadata().getGroup(), schema.getMetadata().getName(), timestampRange, tags, fields);
+        }
+
+        builder.apply(query);
+
+        return getClient().query(query);
+    }
+
+    protected abstract static class QueryBuilder<T extends AbstractQuery<? extends com.google.protobuf.GeneratedMessageV3>> {
+        protected abstract void apply(final T query);
 
         protected PairQueryCondition<Long> eq(String name, long value) {
             return PairQueryCondition.LongQueryCondition.eq(name, value);

@@ -20,11 +20,14 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import io.grpc.Status;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
+import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
+import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
+import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
 import org.apache.skywalking.banyandb.v1.client.metadata.Property;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.oap.server.library.client.Client;
@@ -90,14 +93,25 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public StreamQueryResponse query(StreamQuery streamQuery) throws IOException {
+    public StreamQueryResponse query(StreamQuery q) throws IOException {
         try {
-            StreamQueryResponse response = this.client.query(streamQuery);
+            StreamQueryResponse response = this.client.query(q);
             this.healthChecker.health();
             return response;
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
             throw new IOException("fail to query stream", ex);
+        }
+    }
+
+    public MeasureQueryResponse query(MeasureQuery q) throws IOException {
+        try {
+            MeasureQueryResponse response = this.client.query(q);
+            this.healthChecker.health();
+            return response;
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to query measure", ex);
         }
     }
 
@@ -114,6 +128,16 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     public void define(Stream stream) throws IOException {
         try {
             this.client.define(stream);
+            this.healthChecker.health();
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to define stream", ex);
+        }
+    }
+
+    public void define(Measure measure) throws IOException {
+        try {
+            this.client.define(measure);
             this.healthChecker.health();
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);

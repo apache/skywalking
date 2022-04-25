@@ -50,9 +50,6 @@ import java.util.Objects;
  * {@link org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord} is a stream
  */
 public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQueryDAO {
-    private final MetadataRegistry.PartialMetadata logRecordMetadata =
-            MetadataRegistry.INSTANCE.findSchema(LogRecord.INDEX_NAME);
-
     public BanyanDBLogQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -62,7 +59,7 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
                           TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit,
                           long startTB, long endTB, List<Tag> tags, List<String> keywordsOfContent,
                           List<String> excludingKeywordsOfContent) throws IOException {
-        final QueryBuilder query = new QueryBuilder() {
+        final QueryBuilder<StreamQuery> query = new QueryBuilder<StreamQuery>() {
             @Override
             public void apply(StreamQuery query) {
                 if (StringUtil.isNotEmpty(serviceId)) {
@@ -101,7 +98,7 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
 
-        StreamQueryResponse resp = query(logRecordMetadata,
+        StreamQueryResponse resp = query(LogRecord.INDEX_NAME,
                 ImmutableSet.of(AbstractLogRecord.SERVICE_ID, AbstractLogRecord.SERVICE_INSTANCE_ID,
                         AbstractLogRecord.ENDPOINT_ID, AbstractLogRecord.TRACE_ID, AbstractLogRecord.TRACE_SEGMENT_ID,
                         AbstractLogRecord.SPAN_ID, AbstractLogRecord.CONTENT_TYPE, AbstractLogRecord.CONTENT,
