@@ -20,7 +20,13 @@ package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import com.google.common.base.Strings;
@@ -85,6 +91,11 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
     public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         if (needUsingInternalAddr()) {
             remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
+        } else if ("0.0.0.0".equals(remoteInstance.getAddress().getHost())) {
+            String firstNonLoopbackAddress = findFirstNonLoopbackAddress();
+            if (!Strings.isNullOrEmpty(firstNonLoopbackAddress)) {
+                remoteInstance = new RemoteInstance(new Address(firstNonLoopbackAddress, remoteInstance.getAddress().getPort(), true));
+            }
         }
         String host = remoteInstance.getAddress().getHost();
         int port = remoteInstance.getAddress().getPort();
@@ -108,5 +119,32 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
             MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
             healthChecker = metricCreator.createHealthCheckerGauge("cluster_nacos", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         }
+    }
+
+    private String findFirstNonLoopbackAddress() {
+        try {
+            InetAddress result = null;
+            int lowest = Integer.MAX_VALUE;
+            for (Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces(); nics.hasMoreElements();) {
+                NetworkInterface ifc = nics.nextElement();
+                if (ifc.isUp()) {
+                    if (ifc.getIndex() < lowest || result == null) {
+                        lowest = ifc.getIndex();
+                    } else if (result != null) {
+                        continue;
+                    }
+                    for (Enumeration<InetAddress> addrs = ifc.getInetAddresses(); addrs.hasMoreElements();) {
+                        InetAddress address = addrs.nextElement();
+                        if (address instanceof Inet4Address && !address.isLoopbackAddress()) {
+                            result = address;
+                        }
+                    }
+                }
+            }
+            return result != null ? result.getHostAddress() : null;
+        } catch (SocketException e) {
+            // ignore
+        }
+        return null;
     }
 }
