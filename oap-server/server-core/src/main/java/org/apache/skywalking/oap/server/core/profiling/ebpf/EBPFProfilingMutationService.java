@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -150,9 +151,13 @@ public class EBPFProfilingMutationService implements Service {
 
         // query exist processes
         final List<EBPFProfilingTask> tasks = getProcessProfilingTaskDAO().queryTasks(
-                Arrays.asList(request.getServiceId()), request.getTargetType(), calculateStartTime(request), 0);
+                Arrays.asList(request.getServiceId()), request.getTargetType(), request.getStartTime(), 0);
         if (CollectionUtils.isNotEmpty(tasks)) {
-            return "already have profiling task at this time";
+            final EBPFProfilingTask mostRecentTask = tasks.stream()
+                    .min(Comparator.comparingLong(EBPFProfilingTask::getTaskStartTime)).get();
+            if (mostRecentTask.getTaskStartTime() < calculateStartTime(request)) {
+                return "already have profiling most recent task at this time";
+            }
         }
         return null;
     }
