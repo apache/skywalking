@@ -156,7 +156,7 @@ public class EBPFProfilingMutationService implements Service {
             final EBPFProfilingTask mostRecentTask = tasks.stream()
                     .min(Comparator.comparingLong(EBPFProfilingTask::getTaskStartTime)).get();
             if (mostRecentTask.getTaskStartTime() < calculateStartTime(request)) {
-                return "Task time range overlaps with other tasks";
+                return "Task's time range overlaps with other tasks";
             }
         }
         return null;
