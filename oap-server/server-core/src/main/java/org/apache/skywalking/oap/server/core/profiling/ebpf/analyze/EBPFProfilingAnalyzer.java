@@ -118,8 +118,8 @@ public class EBPFProfilingAnalyzer {
         }
 
         if (totalDuration > maxAnalyzeTimeRangeInMillisecond) {
-            return "time range is out of " +
-                    TimeUnit.MILLISECONDS.toMinutes(this.maxAnalyzeTimeRangeInMillisecond) + " minute";
+            return "The time range should not be out of " +
+                    TimeUnit.MILLISECONDS.toMinutes(this.maxAnalyzeTimeRangeInMillisecond) + " minutes";
         }
         return null;
     }
