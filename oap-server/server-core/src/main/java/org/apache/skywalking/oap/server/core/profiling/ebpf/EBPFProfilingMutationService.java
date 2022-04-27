@@ -156,7 +156,7 @@ public class EBPFProfilingMutationService implements Service {
             final EBPFProfilingTask mostRecentTask = tasks.stream()
                     .min(Comparator.comparingLong(EBPFProfilingTask::getTaskStartTime)).get();
             if (mostRecentTask.getTaskStartTime() < calculateStartTime(request)) {
-                return "already have profiling most recent task at this time";
+                return "Task time range overlaps with other tasks";
             }
         }
         return null;
