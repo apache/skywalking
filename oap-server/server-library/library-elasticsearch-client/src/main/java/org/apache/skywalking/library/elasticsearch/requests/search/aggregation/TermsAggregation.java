@@ -58,6 +58,8 @@ public final class TermsAggregation extends Aggregation {
                     if (value.getOrder() != null) {
                         writeOrder(value, gen);
                     }
+                    gen.writeStringField("execution_hint", "map");
+                    gen.writeStringField("collect_mode", "breadth_first");
                 }
                 gen.writeEndObject();
 
