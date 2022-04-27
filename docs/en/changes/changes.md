@@ -29,7 +29,6 @@
 * Remove build time from the OAP version.
 * Add data-generator module to run OAP in testing mode, generating mock data for testing.
 * Support receive Kubernetes processes from gRPC protocol.
-* Fix create eBPF Profiling task verify failure.
 
 #### UI
 
