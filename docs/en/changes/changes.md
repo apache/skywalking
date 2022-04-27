@@ -29,6 +29,7 @@
 * Remove build time from the OAP version.
 * Add data-generator module to run OAP in testing mode, generating mock data for testing.
 * Support receive Kubernetes processes from gRPC protocol.
+* Fix the problem that es index(TimeSeriesTable, eg. endpoint_traffic, alarm_record) didn't create even after rerun with init-mode. This problem caused the OAP server to fail to start when the OAP server was down for more than a day.
 
 #### UI
 
