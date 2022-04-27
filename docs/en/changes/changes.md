@@ -28,6 +28,7 @@
 * Fix the problem that some configurations (such as group.id) did not take effect due to the override order when using the kafkaConsumerConfig property to extend the configuration in Kafka Fetcher.
 * Remove build time from the OAP version.
 * Add data-generator module to run OAP in testing mode, generating mock data for testing.
+* Fix the problem that es index(TimeSeriesTable, eg. endpoint_traffic, alarm_record) didn't created even after rerun with init-mode. This problem caused the oap server fail to start when the oap server down for more than a day.
 
 #### UI
 
