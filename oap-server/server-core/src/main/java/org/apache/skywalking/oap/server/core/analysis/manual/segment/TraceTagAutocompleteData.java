@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
 import lombok.EqualsAndHashCode;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
@@ -41,7 +42,7 @@ public class TraceTagAutocompleteData extends TagAutocompleteData {
             TraceTagAutocompleteData record = new TraceTagAutocompleteData();
             record.setTagKey((String) converter.get(TAG_KEY));
             record.setTagValue((String) converter.get(TAG_VALUE));
-
+            record.setTag(record.getTagKey() + "=" + record.getTagValue());
             return record;
         }
 
