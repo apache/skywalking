@@ -28,7 +28,9 @@ import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.TraceTagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -100,6 +102,15 @@ public class TableMetaInfo {
             // The field of SegmentRecord, tags, store as tag only. see SegmentRecord.DATA_BINARY
             if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
                 storageAndColumnMap.remove(SegmentRecord.TAGS);
+            }
+        }
+
+        if (model.getName().equals(TraceTagAutocompleteData.INDEX_NAME)) {
+            if (storageAndColumnMap.containsKey(TagAutocompleteData.TAG_KEY)) {
+                storageAndTagMap.put(TagAutocompleteData.TAG_KEY, InfluxConstants.TagName.AUTOCOMPLETE_TAG_KEY);
+            }
+            if (storageAndColumnMap.containsKey(TagAutocompleteData.TAG_VALUE)) {
+                storageAndTagMap.put(TagAutocompleteData.TAG_VALUE, InfluxConstants.TagName.AUTOCOMPLETE_TAG_VALUE);
             }
         }
 

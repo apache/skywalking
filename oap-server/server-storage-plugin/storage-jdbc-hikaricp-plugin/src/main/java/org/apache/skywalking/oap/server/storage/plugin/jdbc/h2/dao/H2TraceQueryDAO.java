@@ -27,7 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.TraceTagAutocompleteData;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -252,5 +255,72 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Set<String> queryTraceTagAutocompleteKeys(final long startSecondTB,
+                                                     final long endSecondTB) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(2);
+
+        sql.append("select distinct ").append(TraceTagAutocompleteData.TAG_KEY).append(" from ")
+           .append(TraceTagAutocompleteData.INDEX_NAME).append(" where ");
+        sql.append(" 1=1 ");
+        appendTagAutocompleteCondition(startSecondTB, endSecondTB, sql, condition);
+        try (Connection connection = h2Client.getConnection()) {
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
+            Set<String> tagKeys = new HashSet<>();
+            while (resultSet.next()) {
+                tagKeys.add(resultSet.getString(TraceTagAutocompleteData.TAG_KEY));
+            }
+            return tagKeys;
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public Set<String> queryTraceTagAutocompleteValues(final String tagKey,
+                                                       final int limit,
+                                                       final long startSecondTB,
+                                                       final long endSecondTB) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(3);
+        sql.append("select * from ").append(TraceTagAutocompleteData.INDEX_NAME).append(" where ");
+        sql.append(TraceTagAutocompleteData.TAG_KEY).append(" = ?");
+        condition.add(tagKey);
+        appendTagAutocompleteCondition(startSecondTB, endSecondTB, sql, condition);
+        sql.append(" limit ").append(limit);
+
+        try (Connection connection = h2Client.getConnection()) {
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
+            Set<String> tagValues = new HashSet<>();
+            while (resultSet.next()) {
+                tagValues.add(resultSet.getString(TraceTagAutocompleteData.TAG_VALUE));
+            }
+            return tagValues;
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    private void appendTagAutocompleteCondition(final long startSecondTB,
+                                                final long endSecondTB,
+                                                final StringBuilder sql,
+                                                final List<Object> condition) {
+        long startMinTB = startSecondTB / 100;
+        long endMinTB = endSecondTB / 100;
+        if (startMinTB > 0) {
+            sql.append(" and ");
+            sql.append(TraceTagAutocompleteData.TIME_BUCKET).append(">=?");
+            condition.add(startMinTB);
+        }
+        if (endMinTB > 0) {
+            if (!condition.isEmpty()) {
+                sql.append(" and ");
+            }
+            sql.append(TraceTagAutocompleteData.TIME_BUCKET).append("<=?");
+            condition.add(endMinTB);
+        }
     }
 }

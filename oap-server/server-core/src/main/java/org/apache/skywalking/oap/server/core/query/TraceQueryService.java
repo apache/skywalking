@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -126,6 +127,18 @@ public class TraceQueryService implements Service {
         trace.getSpans().clear();
         trace.getSpans().addAll(sortedSpans);
         return trace;
+    }
+
+    public Set<String> queryTraceTagAutocompleteKeys(final long startSecondTB,
+                                                     final long endSecondTB) throws IOException {
+        return getTraceQueryDAO().queryTraceTagAutocompleteKeys(startSecondTB, endSecondTB);
+    }
+
+    public Set<String> queryTraceTagAutocompleteValues(final String tagKey,
+                                                       final int limit,
+                                                       final long startSecondTB,
+                                                       final long endSecondTB) throws IOException {
+        return getTraceQueryDAO().queryTraceTagAutocompleteValues(tagKey, limit, startSecondTB, endSecondTB);
     }
 
     private List<Span> buildSpanList(SegmentObject segmentObject) {

@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.receiver.zipkin;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 import java.util.ArrayList;
@@ -36,4 +37,10 @@ public class ZipkinReceiverConfig extends ModuleConfig {
     private int acceptorPriorityDelta = 0;
     private int acceptQueueSize = 0;
     private List<String> instanceNameRule = new ArrayList<>();
+    private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
+
+    private static final String DEFAULT_SEARCHABLE_TAG_KEYS = String.join(
+        Const.COMMA,
+        "http.method"
+    );
 }
