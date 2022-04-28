@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
 import lombok.EqualsAndHashCode;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
