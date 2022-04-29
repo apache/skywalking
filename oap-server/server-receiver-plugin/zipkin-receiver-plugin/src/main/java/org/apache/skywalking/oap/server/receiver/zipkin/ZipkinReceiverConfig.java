@@ -29,13 +29,13 @@ import java.util.List;
 @Setter
 @Getter
 public class ZipkinReceiverConfig extends ModuleConfig {
-    private String host;
-    private int port;
-    private String contextPath;
-    private int maxThreads = 200;
-    private long idleTimeOut = 30000;
-    private int acceptorPriorityDelta = 0;
-    private int acceptQueueSize = 0;
+    private String restHost;
+    private int restPort;
+    private String restContextPath;
+    private int restMaxThreads = 200;
+    private long restIdleTimeOut = 30000;
+    private int restAcceptorPriorityDelta = 0;
+    private int restAcceptQueueSize = 0;
     private List<String> instanceNameRule = new ArrayList<>();
     private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
 
