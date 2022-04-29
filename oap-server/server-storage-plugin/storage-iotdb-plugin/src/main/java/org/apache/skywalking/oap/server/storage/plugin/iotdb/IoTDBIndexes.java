@@ -29,10 +29,11 @@ public interface IoTDBIndexes {
     String INSTANCE_ID_INX = "instance_id";
     String PROCESS_ID_INX = "process_id";
     String AGENT_ID_INX = "agent_id";
+    String AUTOCOMPLETE_TAG_KEY = "tag_key";
 
     static boolean isIndex(String key) {
         return key.equals(ID_IDX) || key.equals(ENTITY_ID_IDX) || key.equals(LAYER_IDX) ||
                 key.equals(SERVICE_ID_IDX) || key.equals(GROUP_IDX) || key.equals(TRACE_ID_IDX) ||
-                key.equals(INSTANCE_ID_INX) || key.equals(AGENT_ID_INX) || key.equals(PROCESS_ID_INX);
+                key.equals(INSTANCE_ID_INX) || key.equals(AGENT_ID_INX) || key.equals(PROCESS_ID_INX) || key.equals(AUTOCOMPLETE_TAG_KEY);
     }
 }

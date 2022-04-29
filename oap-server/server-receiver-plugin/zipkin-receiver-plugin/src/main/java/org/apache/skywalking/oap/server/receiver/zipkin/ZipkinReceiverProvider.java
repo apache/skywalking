@@ -63,14 +63,14 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         HTTPServerConfig httpServerConfig = HTTPServerConfig.builder()
-                                                            .host(config.getHost())
-                                                            .port(config.getPort())
-                                                            .contextPath(config.getContextPath())
-                                                            .idleTimeOut(config.getIdleTimeOut())
+                                                            .host(config.getRestHost())
+                                                            .port(config.getRestPort())
+                                                            .contextPath(config.getRestContextPath())
+                                                            .idleTimeOut(config.getRestIdleTimeOut())
                                                             .acceptorPriorityDelta(
-                                                                   config.getAcceptorPriorityDelta())
-                                                            .maxThreads(config.getMaxThreads())
-                                                            .acceptQueueSize(config.getAcceptQueueSize())
+                                                                   config.getRestAcceptorPriorityDelta())
+                                                            .maxThreads(config.getRestMaxThreads())
+                                                            .acceptQueueSize(config.getRestAcceptQueueSize())
                                                             .build();
 
         httpServer = new HTTPServer(httpServerConfig);

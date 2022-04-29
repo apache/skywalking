@@ -7,10 +7,9 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restHost| Binding IP of RESTful services. Services include GraphQL query and HTTP data report. |SW_CORE_REST_HOST| 0.0.0.0                                                                 |
 | - | - | restPort | Binding port of RESTful services. | SW_CORE_REST_PORT| 12800                                                                   |
 | - | - | restContextPath| Web context path of RESTful services. | SW_CORE_REST_CONTEXT_PATH| /                                                                       |
-| - | - | restMinThreads| Minimum thread number of RESTful services. | SW_CORE_REST_JETTY_MIN_THREADS| 1                                                                       |
-| - | - | restMaxThreads| Maximum thread number of RESTful services. | SW_CORE_REST_JETTY_MAX_THREADS| 200                                                                     |
-| - | - | restIdleTimeOut| Connector idle timeout of RESTful services (in milliseconds). | SW_CORE_REST_JETTY_IDLE_TIMEOUT| 30000                                                                   |
-| - | - | restAcceptQueueSize| ServerSocketChannel Backlog of RESTful services. | SW_CORE_REST_JETTY_QUEUE_SIZE| 0                                                                       |
+| - | - | restMaxThreads| Maximum thread number of RESTful services. | SW_CORE_REST_REST_MAX_THREADS| 200                                                                     |
+| - | - | restIdleTimeOut| Connector idle timeout of RESTful services (in milliseconds). | SW_CORE_REST_IDLE_TIMEOUT| 30000                                                                   |
+| - | - | restAcceptQueueSize| ServerSocketChannel Backlog of RESTful services. | SW_CORE_REST_QUEUE_SIZE| 0                                                                       |
 | - | - | httpMaxRequestHeaderSize| Maximum request header size accepted. | SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE| 8192                                                                    |
 | - | - | gRPCHost| Binding IP of gRPC services, including gRPC data report and internal communication among OAP nodes. |SW_CORE_GRPC_HOST| 0.0.0.0                                                                 |
 | - | - | gRPCPort| Binding port of gRPC services. | SW_CORE_GRPC_PORT| 11800                                                                   |
@@ -166,10 +165,9 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restHost| Binding IP of RESTful services. Services include GraphQL query and HTTP data report. | SW_RECEIVER_SHARING_REST_HOST | -                                                                       |
 | - | - | restPort | Binding port of RESTful services. | SW_RECEIVER_SHARING_REST_PORT | -                                                                       |
 | - | - | restContextPath| Web context path of RESTful services. | SW_RECEIVER_SHARING_REST_CONTEXT_PATH | -                                                                       |
-| - | - | restMinThreads| Minimum thread number of RESTful services. | SW_RECEIVER_SHARING_JETTY_MIN_THREADS| 1                                                                       |
-| - | - | restMaxThreads| Maximum thread number of RESTful services. | SW_RECEIVER_SHARING_JETTY_MAX_THREADS| 200                                                                     |
-| - | - | restIdleTimeOut| Connector idle timeout of RESTful services (in milliseconds). | SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT| 30000                                                                   |
-| - | - | restAcceptQueueSize| ServerSocketChannel backlog of RESTful services. | SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE| 0                                                                       |
+| - | - | restMaxThreads| Maximum thread number of RESTful services. | SW_RECEIVER_SHARING_REST_MAX_THREADS| 200                                                                     |
+| - | - | restIdleTimeOut| Connector idle timeout of RESTful services (in milliseconds). | SW_RECEIVER_SHARING_REST_IDLE_TIMEOUT| 30000                                                                   |
+| - | - | restAcceptQueueSize| ServerSocketChannel backlog of RESTful services. | SW_RECEIVER_SHARING_REST_QUEUE_SIZE| 0                                                                       |
 | - | - | httpMaxRequestHeaderSize| Maximum request header size accepted. | SW_RECEIVER_SHARING_HTTP_MAX_REQUEST_HEADER_SIZE| 8192                                                                    |
 | - | - | gRPCHost| Binding IP of gRPC services. Services include gRPC data report and internal communication among OAP nodes. | SW_RECEIVER_GRPC_HOST | 0.0.0.0. Not Activated                                                  |
 | - | - | gRPCPort| Binding port of gRPC services. | SW_RECEIVER_GRPC_PORT | Not Activated                                                           |
@@ -202,10 +200,16 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | receiver-otel | default | A receiver for analyzing metrics data from OpenTelemetry. | - | - |
 | - | - | enabledHandlers| Enabled handlers for otel. | SW_OTEL_RECEIVER_ENABLED_HANDLERS | -                                                                       |
 | - | - | enabledOcRules| Enabled metric rules for OC handler. | SW_OTEL_RECEIVER_ENABLED_OC_RULES | -                                                                       |
-| receiver-zipkin |default|  A receiver for Zipkin traces. | - | - |
-| - | - | restHost| Binding IP of RESTful services. |SW_RECEIVER_ZIPKIN_HOST| 0.0.0.0                                                                 |
-| - | - | restPort | Binding port of RESTful services. | SW_RECEIVER_ZIPKIN_PORT| 9411                                                                    |
-| - | - | restContextPath| Web context path of RESTful services. | SW_RECEIVER_ZIPKIN_CONTEXT_PATH| /                                                                       |
+ receiver-zipkin |default|  A receiver for Zipkin traces. | - | - |
+| - | - | restHost| Binding IP of RESTful services. |SW_RECEIVER_ZIPKIN_REST_HOST| 0.0.0.0                                                               |
+| - | - | restPort | Binding port of RESTful services. | SW_RECEIVER_ZIPKIN_REST_PORT| 9411                                                                  |
+| - | - | restContextPath| Web context path of RESTful services. | SW_RECEIVER_ZIPKIN_REST_CONTEXT_PATH| /                                                                     |
+| - | - | restMaxThreads| Maximum thread number of RESTful services. | SW_RECEIVER_ZIPKIN_REST_MAX_THREADS| 200                                                                   |
+| - | - | restIdleTimeOut| Connector idle timeout of RESTful services (in milliseconds). | SW_RECEIVER_ZIPKIN_REST_IDLE_TIMEOUT| 30000                                                                 |
+| - | - | restAcceptorPriorityDelta| ServerSocketChannel backlog of RESTful services. | SW_RECEIVER_ZIPKIN_REST_DELTA| 0                                                                     |
+| - | - | restAcceptQueueSize| Maximum request header size accepted. | SW_RECEIVER_ZIPKIN_REST_QUEUE_SIZE| 0                                                                     |
+| - | - | instanceNameRule| Get the instance name from these tags. | SW_RECEIVER_ZIPKIN_INSTANCE_NAME_RULE| [spring.instance_id,node_id]                                                                     |
+| - | - | searchableTracesTags| Defines a set of span tag keys which are searchable. Multiple values are separated by commas. | SW_ZIPKIN_SEARCHABLE_TAG_KEYS| http.method |
 | prometheus-fetcher | default | Prometheus fetcher reads metrics from Prometheus endpoint, and transfer the metrics into SkyWalking native format for the MAL engine. | - | - |
 | - | - | enabledRules | Enabled rules. | SW_PROMETHEUS_FETCHER_ENABLED_RULES | self                                                                    |
 | - | - | maxConvertWorker | The maximize meter convert worker. | SW_PROMETHEUS_FETCHER_NUM_CONVERT_WORKER | -1(by default, half the number of CPU core(s))                          |
