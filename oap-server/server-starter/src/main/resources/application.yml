@@ -388,7 +388,6 @@ receiver-zipkin:
     restContextPath: ${SW_RECEIVER_ZIPKIN_REST_CONTEXT_PATH:/}
     restMaxThreads: ${SW_RECEIVER_ZIPKIN_REST_MAX_THREADS:200}
     restIdleTimeOut: ${SW_RECEIVER_ZIPKIN_REST_IDLE_TIMEOUT:30000}
-    restAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_REST_DELTA:0}
     restAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_REST_QUEUE_SIZE:0}
     instanceNameRule: ${SW_RECEIVER_ZIPKIN_INSTANCE_NAME_RULE:[spring.instance_id,node_id]}
     searchableTracesTags: ${SW_ZIPKIN_SEARCHABLE_TAG_KEYS:http.method}

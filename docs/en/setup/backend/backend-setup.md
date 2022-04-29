@@ -34,8 +34,8 @@ Before deploying Skywalking in your distributed environment, you should learn ab
 
 <img src="https://skywalking.apache.org/doc-graph/communication-net.png"/>
 
-- Most native agents and probes, including language-based or mesh probes, use gRPC service (`core/default/gRPC*` in `application.yml`) to report data to the backend. Also, the Jetty service is supported in JSON format.
-- UI uses GraphQL (HTTP) query to access the backend, also in Jetty service (`core/default/rest*` in `application.yml`).
+- Most native agents and probes, including language-based or mesh probes, use gRPC service (`core/default/gRPC*` in `application.yml`) to report data to the backend. Also, the REST service is supported in JSON format.
+- UI uses GraphQL (HTTP) query to access the backend, also in REST service (`core/default/rest*` in `application.yml`).
 
 
 ## Startup script

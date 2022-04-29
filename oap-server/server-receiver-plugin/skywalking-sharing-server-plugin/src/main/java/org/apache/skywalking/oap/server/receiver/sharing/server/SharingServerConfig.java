@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class SharingServerConfig extends ModuleConfig {
     private String restHost;
     /**
-     * Only setting the real port(not 0) makes the jetty server online.
+     * Only setting the real port(not 0) makes the Armeria server online.
      */
     private int restPort;
     private String restContextPath;
