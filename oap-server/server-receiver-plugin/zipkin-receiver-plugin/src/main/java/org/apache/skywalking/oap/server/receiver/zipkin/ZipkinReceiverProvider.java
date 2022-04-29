@@ -67,8 +67,6 @@ public class ZipkinReceiverProvider extends ModuleProvider {
                                                             .port(config.getRestPort())
                                                             .contextPath(config.getRestContextPath())
                                                             .idleTimeOut(config.getRestIdleTimeOut())
-                                                            .acceptorPriorityDelta(
-                                                                   config.getRestAcceptorPriorityDelta())
                                                             .maxThreads(config.getRestMaxThreads())
                                                             .acceptQueueSize(config.getRestAcceptQueueSize())
                                                             .build();

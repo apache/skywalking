@@ -34,7 +34,6 @@ public class ZipkinReceiverConfig extends ModuleConfig {
     private String restContextPath;
     private int restMaxThreads = 200;
     private long restIdleTimeOut = 30000;
-    private int restAcceptorPriorityDelta = 0;
     private int restAcceptQueueSize = 0;
     private List<String> instanceNameRule = new ArrayList<>();
     private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;

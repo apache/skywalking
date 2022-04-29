@@ -205,8 +205,7 @@ core|default|role|Option values: `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restPort | Binding port of RESTful services. | SW_RECEIVER_ZIPKIN_REST_PORT| 9411                                                                  |
 | - | - | restContextPath| Web context path of RESTful services. | SW_RECEIVER_ZIPKIN_REST_CONTEXT_PATH| /                                                                     |
 | - | - | restMaxThreads| Maximum thread number of RESTful services. | SW_RECEIVER_ZIPKIN_REST_MAX_THREADS| 200                                                                   |
-| - | - | restIdleTimeOut| Connector idle timeout of RESTful services (in milliseconds). | SW_RECEIVER_ZIPKIN_REST_IDLE_TIMEOUT| 30000                                                                 |
-| - | - | restAcceptorPriorityDelta| ServerSocketChannel backlog of RESTful services. | SW_RECEIVER_ZIPKIN_REST_DELTA| 0                                                                     |
+| - | - | restIdleTimeOut| Connector idle timeout of RESTful services (in milliseconds). | SW_RECEIVER_ZIPKIN_REST_IDLE_TIMEOUT| 30000                                                                 |                                                                  |
 | - | - | restAcceptQueueSize| Maximum request header size accepted. | SW_RECEIVER_ZIPKIN_REST_QUEUE_SIZE| 0                                                                     |
 | - | - | instanceNameRule| Get the instance name from these tags. | SW_RECEIVER_ZIPKIN_INSTANCE_NAME_RULE| [spring.instance_id,node_id]                                                                     |
 | - | - | searchableTracesTags| Defines a set of span tag keys which are searchable. Multiple values are separated by commas. | SW_ZIPKIN_SEARCHABLE_TAG_KEYS| http.method |
