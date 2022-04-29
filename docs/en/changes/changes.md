@@ -31,7 +31,7 @@
 * Support receive Kubernetes processes from gRPC protocol.
 * Fix the problem that es index(TimeSeriesTable, eg. endpoint_traffic, alarm_record) didn't create even after rerun with init-mode. This problem caused the OAP server to fail to start when the OAP server was down for more than a day.
 * Support autocomplete tags in traces query.
-* [Breaking Change] Replace configuration `**_JETTY_**` to `**_REST_**`.
+* [Breaking Change] Replace all configurations `**_JETTY_**` to `**_REST_**`.
 
 #### UI
 
