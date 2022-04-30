@@ -297,7 +297,6 @@ public enum MetadataRegistry {
         return new PartialMetadata("measure-default", model.getName(), Kind.MEASURE);
     }
 
-
     @RequiredArgsConstructor
     @Data
     public static class PartialMetadata {
