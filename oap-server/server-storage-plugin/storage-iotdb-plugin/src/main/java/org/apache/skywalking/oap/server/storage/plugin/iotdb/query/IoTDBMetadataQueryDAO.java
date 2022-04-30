@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDete
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.enumeration.Language;
+import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.Process;
@@ -160,11 +161,13 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     public List<Process> listProcesses(String serviceId, String instanceId, String agentId,
-                                       final long lastPingStartTimeBucket, final long lastPingEndTimeBucket)
+                                       final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
+                                       final long lastPingEndTimeBucket)
             throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
-        appendProcessFromQuery(query, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        appendProcessFromQuery(query, serviceId, instanceId, agentId, profilingSupportStatus,
+                lastPingStartTimeBucket, lastPingEndTimeBucket);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(ProcessTraffic.INDEX_NAME,
@@ -174,17 +177,20 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     public long getProcessesCount(String serviceId, String instanceId, String agentId,
-                                  final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
+                                  final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
+                                  final long lastPingEndTimeBucket) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select count(" + ProcessTraffic.PROPERTIES + ") from ");
-        appendProcessFromQuery(query, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        appendProcessFromQuery(query, serviceId, instanceId, agentId, profilingSupportStatus,
+                lastPingStartTimeBucket, lastPingEndTimeBucket);
 
         final List<Double> results = client.queryWithAgg(query.toString());
         return results.size() > 0 ? results.get(0).longValue() : 0;
     }
 
     private void appendProcessFromQuery(StringBuilder query, String serviceId, String instanceId, String agentId,
-                                        final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) {
+                                        final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
+                                        final long lastPingEndTimeBucket) {
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, ProcessTraffic.INDEX_NAME);
         Map<String, String> indexAndValueMap = new HashMap<>();
         if (StringUtil.isNotEmpty(serviceId)) {
@@ -207,6 +213,12 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
                 where.append(" and ");
             }
             where.append(ProcessTraffic.LAST_PING_TIME_BUCKET).append(" <= ").append(lastPingEndTimeBucket);
+        }
+        if (profilingSupportStatus != null) {
+            if (where.length() > 0) {
+                where.append(" and ");
+            }
+            where.append(ProcessTraffic.PROFILING_SUPPORT_STATUS).append(" = ").append(profilingSupportStatus.value());
         }
         if (where.length() > 0) {
             query.append(" where ").append(where);
