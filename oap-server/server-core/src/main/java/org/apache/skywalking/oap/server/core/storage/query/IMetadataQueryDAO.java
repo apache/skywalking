@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
+
+import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.query.type.Service;
@@ -65,7 +67,8 @@ public interface IMetadataQueryDAO extends DAO {
      * @return list of processes matching the given conditions.
      */
     List<Process> listProcesses(final String serviceId, final String instanceId, final String agentId,
-                                final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException;
+                                final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
+                                final long lastPingEndTimeBucket) throws IOException;
 
     /**
      * get the count of processes
@@ -75,7 +78,8 @@ public interface IMetadataQueryDAO extends DAO {
      * @return the size of processes
      */
     long getProcessesCount(final String serviceId, final String instanceId, final String agentId,
-                           final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException;
+                           final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
+                           final long lastPingEndTimeBucket) throws IOException;
 
     /**
      * @param processId the id of the process.

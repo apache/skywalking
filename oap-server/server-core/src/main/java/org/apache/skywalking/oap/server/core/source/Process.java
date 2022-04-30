@@ -24,6 +24,7 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
+import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 
 import java.util.List;
 
@@ -78,6 +79,9 @@ public class Process extends Source {
     @Setter
     @Getter
     private List<String> labels;
+    @Setter
+    @Getter
+    private ProfilingSupportStatus profilingSupportStatus;
 
     @Override
     public void prepare() {

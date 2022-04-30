@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDete
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.analyze.EBPFProfilingAnalyzer;
+import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
@@ -154,7 +155,7 @@ public class EBPFProfilingQueryService implements Service {
         final long endTimestamp = System.currentTimeMillis();
         final long startTimestamp = endTimestamp - TimeUnit.MINUTES.toMillis(10);
         final long processesCount = getMetadataQueryDAO().getProcessesCount(serviceId, null, null,
-                TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute),
+                ProfilingSupportStatus.SUPPORT_EBPF_PROFILING, TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute),
                 TimeBucket.getTimeBucket(endTimestamp, DownSampling.Minute));
         if (processesCount <= 0) {
             prepare.setCouldProfiling(false);
