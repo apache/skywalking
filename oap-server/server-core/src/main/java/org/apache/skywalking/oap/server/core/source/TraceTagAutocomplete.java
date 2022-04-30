@@ -16,27 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.server.http;
+package org.apache.skywalking.oap.server.core.source;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+@ScopeDeclaration(id = DefaultScopeDefine.TRACE_TAG_AUTOCOMPLETE, name = "TraceTagAutocomplete")
+public class TraceTagAutocomplete extends TagAutocomplete {
 
-@Setter
-@Getter
-@Builder
-public class HTTPServerConfig {
-
-    private String host;
-    private int port;
-    private String contextPath;
-
-    @Builder.Default
-    private int maxThreads = 200;
-    @Builder.Default
-    private long idleTimeOut = 30000;
-    @Builder.Default
-    private int acceptQueueSize = 0;
-    @Builder.Default
-    private int maxRequestHeaderSize = 8192;
 }

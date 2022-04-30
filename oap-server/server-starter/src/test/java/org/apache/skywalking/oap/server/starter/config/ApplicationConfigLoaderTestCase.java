@@ -65,7 +65,7 @@ public class ApplicationConfigLoaderTestCase {
     public void testLoadStringTypeConfig() {
         Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver-zipkin")
                 .getProviderConfiguration("default");
-        String host = (String) providerConfig.get("host");
+        String host = (String) providerConfig.get("restHost");
         assertEquals("0.0.0.0", host);
     }
 
@@ -73,7 +73,7 @@ public class ApplicationConfigLoaderTestCase {
     public void testLoadIntegerTypeConfig() {
         Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver-zipkin")
                 .getProviderConfiguration("default");
-        Integer port = (Integer) providerConfig.get("port");
+        Integer port = (Integer) providerConfig.get("restPort");
         assertEquals(Integer.valueOf(9411), port);
     }
 

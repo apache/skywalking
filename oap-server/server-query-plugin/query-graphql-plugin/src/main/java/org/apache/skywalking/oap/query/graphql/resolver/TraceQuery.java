@@ -21,10 +21,12 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import com.google.common.base.Strings;
 import java.io.IOException;
+import java.util.Set;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
@@ -80,5 +82,13 @@ public class TraceQuery implements GraphQLQueryResolver {
 
     public Trace queryTrace(final String traceId) throws IOException {
         return getQueryService().queryTrace(traceId);
+    }
+
+    public Set<String> queryTraceTagAutocompleteKeys(final Duration queryDuration) throws IOException {
+        return getQueryService().queryTraceTagAutocompleteKeys(queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
+    }
+
+    public Set<String> queryTraceTagAutocompleteValues(final String tagKey, final Duration queryDuration) throws IOException {
+        return getQueryService().queryTraceTagAutocompleteValues(tagKey, 100, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
     }
 }

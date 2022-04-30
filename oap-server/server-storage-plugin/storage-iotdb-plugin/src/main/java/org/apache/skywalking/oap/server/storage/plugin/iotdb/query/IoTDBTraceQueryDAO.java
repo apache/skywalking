@@ -18,18 +18,27 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.iotdb.query;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.apache.iotdb.rpc.IoTDBConnectionException;
+import org.apache.iotdb.rpc.StatementExecutionException;
+import org.apache.iotdb.session.pool.SessionDataSetWrapper;
+import org.apache.iotdb.session.pool.SessionPool;
+import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.TraceTagAutocompleteData;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
@@ -172,5 +181,83 @@ public class IoTDBTraceQueryDAO implements ITraceQueryDAO {
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Set<String> queryTraceTagAutocompleteKeys(final long startSecondTB,
+                                                     final long endSecondTB) throws IOException {
+        StringBuilder query = new StringBuilder();
+        query.append("select *").append(" from ");
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, TraceTagAutocompleteData.INDEX_NAME);
+        appendTagAutocompleteCondition(startSecondTB, endSecondTB, query);
+        query.append(IoTDBClient.ALIGN_BY_DEVICE);
+
+        SessionPool sessionPool = client.getSessionPool();
+        SessionDataSetWrapper wrapper = null;
+        Set<String> tagKeys = new HashSet<>();
+        try {
+            wrapper = sessionPool.executeQueryStatement(query.toString());
+            while (wrapper.hasNext()) {
+                RowRecord rowRecord = wrapper.next();
+                List<String> resultList = Splitter.on(IoTDBClient.DOT + "\"")
+                                                  .splitToList(rowRecord.getFields().get(0).getStringValue());
+                String tagKey = resultList.get(resultList.size() - 1);
+                tagKeys.add(tagKey.substring(0, tagKey.length() - 1));
+            }
+        } catch (IoTDBConnectionException | StatementExecutionException e) {
+            throw new IOException(e);
+        } finally {
+            if (wrapper != null) {
+                sessionPool.closeResultSet(wrapper);
+            }
+        }
+
+        return tagKeys;
+    }
+
+    @Override
+    public Set<String> queryTraceTagAutocompleteValues(final String tagKey,
+                                                       final int limit,
+                                                       final long startSecondTB,
+                                                       final long endSecondTB) throws IOException {
+        StringBuilder query = new StringBuilder();
+        query.append("select * from ");
+        IoTDBUtils.addModelPath(client.getStorageGroup(), query, TraceTagAutocompleteData.INDEX_NAME);
+        Map<String, String> indexAndValueMap = new HashMap<>();
+        indexAndValueMap.put(IoTDBIndexes.AUTOCOMPLETE_TAG_KEY, tagKey);
+        IoTDBUtils.addQueryIndexValue(TraceTagAutocompleteData.INDEX_NAME, query, indexAndValueMap);
+        appendTagAutocompleteCondition(startSecondTB, endSecondTB, query);
+        query.append(" limit ").append(limit).append(IoTDBClient.ALIGN_BY_DEVICE);
+        List<? super StorageData> storageDataList = client.filterQuery(TraceTagAutocompleteData.INDEX_NAME,
+                                                                       query.toString(),
+                                                                       new TraceTagAutocompleteData.Builder()
+        );
+
+        Set<String> tagValues = new HashSet<>();
+        storageDataList.forEach(storageData -> {
+            TraceTagAutocompleteData tagAutocompleteData = (TraceTagAutocompleteData) storageData;
+            tagValues.add(tagAutocompleteData.getTagValue());
+        });
+
+        return tagValues;
+    }
+
+    private void appendTagAutocompleteCondition(final long startSecondTB, final long endSecondTB, final StringBuilder query) {
+        long startMinTB = startSecondTB / 100;
+        long endMinTB = endSecondTB / 100;
+
+        StringBuilder where = new StringBuilder();
+        if (startMinTB > 0) {
+            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startMinTB));
+        }
+        if (endMinTB > 0) {
+            if (where.length() > 0) {
+                where.append(" and ");
+            }
+            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endMinTB));
+        }
+        if (where.length() > 0) {
+            query.append(" where ").append(where);
+        }
     }
 }
