@@ -45,7 +45,7 @@ public class BanyanDBConverter {
         @Override
         public Object get(String fieldName) {
             MetadataRegistry.ColumnSpec spec = schema.getSpec(fieldName);
-            if (double.class.equals(spec.getModelColumn().getType())) {
+            if (double.class.equals(spec.getColumnClass())) {
                 return ByteUtil.bytes2Double(rowEntity.getTagValue(fieldName));
             } else {
                 return rowEntity.getTagValue(fieldName);
