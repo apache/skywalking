@@ -19,7 +19,10 @@
   group: default
   shortname: details
   layers:
+    {{- contains .layers }}
     - MESH_DP
+    - MESH
+    {{- end }}
   normal: true
 - id: {{ b64enc "istio-system::istio-ingressgateway" }}.1
   name: istio-system::istio-ingressgateway
@@ -33,21 +36,30 @@
   group: default
   shortname: productpage
   layers:
+    {{- contains .layers }}
     - MESH_DP
+    - MESH
+    {{- end }}
   normal: true
 - id: {{ b64enc "default::ratings" }}.1
   name: default::ratings
   group: default
   shortname: ratings
   layers:
+    {{- contains .layers }}
     - MESH_DP
+    - MESH
+    {{- end }}
   normal: true
 - id: {{ b64enc "default::reviews" }}.1
   name: default::reviews
   group: default
   shortname: reviews
   layers:
+    {{- contains .layers }}
     - MESH_DP
+    - MESH
+    {{- end }}
   normal: true
 - id: {{ b64enc "istio-system::istio-egressgateway" }}.1
   name: istio-system::istio-egressgateway

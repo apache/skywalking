@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDete
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.enumeration.Language;
+import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.Process;
@@ -203,35 +204,38 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId, String agentId,
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
                                        final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query = Query.bool();
         final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
-        appendProcessWhereQuery(query, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        appendProcessWhereQuery(query, serviceId, instanceId, agentId, profilingSupportStatus,
+                lastPingStartTimeBucket, lastPingEndTimeBucket);
         final SearchResponse results = getClient().search(index, search.build());
 
         return buildProcesses(results);
     }
 
     @Override
-    public long getProcessesCount(String serviceId, String instanceId, String agentId,
+    public long getProcessesCount(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
                                   final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         final String index =
                 IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query = Query.bool();
         final SearchBuilder search = Search.builder().query(query).size(0);
-        appendProcessWhereQuery(query, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        appendProcessWhereQuery(query, serviceId, instanceId, agentId, profilingSupportStatus,
+                lastPingStartTimeBucket, lastPingEndTimeBucket);
         final SearchResponse results = getClient().search(index, search.build());
 
         return results.getHits().getTotal();
     }
 
     private void appendProcessWhereQuery(BoolQueryBuilder query, String serviceId, String instanceId, String agentId,
-                                         final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) {
+                                         final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
+                                         final long lastPingEndTimeBucket) {
         if (StringUtil.isNotEmpty(serviceId)) {
             query.must(Query.term(ProcessTraffic.SERVICE_ID, serviceId));
         }
@@ -240,6 +244,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         }
         if (StringUtil.isNotEmpty(agentId)) {
             query.must(Query.term(ProcessTraffic.AGENT_ID, agentId));
+        }
+        if (profilingSupportStatus != null) {
+            query.must(Query.term(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
         }
         final RangeQueryBuilder rangeQuery = Query.range(ProcessTraffic.LAST_PING_TIME_BUCKET);
         if (lastPingStartTimeBucket > 0) {

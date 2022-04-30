@@ -57,6 +57,7 @@ public class ProcessTraffic extends Metrics {
     public static final String LAST_PING_TIME_BUCKET = "last_ping";
     public static final String DETECT_TYPE = "detect_type";
     public static final String LABELS_JSON = "labels_json";
+    public static final String PROFILING_SUPPORT_STATUS = "profiling_support_status";
 
     private static final Gson GSON = new Gson();
 
@@ -109,6 +110,14 @@ public class ProcessTraffic extends Metrics {
     @Column(columnName = LABELS_JSON, storageOnly = true, length = 500)
     private String labelsJson;
 
+    /**
+     * Is Support eBPF Profiling, 1 means support, otherwise means not support
+     */
+    @Setter
+    @Getter
+    @Column(columnName = PROFILING_SUPPORT_STATUS)
+    private int profilingSupportStatus;
+
     @Override
     public boolean combine(Metrics metrics) {
         final ProcessTraffic processTraffic = (ProcessTraffic) metrics;
@@ -147,6 +156,7 @@ public class ProcessTraffic extends Metrics {
         setLabelsJson(remoteData.getDataStrings(5));
         setLastPingTimestamp(remoteData.getDataLongs(0));
         setDetectType(remoteData.getDataIntegers(1));
+        setProfilingSupportStatus(remoteData.getDataIntegers(2));
         setTimeBucket(remoteData.getDataLongs(1));
     }
 
@@ -166,6 +176,7 @@ public class ProcessTraffic extends Metrics {
         builder.addDataStrings(labelsJson);
         builder.addDataLongs(lastPingTimestamp);
         builder.addDataIntegers(detectType);
+        builder.addDataIntegers(profilingSupportStatus);
         builder.addDataLongs(getTimeBucket());
         return builder;
     }
@@ -194,6 +205,7 @@ public class ProcessTraffic extends Metrics {
             processTraffic.setLabelsJson((String) converter.get(LABELS_JSON));
             processTraffic.setLastPingTimestamp(((Number) converter.get(LAST_PING_TIME_BUCKET)).longValue());
             processTraffic.setDetectType(((Number) converter.get(DETECT_TYPE)).intValue());
+            processTraffic.setProfilingSupportStatus(((Number) converter.get(PROFILING_SUPPORT_STATUS)).intValue());
             processTraffic.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return processTraffic;
         }
@@ -213,6 +225,7 @@ public class ProcessTraffic extends Metrics {
             converter.accept(LABELS_JSON, storageData.getLabelsJson());
             converter.accept(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
             converter.accept(DETECT_TYPE, storageData.getDetectType());
+            converter.accept(PROFILING_SUPPORT_STATUS, storageData.getProfilingSupportStatus());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
         }
     }
@@ -231,9 +244,4 @@ public class ProcessTraffic extends Metrics {
         return null;
     }
 
-    public static class PropertyUtil {
-        public static final String HOST_IP = "host_ip";
-        public static final String PID = "pid";
-        public static final String COMMAND_LINE = "command_line";
-    }
 }

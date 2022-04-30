@@ -43,6 +43,9 @@ public class ProcessDispatcher implements SourceDispatcher<Process> {
 
         traffic.setAgentId(source.getAgentId());
         traffic.setProperties(source.getProperties());
+        if (source.getProfilingSupportStatus() != null) {
+            traffic.setProfilingSupportStatus(source.getProfilingSupportStatus().value());
+        }
         if (source.getDetectType() != null) {
             traffic.setDetectType(source.getDetectType().value());
         }

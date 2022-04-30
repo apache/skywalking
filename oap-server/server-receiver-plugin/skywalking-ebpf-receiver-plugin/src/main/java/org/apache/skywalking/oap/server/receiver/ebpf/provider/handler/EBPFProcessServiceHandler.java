@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.source.Process;
 import org.apache.skywalking.oap.server.core.source.ServiceLabel;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
@@ -53,6 +54,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProcessServiceImplBase implements GRPCHandler {
 
@@ -160,6 +162,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
         }
         process.setProperties(properties);
         process.setLabels(hostProcess.getEntity().getLabelsList());
+        process.setProfilingSupportStatus(getProfilingSupportStatus(hostProcess.getPropertiesList()));
 
         // timestamp
         process.setTimeBucket(
@@ -195,6 +198,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
         }
         process.setProperties(properties);
         process.setLabels(kubernetesProcessMetadata.getEntity().getLabelsList());
+        process.setProfilingSupportStatus(getProfilingSupportStatus(kubernetesProcessMetadata.getPropertiesList()));
 
         // timestamp
         process.setTimeBucket(
@@ -227,5 +231,18 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
 
             sourceReceiver.receive(serviceLabel);
         }
+    }
+
+    /**
+     * Validate the process is support the eBPF profiling
+     */
+    private ProfilingSupportStatus getProfilingSupportStatus(List<KeyStringValuePair> properties) {
+        for (KeyStringValuePair property : properties) {
+            if (Objects.equals(property.getKey(), "support_ebpf_profiling")
+                && Objects.equals(property.getValue(), "true")) {
+                return ProfilingSupportStatus.SUPPORT_EBPF_PROFILING;
+            }
+        }
+        return ProfilingSupportStatus.NOT_SUPPORT;
     }
 }
