@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBManagementDAO;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBMetricsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMetricsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBNoneStreamDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 

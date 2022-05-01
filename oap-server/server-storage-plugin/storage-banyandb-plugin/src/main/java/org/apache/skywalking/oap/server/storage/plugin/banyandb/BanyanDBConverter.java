@@ -18,15 +18,18 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
+import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Serializable;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
@@ -37,10 +40,14 @@ import java.util.List;
 import java.util.function.Function;
 
 public class BanyanDBConverter {
-    @RequiredArgsConstructor
-    public static class StreamToEntity implements Convert2Entity {
+    public static class StorageToStream implements Convert2Entity {
         private final MetadataRegistry.Schema schema;
         private final RowEntity rowEntity;
+
+        public StorageToStream(String modelName, RowEntity rowEntity) {
+            this.schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+            this.rowEntity = rowEntity;
+        }
 
         @Override
         public Object get(String fieldName) {
@@ -61,13 +68,17 @@ public class BanyanDBConverter {
     @Slf4j
     @RequiredArgsConstructor
     public static class StreamToStorage implements Convert2Storage<StreamWrite> {
+        private final MetadataRegistry.Schema schema;
         private final StreamWrite streamWrite;
 
         @Override
         public void accept(String fieldName, Object fieldValue) {
-            // TODO: skip "time_bucket"
+            MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
+            if (columnSpec == null) {
+                throw new IllegalArgumentException("fail to find field[" + fieldName + "]");
+            }
             try {
-                this.streamWrite.tag(fieldName, buildTag(fieldValue));
+                this.streamWrite.tag(fieldName, buildTag(fieldValue, columnSpec.getColumnClass()));
             } catch (BanyanDBException ex) {
                 log.error("fail to add tag", ex);
             }
@@ -118,14 +129,25 @@ public class BanyanDBConverter {
         @Override
         public void accept(String fieldName, Object fieldValue) {
             MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
+            if (columnSpec == null) {
+                throw new IllegalArgumentException("fail to find field[" + fieldName + "]");
+            }
             try {
                 if (columnSpec.getColumnType() == MetadataRegistry.ColumnType.TAG) {
-                    this.measureWrite.tag(fieldName, buildTag(fieldValue));
+                    this.measureWrite.tag(fieldName, buildTag(fieldValue, columnSpec.getColumnClass()));
                 } else {
-                    this.measureWrite.field(fieldName, buildField(fieldValue));
+                    this.measureWrite.field(fieldName, buildField(fieldValue, columnSpec.getColumnClass()));
                 }
             } catch (BanyanDBException ex) {
                 log.error("fail to add tag", ex);
+            }
+        }
+
+        public void acceptID(String id) {
+            try {
+                this.measureWrite.tag(MetadataRegistry.ID, TagAndValue.idTagValue(id));
+            } catch (BanyanDBException ex) {
+                log.error("fail to add ID tag", ex);
             }
         }
 
@@ -170,29 +192,62 @@ public class BanyanDBConverter {
         }
     }
 
-    private static Serializable<BanyandbModel.TagValue> buildTag(Object value) {
-        if (Integer.class.equals(value.getClass()) || Long.class.equals(value.getClass())) {
-            return TagAndValue.longTagValue((long) value);
-        } else if (String.class.equals(value.getClass())) {
+    private static Serializable<BanyandbModel.TagValue> buildTag(Object value, final Class<?> clazz) {
+        if (Integer.class.equals(clazz) || int.class.equals(clazz)) {
+            return TagAndValue.longTagValue(((Number) value).longValue());
+        } else if (Long.class.equals(clazz) || long.class.equals(clazz)) {
+            return TagAndValue.longTagValue((Long) value);
+        } else if (String.class.equals(clazz)) {
             return TagAndValue.stringTagValue((String) value);
-        } else if (Double.class.equals(value.getClass())) {
+        } else if (Double.class.equals(clazz) || double.class.equals(clazz)) {
             return TagAndValue.binaryTagValue(ByteUtil.double2Bytes((double) value));
-        } else if (value instanceof StorageDataComplexObject) {
+        } else if (StorageDataComplexObject.class.isAssignableFrom(clazz)) {
             return TagAndValue.stringTagValue(((StorageDataComplexObject<?>) value).toStorageData());
+        } else if (Layer.class.equals(clazz)) {
+            return TagAndValue.longTagValue(((Integer) value).longValue());
+        } else if (JsonObject.class.equals(clazz)) {
+            return TagAndValue.stringTagValue((String) value);
         }
-        throw new IllegalStateException(value.getClass() + " is not supported");
+        throw new IllegalStateException(clazz.getSimpleName() + " is not supported");
     }
 
-    private static Serializable<BanyandbModel.FieldValue> buildField(Object value) {
-        if (Integer.class.equals(value.getClass()) || Long.class.equals(value.getClass())) {
-            return TagAndValue.longFieldValue((long) value);
-        } else if (String.class.equals(value.getClass())) {
+    private static Serializable<BanyandbModel.FieldValue> buildField(Object value, final Class<?> clazz) {
+        if (Integer.class.equals(clazz) || int.class.equals(clazz)) {
+            return TagAndValue.longFieldValue(((Number) value).longValue());
+        } else if (Long.class.equals(clazz) || long.class.equals(clazz)) {
+            return TagAndValue.longFieldValue((Long) value);
+        } else if (String.class.equals(clazz)) {
             return TagAndValue.stringFieldValue((String) value);
-        } else if (Double.class.equals(value.getClass())) {
+        } else if (Double.class.equals(clazz) || double.class.equals(clazz)) {
             return TagAndValue.binaryFieldValue(ByteUtil.double2Bytes((double) value));
-        } else if (value instanceof StorageDataComplexObject) {
+        } else if (StorageDataComplexObject.class.isAssignableFrom(clazz)) {
             return TagAndValue.stringFieldValue(((StorageDataComplexObject<?>) value).toStorageData());
         }
-        throw new IllegalStateException(value.getClass() + " is not supported");
+        throw new IllegalStateException(clazz.getSimpleName() + " is not supported");
+    }
+
+    public static class StorageToMeasure implements Convert2Entity {
+        private final MetadataRegistry.Schema schema;
+        private final DataPoint dataPoint;
+
+        public StorageToMeasure(String modelName, DataPoint dataPoint) {
+            this.schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+            this.dataPoint = dataPoint;
+        }
+
+        @Override
+        public Object get(String fieldName) {
+            MetadataRegistry.ColumnSpec spec = schema.getSpec(fieldName);
+            if (double.class.equals(spec.getColumnClass())) {
+                return ByteUtil.bytes2Double(dataPoint.getTagValue(fieldName));
+            } else {
+                return dataPoint.getTagValue(fieldName);
+            }
+        }
+
+        @Override
+        public <T, R> R getWith(String fieldName, Function<T, R> typeDecoder) {
+            return (R) this.get(fieldName);
+        }
     }
 }

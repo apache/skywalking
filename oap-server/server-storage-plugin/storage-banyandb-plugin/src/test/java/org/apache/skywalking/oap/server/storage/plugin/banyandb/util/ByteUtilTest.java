@@ -18,27 +18,27 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.util;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ByteUtil {
-    private static final ThreadLocal<ByteBuf> BYTE_BUFFER = ThreadLocal.withInitial(() -> Unpooled.buffer(8));
-
-    public static Double bytes2Double(byte[] bytes) {
-        final ByteBuf buf = BYTE_BUFFER.get();
-        try {
-            return buf.writeBytes(bytes).readDouble();
-        } finally {
-            buf.clear();
-        }
+public class ByteUtilTest {
+    @Test
+    public void testConvertDoubleAndBackOnce() {
+        double pi = 3.14159;
+        byte[] data = ByteUtil.double2Bytes(pi);
+        Assert.assertEquals(8, data.length);
+        Assert.assertEquals(pi, ByteUtil.bytes2Double(data), 0.00001);
     }
 
-    public static byte[] double2Bytes(double number) {
-        final ByteBuf buf = BYTE_BUFFER.get();
-        try {
-            return buf.writeDouble(number).array();
-        } finally {
-            buf.clear();
-        }
+    @Test
+    public void testConvertDoubleAndBackTwice() {
+        double pi = 3.14159;
+        byte[] binaryPI = ByteUtil.double2Bytes(pi);
+        Assert.assertEquals(8, binaryPI.length);
+        Assert.assertEquals(pi, ByteUtil.bytes2Double(binaryPI), 0.00001);
+        double e = 2.71828;
+        byte[] binaryE = ByteUtil.double2Bytes(e);
+        Assert.assertEquals(8, binaryE.length);
+        Assert.assertEquals(e, ByteUtil.bytes2Double(binaryE), 0.00001);
     }
 }

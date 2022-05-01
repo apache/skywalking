@@ -84,7 +84,7 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
         for (final RowEntity rowEntity : resp.getElements()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();
             AlarmRecord alarmRecord = builder.storage2Entity(
-                    new BanyanDBConverter.StreamToEntity(MetadataRegistry.INSTANCE.findMetadata(AlarmRecord.INDEX_NAME), rowEntity)
+                    new BanyanDBConverter.StorageToStream(AlarmRecord.INDEX_NAME, rowEntity)
             );
 
             AlarmMessage message = new AlarmMessage();

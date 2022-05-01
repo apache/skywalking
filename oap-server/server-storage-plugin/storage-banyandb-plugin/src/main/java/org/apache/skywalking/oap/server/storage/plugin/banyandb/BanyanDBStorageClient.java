@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import io.grpc.Status;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
+import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
@@ -149,8 +150,12 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         this.client.write(streamWrite);
     }
 
-    public StreamBulkWriteProcessor createBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
+    public StreamBulkWriteProcessor createStreamBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
         return this.client.buildStreamWriteProcessor(maxBulkSize, flushInterval, concurrency);
+    }
+
+    public MeasureBulkWriteProcessor createMeasureBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
+        return this.client.buildMeasureWriteProcessor(maxBulkSize, flushInterval, concurrency);
     }
 
     @Override

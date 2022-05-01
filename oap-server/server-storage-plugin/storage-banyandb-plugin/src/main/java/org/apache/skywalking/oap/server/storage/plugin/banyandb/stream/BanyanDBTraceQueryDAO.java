@@ -168,7 +168,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
         for (final RowEntity rowEntity : resp.getElements()) {
             SegmentRecord segmentRecord = new SegmentRecord.Builder().storage2Entity(
-                    new BanyanDBConverter.StreamToEntity(MetadataRegistry.INSTANCE.findMetadata(SegmentRecord.INDEX_NAME), rowEntity));
+                    new BanyanDBConverter.StorageToStream(SegmentRecord.INDEX_NAME, rowEntity));
             segmentRecords.add(segmentRecord);
         }
 

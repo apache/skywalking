@@ -57,7 +57,11 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             }
             log.info("group {} created", g.name());
             // then check entity schema
-            return metadata.findRemoteSchema(c).isPresent();
+            if (metadata.findRemoteSchema(c).isPresent()) {
+                MetadataRegistry.INSTANCE.registerModel(model, this.configService);
+                return true;
+            }
+            return false;
         } catch (BanyanDBException ex) {
             throw new StorageException("fail to check existence", ex);
         }

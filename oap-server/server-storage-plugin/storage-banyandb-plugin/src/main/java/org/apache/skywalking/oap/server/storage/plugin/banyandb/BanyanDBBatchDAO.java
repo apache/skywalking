@@ -16,24 +16,34 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMeasureInsertRequest;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBStreamInsertRequest;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> implements IBatchDAO {
-    private StreamBulkWriteProcessor bulkProcessor;
+    private StreamBulkWriteProcessor streamBulkWriteProcessor;
+
+    private MeasureBulkWriteProcessor measureBulkWriteProcessor;
+
     private final int maxBulkSize;
+
     private final int flushInterval;
+
     private final int concurrency;
+
+    private final AtomicBoolean initialized = new AtomicBoolean(false);
 
     public BanyanDBBatchDAO(BanyanDBStorageClient client, int maxBulkSize, int flushInterval, int concurrency) {
         super(client);
@@ -44,27 +54,31 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
 
     @Override
     public void insert(InsertRequest insertRequest) {
-        if (bulkProcessor == null) {
-            this.bulkProcessor = getClient().createBulkProcessor(maxBulkSize, flushInterval, concurrency);
+        if (initialized.compareAndSet(false, true)) {
+            this.streamBulkWriteProcessor = getClient().createStreamBulkProcessor(maxBulkSize, flushInterval, concurrency);
+            this.measureBulkWriteProcessor = getClient().createMeasureBulkProcessor(maxBulkSize, flushInterval, concurrency);
         }
-
         if (insertRequest instanceof BanyanDBStreamInsertRequest) {
-            this.bulkProcessor.add(((BanyanDBStreamInsertRequest) insertRequest).getStreamWrite());
+            this.streamBulkWriteProcessor.add(((BanyanDBStreamInsertRequest) insertRequest).getStreamWrite());
+        } else if (insertRequest instanceof BanyanDBMeasureInsertRequest) {
+            this.measureBulkWriteProcessor.add(((BanyanDBMeasureInsertRequest) insertRequest).getMeasureWrite());
         }
     }
 
     @Override
     public CompletableFuture<Void> flush(List<PrepareRequest> prepareRequests) {
-        if (bulkProcessor == null) {
-            this.bulkProcessor = getClient().createBulkProcessor(maxBulkSize, flushInterval, concurrency);
+        if (initialized.compareAndSet(false, true)) {
+            this.streamBulkWriteProcessor = getClient().createStreamBulkProcessor(maxBulkSize, flushInterval, concurrency);
+            this.measureBulkWriteProcessor = getClient().createMeasureBulkProcessor(maxBulkSize, flushInterval, concurrency);
         }
 
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
             return CompletableFuture.allOf(prepareRequests.stream().map(prepareRequest -> {
                 if (prepareRequest instanceof BanyanDBStreamInsertRequest) {
                     // TODO: return CompletableFuture<Void>
-                    this.bulkProcessor.add(((BanyanDBStreamInsertRequest) prepareRequest).getStreamWrite());
-                } else {
+                    this.streamBulkWriteProcessor.add(((BanyanDBStreamInsertRequest) prepareRequest).getStreamWrite());
+                } else if (prepareRequest instanceof BanyanDBMeasureInsertRequest) {
+                    this.measureBulkWriteProcessor.add(((BanyanDBMeasureInsertRequest) prepareRequest).getMeasureWrite());
                 }
                 return CompletableFuture.completedFuture(null);
             }).toArray(CompletableFuture[]::new));

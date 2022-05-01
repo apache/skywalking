@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
 public enum MetadataRegistry {
     INSTANCE;
 
-    private static final String ID = "id";
+    public static final String ID = "id";
     private final Map<String, Schema> registry = new ConcurrentHashMap<>();
 
     public NamedSchema<?> registerModel(Model model, ConfigService configService) {
@@ -91,8 +91,7 @@ public enum MetadataRegistry {
         if (partialMetadata.getKind() == Kind.STREAM) {
             final Stream.Builder builder = Stream.create(partialMetadata.getGroup(), partialMetadata.getName());
             if (entities.isEmpty()) {
-                log.warn("sharding keys of model[stream.{}] must not be empty", model.getName());
-//            throw new IllegalStateException("sharding keys of model[" + model.getName() + "] must not be empty");
+                throw new IllegalStateException("sharding keys of model[stream." + model.getName() + "] must not be empty");
             }
             builder.setEntityRelativeTags(entities);
             builder.addTagFamilies(tagFamilySpecs);
@@ -401,6 +400,7 @@ public enum MetadataRegistry {
         private final PartialMetadata metadata;
         @Singular
         private final Map<String, ColumnSpec> specs;
+        private final boolean useIdAsShardingKey;
 
         public ColumnSpec getSpec(String columnName) {
             return this.specs.get(columnName);

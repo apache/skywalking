@@ -1,8 +1,9 @@
-package org.apache.skywalking.oap.server.storage.plugin.banyandb;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
+import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
@@ -11,6 +12,8 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -36,10 +39,10 @@ public class BanyanDBMetricsDAO implements IMetricsDAO {
         MeasureWrite measureWrite = new MeasureWrite(schema.getMetadata().getGroup(), // group name
                 model.getName(), // index-name
                 TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling())); // timestamp
-        final Convert2Storage<MeasureWrite> toStorage = new BanyanDBConverter.MeasureToStorage(schema, measureWrite);
+        final BanyanDBConverter.MeasureToStorage toStorage = new BanyanDBConverter.MeasureToStorage(schema, measureWrite);
         storageBuilder.entity2Storage(metrics, toStorage);
-        return new InsertRequest() {
-        };
+        toStorage.acceptID(metrics.id());
+        return new BanyanDBMeasureInsertRequest(toStorage.obtain());
     }
 
     @Override

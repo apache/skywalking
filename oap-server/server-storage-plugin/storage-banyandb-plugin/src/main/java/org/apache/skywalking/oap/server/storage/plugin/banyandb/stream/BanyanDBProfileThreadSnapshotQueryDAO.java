@@ -142,7 +142,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
         List<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
         for (final RowEntity rowEntity : resp.getElements()) {
             ProfileThreadSnapshotRecord record = this.builder.storage2Entity(
-                    new BanyanDBConverter.StreamToEntity(MetadataRegistry.INSTANCE.findMetadata(ProfileThreadSnapshotRecord.INDEX_NAME), rowEntity));
+                    new BanyanDBConverter.StorageToStream(ProfileThreadSnapshotRecord.INDEX_NAME, rowEntity));
 
             result.add(record);
         }
@@ -201,7 +201,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
         List<ProfileThreadSnapshotRecord> records = new ArrayList<>();
         for (final RowEntity rowEntity : resp.getElements()) {
             ProfileThreadSnapshotRecord record = this.builder.storage2Entity(
-                    new BanyanDBConverter.StreamToEntity(MetadataRegistry.INSTANCE.findMetadata(ProfileThreadSnapshotRecord.INDEX_NAME), rowEntity));
+                    new BanyanDBConverter.StorageToStream(ProfileThreadSnapshotRecord.INDEX_NAME, rowEntity));
 
             records.add(record);
         }

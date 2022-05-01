@@ -16,29 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.util;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 
-public class ByteUtil {
-    private static final ThreadLocal<ByteBuf> BYTE_BUFFER = ThreadLocal.withInitial(() -> Unpooled.buffer(8));
-
-    public static Double bytes2Double(byte[] bytes) {
-        final ByteBuf buf = BYTE_BUFFER.get();
-        try {
-            return buf.writeBytes(bytes).readDouble();
-        } finally {
-            buf.clear();
-        }
-    }
-
-    public static byte[] double2Bytes(double number) {
-        final ByteBuf buf = BYTE_BUFFER.get();
-        try {
-            return buf.writeDouble(number).array();
-        } finally {
-            buf.clear();
-        }
-    }
+@RequiredArgsConstructor
+@Getter
+public class BanyanDBMeasureInsertRequest implements InsertRequest {
+    private final MeasureWrite measureWrite;
 }
