@@ -180,7 +180,7 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
                                   final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
                                   final long lastPingEndTimeBucket) throws IOException {
         StringBuilder query = new StringBuilder();
-        query.append("select count(" + ProcessTraffic.PROPERTIES + ") from ");
+        query.append("select count(*) from ");
         appendProcessFromQuery(query, serviceId, instanceId, agentId, profilingSupportStatus,
                 lastPingStartTimeBucket, lastPingEndTimeBucket);
 
