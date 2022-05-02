@@ -204,7 +204,7 @@ public class BanyanDBConverter {
         } else if (StorageDataComplexObject.class.isAssignableFrom(clazz)) {
             return TagAndValue.stringTagValue(((StorageDataComplexObject<?>) value).toStorageData());
         } else if (Layer.class.equals(clazz)) {
-            return TagAndValue.longTagValue(((Integer) value).longValue());
+            return TagAndValue.longTagValue((int) value);
         } else if (JsonObject.class.equals(clazz)) {
             return TagAndValue.stringTagValue((String) value);
         }

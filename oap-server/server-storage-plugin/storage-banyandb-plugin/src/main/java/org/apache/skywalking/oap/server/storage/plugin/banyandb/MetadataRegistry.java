@@ -221,11 +221,11 @@ public enum MetadataRegistry {
 
         // add all user-defined indexed tags to the end of the "searchable" family
         if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
-            tagMetadataList.addAll(parseExtraTagSpecs(configService.getSearchableTracesTags()));
+            tagMetadataList.addAll(parseExtraTagSpecs(configService.getSearchableTracesTags(), builder));
         } else if (LogRecord.INDEX_NAME.equals(model.getName())) {
-            tagMetadataList.addAll(parseExtraTagSpecs(configService.getSearchableLogsTags()));
+            tagMetadataList.addAll(parseExtraTagSpecs(configService.getSearchableLogsTags(), builder));
         } else if (AlarmRecord.INDEX_NAME.equals(model.getName())) {
-            tagMetadataList.addAll(parseExtraTagSpecs(configService.getSearchableAlarmTags()));
+            tagMetadataList.addAll(parseExtraTagSpecs(configService.getSearchableAlarmTags(), builder));
         }
 
         return tagMetadataList;
@@ -238,7 +238,7 @@ public enum MetadataRegistry {
      * @param tags a series of tags joint by comma
      * @return a list of {@link org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec.TagSpec} generated from input
      */
-    private List<TagMetadata> parseExtraTagSpecs(String tags) {
+    private List<TagMetadata> parseExtraTagSpecs(String tags, Schema.SchemaBuilder builder) {
         if (StringUtil.isEmpty(tags)) {
             return Collections.emptyList();
         }
@@ -246,10 +246,13 @@ public enum MetadataRegistry {
         if (tagsArray.length == 0) {
             return Collections.emptyList();
         }
-        return Arrays.stream(tagsArray)
-                .map(tagName -> new TagMetadata(parseIndexRule(tagName, null),
-                        TagFamilySpec.TagSpec.newStringTag(tagName)))
-                .collect(Collectors.toList());
+        List<TagMetadata> extraTagMetadataList = new ArrayList<>();
+        for (final String tagName : tagsArray) {
+            builder.spec(tagName, new ColumnSpec(ColumnType.TAG, String.class));
+            extraTagMetadataList.add(new TagMetadata(parseIndexRule(tagName, null),
+                    TagFamilySpec.TagSpec.newStringTag(tagName)));
+        }
+        return extraTagMetadataList;
     }
 
     /**

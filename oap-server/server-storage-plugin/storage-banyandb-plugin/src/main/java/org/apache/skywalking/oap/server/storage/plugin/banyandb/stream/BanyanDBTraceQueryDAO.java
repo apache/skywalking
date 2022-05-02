@@ -38,7 +38,6 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -114,13 +113,13 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
         }
 
         StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
-                ImmutableSet.of(SegmentRecord.TRACE_ID, // 0 - trace_id
-                        SegmentRecord.IS_ERROR, // 1 - is_error
-                        SegmentRecord.SERVICE_ID, // 2 - service_id
-                        SegmentRecord.SERVICE_INSTANCE_ID, // 3 - service_instance_id
-                        SegmentRecord.ENDPOINT_ID, // 4 - endpoint_id
-                        SegmentRecord.LATENCY, // 5 - latency
-                        SegmentRecord.START_TIME), // 6 - start_time
+                ImmutableSet.of(SegmentRecord.TRACE_ID,
+                        SegmentRecord.IS_ERROR,
+                        SegmentRecord.SERVICE_ID,
+                        SegmentRecord.SERVICE_INSTANCE_ID,
+                        SegmentRecord.ENDPOINT_ID,
+                        SegmentRecord.LATENCY,
+                        SegmentRecord.START_TIME),
                 tsRange, q);
 
         TraceBrief traceBrief = new TraceBrief();
@@ -130,7 +129,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             BasicTrace basicTrace = new BasicTrace();
 
             basicTrace.setSegmentId(row.getId());
-            basicTrace.setStart(String.valueOf(row.getTagValue(SegmentRecord.START_TIME)));
+            basicTrace.setStart(String.valueOf((Number) row.getTagValue(SegmentRecord.START_TIME)));
             basicTrace.getEndpointNames().add(IDManager.EndpointID.analysisId(
                     row.getTagValue(SegmentRecord.ENDPOINT_ID)
             ).getEndpointName());
@@ -156,6 +155,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                         SegmentRecord.ENDPOINT_ID,
                         SegmentRecord.LATENCY,
                         SegmentRecord.START_TIME,
+                        SegmentRecord.TIME_BUCKET,
                         SegmentRecord.DATA_BINARY),
                 new QueryBuilder<StreamQuery>() {
                     @Override
