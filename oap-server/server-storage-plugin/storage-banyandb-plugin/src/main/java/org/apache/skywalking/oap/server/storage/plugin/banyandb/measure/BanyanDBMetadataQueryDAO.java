@@ -81,7 +81,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                             query.appendCondition(eq(ServiceTraffic.GROUP, group));
                         }
                         if (StringUtil.isNotEmpty(layer)) {
-                            query.appendCondition(eq(ServiceTraffic.LAYER, layer));
+                            query.appendCondition(eq(ServiceTraffic.LAYER, Layer.valueOf(layer).value()));
                         }
                     }
                 });
