@@ -175,7 +175,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     @Override
     public long getProcessesCount(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
                                   final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
-        final SelectQueryImpl query = select().count(ProcessTraffic.PROPERTIES).from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
+        final SelectQueryImpl query = select().count(ID_COLUMN).from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
         appendProcessWhereQuery(query, serviceId, instanceId, agentId, profilingSupportStatus,
                 lastPingStartTimeBucket, lastPingEndTimeBucket);
 
