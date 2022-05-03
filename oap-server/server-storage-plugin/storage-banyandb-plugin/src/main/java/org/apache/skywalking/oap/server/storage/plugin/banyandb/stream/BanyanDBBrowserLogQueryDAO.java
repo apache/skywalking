@@ -58,18 +58,18 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
                 BrowserErrorLogRecord.ERROR_CATEGORY, BrowserErrorLogRecord.DATA_BINARY), tsRange, new QueryBuilder<StreamQuery>() {
             @Override
             public void apply(StreamQuery query) {
-                query.appendCondition(eq(BrowserErrorLogRecord.SERVICE_ID, serviceId));
+                query.and(eq(BrowserErrorLogRecord.SERVICE_ID, serviceId));
 
                 if (StringUtil.isNotEmpty(serviceVersionId)) {
-                    query.appendCondition(eq(BrowserErrorLogRecord.SERVICE_VERSION_ID, serviceVersionId));
+                    query.and(eq(BrowserErrorLogRecord.SERVICE_VERSION_ID, serviceVersionId));
                 }
 
                 if (StringUtil.isNotEmpty(pagePathId)) {
-                    query.appendCondition(eq(BrowserErrorLogRecord.PAGE_PATH_ID, pagePathId));
+                    query.and(eq(BrowserErrorLogRecord.PAGE_PATH_ID, pagePathId));
                 }
 
                 if (Objects.nonNull(category)) {
-                    query.appendCondition(eq(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
+                    query.and(eq(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
                 }
 
                 query.setOffset(from);

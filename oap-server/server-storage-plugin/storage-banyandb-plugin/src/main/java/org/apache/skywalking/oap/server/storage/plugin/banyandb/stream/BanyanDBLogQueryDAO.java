@@ -62,31 +62,31 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
             @Override
             public void apply(StreamQuery query) {
                 if (StringUtil.isNotEmpty(serviceId)) {
-                    query.appendCondition(eq(AbstractLogRecord.SERVICE_ID, serviceId));
+                    query.and(eq(AbstractLogRecord.SERVICE_ID, serviceId));
                 }
 
                 if (StringUtil.isNotEmpty(serviceInstanceId)) {
-                    query.appendCondition(eq(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
+                    query.and(eq(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
                 }
                 if (StringUtil.isNotEmpty(endpointId)) {
-                    query.appendCondition(eq(AbstractLogRecord.ENDPOINT_ID, endpointId));
+                    query.and(eq(AbstractLogRecord.ENDPOINT_ID, endpointId));
                 }
                 if (Objects.nonNull(relatedTrace)) {
                     if (StringUtil.isNotEmpty(relatedTrace.getTraceId())) {
-                        query.appendCondition(eq(AbstractLogRecord.TRACE_ID, relatedTrace.getTraceId()));
+                        query.and(eq(AbstractLogRecord.TRACE_ID, relatedTrace.getTraceId()));
                     }
                     if (StringUtil.isNotEmpty(relatedTrace.getSegmentId())) {
-                        query.appendCondition(eq(AbstractLogRecord.TRACE_SEGMENT_ID, relatedTrace.getSegmentId()));
+                        query.and(eq(AbstractLogRecord.TRACE_SEGMENT_ID, relatedTrace.getSegmentId()));
                     }
                     if (Objects.nonNull(relatedTrace.getSpanId())) {
-                        query.appendCondition(eq(AbstractLogRecord.SPAN_ID, (long) relatedTrace.getSpanId()));
+                        query.and(eq(AbstractLogRecord.SPAN_ID, (long) relatedTrace.getSpanId()));
                     }
                 }
 
                 if (CollectionUtils.isNotEmpty(tags)) {
                     for (final Tag tag : tags) {
                         // TODO: check log indexed tags
-                        query.appendCondition(eq(tag.getKey(), tag.getValue()));
+                        query.and(eq(tag.getKey(), tag.getValue()));
                     }
                 }
             }
@@ -98,9 +98,15 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
         }
 
         StreamQueryResponse resp = query(LogRecord.INDEX_NAME,
-                ImmutableSet.of(AbstractLogRecord.SERVICE_ID, AbstractLogRecord.SERVICE_INSTANCE_ID,
-                        AbstractLogRecord.ENDPOINT_ID, AbstractLogRecord.TRACE_ID, AbstractLogRecord.TRACE_SEGMENT_ID,
-                        AbstractLogRecord.SPAN_ID, AbstractLogRecord.CONTENT_TYPE, AbstractLogRecord.CONTENT,
+                ImmutableSet.of(AbstractLogRecord.SERVICE_ID,
+                        AbstractLogRecord.SERVICE_INSTANCE_ID,
+                        AbstractLogRecord.ENDPOINT_ID,
+                        AbstractLogRecord.TRACE_ID,
+                        AbstractLogRecord.TRACE_SEGMENT_ID,
+                        AbstractLogRecord.SPAN_ID,
+                        AbstractLogRecord.TIMESTAMP,
+                        AbstractLogRecord.CONTENT_TYPE,
+                        AbstractLogRecord.CONTENT,
                         AbstractLogRecord.TAGS_RAW_DATA), tsRange, query);
 
         Logs logs = new Logs();

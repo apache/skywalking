@@ -67,7 +67,6 @@ import java.util.stream.Collectors;
 public enum MetadataRegistry {
     INSTANCE;
 
-    public static final String ID = "id";
     private final Map<String, Schema> registry = new ConcurrentHashMap<>();
 
     public NamedSchema<?> registerModel(Model model, ConfigService configService) {
@@ -102,7 +101,7 @@ public enum MetadataRegistry {
             final Measure.Builder builder = Measure.create(partialMetadata.getGroup(), partialMetadata.getName(),
                     downSamplingDuration(model.getDownsampling()));
             if (entities.isEmpty()) { // if shardingKeys is empty, for measure, we can use ID as a single sharding key.
-                builder.setEntityRelativeTags(ID);
+                builder.setEntityRelativeTags(Measure.ID);
             } else {
                 builder.setEntityRelativeTags(entities);
             }
@@ -112,8 +111,6 @@ public enum MetadataRegistry {
             Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE
                     .readValueColumnDefinition(model.getName());
             valueColumnOpt.ifPresent(valueColumn -> builder.addField(parseFieldSpec(modelColumnMap.get(valueColumn.getValueCName()), valueColumn)));
-            // register ID
-            schemaBuilder.spec(ID, new ColumnSpec(ColumnType.TAG, String.class));
 
             registry.put(model.getName(), schemaBuilder.build());
             return builder.build();
@@ -336,7 +333,7 @@ public enum MetadataRegistry {
                 if (this.getKind() == Kind.MEASURE && entry.getKey().equals(this.indexFamily())) {
                     // append measure ID, but it should not generate an index in the client side.
                     // BanyanDB will take care of the ID index registration.
-                    b.addTagSpec(TagFamilySpec.TagSpec.newIDTag(ID));
+                    b.addIDTagSpec();
                 }
                 tagFamilySpecs.add(b.build());
             }

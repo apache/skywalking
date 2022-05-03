@@ -57,31 +57,31 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             public void apply(StreamQuery query) {
                 if (minDuration != 0) {
                     // duration >= minDuration
-                    query.appendCondition(gte(SegmentRecord.LATENCY, minDuration));
+                    query.and(gte(SegmentRecord.LATENCY, minDuration));
                 }
                 if (maxDuration != 0) {
                     // duration <= maxDuration
-                    query.appendCondition(lte(SegmentRecord.LATENCY, maxDuration));
+                    query.and(lte(SegmentRecord.LATENCY, maxDuration));
                 }
 
                 if (!Strings.isNullOrEmpty(serviceId)) {
-                    query.appendCondition(eq(SegmentRecord.SERVICE_ID, serviceId));
+                    query.and(eq(SegmentRecord.SERVICE_ID, serviceId));
                 }
 
                 if (!Strings.isNullOrEmpty(serviceInstanceId)) {
-                    query.appendCondition(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
+                    query.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
                 }
 
                 if (!Strings.isNullOrEmpty(endpointId)) {
-                    query.appendCondition(eq(SegmentRecord.ENDPOINT_ID, endpointId));
+                    query.and(eq(SegmentRecord.ENDPOINT_ID, endpointId));
                 }
 
                 switch (traceState) {
                     case ERROR:
-                        query.appendCondition(eq(SegmentRecord.IS_ERROR, BooleanUtils.TRUE));
+                        query.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.TRUE));
                         break;
                     case SUCCESS:
-                        query.appendCondition(eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
+                        query.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
                         break;
                 }
 
@@ -97,7 +97,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                 if (CollectionUtils.isNotEmpty(tags)) {
                     for (final Tag tag : tags) {
                         // TODO: check if we have this tag indexed?
-                        query.appendCondition(eq(tag.getKey(), tag.getValue()));
+                        query.and(eq(tag.getKey(), tag.getValue()));
                     }
                 }
 
@@ -160,7 +160,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.appendCondition(eq(SegmentRecord.TRACE_ID, traceId));
+                        query.and(eq(SegmentRecord.TRACE_ID, traceId));
                     }
                 });
 

@@ -62,7 +62,7 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
                     @Override
                     public void apply(StreamQuery query) {
                         if (Objects.nonNull(scopeId)) {
-                            query.appendCondition(eq(AlarmRecord.SCOPE, (long) scopeId));
+                            query.and(eq(AlarmRecord.SCOPE, (long) scopeId));
                         }
 
                         // TODO: support keyword search
@@ -70,7 +70,7 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
                         if (CollectionUtils.isNotEmpty(tags)) {
                             for (final Tag tag : tags) {
                                 // TODO: check whether tags in the alarm are indexed
-                                query.appendCondition(eq(tag.getKey(), tag.getValue()));
+                                query.and(eq(tag.getKey(), tag.getValue()));
                             }
                         }
                         query.setLimit(limit);

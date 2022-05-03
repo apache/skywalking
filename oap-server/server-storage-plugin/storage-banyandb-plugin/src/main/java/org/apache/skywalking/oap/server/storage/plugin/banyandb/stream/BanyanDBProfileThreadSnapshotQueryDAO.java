@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThr
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,8 +59,8 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.appendCondition(eq(ProfileThreadSnapshotRecord.TASK_ID, taskId))
-                                .appendCondition(eq(ProfileThreadSnapshotRecord.SEQUENCE, 0L));
+                        query.and(eq(ProfileThreadSnapshotRecord.TASK_ID, taskId))
+                                .and(eq(ProfileThreadSnapshotRecord.SEQUENCE, 0L));
                     }
                 });
 
@@ -82,7 +81,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
                     new QueryBuilder<StreamQuery>() {
                         @Override
                         public void apply(StreamQuery traceQuery) {
-                            traceQuery.appendCondition(eq(SegmentRecord.SEGMENT_ID, segmentID));
+                            traceQuery.and(eq(SegmentRecord.SEGMENT_ID, segmentID));
                         }
                     });
 
@@ -133,9 +132,9 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.appendCondition(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
-                                .appendCondition(lte(ProfileThreadSnapshotRecord.SEQUENCE, maxSequence))
-                                .appendCondition(gte(ProfileThreadSnapshotRecord.SEQUENCE, minSequence));
+                        query.and(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
+                                .and(lte(ProfileThreadSnapshotRecord.SEQUENCE, maxSequence))
+                                .and(gte(ProfileThreadSnapshotRecord.SEQUENCE, minSequence));
                     }
                 });
 
@@ -158,7 +157,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.appendCondition(eq(SegmentRecord.INDEX_NAME, segmentId));
+                        query.and(eq(SegmentRecord.INDEX_NAME, segmentId));
                     }
                 });
 
@@ -192,9 +191,9 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.appendCondition(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
-                                .appendCondition(lte(ProfileThreadSnapshotRecord.DUMP_TIME, end))
-                                .appendCondition(gte(ProfileThreadSnapshotRecord.DUMP_TIME, start));
+                        query.and(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
+                                .and(lte(ProfileThreadSnapshotRecord.DUMP_TIME, end))
+                                .and(gte(ProfileThreadSnapshotRecord.DUMP_TIME, start));
                     }
                 });
 

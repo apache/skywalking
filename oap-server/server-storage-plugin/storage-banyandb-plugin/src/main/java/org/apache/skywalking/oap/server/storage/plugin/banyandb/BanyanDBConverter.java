@@ -145,7 +145,7 @@ public class BanyanDBConverter {
 
         public void acceptID(String id) {
             try {
-                this.measureWrite.tag(MetadataRegistry.ID, TagAndValue.idTagValue(id));
+                this.measureWrite.setID(id);
             } catch (BanyanDBException ex) {
                 log.error("fail to add ID tag", ex);
             }

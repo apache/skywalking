@@ -26,7 +26,6 @@ import com.google.gson.JsonObject;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -45,7 +44,6 @@ import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 import java.io.IOException;
@@ -72,16 +70,15 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         ServiceTraffic.SHORT_NAME,
                         ServiceTraffic.GROUP,
                         ServiceTraffic.LAYER,
-                        ServiceTraffic.SERVICE_ID,
-                        MetadataRegistry.ID),
+                        ServiceTraffic.SERVICE_ID),
                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         if (StringUtil.isNotEmpty(group)) {
-                            query.appendCondition(eq(ServiceTraffic.GROUP, group));
+                            query.and(eq(ServiceTraffic.GROUP, group));
                         }
                         if (StringUtil.isNotEmpty(layer)) {
-                            query.appendCondition(eq(ServiceTraffic.LAYER, Layer.valueOf(layer).value()));
+                            query.and(eq(ServiceTraffic.LAYER, Layer.valueOf(layer).value()));
                         }
                     }
                 });
@@ -102,13 +99,12 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         ServiceTraffic.SHORT_NAME,
                         ServiceTraffic.GROUP,
                         ServiceTraffic.LAYER,
-                        ServiceTraffic.SERVICE_ID,
-                        MetadataRegistry.ID),
+                        ServiceTraffic.SERVICE_ID),
                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         if (StringUtil.isNotEmpty(serviceId)) {
-                            query.appendCondition(eq(ServiceTraffic.SERVICE_ID, serviceId));
+                            query.and(eq(ServiceTraffic.SERVICE_ID, serviceId));
                         }
                     }
                 });
@@ -131,16 +127,15 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         InstanceTraffic.LAYER,
                         InstanceTraffic.PROPERTIES,
                         InstanceTraffic.LAST_PING_TIME_BUCKET,
-                        InstanceTraffic.SERVICE_ID,
-                        MetadataRegistry.ID),
+                        InstanceTraffic.SERVICE_ID),
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         if (StringUtil.isNotEmpty(serviceId)) {
-                            query.appendCondition(eq(InstanceTraffic.SERVICE_ID, serviceId));
+                            query.and(eq(InstanceTraffic.SERVICE_ID, serviceId));
                         }
-                        query.appendCondition(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, minuteTimeBucket));
+                        query.and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, minuteTimeBucket));
                     }
                 });
 
@@ -158,14 +153,13 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
                 ImmutableSet.of(InstanceTraffic.NAME,
                         InstanceTraffic.LAYER,
-                        InstanceTraffic.PROPERTIES,
-                        MetadataRegistry.ID),
+                        InstanceTraffic.PROPERTIES),
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         if (StringUtil.isNotEmpty(instanceId)) {
-                            query.appendCondition(PairQueryCondition.IDQueryCondition.eq(MetadataRegistry.ID, instanceId));
+                            query.andWithID(instanceId);
                         }
                     }
                 });
@@ -177,14 +171,13 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) throws IOException {
         MeasureQueryResponse resp = query(EndpointTraffic.INDEX_NAME,
                 ImmutableSet.of(EndpointTraffic.NAME,
-                        EndpointTraffic.SERVICE_ID,
-                        MetadataRegistry.ID),
+                        EndpointTraffic.SERVICE_ID),
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         if (StringUtil.isNotEmpty(serviceId)) {
-                            query.appendCondition(eq(EndpointTraffic.SERVICE_ID, serviceId));
+                            query.and(eq(EndpointTraffic.SERVICE_ID, serviceId));
                         }
                     }
                 });
@@ -213,29 +206,28 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         ProcessTraffic.PROPERTIES,
                         ProcessTraffic.LABELS_JSON,
                         ProcessTraffic.LAST_PING_TIME_BUCKET,
-                        ProcessTraffic.PROFILING_SUPPORT_STATUS,
-                        MetadataRegistry.ID),
+                        ProcessTraffic.PROFILING_SUPPORT_STATUS),
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         if (StringUtil.isNotEmpty(serviceId)) {
-                            query.appendCondition(eq(ProcessTraffic.SERVICE_ID, serviceId));
+                            query.and(eq(ProcessTraffic.SERVICE_ID, serviceId));
                         }
                         if (StringUtil.isNotEmpty(instanceId)) {
-                            query.appendCondition(eq(ProcessTraffic.INSTANCE_ID, instanceId));
+                            query.and(eq(ProcessTraffic.INSTANCE_ID, instanceId));
                         }
                         if (StringUtil.isNotEmpty(agentId)) {
-                            query.appendCondition(eq(ProcessTraffic.AGENT_ID, instanceId));
+                            query.and(eq(ProcessTraffic.AGENT_ID, instanceId));
                         }
                         if (lastPingStartTimeBucket > 0) {
-                            query.appendCondition(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
+                            query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
                         }
                         if (lastPingEndTimeBucket > 0) {
-                            query.appendCondition(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingEndTimeBucket));
+                            query.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingEndTimeBucket));
                         }
                         if (profilingSupportStatus != null) {
-                            query.appendCondition(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
+                            query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
                         }
                     }
                 });
@@ -261,29 +253,28 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         ProcessTraffic.PROPERTIES,
                         ProcessTraffic.LABELS_JSON,
                         ProcessTraffic.LAST_PING_TIME_BUCKET,
-                        ProcessTraffic.PROFILING_SUPPORT_STATUS,
-                        MetadataRegistry.ID),
+                        ProcessTraffic.PROFILING_SUPPORT_STATUS),
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         if (StringUtil.isNotEmpty(serviceId)) {
-                            query.appendCondition(eq(ProcessTraffic.SERVICE_ID, serviceId));
+                            query.and(eq(ProcessTraffic.SERVICE_ID, serviceId));
                         }
                         if (StringUtil.isNotEmpty(instanceId)) {
-                            query.appendCondition(eq(ProcessTraffic.INSTANCE_ID, instanceId));
+                            query.and(eq(ProcessTraffic.INSTANCE_ID, instanceId));
                         }
                         if (StringUtil.isNotEmpty(agentId)) {
-                            query.appendCondition(eq(ProcessTraffic.AGENT_ID, instanceId));
+                            query.and(eq(ProcessTraffic.AGENT_ID, instanceId));
                         }
                         if (lastPingStartTimeBucket > 0) {
-                            query.appendCondition(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
+                            query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
                         }
                         if (lastPingEndTimeBucket > 0) {
-                            query.appendCondition(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingEndTimeBucket));
+                            query.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingEndTimeBucket));
                         }
                         if (profilingSupportStatus != null) {
-                            query.appendCondition(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
+                            query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
                         }
                     }
                 });
@@ -304,14 +295,13 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         ProcessTraffic.LAYER,
                         ProcessTraffic.DETECT_TYPE,
                         ProcessTraffic.PROPERTIES,
-                        ProcessTraffic.LABELS_JSON,
-                        MetadataRegistry.ID),
+                        ProcessTraffic.LABELS_JSON),
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         if (StringUtil.isNotEmpty(processId)) {
-                            query.appendCondition(PairQueryCondition.IDQueryCondition.eq(MetadataRegistry.ID, processId));
+                            query.andWithID(processId);
                         }
                     }
                 });
