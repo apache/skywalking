@@ -30,3 +30,6 @@
               | yq e '.traces | select(.[].endpointnames[0]=="POST:/users") | .[0].traceids[0]' -
         )
       expected: expected/logs.yml
+    # metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=log_count_info --instance-name=provider1 --service-name=e2e-service-provider  |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
