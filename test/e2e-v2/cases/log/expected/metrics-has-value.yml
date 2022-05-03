@@ -13,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-  cases:
-    - includes:
-        - log-cases-base.yaml
-    # metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=log_count_info --instance-name=provider1 --service-name=e2e-service-provider  |yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
+{{- contains . }}
+- key: {{ notEmpty .key }}
+  value: {{ ge .value 1 }}
+{{- end }}

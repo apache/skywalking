@@ -44,7 +44,7 @@ verify:
     interval: 3s
   cases:
     - includes:
-        - ../../log/log-cases.yaml
+        - ../../log/log-cases-base.yaml
     # filebeat
     - query: |
         curl -X POST http://${provider_host}:${provider_9090}/file/logs/trigger > /dev/null;
