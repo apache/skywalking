@@ -116,7 +116,7 @@ public final class TermsAggregationBuilder implements AggregationBuilder {
     }
 
     public enum ExecutionHint {
-        GLOBAL_ORDINALS("global_ordinals"), map("map");
+        GLOBAL_ORDINALS("global_ordinals"), MAP("map");
 
         final String value;
 

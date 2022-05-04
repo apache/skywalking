@@ -106,7 +106,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                        .order(BucketOrder.aggregation(valueColumnName, asc))
                        .size(condition.getTopN())
                        .subAggregation(Aggregation.avg(valueColumnName).field(valueColumnName))
-                       .executionHint(TermsAggregationBuilder.ExecutionHint.map)
+                       .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                        .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                        .build());
 

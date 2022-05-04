@@ -208,9 +208,9 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                 .subAggregation(
                     Aggregation.terms(ServiceRelationServerSideMetrics.COMPONENT_ID)
                                .field(ServiceRelationServerSideMetrics.COMPONENT_ID)
-                               .executionHint(TermsAggregationBuilder.ExecutionHint.map)
+                               .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                                .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
-                .executionHint(TermsAggregationBuilder.ExecutionHint.map)
+                .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                 .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                 .size(1000));
 
@@ -248,9 +248,9 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                 .subAggregation(
                     Aggregation.terms(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID)
                                .field(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID)
-                               .executionHint(TermsAggregationBuilder.ExecutionHint.map)
+                               .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                                .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
-                .executionHint(TermsAggregationBuilder.ExecutionHint.map)
+                .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                 .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                 .size(1000));
 
@@ -282,7 +282,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                                                DetectPoint detectPoint) {
         sourceBuilder.aggregation(
             Aggregation.terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID)
-                       .executionHint(TermsAggregationBuilder.ExecutionHint.map)
+                       .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                        .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                        .size(1000));
 
