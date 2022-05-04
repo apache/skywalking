@@ -60,10 +60,10 @@ public final class TermsAggregation extends Aggregation {
                     if (value.getOrder() != null) {
                         writeOrder(value, gen);
                     }
-                    if (value.getCollectMode() != null){
+                    if (value.getCollectMode() != null) {
                         gen.writeStringField("collect_mode", value.getCollectMode().value);
                     }
-                    if (value.getExecutionHint() != null){
+                    if (value.getExecutionHint() != null) {
                         gen.writeStringField("execution_hint", value.getExecutionHint().value);
                     }
                 }

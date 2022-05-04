@@ -34,7 +34,7 @@ public final class TermsAggregationBuilder implements AggregationBuilder {
     private CollectMode collectMode;
     private ExecutionHint executionHint;
 
-    public TermsAggregationBuilder(final String name) {
+    TermsAggregationBuilder(final String name) {
         checkArgument(!Strings.isNullOrEmpty(name), "name cannot be blank");
         this.name = name;
     }
