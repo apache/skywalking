@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
@@ -59,7 +58,6 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModu
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-
 import static org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic.PropertyUtil.LANGUAGE;
 
 public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
@@ -95,18 +93,26 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         final List<Service> services = new ArrayList<>();
 
         SearchResponse results = getClient().search(index, search.build(), params);
-        while (results.getHits().getTotal() > 0) {
-            final List<Service> batch = buildServices(results);
-            services.addAll(batch);
-            // The last iterate, there is no more data
-            if (batch.size() < batchSize) {
-                break;
+        while (true) {
+            final String scrollId = results.getScrollId();
+            try {
+                if (results.getHits().getTotal() == 0) {
+                    break;
+                }
+                final List<Service> batch = buildServices(results);
+                services.addAll(batch);
+                // The last iterate, there is no more data
+                if (batch.size() < batchSize) {
+                    break;
+                }
+                // We've got enough data
+                if (services.size() >= queryMaxSize) {
+                    break;
+                }
+                results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
+            } finally {
+                getClient().deleteScrollContextQuietly(scrollId);
             }
-            // We've got enough data
-            if (services.size() >= queryMaxSize) {
-                break;
-            }
-            results = getClient().scroll(SCROLL_CONTEXT_RETENTION, results.getScrollId());
         }
         return services;
     }

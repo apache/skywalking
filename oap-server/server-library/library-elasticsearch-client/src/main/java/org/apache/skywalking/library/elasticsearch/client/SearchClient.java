@@ -102,4 +102,27 @@ public final class SearchClient {
         });
         return future.get();
     }
+
+    @SneakyThrows
+    public boolean deleteScrollContext(String scrollId) {
+        final CompletableFuture<Boolean> future =
+            version.thenCompose(
+                v -> client.execute(v.requestFactory().search().deleteScrollContext(scrollId))
+                           .aggregate().thenApply(response -> {
+                            if (response.status() == HttpStatus.OK) {
+                                return true;
+                            }
+                            throw new RuntimeException(response.contentUtf8());
+                    }));
+        future.whenComplete((result, exception) -> {
+            if (exception != null) {
+                log.error("Failed to delete scroll context, request {}, {}", scrollId, exception);
+                return;
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Succeeded to delete scroll context, {}", result);
+            }
+        });
+        return future.get();
+    }
 }
