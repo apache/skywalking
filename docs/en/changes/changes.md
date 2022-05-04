@@ -44,6 +44,10 @@
 * Fix viewLogs button query no data.
 * Fix UTC when page loads.
 * Implement the eBPF profile widget on dashboard.
+* Optimize the trace widget.
+* Avoid invalid query for topology metrics.
+* Add the alarm and log tag tips.
+* Fix spans details and task logs.
 
 #### Documentation
 
