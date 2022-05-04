@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
 import java.io.IOException;
 import java.util.List;
@@ -56,7 +55,15 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
         }
 
         StreamQueryResponse resp = query(AlarmRecord.INDEX_NAME,
-                ImmutableSet.of(AlarmRecord.SCOPE, AlarmRecord.START_TIME, AlarmRecord.ID0, AlarmRecord.ID1, AlarmRecord.ALARM_MESSAGE, AlarmRecord.TAGS_RAW_DATA),
+                ImmutableSet.of(AlarmRecord.SCOPE,
+                        AlarmRecord.NAME,
+                        AlarmRecord.ID0,
+                        AlarmRecord.ID1,
+                        AlarmRecord.ALARM_MESSAGE,
+                        AlarmRecord.START_TIME,
+                        AlarmRecord.TIME_BUCKET,
+                        AlarmRecord.RULE_NAME,
+                        AlarmRecord.TAGS_RAW_DATA),
                 tsRange,
                 new QueryBuilder<StreamQuery>() {
                     @Override
