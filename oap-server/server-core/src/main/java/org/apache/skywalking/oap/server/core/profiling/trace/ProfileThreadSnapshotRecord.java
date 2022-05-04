@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.profiling.trace;
 
-import java.util.Base64;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -91,7 +90,7 @@ public class ProfileThreadSnapshotRecord extends Record {
             converter.accept(DUMP_TIME, storageData.getDumpTime());
             converter.accept(SEQUENCE, storageData.getSequence());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
-            converter.accept(STACK_BINARY, new String(Base64.getEncoder().encode(storageData.getStackBinary())));
+            converter.accept(STACK_BINARY, storageData.getStackBinary());
         }
     }
 }
