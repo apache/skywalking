@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.type;
 
-import java.util.function.Function;
-
 /**
  * A function supplier to convert raw data from database to object defined in OAP
  */
@@ -27,11 +25,10 @@ public interface Convert2Entity {
     Object get(String fieldName);
 
     /**
-     * Use the given type decoder to decode value of given field name.
+     * Get byte[] value of the given field.
      *
-     * @param fieldName   to read value
-     * @param typeDecoder to decode the value
-     * @return decoded value
+     * @param fieldName to read value
+     * @return byte[]
      */
-    <T, R> R getWith(String fieldName, Function<T, R> typeDecoder);
+    byte[] getBytes(String fieldName);
 }

@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
+import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -159,22 +160,24 @@ public class MetadataQuery implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId, String agentId,
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
                                        final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         final SelectQueryImpl query = select(
                 ID_COLUMN, NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
                 ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES,
                 ProcessTraffic.LABELS_JSON)
                 .from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(query, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        appendProcessWhereQuery(query, serviceId, instanceId, agentId, profilingSupportStatus,
+                lastPingStartTimeBucket, lastPingEndTimeBucket);
         return buildProcesses(query);
     }
 
     @Override
-    public long getProcessesCount(String serviceId, String instanceId, String agentId,
+    public long getProcessesCount(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
                                   final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
-        final SelectQueryImpl query = select().count(ProcessTraffic.PROPERTIES).from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(query, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        final SelectQueryImpl query = select().count(ID_COLUMN).from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(query, serviceId, instanceId, agentId, profilingSupportStatus,
+                lastPingStartTimeBucket, lastPingEndTimeBucket);
 
         List<QueryResult.Result> results = client.query(query);
         if (log.isDebugEnabled()) {
@@ -186,7 +189,8 @@ public class MetadataQuery implements IMetadataQueryDAO {
     }
 
     private void appendProcessWhereQuery(SelectQueryImpl query, String serviceId, String instanceId, String agentId,
-                                         final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) {
+                                         final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
+                                         final long lastPingEndTimeBucket) {
         final WhereQueryImpl<SelectQueryImpl> whereQuery = query.where();
         if (StringUtil.isNotEmpty(serviceId)) {
             whereQuery.and(eq(TagName.SERVICE_ID, serviceId));
@@ -202,6 +206,9 @@ public class MetadataQuery implements IMetadataQueryDAO {
         }
         if (lastPingEndTimeBucket > 0) {
             whereQuery.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingEndTimeBucket));
+        }
+        if (profilingSupportStatus != null) {
+            whereQuery.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
         }
     }
 

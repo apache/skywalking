@@ -28,7 +28,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBSharding
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EBPF_PROFILING_DATA;
@@ -38,7 +37,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
  */
 @Data
 @Stream(name = EBPFProfilingDataRecord.INDEX_NAME, scopeId = EBPF_PROFILING_DATA,
-        builder = EBPFProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
+    builder = EBPFProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
 public class EBPFProfilingDataRecord extends Record {
 
     public static final String INDEX_NAME = "ebpf_profiling_data";
@@ -66,10 +65,10 @@ public class EBPFProfilingDataRecord extends Record {
     @Override
     public String id() {
         return Hashing.sha256().newHasher()
-                .putString(scheduleId, Charsets.UTF_8)
-                .putString(stackIdList, Charsets.UTF_8)
-                .putLong(uploadTime)
-                .hash().toString();
+                      .putString(scheduleId, Charsets.UTF_8)
+                      .putString(stackIdList, Charsets.UTF_8)
+                      .putLong(uploadTime)
+                      .hash().toString();
     }
 
     public static class Builder implements StorageBuilder<EBPFProfilingDataRecord> {
@@ -80,7 +79,7 @@ public class EBPFProfilingDataRecord extends Record {
             dataTraffic.setScheduleId((String) converter.get(SCHEDULE_ID));
             dataTraffic.setTaskId((String) converter.get(TASK_ID));
             dataTraffic.setStackIdList((String) converter.get(STACK_ID_LIST));
-            dataTraffic.setStacksBinary(converter.getWith(STACKS_BINARY, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
+            dataTraffic.setStacksBinary(converter.getBytes(STACKS_BINARY));
             dataTraffic.setStackDumpCount(((Number) converter.get(STACK_DUMP_COUNT)).longValue());
             dataTraffic.setUploadTime(((Number) converter.get(UPLOAD_TIME)).longValue());
             dataTraffic.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());

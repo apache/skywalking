@@ -30,6 +30,11 @@
 * Add data-generator module to run OAP in testing mode, generating mock data for testing.
 * Support receive Kubernetes processes from gRPC protocol.
 * Fix the problem that es index(TimeSeriesTable, eg. endpoint_traffic, alarm_record) didn't create even after rerun with init-mode. This problem caused the OAP server to fail to start when the OAP server was down for more than a day.
+* Support autocomplete tags in traces query.
+* [Breaking Change] Replace all configurations `**_JETTY_**` to `**_REST_**`.
+* Add the support eBPF profiling field into the process entity.
+* E2E: fix log test miss verify LAL and metrics.
+* Enhance Converter mechanism in kernel level to make BanyanDB native feature more effective.
 
 #### UI
 
@@ -40,6 +45,10 @@
 * Fix viewLogs button query no data.
 * Fix UTC when page loads.
 * Implement the eBPF profile widget on dashboard.
+* Optimize the trace widget.
+* Avoid invalid query for topology metrics.
+* Add the alarm and log tag tips.
+* Fix spans details and task logs.
 
 #### Documentation
 

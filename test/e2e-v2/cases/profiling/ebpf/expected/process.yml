@@ -31,6 +31,8 @@
       value: {{ notEmpty .value }}
     - name: command_line
       value: /sqrt
+    - name: support_ebpf_profiling
+      value: "true"
     {{- end }}
   labels:
     {{- contains .labels }}

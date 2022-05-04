@@ -16,27 +16,31 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.server.http;
+package org.apache.skywalking.oap.server.core.source;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
-@Getter
-@Builder
-public class HTTPServerConfig {
+public abstract class TagAutocomplete extends Source {
 
-    private String host;
-    private int port;
-    private String contextPath;
+    @Override
+    public int scope() {
+        return DefaultScopeDefine.TRACE_TAG_AUTOCOMPLETE;
+    }
 
-    @Builder.Default
-    private int maxThreads = 200;
-    @Builder.Default
-    private long idleTimeOut = 30000;
-    @Builder.Default
-    private int acceptQueueSize = 0;
-    @Builder.Default
-    private int maxRequestHeaderSize = 8192;
+    @Override
+    public String getEntityId() {
+        return tag;
+    }
+
+    @Setter
+    @Getter
+    private String tag;
+    @Setter
+    @Getter
+    private String tagKey;
+    @Setter
+    @Getter
+    private String tagValue;
+
 }

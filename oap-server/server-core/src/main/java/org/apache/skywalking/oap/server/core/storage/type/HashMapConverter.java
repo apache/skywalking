@@ -22,12 +22,17 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
+/**
+ * HashMapConverter represents a HashMap based converter to hold the value.
+ *
+ * This converter includes following converting rules.
+ * 1. byte[] is converted to/from String through BASE64 encoder/decoder.
+ */
 public class HashMapConverter {
     /**
      * Stateful Hashmap based converter, build object from a HashMap type source.
@@ -42,27 +47,12 @@ public class HashMapConverter {
         }
 
         @Override
-        public <T, R> R getWith(final String fieldName, final Function<T, R> typeDecoder) {
-            final T value = (T) source.get(fieldName);
-            return typeDecoder.apply(value);
-        }
-
-        /**
-         * Default Base64Decoder supplier
-         */
-        public static class Base64Decoder implements Function<String, byte[]> {
-            public static final Base64Decoder INSTANCE = new Base64Decoder();
-
-            private Base64Decoder() {
+        public byte[] getBytes(final String fieldName) {
+            final String value = (String) source.get(fieldName);
+            if (StringUtil.isEmpty(value)) {
+                return new byte[] {};
             }
-
-            @Override
-            public byte[] apply(final String encodedStr) {
-                if (StringUtil.isEmpty(encodedStr)) {
-                    return new byte[] {};
-                }
-                return Base64.getDecoder().decode(encodedStr);
-            }
+            return Base64.getDecoder().decode(value);
         }
     }
 

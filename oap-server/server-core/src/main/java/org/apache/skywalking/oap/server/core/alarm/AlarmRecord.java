@@ -28,11 +28,11 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
@@ -64,6 +64,7 @@ public class AlarmRecord extends Record {
     @Column(columnName = NAME, storageOnly = true)
     private String name;
     @Column(columnName = ID0, storageOnly = true)
+    @BanyanDBShardingKey(index = 0)
     private String id0;
     @Column(columnName = ID1, storageOnly = true)
     private String id1;
@@ -94,7 +95,7 @@ public class AlarmRecord extends Record {
             record.setStartTime(((Number) converter.get(START_TIME)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             record.setRuleName((String) converter.get(RULE_NAME));
-            record.setTagsRawData(converter.getWith(TAGS_RAW_DATA, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
+            record.setTagsRawData(converter.getBytes(TAGS_RAW_DATA));
             // Don't read the TAGS as they are only for query.
             return record;
         }

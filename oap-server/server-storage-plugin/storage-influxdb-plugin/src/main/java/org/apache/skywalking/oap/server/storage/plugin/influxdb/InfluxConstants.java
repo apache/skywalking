@@ -50,5 +50,9 @@ public interface InfluxConstants {
         String INSTANCE_ID = "_instance_id";
 
         String AGENT_ID = "_agent_id";
+
+        String AUTOCOMPLETE_TAG_KEY = "_autocomplete_tag_key";
+
+        String AUTOCOMPLETE_TAG_VALUE = "_autocomplete_tag_value";
     }
 }

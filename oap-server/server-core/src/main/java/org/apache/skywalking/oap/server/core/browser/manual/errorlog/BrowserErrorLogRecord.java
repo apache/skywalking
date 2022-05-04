@@ -28,7 +28,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @SuperDataset
@@ -95,7 +94,7 @@ public class BrowserErrorLogRecord extends Record {
             record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             record.setErrorCategory(((Number) converter.get(ERROR_CATEGORY)).intValue());
-            record.setDataBinary(converter.getWith(DATA_BINARY, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
+            record.setDataBinary(converter.getBytes(DATA_BINARY));
             return record;
         }
 

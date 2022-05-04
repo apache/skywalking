@@ -15,6 +15,30 @@
 
 {{- contains . }}
 - id: {{ notEmpty .id }}
+  name: python
+  serviceid: {{ b64enc "default::productpage" }}.1
+  servicename: default::productpage
+  instanceid: {{ notEmpty .instanceid }}
+  instancename: {{ notEmpty .instancename }}
+  layer: MESH
+  agentid: {{ notEmpty .agentid }}
+  detecttype: KUBERNETES
+  attributes:
+    {{- contains .attributes }}
+    - name: host_ip
+      value: {{ notEmpty .value }}
+    - name: container_ip
+      value: {{ notEmpty .value }}
+    - name: pid
+      value: {{ notEmpty .value }}
+    - name: command_line
+      value: {{ notEmpty .value }}
+    - name: support_ebpf_profiling
+      value: "false"
+    {{- end }}
+  labels:
+    - mesh-application
+- id: {{ notEmpty .id }}
   name: envoy
   serviceid: {{ b64enc "default::productpage" }}.1
   servicename: default::productpage
@@ -33,6 +57,32 @@
       value: {{ notEmpty .value }}
     - name: command_line
       value: {{ notEmpty .value }}
+    - name: support_ebpf_profiling
+      value: true
+    {{- end }}
+  labels:
+    - mesh-envoy
+- id: {{ notEmpty .id }}
+  name: pilot-agent
+  serviceid: {{ b64enc "default::productpage" }}.1
+  servicename: default::productpage
+  instanceid: {{ notEmpty .instanceid }}
+  instancename: {{ notEmpty .instancename }}
+  layer: MESH_DP
+  agentid: {{ notEmpty .agentid }}
+  detecttype: KUBERNETES
+  attributes:
+    {{- contains .attributes }}
+    - name: host_ip
+      value: {{ notEmpty .value }}
+    - name: container_ip
+      value: {{ notEmpty .value }}
+    - name: pid
+      value: {{ notEmpty .value }}
+    - name: command_line
+      value: {{ notEmpty .value }}
+    - name: support_ebpf_profiling
+      value: "false"
     {{- end }}
   labels:
     - mesh-envoy

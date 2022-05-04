@@ -14,10 +14,6 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ notEmpty .id }}
-  name: {{ notEmpty .name }}
-  attributes: []
-  language: UNKNOWN
-  instanceuuid: {{ notEmpty .instanceuuid }}
-  layer: {{ notEmpty .layer }}
+- key: {{ notEmpty .key }}
+  value: {{ ge .value 1 }}
 {{- end }}
