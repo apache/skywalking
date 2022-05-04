@@ -32,7 +32,7 @@ jobs:
   analyze:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-la1test
 
     strategy:
       fail-fast: false
@@ -41,7 +41,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: true
 

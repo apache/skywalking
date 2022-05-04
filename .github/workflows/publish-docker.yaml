@@ -24,7 +24,7 @@ on:
 env:
   SKIP_TEST: true
   HUB: ghcr.io/apache/skywalking
-
+1
 jobs:
   build:
     if: github.repository == 'apache/skywalking'
@@ -36,7 +36,7 @@ jobs:
     env:
       TAG: ${{ github.sha }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Cache local Maven repository
