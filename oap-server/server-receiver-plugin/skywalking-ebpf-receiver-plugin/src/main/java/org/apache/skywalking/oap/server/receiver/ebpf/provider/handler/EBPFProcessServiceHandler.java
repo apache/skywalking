@@ -23,8 +23,11 @@ import io.grpc.stub.StreamObserver;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFHostProcessDownstream;
 import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFHostProcessMetadata;
+import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFKubernetesProcessDownstream;
+import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFKubernetesProcessMetadata;
 import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFProcessDownstream;
 import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFProcessEntityMetadata;
 import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFProcessPingPkgList;
@@ -38,7 +41,6 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
-import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.Process;
 import org.apache.skywalking.oap.server.core.source.ServiceLabel;
@@ -74,6 +76,8 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
             Tuple2<Process, EBPFProcessDownstream> processData = null;
             if (ebpfProcessProperties.hasHostProcess()) {
                 processData = prepareReportHostProcess(ebpfProcessProperties.getHostProcess(), agentId);
+            } else if (ebpfProcessProperties.hasK8SProcess()) {
+                processData = prepareReportKubernetesProcess(ebpfProcessProperties.getK8SProcess(), agentId);
             }
 
             if (processData != null) {
@@ -151,9 +155,9 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
         process.setDetectType(ProcessDetectType.VM);
         process.setAgentId(agentId);
         final JsonObject properties = new JsonObject();
-        properties.addProperty(ProcessTraffic.PropertyUtil.HOST_IP, hostProcess.getHostIP());
-        properties.addProperty(ProcessTraffic.PropertyUtil.PID, hostProcess.getPid());
-        properties.addProperty(ProcessTraffic.PropertyUtil.COMMAND_LINE, hostProcess.getCmd());
+        for (KeyStringValuePair kv : hostProcess.getPropertiesList()) {
+            properties.addProperty(kv.getKey(), kv.getValue());
+        }
         process.setProperties(properties);
         process.setLabels(hostProcess.getEntity().getLabelsList());
 
@@ -167,6 +171,41 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
                 .setProcessId(processId)
                 .setHostProcess(EBPFHostProcessDownstream.newBuilder()
                         .setPid(hostProcess.getPid())
+                        .build())
+                .build();
+        return Tuple.of(process, downstream);
+    }
+
+    private Tuple2<Process, EBPFProcessDownstream> prepareReportKubernetesProcess(EBPFKubernetesProcessMetadata kubernetesProcessMetadata, String agentId) {
+        final Process process = new Process();
+
+        // entity
+        process.setServiceName(namingControl.formatServiceName(kubernetesProcessMetadata.getEntity().getServiceName()));
+        process.setServiceNormal(true);
+        process.setLayer(Layer.valueOf(kubernetesProcessMetadata.getEntity().getLayer()));
+        process.setInstanceName(namingControl.formatInstanceName(kubernetesProcessMetadata.getEntity().getInstanceName()));
+        process.setName(kubernetesProcessMetadata.getEntity().getProcessName());
+
+        // metadata
+        process.setDetectType(ProcessDetectType.KUBERNETES);
+        process.setAgentId(agentId);
+        final JsonObject properties = new JsonObject();
+        for (KeyStringValuePair kv : kubernetesProcessMetadata.getPropertiesList()) {
+            properties.addProperty(kv.getKey(), kv.getValue());
+        }
+        process.setProperties(properties);
+        process.setLabels(kubernetesProcessMetadata.getEntity().getLabelsList());
+
+        // timestamp
+        process.setTimeBucket(
+                TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute));
+
+        process.prepare();
+        final String processId = process.getEntityId();
+        final EBPFProcessDownstream downstream = EBPFProcessDownstream.newBuilder()
+                .setProcessId(processId)
+                .setK8SProcess(EBPFKubernetesProcessDownstream.newBuilder()
+                        .setPid(kubernetesProcessMetadata.getPid())
                         .build())
                 .build();
         return Tuple.of(process, downstream);

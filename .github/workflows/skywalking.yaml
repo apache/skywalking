@@ -451,6 +451,10 @@ jobs:
             config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
           - name: So11y
             config: test/e2e-v2/cases/so11y/e2e.yaml
+
+          - name: Rover with Istio Process 1.13.1
+            config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
+            env: ISTIO_VERSION=1.13.1
     steps:
       - uses: actions/checkout@v3
         with:
