@@ -36,6 +36,7 @@
 * E2E: fix log test miss verify LAL and metrics.
 * Enhance Converter mechanism in kernel level to make BanyanDB native feature more effective.
 * Add TermsAggregation properties collect_mode and execution_hint.
+
 #### UI
 
 * General service instance: move `Thread Pool` from JVM to Overview, fix `JVM GC Count` calculation.
