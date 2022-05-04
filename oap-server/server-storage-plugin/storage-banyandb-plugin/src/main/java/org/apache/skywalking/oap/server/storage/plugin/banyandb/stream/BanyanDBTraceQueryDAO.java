@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import com.google.common.base.Strings;
+
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
@@ -64,15 +65,15 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                     query.and(lte(SegmentRecord.LATENCY, maxDuration));
                 }
 
-                if (!Strings.isNullOrEmpty(serviceId)) {
+                if (StringUtil.isNotEmpty(serviceId)) {
                     query.and(eq(SegmentRecord.SERVICE_ID, serviceId));
                 }
 
-                if (!Strings.isNullOrEmpty(serviceInstanceId)) {
+                if (StringUtil.isNotEmpty(serviceInstanceId)) {
                     query.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
                 }
 
-                if (!Strings.isNullOrEmpty(endpointId)) {
+                if (StringUtil.isNotEmpty(endpointId)) {
                     query.and(eq(SegmentRecord.ENDPOINT_ID, endpointId));
                 }
 
@@ -123,7 +124,11 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                 tsRange, q);
 
         TraceBrief traceBrief = new TraceBrief();
-        traceBrief.setTotal(resp.getElements().size());
+        traceBrief.setTotal(resp.size());
+
+        if (resp.size() == 0) {
+            return traceBrief;
+        }
 
         for (final RowEntity row : resp.getElements()) {
             BasicTrace basicTrace = new BasicTrace();

@@ -218,7 +218,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                             query.and(eq(ProcessTraffic.INSTANCE_ID, instanceId));
                         }
                         if (StringUtil.isNotEmpty(agentId)) {
-                            query.and(eq(ProcessTraffic.AGENT_ID, instanceId));
+                            query.and(eq(ProcessTraffic.AGENT_ID, agentId));
                         }
                         if (lastPingStartTimeBucket > 0) {
                             query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
