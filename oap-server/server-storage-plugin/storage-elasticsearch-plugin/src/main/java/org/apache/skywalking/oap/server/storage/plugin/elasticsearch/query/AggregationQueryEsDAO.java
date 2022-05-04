@@ -28,6 +28,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.BucketOrder;
+import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.TermsAggregationBuilder;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -105,6 +106,8 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                        .order(BucketOrder.aggregation(valueColumnName, asc))
                        .size(condition.getTopN())
                        .subAggregation(Aggregation.avg(valueColumnName).field(valueColumnName))
+                       .executionHint(TermsAggregationBuilder.ExecutionHint.map)
+                       .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                        .build());
 
         final SearchResponse response = getClient().search(tableName, search.build());
