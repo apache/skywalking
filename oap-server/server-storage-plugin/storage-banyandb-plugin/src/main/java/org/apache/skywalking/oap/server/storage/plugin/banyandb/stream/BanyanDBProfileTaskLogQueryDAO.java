@@ -46,8 +46,10 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
     @Override
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
         StreamQueryResponse resp = query(ProfileTaskLogRecord.INDEX_NAME,
-                ImmutableSet.of(ProfileTaskLogRecord.OPERATION_TIME, ProfileTaskLogRecord.INSTANCE_ID,
-                        ProfileTaskLogRecord.TASK_ID, ProfileTaskLogRecord.OPERATION_TYPE),
+                ImmutableSet.of(ProfileTaskLogRecord.OPERATION_TIME,
+                        ProfileTaskLogRecord.INSTANCE_ID,
+                        ProfileTaskLogRecord.TASK_ID,
+                        ProfileTaskLogRecord.OPERATION_TYPE),
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
@@ -57,22 +59,19 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
 
         final LinkedList<ProfileTaskLog> tasks = new LinkedList<>();
         for (final RowEntity rowEntity : resp.getElements()) {
-            tasks.add(parseTaskLog(rowEntity));
+            tasks.add(buildProfileTaskLog(rowEntity));
         }
 
         return tasks;
     }
 
-    private ProfileTaskLog parseTaskLog(RowEntity data) {
+    private ProfileTaskLog buildProfileTaskLog(RowEntity data) {
         return ProfileTaskLog.builder()
                 .id(data.getId())
                 .taskId(data.getTagValue(ProfileTaskLogRecord.TASK_ID))
-                .instanceId(
-                        data.getTagValue(ProfileTaskLogRecord.INSTANCE_ID))
-                .operationType(ProfileTaskLogOperationType.parse(
-                        ((Number) data.getTagValue(ProfileTaskLogRecord.OPERATION_TYPE)).intValue()))
-                .operationTime(
-                        ((Number) data.getTagValue(ProfileTaskLogRecord.OPERATION_TIME)).longValue())
+                .instanceId(data.getTagValue(ProfileTaskLogRecord.INSTANCE_ID))
+                .operationType(ProfileTaskLogOperationType.parse(((Number) data.getTagValue(ProfileTaskLogRecord.OPERATION_TYPE)).intValue()))
+                .operationTime(((Number) data.getTagValue(ProfileTaskLogRecord.OPERATION_TIME)).longValue())
                 .build();
     }
 }

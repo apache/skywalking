@@ -207,6 +207,8 @@ public class BanyanDBConverter {
             return TagAndValue.longTagValue((int) value);
         } else if (JsonObject.class.equals(clazz)) {
             return TagAndValue.stringTagValue((String) value);
+        } else if (byte[].class.equals(clazz)) {
+            return TagAndValue.stringTagValue((String) value);
         }
         throw new IllegalStateException(clazz.getSimpleName() + " is not supported");
     }
