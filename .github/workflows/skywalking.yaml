@@ -613,7 +613,7 @@ jobs:
           execute=${{ needs.changes.outputs.oap }}
 
           sanityResults=${{ needs.dependency-license.result }}
-          [[ ${sanityResults} == 'success' ]] || [[ ${execute} != 'true' && ${sanityResults} == 'skipped' ]] exit -1;
+          [[ ${sanityResults} == 'success' ]] || [[ ${execute} != 'true' && ${sanityResults} == 'skipped' ]] || exit -1;
 
           depLicenseResults=${{ needs.dependency-license.result }}
           unitResults=${{ needs.unit-test.result }};
