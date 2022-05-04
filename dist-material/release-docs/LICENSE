@@ -224,8 +224,7 @@ Apache 2.0 licenses
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-    raphw (byte-buddy) 1.10.19: http://bytebuddy.net/ , Apache 2.0
-    Google: grpc-java 1.42.1: https://github.com/grpc/grpc-java, Apache 2.0
+    Google: grpc-java 1.46.0: https://github.com/grpc/grpc-java, Apache 2.0
     Google: guava 31.1: https://github.com/google/guava , Apache 2.0
     Google: guice 4.1.0: https://github.com/google/guice , Apache 2.0
     Google: gson 2.9.0: https://github.com/google/gson , Apache 2.0
@@ -237,9 +236,9 @@ The text of each license is the standard Apache 2.0 license.
     Joda-Convert 2.2.1: http://www.joda.org/joda-convert/ , Apache 2.0
     Spring Framework 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
     Spring Boot 2.6.6: https://spring.io/, Apache 2.0
-    Spring Cloud Gateway 3.1.1: https://spring.io/projects/spring-cloud, Apache-2.0
-    Spring Cloud Load Balancer 3.1.1: https://spring.io/projects/spring-cloud, Apache-2.0
-    Spring Web 5.3.15 https://spring.io/, Apache-2.0
+    Spring Cloud Gateway 3.1.2: https://spring.io/projects/spring-cloud, Apache-2.0
+    Spring Cloud Load Balancer 3.1.2: https://spring.io/projects/spring-cloud, Apache-2.0
+    Spring Web 5.3.19 https://spring.io/, Apache-2.0
     Apache: commons-logging 1.2: https://github.com/apache/commons-logging, Apache 2.0
     Apache: commons-codec 1.10: https://github.com/apache/commons-codec, Apache 2.0
     Apache: commons-lang 3.6: https://github.com/apache/commons-lang, Apache 2.0
@@ -252,11 +251,11 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-io 2.7: https://github.com/apache/commons-io, Apache 2.0
     Apache: commons-compress 1.21: https://github.com/apache/commons-compress, Apache 2.0
     Apache: commons-collections4 4.4: https://mvnrepository.com/artifact/org.apache.commons/commons-collections4, Apache 2.0
-    Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
-    Apache: Tomcat-embed 9.0.56 https://tomcat.apache.org, Apache 2.0
+    Apache: freemarker 2.3.31: https://github.com/apache/freemarker, Apache 2.0
+    Apache: Tomcat-embed 9.0.62 https://tomcat.apache.org, Apache 2.0
     Apache: httpclient 4.5.13 https://hc.apache.org/, Apache 2.0
-    netty 4.1.68: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
-    netty: netty-tcnative-boringssl-static 2.0.43:  https://github.com/netty/netty-tcnative, Apache 2.0
+    netty 4.1.76: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
+    netty: netty-tcnative-boringssl-static 2.0.51:  https://github.com/netty/netty-tcnative, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.6: https://github.com/spullara/mustache.java, Apache 2.0
     error_prone_annotations 2.11.0: https://github.com/google/error-prone, Apache 2.0
@@ -334,6 +333,7 @@ The text of each license is the standard Apache 2.0 license.
     tsfile 0.12.5 https://github.com/apache/iotdb Apache 2.0
     libthrift 0.14.1: https://github.com/apache/thrift Apache 2.0
     j2objc 1.3: https://github.com/google/j2objc Apache 2.0
+    evictor 1.0.0: https://github.com/stoyanr/Evictor Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -383,7 +383,7 @@ MPL 2.0 licenses
 The following components are provided under a MPL 2.0 license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-    H2 Database 2.1.210: http://www.h2database.com/html/main.html , MPL 2.0 or EPL 1.0
+    H2 Database 2.1.212: http://www.h2database.com/html/main.html , MPL 2.0 or EPL 1.0
 
 ========================================
 CC0-1.0 licenses
@@ -399,9 +399,9 @@ EPL licenses
 The following components are provided under the EPL License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-    logback 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
-    logback-classic 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
-    logback-core 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
+    logback 1.2.11: https://github.com/qos-ch/logback: EPL 1.0
+    logback-classic 1.2.11: https://github.com/qos-ch/logback: EPL 1.0
+    logback-core 1.2.11: https://github.com/qos-ch/logback: EPL 1.0
 
 ========================================================================
 CDDL licenses
