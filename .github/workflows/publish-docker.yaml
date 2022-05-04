@@ -24,7 +24,7 @@ on:
 env:
   SKIP_TEST: true
   HUB: ghcr.io/apache/skywalking
-1
+
 jobs:
   build:
     if: github.repository == 'apache/skywalking'

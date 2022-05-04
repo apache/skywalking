@@ -32,7 +32,7 @@ jobs:
   analyze:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Analyze
-    runs-on: ubuntu-la1test
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false

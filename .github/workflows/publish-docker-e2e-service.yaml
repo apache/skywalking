@@ -16,7 +16,7 @@
 
 name: Publish E2E service images
 
-on:1
+on:
   push:
     branches:
       - master
