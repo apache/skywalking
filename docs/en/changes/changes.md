@@ -34,6 +34,7 @@
 * [Breaking Change] Replace all configurations `**_JETTY_**` to `**_REST_**`.
 * Add the support eBPF profiling field into the process entity.
 * E2E: fix log test miss verify LAL and metrics.
+* Enhance Converter mechanism in kernel level to make BanyanDB native feature more effective.
 
 #### UI
 

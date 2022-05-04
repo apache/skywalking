@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @SuperDataset
@@ -127,7 +126,7 @@ public class ZipkinSpanRecord extends Record {
             record.setLatency(((Number) converter.get(LATENCY)).intValue());
             record.setIsError(((Number) converter.get(IS_ERROR)).intValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
-            record.setDataBinary(converter.getWith(DATA_BINARY, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
+            record.setDataBinary(converter.getBytes(DATA_BINARY));
             record.setEncode(((Number) converter.get(ENCODE)).intValue());
             // Don't read the tags as they have been in the data binary already.
             return record;

@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 public abstract class AbstractLogRecord extends Record {
@@ -126,7 +125,7 @@ public abstract class AbstractLogRecord extends Record {
             record.setContentType(((Number) converter.get(CONTENT_TYPE)).intValue());
             record.setContent((String) converter.get(CONTENT));
             record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
-            record.setTagsRawData(converter.getWith(TAGS_RAW_DATA, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
+            record.setTagsRawData(converter.getBytes(TAGS_RAW_DATA));
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
         }
 

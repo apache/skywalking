@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedInde
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_SEGMENT_SNAPSHOT;
 
@@ -81,11 +80,7 @@ public class ProfileThreadSnapshotRecord extends Record {
             snapshot.setDumpTime(((Number) converter.get(DUMP_TIME)).longValue());
             snapshot.setSequence(((Number) converter.get(SEQUENCE)).intValue());
             snapshot.setTimeBucket(((Number) converter.get(TIME_BUCKET)).intValue());
-            if (StringUtil.isEmpty((String) converter.get(STACK_BINARY))) {
-                snapshot.setStackBinary(new byte[] {});
-            } else {
-                snapshot.setStackBinary(Base64.getDecoder().decode((String) converter.get(STACK_BINARY)));
-            }
+            snapshot.setStackBinary(converter.getBytes(STACK_BINARY));
             return snapshot;
         }
 

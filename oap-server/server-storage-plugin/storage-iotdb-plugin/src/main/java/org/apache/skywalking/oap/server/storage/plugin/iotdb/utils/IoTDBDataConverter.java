@@ -22,7 +22,6 @@ import com.google.common.base.Splitter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.function.Function;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
@@ -32,6 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBClient;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBIndexes;
 import org.apache.skywalking.oap.server.storage.plugin.iotdb.IoTDBTableMetaInfo;
@@ -82,21 +82,24 @@ public class IoTDBDataConverter {
                 if (IoTDBClient.TIMESTAMP.equals(fieldName) || fieldName.contains(".")) {
                     String columnName = IoTDBUtils.addQuotationMark(fieldName);
                     return columnNames.contains(columnName)
-                            ? IoTDBUtils.getFieldValue(fields.get(columnNames.indexOf(columnName) - 1))
-                            : null;
+                        ? IoTDBUtils.getFieldValue(fields.get(columnNames.indexOf(columnName) - 1))
+                        : null;
                 } else {
                     return columnNames.contains(fieldName)
-                            ? IoTDBUtils.getFieldValue(fields.get(columnNames.indexOf(fieldName) - 1))
-                            : null;
+                        ? IoTDBUtils.getFieldValue(fields.get(columnNames.indexOf(fieldName) - 1))
+                        : null;
                 }
             }
         }
 
         @Override
-        public <T, R> R getWith(final String fieldName, final Function<T, R> typeDecoder) {
+        public byte[] getBytes(final String fieldName) {
             if (columnNames.contains(fieldName)) {
-                final T value = (T) IoTDBUtils.getFieldValue(fields.get(columnNames.indexOf(fieldName) - 1));
-                return typeDecoder.apply(value);
+                final String value = (String) IoTDBUtils.getFieldValue(fields.get(columnNames.indexOf(fieldName) - 1));
+                if (StringUtil.isEmpty(value)) {
+                    return new byte[] {};
+                }
+                return Base64.getDecoder().decode(value);
             } else {
                 return null;
             }
@@ -121,8 +124,10 @@ public class IoTDBDataConverter {
                 List<String> indexValues = request.getIndexValues();
                 // To avoid indexValue be "null" when inserting, replace null to empty string
                 if (indexes.contains(fieldName)) {
-                    indexValues.set(indexes.indexOf(fieldName),
-                                    fieldValue == null ? Const.EMPTY_STRING : fieldValue.toString());
+                    indexValues.set(
+                        indexes.indexOf(fieldName),
+                        fieldValue == null ? Const.EMPTY_STRING : fieldValue.toString()
+                    );
                 }
             } else {
                 // time_bucket has changed to timestamp before calling this method,
@@ -172,12 +177,12 @@ public class IoTDBDataConverter {
         public Object get(String fieldName) {
             if (IoTDBIndexes.isIndex(fieldName)) {
                 return request.getIndexes().contains(fieldName)
-                        ? request.getIndexValues().get(request.getIndexes().indexOf(fieldName))
-                        : null;
+                    ? request.getIndexValues().get(request.getIndexes().indexOf(fieldName))
+                    : null;
             } else {
                 return request.getMeasurements().contains(fieldName)
-                        ? request.getMeasurementValues().get(request.getMeasurements().indexOf(fieldName))
-                        : null;
+                    ? request.getMeasurementValues().get(request.getMeasurements().indexOf(fieldName))
+                    : null;
             }
         }
 
