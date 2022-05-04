@@ -14,23 +14,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Dead Link Checker
+name: CI
 
 on:
   pull_request:
+    paths-ignore:
+      - "**"
+      - "!**/*.md"
+      - "!**/*.txt"
+      - "!skywalking-ui"
+      - "!.asf.yaml"
+      - "!.dlc.yaml"
+      - "!.licenserc.yaml"
+      - "!docs/menu.yml"
+      - "!.github/workflows/codeql.yaml"
+      - "!dist-material/release-docs"
+      - "!**/component-libraries.yml"
 
 concurrency:
-  group: dlc-${{ github.event.pull_request.number || github.ref }}
+  group: skywalking-fake-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  CheckDeadLinks:
+  required:
+    name: Required
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v2
-      - run: sudo npm install -g markdown-link-check@3.10.0
-      - run: |
-          for file in $(find . -name "*.md"); do
-            markdown-link-check -c .dlc.json -q "$file"
-          done
+      - name: Merge Requirement
+        run: echo 'Passed!'

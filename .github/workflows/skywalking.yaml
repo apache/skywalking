@@ -18,6 +18,17 @@ name: CI
 
 on:
   pull_request:
+    paths-ignore:
+      - "**.md"
+      - "**.txt"
+      - "skywalking-ui"
+      - ".asf.yaml"
+      - ".dlc.yaml"
+      - ".licenserc.yaml"
+      - "docs/menu.yml"
+      - ".github/workflows/codeql.yaml"
+      - "dist-material/release-docs"
+      - "**/component-libraries.yml"
   schedule:
     - cron: '0 18 * * *'  # TimeZone: UTC 0
 
@@ -40,7 +51,7 @@ jobs:
         with:
           submodules: true
       - name: Check license header
-        uses: apache/skywalking-eyes@985866ce7e324454f61e22eb2db2e998db09d6f3
+        uses: apache/skywalking-eyes@831233e32ab3a2fbc28fe934f4983c4edae6e722
 
   code-style:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -63,53 +74,17 @@ jobs:
     steps:
       - name: Check results
         run: |
-          [[ ${{ needs.license-header.result }} == 'success' ]] || exit -1;
-          [[ ${{ needs.code-style.result }} == 'success' ]] || exit -1;
+          if [[ ${{ needs.license-header.result }} != 'success' ]]; then
+            exit -1
+          fi
+          if [[ ${{ needs.code-style.result }} != 'success' ]]; then
+            exit -1
+          fi
 
-  changes:
-    # Check if anything related to Actual code / CI(functional testing) is changed
-    # set outputs for other jobs to access for if conditions
-    runs-on: ubuntu-latest
-    needs: [ sanity-check ]
-    # To prevent error when there's no base branch
-    if: github.event_name != 'schedule'
-    timeout-minutes: 10
-    outputs:
-      oap: ${{ steps.filter.outputs.oap }}
-    steps:
-      - uses: actions/checkout@v3  # required for push event
-      - name: Check for file changes
-        uses: getsentry/paths-filter@v2
-        id: filter
-        with:
-          token: ${{ github.token }}
-          # The following is a single composite pattern that allows next CI steps,
-          # the pattern is in form of [not (foo or bar)] to be safe.
-          # When new files come in, the CI will NOT ignore them unless listed, 
-          # so remember to extend here if they do not serve functional purposes.
-          # NOTE: careful with using ** in expression, keep !**/{old, new things}.
-          filters: |
-            oap:
-              - "!**/{\
-              *.md,*.txt,\
-              skywalking-ui,\
-              .asf.yaml,.dlc.json,.gitignore,.licenserc.yaml,\
-              codeStyle.xml,\
-              HEADER,LICENSE,NOTICE,\
-              docs/**,\
-              .github/workflows/codeql.yaml,\
-              .github/(ISSUE_TEMPLATE/**|PULL_REQUEST_TEMPLATE),\
-              dist-material/release-docs/*,\
-              component-libraries.yml\
-              }"
-          list-files: json  # logs matched files
-  
   dist-tar:
-    if: |
-      always() && 
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Build dist tar
-    needs: [ sanity-check, changes ]
+    needs: [ sanity-check ]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -127,18 +102,16 @@ jobs:
             -Dmaven.test.skip \
             -Dmaven.javadoc.skip \
             -Dcheckstyle.skip
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v2
         name: Upload distribution tar
         with:
           name: dist
           path: dist
 
   docker:
-    if: |
-      always() && 
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Docker images
-    needs: [ dist-tar, changes ]
+    needs: [ dist-tar ]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -148,13 +121,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v2
         name: Download distribution tar
         with:
           name: dist
           path: dist
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v2
         with:
           distribution: temurin
           java-version: ${{ matrix.java-version }}
@@ -166,17 +139,15 @@ jobs:
           docker save -o docker-images-skywalking-oap.tar skywalking/oap:latest
           docker save -o docker-images-skywalking-ui.tar skywalking/ui:latest
       - name: Upload docker images
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: docker-images-${{ matrix.java-version }}
           path: docker-images-skywalking-*.tar
 
   dependency-license:
-    if: |
-      always() && 
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Dependency licenses
-    needs: [ dist-tar, changes ]
+    needs: [ dist-tar ]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -188,7 +159,7 @@ jobs:
           distribution: 'temurin'
           java-version: '8'
           cache: 'maven'
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v2
         with:
           name: dist
           path: dist
@@ -196,11 +167,9 @@ jobs:
         run: tools/dependencies/check-LICENSE.sh
 
   unit-test:
-    if: |
-      always() && 
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Unit test
-    needs: [ sanity-check, changes ]
+    needs: [ sanity-check ]
     runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
@@ -215,12 +184,12 @@ jobs:
         with:
           submodules: true
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v2
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java-version }}
           distribution: adopt
@@ -228,11 +197,9 @@ jobs:
         run: ./mvnw clean verify -q -B -D"checkstyle.skip" || ./mvnw clean verify -q -B -D"checkstyle.skip"
 
   integration-test:
-    if: |
-      always() && 
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Integration test
-    needs: [ sanity-check, changes ]
+    needs: [ sanity-check ]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
@@ -243,12 +210,12 @@ jobs:
         with:
           submodules: true
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v2
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java-version }}
           distribution: adopt
@@ -258,9 +225,7 @@ jobs:
           ./mvnw clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false
 
   e2e-test:
-    if: |
-      always() && 
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: E2E test
     needs: [ docker ]
     runs-on: ubuntu-latest
@@ -494,7 +459,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v2
         name: Download docker images
         with:
           name: docker-images-8
@@ -505,7 +470,7 @@ jobs:
         shell: bash
         run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v2
         with:
           go-version: '1.16'
       - name: Set env var
@@ -517,9 +482,7 @@ jobs:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
 
   e2e-test-istio:
-    if: |
-      always() && 
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: E2E test
     needs: [ docker ]
     runs-on: ubuntu-latest
@@ -533,7 +496,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v2
         name: Download docker images
         with:
           name: docker-images-8
@@ -541,7 +504,7 @@ jobs:
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v2
         with:
           go-version: '1.16'
       - name: ${{ matrix.test.name }}
@@ -553,9 +516,7 @@ jobs:
           e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/istio/als/e2e.yaml
 
   e2e-test-java-versions:
-    if: |
-      always() && 
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: E2E test
     needs: [ docker ]
     runs-on: ubuntu-latest
@@ -568,14 +529,14 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v2
         name: Download docker images
         with:
           name: docker-images-${{ matrix.java-version }}
           path: docker-images
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java-version }}
           distribution: adopt
@@ -583,7 +544,7 @@ jobs:
         shell: bash
         run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v2
         with:
           go-version: '1.16'
       - name: Java version ${{ matrix.java-version }}
@@ -607,26 +568,22 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Merge Requirement
-        # check changes, sanity, dependency license, unit, integration, e2e, e2e-istio and e2e-java-versions, 
-        # if all of them are working as expected then naturally exits else return error code
         run: |
-          execute=${{ needs.changes.outputs.oap }}
-
-          sanityResults=${{ needs.dependency-license.result }}
-          [[ ${sanityResults} == 'success' ]] || [[ ${execute} != 'true' && ${sanityResults} == 'skipped' ]] || exit -1;
-
-          depLicenseResults=${{ needs.dependency-license.result }}
-          unitResults=${{ needs.unit-test.result }};
-          integrationResults=${{ needs.integration-test.result }};
-          e2eResults=${{ needs.e2e-test.result }};
-          e2eIstioResults=${{ needs.e2e-test-istio.result }};
-          e2eJavaVersionResults=${{ needs.e2e-test-java-versions.result }};
-
-          [[ ${depLicenseResults} == 'success' ]] || [[ ${execute} != 'true' && ${depLicenseResults} == 'skipped' ]] || exit -2;
-          [[ ${unitResults} == 'success' ]] || [[ ${execute} != 'true' && ${unitResults} == 'skipped' ]] || exit -3;
-          [[ ${integrationResults} == 'success' ]] || [[ ${execute} != 'true' && ${integrationResults} == 'skipped' ]] || exit -4;
-          [[ ${e2eResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eResults} == 'skipped' ]] || exit -5;
-          [[ ${e2eIstioResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eIstioResults} == 'skipped' ]] || exit -6;
-          [[ ${e2eJavaVersionResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eJavaVersionResults} == 'skipped' ]] || exit -7;
-
-          exit 0;
+          if [[ ${{ needs.dependency-license.result }} != 'success' ]]; then
+            exit -1
+          fi
+          if [[ ${{ needs.unit-test.result }} != 'success' ]]; then
+            exit -1
+          fi
+          if [[ ${{ needs.integration-test.result }} != 'success' ]]; then
+            exit -1
+          fi
+          if [[ ${{ needs.e2e-test.result }} != 'success' ]]; then
+            exit -1
+          fi
+          if [[ ${{ needs.e2e-test-istio.result }} != 'success' ]]; then
+            exit -1
+          fi
+          if [[ ${{ needs.e2e-test-java-versions.result }} != 'success' ]]; then
+            exit -1
+          fi

@@ -36,7 +36,7 @@ jobs:
     env:
       TAG: ${{ github.sha }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           submodules: true
       - name: Cache local Maven repository
