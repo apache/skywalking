@@ -37,7 +37,6 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
 import java.util.List;
-import java.util.function.Function;
 
 public class BanyanDBConverter {
     public static class StorageToStream implements Convert2Entity {
@@ -60,8 +59,8 @@ public class BanyanDBConverter {
         }
 
         @Override
-        public <T, R> R getWith(String fieldName, Function<T, R> typeDecoder) {
-            return (R) this.get(fieldName);
+        public byte[] getBytes(String fieldName) {
+            return rowEntity.getTagValue(fieldName);
         }
     }
 
@@ -240,16 +239,27 @@ public class BanyanDBConverter {
         @Override
         public Object get(String fieldName) {
             MetadataRegistry.ColumnSpec spec = schema.getSpec(fieldName);
-            if (double.class.equals(spec.getColumnClass())) {
-                return ByteUtil.bytes2Double(dataPoint.getTagValue(fieldName));
-            } else {
-                return dataPoint.getTagValue(fieldName);
+            switch (spec.getColumnType()) {
+                case TAG:
+                    if (double.class.equals(spec.getColumnClass())) {
+                        return ByteUtil.bytes2Double(dataPoint.getTagValue(fieldName));
+                    } else {
+                        return dataPoint.getTagValue(fieldName);
+                    }
+                case FIELD:
+                default:
+                    if (double.class.equals(spec.getColumnClass())) {
+                        return ByteUtil.bytes2Double(dataPoint.getFieldValue(fieldName));
+                    } else {
+                        return dataPoint.getFieldValue(fieldName);
+                    }
             }
         }
 
         @Override
-        public <T, R> R getWith(String fieldName, Function<T, R> typeDecoder) {
-            return (R) this.get(fieldName);
+        public byte[] getBytes(String fieldName) {
+            // TODO: double may be a field?
+            return dataPoint.getFieldValue(fieldName);
         }
     }
 }
