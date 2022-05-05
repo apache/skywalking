@@ -70,6 +70,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         final TermsAggregationBuilder entityIdAggregation =
             Aggregation.terms(Metrics.ENTITY_ID)
                        .field(Metrics.ENTITY_ID)
+                       .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
+                       .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                        .size(1);
         functionAggregation(function, entityIdAggregation, valueColumnName);
 
