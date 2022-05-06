@@ -85,7 +85,7 @@ jobs:
           token: ${{ github.token }}
           # The following is a single composite pattern that allows next CI steps,
           # the pattern is in form of [not (foo or bar)] to be safe.
-          # When new files come in, the CI will NOT ignore them unless listed, 
+          # When new files come in, the CI will NOT ignore them unless listed,
           # so remember to extend here if they do not serve functional purposes.
           # NOTE: careful with using ** in expression, keep !**/{old, new things}.
           filters: |
@@ -103,10 +103,10 @@ jobs:
               component-libraries.yml\
               }"
           list-files: json  # logs matched files
-  
+
   dist-tar:
     if: |
-      always() && 
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Build dist tar
     needs: [ sanity-check, changes ]
@@ -135,7 +135,7 @@ jobs:
 
   docker:
     if: |
-      always() && 
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Docker images
     needs: [ dist-tar, changes ]
@@ -173,7 +173,7 @@ jobs:
 
   dependency-license:
     if: |
-      always() && 
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Dependency licenses
     needs: [ dist-tar, changes ]
@@ -197,7 +197,7 @@ jobs:
 
   unit-test:
     if: |
-      always() && 
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Unit test
     needs: [ sanity-check, changes ]
@@ -229,7 +229,7 @@ jobs:
 
   integration-test:
     if: |
-      always() && 
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Integration test
     needs: [ sanity-check, changes ]
@@ -259,7 +259,7 @@ jobs:
 
   e2e-test:
     if: |
-      always() && 
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [ docker ]
@@ -518,7 +518,7 @@ jobs:
 
   e2e-test-istio:
     if: |
-      always() && 
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [ docker ]
@@ -554,7 +554,7 @@ jobs:
 
   e2e-test-java-versions:
     if: |
-      always() && 
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [ docker ]
@@ -607,7 +607,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Merge Requirement
-        # check changes, sanity, dependency license, unit, integration, e2e, e2e-istio and e2e-java-versions, 
+        # check changes, sanity, dependency license, unit, integration, e2e, e2e-istio and e2e-java-versions,
         # if all of them are working as expected then naturally exits else return error code
         run: |
           execute=${{ needs.changes.outputs.oap }}
