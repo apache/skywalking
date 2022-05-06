@@ -27,7 +27,6 @@ public class TagAutocompleteDispatcher implements SourceDispatcher<TagAutocomple
     @Override
     public void dispatch(TagAutocomplete source) {
         TagAutocompleteData autocomplete = new TagAutocompleteData();
-        autocomplete.setTag(source.getTag());
         autocomplete.setTagKey(source.getTagKey());
         autocomplete.setTagValue(source.getTagValue());
         autocomplete.setTagType(source.getTagType().name());

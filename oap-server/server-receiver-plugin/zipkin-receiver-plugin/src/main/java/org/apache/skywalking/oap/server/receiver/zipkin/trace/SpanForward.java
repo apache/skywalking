@@ -95,7 +95,7 @@ public class SpanForward {
                 if (searchTagKeys.contains(key)) {
                     String tagString = key + "=" + value;
                     zipkinSpan.getTags().add(tagString);
-                    addAutocompleteTags(minuteTimeBucket, key, value, tagString);
+                    addAutocompleteTags(minuteTimeBucket, key, value);
                 }
             });
 
@@ -111,9 +111,8 @@ public class SpanForward {
         });
     }
 
-    private void addAutocompleteTags(final long minuteTimeBucket, final String key, final String value, final String tagString) {
+    private void addAutocompleteTags(final long minuteTimeBucket, final String key, final String value) {
         TagAutocomplete tagAutocomplete = new TagAutocomplete();
-        tagAutocomplete.setTag(tagString);
         tagAutocomplete.setTagKey(key);
         tagAutocomplete.setTagValue(value);
         tagAutocomplete.setTagType(TagType.TRACE);

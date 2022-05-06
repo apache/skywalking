@@ -134,7 +134,6 @@ public class RecordAnalysisListener implements LogAnalysisListener {
     private void addAutocompleteTags() {
         log.getTags().forEach(tag -> {
             TagAutocomplete tagAutocomplete = new TagAutocomplete();
-            tagAutocomplete.setTag(tag.toString());
             tagAutocomplete.setTagKey(tag.getKey());
             tagAutocomplete.setTagValue(tag.getValue());
             tagAutocomplete.setTagType(TagType.LOG);

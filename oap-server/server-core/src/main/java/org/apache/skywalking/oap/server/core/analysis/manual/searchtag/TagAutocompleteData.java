@@ -36,7 +36,8 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
     builder = TagAutocompleteData.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false, timeRelativeID = true)
 @EqualsAndHashCode(of = {
-    "tag",
+    "tagKey",
+    "tagValue",
     "tagType"
 })
 public class TagAutocompleteData extends Metrics {
@@ -45,9 +46,6 @@ public class TagAutocompleteData extends Metrics {
     public static final String TAG_VALUE = "tag_value";
     public static final String TAG_TYPE = "tag_type";
 
-    @Setter
-    @Getter
-    private String tag;
     @Setter
     @Getter
     @Column(columnName = TAG_KEY)
@@ -84,7 +82,7 @@ public class TagAutocompleteData extends Metrics {
 
     @Override
     protected String id0() {
-        return toTimeBucketInDay() + "-" + tagType + "-" + tag;
+        return toTimeBucketInDay() + "-" + tagType + "-" + tagKey + "=" + tagValue;
     }
 
     @Override
@@ -94,17 +92,15 @@ public class TagAutocompleteData extends Metrics {
 
     @Override
     public void deserialize(final RemoteData remoteData) {
-        setTag(remoteData.getDataStrings(0));
-        setTagKey(remoteData.getDataStrings(1));
-        setTagValue(remoteData.getDataStrings(2));
-        setTagType(remoteData.getDataStrings(3));
+        setTagKey(remoteData.getDataStrings(0));
+        setTagValue(remoteData.getDataStrings(1));
+        setTagType(remoteData.getDataStrings(2));
         setTimeBucket(remoteData.getDataLongs(0));
     }
 
     @Override
     public RemoteData.Builder serialize() {
         final RemoteData.Builder builder = RemoteData.newBuilder();
-        builder.addDataStrings(tag);
         builder.addDataStrings(tagKey);
         builder.addDataStrings(tagValue);
         builder.addDataStrings(tagType);
@@ -119,7 +115,6 @@ public class TagAutocompleteData extends Metrics {
             record.setTagKey((String) converter.get(TAG_KEY));
             record.setTagValue((String) converter.get(TAG_VALUE));
             record.setTagType((String) converter.get(TAG_TYPE));
-            record.setTag(record.getTagKey() + "=" + record.getTagValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return record;
         }
