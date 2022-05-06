@@ -36,6 +36,6 @@ public interface IoTDBIndexes {
         return key.equals(ID_IDX) || key.equals(ENTITY_ID_IDX) || key.equals(LAYER_IDX) ||
                 key.equals(SERVICE_ID_IDX) || key.equals(GROUP_IDX) || key.equals(TRACE_ID_IDX) ||
                 key.equals(INSTANCE_ID_INX) || key.equals(AGENT_ID_INX) || key.equals(PROCESS_ID_INX) ||
-            key.equals(AUTOCOMPLETE_TAG_KEY) || key.equals(AUTOCOMPLETE_TAG_TYPE);
+                key.equals(AUTOCOMPLETE_TAG_KEY) || key.equals(AUTOCOMPLETE_TAG_TYPE);
     }
 }
