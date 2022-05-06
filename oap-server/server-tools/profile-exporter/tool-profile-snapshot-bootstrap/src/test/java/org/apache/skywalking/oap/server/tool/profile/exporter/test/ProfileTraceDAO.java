@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.tool.profile.exporter.test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -82,22 +81,6 @@ public class ProfileTraceDAO implements ITraceQueryDAO {
 
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
-        return null;
-    }
-
-    // No need implement here
-    @Override
-    public Set<String> queryTraceTagAutocompleteKeys(final long startSecondTB,
-                                                     final long endSecondTB) throws IOException {
-        return null;
-    }
-
-    // No need implement here
-    @Override
-    public Set<String> queryTraceTagAutocompleteValues(final String tagKey,
-                                                       final int limit,
-                                                       final long startSecondTB,
-                                                       final long endSecondTB) throws IOException {
         return null;
     }
 }

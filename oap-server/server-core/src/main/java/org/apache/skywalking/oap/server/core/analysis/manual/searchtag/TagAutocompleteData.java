@@ -21,16 +21,29 @@ package org.apache.skywalking.oap.server.core.analysis.manual.searchtag;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
+@Stream(name = TagAutocompleteData.INDEX_NAME, scopeId = DefaultScopeDefine.TAG_AUTOCOMPLETE,
+    builder = TagAutocompleteData.Builder.class, processor = MetricsStreamProcessor.class)
+@MetricsExtension(supportDownSampling = false, supportUpdate = false, timeRelativeID = true)
 @EqualsAndHashCode(of = {
-    "tag"
+    "tag",
+    "tagType"
 })
-public abstract class TagAutocompleteData extends Metrics {
+public class TagAutocompleteData extends Metrics {
+    public static final String INDEX_NAME = "tag_autocomplete";
     public static final String TAG_KEY = "tag_key";
     public static final String TAG_VALUE = "tag_value";
+    public static final String TAG_TYPE = "tag_type";
 
     @Setter
     @Getter
@@ -43,6 +56,11 @@ public abstract class TagAutocompleteData extends Metrics {
     @Getter
     @Column(columnName = TAG_VALUE)
     private String tagValue;
+
+    @Setter
+    @Getter
+    @Column(columnName = TAG_TYPE)
+    private String tagType;
 
     @Override
     public boolean combine(final Metrics metrics) {
@@ -66,7 +84,7 @@ public abstract class TagAutocompleteData extends Metrics {
 
     @Override
     protected String id0() {
-        return toTimeBucketInDay() + "-" + tag;
+        return toTimeBucketInDay() + "-" + tagType + "-" + tag;
     }
 
     @Override
@@ -79,6 +97,7 @@ public abstract class TagAutocompleteData extends Metrics {
         setTag(remoteData.getDataStrings(0));
         setTagKey(remoteData.getDataStrings(1));
         setTagValue(remoteData.getDataStrings(2));
+        setTagType(remoteData.getDataStrings(3));
         setTimeBucket(remoteData.getDataLongs(0));
     }
 
@@ -88,7 +107,29 @@ public abstract class TagAutocompleteData extends Metrics {
         builder.addDataStrings(tag);
         builder.addDataStrings(tagKey);
         builder.addDataStrings(tagValue);
+        builder.addDataStrings(tagType);
         builder.addDataLongs(getTimeBucket());
         return builder;
+    }
+
+    public static class Builder implements StorageBuilder<TagAutocompleteData> {
+        @Override
+        public TagAutocompleteData storage2Entity(final Convert2Entity converter) {
+            TagAutocompleteData record = new TagAutocompleteData();
+            record.setTagKey((String) converter.get(TAG_KEY));
+            record.setTagValue((String) converter.get(TAG_VALUE));
+            record.setTagType((String) converter.get(TAG_TYPE));
+            record.setTag(record.getTagKey() + "=" + record.getTagValue());
+            record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            return record;
+        }
+
+        @Override
+        public void entity2Storage(final TagAutocompleteData storageData, final Convert2Storage converter) {
+            converter.accept(TAG_KEY, storageData.getTagKey());
+            converter.accept(TAG_VALUE, storageData.getTagValue());
+            converter.accept(TAG_TYPE, storageData.getTagType());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+        }
     }
 }

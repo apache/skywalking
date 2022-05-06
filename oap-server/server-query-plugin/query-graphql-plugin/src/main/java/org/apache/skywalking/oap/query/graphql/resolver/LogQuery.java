@@ -20,10 +20,14 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.io.IOException;
+import java.util.Set;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
+import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.LogQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -36,6 +40,7 @@ import static java.util.Objects.nonNull;
 public class LogQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private LogQueryService logQueryService;
+    private TagAutoCompleteQueryService tagQueryService;
 
     public LogQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -46,6 +51,13 @@ public class LogQuery implements GraphQLQueryResolver {
             this.logQueryService = moduleManager.find(CoreModule.NAME).provider().getService(LogQueryService.class);
         }
         return logQueryService;
+    }
+
+    private TagAutoCompleteQueryService getTagQueryService() {
+        if (tagQueryService == null) {
+            this.tagQueryService = moduleManager.find(CoreModule.NAME).provider().getService(TagAutoCompleteQueryService.class);
+        }
+        return tagQueryService;
     }
 
     public boolean supportQueryLogsByKeywords() {
@@ -87,5 +99,13 @@ public class LogQuery implements GraphQLQueryResolver {
             condition.getKeywordsOfContent(),
             condition.getExcludingKeywordsOfContent()
         );
+    }
+
+    public Set<String> queryLogTagAutocompleteKeys(final Duration queryDuration) throws IOException {
+        return getTagQueryService().queryTagAutocompleteKeys(TagType.LOG, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
+    }
+
+    public Set<String> queryLogTagAutocompleteValues(final String tagKey, final Duration queryDuration) throws IOException {
+        return getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, 100, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
     }
 }

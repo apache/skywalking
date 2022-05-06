@@ -16,36 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.core.storage.query;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.io.IOException;
+import java.util.Set;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-@ScopeDeclaration(id = DefaultScopeDefine.TAG_AUTOCOMPLETE, name = "TagAutocomplete")
-public class TagAutocomplete extends Source {
+public interface ITagAutoCompleteQueryDAO extends Service {
+    Set<String> queryTagAutocompleteKeys(final TagType tagType,
+                                         final long startSecondTB,
+                                         final long endSecondTB) throws IOException;
 
-    @Override
-    public int scope() {
-        return DefaultScopeDefine.TAG_AUTOCOMPLETE;
-    }
-
-    @Override
-    public String getEntityId() {
-        return tag;
-    }
-
-    @Setter
-    @Getter
-    private String tag;
-    @Setter
-    @Getter
-    private String tagKey;
-    @Setter
-    @Getter
-    private String tagValue;
-    @Setter
-    @Getter
-    private TagType tagType;
-
+    Set<String> queryTagAutocompleteValues(final TagType tagType,
+                                           final String tagKey,
+                                           final int limit,
+                                           final long startSecondTB,
+                                           final long endSecondTB) throws IOException;
 }

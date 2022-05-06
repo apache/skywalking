@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
@@ -76,7 +77,8 @@ public class StorageModule extends ModuleDefine {
             IEBPFProfilingTaskDAO.class,
             IEBPFProfilingScheduleDAO.class,
             IEBPFProfilingDataDAO.class,
-            IServiceLabelDAO.class
+            IServiceLabelDAO.class,
+            ITagAutoCompleteQueryDAO.class
         };
     }
 }
