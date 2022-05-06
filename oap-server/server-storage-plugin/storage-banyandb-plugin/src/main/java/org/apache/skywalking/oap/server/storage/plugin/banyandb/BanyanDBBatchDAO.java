@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMeasureInsertRequest;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMeasureUpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBStreamInsertRequest;
 
 import java.util.List;
@@ -79,6 +80,8 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
                     this.streamBulkWriteProcessor.add(((BanyanDBStreamInsertRequest) prepareRequest).getStreamWrite());
                 } else if (prepareRequest instanceof BanyanDBMeasureInsertRequest) {
                     this.measureBulkWriteProcessor.add(((BanyanDBMeasureInsertRequest) prepareRequest).getMeasureWrite());
+                } else if (prepareRequest instanceof BanyanDBMeasureUpdateRequest) {
+                    this.measureBulkWriteProcessor.add(((BanyanDBMeasureUpdateRequest) prepareRequest).getMeasureWrite());
                 }
                 return CompletableFuture.completedFuture(null);
             }).toArray(CompletableFuture[]::new));
