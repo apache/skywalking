@@ -16,9 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.core.analysis.manual.searchtag;
 
-@ScopeDeclaration(id = DefaultScopeDefine.TRACE_TAG_AUTOCOMPLETE, name = "TraceTagAutocomplete")
-public class TraceTagAutocomplete extends TagAutocomplete {
-
+public enum TagType {
+    TRACE,
+    LOG
 }

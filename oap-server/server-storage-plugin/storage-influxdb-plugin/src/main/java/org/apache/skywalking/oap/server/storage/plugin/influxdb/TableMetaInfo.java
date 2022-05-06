@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTr
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.TraceTagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -105,7 +104,7 @@ public class TableMetaInfo {
             }
         }
 
-        if (model.getName().equals(TraceTagAutocompleteData.INDEX_NAME)) {
+        if (model.getName().equals(TagAutocompleteData.INDEX_NAME)) {
             if (storageAndColumnMap.containsKey(TagAutocompleteData.TAG_KEY)) {
                 storageAndTagMap.put(TagAutocompleteData.TAG_KEY, InfluxConstants.TagName.AUTOCOMPLETE_TAG_KEY);
             }

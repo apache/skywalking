@@ -29,6 +29,8 @@ import lombok.SneakyThrows;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.Const;
@@ -59,6 +61,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
     @Override
     public void build() {
         sourceReceiver.receive(log);
+        addAutocompleteTags();
     }
 
     @Override
@@ -126,6 +129,17 @@ public class RecordAnalysisListener implements LogAnalysisListener {
             }
         });
         return logTags;
+    }
+
+    private void addAutocompleteTags() {
+        log.getTags().forEach(tag -> {
+            TagAutocomplete tagAutocomplete = new TagAutocomplete();
+            tagAutocomplete.setTagKey(tag.getKey());
+            tagAutocomplete.setTagValue(tag.getValue());
+            tagAutocomplete.setTagType(TagType.LOG);
+            tagAutocomplete.setTimeBucket(TimeBucket.getMinuteTimeBucket(log.getTimestamp()));
+            sourceReceiver.receive(tagAutocomplete);
+        });
     }
 
     public static class Factory implements LogAnalysisListenerFactory {

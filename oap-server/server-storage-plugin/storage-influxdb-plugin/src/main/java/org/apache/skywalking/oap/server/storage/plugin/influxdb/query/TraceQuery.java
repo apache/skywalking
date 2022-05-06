@@ -23,11 +23,8 @@ import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.TraceTagAutocompleteData;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -48,7 +45,6 @@ import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereNested;
 import org.influxdb.querybuilder.WhereQueryImpl;
 import org.influxdb.querybuilder.clauses.Clause;
-
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
@@ -225,72 +221,5 @@ public class TraceQuery implements ITraceQueryDAO {
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) {
         return Collections.emptyList();
-    }
-
-    @Override
-    public Set<String> queryTraceTagAutocompleteKeys(final long startSecondTB,
-                                                     final long endSecondTB) throws IOException {
-
-        WhereQueryImpl<SelectQueryImpl> query = select()
-            .function("distinct", TraceTagAutocompleteData.TAG_KEY)
-            .from(client.getDatabase(), TraceTagAutocompleteData.INDEX_NAME)
-            .where();
-        appendTagAutocompleteCondition(startSecondTB, endSecondTB, query);
-
-        QueryResult.Series series = client.queryForSingleSeries(query);
-        if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result set: {}", query.getCommand(), series);
-        }
-        if (series == null) {
-            return Collections.emptySet();
-        }
-        Set<String> tagKeys = new HashSet<>();
-        for (List<Object> values : series.getValues()) {
-            String tagKey = (String) values.get(1);
-            tagKeys.add(tagKey);
-        }
-
-        return tagKeys;
-    }
-
-    @Override
-    public Set<String> queryTraceTagAutocompleteValues(final String tagKey,
-                                                       final int limit,
-                                                       final long startSecondTB,
-                                                       final long endSecondTB) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select()
-            .column(TraceTagAutocompleteData.TAG_VALUE)
-            .from(client.getDatabase(), TraceTagAutocompleteData.INDEX_NAME)
-            .where();
-        query.limit(limit);
-        query.and(eq(TraceTagAutocompleteData.TAG_KEY, tagKey));
-        appendTagAutocompleteCondition(startSecondTB, endSecondTB, query);
-        QueryResult.Series series = client.queryForSingleSeries(query);
-        if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result set: {}", query.getCommand(), series);
-        }
-        if (series == null) {
-            return Collections.emptySet();
-        }
-        Set<String> tagValues = new HashSet<>();
-        for (List<Object> values : series.getValues()) {
-            String tagValue = (String) values.get(1);
-            tagValues.add(tagValue);
-        }
-
-        return tagValues;
-    }
-
-    private void appendTagAutocompleteCondition(final long startSecondTB,
-                                                final long endSecondTB,
-                                                final WhereQueryImpl<SelectQueryImpl> query) {
-        long startMinTB = startSecondTB / 100;
-        long endMinTB = endSecondTB / 100;
-        if (startMinTB > 0) {
-            query.and(gte(TraceTagAutocompleteData.TIME_BUCKET, startMinTB));
-        }
-        if (endMinTB > 0) {
-            query.and(lte(TraceTagAutocompleteData.TIME_BUCKET, endMinTB));
-        }
     }
 }
