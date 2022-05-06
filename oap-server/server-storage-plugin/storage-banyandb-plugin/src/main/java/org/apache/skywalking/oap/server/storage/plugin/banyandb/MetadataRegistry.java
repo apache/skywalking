@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -83,6 +84,12 @@ public enum MetadataRegistry {
         // 2) a list of IndexRule,
         List<TagMetadata> tags = parseTagMetadata(model, configService, schemaBuilder);
         List<TagFamilySpec> tagFamilySpecs = partialMetadata.extractTagFamilySpec(tags);
+        // iterate over tagFamilySpecs to save tag names
+        for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
+            for (final TagFamilySpec.TagSpec tagSpec : tagFamilySpec.tagSpecs()) {
+                schemaBuilder.tag(tagSpec.getTagName());
+            }
+        }
         List<IndexRule> indexRules = tags.stream()
                 .map(TagMetadata::getIndexRule)
                 .filter(Objects::nonNull)
@@ -112,7 +119,7 @@ public enum MetadataRegistry {
             Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE
                     .readValueColumnDefinition(model.getName());
             valueColumnOpt.ifPresent(valueColumn -> builder.addField(parseFieldSpec(modelColumnMap.get(valueColumn.getValueCName()), valueColumn)));
-
+            valueColumnOpt.ifPresent(valueColumn -> schemaBuilder.field(valueColumn.getValueCName()));
             registry.put(model.getName(), schemaBuilder.build());
             return builder.build();
         }
@@ -401,7 +408,14 @@ public enum MetadataRegistry {
         private final PartialMetadata metadata;
         @Singular
         private final Map<String, ColumnSpec> specs;
-        private final boolean useIdAsShardingKey;
+
+        @Getter
+        @Singular
+        private final Set<String> tags;
+
+        @Getter
+        @Singular
+        private final Set<String> fields;
 
         public ColumnSpec getSpec(String columnName) {
             return this.specs.get(columnName);

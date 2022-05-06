@@ -43,7 +43,7 @@ public class BanyanDBStorageDAO extends AbstractDAO<BanyanDBStorageClient> imple
 
     @Override
     public IMetricsDAO newMetricsDao(StorageBuilder storageBuilder) {
-        return new BanyanDBMetricsDAO((StorageBuilder<Metrics>) storageBuilder);
+        return new BanyanDBMetricsDAO(getClient(), (StorageBuilder<Metrics>) storageBuilder);
     }
 
     @Override
