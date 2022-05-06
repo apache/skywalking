@@ -37,7 +37,7 @@
           "metricTypes": [
             ""
           ],
-          "activedTabIndex": 2,
+          "activedTabIndex": 1,
           "children": [
             {
               "name": "Overview",
@@ -447,6 +447,61 @@
                     "readLabeledMetricsValues"
                   ],
                   "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "20",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "service_instance_sidecar_internal_req_latency_nanos"
+                  ],
+                  "moved": false,
+                  "widget": {
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Request)",
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": []
+                },
+                {
+                  "x": 18,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "21",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "service_instance_sidecar_internal_resp_latency_nanos"
+                  ],
+                  "moved": false,
+                  "widget": {
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon",
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Response)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
                 }
               ]
             },
@@ -478,9 +533,9 @@
           "moved": false
         }
       ],
-      "name": "Mesh-Instance",
       "layer": "MESH",
       "entity": "ServiceInstance",
+      "name": "Mesh-Instance",
       "id": "Mesh-Instance"
     }
   }
