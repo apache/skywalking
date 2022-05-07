@@ -64,7 +64,7 @@ public class MetricQuery implements GraphQLQueryResolver {
             kv.setValue(query.readMetricsValue(condition, duration));
             values.addKVInt(kv);
         } else {
-            List<CompletableFuture> futureList = new LinkedList<>();
+            List<CompletableFuture> futureList = new ArrayList<>();
             metrics.getIds().stream().forEach(id -> {
 
                 MetricsCondition condition = new MetricsCondition();
@@ -85,7 +85,7 @@ public class MetricQuery implements GraphQLQueryResolver {
                 });
                 futureList.add(future);
             });
-            futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
+            futureList.stream().map(CompletableFuture::join);
         }
 
         return values;
