@@ -27,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.skywalking.oap.query.graphql.type.BatchMetricConditions;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.Entity;
@@ -64,28 +65,26 @@ public class MetricQuery implements GraphQLQueryResolver {
             kv.setValue(query.readMetricsValue(condition, duration));
             values.addKVInt(kv);
         } else {
-            List<CompletableFuture> futureList = new ArrayList<>();
-            metrics.getIds().stream().forEach(id -> {
+            List<CompletableFuture<Pair<String, Long>>> futureList = metrics.getIds().stream().map(id -> {
 
                 MetricsCondition condition = new MetricsCondition();
                 condition.setName(metrics.getName());
                 condition.setEntity(new MockEntity(id));
-                CompletableFuture future = CompletableFuture.supplyAsync(() -> {
+                CompletableFuture<Pair<String, Long>> future = CompletableFuture.supplyAsync(() -> {
                     try {
-                        return query.readMetricsValue(condition, duration);
+                        return Pair.of(id, query.readMetricsValue(condition, duration));
                     } catch (IOException e) {
-                        log.error("query.readMetricsValue error", e);
+                        throw new RuntimeException(e);
                     }
-                    return 0L;
-                }).thenAccept(value -> {
-                    KVInt kv = new KVInt();
-                    kv.setId(id);
-                    kv.setValue(value);
-                    values.addKVInt(kv);
                 });
-                futureList.add(future);
+                return future;
+            }).collect(Collectors.toList());
+            futureList.stream().map(CompletableFuture::join).forEach(v -> {
+                KVInt kv = new KVInt();
+                kv.setId(v.getLeft());
+                kv.setValue(v.getRight());
+                values.addKVInt(kv);
             });
-            futureList.stream().forEach(CompletableFuture::join);
         }
 
         return values;
