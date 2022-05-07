@@ -43,7 +43,7 @@
 * Add "execution_hint": "map", "collect_mode": "breadth_first" for aggregation and topology query to improve 5-10x performance.
 * Clean up scroll contexts after used.
 * Support autocomplete tags in logs query.
-* Enhance MetricQuery querying getValues to asynchronous concurrency query
+* Enhance Deprecated MetricQuery(v1) getValues querying to asynchronous concurrency query
 
 #### UI
 
