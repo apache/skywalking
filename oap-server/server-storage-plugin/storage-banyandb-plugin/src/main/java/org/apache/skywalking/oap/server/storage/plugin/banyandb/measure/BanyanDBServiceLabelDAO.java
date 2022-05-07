@@ -18,15 +18,33 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
-
+import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
+import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
-public class BanyanDBServiceLabelDAO implements IServiceLabelDAO {
+public class BanyanDBServiceLabelDAO extends AbstractBanyanDBDAO implements IServiceLabelDAO {
+
+    public BanyanDBServiceLabelDAO(final BanyanDBStorageClient client) {
+        super(client);
+    }
+
     @Override
     public List<String> queryAllLabels(String serviceId) throws IOException {
-        return Collections.emptyList();
+        return query(ServiceLabelRecord.INDEX_NAME, ImmutableSet.of(ServiceLabelRecord.LABEL), ImmutableSet.of(), new QueryBuilder<MeasureQuery>() {
+            @Override
+            protected void apply(final MeasureQuery query) {
+                query.and(eq(ServiceLabelRecord.SERVICE_ID, serviceId));
+            }
+        }).getDataPoints()
+          .stream()
+          .map(point -> (String) point.getTagValue(ServiceLabelRecord.LABEL))
+          .collect(Collectors.toList());
     }
 }

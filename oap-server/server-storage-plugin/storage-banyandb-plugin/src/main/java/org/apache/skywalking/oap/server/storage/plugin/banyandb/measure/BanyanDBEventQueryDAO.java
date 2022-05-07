@@ -18,20 +18,39 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
+import org.apache.skywalking.oap.server.core.source.Event;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
-import java.util.List;
+public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEventQueryDAO {
 
-public class BanyanDBEventQueryDAO implements IEventQueryDAO {
+    static ImmutableSet<String> set = ImmutableSet.of(
+        Event.NAME,
+        Event.SERVICE,
+        Event.LAYER,
+        Event.TYPE,
+        Event.MESSAGE
+    );
+
+    public BanyanDBEventQueryDAO(final BanyanDBStorageClient client) {
+        super(client);
+    }
+
     @Override
     public Events queryEvents(EventQueryCondition condition) throws Exception {
+        // TODO Event is defined to Measure, which cannot page and order.
         return new Events();
     }
 
     @Override
     public Events queryEvents(List<EventQueryCondition> conditionList) throws Exception {
+        // TODO not support operator OR yet.
         return new Events();
     }
+
 }

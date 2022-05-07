@@ -24,8 +24,15 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
-public class BanyanDBTopologyQueryDAO implements ITopologyQueryDAO {
+public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITopologyQueryDAO {
+
+    public BanyanDBTopologyQueryDAO(final BanyanDBStorageClient client){
+        super(client);
+    }
+
     @Override
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB, long endTB, List<String> serviceIds) throws IOException {
         return Collections.emptyList();
