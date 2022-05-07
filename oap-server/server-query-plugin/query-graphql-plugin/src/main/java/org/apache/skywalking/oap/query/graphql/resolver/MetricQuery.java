@@ -21,7 +21,10 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.query.graphql.type.BatchMetricConditions;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -59,17 +62,28 @@ public class MetricQuery implements GraphQLQueryResolver {
             kv.setValue(query.readMetricsValue(condition, duration));
             values.addKVInt(kv);
         } else {
-            for (final String id : metrics.getIds()) {
-                KVInt kv = new KVInt();
-                kv.setId(id);
+            List<CompletableFuture> futureList = new LinkedList<>();
+            metrics.getIds().stream().forEach(id -> {
 
                 MetricsCondition condition = new MetricsCondition();
                 condition.setName(metrics.getName());
                 condition.setEntity(new MockEntity(id));
-
-                kv.setValue(query.readMetricsValue(condition, duration));
-                values.addKVInt(kv);
-            }
+                CompletableFuture future = CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return query.readMetricsValue(condition, duration);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return 0L;
+                }).thenAccept(value -> {
+                    KVInt kv = new KVInt();
+                    kv.setId(id);
+                    kv.setValue(value);
+                    values.addKVInt(kv);
+                });
+                futureList.add(future);
+            });
+            futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
         }
 
         return values;
