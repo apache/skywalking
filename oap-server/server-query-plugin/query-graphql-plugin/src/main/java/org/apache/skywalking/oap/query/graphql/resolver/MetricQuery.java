@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.query.graphql.type.BatchMetricConditions;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.Entity;
@@ -43,6 +44,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * @since 8.0.0 This query is replaced by {@link MetricsQuery}
  */
 @Deprecated
+@Slf4j
 public class MetricQuery implements GraphQLQueryResolver {
     private MetricsQuery query;
 
@@ -72,7 +74,7 @@ public class MetricQuery implements GraphQLQueryResolver {
                     try {
                         return query.readMetricsValue(condition, duration);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("query.readMetricsValue error", e);
                     }
                     return 0L;
                 }).thenAccept(value -> {
