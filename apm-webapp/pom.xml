@@ -34,12 +34,12 @@
         <spring.boot.version>2.6.6</spring.boot.version>
         <gson.version>2.9.0</gson.version>
         <apache-httpclient.version>4.5.13</apache-httpclient.version>
-        <spring-cloud-dependencies.version>2021.0.1</spring-cloud-dependencies.version>
+        <spring-cloud-dependencies.version>2021.0.2</spring-cloud-dependencies.version>
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
-        <logback-classic.version>1.2.3</logback-classic.version>
+        <logback-classic.version>1.2.11</logback-classic.version>
         <jackson-version>2.13.2.2</jackson-version>
         <yaml.version>1.28</yaml.version>
-        <netty.version>4.1.68.Final</netty.version>
+        <netty.version>4.1.76.Final</netty.version>
 
         <ui.path>${project.parent.basedir}/skywalking-ui</ui.path>
     </properties>

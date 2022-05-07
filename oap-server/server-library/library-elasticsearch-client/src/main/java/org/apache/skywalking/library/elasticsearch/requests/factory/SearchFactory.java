@@ -34,6 +34,11 @@ public interface SearchFactory {
     HttpRequest scroll(Scroll scroll);
 
     /**
+     * Returns a request to delete the scroll context.
+     */
+    HttpRequest deleteScrollContext(String scrollId);
+
+    /**
      * Returns a request to search documents.
      */
     default HttpRequest search(Search search, String... index) {

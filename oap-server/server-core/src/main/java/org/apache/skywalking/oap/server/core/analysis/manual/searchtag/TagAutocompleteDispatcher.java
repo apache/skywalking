@@ -16,20 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.segment;
+package org.apache.skywalking.oap.server.core.analysis.manual.searchtag;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.TraceTagAutocomplete;
+import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 
-public class TraceTagAutocompleteDispatcher implements SourceDispatcher<TraceTagAutocomplete> {
+public class TagAutocompleteDispatcher implements SourceDispatcher<TagAutocomplete> {
 
     @Override
-    public void dispatch(TraceTagAutocomplete source) {
-        TraceTagAutocompleteData autocomplete = new TraceTagAutocompleteData();
-        autocomplete.setTag(source.getTag());
+    public void dispatch(TagAutocomplete source) {
+        TagAutocompleteData autocomplete = new TagAutocompleteData();
         autocomplete.setTagKey(source.getTagKey());
         autocomplete.setTagValue(source.getTagValue());
+        autocomplete.setTagType(source.getTagType().name());
         autocomplete.setTimeBucket(source.getTimeBucket());
         MetricsStreamProcessor.getInstance().in(autocomplete);
     }

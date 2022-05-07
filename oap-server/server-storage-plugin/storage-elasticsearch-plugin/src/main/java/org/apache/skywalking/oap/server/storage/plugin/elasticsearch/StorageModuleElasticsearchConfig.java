@@ -80,7 +80,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      */
     private int bulkActions = 5000;
     /**
-     * Period of flesh, no matter `bulkActions` reached or not.
+     * Period of flush, no matter `bulkActions` reached or not.
      * INT(flushInterval * 2/3) would be used for index refresh period.
      * Unit is second.
      *
@@ -117,13 +117,13 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int segmentQueryMaxSize = 200;
     private int profileTaskQueryMaxSize = 200;
     /**
-     * The default analyzer for match query field. {@link org.apache.skywalking.oap.server.core.storage.annotation.Column.AnalyzerType#OAP_ANALYZER}
+     * The default analyzer for match query field. {@link org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery.AnalyzerType#OAP_ANALYZER}
      *
      * @since 8.4.0
      */
     private String oapAnalyzer = "{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}";
     /**
-     * The log analyzer for match query field. {@link org.apache.skywalking.oap.server.core.storage.annotation.Column.AnalyzerType#OAP_LOG_ANALYZER}
+     * The log analyzer for match query field. {@link org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery.AnalyzerType#OAP_LOG_ANALYZER}
      *
      * @since 8.4.0
      */

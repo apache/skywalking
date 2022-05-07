@@ -23,23 +23,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
-import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.TraceTagAutocompleteData;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.LogEntity;
@@ -55,8 +50,6 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 import org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
@@ -254,70 +247,5 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             spanList.add(swSpan);
         }
         return spanList;
-    }
-
-    @Override
-    public Set<String> queryTraceTagAutocompleteKeys(final long startSecondTB,
-                                                     final long endSecondTB) throws IOException {
-        BoolQueryBuilder query = Query.bool();
-        appendTagAutocompleteCondition(startSecondTB, endSecondTB, query);
-        final SearchBuilder search = Search.builder().query(query);
-        search.aggregation(Aggregation.terms(TraceTagAutocompleteData.TAG_KEY)
-                                      .field(TraceTagAutocompleteData.TAG_KEY));
-
-        final SearchResponse response = getClient().search(
-            new TimeRangeIndexNameGenerator(TraceTagAutocompleteData.INDEX_NAME, startSecondTB, endSecondTB),
-            search.build()
-        );
-        Map<String, Object> terms =
-            (Map<String, Object>) response.getAggregations().get(TraceTagAutocompleteData.TAG_KEY);
-        List<Map<String, Object>> buckets = (List<Map<String, Object>>) terms.get("buckets");
-        Set<String> tagKeys = new HashSet<>();
-        for (Map<String, Object> bucket : buckets) {
-            String tagKey = (String) bucket.get("key");
-            if (bucket.get("key") == null) {
-                continue;
-            }
-            tagKeys.add(tagKey);
-        }
-        return tagKeys;
-    }
-
-    @Override
-    public Set<String> queryTraceTagAutocompleteValues(final String tagKey, final int limit, final long startSecondTB,
-                                                       final long endSecondTB) throws IOException {
-        BoolQueryBuilder query = Query.bool().must(Query.term(TraceTagAutocompleteData.TAG_KEY, tagKey));
-        appendTagAutocompleteCondition(startSecondTB, endSecondTB, query);
-        final SearchBuilder search = Search.builder().query(query).size(limit);
-
-        final SearchResponse response = getClient().search(
-            new TimeRangeIndexNameGenerator(
-                IndexController.LogicIndicesRegister.getPhysicalTableName(TraceTagAutocompleteData.INDEX_NAME),
-                startSecondTB, endSecondTB
-            ),
-            search.build()
-        );
-        Set<String> tagValues = new HashSet<>();
-        for (SearchHit searchHit : response.getHits().getHits()) {
-            TraceTagAutocompleteData tag = new TraceTagAutocompleteData.Builder().storage2Entity(
-                new HashMapConverter.ToEntity(searchHit.getSource()));
-            tagValues.add(tag.getTagValue());
-        }
-        return tagValues;
-    }
-
-    private void appendTagAutocompleteCondition(final long startSecondTB, final long endSecondTB, final BoolQueryBuilder query) {
-        long startMinTB = startSecondTB / 100;
-        long endMinTB = endSecondTB / 100;
-        final RangeQueryBuilder rangeQuery = Query.range(TraceTagAutocompleteData.TIME_BUCKET);
-        if (startMinTB > 0) {
-            rangeQuery.gte(startMinTB);
-        }
-        if (endMinTB > 0) {
-            rangeQuery.lte(endMinTB);
-        }
-        if (startMinTB > 0 || endMinTB > 0) {
-            query.must(rangeQuery);
-        }
     }
 }

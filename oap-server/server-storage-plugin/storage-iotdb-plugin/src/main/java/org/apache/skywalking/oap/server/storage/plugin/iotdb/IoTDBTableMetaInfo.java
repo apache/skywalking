@@ -89,6 +89,10 @@ public class IoTDBTableMetaInfo {
             indexes.add(IoTDBIndexes.AUTOCOMPLETE_TAG_KEY);
         }
 
+        if (storageAndIndexMap.containsValue(IoTDBIndexes.AUTOCOMPLETE_TAG_TYPE)) {
+            indexes.add(IoTDBIndexes.AUTOCOMPLETE_TAG_TYPE);
+        }
+
         final IoTDBTableMetaInfo tableMetaInfo = IoTDBTableMetaInfo.builder()
                                                                    .model(model)
                                                                    .columnAndTypeMap(columnAndTypeMap)

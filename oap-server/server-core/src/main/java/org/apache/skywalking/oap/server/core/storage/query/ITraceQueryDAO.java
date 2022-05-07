@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
@@ -51,12 +50,4 @@ public interface ITraceQueryDAO extends Service {
      * This method gives more flexible for 3rd trace without segment concept, which can't search data through {@link #queryByTraceId(String)}
      */
     List<Span> doFlexibleTraceQuery(String traceId) throws IOException;
-
-    Set<String> queryTraceTagAutocompleteKeys(final long startSecondTB,
-                                              final long endSecondTB) throws IOException;
-
-    Set<String> queryTraceTagAutocompleteValues(final String tagKey,
-                                                final int limit,
-                                                final long startSecondTB,
-                                                final long endSecondTB) throws IOException;
 }

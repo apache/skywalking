@@ -43,6 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
@@ -69,6 +70,7 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ServiceLab
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskLogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileThreadSnapshotQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopNRecordsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopologyQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TraceQuery;
@@ -139,6 +141,7 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IEBPFProfilingScheduleDAO.class, new EBPFProfilingScheduleQuery(client));
         this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new EBPFProfilingDataQuery(client));
         this.registerServiceImplementation(IServiceLabelDAO.class, new ServiceLabelQuery(client));
+        this.registerServiceImplementation(ITagAutoCompleteQueryDAO.class, new TagAutoCompleteQueryDAO(client));
     }
 
     @Override
