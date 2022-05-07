@@ -85,7 +85,7 @@ public class MetricQuery implements GraphQLQueryResolver {
                 });
                 futureList.add(future);
             });
-            futureList.stream().map(CompletableFuture::join);
+            futureList.stream().forEach(CompletableFuture::join);
         }
 
         return values;
