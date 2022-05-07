@@ -63,24 +63,21 @@ public class MetricQuery implements GraphQLQueryResolver {
             kv.setValue(query.readMetricsValue(condition, duration));
             values.addKVInt(kv);
         } else {
-            List<CompletableFuture<KVInt>> futureList = metrics.getIds().stream().map(id -> {
-
+            List<KVInt> ints = metrics.getIds().parallelStream().map(id -> {
                 MetricsCondition condition = new MetricsCondition();
                 condition.setName(metrics.getName());
                 condition.setEntity(new MockEntity(id));
-                CompletableFuture<KVInt> future = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        KVInt kv = new KVInt();
-                        kv.setId(id);
-                        kv.setValue(query.readMetricsValue(condition, duration));
-                        return kv;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-                return future;
+                try {
+                    KVInt kv = new KVInt();
+                    kv.setId(id);
+                    kv.setValue(query.readMetricsValue(condition, duration));
+                    return kv;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }).collect(Collectors.toList());
-            futureList.stream().map(CompletableFuture::join).forEach(v -> values.addKVInt(v));
+            ints.forEach(v -> values.addKVInt(v));
+
         }
 
         return values;
