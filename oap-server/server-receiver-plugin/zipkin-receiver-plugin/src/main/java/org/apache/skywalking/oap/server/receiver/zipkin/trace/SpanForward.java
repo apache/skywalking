@@ -24,7 +24,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.source.TraceTagAutocomplete;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -94,7 +95,7 @@ public class SpanForward {
                 if (searchTagKeys.contains(key)) {
                     String tagString = key + "=" + value;
                     zipkinSpan.getTags().add(tagString);
-                    addAutocompleteTags(minuteTimeBucket, key, value, tagString);
+                    addAutocompleteTags(minuteTimeBucket, key, value);
                 }
             });
 
@@ -110,11 +111,11 @@ public class SpanForward {
         });
     }
 
-    private void addAutocompleteTags(final long minuteTimeBucket, final String key, final String value, final String tagString) {
-        TraceTagAutocomplete tagAutocomplete = new TraceTagAutocomplete();
-        tagAutocomplete.setTag(tagString);
+    private void addAutocompleteTags(final long minuteTimeBucket, final String key, final String value) {
+        TagAutocomplete tagAutocomplete = new TagAutocomplete();
         tagAutocomplete.setTagKey(key);
         tagAutocomplete.setTagValue(value);
+        tagAutocomplete.setTagType(TagType.TRACE);
         tagAutocomplete.setTimeBucket(minuteTimeBucket);
         receiver.receive(tagAutocomplete);
     }
