@@ -223,10 +223,10 @@ public class K8sInfoRegistry {
         Objects.requireNonNull(o);
         Objects.requireNonNull(c);
         for (final Object value : o) {
-            if (c.contains(value)) {
-                return true;
+            if (!c.contains(value)) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 }
