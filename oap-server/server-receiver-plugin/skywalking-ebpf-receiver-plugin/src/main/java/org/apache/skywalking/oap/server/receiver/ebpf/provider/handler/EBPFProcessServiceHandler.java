@@ -35,6 +35,7 @@ import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFProcessPr
 import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFProcessReportList;
 import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFProcessServiceGrpc;
 import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFReportProcessDownstream;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -118,6 +119,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
             processUpdate.setName(entity.getProcessName());
             processUpdate.setLabels(entity.getLabelsList());
             processUpdate.setTimeBucket(timeBucket);
+            processUpdate.setAgentId(Const.EMPTY_STRING);
             sourceReceiver.receive(processUpdate);
 
             // instance
