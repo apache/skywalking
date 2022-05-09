@@ -62,6 +62,7 @@
 * Fix spans details and task logs.
 * Verify query params to avoid invalid queries.
 * Mobile terminal adaptation.
+* Fix: set dropdown for the Tab widget, init instance/endpoint relation selectors, update sankey graph.
 
 #### Documentation
 
