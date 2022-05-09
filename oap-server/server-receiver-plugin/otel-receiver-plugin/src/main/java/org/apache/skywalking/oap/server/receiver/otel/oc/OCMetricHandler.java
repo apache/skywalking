@@ -29,6 +29,7 @@ import io.opencensus.proto.metrics.v1.DistributionValue;
 import io.opencensus.proto.metrics.v1.LabelKey;
 import io.opencensus.proto.metrics.v1.LabelValue;
 import io.opencensus.proto.metrics.v1.SummaryValue;
+import io.opencensus.proto.resource.v1.Resource;
 import io.vavr.Function1;
 import io.vavr.Tuple;
 import java.time.Instant;
@@ -54,7 +55,7 @@ import static java.util.stream.Collectors.toList;
 
 @Slf4j
 public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase implements Handler {
-
+    private static final String HOST_NAME_LABEL = "node_identifier_host_name";
     private List<PrometheusMetricConverter> metrics;
 
     @Override public StreamObserver<ExportMetricsServiceRequest> export(
@@ -62,6 +63,7 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
         return new StreamObserver<ExportMetricsServiceRequest>() {
             private Node node;
             private Map<String, String> nodeLabels = new HashMap<>();
+            private Resource resource;
 
             @Override
             public void onNext(ExportMetricsServiceRequest request) {
@@ -70,7 +72,7 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
                     nodeLabels.clear();
                     if (node.hasIdentifier()) {
                         if (StringUtil.isNotBlank(node.getIdentifier().getHostName())) {
-                            nodeLabels.put("node_identifier_host_name", node.getIdentifier().getHostName());
+                            nodeLabels.put(HOST_NAME_LABEL, node.getIdentifier().getHostName());
                         }
                         if (node.getIdentifier().getPid() > 0) {
                             nodeLabels.put("node_identifier_pid", String.valueOf(node.getIdentifier().getPid()));
@@ -79,6 +81,13 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
                     final String name = node.getServiceInfo().getName();
                     if (!Strings.isNullOrEmpty(name)) {
                         nodeLabels.put("job_name", name);
+                    }
+                }
+                //new version of the OTEL moved the host name to the `Resources`
+                if (request.hasResource() && StringUtil.isBlank(nodeLabels.get(HOST_NAME_LABEL))) {
+                    resource = request.getResource();
+                    if (StringUtil.isNotBlank(resource.getLabelsMap().get("net.host.name"))) {
+                        nodeLabels.put(HOST_NAME_LABEL, resource.getLabelsMap().get("net.host.name"));
                     }
                 }
                 metrics.forEach(m -> m.toMeter(request.getMetricsList().stream()
