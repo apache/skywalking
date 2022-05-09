@@ -59,6 +59,8 @@
 * Avoid invalid query for topology metrics.
 * Add the alarm and log tag tips.
 * Fix spans details and task logs.
+* Verify query params to avoid invalid queries.
+* Mobile terminal adaptation.
 
 #### Documentation
 
