@@ -55,7 +55,7 @@ import static java.util.stream.Collectors.toList;
 
 @Slf4j
 public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase implements Handler {
-    public static final String HOST_NAME_LABEL = "node_identifier_host_name";
+    private static final String HOST_NAME_LABEL = "node_identifier_host_name";
     private List<PrometheusMetricConverter> metrics;
 
     @Override public StreamObserver<ExportMetricsServiceRequest> export(
