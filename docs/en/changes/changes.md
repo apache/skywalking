@@ -45,6 +45,7 @@
 * Support autocomplete tags in logs query.
 * Enhance Deprecated MetricQuery(v1) getValues querying to asynchronous concurrency query
 * Fix the pod match error when the service has multiple selector in kubernetes environment.
+* VM monitoring adapt the latest version of the `opentelemetry-collector`.
 
 #### UI
 
