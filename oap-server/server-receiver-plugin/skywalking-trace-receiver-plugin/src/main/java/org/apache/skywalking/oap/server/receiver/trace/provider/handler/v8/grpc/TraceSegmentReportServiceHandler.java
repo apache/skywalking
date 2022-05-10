@@ -81,7 +81,6 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
             @Override
             public void onError(Throwable throwable) {
                 log.error(throwable.getMessage(), throwable);
-                responseObserver.onCompleted();
             }
 
             @Override

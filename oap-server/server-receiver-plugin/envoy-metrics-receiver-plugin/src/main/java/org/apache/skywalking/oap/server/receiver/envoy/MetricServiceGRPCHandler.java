@@ -130,7 +130,6 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
             @Override
             public void onError(Throwable throwable) {
                 log.error("Error in receiving metrics from envoy", throwable);
-                responseObserver.onCompleted();
             }
 
             @Override

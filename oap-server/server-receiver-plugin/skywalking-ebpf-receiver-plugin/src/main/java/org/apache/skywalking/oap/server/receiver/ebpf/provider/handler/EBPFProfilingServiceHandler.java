@@ -168,7 +168,6 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
             @Override
             public void onError(Throwable throwable) {
                 log.error("Error in receiving ebpf profiling data", throwable);
-                responseObserver.onCompleted();
             }
 
             @Override
