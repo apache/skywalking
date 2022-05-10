@@ -65,6 +65,9 @@
 * Verify query params to avoid invalid queries.
 * Mobile terminal adaptation.
 * Fix: set dropdown for the Tab widget, init instance/endpoint relation selectors, update sankey graph.
+* Fix jump to endpoint-relation dashboard template.
+* Fix set graph options.
+* Remove the `Layer` filed from the Instance and Process.
 
 #### Documentation
 
