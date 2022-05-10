@@ -722,7 +722,7 @@
               ]
             },
             {
-              "name": "Trace Profile",
+              "name": "Trace Profiling",
               "children": [
                 {
                   "x": 0,
@@ -759,7 +759,7 @@
                   "graph": {
                     "fontColor": "white",
                     "backgroundColor": "blue",
-                    "content": " Trace Profiling supports Java, Python language agent based applications",
+                    "content": "Trace Profiling supported services written in Java or Python with SkyWalking native agents installed.",
                     "fontSize": 14,
                     "textAlign": "left",
                     "url": ""
@@ -802,7 +802,7 @@
                   "graph": {
                     "fontColor": "white",
                     "backgroundColor": "blue",
-                    "content": "eBPF Profiling supports C, C++, Golang, Rust based applications",
+                    "content": "eBPF Profiling support service written in C, C++, Golang, and Rust.",
                     "fontSize": 14,
                     "textAlign": "left"
                   },
