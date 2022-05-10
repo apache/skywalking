@@ -171,7 +171,6 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             @Override
             public void onError(Throwable throwable) {
                 LOGGER.error("Error in receiving access log from envoy", throwable);
-                responseObserver.onCompleted();
             }
 
             @Override
