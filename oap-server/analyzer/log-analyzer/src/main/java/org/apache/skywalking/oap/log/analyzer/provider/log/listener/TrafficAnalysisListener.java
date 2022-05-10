@@ -84,7 +84,6 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
             instanceMeta.setServiceId(serviceId);
             instanceMeta.setName(namingControl.formatInstanceName(logData.getServiceInstance()));
             instanceMeta.setTimeBucket(timeBucket);
-            instanceMeta.setLayer(layer);
 
         }
         // to endpoint traffic

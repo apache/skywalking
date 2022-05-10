@@ -268,7 +268,6 @@ public class IoTDBMetadataQueryDAO implements IMetadataQueryDAO {
             serviceInstance.setId(instanceTraffic.id());
             serviceInstance.setName(instanceTraffic.getName());
             serviceInstance.setInstanceUUID(serviceInstance.getId());
-            serviceInstance.setLayer(instanceTraffic.getLayer().name());
 
             JsonObject properties = instanceTraffic.getProperties();
             if (properties != null) {

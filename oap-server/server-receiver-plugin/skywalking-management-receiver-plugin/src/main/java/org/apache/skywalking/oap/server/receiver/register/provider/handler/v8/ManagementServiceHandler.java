@@ -65,7 +65,6 @@ public final class ManagementServiceHandler {
         final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
-        serviceInstanceUpdate.setLayer(identifyInstanceLayer(request.getLayer()));
 
         JsonObject properties = new JsonObject();
         List<String> ipv4List = new ArrayList<>();
@@ -95,7 +94,6 @@ public final class ManagementServiceHandler {
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
         serviceInstanceUpdate.setName(instanceName);
         serviceInstanceUpdate.setTimeBucket(timeBucket);
-        serviceInstanceUpdate.setLayer(layer);
         sourceReceiver.receive(serviceInstanceUpdate);
 
         ServiceMeta serviceMeta = new ServiceMeta();

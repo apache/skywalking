@@ -22,7 +22,6 @@ import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_UPDATE;
 
@@ -50,7 +49,4 @@ public class ServiceInstanceUpdate extends Source {
     @Getter
     @Setter
     private JsonObject properties;
-    @Getter
-    @Setter
-    private Layer layer;
 }

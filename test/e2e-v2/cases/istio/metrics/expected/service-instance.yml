@@ -19,5 +19,4 @@
   attributes: []
   language: UNKNOWN
   instanceuuid: {{ notEmpty .instanceuuid }}
-  layer: MESH_DP
 {{- end }}

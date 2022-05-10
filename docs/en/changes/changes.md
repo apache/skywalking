@@ -47,6 +47,7 @@
 * Fix the pod match error when the service has multiple selector in kubernetes environment.
 * VM monitoring adapts the 0.50.0 of the `opentelemetry-collector`.
 * Add Envoy internal cost metrics.
+* Remove `Layer` concept from `ServiceInstance`.
 
 #### UI
 

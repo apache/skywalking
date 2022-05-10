@@ -282,7 +282,6 @@ public class Analyzer {
             instanceTraffic.setServiceId(entity.serviceId());
             instanceTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
             instanceTraffic.setLastPingTimestamp(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-            instanceTraffic.setLayer(entity.getLayer());
             MetricsStreamProcessor.getInstance().in(instanceTraffic);
         }
         if (!com.google.common.base.Strings.isNullOrEmpty(entity.getEndpointName())) {

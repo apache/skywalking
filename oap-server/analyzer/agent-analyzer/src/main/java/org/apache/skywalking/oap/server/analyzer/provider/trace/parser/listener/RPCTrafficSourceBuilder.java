@@ -134,7 +134,7 @@ class RPCTrafficSourceBuilder extends EndpointSourceBuilder {
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setName(destServiceInstanceName);
         serviceInstance.setServiceName(destServiceName);
-        serviceInstance.setLayer(destLayer);
+        serviceInstance.setServiceLayer(destLayer);
         serviceInstance.setEndpointName(destEndpointName);
         serviceInstance.setLatency(latency);
         serviceInstance.setStatus(status);

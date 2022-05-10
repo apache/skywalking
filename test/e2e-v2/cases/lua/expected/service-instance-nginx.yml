@@ -37,5 +37,4 @@
   {{- end}}
   language: LUA
   instanceuuid: {{ b64enc "User_Service_Name" }}.1_{{ b64enc "User_Service_Instance_Name" }}
-  layer: GENERAL
 {{- end}}
