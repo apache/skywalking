@@ -77,7 +77,6 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
             public void onError(Throwable throwable) {
                 processor.process();
                 log.error(throwable.getMessage(), throwable);
-                responseObserver.onCompleted();
             }
 
             @Override
@@ -107,7 +106,6 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
             @Override
             public void onError(Throwable throwable) {
                 log.error(throwable.getMessage(), throwable);
-                responseObserver.onCompleted();
             }
 
             @Override

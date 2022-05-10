@@ -48,6 +48,7 @@
 * VM monitoring adapts the 0.50.0 of the `opentelemetry-collector`.
 * Add Envoy internal cost metrics.
 * Remove `Layer` concept from `ServiceInstance`.
+* Remove unnecessary `onCompleted` on gRPC `onError` callback.
 
 #### UI
 

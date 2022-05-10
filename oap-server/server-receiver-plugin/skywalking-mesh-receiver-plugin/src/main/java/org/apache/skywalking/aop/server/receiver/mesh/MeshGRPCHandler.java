@@ -48,7 +48,6 @@ public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMet
             @Override
             public void onError(Throwable throwable) {
                 LOGGER.error(throwable.getMessage(), throwable);
-                responseObserver.onCompleted();
             }
 
             @Override

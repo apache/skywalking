@@ -99,7 +99,6 @@ public class LogReportServiceGrpcHandler extends LogReportServiceGrpc.LogReportS
             @Override
             public void onError(final Throwable throwable) {
                 log.error(throwable.getMessage(), throwable);
-                responseObserver.onCompleted();
             }
 
             @Override
