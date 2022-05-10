@@ -90,6 +90,10 @@ public class TCPLogEntry2MetricsAdapter {
         final ConnectionProperties connectionProperties = entry.getConnectionProperties();
         final String tlsMode = parseTLS(properties.getTlsProperties());
         final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());
+        final long internalRequestLatencyNanos = properties.getTimeToFirstUpstreamTxByte().getNanos();
+        final long internalResponseLatencyNanos =
+            properties.getTimeToLastDownstreamTxByte().getNanos()
+                - properties.getTimeToFirstUpstreamRxByte().getNanos();
 
         final ServiceMeshMetric.Builder builder =
             ServiceMeshMetric.newBuilder()
@@ -101,7 +105,9 @@ public class TCPLogEntry2MetricsAdapter {
                                         .setReceivedBytes(connectionProperties.getReceivedBytes())
                                         .setSentBytes(connectionProperties.getSentBytes())
                              )
-                             .setInternalErrorCode(internalErrorCode);
+                             .setInternalErrorCode(internalErrorCode)
+                             .setInternalRequestLatencyNanos(internalRequestLatencyNanos)
+                             .setInternalResponseLatencyNanos(internalResponseLatencyNanos);
 
         Optional.ofNullable(sourceService)
                 .map(ServiceMetaInfo::getServiceName)
