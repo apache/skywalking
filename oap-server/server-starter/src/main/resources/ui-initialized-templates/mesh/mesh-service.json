@@ -785,7 +785,7 @@
                   "graph": {
                     "fontColor": "white",
                     "backgroundColor": "blue",
-                    "content": "eBPF Profiling support service written in C, C++, Golang, and Rust.",
+                    "content": "eBPF Profiling support services written in C, C++, Golang, and Rust.",
                     "fontSize": 14,
                     "textAlign": "left",
                     "url": ""
