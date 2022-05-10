@@ -161,6 +161,61 @@
                     "readMetricsValues"
                   ],
                   "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 28,
+                  "w": 11,
+                  "h": 14,
+                  "i": "9",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "endpoint_sidecar_internal_req_latency_nanos"
+                  ],
+                  "moved": false,
+                  "widget": {
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Request)",
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": []
+                },
+                {
+                  "x": 11,
+                  "y": 28,
+                  "w": 13,
+                  "h": 14,
+                  "i": "10",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "endpoint_sidecar_internal_resp_latency_nanos"
+                  ],
+                  "moved": false,
+                  "widget": {
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Response)",
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
                 }
               ]
             },
