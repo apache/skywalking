@@ -695,6 +695,26 @@
                   "moved": false
                 }
               ]
+            },
+            {
+              "name": "eBPF Profiling",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Ebpf",
+                  "metricTypes": [
+                    ""
+                  ],
+                  "metrics": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
             }
           ],
           "moved": false

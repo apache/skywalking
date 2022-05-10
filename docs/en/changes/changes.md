@@ -63,6 +63,7 @@
 * Verify query params to avoid invalid queries.
 * Mobile terminal adaptation.
 * Fix: set dropdown for the Tab widget, init instance/endpoint relation selectors, update sankey graph.
+* Add eBPF Profiling widget into General service, Service Mesh and Kubernetes tabs. 
 
 #### Documentation
 
