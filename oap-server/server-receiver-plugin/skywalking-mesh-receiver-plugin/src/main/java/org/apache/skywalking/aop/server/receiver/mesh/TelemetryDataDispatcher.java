@@ -172,7 +172,7 @@ public class TelemetryDataDispatcher {
         serviceInstance.setTimeBucket(minuteTimeBucket);
         serviceInstance.setName(metrics.getDestServiceInstance());
         serviceInstance.setServiceName(metrics.getDestServiceName());
-        serviceInstance.setLayer(Layer.MESH);
+        serviceInstance.setServiceLayer(Layer.MESH);
         serviceInstance.setEndpointName(metrics.getEndpoint());
         serviceInstance.setLatency(metrics.getLatency());
         serviceInstance.setStatus(metrics.getStatus());

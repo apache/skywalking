@@ -127,7 +127,6 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
             serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, true));
             serviceInstanceUpdate.setName(instanceName);
             serviceInstanceUpdate.setTimeBucket(timeBucket);
-            serviceInstanceUpdate.setLayer(layer);
             sourceReceiver.receive(serviceInstanceUpdate);
 
             // service

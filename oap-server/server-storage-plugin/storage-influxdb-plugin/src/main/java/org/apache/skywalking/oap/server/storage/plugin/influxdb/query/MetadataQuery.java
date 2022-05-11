@@ -103,7 +103,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
         SelectSubQueryImpl<SelectQueryImpl> subQuery = select()
             .fromSubQuery(client.getDatabase())
-            .column(ID_COLUMN).column(NAME).column(InstanceTraffic.PROPERTIES).column(InstanceTraffic.LAYER)
+            .column(ID_COLUMN).column(NAME).column(InstanceTraffic.PROPERTIES)
             .from(InstanceTraffic.INDEX_NAME)
             .where()
             .and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, minuteTimeBucket))
@@ -112,7 +112,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
         SelectQueryImpl query = select().column(ID_COLUMN)
                                         .column(NAME)
-                                        .column(InstanceTraffic.PROPERTIES).column(InstanceTraffic.LAYER)
+                                        .column(InstanceTraffic.PROPERTIES)
                                         .from(client.getDatabase(), InstanceTraffic.INDEX_NAME);
         query.setSubQuery(subQuery);
         return buildInstances(query);
@@ -121,7 +121,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     @Override
     public ServiceInstance getInstance(final String instanceId) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> where = select(
-            ID_COLUMN, NAME, InstanceTraffic.LAYER)
+            ID_COLUMN, NAME)
             .from(client.getDatabase(), InstanceTraffic.INDEX_NAME)
             .where(eq(TagName.ID_COLUMN, instanceId));
         final List<ServiceInstance> instances = buildInstances(where);
@@ -283,7 +283,6 @@ public class MetadataQuery implements IMetadataQueryDAO {
             } else {
                 serviceInstance.setLanguage(Language.UNKNOWN);
             }
-            serviceInstance.setLayer(Layer.valueOf((int) values.get(4)).name());
             instances.add(serviceInstance);
         }
         return instances;
