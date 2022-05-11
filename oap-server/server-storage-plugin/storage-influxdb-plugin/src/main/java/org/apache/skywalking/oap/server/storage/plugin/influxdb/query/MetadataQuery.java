@@ -164,7 +164,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
                                        final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         final SelectQueryImpl query = select(
                 ID_COLUMN, NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
-                ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES,
+                ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES,
                 ProcessTraffic.LABELS_JSON)
                 .from(client.getDatabase(), ProcessTraffic.INDEX_NAME);
         appendProcessWhereQuery(query, serviceId, instanceId, agentId, profilingSupportStatus,
@@ -216,7 +216,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public Process getProcess(String processId) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> where = select(
                 ID_COLUMN, NAME, ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID,
-                ProcessTraffic.LAYER, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES)
+                ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE, ProcessTraffic.PROPERTIES)
                 .from(client.getDatabase(), ProcessTraffic.INDEX_NAME)
                 .where(eq(ID_COLUMN, processId));
         final List<Process> processes = buildProcesses(where);
@@ -310,11 +310,10 @@ public class MetadataQuery implements IMetadataQueryDAO {
             String instanceId = (String) values.get(4);
             process.setInstanceId(instanceId);
             process.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
-            process.setLayer(Layer.valueOf((Integer) values.get(5)).name());
-            process.setAgentId((String) values.get(6));
-            process.setDetectType(ProcessDetectType.valueOf((Integer) values.get(7)).name());
+            process.setAgentId((String) values.get(5));
+            process.setDetectType(ProcessDetectType.valueOf((Integer) values.get(6)).name());
 
-            String propertiesString = (String) values.get(8);
+            String propertiesString = (String) values.get(7);
             if (!Strings.isNullOrEmpty(propertiesString)) {
                 JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
                 for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
@@ -323,7 +322,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
                     process.getAttributes().add(new Attribute(key, value));
                 }
             }
-            String labelJson = (String) values.get(9);
+            String labelJson = (String) values.get(8);
             if (!Strings.isNullOrEmpty(labelJson)) {
                 List<String> labels = GSON.<List<String>>fromJson(labelJson, ArrayList.class);
                 process.getLabels().addAll(labels);

@@ -24,14 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.analyze.EBPFProfilingAnalyzer;
 import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
-import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
@@ -176,8 +174,8 @@ public class EBPFProfilingQueryService implements Service {
         return getTaskDAO().queryTasks(Arrays.asList(serviceId), null, 0, 0);
     }
 
-    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId, Duration duration) throws IOException {
-        final List<EBPFProfilingSchedule> schedules = getScheduleDAO().querySchedules(taskId, duration.getStartTimeBucket(), duration.getEndTimeBucket());
+    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws IOException {
+        final List<EBPFProfilingSchedule> schedules = getScheduleDAO().querySchedules(taskId);
         if (CollectionUtils.isNotEmpty(schedules)) {
             final Model processModel = getProcessModel();
             final List<Metrics> processMetrics = schedules.stream()
@@ -210,7 +208,6 @@ public class EBPFProfilingQueryService implements Service {
         final String instanceId = traffic.getInstanceId();
         process.setInstanceId(instanceId);
         process.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
-        process.setLayer(Layer.valueOf(traffic.getLayer()).name());
         process.setAgentId(traffic.getAgentId());
         process.setDetectType(ProcessDetectType.valueOf(traffic.getDetectType()).name());
         if (traffic.getProperties() != null) {

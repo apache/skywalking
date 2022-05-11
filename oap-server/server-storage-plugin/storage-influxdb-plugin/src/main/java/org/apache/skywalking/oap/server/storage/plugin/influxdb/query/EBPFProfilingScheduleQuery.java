@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
@@ -37,8 +36,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
@@ -47,7 +44,7 @@ public class EBPFProfilingScheduleQuery implements IEBPFProfilingScheduleDAO {
     private final InfluxClient client;
 
     @Override
-    public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket) throws IOException {
+    public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> query = select(
                 InfluxConstants.ID_COLUMN,
                 EBPFProfilingScheduleRecord.TASK_ID,
@@ -59,8 +56,6 @@ public class EBPFProfilingScheduleQuery implements IEBPFProfilingScheduleDAO {
                 .where();
 
         query.and(eq(EBPFProfilingScheduleRecord.TASK_ID, taskId));
-        query.and(gte(EBPFProfilingScheduleRecord.START_TIME, TimeBucket.getTimestamp(startTimeBucket)));
-        query.and(lte(EBPFProfilingScheduleRecord.START_TIME, TimeBucket.getTimestamp(endTimeBucket)));
 
         return buildSchedules(query);
     }

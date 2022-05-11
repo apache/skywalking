@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
@@ -39,22 +38,14 @@ public class IoTDBEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO 
     private final StorageBuilder<EBPFProfilingScheduleRecord> storageBuilder = new EBPFProfilingScheduleRecord.Builder();
 
     @Override
-    public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket)
-            throws IOException {
+    public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
         StringBuilder query = new StringBuilder();
         query.append("select * from ");
         IoTDBUtils.addModelPath(client.getStorageGroup(), query, EBPFProfilingScheduleRecord.INDEX_NAME);
         IoTDBUtils.addQueryAsterisk(EBPFProfilingScheduleRecord.INDEX_NAME, query);
 
         StringBuilder where = new StringBuilder(" where ");
-        where.append(EBPFProfilingScheduleRecord.TASK_ID).append(" = \"").append(taskId).append("\" and ");
-        where.append(EBPFProfilingScheduleRecord.START_TIME).append(" >= ").append(TimeBucket.getTimestamp(startTimeBucket)).append(" and ");
-        where.append(EBPFProfilingScheduleRecord.START_TIME).append(" <= ").append(TimeBucket.getTimestamp(endTimeBucket)).append(" and ");
-        if (where.length() > 7) {
-            int length = where.length();
-            where.delete(length - 5, length);
-            query.append(where);
-        }
+        where.append(EBPFProfilingScheduleRecord.TASK_ID).append(" = \"").append(taskId);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         List<? super StorageData> storageDataList = client.filterQuery(EBPFProfilingScheduleRecord.INDEX_NAME,

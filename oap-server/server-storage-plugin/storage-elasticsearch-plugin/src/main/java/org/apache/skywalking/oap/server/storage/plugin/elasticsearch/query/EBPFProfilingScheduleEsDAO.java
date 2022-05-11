@@ -25,7 +25,6 @@ import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder
 import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
@@ -47,15 +46,13 @@ public class EBPFProfilingScheduleEsDAO extends EsDAO implements IEBPFProfilingS
     }
 
     @Override
-    public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket) throws IOException {
+    public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
         final String index =
                 IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingScheduleRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
 
         query.must(Query.term(EBPFProfilingScheduleRecord.TASK_ID, taskId));
-        query.must(Query.range(EBPFProfilingScheduleRecord.START_TIME)
-                    .gte(TimeBucket.getTimestamp(startTimeBucket))
-                    .lte(TimeBucket.getTimestamp(endTimeBucket)));
+        query.must(Query.range(EBPFProfilingScheduleRecord.START_TIME));
         final SearchBuilder search = Search.builder().query(query)
                 .sort(EBPFProfilingScheduleRecord.START_TIME, Sort.Order.DESC)
                 .size(scheduleTaskSize);

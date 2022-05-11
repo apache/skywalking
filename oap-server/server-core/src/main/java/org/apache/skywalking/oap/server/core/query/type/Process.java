@@ -41,8 +41,6 @@ public class Process {
     @Setter
     private String instanceName;
     @Setter
-    private String layer;
-    @Setter
     private String agentId;
     @Setter
     private String detectType;

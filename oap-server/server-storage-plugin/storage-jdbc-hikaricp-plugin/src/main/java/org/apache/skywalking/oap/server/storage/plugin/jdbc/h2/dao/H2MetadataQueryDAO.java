@@ -354,7 +354,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             process.setInstanceId(instanceId);
             final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(instanceId);
             process.setInstanceName(instanceIDDefinition.getName());
-            process.setLayer(Layer.valueOf(resultSet.getInt(ProcessTraffic.LAYER)).name());
             process.setAgentId(resultSet.getString(ProcessTraffic.AGENT_ID));
             process.setDetectType(ProcessDetectType.valueOf(resultSet.getInt(ProcessTraffic.DETECT_TYPE)).name());
             String propertiesString = resultSet.getString(ProcessTraffic.PROPERTIES);
