@@ -25,7 +25,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -51,7 +50,6 @@ public class ProcessTraffic extends Metrics {
     public static final String SERVICE_ID = "service_id";
     public static final String INSTANCE_ID = "instance_id";
     public static final String NAME = "name";
-    public static final String LAYER = "layer";
     public static final String AGENT_ID = "agent_id";
     public static final String PROPERTIES = "properties";
     public static final String LAST_PING_TIME_BUCKET = "last_ping";
@@ -79,11 +77,6 @@ public class ProcessTraffic extends Metrics {
     @Getter
     @Column(columnName = NAME, length = 500)
     private String name;
-
-    @Setter
-    @Getter
-    @Column(columnName = LAYER)
-    private int layer = Layer.UNDEFINED.value();
 
     @Setter
     @Getter
@@ -147,7 +140,6 @@ public class ProcessTraffic extends Metrics {
         setServiceId(remoteData.getDataStrings(0));
         setInstanceId(remoteData.getDataStrings(1));
         setName(remoteData.getDataStrings(2));
-        setLayer(remoteData.getDataIntegers(0));
         setAgentId(remoteData.getDataStrings(3));
         final String propString = remoteData.getDataStrings(4);
         if (StringUtil.isNotEmpty(propString)) {
@@ -155,8 +147,8 @@ public class ProcessTraffic extends Metrics {
         }
         setLabelsJson(remoteData.getDataStrings(5));
         setLastPingTimestamp(remoteData.getDataLongs(0));
-        setDetectType(remoteData.getDataIntegers(1));
-        setProfilingSupportStatus(remoteData.getDataIntegers(2));
+        setDetectType(remoteData.getDataIntegers(0));
+        setProfilingSupportStatus(remoteData.getDataIntegers(1));
         setTimeBucket(remoteData.getDataLongs(1));
     }
 
@@ -166,7 +158,6 @@ public class ProcessTraffic extends Metrics {
         builder.addDataStrings(serviceId);
         builder.addDataStrings(instanceId);
         builder.addDataStrings(name);
-        builder.addDataIntegers(layer);
         builder.addDataStrings(agentId);
         if (properties == null) {
             builder.addDataStrings(Const.EMPTY_STRING);
@@ -196,7 +187,6 @@ public class ProcessTraffic extends Metrics {
             processTraffic.setServiceId((String) converter.get(SERVICE_ID));
             processTraffic.setInstanceId((String) converter.get(INSTANCE_ID));
             processTraffic.setName((String) converter.get(NAME));
-            processTraffic.setLayer(((Number) converter.get(LAYER)).intValue());
             processTraffic.setAgentId((String) converter.get(AGENT_ID));
             final String propString = (String) converter.get(PROPERTIES);
             if (StringUtil.isNotEmpty(propString)) {
@@ -215,7 +205,6 @@ public class ProcessTraffic extends Metrics {
             converter.accept(SERVICE_ID, storageData.getServiceId());
             converter.accept(INSTANCE_ID, storageData.getInstanceId());
             converter.accept(NAME, storageData.getName());
-            converter.accept(LAYER, storageData.getLayer());
             converter.accept(AGENT_ID, storageData.getAgentId());
             if (storageData.getProperties() != null) {
                 converter.accept(PROPERTIES, GSON.toJson(storageData.getProperties()));

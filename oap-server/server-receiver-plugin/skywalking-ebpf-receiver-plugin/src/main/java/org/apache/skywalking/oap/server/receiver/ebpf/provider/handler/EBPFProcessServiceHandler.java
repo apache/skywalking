@@ -114,7 +114,6 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
             final Process processUpdate = new Process();
             processUpdate.setServiceName(serviceName);
             processUpdate.setInstanceName(instanceName);
-            processUpdate.setLayer(layer);
             processUpdate.setServiceNormal(true);
             processUpdate.setName(entity.getProcessName());
             processUpdate.setLabels(entity.getLabelsList());
@@ -150,7 +149,6 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
         // entity
         process.setServiceName(namingControl.formatServiceName(hostProcess.getEntity().getServiceName()));
         process.setServiceNormal(true);
-        process.setLayer(Layer.valueOf(hostProcess.getEntity().getLayer()));
         process.setInstanceName(namingControl.formatInstanceName(hostProcess.getEntity().getInstanceName()));
         process.setName(hostProcess.getEntity().getProcessName());
 
@@ -186,7 +184,6 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
         // entity
         process.setServiceName(namingControl.formatServiceName(kubernetesProcessMetadata.getEntity().getServiceName()));
         process.setServiceNormal(true);
-        process.setLayer(Layer.valueOf(kubernetesProcessMetadata.getEntity().getLayer()));
         process.setInstanceName(namingControl.formatInstanceName(kubernetesProcessMetadata.getEntity().getInstanceName()));
         process.setName(kubernetesProcessMetadata.getEntity().getProcessName());
 

@@ -34,7 +34,6 @@ public class ProcessDispatcher implements SourceDispatcher<Process> {
         traffic.setServiceId(source.getServiceId());
         traffic.setInstanceId(source.getInstanceId());
         traffic.setName(source.getName());
-        traffic.setLayer(source.getLayer().value());
         if (CollectionUtils.isNotEmpty(source.getLabels())) {
             traffic.setLabelsJson(GSON.toJson(source.getLabels()));
         } else {

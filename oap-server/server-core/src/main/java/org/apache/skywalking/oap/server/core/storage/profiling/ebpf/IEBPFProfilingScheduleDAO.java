@@ -31,8 +31,6 @@ public interface IEBPFProfilingScheduleDAO extends DAO {
     /**
      * list schedules by task and time range
      * @param taskId  profiling task id
-     * @param startTimeBucket time bucket bigger than or equals
-     * @param endTimeBucket time bucket smaller than or equals
      */
-    List<EBPFProfilingSchedule> querySchedules(final String taskId, long startTimeBucket, long endTimeBucket) throws IOException;
+    List<EBPFProfilingSchedule> querySchedules(final String taskId) throws IOException;
 }

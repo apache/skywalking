@@ -49,6 +49,8 @@
 * Add Envoy internal cost metrics.
 * Remove `Layer` concept from `ServiceInstance`.
 * Remove unnecessary `onCompleted` on gRPC `onError` callback.
+* Remove `Layer` concept form `Process`.
+* Update to list all eBPF profiling schedulers without duration.
 
 #### UI
 
