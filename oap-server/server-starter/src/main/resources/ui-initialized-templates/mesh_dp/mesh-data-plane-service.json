@@ -26,40 +26,106 @@
           "w": 24,
           "h": 52,
           "i": "0",
-          "type": "Widget",
-          "widget": {
-            "title": ""
-          },
-          "graph": {
-            "type": "InstanceList",
-            "dashboardName": "Mesh-Data-Plane-Instance",
-            "fontSize": 12
-          },
-          "metrics": [
-            "envoy_total_connections_used",
-            "envoy_worker_threads",
-            "envoy_bug_failures"
-          ],
+          "type": "Tab",
           "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+            ""
           ],
-          "moved": false,
-          "metricConfig": [
+          "metrics": [
+            ""
+          ],
+          "activedTabIndex": 0,
+          "children": [
             {
-              "label": "Connections Used",
-              "calculation": "average"
+              "name": "Instances",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 52,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": ""
+                  },
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "Mesh-Data-Plane-Instance",
+                    "fontSize": 12
+                  },
+                  "metrics": [
+                    "envoy_total_connections_used",
+                    "envoy_worker_threads",
+                    "envoy_bug_failures"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "label": "Connections Used",
+                      "calculation": "average"
+                    },
+                    {
+                      "label": "Work Threads",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Bug Failures"
+                    }
+                  ]
+                }
+              ]
             },
             {
-              "label": "Work Threads",
-              "calculation": "average"
-            },
-            {
-              "calculation": "average",
-              "label": "Bug Failures"
+              "name": "eBPF Profiling",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 47,
+                  "i": "0",
+                  "type": "Ebpf",
+                  "metricTypes": [
+                    ""
+                  ],
+                  "metrics": [
+                    ""
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 2,
+                  "i": "2",
+                  "type": "Text",
+                  "metricTypes": [
+                    ""
+                  ],
+                  "metrics": [
+                    ""
+                  ],
+                  "graph": {
+                    "fontColor": "white",
+                    "backgroundColor": "blue",
+                    "content": "eBPF Profiling support services written in C, C++, Golang, and Rust.",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "url": ""
+                  },
+                  "moved": false
+                }
+              ]
             }
-          ]
+          ],
+          "moved": false
         }
       ],
       "layer": "MESH_DP",

@@ -69,6 +69,7 @@
 * Fix jump to endpoint-relation dashboard template.
 * Fix set graph options.
 * Remove the `Layer` filed from the Instance and Process.
+* Add eBPF Profiling widget into General service, Service Mesh and Kubernetes tabs.
 
 #### Documentation
 

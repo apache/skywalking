@@ -722,13 +722,13 @@
               ]
             },
             {
-              "name": "Profile",
+              "name": "Trace Profiling",
               "children": [
                 {
                   "x": 0,
-                  "y": 0,
+                  "y": 2,
                   "w": 24,
-                  "h": 49,
+                  "h": 47,
                   "i": "0",
                   "type": "Profile",
                   "widget": {
@@ -741,6 +741,71 @@
                   "metricTypes": [
                     ""
                   ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 2,
+                  "i": "2",
+                  "type": "Text",
+                  "metricTypes": [
+                    ""
+                  ],
+                  "metrics": [
+                    ""
+                  ],
+                  "graph": {
+                    "fontColor": "white",
+                    "backgroundColor": "blue",
+                    "content": "Trace Profiling supported services written in Java or Python with SkyWalking native agents installed.",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "url": ""
+                  },
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "eBPF Profiling",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 47,
+                  "i": "1",
+                  "type": "Ebpf",
+                  "metricTypes": [
+                    ""
+                  ],
+                  "metrics": [
+                    ""
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 2,
+                  "i": "3",
+                  "type": "Text",
+                  "metricTypes": [
+                    ""
+                  ],
+                  "metrics": [
+                    ""
+                  ],
+                  "graph": {
+                    "fontColor": "white",
+                    "backgroundColor": "blue",
+                    "content": "eBPF Profiling support services written in C, C++, Golang, and Rust.",
+                    "fontSize": 14,
+                    "textAlign": "left"
+                  },
                   "moved": false
                 }
               ]
