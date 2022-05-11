@@ -93,7 +93,7 @@ public class ConfigmapConfigWatcherRegisterTest {
         Map<String, String> configMapData = this.readMockConfigMapData();
         PowerMockito.doReturn(configMapData).when(informer).configMapData();
         Optional<ConfigTable> optionalConfigTable = register.readConfig(new HashSet<String>() {{
-            add("receiver-trace.default.slowDBAccessThreshold");
+            add("agent-analyzer.default.slowDBAccessThreshold");
             add("alarm.default.alarm-settings");
             add("core.default.apdexThreshold");
             add("agent-analyzer.default.uninstrumentedGateways");
