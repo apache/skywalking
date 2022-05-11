@@ -72,6 +72,7 @@
 * Fix jump to endpoint-relation dashboard template.
 * Fix set graph options.
 * Remove the `Layer` filed from the Instance and Process.
+* Fix date time picker display when set hour to `0`.
 
 #### Documentation
 
