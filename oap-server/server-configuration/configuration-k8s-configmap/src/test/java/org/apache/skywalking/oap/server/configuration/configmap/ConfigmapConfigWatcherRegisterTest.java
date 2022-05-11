@@ -96,7 +96,7 @@ public class ConfigmapConfigWatcherRegisterTest {
             add("receiver-trace.default.slowDBAccessThreshold");
             add("alarm.default.alarm-settings");
             add("core.default.apdexThreshold");
-            add("receiver-trace.default.uninstrumentedGateways");
+            add("agent-analyzer.default.uninstrumentedGateways");
         }});
 
         Assert.assertTrue(optionalConfigTable.isPresent());

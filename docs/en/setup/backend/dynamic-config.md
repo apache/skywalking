@@ -32,7 +32,7 @@ Supported configurations are as follows:
 | Config Key | Value Description | Value Format Example |
 |:----:|:----:|:----:|
 |agent-analyzer.default.slowDBAccessThreshold| Thresholds of slow Database statement. Overrides `receiver-trace/default/slowDBAccessThreshold` of `application.yml`. | default:200,mongodb:50|
-|receiver-trace.default.uninstrumentedGateways| The uninstrumented gateways. Overrides `gateways.yml`. | Same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format). |
+|agent-analyzer.default.uninstrumentedGateways| The uninstrumented gateways. Overrides `gateways.yml`. | Same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format). |
 |alarm.default.alarm-settings| The alarm settings. Overrides `alarm-settings.yml`. | Same as [`alarm-settings.yml`](backend-alarm.md). |
 |core.default.apdexThreshold| The apdex threshold settings. Overrides `service-apdex-threshold.yml`. | Same as [`service-apdex-threshold.yml`](apdex-threshold.md). |
 |core.default.endpoint-name-grouping| The endpoint name grouping setting. Overrides `endpoint-name-grouping.yml`. | Same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md). |

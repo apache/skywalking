@@ -101,7 +101,7 @@ data:
     # tomcat: 1000
     # the threshold of service "springboot1" is 50ms
     # springboot1: 50
-  receiver-trace.default.uninstrumentedGateways: |-
+  agent-analyzer.default.uninstrumentedGateways: |-
     #gateways:
     #  - name: proxy0
     #    instances:
