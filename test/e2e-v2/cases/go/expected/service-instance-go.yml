@@ -31,5 +31,4 @@
   {{- end}}
   language: GO
   instanceuuid: {{ notEmpty .instanceuuid }}
-  layer: GENERAL
 {{- end}}

@@ -47,6 +47,7 @@
 * Fix the pod match error when the service has multiple selector in kubernetes environment.
 * VM monitoring adapts the 0.50.0 of the `opentelemetry-collector`.
 * Add Envoy internal cost metrics.
+* Remove `Layer` concept from `ServiceInstance`.
 * Remove unnecessary `onCompleted` on gRPC `onError` callback.
 
 #### UI
@@ -65,7 +66,10 @@
 * Verify query params to avoid invalid queries.
 * Mobile terminal adaptation.
 * Fix: set dropdown for the Tab widget, init instance/endpoint relation selectors, update sankey graph.
-* Add eBPF Profiling widget into General service, Service Mesh and Kubernetes tabs. 
+* Add eBPF Profiling widget into General service, Service Mesh and Kubernetes tabs.
+* Fix jump to endpoint-relation dashboard template.
+* Fix set graph options.
+* Remove the `Layer` filed from the Instance and Process.
 
 #### Documentation
 

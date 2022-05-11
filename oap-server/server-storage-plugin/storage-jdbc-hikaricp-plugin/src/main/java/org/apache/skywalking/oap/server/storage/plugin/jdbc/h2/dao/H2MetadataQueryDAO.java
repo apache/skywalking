@@ -208,7 +208,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             serviceInstance.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
             serviceInstance.setName(resultSet.getString(InstanceTraffic.NAME));
             serviceInstance.setInstanceUUID(serviceInstance.getId());
-            serviceInstance.setLayer(Layer.valueOf(resultSet.getInt(ServiceTraffic.LAYER)).name());
 
             String propertiesString = resultSet.getString(InstanceTraffic.PROPERTIES);
             if (!Strings.isNullOrEmpty(propertiesString)) {

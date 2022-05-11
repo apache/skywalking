@@ -31,5 +31,4 @@
   {{- end}}
   language: PHP
   instanceuuid: {{ b64enc "php" }}.1_{{ b64enc "php-instance" }}
-  layer: GENERAL
 {{- end}}
