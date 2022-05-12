@@ -73,6 +73,7 @@
 * Fix set graph options.
 * Remove the `Layer` filed from the Instance and Process.
 * Fix date time picker display when set hour to `0`.
+* Implement tags auto-complete for Trace and Log.
 
 #### Documentation
 
