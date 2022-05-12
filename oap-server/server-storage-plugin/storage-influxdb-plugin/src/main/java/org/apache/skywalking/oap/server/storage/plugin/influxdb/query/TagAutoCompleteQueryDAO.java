@@ -104,13 +104,13 @@ public class TagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
                                                 final WhereQueryImpl<SelectQueryImpl> query) {
         query.and(eq(TagAutocompleteData.TAG_TYPE, tagType.name()));
 
-        long startMinTB = startSecondTB / 100;
-        long endMinTB = endSecondTB / 100;
-        if (startMinTB > 0) {
-            query.and(gte(TagAutocompleteData.TIME_BUCKET, startMinTB));
+        long startTB = startSecondTB / 1000000 * 10000;
+        long endTB = endSecondTB / 1000000 * 10000 + 9999;
+        if (startTB > 0) {
+            query.and(gte(TagAutocompleteData.TIME_BUCKET, startTB));
         }
-        if (endMinTB > 0) {
-            query.and(lte(TagAutocompleteData.TIME_BUCKET, endMinTB));
+        if (endTB > 0) {
+            query.and(lte(TagAutocompleteData.TIME_BUCKET, endTB));
         }
     }
 }
