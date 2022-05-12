@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
-import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
@@ -51,7 +50,7 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
                                                 final long startSecondTB,
                                                 final long endSecondTB) throws IOException {
         BoolQueryBuilder query = Query.bool();
-        appendTagAutocompleteCondition(tagType, startSecondTB, endSecondTB, query);
+        query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
         final SearchBuilder search = Search.builder().query(query);
         search.aggregation(Aggregation.terms(TagAutocompleteData.TAG_KEY)
                                       .field(TagAutocompleteData.TAG_KEY));
@@ -83,7 +82,7 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
                                                   final long startSecondTB,
                                                   final long endSecondTB) throws IOException {
         BoolQueryBuilder query = Query.bool().must(Query.term(TagAutocompleteData.TAG_KEY, tagKey));
-        appendTagAutocompleteCondition(tagType, startSecondTB, endSecondTB, query);
+        query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
         final SearchBuilder search = Search.builder().query(query).size(limit);
 
         final SearchResponse response = getClient().search(
@@ -100,23 +99,5 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
             tagValues.add(tag.getTagValue());
         }
         return tagValues;
-    }
-
-    private void appendTagAutocompleteCondition(final TagType tagType, final long startSecondTB,
-                                                final long endSecondTB,
-                                                final BoolQueryBuilder query) {
-        long startMinTB = startSecondTB / 100;
-        long endMinTB = endSecondTB / 100;
-        query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
-        final RangeQueryBuilder rangeQuery = Query.range(TagAutocompleteData.TIME_BUCKET);
-        if (startMinTB > 0) {
-            rangeQuery.gte(startMinTB);
-        }
-        if (endMinTB > 0) {
-            rangeQuery.lte(endMinTB);
-        }
-        if (startMinTB > 0 || endMinTB > 0) {
-            query.must(rangeQuery);
-        }
     }
 }

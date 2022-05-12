@@ -54,7 +54,7 @@ public class IoTDBTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
         Map<String, String> indexAndValueMap = new HashMap<>();
         indexAndValueMap.put(IoTDBIndexes.AUTOCOMPLETE_TAG_TYPE, tagType.name());
         IoTDBUtils.addQueryIndexValue(TagAutocompleteData.INDEX_NAME, query, indexAndValueMap);
-        appendTagAutocompleteCondition(tagType, startSecondTB, endSecondTB, query);
+        appendTagAutocompleteCondition(startSecondTB, endSecondTB, query);
         query.append(IoTDBClient.ALIGN_BY_DEVICE);
 
         SessionPool sessionPool = client.getSessionPool();
@@ -93,7 +93,7 @@ public class IoTDBTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
         indexAndValueMap.put(IoTDBIndexes.AUTOCOMPLETE_TAG_KEY, tagKey);
         indexAndValueMap.put(IoTDBIndexes.AUTOCOMPLETE_TAG_TYPE, tagType.name());
         IoTDBUtils.addQueryIndexValue(TagAutocompleteData.INDEX_NAME, query, indexAndValueMap);
-        appendTagAutocompleteCondition(tagType, startSecondTB, endSecondTB, query);
+        appendTagAutocompleteCondition(startSecondTB, endSecondTB, query);
         query.append(" limit ").append(limit).append(IoTDBClient.ALIGN_BY_DEVICE);
         List<? super StorageData> storageDataList = client.filterQuery(TagAutocompleteData.INDEX_NAME,
                                                                        query.toString(),
@@ -109,22 +109,21 @@ public class IoTDBTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
         return tagValues;
     }
 
-    private void appendTagAutocompleteCondition(final TagType tagType,
-                                                final long startSecondTB,
+    private void appendTagAutocompleteCondition(final long startSecondTB,
                                                 final long endSecondTB,
                                                 final StringBuilder query) {
-        long startMinTB = startSecondTB / 100;
-        long endMinTB = endSecondTB / 100;
+        long startTB = startSecondTB / 1000000 * 10000;
+        long endTB = endSecondTB / 1000000 * 10000 + 9999;
 
         StringBuilder where = new StringBuilder();
-        if (startMinTB > 0) {
-            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startMinTB));
+        if (startTB > 0) {
+            where.append(IoTDBClient.TIME).append(" >= ").append(TimeBucket.getTimestamp(startTB));
         }
-        if (endMinTB > 0) {
+        if (endTB > 0) {
             if (where.length() > 0) {
                 where.append(" and ");
             }
-            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endMinTB));
+            where.append(IoTDBClient.TIME).append(" <= ").append(TimeBucket.getTimestamp(endTB));
         }
         if (where.length() > 0) {
             query.append(" where ").append(where);

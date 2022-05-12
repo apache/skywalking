@@ -94,17 +94,17 @@ public class H2TagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
         sql.append(TagAutocompleteData.TAG_TYPE).append(" = ?");
         condition.add(tagType.name());
 
-        long startMinTB = startSecondTB / 100;
-        long endMinTB = endSecondTB / 100;
-        if (startMinTB > 0) {
+        long startTB = startSecondTB / 1000000 * 10000;
+        long endTB = endSecondTB / 1000000 * 10000 + 9999;
+        if (startTB > 0) {
             sql.append(" and ");
             sql.append(TagAutocompleteData.TIME_BUCKET).append(">=?");
-            condition.add(startMinTB);
+            condition.add(startTB);
         }
-        if (endMinTB > 0) {
+        if (endTB > 0) {
             sql.append(" and ");
             sql.append(TagAutocompleteData.TIME_BUCKET).append("<=?");
-            condition.add(endMinTB);
+            condition.add(endTB);
         }
     }
 }
