@@ -123,8 +123,8 @@ public class EBPFProfilingQueryService implements Service {
 
     private EBPFProfilingAnalyzer getProfilingAnalyzer() {
         if (profilingAnalyzer == null) {
-            this.profilingAnalyzer = new EBPFProfilingAnalyzer(moduleManager, config.getMaxDurationOfAnalyzeEBPFProfiling(),
-                    config.getMaxDurationOfQueryEBPFProfilingData(), config.getMaxThreadCountOfQueryEBPFProfilingData());
+            this.profilingAnalyzer = new EBPFProfilingAnalyzer(moduleManager, config.getMaxDurationOfQueryEBPFProfilingData(),
+                    config.getMaxThreadCountOfQueryEBPFProfilingData());
         }
         return profilingAnalyzer;
     }
