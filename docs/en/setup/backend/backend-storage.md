@@ -13,9 +13,7 @@ Natively supported storage:
 - ElasticSearch 6, 7, 8
 - MySQL
 - TiDB
-- InfluxDB
 - PostgreSQL
-- IoTDB
 
 
 ## H2
@@ -239,23 +237,6 @@ All connection-related settings, including URL link, username, and password are 
 For details on settings, refer to the configuration of *MySQL* above.
 To understand the function of the parameter `rewriteBatchedStatements=true` in TiDB, see the document of [TiDB best practices](https://docs.pingcap.com/tidb/stable/java-app-best-practices#use-batch-api).
 
-## InfluxDB
-InfluxDB storage provides a time-series database as a new storage option.
-
-```yaml
-storage:
-  selector: ${SW_STORAGE:influxdb}
-  influxdb:
-    url: ${SW_STORAGE_INFLUXDB_URL:http://localhost:8086}
-    user: ${SW_STORAGE_INFLUXDB_USER:root}
-    password: ${SW_STORAGE_INFLUXDB_PASSWORD:}
-    database: ${SW_STORAGE_INFLUXDB_DATABASE:skywalking}
-    actions: ${SW_STORAGE_INFLUXDB_ACTIONS:1000} # the number of actions to collect
-    duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
-    fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
-```
-All connection-related settings, including URL link, username, and password, are found in `application.yml`. For metadata storage provider settings, refer to **H2/MySQL** configurations above.
-
 ## PostgreSQL
 PostgreSQL JDBC driver uses version 42.3.2. It supports PostgreSQL 8.2 or newer.
 Activate PostgreSQL as storage, and set storage provider to **postgresql**. 
@@ -281,23 +262,6 @@ storage:
 All connection-related settings, including URL link, username, and password, are found in `application.yml`. 
 Only part of the settings is listed here. Please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
 
-## IoTDB
-IoTDB is a time-series database from Apache, which is one of the storage plugin options.  
-IoTDB storage plugin is still in progress. Its efficiency will improve in the future.
-
-```yaml
-storage:
-  selector: ${SW_STORAGE:iotdb}
-  iotdb:
-    host: ${SW_STORAGE_IOTDB_HOST:127.0.0.1}
-    rpcPort: ${SW_STORAGE_IOTDB_RPC_PORT:6667}
-    username: ${SW_STORAGE_IOTDB_USERNAME:root}
-    password: ${SW_STORAGE_IOTDB_PASSWORD:root}
-    storageGroup: ${SW_STORAGE_IOTDB_STORAGE_GROUP:root.skywalking}
-    sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:8} # If it's zero, the SessionPool size will be 2*CPU_Cores
-    fetchTaskLogMaxSize: ${SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
-```
-All connection-related settings, including host, rpcPort, username, and password, are found in `application.yml`. Please ensure the IoTDB version >= 0.12.3.
 
 ## More storage extension solutions
 Follow the [Storage extension development guide](../../guides/storage-extention.md) 

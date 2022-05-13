@@ -75,8 +75,6 @@
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
         <commons-compress.version>1.21</commons-compress.version>
-        <iotdb-session.version>0.12.5</iotdb-session.version>
-        <lz4-java.version>1.6.0</lz4-java.version>
     </properties>
 
     <dependencyManagement>
@@ -540,16 +538,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commons-compress.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.iotdb</groupId>
-                <artifactId>iotdb-session</artifactId>
-                <version>${iotdb-session.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.lz4</groupId>
-                <artifactId>lz4-java</artifactId>
-                <version>${lz4-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
