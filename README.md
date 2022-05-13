@@ -32,7 +32,7 @@ The core features are following.
 - Infrastructure(VM, network, disk etc.) monitoring
 - Collaboration across metrics, traces, and logs
 
-<img src="https://skywalking.apache.org/images/SkyWalking_Architecture_20210424.png?t=20210424"/>
+<img src="https://skywalking.apache.org/images/home/architecture.svg?t=20220513"/>
 
 SkyWalking supports to collect telemetry (metrics, traces, and logs) data from multiple sources
 and multiple formats,
