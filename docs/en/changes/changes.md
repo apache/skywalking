@@ -2,6 +2,9 @@
 
 #### Project
 
+* [**IMPORTANT**] Remove InfluxDB 1.x and Apache IoTDB 0.X as storage options, check details
+  at [here](https://github.com/apache/skywalking/discussions/9059). Remove converter-moshi 2.5.0, influx-java 2.15,
+  iotdb java 0.12.5, thrift 0.14.1, moshi 1.5.0, msgpack 0.8.16 dependencies.
 * Upgrade OAP dependencies zipkin to 2.23.16, H2 to 2.1.212, Apache Freemarker to 2.3.31, gRPC-java 1.46.0, netty to
   4.1.76.
 * Upgrade Webapp dependencies, spring-cloud-dependencies to 2021.0.2, logback-classic to 1.2.11
@@ -40,7 +43,8 @@
 * E2E: fix log test miss verify LAL and metrics.
 * Enhance Converter mechanism in kernel level to make BanyanDB native feature more effective.
 * Add TermsAggregation properties collect_mode and execution_hint.
-* Add "execution_hint": "map", "collect_mode": "breadth_first" for aggregation and topology query to improve 5-10x performance.
+* Add "execution_hint": "map", "collect_mode": "breadth_first" for aggregation and topology query to improve 5-10x
+  performance.
 * Clean up scroll contexts after used.
 * Support autocomplete tags in logs query.
 * Enhance Deprecated MetricQuery(v1) getValues querying to asynchronous concurrency query
