@@ -291,12 +291,8 @@ jobs:
             config: test/e2e-v2/cases/storage/mysql/e2e.yaml
           - name: Storage TiDB
             config: test/e2e-v2/cases/storage/tidb/e2e.yaml
-          - name: Storage InfluxDB
-            config: test/e2e-v2/cases/storage/influxdb/e2e.yaml
           - name: Storage PostgreSQL
             config: test/e2e-v2/cases/storage/postgres/e2e.yaml
-          - name: Storage IoTDB
-            config: test/e2e-v2/cases/storage/iotdb/e2e.yaml
           - name: Storage ES 6.3.2
             config: test/e2e-v2/cases/storage/es/e2e.yaml
             env: ES_VERSION=6.3.2
@@ -331,21 +327,13 @@ jobs:
             config: test/e2e-v2/cases/alarm/es/e2e.yaml
           - name: Alarm MySQL
             config: test/e2e-v2/cases/alarm/mysql/e2e.yaml
-          - name: Alarm InfluxDB
-            config: test/e2e-v2/cases/alarm/influxdb/e2e.yaml
           - name: Alarm PostgreSQL
             config: test/e2e-v2/cases/alarm/postgres/e2e.yaml
-          - name: Alarm IoTDB
-            config: test/e2e-v2/cases/alarm/iotdb/e2e.yaml
 
           - name: TTL TiDB
             config: test/e2e-v2/cases/ttl/tidb/e2e.yaml
-          - name: TTL InfluxDB
-            config: test/e2e-v2/cases/ttl/influxdb/e2e.yaml
           - name: TTL PostgreSQL
             config: test/e2e-v2/cases/ttl/postgresql/e2e.yaml
-          - name: TTL IotDB
-            config: test/e2e-v2/cases/ttl/iotdb/e2e.yaml
           - name: TTL ES 6.3.2
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
             env: ES_VERSION=6.3.2
@@ -362,21 +350,13 @@ jobs:
             config: test/e2e-v2/cases/event/es/e2e.yaml
           - name: Event MySQL
             config: test/e2e-v2/cases/event/mysql/e2e.yaml
-          - name: Event InfluxDB
-            config: test/e2e-v2/cases/event/influxdb/e2e.yaml
-          - name: Event IoTDB
-            config: test/e2e-v2/cases/event/iotdb/e2e.yaml
 
           - name: Log H2
             config: test/e2e-v2/cases/log/h2/e2e.yaml
           - name: Log MySQL
             config: test/e2e-v2/cases/log/mysql/e2e.yaml
-          - name: Log InfluxDB
-            config: test/e2e-v2/cases/log/influxdb/e2e.yaml
           - name: Log PostgreSQL
             config: test/e2e-v2/cases/log/postgres/e2e.yaml
-          - name: Log IoTDB
-            config: test/e2e-v2/cases/log/iotdb/e2e.yaml
           - name: Log ES 6.3.2
             config: test/e2e-v2/cases/log/es/e2e.yaml
             env: ES_VERSION=6.3.2
@@ -424,10 +404,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/trace/es/e2e.yaml
           - name: Trace Profiling MySQL
             config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
-          - name: Trace Profiling InfluxDB
-            config: test/e2e-v2/cases/profiling/trace/influxdb/e2e.yaml
-          - name: Trace Profiling IoTDB
-            config: test/e2e-v2/cases/profiling/trace/iotdb/e2e.yaml
 
           - name: eBPF Profiling H2
             config: test/e2e-v2/cases/profiling/ebpf/h2/e2e.yaml
@@ -435,10 +411,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/es/e2e.yaml
           - name: eBPF Profiling MySQL
             config: test/e2e-v2/cases/profiling/ebpf/mysql/e2e.yaml
-          - name: eBPF Profiling InfluxDB
-            config: test/e2e-v2/cases/profiling/ebpf/influxdb/e2e.yaml
-          - name: eBPF Profiling IoTDB
-            config: test/e2e-v2/cases/profiling/ebpf/iotdb/e2e.yaml
 
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml
