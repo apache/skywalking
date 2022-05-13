@@ -4,7 +4,8 @@
 
 * [**IMPORTANT**] Remove InfluxDB 1.x and Apache IoTDB 0.X as storage options, check details
   at [here](https://github.com/apache/skywalking/discussions/9059). Remove converter-moshi 2.5.0, influx-java 2.15,
-  iotdb java 0.12.5, thrift 0.14.1, moshi 1.5.0, msgpack 0.8.16 dependencies.
+  iotdb java 0.12.5, thrift 0.14.1, moshi 1.5.0, msgpack 0.8.16 dependencies. Remove InfluxDB and IoTDB relative codes
+  and E2E tests.
 * Upgrade OAP dependencies zipkin to 2.23.16, H2 to 2.1.212, Apache Freemarker to 2.3.31, gRPC-java 1.46.0, netty to
   4.1.76.
 * Upgrade Webapp dependencies, spring-cloud-dependencies to 2021.0.2, logback-classic to 1.2.11
