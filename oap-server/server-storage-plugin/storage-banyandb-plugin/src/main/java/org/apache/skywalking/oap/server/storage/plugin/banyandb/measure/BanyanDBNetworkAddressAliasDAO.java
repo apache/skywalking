@@ -43,7 +43,7 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
     @Override
     public List<NetworkAddressAlias> loadLastUpdate(long timeBucket) {
         try {
-            MeasureQueryResponse query = query(
+            MeasureQueryResponse resp = query(
                 NetworkAddressAlias.INDEX_NAME,
                 ImmutableSet.of(
                     NetworkAddressAlias.ADDRESS,
@@ -60,7 +60,7 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
                     }
                 }
             );
-            return query.getDataPoints()
+            return resp.getDataPoints()
                         .stream()
                         .map(
                             point -> builder.storage2Entity(new StorageToMeasure(NetworkAddressAlias.INDEX_NAME, point))

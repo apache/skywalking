@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
@@ -44,7 +43,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITraceQueryDAO {
     public BanyanDBTraceQueryDAO(BanyanDBStorageClient client) {
@@ -183,15 +181,5 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
         return Collections.emptyList();
-    }
-
-    @Override
-    public Set<String> queryTraceTagAutocompleteKeys(long startSecondTB, long endSecondTB) throws IOException {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public Set<String> queryTraceTagAutocompleteValues(String tagKey, int limit, long startSecondTB, long endSecondTB) throws IOException {
-        return Collections.emptySet();
     }
 }

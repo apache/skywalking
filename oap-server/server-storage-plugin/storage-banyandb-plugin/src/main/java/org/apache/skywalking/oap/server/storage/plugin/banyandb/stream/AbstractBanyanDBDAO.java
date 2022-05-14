@@ -87,6 +87,14 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return getClient().query(query);
     }
 
+    protected static QueryBuilder<MeasureQuery> emptyMeasureQuery() {
+        return new QueryBuilder<MeasureQuery>() {
+            @Override
+            protected void apply(MeasureQuery query) {
+            }
+        };
+    }
+
     protected abstract static class QueryBuilder<T extends AbstractQuery<? extends com.google.protobuf.GeneratedMessageV3>> {
         protected abstract void apply(final T query);
 

@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;

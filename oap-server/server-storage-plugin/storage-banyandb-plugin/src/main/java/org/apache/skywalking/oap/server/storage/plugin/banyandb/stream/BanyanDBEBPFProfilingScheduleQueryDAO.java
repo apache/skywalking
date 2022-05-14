@@ -27,7 +27,7 @@ import java.util.List;
 
 public class BanyanDBEBPFProfilingScheduleQueryDAO implements IEBPFProfilingScheduleDAO {
     @Override
-    public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket) throws IOException {
+    public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
         return Collections.emptyList();
     }
 }

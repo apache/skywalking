@@ -120,11 +120,8 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
     @Override
     public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp, String serviceId) throws IOException {
-        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
-
         MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
                 ImmutableSet.of(InstanceTraffic.NAME,
-                        InstanceTraffic.LAYER,
                         InstanceTraffic.PROPERTIES,
                         InstanceTraffic.LAST_PING_TIME_BUCKET,
                         InstanceTraffic.SERVICE_ID),
@@ -135,6 +132,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         if (StringUtil.isNotEmpty(serviceId)) {
                             query.and(eq(InstanceTraffic.SERVICE_ID, serviceId));
                         }
+                        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
                         query.and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, minuteTimeBucket));
                     }
                 });
@@ -152,7 +150,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     public ServiceInstance getInstance(String instanceId) throws IOException {
         MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
                 ImmutableSet.of(InstanceTraffic.NAME,
-                        InstanceTraffic.LAYER,
                         InstanceTraffic.PROPERTIES),
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
@@ -201,7 +198,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         ProcessTraffic.SERVICE_ID,
                         ProcessTraffic.INSTANCE_ID,
                         ProcessTraffic.AGENT_ID,
-                        ProcessTraffic.LAYER,
                         ProcessTraffic.DETECT_TYPE,
                         ProcessTraffic.PROPERTIES,
                         ProcessTraffic.LABELS_JSON,
@@ -248,7 +244,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         ProcessTraffic.SERVICE_ID,
                         ProcessTraffic.INSTANCE_ID,
                         ProcessTraffic.AGENT_ID,
-                        ProcessTraffic.LAYER,
                         ProcessTraffic.DETECT_TYPE,
                         ProcessTraffic.PROPERTIES,
                         ProcessTraffic.LABELS_JSON,
@@ -292,7 +287,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         ProcessTraffic.SERVICE_ID,
                         ProcessTraffic.INSTANCE_ID,
                         ProcessTraffic.AGENT_ID,
-                        ProcessTraffic.LAYER,
                         ProcessTraffic.DETECT_TYPE,
                         ProcessTraffic.PROPERTIES,
                         ProcessTraffic.LABELS_JSON),
@@ -324,7 +318,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         serviceInstance.setId(dataPoint.getId());
         serviceInstance.setName(dataPoint.getTagValue(InstanceTraffic.NAME));
         serviceInstance.setInstanceUUID(dataPoint.getId());
-        serviceInstance.setLayer(Layer.valueOf(((Number) dataPoint.getTagValue(InstanceTraffic.LAYER)).intValue()).name());
 
         final String propString = dataPoint.getTagValue(InstanceTraffic.PROPERTIES);
         JsonObject properties = null;
@@ -366,7 +359,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         String instanceId = dataPoint.getTagValue(ProcessTraffic.INSTANCE_ID);
         process.setInstanceId(instanceId);
         process.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
-        process.setLayer(Layer.valueOf(((Number) dataPoint.getTagValue(ProcessTraffic.LAYER)).intValue()).name());
         process.setAgentId(dataPoint.getTagValue(ProcessTraffic.AGENT_ID));
         process.setDetectType(ProcessDetectType.valueOf(((Number) dataPoint.getTagValue(ProcessTraffic.DETECT_TYPE)).intValue()).name());
 
