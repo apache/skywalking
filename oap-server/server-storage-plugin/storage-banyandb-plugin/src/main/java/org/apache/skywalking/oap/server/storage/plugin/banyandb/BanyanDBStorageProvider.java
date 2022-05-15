@@ -127,8 +127,8 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(ITagAutoCompleteQueryDAO.class, new BanyanDBTagAutocompleteQueryDAO(client));
         this.registerServiceImplementation(IHistoryDeleteDAO.class, new BanyanDBHistoryDeleteDAO());
         this.registerServiceImplementation(IMetricsQueryDAO.class, new BanyanDBMetricsQueryDAO(client));
-        this.registerServiceImplementation(IAggregationQueryDAO.class, new BanyanDBAggregationQueryDAO());
-        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new BanyanDBTopNRecordsQueryDAO());
+        this.registerServiceImplementation(IAggregationQueryDAO.class, new BanyanDBAggregationQueryDAO(client));
+        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new BanyanDBTopNRecordsQueryDAO(client));
     }
 
     @Override

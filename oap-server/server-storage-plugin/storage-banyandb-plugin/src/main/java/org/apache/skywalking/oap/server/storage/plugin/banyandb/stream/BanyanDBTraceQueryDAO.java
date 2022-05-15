@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -86,10 +87,10 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
                 switch (queryOrder) {
                     case BY_START_TIME:
-                        query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.START_TIME, StreamQuery.OrderBy.Type.DESC));
+                        query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.START_TIME, AbstractQuery.Sort.DESC));
                         break;
                     case BY_DURATION:
-                        query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.LATENCY, StreamQuery.OrderBy.Type.DESC));
+                        query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.LATENCY, AbstractQuery.Sort.DESC));
                         break;
                 }
 

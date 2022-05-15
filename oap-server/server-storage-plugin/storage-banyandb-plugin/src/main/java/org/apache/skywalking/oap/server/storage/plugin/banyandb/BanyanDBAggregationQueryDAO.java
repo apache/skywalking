@@ -18,19 +18,94 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import com.google.common.collect.ImmutableSet;
+import org.apache.skywalking.banyandb.v1.client.DataPoint;
+import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
+import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.library.elasticsearch.requests.search.Query;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-public class BanyanDBAggregationQueryDAO implements IAggregationQueryDAO {
+public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements IAggregationQueryDAO {
+    public BanyanDBAggregationQueryDAO(BanyanDBStorageClient client) {
+        super(client);
+    }
+
     @Override
     public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration, List<KeyValue> additionalConditions) throws IOException {
-        return Collections.emptyList();
+        final String modelName = condition.getName();
+        final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
+        MeasureQueryResponse resp = query(modelName,
+                ImmutableSet.of(Metrics.ENTITY_ID, Metrics.TIME_BUCKET),
+                Collections.singleton(valueColumnName),
+                timestampRange, new QueryBuilder<MeasureQuery>() {
+                    @Override
+                    protected void apply(MeasureQuery query) {
+                        query.meanBy(valueColumnName, ImmutableSet.of(Metrics.ENTITY_ID));
+                        query.and(lte(Metrics.TIME_BUCKET, duration.getEndTimeBucket()));
+                        query.and(gte(Metrics.TIME_BUCKET, duration.getStartTimeBucket()));
+                        if (condition.getOrder() == Order.DES) {
+                            query.topN(condition.getTopN(), valueColumnName);
+                        } else {
+                            query.bottomN(condition.getTopN(), valueColumnName);
+                        }
+                        if (CollectionUtils.isNotEmpty(additionalConditions)) {
+                            additionalConditions.forEach(additionalCondition -> query
+                                    .and(eq(
+                                            additionalCondition.getKey(),
+                                            additionalCondition.getValue()
+                                    )));
+                        }
+                    }
+                });
+
+        if (resp.size() == 0) {
+            return Collections.emptyList();
+        }
+
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        if (schema == null) {
+            throw new IOException("schema is not registered");
+        }
+
+        MetadataRegistry.ColumnSpec spec = schema.getSpec(valueColumnName);
+        if (spec == null) {
+            throw new IOException("field spec is not registered");
+        }
+
+        final List<SelectedRecord> topNList = new ArrayList<>();
+        for (DataPoint dataPoint : resp.getDataPoints()) {
+            SelectedRecord record = new SelectedRecord();
+            record.setId(dataPoint.getTagValue(Metrics.ENTITY_ID));
+            record.setValue(extractFieldValueAsString(spec, valueColumnName, dataPoint));
+            topNList.add(record);
+        }
+
+        return topNList;
+    }
+
+    private String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, String fieldName, DataPoint dataPoint) throws IOException {
+        if (double.class.equals(spec.getColumnClass())) {
+            return String.valueOf(ByteUtil.bytes2Double(dataPoint.getFieldValue(fieldName)).longValue());
+        } else if (String.class.equals(spec.getColumnClass())) {
+            return dataPoint.getFieldValue(fieldName);
+        } else {
+            return String.valueOf(((Number) dataPoint.getFieldValue(fieldName)).longValue());
+        }
     }
 }
