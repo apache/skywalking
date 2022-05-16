@@ -35,7 +35,6 @@ import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFProcessPr
 import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFProcessReportList;
 import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFProcessServiceGrpc;
 import org.apache.skywalking.apm.network.ebpf.profiling.process.v3.EBPFReportProcessDownstream;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -103,6 +102,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
     @Override
     public void keepAlive(EBPFProcessPingPkgList request, StreamObserver<Commands> responseObserver) {
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
+        final String agentID = request.getEbpfAgentID();
 
         request.getProcessesList().forEach(p -> {
             final EBPFProcessEntityMetadata entity = p.getEntityMetadata();
@@ -117,8 +117,10 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
             processUpdate.setServiceNormal(true);
             processUpdate.setName(entity.getProcessName());
             processUpdate.setLabels(entity.getLabelsList());
+            processUpdate.setProperties(convertProperties(p.getPropertiesList()));
+            processUpdate.setProfilingSupportStatus(getProfilingSupportStatus(p.getPropertiesList()));
             processUpdate.setTimeBucket(timeBucket);
-            processUpdate.setAgentId(Const.EMPTY_STRING);
+            processUpdate.setAgentId(agentID);
             sourceReceiver.receive(processUpdate);
 
             // instance
@@ -155,11 +157,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
         // metadata
         process.setDetectType(ProcessDetectType.VM);
         process.setAgentId(agentId);
-        final JsonObject properties = new JsonObject();
-        for (KeyStringValuePair kv : hostProcess.getPropertiesList()) {
-            properties.addProperty(kv.getKey(), kv.getValue());
-        }
-        process.setProperties(properties);
+        process.setProperties(convertProperties(hostProcess.getPropertiesList()));
         process.setLabels(hostProcess.getEntity().getLabelsList());
         process.setProfilingSupportStatus(getProfilingSupportStatus(hostProcess.getPropertiesList()));
 
@@ -173,6 +171,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
                 .setProcessId(processId)
                 .setHostProcess(EBPFHostProcessDownstream.newBuilder()
                         .setPid(hostProcess.getPid())
+                        .setEntityMetadata(hostProcess.getEntity())
                         .build())
                 .build();
         return Tuple.of(process, downstream);
@@ -190,11 +189,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
         // metadata
         process.setDetectType(ProcessDetectType.KUBERNETES);
         process.setAgentId(agentId);
-        final JsonObject properties = new JsonObject();
-        for (KeyStringValuePair kv : kubernetesProcessMetadata.getPropertiesList()) {
-            properties.addProperty(kv.getKey(), kv.getValue());
-        }
-        process.setProperties(properties);
+        process.setProperties(convertProperties(kubernetesProcessMetadata.getPropertiesList()));
         process.setLabels(kubernetesProcessMetadata.getEntity().getLabelsList());
         process.setProfilingSupportStatus(getProfilingSupportStatus(kubernetesProcessMetadata.getPropertiesList()));
 
@@ -208,6 +203,7 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
                 .setProcessId(processId)
                 .setK8SProcess(EBPFKubernetesProcessDownstream.newBuilder()
                         .setPid(kubernetesProcessMetadata.getPid())
+                        .setEntityMetadata(kubernetesProcessMetadata.getEntity())
                         .build())
                 .build();
         return Tuple.of(process, downstream);
@@ -242,5 +238,16 @@ public class EBPFProcessServiceHandler extends EBPFProcessServiceGrpc.EBPFProces
             }
         }
         return ProfilingSupportStatus.NOT_SUPPORT;
+    }
+
+    /**
+     * Convert process properties to source data
+     */
+    private JsonObject convertProperties(List<KeyStringValuePair> properties) {
+        final JsonObject result = new JsonObject();
+        for (KeyStringValuePair kv : properties) {
+            result.addProperty(kv.getKey(), kv.getValue());
+        }
+        return result;
     }
 }

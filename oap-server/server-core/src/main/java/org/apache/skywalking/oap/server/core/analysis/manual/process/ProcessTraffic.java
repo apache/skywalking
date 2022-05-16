@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.manual.process;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -35,6 +36,8 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import java.util.Map;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS;
 
@@ -118,8 +121,12 @@ public class ProcessTraffic extends Metrics {
         if (StringUtil.isNotBlank(processTraffic.getAgentId())) {
             this.agentId = processTraffic.getAgentId();
         }
-        if (processTraffic.getProperties() != null && processTraffic.getProperties().size() > 0) {
+        if (this.properties == null) {
             this.properties = processTraffic.getProperties();
+        } else if (processTraffic.getProperties() != null) {
+            for (Map.Entry<String, JsonElement> e : processTraffic.getProperties().entrySet()) {
+                this.properties.add(e.getKey(), e.getValue());
+            }
         }
         if (processTraffic.getDetectType() > 0) {
             this.detectType = processTraffic.getDetectType();
