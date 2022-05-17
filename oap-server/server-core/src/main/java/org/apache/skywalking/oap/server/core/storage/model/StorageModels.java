@@ -27,12 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBGlobalIndex;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
-import org.apache.skywalking.oap.server.core.storage.annotation.MultipleQueryUnifiedIndex;
-import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
@@ -135,13 +133,14 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
                 // SQL Database extension
                 SQLDatabaseExtension sqlDatabaseExtension = new SQLDatabaseExtension();
-                List<QueryUnifiedIndex> indexDefinitions = new ArrayList<>();
-                if (field.isAnnotationPresent(QueryUnifiedIndex.class)) {
-                    indexDefinitions.add(field.getAnnotation(QueryUnifiedIndex.class));
+                List<SQLDatabase.QueryUnifiedIndex> indexDefinitions = new ArrayList<>();
+                if (field.isAnnotationPresent(SQLDatabase.QueryUnifiedIndex.class)) {
+                    indexDefinitions.add(field.getAnnotation(SQLDatabase.QueryUnifiedIndex.class));
                 }
 
-                if (field.isAnnotationPresent(MultipleQueryUnifiedIndex.class)) {
-                    Collections.addAll(indexDefinitions, field.getAnnotation(MultipleQueryUnifiedIndex.class).value());
+                if (field.isAnnotationPresent(SQLDatabase.MultipleQueryUnifiedIndex.class)) {
+                    Collections.addAll(
+                        indexDefinitions, field.getAnnotation(SQLDatabase.MultipleQueryUnifiedIndex.class).value());
                 }
 
                 indexDefinitions.forEach(indexDefinition -> {
@@ -152,18 +151,23 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 });
 
                 // ElasticSearch extension
-                final ElasticSearchMatchQuery elasticSearchAnalyzer = field.getAnnotation(
-                    ElasticSearchMatchQuery.class);
+                final ElasticSearch.MatchQuery elasticSearchAnalyzer = field.getAnnotation(
+                    ElasticSearch.MatchQuery.class);
                 ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer()
                 );
 
                 // BanyanDB extension
-                final BanyanDBShardingKey banyanDBShardingKey = field.getAnnotation(BanyanDBShardingKey.class);
-                final BanyanDBGlobalIndex banyanDBGlobalIndex = field.getAnnotation(BanyanDBGlobalIndex.class);
+                final BanyanDB.ShardingKey banyanDBShardingKey = field.getAnnotation(
+                    BanyanDB.ShardingKey.class);
+                final BanyanDB.GlobalIndex banyanDBGlobalIndex = field.getAnnotation(
+                    BanyanDB.GlobalIndex.class);
+                final BanyanDB.NoIndexing banyanDBNoIndex = field.getAnnotation(
+                    BanyanDB.NoIndexing.class);
                 BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
                     banyanDBShardingKey == null ? -1 : banyanDBShardingKey.index(),
-                    banyanDBGlobalIndex == null ? null : banyanDBGlobalIndex.extraFields()
+                    banyanDBGlobalIndex == null ? false : true,
+                    banyanDBNoIndex != null ? false : column.storageOnly()
                 );
 
                 final ModelColumn modelColumn = new ModelColumn(

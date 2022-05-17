@@ -80,7 +80,7 @@ public class ModelColumn {
         this.sqlDatabaseExtension = sqlDatabaseExtension;
         this.elasticSearchExtension = elasticSearchExtension;
         /*
-         * byte[] and {@link IntKeyLongValueHashMap} could never be query.
+         * byte[] and {@link IntKeyLongValueHashMap} could never be queried.
          */
         if (type.equals(byte[].class) || type.equals(DataTable.class)) {
             this.storageOnly = true;

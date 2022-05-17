@@ -25,10 +25,9 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBGlobalIndex;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -50,12 +49,12 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = SERVICE_ID)
-    @BanyanDBShardingKey(index = 0)
+    @BanyanDB.ShardingKey(index = 0)
     private String serviceId;
     @Setter
     @Getter
     @Column(columnName = SERVICE_INSTANCE_ID)
-    @BanyanDBShardingKey(index = 1)
+    @BanyanDB.ShardingKey(index = 1)
     private String serviceInstanceId;
     @Setter
     @Getter
@@ -64,16 +63,17 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = TRACE_ID, length = 150)
-    @BanyanDBGlobalIndex(extraFields = {})
+    @BanyanDB.GlobalIndex
     private String traceId;
     @Setter
     @Getter
     @Column(columnName = TRACE_SEGMENT_ID, length = 150)
-    @BanyanDBGlobalIndex(extraFields = {SPAN_ID})
+    @BanyanDB.GlobalIndex
     private String traceSegmentId;
     @Setter
     @Getter
     @Column(columnName = SPAN_ID)
+    @BanyanDB.NoIndexing
     private int spanId;
     @Setter
     @Getter
@@ -82,7 +82,7 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = CONTENT, length = 1_000_000)
-    @ElasticSearchMatchQuery(analyzer = ElasticSearchMatchQuery.AnalyzerType.OAP_LOG_ANALYZER)
+    @ElasticSearch.MatchQuery(analyzer = ElasticSearch.MatchQuery.AnalyzerType.OAP_LOG_ANALYZER)
     private String content;
     @Setter
     @Getter
