@@ -57,6 +57,7 @@
 * Remove `Layer` concept form `Process`.
 * Update to list all eBPF profiling schedulers without duration.
 * Storage(ElasticSearch): add search options to tolerate inexisting indices.
+* Fix the problem that `MQ` has the wrong `Layer` type
 
 #### UI
 
