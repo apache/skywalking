@@ -29,7 +29,6 @@ import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Serializable;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
@@ -110,7 +109,7 @@ public class BanyanDBConverter {
 
         @Override
         public Object get(String fieldName) {
-            return null;
+            throw new IllegalStateException("should not reach here");
         }
 
         @Override
@@ -192,7 +191,7 @@ public class BanyanDBConverter {
     }
 
     private static Serializable<BanyandbModel.TagValue> buildTag(Object value, final Class<?> clazz) {
-        if (Integer.class.equals(clazz) || int.class.equals(clazz)) {
+        if (int.class.equals(clazz) || Integer.class.equals(clazz)) {
             return TagAndValue.longTagValue(((Number) value).longValue());
         } else if (Long.class.equals(clazz) || long.class.equals(clazz)) {
             return TagAndValue.longTagValue((Long) value);
@@ -202,7 +201,7 @@ public class BanyanDBConverter {
             return TagAndValue.binaryTagValue(ByteUtil.double2Bytes((double) value));
         } else if (StorageDataComplexObject.class.isAssignableFrom(clazz)) {
             return TagAndValue.stringTagValue(((StorageDataComplexObject<?>) value).toStorageData());
-        } else if (Layer.class.equals(clazz)) {
+        } else if (clazz.isEnum()) {
             return TagAndValue.longTagValue((int) value);
         } else if (JsonObject.class.equals(clazz)) {
             return TagAndValue.stringTagValue((String) value);

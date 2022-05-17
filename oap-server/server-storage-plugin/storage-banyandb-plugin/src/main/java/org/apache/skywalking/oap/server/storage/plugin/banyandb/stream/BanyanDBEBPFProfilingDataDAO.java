@@ -18,16 +18,55 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
+import com.google.common.collect.ImmutableSet;
+import org.apache.skywalking.banyandb.v1.client.RowEntity;
+import org.apache.skywalking.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class BanyanDBEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
+public class BanyanDBEBPFProfilingDataDAO extends AbstractBanyanDBDAO implements IEBPFProfilingDataDAO {
+    public BanyanDBEBPFProfilingDataDAO(BanyanDBStorageClient client) {
+        super(client);
+    }
+
     @Override
     public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) throws IOException {
-        return Collections.emptyList();
+        List<EBPFProfilingDataRecord> records = new ArrayList<>();
+        for (final String scheduleId : scheduleIdList) {
+            StreamQueryResponse resp = query(EBPFProfilingDataRecord.INDEX_NAME,
+                    ImmutableSet.of(EBPFProfilingDataRecord.UPLOAD_TIME,
+                            EBPFProfilingDataRecord.SCHEDULE_ID,
+                            EBPFProfilingDataRecord.STACK_DUMP_COUNT,
+                            EBPFProfilingDataRecord.STACK_ID_LIST,
+                            EBPFProfilingDataRecord.STACKS_BINARY,
+                            EBPFProfilingDataRecord.TASK_ID,
+                            EBPFProfilingDataRecord.TIME_BUCKET),
+                    new QueryBuilder<StreamQuery>() {
+                        @Override
+                        protected void apply(StreamQuery query) {
+                            query.and(eq(EBPFProfilingDataRecord.SCHEDULE_ID, scheduleId));
+                            query.and(gte(EBPFProfilingDataRecord.UPLOAD_TIME, beginTime));
+                            query.and(lte(EBPFProfilingDataRecord.UPLOAD_TIME, endTime));
+                        }
+                    }
+            );
+
+            records.addAll(resp.getElements().stream().map(this::buildDataRecord).collect(Collectors.toList()));
+        }
+
+        return records;
+    }
+
+    private EBPFProfilingDataRecord buildDataRecord(RowEntity rowEntity) {
+        final EBPFProfilingDataRecord.Builder builder = new EBPFProfilingDataRecord.Builder();
+        return builder.storage2Entity(new BanyanDBConverter.StorageToStream(EBPFProfilingDataRecord.INDEX_NAME, rowEntity));
     }
 }

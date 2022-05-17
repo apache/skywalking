@@ -65,7 +65,9 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
                 @Override
                 protected void apply(MeasureQuery query) {
                     query.andWithID(missCachedMetric.id());
-                    if (model.getName().endsWith("_traffic")) {
+                    if (model.isTimeRelativeID()) {
+                        query.and(eq(Metrics.TIME_BUCKET, missCachedMetric.getTimeBucket()));
+                    } else {
                         switch (model.getName()) {
                             case ProcessTraffic.INDEX_NAME:
                                 query.and(eq(ProcessTraffic.SERVICE_ID, ((ProcessTraffic) missCachedMetric).getServiceId()));
@@ -82,8 +84,6 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
                             default:
                                 throw new IllegalStateException("Unknown metadata type, " + model.getName());
                         }
-                    } else {
-                        query.and(eq(Metrics.TIME_BUCKET, missCachedMetric.getTimeBucket()));
                     }
                 }
             });

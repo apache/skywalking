@@ -54,12 +54,12 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
 public enum MetadataRegistry {
     INSTANCE;
 
-    private final Map<String, Schema> registry = new ConcurrentHashMap<>();
+    private final Map<String, Schema> registry = new HashMap<>();
 
     public NamedSchema<?> registerModel(Model model, ConfigService configService) {
         final PartialMetadata partialMetadata = parseMetadata(model);
