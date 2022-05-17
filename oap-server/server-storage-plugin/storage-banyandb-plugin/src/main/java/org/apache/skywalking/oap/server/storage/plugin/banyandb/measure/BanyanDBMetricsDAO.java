@@ -59,32 +59,13 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
+        // TODO: add time range
         List<Metrics> metricsInStorage = new ArrayList<>(metrics.size());
         for (final Metrics missCachedMetric : metrics) {
             MeasureQueryResponse resp = query(model.getName(), schema.getTags(), schema.getFields(), new QueryBuilder<MeasureQuery>() {
                 @Override
                 protected void apply(MeasureQuery query) {
                     query.andWithID(missCachedMetric.id());
-                    if (model.isTimeRelativeID()) {
-                        query.and(eq(Metrics.TIME_BUCKET, missCachedMetric.getTimeBucket()));
-                    } else {
-                        switch (model.getName()) {
-                            case ProcessTraffic.INDEX_NAME:
-                                query.and(eq(ProcessTraffic.SERVICE_ID, ((ProcessTraffic) missCachedMetric).getServiceId()));
-                                break;
-                            case InstanceTraffic.INDEX_NAME:
-                                query.and(eq(InstanceTraffic.SERVICE_ID, ((InstanceTraffic) missCachedMetric).getServiceId()));
-                                break;
-                            case EndpointTraffic.INDEX_NAME:
-                                query.and(eq(EndpointTraffic.SERVICE_ID, ((EndpointTraffic) missCachedMetric).getServiceId()));
-                                break;
-                            case ServiceTraffic.INDEX_NAME:
-                                query.and(eq(ServiceTraffic.NAME, ((ServiceTraffic) missCachedMetric).getName()));
-                                break;
-                            default:
-                                throw new IllegalStateException("Unknown metadata type, " + model.getName());
-                        }
-                    }
                 }
             });
             if (resp.size() == 0) {
