@@ -181,7 +181,7 @@ public class BanyanDBConverter {
 
         @Override
         public Object get(String fieldName) {
-            return null;
+            throw new IllegalStateException("should not reach here");
         }
 
         @Override
