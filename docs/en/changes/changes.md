@@ -56,6 +56,7 @@
 * Remove unnecessary `onCompleted` on gRPC `onError` callback.
 * Remove `Layer` concept form `Process`.
 * Update to list all eBPF profiling schedulers without duration.
+* Storage(ElasticSearch): add search options to tolerate inexisting indices.
 
 #### UI
 

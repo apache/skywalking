@@ -253,9 +253,13 @@ public class ElasticSearchClient implements Client, HealthCheckable {
             Arrays.stream(indices.get())
                   .map(indexNameConverter)
                   .toArray(String[]::new);
+        final SearchParams params = new SearchParams()
+            .allowNoIndices(true)
+            .ignoreUnavailable(true)
+            .expandWildcards("open");
         return es.get().search(
             search,
-            null,
+            params,
             indexNames);
     }
 
