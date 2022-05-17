@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -50,7 +50,7 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID, length = 512)
-    @BanyanDBShardingKey(index = 0)
+    @BanyanDB.ShardingKey(index = 0)
     private String entityId;
 
     /**

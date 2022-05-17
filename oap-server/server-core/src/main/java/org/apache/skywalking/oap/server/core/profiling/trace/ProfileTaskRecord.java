@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -58,7 +58,7 @@ public class ProfileTaskRecord extends NoneStream {
     }
 
     @Column(columnName = SERVICE_ID)
-    @BanyanDBShardingKey(index = 0)
+    @BanyanDB.ShardingKey(index = 0)
     private String serviceId;
     @Column(columnName = ENDPOINT_NAME)
     private String endpointName;
