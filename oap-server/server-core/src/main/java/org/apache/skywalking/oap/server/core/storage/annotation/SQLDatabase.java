@@ -25,16 +25,32 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * QueryIndex defines the unified index is required in the query stage. This works only the storage supports this kind
- * of index model. Mostly, work for the typical relational database, such as MySQL, TiDB.
+ * SQLDatabase annotation is a holder including all annotations for SQL-based RDBMS storage
+ *
+ * @since 9.1.0
  */
-@Target({ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
-@Repeatable(MultipleQueryUnifiedIndex.class)
-public @interface QueryUnifiedIndex {
+public @interface SQLDatabase {
+    /**
+     * QueryIndex defines the unified index is required in the query stage. This works only the storage supports this kind
+     * of index model. Mostly, work for the typical relational database, such as MySQL, TiDB.
+     */
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Repeatable(MultipleQueryUnifiedIndex.class)
+    @interface QueryUnifiedIndex {
+
+        /**
+         * @return list of other column should be add into the unified index.
+         */
+        String[] withColumns();
+    }
 
     /**
-     * @return list of other column should be add into the unified index.
+     * The support of the multiple {@link QueryUnifiedIndex}s on one field.
      */
-    String[] withColumns();
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface MultipleQueryUnifiedIndex {
+        QueryUnifiedIndex[] value();
+    }
 }

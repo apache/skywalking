@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -61,12 +61,12 @@ public class ZipkinSpanRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = SERVICE_ID)
-    @BanyanDBShardingKey(index = 0)
+    @BanyanDB.ShardingKey(index = 0)
     private String serviceId;
     @Setter
     @Getter
     @Column(columnName = SERVICE_INSTANCE_ID)
-    @BanyanDBShardingKey(index = 1)
+    @BanyanDB.ShardingKey(index = 1)
     private String serviceInstanceId;
     @Setter
     @Getter
@@ -91,7 +91,7 @@ public class ZipkinSpanRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = IS_ERROR)
-    @BanyanDBShardingKey(index = 2)
+    @BanyanDB.ShardingKey(index = 2)
     private int isError;
     @Setter
     @Getter

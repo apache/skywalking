@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,8 +30,8 @@ public class ModelColumnTest {
                                              false, false, true, 0,
                                              new SQLDatabaseExtension(),
                                              new ElasticSearchExtension(
-                                                 ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
-                                             new BanyanDBExtension(-1, null)
+                                                 ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER),
+                                             new BanyanDBExtension(-1, false, true)
         );
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
@@ -39,8 +39,8 @@ public class ModelColumnTest {
         column = new ModelColumn(new ColumnName("", "abc"), DataTable.class, DataTable.class,
                                  false, false, true, 200,
                                  new SQLDatabaseExtension(),
-                                 new ElasticSearchExtension(ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
-                                 new BanyanDBExtension(-1, null)
+                                 new ElasticSearchExtension(ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER),
+                                 new BanyanDBExtension(-1, false, true)
         );
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
@@ -49,8 +49,8 @@ public class ModelColumnTest {
         column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
                                  false, false, true, 200,
                                  new SQLDatabaseExtension(),
-                                 new ElasticSearchExtension(ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
-                                 new BanyanDBExtension(-1, null)
+                                 new ElasticSearchExtension(ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER),
+                                 new BanyanDBExtension(-1, false, true)
         );
         Assert.assertEquals(false, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
@@ -62,8 +62,8 @@ public class ModelColumnTest {
                                              true, false, true, 200,
                                              new SQLDatabaseExtension(),
                                              new ElasticSearchExtension(
-                                                 ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
-                                             new BanyanDBExtension(-1, null)
+                                                 ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER),
+                                             new BanyanDBExtension(-1, false, true)
         );
     }
 
@@ -73,8 +73,8 @@ public class ModelColumnTest {
                                              true, true, false, 200,
                                              new SQLDatabaseExtension(),
                                              new ElasticSearchExtension(
-                                                 ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER),
-                                             new BanyanDBExtension(-1, null)
+                                                 ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER),
+                                             new BanyanDBExtension(-1, false, true)
         );
     }
 }
