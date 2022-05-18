@@ -99,7 +99,7 @@ jobs:
               docs/**,\
               .github/workflows/codeql.yaml,\
               .github/(ISSUE_TEMPLATE/**|PULL_REQUEST_TEMPLATE),\
-              dist-material/release-docs/*,\
+              dist-material/release-docs/**,\
               component-libraries.yml\
               }"
           list-files: json  # logs matched files
