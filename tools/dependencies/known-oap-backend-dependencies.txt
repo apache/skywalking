@@ -12,6 +12,7 @@ armeria-graphql-1.14.1.jar
 armeria-graphql-protocol-1.14.1.jar
 armeria-protobuf-1.14.1.jar
 audience-annotations-0.5.0.jar
+banyandb-java-client-0.1.0-SNAPSHOT.jar
 bcpkix-jdk15on-1.69.jar
 bcprov-ext-jdk15on-1.69.jar
 bcprov-jdk15on-1.69.jar
