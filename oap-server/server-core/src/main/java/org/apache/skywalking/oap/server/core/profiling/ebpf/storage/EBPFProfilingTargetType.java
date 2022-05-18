@@ -33,6 +33,8 @@ public enum EBPFProfilingTargetType {
     UNKNOWN(0),
 
     ON_CPU(1),
+
+    OFF_CPU(2),
     ;
     private final int value;
     private static final Map<Integer, EBPFProfilingTargetType> DICTIONARY = new HashMap<>();

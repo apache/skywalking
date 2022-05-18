@@ -59,6 +59,7 @@
 * Storage(ElasticSearch): add search options to tolerate inexisting indices.
 * Fix the problem that `MQ` has the wrong `Layer` type.
 * Fix NoneStream model has wrong downsampling(was Second, should be Minute).
+* [Breaking Change] Remove `total` field in Trace and Logs list query.
 
 #### UI
 

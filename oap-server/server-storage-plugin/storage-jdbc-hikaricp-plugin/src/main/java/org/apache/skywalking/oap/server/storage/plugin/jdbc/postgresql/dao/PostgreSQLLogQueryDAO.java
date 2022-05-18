@@ -29,9 +29,4 @@ public class PostgreSQLLogQueryDAO extends H2LogQueryDAO {
         super(h2Client, manager, maxSizeOfArrayColumn, numOfSearchValuesPerTag);
     }
     
-    @Override
-    protected String buildCountStatement(String sql) {
-        return "select count(*) total from (select 1 " + sql + " ) temp_table ";
-    }
-    
 }

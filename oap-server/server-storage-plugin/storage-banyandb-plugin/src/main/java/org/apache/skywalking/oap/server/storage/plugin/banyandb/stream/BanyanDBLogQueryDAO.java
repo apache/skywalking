@@ -115,7 +115,6 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
         StreamQueryResponse resp = query(LogRecord.INDEX_NAME, TAGS, tsRange, query);
 
         Logs logs = new Logs();
-        logs.setTotal(resp.size());
 
         for (final RowEntity rowEntity : resp.getElements()) {
             Log log = new Log();

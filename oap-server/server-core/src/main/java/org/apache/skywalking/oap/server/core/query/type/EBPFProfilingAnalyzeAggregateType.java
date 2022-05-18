@@ -18,16 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class Pagination {
-    private int pageNum;
-    private int pageSize;
+/**
+ * EBPF Profiling analysis data aggregate type
+ */
+public enum EBPFProfilingAnalyzeAggregateType {
+    /**
+     * Aggregate by the total duration of stack
+     * For "OFF_CPU" target type of profiling: Statics the total time spent in off cpu.
+     */
+    DURATION,
+    /**
+     * Aggregate by the trigger count
+     * For "ON_CPU" target type of profiling: Statics the number of dump count.
+     * For "OFF_CPU" target type of profiling: Statics the number of times the process is switched to off cpu by the scheduler.
+     */
+    COUNT
 }
