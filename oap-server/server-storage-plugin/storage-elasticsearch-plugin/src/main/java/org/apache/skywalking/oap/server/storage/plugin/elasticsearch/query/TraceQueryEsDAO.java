@@ -133,7 +133,6 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 endSecondTB
             ), search.build());
         final TraceBrief traceBrief = new TraceBrief();
-        traceBrief.setTotal(response.getHits().getTotal());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();

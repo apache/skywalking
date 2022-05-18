@@ -29,9 +29,4 @@ public class PostgreSQLTraceQueryDAO extends H2TraceQueryDAO {
         super(manager, h2Client, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
     }
     
-    @Override
-    protected String buildCountStatement(String sql) {
-        return "select count(*) total from (select 1 " + sql + " ) temp_table ";
-    }
-    
 }
