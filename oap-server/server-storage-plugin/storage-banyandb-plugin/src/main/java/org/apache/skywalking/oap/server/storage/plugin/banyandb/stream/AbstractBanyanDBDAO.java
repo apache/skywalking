@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageClient> {
@@ -100,6 +101,10 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
 
         protected PairQueryCondition<Long> eq(String name, long value) {
             return PairQueryCondition.LongQueryCondition.eq(name, value);
+        }
+
+        protected PairQueryCondition<List<String>> having(String name, List<String> value) {
+            return PairQueryCondition.StringArrayQueryCondition.having(name, value);
         }
 
         protected PairQueryCondition<Long> lte(String name, long value) {

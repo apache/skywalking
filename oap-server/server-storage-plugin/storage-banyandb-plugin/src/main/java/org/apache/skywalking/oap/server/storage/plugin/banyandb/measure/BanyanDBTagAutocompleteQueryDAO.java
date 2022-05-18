@@ -42,7 +42,6 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
     private static final Set<String> TAGS_KV = ImmutableSet.of(TagAutocompleteData.TAG_TYPE,
             TagAutocompleteData.TAG_KEY, TagAutocompleteData.TAG_VALUE);
 
-
     public BanyanDBTagAutocompleteQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }

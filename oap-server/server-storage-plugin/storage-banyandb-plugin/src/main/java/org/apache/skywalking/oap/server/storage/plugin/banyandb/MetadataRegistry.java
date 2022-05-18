@@ -39,18 +39,17 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -69,7 +68,7 @@ public enum MetadataRegistry {
 
     private final Map<String, Schema> registry = new HashMap<>();
 
-    public NamedSchema<?> registerModel(Model model, ConfigService configService) {
+    public NamedSchema<?> registerModel(Model model) {
         final SchemaMetadata schemaMetadata = parseMetadata(model);
         Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
@@ -80,7 +79,7 @@ public enum MetadataRegistry {
         // this can be used to build both
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
-        List<TagMetadata> tags = parseTagMetadata(model, configService, schemaBuilder);
+        List<TagMetadata> tags = parseTagMetadata(model, schemaBuilder);
         List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags);
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
@@ -198,7 +197,7 @@ public enum MetadataRegistry {
                 .collect(Collectors.toList());
     }
 
-    List<TagMetadata> parseTagMetadata(Model model, ConfigService configService, Schema.SchemaBuilder builder) {
+    List<TagMetadata> parseTagMetadata(Model model, Schema.SchemaBuilder builder) {
         List<TagMetadata> tagMetadataList = new ArrayList<>();
         // skip metric
         Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE
@@ -220,15 +219,6 @@ public enum MetadataRegistry {
             } else {
                 tagMetadataList.add(new TagMetadata(null, tagSpec));
             }
-        }
-
-        // add all user-defined indexed tags to the end of the "searchable" family
-        if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
-            tagMetadataList.addAll(parseExtraTagSpecs(configService.getSearchableTracesTags(), builder));
-        } else if (LogRecord.INDEX_NAME.equals(model.getName())) {
-            tagMetadataList.addAll(parseExtraTagSpecs(configService.getSearchableLogsTags(), builder));
-        } else if (AlarmRecord.INDEX_NAME.equals(model.getName())) {
-            tagMetadataList.addAll(parseExtraTagSpecs(configService.getSearchableAlarmTags(), builder));
         }
 
         return tagMetadataList;
@@ -274,20 +264,20 @@ public enum MetadataRegistry {
             return TagFamilySpec.TagSpec.newIntTag(colName);
         } else if (byte[].class.equals(clazz)) {
             return TagFamilySpec.TagSpec.newBinaryTag(colName);
-        } else if (Layer.class.equals(clazz)) {
+        } else if (clazz.isEnum()) {
             return TagFamilySpec.TagSpec.newIntTag(colName);
         } else if (double.class.equals(clazz) || Double.class.equals(clazz)) {
             // serialize double as binary
             return TagFamilySpec.TagSpec.newBinaryTag(colName);
         } else if (IntList.class.isAssignableFrom(clazz)) {
             return TagFamilySpec.TagSpec.newIntArrayTag(colName);
-        } else { // handle exceptions
-            // TODO: we skip all tags with type of List<String>
-            if ("tags".equals(colName)) {
-                return null;
+        } else if (List.class.isAssignableFrom(clazz)) { // handle exceptions
+            ParameterizedType t = (ParameterizedType) modelColumn.getGenericType();
+            if (String.class.equals(t.getActualTypeArguments()[0])) {
+                return TagFamilySpec.TagSpec.newStringArrayTag(colName);
             }
-            throw new IllegalStateException("type " + modelColumn.getType().toString() + " is not supported");
         }
+        throw new IllegalStateException("type " + modelColumn.getType().toString() + " is not supported");
     }
 
     public SchemaMetadata parseMetadata(Model model) {

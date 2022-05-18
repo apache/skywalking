@@ -24,8 +24,6 @@ import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException
 import org.apache.skywalking.banyandb.v1.client.metadata.Group;
 import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
@@ -36,13 +34,8 @@ import java.io.IOException;
 
 @Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
-    private final ConfigService configService;
-
     public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
-        this.configService = moduleManager.find(CoreModule.NAME)
-                .provider()
-                .getService(ConfigService.class);
     }
 
     @Override
@@ -58,7 +51,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             log.info("group {} created", g.name());
             // then check entity schema
             if (metadata.findRemoteSchema(c).isPresent()) {
-                MetadataRegistry.INSTANCE.registerModel(model, this.configService);
+                MetadataRegistry.INSTANCE.registerModel(model);
                 return true;
             }
             return false;
@@ -71,13 +64,13 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     protected void createTable(Model model) throws StorageException {
         try {
             if (model.isTimeSeries() && model.isRecord()) { // stream
-                Stream stream = (Stream) MetadataRegistry.INSTANCE.registerModel(model, this.configService);
+                Stream stream = (Stream) MetadataRegistry.INSTANCE.registerModel(model);
                 if (stream != null) {
                     log.info("install stream schema {}", model.getName());
                     ((BanyanDBStorageClient) client).define(stream);
                 }
             } else if (model.isTimeSeries() && !model.isRecord()) { // measure
-                Measure measure = (Measure) MetadataRegistry.INSTANCE.registerModel(model, this.configService);
+                Measure measure = (Measure) MetadataRegistry.INSTANCE.registerModel(model);
                 if (measure != null) {
                     log.info("install measure schema {}", model.getName());
                     ((BanyanDBStorageClient) client).define(measure);

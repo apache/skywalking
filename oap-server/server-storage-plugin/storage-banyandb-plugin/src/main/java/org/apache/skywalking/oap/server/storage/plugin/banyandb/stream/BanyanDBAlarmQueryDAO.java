@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverte
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -46,7 +47,7 @@ import java.util.Set;
 public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarmQueryDAO {
     private static final Set<String> TAGS = ImmutableSet.of(AlarmRecord.SCOPE,
             AlarmRecord.NAME, AlarmRecord.ID0, AlarmRecord.ID1, AlarmRecord.ALARM_MESSAGE, AlarmRecord.START_TIME,
-            AlarmRecord.TIME_BUCKET, AlarmRecord.RULE_NAME, AlarmRecord.TAGS_RAW_DATA);
+            AlarmRecord.TIME_BUCKET, AlarmRecord.RULE_NAME, AlarmRecord.TAGS, AlarmRecord.TAGS_RAW_DATA);
 
     public BanyanDBAlarmQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -68,14 +69,14 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
                             query.and(eq(AlarmRecord.SCOPE, (long) scopeId));
                         }
 
-                        // TODO: support keyword search
-
                         if (CollectionUtils.isNotEmpty(tags)) {
+                            List<String> tagsConditions = new ArrayList<>(tags.size());
                             for (final Tag tag : tags) {
-                                // TODO: check whether tags in the alarm are indexed
-                                query.and(eq(tag.getKey(), tag.getValue()));
+                                tagsConditions.add(tag.toString());
                             }
+                            query.and(having(AlarmRecord.TAGS, tagsConditions));
                         }
+
                         query.setLimit(limit);
                         query.setOffset(from);
                     }

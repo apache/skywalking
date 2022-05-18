@@ -32,7 +32,6 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Serializable;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
 import java.util.List;
@@ -93,17 +92,10 @@ public class BanyanDBConverter {
 
         @Override
         public void accept(String fieldName, List<String> fieldValue) {
-            for (final String tagKeyAndValue : fieldValue) {
-                if (StringUtil.isEmpty(tagKeyAndValue)) {
-                    continue;
-                }
-                int pos = tagKeyAndValue.indexOf("=");
-                if (pos == -1) {
-                    continue;
-                }
-                String key = tagKeyAndValue.substring(0, pos);
-                String value = tagKeyAndValue.substring(pos + 1);
-                this.accept(key, value);
+            try {
+                this.streamWrite.tag(fieldName, TagAndValue.stringArrayTagValue(fieldValue));
+            } catch (BanyanDBException ex) {
+                log.error("fail to accept string array tag", ex);
             }
         }
 
@@ -165,17 +157,10 @@ public class BanyanDBConverter {
 
         @Override
         public void accept(String fieldName, List<String> fieldValue) {
-            for (final String tagKeyAndValue : fieldValue) {
-                if (StringUtil.isEmpty(tagKeyAndValue)) {
-                    continue;
-                }
-                int pos = tagKeyAndValue.indexOf("=");
-                if (pos == -1) {
-                    continue;
-                }
-                String key = tagKeyAndValue.substring(0, pos);
-                String value = tagKeyAndValue.substring(pos + 1);
-                this.accept(key, value);
+            try {
+                this.measureWrite.tag(fieldName, TagAndValue.stringArrayTagValue(fieldValue));
+            } catch (BanyanDBException ex) {
+                log.error("fail to accept string array tag", ex);
             }
         }
 

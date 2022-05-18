@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -59,6 +60,7 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
             AbstractLogRecord.TIMESTAMP,
             AbstractLogRecord.CONTENT_TYPE,
             AbstractLogRecord.CONTENT,
+            AbstractLogRecord.TAGS,
             AbstractLogRecord.TAGS_RAW_DATA);
 
     public BanyanDBLogQueryDAO(BanyanDBStorageClient client) {
@@ -96,10 +98,11 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
                 }
 
                 if (CollectionUtils.isNotEmpty(tags)) {
+                    List<String> tagsConditions = new ArrayList<>(tags.size());
                     for (final Tag tag : tags) {
-                        // TODO: check log indexed tags
-                        query.and(eq(tag.getKey(), tag.getValue()));
+                        tagsConditions.add(tag.toString());
                     }
+                    query.and(having(LogRecord.TAGS, tagsConditions));
                 }
             }
         };

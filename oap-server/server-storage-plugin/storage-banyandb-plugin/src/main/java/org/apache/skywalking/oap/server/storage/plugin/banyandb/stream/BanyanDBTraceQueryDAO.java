@@ -53,7 +53,9 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             SegmentRecord.SERVICE_INSTANCE_ID,
             SegmentRecord.ENDPOINT_ID,
             SegmentRecord.LATENCY,
-            SegmentRecord.START_TIME);
+            SegmentRecord.START_TIME,
+            SegmentRecord.TAGS
+    );
 
     private static final Set<String> TAGS = ImmutableSet.of(SegmentRecord.TRACE_ID,
             SegmentRecord.IS_ERROR,
@@ -114,10 +116,11 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                 }
 
                 if (CollectionUtils.isNotEmpty(tags)) {
+                    List<String> tagsConditions = new ArrayList<>(tags.size());
                     for (final Tag tag : tags) {
-                        // TODO: check if we have this tag indexed?
-                        query.and(eq(tag.getKey(), tag.getValue()));
+                        tagsConditions.add(tag.toString());
                     }
+                    query.and(having(SegmentRecord.TAGS, tagsConditions));
                 }
 
                 query.setLimit(limit);
