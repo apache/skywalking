@@ -87,7 +87,6 @@
 * Remove unexpected data for exporting dashboards.
 * Fix duration time.
 
-
 #### Documentation
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/128?closed=1)
