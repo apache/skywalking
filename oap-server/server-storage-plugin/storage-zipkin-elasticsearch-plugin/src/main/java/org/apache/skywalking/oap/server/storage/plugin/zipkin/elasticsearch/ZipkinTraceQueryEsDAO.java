@@ -142,7 +142,6 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         SearchResponse response = getClient().search(ZipkinSpanRecord.INDEX_NAME, search.build());
 
         TraceBrief traceBrief = new TraceBrief();
-        traceBrief.setTotal(response.getHits().getTotal());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();

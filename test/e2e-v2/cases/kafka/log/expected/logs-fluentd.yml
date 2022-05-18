@@ -79,4 +79,3 @@ logs:
     value: fluentd
   {{- end }}
 {{- end }}
-total: {{ gt .total 0 }}
