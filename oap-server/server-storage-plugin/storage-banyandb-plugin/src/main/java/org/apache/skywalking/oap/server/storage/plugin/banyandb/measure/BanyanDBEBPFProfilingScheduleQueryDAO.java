@@ -32,9 +32,15 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractB
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BanyanDBEBPFProfilingScheduleQueryDAO extends AbstractBanyanDBDAO implements IEBPFProfilingScheduleDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(EBPFProfilingScheduleRecord.START_TIME,
+            EBPFProfilingScheduleRecord.TASK_ID,
+            EBPFProfilingScheduleRecord.PROCESS_ID,
+            EBPFProfilingScheduleRecord.END_TIME);
+
     public BanyanDBEBPFProfilingScheduleQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -42,10 +48,7 @@ public class BanyanDBEBPFProfilingScheduleQueryDAO extends AbstractBanyanDBDAO i
     @Override
     public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
         MeasureQueryResponse resp = query(EBPFProfilingScheduleRecord.INDEX_NAME,
-                ImmutableSet.of(EBPFProfilingScheduleRecord.START_TIME,
-                        EBPFProfilingScheduleRecord.TASK_ID,
-                        EBPFProfilingScheduleRecord.PROCESS_ID,
-                        EBPFProfilingScheduleRecord.END_TIME),
+                TAGS,
                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {

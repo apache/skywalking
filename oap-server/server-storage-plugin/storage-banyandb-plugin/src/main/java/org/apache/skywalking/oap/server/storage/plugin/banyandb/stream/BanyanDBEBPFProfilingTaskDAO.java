@@ -38,9 +38,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements IEBPFProfilingTaskDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(EBPFProfilingTaskRecord.SERVICE_ID,
+            EBPFProfilingTaskRecord.PROCESS_LABELS_JSON,
+            EBPFProfilingTaskRecord.TRIGGER_TYPE,
+            EBPFProfilingTaskRecord.START_TIME,
+            EBPFProfilingTaskRecord.FIXED_TRIGGER_DURATION,
+            EBPFProfilingTaskRecord.TARGET_TYPE,
+            EBPFProfilingTaskRecord.CREATE_TIME,
+            EBPFProfilingTaskRecord.LAST_UPDATE_TIME,
+            EBPFProfilingTaskRecord.TIME_BUCKET);
+
     private static final Gson GSON = new Gson();
 
     public BanyanDBEBPFProfilingTaskDAO(BanyanDBStorageClient client) {
@@ -51,16 +62,7 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
     public List<EBPFProfilingTask> queryTasks(List<String> serviceIdList, EBPFProfilingTargetType targetType, long taskStartTime, long latestUpdateTime) throws IOException {
         List<EBPFProfilingTask> tasks = new ArrayList<>();
         for (final String serviceId : serviceIdList) {
-            StreamQueryResponse resp = query(EBPFProfilingTaskRecord.INDEX_NAME,
-                    ImmutableSet.of(EBPFProfilingTaskRecord.SERVICE_ID,
-                            EBPFProfilingTaskRecord.PROCESS_LABELS_JSON,
-                            EBPFProfilingTaskRecord.TRIGGER_TYPE,
-                            EBPFProfilingTaskRecord.START_TIME,
-                            EBPFProfilingTaskRecord.FIXED_TRIGGER_DURATION,
-                            EBPFProfilingTaskRecord.TARGET_TYPE,
-                            EBPFProfilingTaskRecord.CREATE_TIME,
-                            EBPFProfilingTaskRecord.LAST_UPDATE_TIME,
-                            EBPFProfilingTaskRecord.TIME_BUCKET),
+            StreamQueryResponse resp = query(EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
                     new QueryBuilder<StreamQuery>() {
                         @Override
                         protected void apply(StreamQuery query) {

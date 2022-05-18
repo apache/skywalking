@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
@@ -32,6 +33,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 public class BanyanDBServiceLabelDAO extends AbstractBanyanDBDAO implements IServiceLabelDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(ServiceLabelRecord.LABEL, ServiceLabelRecord.SERVICE_ID);
 
     public BanyanDBServiceLabelDAO(final BanyanDBStorageClient client) {
         super(client);
@@ -39,8 +41,7 @@ public class BanyanDBServiceLabelDAO extends AbstractBanyanDBDAO implements ISer
 
     @Override
     public List<String> queryAllLabels(String serviceId) throws IOException {
-        return query(ServiceLabelRecord.INDEX_NAME, ImmutableSet.of(
-                        ServiceLabelRecord.LABEL, ServiceLabelRecord.SERVICE_ID),
+        return query(ServiceLabelRecord.INDEX_NAME, TAGS,
                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(final MeasureQuery query) {

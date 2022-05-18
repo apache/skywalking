@@ -35,6 +35,6 @@ public class BanyanDBManagementDAO implements IManagementDAO {
 
     @Override
     public void insert(Model model, ManagementData storageData) throws IOException {
-        log.info("insert Model {}", model);
+        log.info("insert Management Model {}", model);
     }
 }

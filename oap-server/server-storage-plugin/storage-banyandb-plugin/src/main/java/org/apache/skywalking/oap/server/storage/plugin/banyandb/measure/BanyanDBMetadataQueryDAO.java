@@ -51,12 +51,34 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic.PropertyUtil.LANGUAGE;
 
 public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMetadataQueryDAO {
+    private static final Set<String> SERVICE_TRAFFIC_TAGS = ImmutableSet.of(ServiceTraffic.NAME,
+            ServiceTraffic.SHORT_NAME, ServiceTraffic.GROUP, ServiceTraffic.LAYER, ServiceTraffic.SERVICE_ID);
+
+    private static final Set<String> INSTANCE_TRAFFIC_TAGS = ImmutableSet.of(InstanceTraffic.NAME,
+            InstanceTraffic.PROPERTIES, InstanceTraffic.LAST_PING_TIME_BUCKET, InstanceTraffic.SERVICE_ID);
+
+    private static final Set<String> INSTANCE_TRAFFIC_COMPACT_TAGS = ImmutableSet.of(InstanceTraffic.NAME,
+            InstanceTraffic.PROPERTIES);
+
+    private static final Set<String> ENDPOINT_TRAFFIC_TAGS = ImmutableSet.of(EndpointTraffic.NAME,
+            EndpointTraffic.SERVICE_ID);
+
+    private static final Set<String> PROCESS_TRAFFIC_TAGS = ImmutableSet.of(ProcessTraffic.NAME,
+            ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE,
+            ProcessTraffic.PROPERTIES, ProcessTraffic.LABELS_JSON, ProcessTraffic.LAST_PING_TIME_BUCKET,
+            ProcessTraffic.PROFILING_SUPPORT_STATUS);
+
+    private static final Set<String> PROCESS_TRAFFIC_COMPACT_TAGS = ImmutableSet.of(ProcessTraffic.NAME,
+            ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE,
+            ProcessTraffic.PROPERTIES, ProcessTraffic.LABELS_JSON);
+
     private static final Gson GSON = new Gson();
 
     public BanyanDBMetadataQueryDAO(BanyanDBStorageClient client) {
@@ -66,11 +88,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public List<Service> listServices(String layer, String group) throws IOException {
         MeasureQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
-                ImmutableSet.of(ServiceTraffic.NAME,
-                        ServiceTraffic.SHORT_NAME,
-                        ServiceTraffic.GROUP,
-                        ServiceTraffic.LAYER,
-                        ServiceTraffic.SERVICE_ID),
+                SERVICE_TRAFFIC_TAGS,
                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -95,11 +113,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public List<Service> getServices(String serviceId) throws IOException {
         MeasureQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
-                ImmutableSet.of(ServiceTraffic.NAME,
-                        ServiceTraffic.SHORT_NAME,
-                        ServiceTraffic.GROUP,
-                        ServiceTraffic.LAYER,
-                        ServiceTraffic.SERVICE_ID),
+                SERVICE_TRAFFIC_TAGS,
                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -121,10 +135,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp, String serviceId) throws IOException {
         MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
-                ImmutableSet.of(InstanceTraffic.NAME,
-                        InstanceTraffic.PROPERTIES,
-                        InstanceTraffic.LAST_PING_TIME_BUCKET,
-                        InstanceTraffic.SERVICE_ID),
+                INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
@@ -149,8 +160,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public ServiceInstance getInstance(String instanceId) throws IOException {
         MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
-                ImmutableSet.of(InstanceTraffic.NAME,
-                        InstanceTraffic.PROPERTIES),
+                INSTANCE_TRAFFIC_COMPACT_TAGS,
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
@@ -167,8 +177,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) throws IOException {
         MeasureQueryResponse resp = query(EndpointTraffic.INDEX_NAME,
-                ImmutableSet.of(EndpointTraffic.NAME,
-                        EndpointTraffic.SERVICE_ID),
+                ENDPOINT_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
@@ -194,15 +203,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public List<Process> listProcesses(String serviceId, String instanceId, String agentId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
-                ImmutableSet.of(ProcessTraffic.NAME,
-                        ProcessTraffic.SERVICE_ID,
-                        ProcessTraffic.INSTANCE_ID,
-                        ProcessTraffic.AGENT_ID,
-                        ProcessTraffic.DETECT_TYPE,
-                        ProcessTraffic.PROPERTIES,
-                        ProcessTraffic.LABELS_JSON,
-                        ProcessTraffic.LAST_PING_TIME_BUCKET,
-                        ProcessTraffic.PROFILING_SUPPORT_STATUS),
+                PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
@@ -240,15 +241,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public long getProcessesCount(String serviceId, String instanceId, String agentId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
-                ImmutableSet.of(ProcessTraffic.NAME,
-                        ProcessTraffic.SERVICE_ID,
-                        ProcessTraffic.INSTANCE_ID,
-                        ProcessTraffic.AGENT_ID,
-                        ProcessTraffic.DETECT_TYPE,
-                        ProcessTraffic.PROPERTIES,
-                        ProcessTraffic.LABELS_JSON,
-                        ProcessTraffic.LAST_PING_TIME_BUCKET,
-                        ProcessTraffic.PROFILING_SUPPORT_STATUS),
+                PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
@@ -283,13 +276,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public Process getProcess(String processId) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
-                ImmutableSet.of(ProcessTraffic.NAME,
-                        ProcessTraffic.SERVICE_ID,
-                        ProcessTraffic.INSTANCE_ID,
-                        ProcessTraffic.AGENT_ID,
-                        ProcessTraffic.DETECT_TYPE,
-                        ProcessTraffic.PROPERTIES,
-                        ProcessTraffic.LABELS_JSON),
+                PROCESS_TRAFFIC_COMPACT_TAGS,
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override

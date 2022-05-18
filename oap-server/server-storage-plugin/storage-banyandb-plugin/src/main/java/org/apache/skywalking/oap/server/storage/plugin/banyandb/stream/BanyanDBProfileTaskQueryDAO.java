@@ -32,43 +32,47 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements IProfileTaskQueryDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(
+            ProfileTaskRecord.SERVICE_ID,
+            ProfileTaskRecord.ENDPOINT_NAME,
+            ProfileTaskRecord.START_TIME,
+            ProfileTaskRecord.CREATE_TIME,
+            ProfileTaskRecord.DURATION,
+            ProfileTaskRecord.MIN_DURATION_THRESHOLD,
+            ProfileTaskRecord.DUMP_PERIOD,
+            ProfileTaskRecord.MAX_SAMPLING_COUNT
+    );
+
     public BanyanDBProfileTaskQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
 
     @Override
     public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
-        StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME, ImmutableSet.of(
-                ProfileTaskRecord.SERVICE_ID,
-                ProfileTaskRecord.ENDPOINT_NAME,
-                ProfileTaskRecord.START_TIME,
-                ProfileTaskRecord.CREATE_TIME,
-                ProfileTaskRecord.DURATION,
-                ProfileTaskRecord.MIN_DURATION_THRESHOLD,
-                ProfileTaskRecord.DUMP_PERIOD,
-                ProfileTaskRecord.MAX_SAMPLING_COUNT
-        ), new QueryBuilder<StreamQuery>() {
-            @Override
-            protected void apply(StreamQuery query) {
-                if (StringUtil.isNotEmpty(serviceId)) {
-                    query.and(eq(ProfileTaskRecord.SERVICE_ID, serviceId));
-                }
-                if (StringUtil.isNotEmpty(endpointName)) {
-                    query.and(eq(ProfileTaskRecord.ENDPOINT_NAME, endpointName));
-                }
-                if (startTimeBucket != null) {
-                    query.and(gte(ProfileTaskRecord.TIME_BUCKET, startTimeBucket));
-                }
-                if (endTimeBucket != null) {
-                    query.and(lte(ProfileTaskRecord.TIME_BUCKET, endTimeBucket));
-                }
-                if (limit != null) {
-                    query.setLimit(limit);
-                }
-            }
-        });
+        StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME, TAGS,
+                new QueryBuilder<StreamQuery>() {
+                    @Override
+                    protected void apply(StreamQuery query) {
+                        if (StringUtil.isNotEmpty(serviceId)) {
+                            query.and(eq(ProfileTaskRecord.SERVICE_ID, serviceId));
+                        }
+                        if (StringUtil.isNotEmpty(endpointName)) {
+                            query.and(eq(ProfileTaskRecord.ENDPOINT_NAME, endpointName));
+                        }
+                        if (startTimeBucket != null) {
+                            query.and(gte(ProfileTaskRecord.TIME_BUCKET, startTimeBucket));
+                        }
+                        if (endTimeBucket != null) {
+                            query.and(lte(ProfileTaskRecord.TIME_BUCKET, endTimeBucket));
+                        }
+                        if (limit != null) {
+                            query.setLimit(limit);
+                        }
+                    }
+                });
 
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -84,24 +88,16 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
 
     @Override
     public ProfileTask getById(String id) throws IOException {
-        StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME, ImmutableSet.of(
-                ProfileTaskRecord.SERVICE_ID,
-                ProfileTaskRecord.ENDPOINT_NAME,
-                ProfileTaskRecord.START_TIME,
-                ProfileTaskRecord.CREATE_TIME,
-                ProfileTaskRecord.DURATION,
-                ProfileTaskRecord.MIN_DURATION_THRESHOLD,
-                ProfileTaskRecord.DUMP_PERIOD,
-                ProfileTaskRecord.MAX_SAMPLING_COUNT
-        ), new QueryBuilder<StreamQuery>() {
-            @Override
-            protected void apply(StreamQuery query) {
-                if (StringUtil.isNotEmpty(id)) {
-                    // TODO: support search by ID
-                }
-                // query.setLimit(1);
-            }
-        });
+        StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME, TAGS,
+                new QueryBuilder<StreamQuery>() {
+                    @Override
+                    protected void apply(StreamQuery query) {
+                        if (StringUtil.isNotEmpty(id)) {
+                            // TODO: support search by ID
+                        }
+                        // query.setLimit(1);
+                    }
+                });
 
         if (resp.size() == 0) {
             return null;

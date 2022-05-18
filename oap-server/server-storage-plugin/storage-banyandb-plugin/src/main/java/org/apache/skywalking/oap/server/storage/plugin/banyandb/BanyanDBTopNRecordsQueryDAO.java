@@ -39,8 +39,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class BanyanDBTopNRecordsQueryDAO extends AbstractBanyanDBDAO implements ITopNRecordsQueryDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(TopN.TIME_BUCKET, TopN.SERVICE_ID, TopN.STATEMENT, TopN.TRACE_ID);
+
     public BanyanDBTopNRecordsQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -49,8 +52,7 @@ public class BanyanDBTopNRecordsQueryDAO extends AbstractBanyanDBDAO implements 
     public List<SelectedRecord> readSampledRecords(TopNCondition condition, String valueColumnName, Duration duration) throws IOException {
         final String modelName = condition.getName();
         final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
-        MeasureQueryResponse resp = query(modelName,
-                ImmutableSet.of(TopN.TIME_BUCKET, TopN.SERVICE_ID, TopN.STATEMENT, TopN.TRACE_ID),
+        MeasureQueryResponse resp = query(modelName, TAGS,
                 Collections.singleton(valueColumnName), timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {

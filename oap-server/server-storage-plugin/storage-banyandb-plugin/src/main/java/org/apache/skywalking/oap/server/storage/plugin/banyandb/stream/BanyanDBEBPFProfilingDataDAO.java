@@ -30,9 +30,18 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BanyanDBEBPFProfilingDataDAO extends AbstractBanyanDBDAO implements IEBPFProfilingDataDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(EBPFProfilingDataRecord.UPLOAD_TIME,
+            EBPFProfilingDataRecord.SCHEDULE_ID,
+            EBPFProfilingDataRecord.STACK_DUMP_COUNT,
+            EBPFProfilingDataRecord.STACK_ID_LIST,
+            EBPFProfilingDataRecord.STACKS_BINARY,
+            EBPFProfilingDataRecord.TASK_ID,
+            EBPFProfilingDataRecord.TIME_BUCKET);
+
     public BanyanDBEBPFProfilingDataDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -42,13 +51,7 @@ public class BanyanDBEBPFProfilingDataDAO extends AbstractBanyanDBDAO implements
         List<EBPFProfilingDataRecord> records = new ArrayList<>();
         for (final String scheduleId : scheduleIdList) {
             StreamQueryResponse resp = query(EBPFProfilingDataRecord.INDEX_NAME,
-                    ImmutableSet.of(EBPFProfilingDataRecord.UPLOAD_TIME,
-                            EBPFProfilingDataRecord.SCHEDULE_ID,
-                            EBPFProfilingDataRecord.STACK_DUMP_COUNT,
-                            EBPFProfilingDataRecord.STACK_ID_LIST,
-                            EBPFProfilingDataRecord.STACKS_BINARY,
-                            EBPFProfilingDataRecord.TASK_ID,
-                            EBPFProfilingDataRecord.TIME_BUCKET),
+                    TAGS,
                     new QueryBuilder<StreamQuery>() {
                         @Override
                         protected void apply(StreamQuery query) {

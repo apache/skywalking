@@ -36,6 +36,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO implements ITagAutoCompleteQueryDAO {
+    private static final Set<String> TAGS_KEY = ImmutableSet.of(TagAutocompleteData.TAG_TYPE,
+            TagAutocompleteData.TAG_KEY);
+
+    private static final Set<String> TAGS_KV = ImmutableSet.of(TagAutocompleteData.TAG_TYPE,
+            TagAutocompleteData.TAG_KEY, TagAutocompleteData.TAG_VALUE);
+
+
     public BanyanDBTagAutocompleteQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -47,8 +54,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
             range = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
         }
         MeasureQueryResponse resp = query(TagAutocompleteData.INDEX_NAME,
-                ImmutableSet.of(TagAutocompleteData.TAG_TYPE,
-                        TagAutocompleteData.TAG_KEY), Collections.emptySet(),
+                TAGS_KEY, Collections.emptySet(),
                 range,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
@@ -77,9 +83,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
             range = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
         }
         MeasureQueryResponse resp = query(TagAutocompleteData.INDEX_NAME,
-                ImmutableSet.of(TagAutocompleteData.TAG_TYPE,
-                        TagAutocompleteData.TAG_KEY,
-                        TagAutocompleteData.TAG_VALUE), Collections.emptySet(),
+                TAGS_KV, Collections.emptySet(),
                 range,
                 new QueryBuilder<MeasureQuery>() {
                     @Override

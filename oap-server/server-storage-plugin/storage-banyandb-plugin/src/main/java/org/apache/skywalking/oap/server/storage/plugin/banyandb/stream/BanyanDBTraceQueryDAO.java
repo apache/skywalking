@@ -44,8 +44,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITraceQueryDAO {
+    private static final Set<String> BASIC_TAGS = ImmutableSet.of(SegmentRecord.TRACE_ID,
+            SegmentRecord.IS_ERROR,
+            SegmentRecord.SERVICE_ID,
+            SegmentRecord.SERVICE_INSTANCE_ID,
+            SegmentRecord.ENDPOINT_ID,
+            SegmentRecord.LATENCY,
+            SegmentRecord.START_TIME);
+
+    private static final Set<String> TAGS = ImmutableSet.of(SegmentRecord.TRACE_ID,
+            SegmentRecord.IS_ERROR,
+            SegmentRecord.SERVICE_ID,
+            SegmentRecord.SERVICE_INSTANCE_ID,
+            SegmentRecord.ENDPOINT_ID,
+            SegmentRecord.LATENCY,
+            SegmentRecord.START_TIME,
+            SegmentRecord.TIME_BUCKET,
+            SegmentRecord.DATA_BINARY);
+
     public BanyanDBTraceQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -113,13 +132,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
         }
 
         StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
-                ImmutableSet.of(SegmentRecord.TRACE_ID,
-                        SegmentRecord.IS_ERROR,
-                        SegmentRecord.SERVICE_ID,
-                        SegmentRecord.SERVICE_INSTANCE_ID,
-                        SegmentRecord.ENDPOINT_ID,
-                        SegmentRecord.LATENCY,
-                        SegmentRecord.START_TIME),
+                BASIC_TAGS,
                 tsRange, q);
 
         TraceBrief traceBrief = new TraceBrief();
@@ -151,16 +164,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
-                ImmutableSet.of(SegmentRecord.TRACE_ID,
-                        SegmentRecord.IS_ERROR,
-                        SegmentRecord.SERVICE_ID,
-                        SegmentRecord.SERVICE_INSTANCE_ID,
-                        SegmentRecord.ENDPOINT_ID,
-                        SegmentRecord.LATENCY,
-                        SegmentRecord.START_TIME,
-                        SegmentRecord.TIME_BUCKET,
-                        SegmentRecord.DATA_BINARY),
+        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME, TAGS,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {

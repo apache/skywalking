@@ -37,12 +37,17 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.alarm.AlarmRecord} is a stream,
  * which can be used to build a {@link org.apache.skywalking.oap.server.core.query.type.AlarmMessage}
  */
 public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarmQueryDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(AlarmRecord.SCOPE,
+            AlarmRecord.NAME, AlarmRecord.ID0, AlarmRecord.ID1, AlarmRecord.ALARM_MESSAGE, AlarmRecord.START_TIME,
+            AlarmRecord.TIME_BUCKET, AlarmRecord.RULE_NAME, AlarmRecord.TAGS_RAW_DATA);
+
     public BanyanDBAlarmQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -54,16 +59,7 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
 
-        StreamQueryResponse resp = query(AlarmRecord.INDEX_NAME,
-                ImmutableSet.of(AlarmRecord.SCOPE,
-                        AlarmRecord.NAME,
-                        AlarmRecord.ID0,
-                        AlarmRecord.ID1,
-                        AlarmRecord.ALARM_MESSAGE,
-                        AlarmRecord.START_TIME,
-                        AlarmRecord.TIME_BUCKET,
-                        AlarmRecord.RULE_NAME,
-                        AlarmRecord.TAGS_RAW_DATA),
+        StreamQueryResponse resp = query(AlarmRecord.INDEX_NAME, TAGS,
                 tsRange,
                 new QueryBuilder<StreamQuery>() {
                     @Override

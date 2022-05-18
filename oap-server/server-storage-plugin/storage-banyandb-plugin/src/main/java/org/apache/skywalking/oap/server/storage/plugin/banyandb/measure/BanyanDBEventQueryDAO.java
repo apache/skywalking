@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
@@ -44,24 +45,17 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
 
 public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEventQueryDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(
+            Event.UUID, Event.SERVICE, Event.SERVICE_INSTANCE, Event.ENDPOINT, Event.NAME,
+            Event.MESSAGE, Event.TYPE, Event.START_TIME, Event.END_TIME, Event.PARAMETERS, Event.LAYER);
+
     public BanyanDBEventQueryDAO(final BanyanDBStorageClient client) {
         super(client);
     }
 
     @Override
     public Events queryEvents(EventQueryCondition condition) throws Exception {
-        MeasureQueryResponse resp = query(Event.INDEX_NAME, ImmutableSet.of(
-                        Event.UUID,
-                        Event.SERVICE,
-                        Event.SERVICE_INSTANCE,
-                        Event.ENDPOINT,
-                        Event.NAME,
-                        Event.MESSAGE,
-                        Event.TYPE,
-                        Event.START_TIME,
-                        Event.END_TIME,
-                        Event.PARAMETERS,
-                        Event.LAYER),
+        MeasureQueryResponse resp = query(Event.INDEX_NAME, TAGS,
                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {

@@ -38,8 +38,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements IAggregationQueryDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(Metrics.ENTITY_ID, Metrics.TIME_BUCKET);
+
     public BanyanDBAggregationQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -48,9 +51,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
     public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration, List<KeyValue> additionalConditions) throws IOException {
         final String modelName = condition.getName();
         final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
-        MeasureQueryResponse resp = query(modelName,
-                ImmutableSet.of(Metrics.ENTITY_ID, Metrics.TIME_BUCKET),
-                Collections.singleton(valueColumnName),
+        MeasureQueryResponse resp = query(modelName, TAGS, Collections.singleton(valueColumnName),
                 timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {

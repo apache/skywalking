@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,34 @@ import java.util.stream.Collectors;
  * {@link ProfileThreadSnapshotRecord} is a stream
  */
 public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO implements IProfileThreadSnapshotQueryDAO {
+    private static final Set<String> TAGS_BASIC = ImmutableSet.of(ProfileThreadSnapshotRecord.TASK_ID, ProfileThreadSnapshotRecord.SEGMENT_ID,
+            ProfileThreadSnapshotRecord.DUMP_TIME, ProfileThreadSnapshotRecord.SEQUENCE);
+
+    private static final Set<String> TAGS_ALL = ImmutableSet.of(ProfileThreadSnapshotRecord.TASK_ID,
+            ProfileThreadSnapshotRecord.SEGMENT_ID,
+            ProfileThreadSnapshotRecord.DUMP_TIME,
+            ProfileThreadSnapshotRecord.SEQUENCE,
+            ProfileThreadSnapshotRecord.TIME_BUCKET,
+            ProfileThreadSnapshotRecord.STACK_BINARY);
+
+    private static final Set<String> TAGS_TRACE = ImmutableSet.of(SegmentRecord.TRACE_ID,
+            SegmentRecord.IS_ERROR,
+            SegmentRecord.SERVICE_ID,
+            SegmentRecord.SERVICE_INSTANCE_ID,
+            SegmentRecord.ENDPOINT_ID,
+            SegmentRecord.LATENCY,
+            SegmentRecord.START_TIME);
+
+    private static final Set<String> TAGS_TRACE_ALL = ImmutableSet.of(SegmentRecord.TRACE_ID,
+            SegmentRecord.IS_ERROR,
+            SegmentRecord.SERVICE_ID,
+            SegmentRecord.SERVICE_INSTANCE_ID,
+            SegmentRecord.ENDPOINT_ID,
+            SegmentRecord.LATENCY,
+            SegmentRecord.START_TIME,
+            SegmentRecord.TIME_BUCKET,
+            SegmentRecord.DATA_BINARY);
+
     protected final ProfileThreadSnapshotRecord.Builder builder =
             new ProfileThreadSnapshotRecord.Builder();
 
@@ -54,8 +83,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
     @Override
     public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
         StreamQueryResponse resp = query(ProfileThreadSnapshotRecord.INDEX_NAME,
-                ImmutableSet.of(ProfileThreadSnapshotRecord.TASK_ID, ProfileThreadSnapshotRecord.SEGMENT_ID,
-                        ProfileThreadSnapshotRecord.DUMP_TIME, ProfileThreadSnapshotRecord.SEQUENCE),
+                TAGS_BASIC,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
@@ -77,13 +105,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
         List<BasicTrace> basicTraces = new ArrayList<>();
         for (String segmentID : segmentIds) {
             final StreamQueryResponse segmentRecordResp = query(SegmentRecord.INDEX_NAME,
-                    ImmutableSet.of(SegmentRecord.TRACE_ID,
-                            SegmentRecord.IS_ERROR,
-                            SegmentRecord.SERVICE_ID,
-                            SegmentRecord.SERVICE_INSTANCE_ID,
-                            SegmentRecord.ENDPOINT_ID,
-                            SegmentRecord.LATENCY,
-                            SegmentRecord.START_TIME),
+                    TAGS_TRACE,
                     new QueryBuilder<StreamQuery>() {
                         @Override
                         public void apply(StreamQuery traceQuery) {
@@ -132,12 +154,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
     @Override
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
         StreamQueryResponse resp = query(ProfileThreadSnapshotRecord.INDEX_NAME,
-                ImmutableSet.of(ProfileThreadSnapshotRecord.TASK_ID,
-                        ProfileThreadSnapshotRecord.SEGMENT_ID,
-                        ProfileThreadSnapshotRecord.DUMP_TIME,
-                        ProfileThreadSnapshotRecord.SEQUENCE,
-                        ProfileThreadSnapshotRecord.TIME_BUCKET,
-                        ProfileThreadSnapshotRecord.STACK_BINARY),
+                TAGS_ALL,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
@@ -159,15 +176,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
     @Override
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
         StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
-                ImmutableSet.of(SegmentRecord.TRACE_ID,
-                        SegmentRecord.IS_ERROR,
-                        SegmentRecord.SERVICE_ID,
-                        SegmentRecord.SERVICE_INSTANCE_ID,
-                        SegmentRecord.ENDPOINT_ID,
-                        SegmentRecord.LATENCY,
-                        SegmentRecord.START_TIME,
-                        SegmentRecord.TIME_BUCKET,
-                        SegmentRecord.DATA_BINARY),
+                TAGS_TRACE_ALL,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
@@ -186,12 +195,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
 
     private int querySequenceWithAgg(AggType aggType, String segmentId, long start, long end) throws IOException {
         StreamQueryResponse resp = query(ProfileThreadSnapshotRecord.INDEX_NAME,
-                ImmutableSet.of(ProfileThreadSnapshotRecord.TASK_ID,
-                        ProfileThreadSnapshotRecord.SEGMENT_ID,
-                        ProfileThreadSnapshotRecord.DUMP_TIME,
-                        ProfileThreadSnapshotRecord.SEQUENCE,
-                        ProfileThreadSnapshotRecord.TIME_BUCKET,
-                        ProfileThreadSnapshotRecord.STACK_BINARY),
+                TAGS_ALL,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {

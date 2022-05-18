@@ -32,11 +32,15 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@link ProfileTaskLogRecord} is a stream
  */
 public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implements IProfileTaskLogQueryDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(ProfileTaskLogRecord.OPERATION_TIME,
+            ProfileTaskLogRecord.INSTANCE_ID, ProfileTaskLogRecord.TASK_ID, ProfileTaskLogRecord.OPERATION_TYPE);
+
     private final int queryMaxSize;
 
     public BanyanDBProfileTaskLogQueryDAO(BanyanDBStorageClient client, int queryMaxSize) {
@@ -46,11 +50,7 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
 
     @Override
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
-        StreamQueryResponse resp = query(ProfileTaskLogRecord.INDEX_NAME,
-                ImmutableSet.of(ProfileTaskLogRecord.OPERATION_TIME,
-                        ProfileTaskLogRecord.INSTANCE_ID,
-                        ProfileTaskLogRecord.TASK_ID,
-                        ProfileTaskLogRecord.OPERATION_TYPE),
+        StreamQueryResponse resp = query(ProfileTaskLogRecord.INDEX_NAME, TAGS,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {

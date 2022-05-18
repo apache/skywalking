@@ -36,11 +36,16 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord} is a stream
  */
 public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements IBrowserLogQueryDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(BrowserErrorLogRecord.SERVICE_ID,
+            BrowserErrorLogRecord.SERVICE_VERSION_ID, BrowserErrorLogRecord.PAGE_PATH_ID,
+            BrowserErrorLogRecord.ERROR_CATEGORY, BrowserErrorLogRecord.DATA_BINARY);
+
     public BanyanDBBrowserLogQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -52,32 +57,30 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
         }
 
-        StreamQueryResponse resp = query(BrowserErrorLogRecord.INDEX_NAME, ImmutableSet.of(BrowserErrorLogRecord.SERVICE_ID,
-                BrowserErrorLogRecord.SERVICE_VERSION_ID,
-                BrowserErrorLogRecord.PAGE_PATH_ID,
-                BrowserErrorLogRecord.ERROR_CATEGORY, BrowserErrorLogRecord.DATA_BINARY), tsRange, new QueryBuilder<StreamQuery>() {
-            @Override
-            public void apply(StreamQuery query) {
-                if (StringUtil.isNotEmpty(serviceId)) {
-                    query.and(eq(BrowserErrorLogRecord.SERVICE_ID, serviceId));
-                }
+        StreamQueryResponse resp = query(BrowserErrorLogRecord.INDEX_NAME, TAGS,
+                tsRange, new QueryBuilder<StreamQuery>() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        if (StringUtil.isNotEmpty(serviceId)) {
+                            query.and(eq(BrowserErrorLogRecord.SERVICE_ID, serviceId));
+                        }
 
-                if (StringUtil.isNotEmpty(serviceVersionId)) {
-                    query.and(eq(BrowserErrorLogRecord.SERVICE_VERSION_ID, serviceVersionId));
-                }
+                        if (StringUtil.isNotEmpty(serviceVersionId)) {
+                            query.and(eq(BrowserErrorLogRecord.SERVICE_VERSION_ID, serviceVersionId));
+                        }
 
-                if (StringUtil.isNotEmpty(pagePathId)) {
-                    query.and(eq(BrowserErrorLogRecord.PAGE_PATH_ID, pagePathId));
-                }
+                        if (StringUtil.isNotEmpty(pagePathId)) {
+                            query.and(eq(BrowserErrorLogRecord.PAGE_PATH_ID, pagePathId));
+                        }
 
-                if (Objects.nonNull(category)) {
-                    query.and(eq(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
-                }
+                        if (Objects.nonNull(category)) {
+                            query.and(eq(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
+                        }
 
-                query.setOffset(from);
-                query.setLimit(limit);
-            }
-        });
+                        query.setOffset(from);
+                        query.setLimit(limit);
+                    }
+                });
 
         BrowserErrorLogs logs = new BrowserErrorLogs();
         logs.setTotal(resp.size());

@@ -377,7 +377,7 @@ public enum MetadataRegistry {
             switch (kind) {
                 case MEASURE:
                 case STREAM:
-                    return "binary";
+                    return "storage-only";
                 default:
                     throw new IllegalStateException("should not reach here");
             }

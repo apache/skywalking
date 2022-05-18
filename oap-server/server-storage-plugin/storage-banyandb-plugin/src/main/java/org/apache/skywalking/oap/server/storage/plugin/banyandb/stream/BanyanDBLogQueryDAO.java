@@ -44,11 +44,23 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord} is a stream
  */
 public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQueryDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(AbstractLogRecord.SERVICE_ID,
+            AbstractLogRecord.SERVICE_INSTANCE_ID,
+            AbstractLogRecord.ENDPOINT_ID,
+            AbstractLogRecord.TRACE_ID,
+            AbstractLogRecord.TRACE_SEGMENT_ID,
+            AbstractLogRecord.SPAN_ID,
+            AbstractLogRecord.TIMESTAMP,
+            AbstractLogRecord.CONTENT_TYPE,
+            AbstractLogRecord.CONTENT,
+            AbstractLogRecord.TAGS_RAW_DATA);
+
     public BanyanDBLogQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -97,17 +109,7 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
 
-        StreamQueryResponse resp = query(LogRecord.INDEX_NAME,
-                ImmutableSet.of(AbstractLogRecord.SERVICE_ID,
-                        AbstractLogRecord.SERVICE_INSTANCE_ID,
-                        AbstractLogRecord.ENDPOINT_ID,
-                        AbstractLogRecord.TRACE_ID,
-                        AbstractLogRecord.TRACE_SEGMENT_ID,
-                        AbstractLogRecord.SPAN_ID,
-                        AbstractLogRecord.TIMESTAMP,
-                        AbstractLogRecord.CONTENT_TYPE,
-                        AbstractLogRecord.CONTENT,
-                        AbstractLogRecord.TAGS_RAW_DATA), tsRange, query);
+        StreamQueryResponse resp = query(LogRecord.INDEX_NAME, TAGS, tsRange, query);
 
         Logs logs = new Logs();
         logs.setTotal(resp.size());

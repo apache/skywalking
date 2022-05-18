@@ -19,10 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
 import com.google.common.collect.ImmutableSet;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
@@ -36,6 +39,10 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractB
 public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implements INetworkAddressAliasDAO {
     private final NetworkAddressAlias.Builder builder = new NetworkAddressAlias.Builder();
 
+    private static final Set<String> TAGS = ImmutableSet.of(NetworkAddressAlias.ADDRESS,
+            NetworkAddressAlias.TIME_BUCKET, NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET,
+            NetworkAddressAlias.REPRESENT_SERVICE_ID, NetworkAddressAlias.REPRESENT_SERVICE_INSTANCE_ID);
+
     public BanyanDBNetworkAddressAliasDAO(final BanyanDBStorageClient client) {
         super(client);
     }
@@ -44,28 +51,22 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
     public List<NetworkAddressAlias> loadLastUpdate(long timeBucket) {
         try {
             MeasureQueryResponse resp = query(
-                NetworkAddressAlias.INDEX_NAME,
-                ImmutableSet.of(
-                    NetworkAddressAlias.ADDRESS,
-                    NetworkAddressAlias.TIME_BUCKET,
-                    NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET,
-                    NetworkAddressAlias.REPRESENT_SERVICE_ID,
-                    NetworkAddressAlias.REPRESENT_SERVICE_INSTANCE_ID
-                ),
-                Collections.emptySet(),
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(final MeasureQuery query) {
-                        query.and(gte(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET, timeBucket));
+                    NetworkAddressAlias.INDEX_NAME,
+                    TAGS,
+                    Collections.emptySet(),
+                    new QueryBuilder<MeasureQuery>() {
+                        @Override
+                        protected void apply(final MeasureQuery query) {
+                            query.and(gte(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET, timeBucket));
+                        }
                     }
-                }
             );
             return resp.getDataPoints()
-                        .stream()
-                        .map(
+                    .stream()
+                    .map(
                             point -> builder.storage2Entity(new StorageToMeasure(NetworkAddressAlias.INDEX_NAME, point))
-                        )
-                        .collect(Collectors.toList());
+                    )
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
