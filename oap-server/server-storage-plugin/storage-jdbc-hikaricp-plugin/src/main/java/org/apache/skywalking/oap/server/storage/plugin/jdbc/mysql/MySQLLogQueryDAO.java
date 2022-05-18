@@ -31,11 +31,6 @@ public class MySQLLogQueryDAO extends H2LogQueryDAO {
     }
 
     @Override
-    protected String buildCountStatement(String sql) {
-        return "select count(1) total " + sql;
-    }
-
-    @Override
     protected void buildLimit(StringBuilder sql, int from, int limit) {
         sql.append(" LIMIT ").append(from).append(", ").append(limit);
     }

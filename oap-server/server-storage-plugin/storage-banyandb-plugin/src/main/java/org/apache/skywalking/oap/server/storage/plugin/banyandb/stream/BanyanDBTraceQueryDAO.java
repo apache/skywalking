@@ -139,7 +139,6 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                 tsRange, q);
 
         TraceBrief traceBrief = new TraceBrief();
-        traceBrief.setTotal(resp.size());
 
         if (resp.size() == 0) {
             return traceBrief;
