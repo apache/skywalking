@@ -70,8 +70,8 @@ public enum MetadataRegistry {
     private final Map<String, Schema> registry = new HashMap<>();
 
     public NamedSchema<?> registerModel(Model model, ConfigService configService) {
-        final PartialMetadata partialMetadata = parseMetadata(model);
-        Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(partialMetadata);
+        final SchemaMetadata schemaMetadata = parseMetadata(model);
+        Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
         // parse and set sharding keys
@@ -81,7 +81,7 @@ public enum MetadataRegistry {
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
         List<TagMetadata> tags = parseTagMetadata(model, configService, schemaBuilder);
-        List<TagFamilySpec> tagFamilySpecs = partialMetadata.extractTagFamilySpec(tags);
+        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags);
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
             for (final TagFamilySpec.TagSpec tagSpec : tagFamilySpec.tagSpecs()) {
@@ -93,8 +93,8 @@ public enum MetadataRegistry {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        if (partialMetadata.getKind() == Kind.STREAM) {
-            final Stream.Builder builder = Stream.create(partialMetadata.getGroup(), partialMetadata.getName());
+        if (schemaMetadata.getKind() == Kind.STREAM) {
+            final Stream.Builder builder = Stream.create(schemaMetadata.getGroup(), schemaMetadata.getName());
             if (entities.isEmpty()) {
                 throw new IllegalStateException("sharding keys of model[stream." + model.getName() + "] must not be empty");
             }
@@ -104,7 +104,7 @@ public enum MetadataRegistry {
             registry.put(model.getName(), schemaBuilder.build());
             return builder.build();
         } else {
-            final Measure.Builder builder = Measure.create(partialMetadata.getGroup(), partialMetadata.getName(),
+            final Measure.Builder builder = Measure.create(schemaMetadata.getGroup(), schemaMetadata.getName(),
                     downSamplingDuration(model.getDownsampling()));
             if (entities.isEmpty()) { // if shardingKeys is empty, for measure, we can use ID as a single sharding key.
                 builder.setEntityRelativeTags(Measure.ID);
@@ -290,21 +290,21 @@ public enum MetadataRegistry {
         }
     }
 
-    public PartialMetadata parseMetadata(Model model) {
+    public SchemaMetadata parseMetadata(Model model) {
         if (model.isRecord()) {
             String group = "stream-default";
             if (model.isSuperDataset()) {
                 // for superDataset, we should use separate group
                 group = "stream-" + model.getName();
             }
-            return new PartialMetadata(group, model.getName(), Kind.STREAM);
+            return new SchemaMetadata(group, model.getName(), Kind.STREAM);
         }
-        return new PartialMetadata("measure-default", model.getName(), Kind.MEASURE);
+        return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE);
     }
 
     @RequiredArgsConstructor
     @Data
-    public static class PartialMetadata {
+    public static class SchemaMetadata {
         private final String group;
         private final String name;
         private final Kind kind;
@@ -330,7 +330,7 @@ public enum MetadataRegistry {
 
         private List<TagFamilySpec> extractTagFamilySpec(List<TagMetadata> tagMetadataList) {
             Map<String, List<TagMetadata>> tagMetadataMap = tagMetadataList.stream()
-                    .collect(Collectors.groupingBy(tagMetadata -> tagMetadata.isIndex() ? PartialMetadata.this.indexFamily() : PartialMetadata.this.nonIndexFamily()));
+                    .collect(Collectors.groupingBy(tagMetadata -> tagMetadata.isIndex() ? SchemaMetadata.this.indexFamily() : SchemaMetadata.this.nonIndexFamily()));
 
             final List<TagFamilySpec> tagFamilySpecs = new ArrayList<>(tagMetadataMap.size());
             for (final Map.Entry<String, List<TagMetadata>> entry : tagMetadataMap.entrySet()) {
@@ -403,7 +403,7 @@ public enum MetadataRegistry {
     @EqualsAndHashCode
     public static class Schema {
         @Getter
-        private final PartialMetadata metadata;
+        private final SchemaMetadata metadata;
         @Singular
         private final Map<String, ColumnSpec> specs;
 

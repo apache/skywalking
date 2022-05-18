@@ -74,17 +74,16 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
         }
 
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
-            return CompletableFuture.allOf(prepareRequests.stream().map(prepareRequest -> {
-                if (prepareRequest instanceof BanyanDBStreamInsertRequest) {
+            for (final PrepareRequest r : prepareRequests) {
+                if (r instanceof BanyanDBStreamInsertRequest) {
                     // TODO: return CompletableFuture<Void>
-                    this.streamBulkWriteProcessor.add(((BanyanDBStreamInsertRequest) prepareRequest).getStreamWrite());
-                } else if (prepareRequest instanceof BanyanDBMeasureInsertRequest) {
-                    this.measureBulkWriteProcessor.add(((BanyanDBMeasureInsertRequest) prepareRequest).getMeasureWrite());
-                } else if (prepareRequest instanceof BanyanDBMeasureUpdateRequest) {
-                    this.measureBulkWriteProcessor.add(((BanyanDBMeasureUpdateRequest) prepareRequest).getMeasureWrite());
+                    this.streamBulkWriteProcessor.add(((BanyanDBStreamInsertRequest) r).getStreamWrite());
+                } else if (r instanceof BanyanDBMeasureInsertRequest) {
+                    this.measureBulkWriteProcessor.add(((BanyanDBMeasureInsertRequest) r).getMeasureWrite());
+                } else if (r instanceof BanyanDBMeasureUpdateRequest) {
+                    this.measureBulkWriteProcessor.add(((BanyanDBMeasureUpdateRequest) r).getMeasureWrite());
                 }
-                return CompletableFuture.completedFuture(null);
-            }).toArray(CompletableFuture[]::new));
+            }
         }
 
         return CompletableFuture.completedFuture(null);

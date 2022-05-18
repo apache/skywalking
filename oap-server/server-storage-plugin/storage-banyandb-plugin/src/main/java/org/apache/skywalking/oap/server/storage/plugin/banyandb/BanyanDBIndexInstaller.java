@@ -47,7 +47,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     @Override
     protected boolean isExists(Model model) throws StorageException {
-        final MetadataRegistry.PartialMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model);
+        final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model);
         try {
             final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
             // first check group

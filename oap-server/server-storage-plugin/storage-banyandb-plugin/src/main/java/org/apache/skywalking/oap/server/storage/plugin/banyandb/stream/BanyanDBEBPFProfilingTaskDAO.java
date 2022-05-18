@@ -72,7 +72,7 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
                                 query.and(gte(EBPFProfilingTaskRecord.START_TIME, taskStartTime));
                             }
                             if (latestUpdateTime > 0) {
-                                query.and(gte(EBPFProfilingTaskRecord.LAST_UPDATE_TIME, latestUpdateTime));
+                                query.and(gt(EBPFProfilingTaskRecord.LAST_UPDATE_TIME, latestUpdateTime));
                             }
                             query.setOrderBy(new AbstractQuery.OrderBy(EBPFProfilingTaskRecord.CREATE_TIME, AbstractQuery.Sort.DESC));
                         }
