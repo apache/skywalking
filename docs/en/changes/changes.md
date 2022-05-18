@@ -82,6 +82,11 @@
 * Remove the `Layer` filed from the Instance and Process.
 * Fix date time picker display when set hour to `0`.
 * Implement tags auto-complete for Trace and Log.
+* Support multiple trees for the flame graph.
+* Fix the page doesn't need to be re-rendered when the url changes.
+* Remove unexpected data for exporting dashboards.
+* Fix duration time.
+
 
 #### Documentation
 
