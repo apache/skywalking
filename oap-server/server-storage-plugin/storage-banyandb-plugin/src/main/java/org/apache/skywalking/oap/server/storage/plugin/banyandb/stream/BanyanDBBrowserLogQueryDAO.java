@@ -83,7 +83,6 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
                 });
 
         BrowserErrorLogs logs = new BrowserErrorLogs();
-        logs.setTotal(resp.size());
 
         for (final RowEntity rowEntity : resp.getElements()) {
             final byte[] dataBinary = rowEntity.getTagValue(BrowserErrorLogRecord.DATA_BINARY);

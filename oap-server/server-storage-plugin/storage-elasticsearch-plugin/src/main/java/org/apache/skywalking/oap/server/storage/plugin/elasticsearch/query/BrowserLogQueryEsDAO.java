@@ -87,7 +87,6 @@ public class BrowserLogQueryEsDAO extends EsDAO implements IBrowserLogQueryDAO {
             );
 
         BrowserErrorLogs logs = new BrowserErrorLogs();
-        logs.setTotal(response.getHits().getTotal());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             final String dataBinaryBase64 =

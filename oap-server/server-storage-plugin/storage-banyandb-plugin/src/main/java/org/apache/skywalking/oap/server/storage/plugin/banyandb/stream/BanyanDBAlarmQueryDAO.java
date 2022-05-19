@@ -83,7 +83,6 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
                 });
 
         Alarms alarms = new Alarms();
-        alarms.setTotal(resp.size());
 
         for (final RowEntity rowEntity : resp.getElements()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();

@@ -40,4 +40,3 @@ msgs:
         layer: GENERAL
       {{- end }}
   {{- end }}
-total: 1
