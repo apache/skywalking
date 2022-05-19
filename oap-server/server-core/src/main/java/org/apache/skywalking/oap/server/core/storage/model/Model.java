@@ -59,5 +59,9 @@ public class Model {
         this.aggregationFunctionName = aggregationFunctionName;
         this.timeRelativeID = timeRelativeID;
         this.sqlDBModelExtension = sqlDBModelExtension;
+        // remove exclude columns according to @SQLDatabase.AdditionalEntity
+        if (sqlDBModelExtension != null) {
+            this.columns.removeAll(sqlDBModelExtension.getExcludeColumns());
+        }
     }
 }

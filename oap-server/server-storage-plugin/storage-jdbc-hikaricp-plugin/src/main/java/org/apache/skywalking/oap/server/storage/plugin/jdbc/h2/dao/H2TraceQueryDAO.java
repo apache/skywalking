@@ -83,12 +83,27 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         List<Object> parameters = new ArrayList<>(10);
 
         sql.append("from ").append(SegmentRecord.INDEX_NAME);
+
+        /**
+         * If no tags condition, only query segment table, the SQL should be:
+         * select column1, column2.. from segment where 1=1 and colunm1=xx ...
+         *
+         * If 1 tag condition, query both segment and segment_tag tables, the SQL should be:
+         * select column1, column2.. from segment inner join segment_tag segment_tag0 on segment.id=segment_tag0.id
+         *        where 1=1 and colunm1=xx ... and segment_tag0=tagString0
+         *
+         * If 2 or more tags condition, query both segment and segment_tag tables, the SQL should be:
+         * select column1, column2.. from segment inner join segment_tag segment_tag0 on segment.id=segment_tag0.id
+         *        inner join segment_tag segment_tag1 on segment.id=segment_tag1.id ...
+         *        where 1=1 and colunm1=xx ...
+         *        and segment_tag0=tagString0 and segment_tag1=tagString1 ...
+         */
         if (!CollectionUtils.isEmpty(tags)) {
             for (int i = 0; i < tags.size(); i++) {
-                sql.append(" inner join ").append(SegmentRecord.ADDITIONAL_TABLE_TAG).append(" ");
-                sql.append(SegmentRecord.ADDITIONAL_TABLE_TAG + i);
+                sql.append(" inner join ").append(SegmentRecord.ADDITIONAL_TAG_TABLE).append(" ");
+                sql.append(SegmentRecord.ADDITIONAL_TAG_TABLE + i);
                 sql.append(" on ").append(SegmentRecord.INDEX_NAME).append(".").append(ID_COLUMN).append(" = ");
-                sql.append(SegmentRecord.ADDITIONAL_TABLE_TAG + i).append(".").append(ID_COLUMN);
+                sql.append(SegmentRecord.ADDITIONAL_TAG_TABLE + i).append(".").append(ID_COLUMN);
             }
         }
         sql.append(" where ");
@@ -127,7 +142,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             for (int i = 0; i < tags.size(); i++) {
                 final int foundIdx = searchableTagKeys.indexOf(tags.get(i).getKey());
                 if (foundIdx > -1) {
-                    sql.append(" and ").append(SegmentRecord.ADDITIONAL_TABLE_TAG + i).append(".");
+                    sql.append(" and ").append(SegmentRecord.ADDITIONAL_TAG_TABLE + i).append(".");
                     sql.append(SegmentRecord.TAGS).append(" = ?");
                     parameters.add(tags.get(i).toString());
                 } else {

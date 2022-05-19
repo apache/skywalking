@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 public abstract class AbstractLogRecord extends Record {
-    public static final String ADDITIONAL_TABLE_TAG = "log_tag";
+    public static final String ADDITIONAL_TAG_TABLE = "log_tag";
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_INSTANCE_ID = "service_instance_id";
     public static final String ENDPOINT_ID = "endpoint_id";
@@ -99,7 +99,7 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = TAGS, indexOnly = true)
-    @SQLDatabase.AdditionalEntity.OnlyAdditional(additionalTables = {ADDITIONAL_TABLE_TAG})
+    @SQLDatabase.AdditionalEntity.OnlyAdditional(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
 
     @Override

@@ -120,11 +120,16 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OnlyAdditional.class)
                     || field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OriginAndAdditional.class)) {
                     if (!record) {
-                        throw new IllegalStateException(modelName + " is not a Record, @SQLDatabase.AdditionalEntity only supports Record.");
+                        throw new IllegalStateException("Model [" + modelName + "] is not a Record, @SQLDatabase.AdditionalEntity only supports Record.");
                     }
                 }
 
                 Column column = field.getAnnotation(Column.class);
+                if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OnlyAdditional.class)
+                    && field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OriginAndAdditional.class)) {
+                    throw new IllegalStateException("Model [" + modelName + "] column [" + column.columnName() +
+                                                        "]: @OnlyAdditional and @OriginAndAdditional cannot be used on the same column.");
+                }
                 // Use the column#length as the default column length, as read the system env as the override mechanism.
                 // Log the error but don't block the startup sequence.
                 int columnLength = column.length();

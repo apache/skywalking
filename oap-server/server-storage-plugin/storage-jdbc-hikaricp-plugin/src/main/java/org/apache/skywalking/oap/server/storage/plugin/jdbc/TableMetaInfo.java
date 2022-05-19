@@ -26,8 +26,6 @@ public class TableMetaInfo {
     private static Map<String, Model> TABLES = new HashMap<>();
 
     public static void addModel(Model model) {
-        // remove exclude columns according to @SQLDatabase.AdditionalEntity
-        model.getColumns().removeAll(model.getSqlDBModelExtension().getExcludeColumns());
         TABLES.put(model.getName(), model);
     }
 

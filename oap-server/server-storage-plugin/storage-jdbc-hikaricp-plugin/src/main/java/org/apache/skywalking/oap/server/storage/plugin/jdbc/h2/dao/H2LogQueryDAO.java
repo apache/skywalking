@@ -91,12 +91,15 @@ public class H2LogQueryDAO implements ILogQueryDAO {
         List<Object> parameters = new ArrayList<>(10);
 
         sql.append("from ").append(LogRecord.INDEX_NAME);
+        /**
+         * The tags logic same as H2TraceQueryDAO
+         */
         if (!CollectionUtils.isEmpty(tags)) {
             for (int i = 0; i < tags.size(); i++) {
-                sql.append(" inner join ").append(AbstractLogRecord.ADDITIONAL_TABLE_TAG).append(" ");
-                sql.append(AbstractLogRecord.ADDITIONAL_TABLE_TAG + i);
+                sql.append(" inner join ").append(AbstractLogRecord.ADDITIONAL_TAG_TABLE).append(" ");
+                sql.append(AbstractLogRecord.ADDITIONAL_TAG_TABLE + i);
                 sql.append(" on ").append(LogRecord.INDEX_NAME).append(".").append(ID_COLUMN).append(" = ");
-                sql.append(AbstractLogRecord.ADDITIONAL_TABLE_TAG + i).append(".").append(ID_COLUMN);
+                sql.append(AbstractLogRecord.ADDITIONAL_TAG_TABLE + i).append(".").append(ID_COLUMN);
             }
         }
         sql.append(" where ");
@@ -139,7 +142,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
             for (int i = 0; i < tags.size(); i++) {
                 final int foundIdx = searchableTagKeys.indexOf(tags.get(i).getKey());
                 if (foundIdx > -1) {
-                    sql.append(" and ").append(AbstractLogRecord.ADDITIONAL_TABLE_TAG + i).append(".");
+                    sql.append(" and ").append(AbstractLogRecord.ADDITIONAL_TAG_TABLE + i).append(".");
                     sql.append(AbstractLogRecord.TAGS).append(" = ?");
                     parameters.add(tags.get(i).toString());
                 } else {

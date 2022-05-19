@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 public class SegmentRecord extends Record {
 
     public static final String INDEX_NAME = "segment";
-    public static final String ADDITIONAL_TABLE_TAG = "segment_tag";
+    public static final String ADDITIONAL_TAG_TABLE = "segment_tag";
     public static final String SEGMENT_ID = "segment_id";
     public static final String TRACE_ID = "trace_id";
     public static final String SERVICE_ID = "service_id";
@@ -93,7 +93,7 @@ public class SegmentRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = TAGS, indexOnly = true)
-    @SQLDatabase.AdditionalEntity.OnlyAdditional(additionalTables = {ADDITIONAL_TABLE_TAG})
+    @SQLDatabase.AdditionalEntity.OnlyAdditional(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tags;
 
     @Override

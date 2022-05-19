@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -30,20 +31,15 @@ import lombok.RequiredArgsConstructor;
  * @since 9.1.0
  */
 @Getter
+@EqualsAndHashCode
 public class SQLDatabaseModelExtension {
     private final Map<String, AdditionalTable> additionalTables = new HashMap<>(5);
     //exclude the columns from the main table
     private final List<ModelColumn> excludeColumns = new ArrayList<>(5);
 
     public void appendAdditionalTable(String tableName, ModelColumn column) {
-        AdditionalTable entity = additionalTables.get(tableName);
-        if (entity == null) {
-            AdditionalTable additionalTable = new AdditionalTable(tableName);
-            additionalTable.appendColumn(column);
-            additionalTables.put(tableName, additionalTable);
-        } else {
-            entity.appendColumn(column);
-        }
+        additionalTables.computeIfAbsent(tableName, AdditionalTable::new)
+                        .appendColumn(column);
     }
 
     public void appendExcludeColumns(ModelColumn column) {

@@ -44,7 +44,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AL
 public class AlarmRecord extends Record {
 
     public static final String INDEX_NAME = "alarm_record";
-    public static final String ADDITIONAL_TABLE_TAG = "alarm_record_tag";
+    public static final String ADDITIONAL_TAG_TABLE = "alarm_record_tag";
     public static final String SCOPE = "scope";
     public static final String NAME = "name";
     public static final String ID0 = "id0";
@@ -77,7 +77,7 @@ public class AlarmRecord extends Record {
     @Column(columnName = RULE_NAME)
     private String ruleName;
     @Column(columnName = TAGS, indexOnly = true)
-    @SQLDatabase.AdditionalEntity.OnlyAdditional(additionalTables = {ADDITIONAL_TABLE_TAG})
+    @SQLDatabase.AdditionalEntity.OnlyAdditional(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
     @Column(columnName = TAGS_RAW_DATA, storageOnly = true)
     private byte[] tagsRawData;

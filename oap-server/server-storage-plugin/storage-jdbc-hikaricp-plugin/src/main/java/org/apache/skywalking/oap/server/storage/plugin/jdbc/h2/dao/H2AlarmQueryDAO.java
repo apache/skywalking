@@ -67,12 +67,15 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
         sql.append("from ").append(AlarmRecord.INDEX_NAME);
+        /**
+         * The tags logic same as H2TraceQueryDAO
+         */
         if (!CollectionUtils.isEmpty(tags)) {
             for (int i = 0; i < tags.size(); i++) {
-                sql.append(" inner join ").append(AlarmRecord.ADDITIONAL_TABLE_TAG).append(" ");
-                sql.append(AlarmRecord.ADDITIONAL_TABLE_TAG + i);
+                sql.append(" inner join ").append(AlarmRecord.ADDITIONAL_TAG_TABLE).append(" ");
+                sql.append(AlarmRecord.ADDITIONAL_TAG_TABLE + i);
                 sql.append(" on ").append(AlarmRecord.INDEX_NAME).append(".").append(ID_COLUMN).append(" = ");
-                sql.append(AlarmRecord.ADDITIONAL_TABLE_TAG + i).append(".").append(ID_COLUMN);
+                sql.append(AlarmRecord.ADDITIONAL_TAG_TABLE + i).append(".").append(ID_COLUMN);
             }
         }
         sql.append(" where ");
@@ -96,7 +99,7 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
             for (int i = 0; i < tags.size(); i++) {
                 final int foundIdx = searchableTagKeys.indexOf(tags.get(i).getKey());
                 if (foundIdx > -1) {
-                    sql.append(" and ").append(AlarmRecord.ADDITIONAL_TABLE_TAG + i).append(".");
+                    sql.append(" and ").append(AlarmRecord.ADDITIONAL_TAG_TABLE + i).append(".");
                     sql.append(AlarmRecord.TAGS).append(" = ?");
                     parameters.add(tags.get(i).toString());
                 } else {
