@@ -21,8 +21,10 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.slf4j.Logger;
@@ -38,6 +40,8 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
 
     private String sql;
     private List<Object> param;
+    @Getter
+    private final List<SQLExecutor> additionalSQLs = new ArrayList<>();
 
     public SQLExecutor(String sql, List<Object> param) {
         this.sql = sql;
@@ -51,6 +55,10 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
             LOGGER.debug("execute sql in batch: {}, parameters: {}", sql, param);
         }
         preparedStatement.execute();
+
+        if (additionalSQLs.size() > 0) {
+            invokeAdditionalSQL(connection);
+        }
     }
 
     public void setParameters(PreparedStatement preparedStatement) throws SQLException {
@@ -62,5 +70,20 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
     @Override
     public String toString() {
         return sql;
+    }
+
+    public void appendAdditionalSQLs(List<SQLExecutor> sqlExecutors) {
+        additionalSQLs.addAll(sqlExecutors);
+    }
+
+    private void invokeAdditionalSQL(Connection connection) throws SQLException {
+        for (SQLExecutor sqlExecutor: additionalSQLs) {
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlExecutor.sql);
+            setParameters(preparedStatement);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("execute sql in batch: {}, parameters: {}", sqlExecutor.sql, sqlExecutor.param);
+            }
+            preparedStatement.execute();
+        }
     }
 }

@@ -60,6 +60,9 @@
 * Fix the problem that `MQ` has the wrong `Layer` type.
 * Fix NoneStream model has wrong downsampling(was Second, should be Minute).
 * [Breaking Change] Remove `total` field in Trace and Logs list query.
+* SQL Database: provide `@SQLDatabase.AdditionalEntity` to support create additional tables from a model. 
+* [Breaking Change] SQL Database: remove SQL Database config `maxSizeOfArrayColumn` and `numOfSearchableValuesPerTag`.
+* [Breaking Change] SQL Database: move `Tags list` from `Segment`,`Logs`,`Alarms` to their additional table.
 
 #### UI
 

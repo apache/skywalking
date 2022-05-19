@@ -53,4 +53,26 @@ public @interface SQLDatabase {
     @interface MultipleQueryUnifiedIndex {
         QueryUnifiedIndex[] value();
     }
+
+    /**
+     *  Support create additional tables from a model.
+     *  The typical use is: when need to storage a `List` field, we can transform it to another table as row set.
+     *  Notice:
+     *    This feature only support `Record` type.
+     *    An additional table only support 1 field.
+     *    Create `MultiColumnsIndex` on the additional table only when it contains all need columns.
+     */
+    @interface AdditionalEntity {
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface OnlyAdditional {
+            String[] additionalTables();
+        }
+
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface OriginAndAdditional {
+            String[] additionalTables();
+        }
+    }
 }

@@ -24,12 +24,14 @@ import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
+import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
@@ -46,16 +48,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 public class H2TableInstaller extends ModelInstaller {
     public static final String ID_COLUMN = "id";
 
-    protected final int maxSizeOfArrayColumn;
-    protected final int numOfSearchableValuesPerTag;
-
-    public H2TableInstaller(Client client,
-                            ModuleManager moduleManager,
-                            int maxSizeOfArrayColumn,
-                            int numOfSearchableValuesPerTag) {
+    public H2TableInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
-        this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
-        this.numOfSearchableValuesPerTag = numOfSearchableValuesPerTag;
         overrideColumnName("value", "value_");
     }
 
@@ -69,25 +63,11 @@ public class H2TableInstaller extends ModelInstaller {
     protected void createTable(Model model) throws StorageException {
         JDBCHikariCPClient jdbcHikariCPClient = (JDBCHikariCPClient) client;
         try (Connection connection = jdbcHikariCPClient.getConnection()) {
-            SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + model.getName() + " (");
-            /**
-             * 512 is also the ElasticSearch ID size.
-             */
-            tableCreateSQL.appendLine("id VARCHAR(512) PRIMARY KEY, ");
-            for (int i = 0; i < model.getColumns().size(); i++) {
-                ModelColumn column = model.getColumns().get(i);
-                tableCreateSQL.appendLine(
-                    getColumn(column) + (i != model.getColumns().size() - 1 ? "," : ""));
-            }
-            tableCreateSQL.appendLine(")");
-
-            if (log.isDebugEnabled()) {
-                log.debug("creating table: " + tableCreateSQL.toStringInNewLine());
-            }
-
-            jdbcHikariCPClient.execute(connection, tableCreateSQL.toString());
-
-            createTableIndexes(jdbcHikariCPClient, connection, model);
+            // remove exclude columns according to @SQLDatabase.AdditionalEntity
+            model.getColumns().removeAll(model.getSqlDBModelExtension().getExcludeColumns());
+            createTable(jdbcHikariCPClient, connection, model.getName(), model.getColumns(), false);
+            createTableIndexes(jdbcHikariCPClient, connection, model.getName(), model.getColumns(), false);
+            createAdditionalTable(jdbcHikariCPClient, connection, model);
         } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
         }
@@ -118,15 +98,7 @@ public class H2TableInstaller extends ModelInstaller {
             return storageName + " VARCHAR(" + column.getLength() + ")";
         } else if (List.class.isAssignableFrom(type)) {
             final Type elementType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
-            String oneColumnType = transform(column, (Class<?>) elementType, elementType);
-            // Remove the storageName as prefix
-            oneColumnType = oneColumnType.substring(storageName.length());
-            StringBuilder columns = new StringBuilder();
-            for (int i = 0; i < maxSizeOfArrayColumn; i++) {
-                columns.append(storageName).append("_").append(i).append(oneColumnType)
-                       .append(i == maxSizeOfArrayColumn - 1 ? "" : ",");
-            }
-            return columns.toString();
+            return transform(column, (Class<?>) elementType, elementType);
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }
@@ -134,14 +106,53 @@ public class H2TableInstaller extends ModelInstaller {
 
     protected void createTableIndexes(JDBCHikariCPClient client,
                                       Connection connection,
-                                      Model model) throws JDBCClientException {
+                                      String tableName, List<ModelColumn> columns, boolean additionalTable) throws JDBCClientException {
     }
 
-    protected void createIndex(JDBCHikariCPClient client, Connection connection, Model model,
+    protected void createIndex(JDBCHikariCPClient client, Connection connection, String tableName,
                                SQLBuilder indexSQL) throws JDBCClientException {
         if (log.isDebugEnabled()) {
-            log.debug("create index for table {}, sql: {} ", model.getName(), indexSQL.toStringInNewLine());
+            log.debug("create index for table {}, sql: {} ", tableName, indexSQL.toStringInNewLine());
         }
         client.execute(connection, indexSQL.toString());
+    }
+
+    private void createAdditionalTable(JDBCHikariCPClient client,
+                                       Connection connection,
+                                       Model model) throws JDBCClientException {
+        Map<String, SQLDatabaseModelExtension.AdditionalTable> additionalTables = model.getSqlDBModelExtension()
+                                                                                       .getAdditionalTables();
+        for (SQLDatabaseModelExtension.AdditionalTable table : additionalTables.values()) {
+            createTable(client, connection, table.getName(), table.getColumns(), true);
+            createTableIndexes(client, connection, table.getName(), table.getColumns(), true);
+        }
+    }
+
+    private void createTable(JDBCHikariCPClient client,
+                             Connection connection,
+                             String tableName, List<ModelColumn> columns, boolean additionalTable) throws JDBCClientException {
+        SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + tableName + " (");
+        tableCreateSQL.appendLine(ID_COLUMN).appendLine(" VARCHAR(512) ");
+        if (!additionalTable) {
+            /**
+             * 512 is also the ElasticSearch ID size.
+             */
+
+            tableCreateSQL.appendLine("PRIMARY KEY, ");
+        } else {
+            tableCreateSQL.appendLine(", ");
+        }
+        for (int i = 0; i < columns.size(); i++) {
+            ModelColumn column = columns.get(i);
+            tableCreateSQL.appendLine(
+                getColumn(column) + (i != columns.size() - 1 ? "," : ""));
+        }
+        tableCreateSQL.appendLine(")");
+
+        if (log.isDebugEnabled()) {
+            log.debug("creating table: " + tableCreateSQL.toStringInNewLine());
+        }
+
+        client.execute(connection, tableCreateSQL.toString());
     }
 }

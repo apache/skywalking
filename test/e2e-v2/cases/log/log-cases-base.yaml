@@ -25,7 +25,7 @@
       expected: expected/service-instance.yml
     # logs
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=e2e-service-provider --trace-id=$( \
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=e2e-service-provider --tags level=INFO --trace-id=$( \
             swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls \
               | yq e '.traces | select(.[].endpointnames[0]=="POST:/users") | .[0].traceids[0]' -
         )

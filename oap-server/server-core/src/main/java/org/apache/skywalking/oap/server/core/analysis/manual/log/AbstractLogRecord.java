@@ -22,18 +22,18 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 public abstract class AbstractLogRecord extends Record {
-
+    public static final String ADDITIONAL_TABLE_TAG = "log_tag";
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_INSTANCE_ID = "service_instance_id";
     public static final String ENDPOINT_ID = "endpoint_id";
@@ -99,15 +99,8 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = TAGS, indexOnly = true)
+    @SQLDatabase.AdditionalEntity.OnlyAdditional(additionalTables = {ADDITIONAL_TABLE_TAG})
     private List<String> tagsInString;
-
-    /**
-     * tags is a duplicate field of {@link #tagsInString}. Some storage don't support array values in a single column.
-     * Then, those implementations could use this raw data to generate necessary data structures.
-     */
-    @Setter
-    @Getter
-    private List<Tag> tags;
 
     @Override
     public String id() {

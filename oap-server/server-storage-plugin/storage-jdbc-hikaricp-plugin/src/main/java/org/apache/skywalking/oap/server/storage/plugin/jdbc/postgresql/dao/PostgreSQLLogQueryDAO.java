@@ -24,9 +24,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2LogQueryDAO
 
 public class PostgreSQLLogQueryDAO extends H2LogQueryDAO {
     
-    public PostgreSQLLogQueryDAO(JDBCHikariCPClient h2Client, ModuleManager manager, int maxSizeOfArrayColumn,
-            int numOfSearchValuesPerTag) {
-        super(h2Client, manager, maxSizeOfArrayColumn, numOfSearchValuesPerTag);
+    public PostgreSQLLogQueryDAO(JDBCHikariCPClient h2Client, ModuleManager manager) {
+        super(h2Client, manager);
     }
     
 }

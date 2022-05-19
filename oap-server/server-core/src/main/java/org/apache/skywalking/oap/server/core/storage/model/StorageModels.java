@@ -58,7 +58,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
         List<ModelColumn> modelColumns = new ArrayList<>();
         ShardingKeyChecker checker = new ShardingKeyChecker();
-        retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker);
+        SQLDatabaseModelExtension sqlDBModelExtension = new SQLDatabaseModelExtension();
+        retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker, sqlDBModelExtension, record);
         checker.check(storage.getModelName());
 
         Model model = new Model(
@@ -69,7 +70,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             record,
             isSuperDatasetModel(aClass),
             FunctionCategory.uniqueFunctionName(aClass),
-            storage.isTimeRelativeID()
+            storage.isTimeRelativeID(),
+            sqlDBModelExtension
         );
 
         this.followColumnNameRules(model);
@@ -104,7 +106,9 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                            final String modelName,
                            final List<ModelColumn> modelColumns,
                            final int scopeId,
-                           ShardingKeyChecker checker) {
+                           ShardingKeyChecker checker,
+                           final SQLDatabaseModelExtension sqlDBModelExtension,
+                           boolean record) {
         if (log.isDebugEnabled()) {
             log.debug("Analysis {} to generate Model.", clazz.getName());
         }
@@ -113,6 +117,13 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
+                if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OnlyAdditional.class)
+                    || field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OriginAndAdditional.class)) {
+                    if (!record) {
+                        throw new IllegalStateException(modelName + " is not a Record, @SQLDatabase.AdditionalEntity only support Record.");
+                    }
+                }
+
                 Column column = field.getAnnotation(Column.class);
                 // Use the column#length as the default column length, as read the system env as the override mechanism.
                 // Log the error but don't block the startup sequence.
@@ -189,6 +200,20 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     checker.accept(modelName, modelColumn);
                 }
 
+                if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OnlyAdditional.class)) {
+                    String[] tableNames = field.getAnnotation(SQLDatabase.AdditionalEntity.OnlyAdditional.class).additionalTables();
+                    for (final String tableName : tableNames) {
+                        sqlDBModelExtension.appendAdditionalTable(tableName, modelColumn);
+                    }
+                    sqlDBModelExtension.appendExcludeColumns(modelColumn);
+                }
+
+                if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OriginAndAdditional.class)) {
+                    String[] tableNames = field.getAnnotation(SQLDatabase.AdditionalEntity.OriginAndAdditional.class).additionalTables();
+                    for (final String tableName : tableNames) {
+                        sqlDBModelExtension.appendAdditionalTable(tableName, modelColumn);
+                    }
+                }
                 modelColumns.add(modelColumn);
                 if (log.isDebugEnabled()) {
                     log.debug("The field named [{}] with the [{}] type", column.columnName(), field.getType());
@@ -203,7 +228,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {
-            retrieval(clazz.getSuperclass(), modelName, modelColumns, scopeId, checker);
+            retrieval(clazz.getSuperclass(), modelName, modelColumns, scopeId, checker, sqlDBModelExtension, record);
         }
     }
 

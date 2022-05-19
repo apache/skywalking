@@ -38,6 +38,7 @@ public class Model {
     private final boolean isTimeSeries;
     private final String aggregationFunctionName;
     private final boolean timeRelativeID;
+    private final SQLDatabaseModelExtension sqlDBModelExtension;
 
     public Model(final String name,
                  final List<ModelColumn> columns,
@@ -46,7 +47,8 @@ public class Model {
                  final boolean record,
                  final boolean superDataset,
                  final String aggregationFunctionName,
-                 boolean timeRelativeID) {
+                 boolean timeRelativeID,
+                 final SQLDatabaseModelExtension sqlDBModelExtension) {
         this.name = name;
         this.columns = columns;
         this.scopeId = scopeId;
@@ -56,5 +58,6 @@ public class Model {
         this.superDataset = superDataset;
         this.aggregationFunctionName = aggregationFunctionName;
         this.timeRelativeID = timeRelativeID;
+        this.sqlDBModelExtension = sqlDBModelExtension;
     }
 }
