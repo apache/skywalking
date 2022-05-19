@@ -66,7 +66,9 @@ public class H2BatchDAO implements IBatchDAO {
         prepareRequests.forEach(prepareRequest -> {
             sqls.add(prepareRequest);
             SQLExecutor sqlExecutor = (SQLExecutor) prepareRequest;
-            sqls.addAll(sqlExecutor.getAdditionalSQLs());
+            if (!CollectionUtils.isEmpty(sqlExecutor.getAdditionalSQLs())) {
+                sqls.addAll(sqlExecutor.getAdditionalSQLs());
+            }
         });
 
         if (log.isDebugEnabled()) {
