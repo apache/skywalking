@@ -68,7 +68,8 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
         List<Object> parameters = new ArrayList<>(10);
         sql.append("from ").append(AlarmRecord.INDEX_NAME);
         /**
-         * The tags logic same as H2TraceQueryDAO
+         * This is an AdditionalEntity feature, see:
+         * {@link org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase.AdditionalEntity}
          */
         if (!CollectionUtils.isEmpty(tags)) {
             for (int i = 0; i < tags.size(); i++) {

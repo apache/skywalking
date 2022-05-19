@@ -43,7 +43,6 @@ import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
@@ -92,7 +91,8 @@ public class H2LogQueryDAO implements ILogQueryDAO {
 
         sql.append("from ").append(LogRecord.INDEX_NAME);
         /**
-         * The tags logic same as H2TraceQueryDAO
+         * This is an AdditionalEntity feature, see:
+         * {@link org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase.AdditionalEntity}
          */
         if (!CollectionUtils.isEmpty(tags)) {
             for (int i = 0; i < tags.size(); i++) {
