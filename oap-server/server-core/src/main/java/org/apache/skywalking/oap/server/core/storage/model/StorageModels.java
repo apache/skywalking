@@ -117,19 +117,13 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
-                if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OnlyAdditional.class)
-                    || field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OriginAndAdditional.class)) {
+                if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.class)) {
                     if (!record) {
                         throw new IllegalStateException("Model [" + modelName + "] is not a Record, @SQLDatabase.AdditionalEntity only supports Record.");
                     }
                 }
 
                 Column column = field.getAnnotation(Column.class);
-                if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OnlyAdditional.class)
-                    && field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OriginAndAdditional.class)) {
-                    throw new IllegalStateException("Model [" + modelName + "] column [" + column.columnName() +
-                                                        "]: @OnlyAdditional and @OriginAndAdditional cannot be used on the same column.");
-                }
                 // Use the column#length as the default column length, as read the system env as the override mechanism.
                 // Log the error but don't block the startup sequence.
                 int columnLength = column.length();
@@ -205,20 +199,16 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     checker.accept(modelName, modelColumn);
                 }
 
-                if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OnlyAdditional.class)) {
-                    String[] tableNames = field.getAnnotation(SQLDatabase.AdditionalEntity.OnlyAdditional.class).additionalTables();
+                if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.class)) {
+                    String[] tableNames = field.getAnnotation(SQLDatabase.AdditionalEntity.class).additionalTables();
                     for (final String tableName : tableNames) {
                         sqlDBModelExtension.appendAdditionalTable(tableName, modelColumn);
                     }
-                    sqlDBModelExtension.appendExcludeColumns(modelColumn);
+                    if (!field.getAnnotation(SQLDatabase.AdditionalEntity.class).reserveOriginalColumns()) {
+                        sqlDBModelExtension.appendExcludeColumns(modelColumn);
+                    }
                 }
 
-                if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OriginAndAdditional.class)) {
-                    String[] tableNames = field.getAnnotation(SQLDatabase.AdditionalEntity.OriginAndAdditional.class).additionalTables();
-                    for (final String tableName : tableNames) {
-                        sqlDBModelExtension.appendAdditionalTable(tableName, modelColumn);
-                    }
-                }
                 modelColumns.add(modelColumn);
                 if (log.isDebugEnabled()) {
                     log.debug("The field named [{}] with the [{}] type", column.columnName(), field.getType());

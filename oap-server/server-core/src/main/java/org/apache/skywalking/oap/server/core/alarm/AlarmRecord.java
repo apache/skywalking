@@ -77,7 +77,7 @@ public class AlarmRecord extends Record {
     @Column(columnName = RULE_NAME)
     private String ruleName;
     @Column(columnName = TAGS, indexOnly = true)
-    @SQLDatabase.AdditionalEntity.OnlyAdditional(additionalTables = {ADDITIONAL_TAG_TABLE})
+    @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
     @Column(columnName = TAGS_RAW_DATA, storageOnly = true)
     private byte[] tagsRawData;

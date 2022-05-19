@@ -93,7 +93,7 @@ public class SegmentRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = TAGS, indexOnly = true)
-    @SQLDatabase.AdditionalEntity.OnlyAdditional(additionalTables = {ADDITIONAL_TAG_TABLE})
+    @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tags;
 
     @Override

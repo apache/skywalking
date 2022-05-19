@@ -61,19 +61,11 @@ public @interface SQLDatabase {
      *    This feature only support `Record` type.
      *    An additional table only supports one list-type field.
      *    Create `MultiColumnsIndex` on the additional table only when it contains all need columns.
-     *    `OnlyAdditional` and `OriginAndAdditional` cannot be used on the same column, they are conflict.
      */
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
     @interface AdditionalEntity {
-        @Target({ElementType.FIELD})
-        @Retention(RetentionPolicy.RUNTIME)
-        @interface OnlyAdditional {
-            String[] additionalTables();
-        }
-
-        @Target({ElementType.FIELD})
-        @Retention(RetentionPolicy.RUNTIME)
-        @interface OriginAndAdditional {
-            String[] additionalTables();
-        }
+        String[] additionalTables();
+        boolean reserveOriginalColumns() default false;
     }
 }
