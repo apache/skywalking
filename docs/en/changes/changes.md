@@ -87,6 +87,8 @@
 * Fix the page doesn't need to be re-rendered when the url changes.
 * Remove unexpected data for exporting dashboards.
 * Fix duration time.
+* Remove the total field from query conditions.
+* Fix minDuration and maxDuration for the trace filter.
 
 #### Documentation
 
