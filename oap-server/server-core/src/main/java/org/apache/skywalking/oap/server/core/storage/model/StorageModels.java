@@ -120,7 +120,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OnlyAdditional.class)
                     || field.isAnnotationPresent(SQLDatabase.AdditionalEntity.OriginAndAdditional.class)) {
                     if (!record) {
-                        throw new IllegalStateException(modelName + " is not a Record, @SQLDatabase.AdditionalEntity only support Record.");
+                        throw new IllegalStateException(modelName + " is not a Record, @SQLDatabase.AdditionalEntity only supports Record.");
                     }
                 }
 
