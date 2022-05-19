@@ -63,6 +63,8 @@ public class H2TableInstaller extends ModelInstaller {
     protected void createTable(Model model) throws StorageException {
         JDBCHikariCPClient jdbcHikariCPClient = (JDBCHikariCPClient) client;
         try (Connection connection = jdbcHikariCPClient.getConnection()) {
+            //Consider there additional table columns need to remove from model columns.
+            model = TableMetaInfo.get(model.getName());
             createTable(jdbcHikariCPClient, connection, model.getName(), model.getColumns(), false);
             createTableIndexes(jdbcHikariCPClient, connection, model.getName(), model.getColumns(), false);
             createAdditionalTable(jdbcHikariCPClient, connection, model);
