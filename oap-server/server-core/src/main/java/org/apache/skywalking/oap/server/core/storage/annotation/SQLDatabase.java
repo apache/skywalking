@@ -59,7 +59,7 @@ public @interface SQLDatabase {
      *  The typical use is: when need to storage a `List` field, we can transform it to another table as row set.
      *  Notice:
      *    This feature only support `Record` type.
-     *    An additional table only support 1 field.
+     *    An additional table only supports one list-type field.
      *    Create `MultiColumnsIndex` on the additional table only when it contains all need columns.
      */
     @interface AdditionalEntity {
