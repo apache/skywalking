@@ -70,7 +70,6 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
             IndexController.LogicIndicesRegister.getPhysicalTableName(Event.INDEX_NAME);
         final SearchResponse response = getClient().search(index, searchBuilder.build());
         final Events events = new Events();
-        events.setTotal(response.getHits().getTotal());
         events.setEvents(response.getHits().getHits().stream()
                                  .map(this::parseSearchHit)
                                  .collect(Collectors.toList()));

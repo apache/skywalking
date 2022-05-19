@@ -59,20 +59,9 @@ public class H2EventQueryDAO implements IEventQueryDAO {
         final Events result = new Events();
 
         try (final Connection connection = client.getConnection()) {
-            String sql = "select count(1) total from " + Event.INDEX_NAME + whereClause;
-            if (log.isDebugEnabled()) {
-                log.debug("Count SQL: {}, parameters: {}", sql, parameters);
-            }
-            try (final ResultSet resultSet = client.executeQuery(connection, sql, parameters)) {
-                if (!resultSet.next()) {
-                    return result;
-                }
-                result.setTotal(resultSet.getInt("total"));
-            }
-
             final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
             final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-            sql = "select * from " + Event.INDEX_NAME + whereClause;
+            String sql = "select * from " + Event.INDEX_NAME + whereClause;
             if (Order.DES.equals(queryOrder)) {
                 sql += " order by " + Event.START_TIME + " desc";
             } else {
@@ -108,21 +97,10 @@ public class H2EventQueryDAO implements IEventQueryDAO {
 
         final Events result = new Events();
         try (final Connection connection = client.getConnection()) {
-            String sql = "select count(1) total from " + Event.INDEX_NAME + whereClause;
-            if (log.isDebugEnabled()) {
-                log.debug("Count SQL: {}, parameters: {}", sql, parameters);
-            }
-            try (final ResultSet resultSet = client.executeQuery(connection, sql, parameters)) {
-                if (!resultSet.next()) {
-                    return result;
-                }
-                result.setTotal(resultSet.getInt("total"));
-            }
-
             EventQueryCondition condition = conditions.get(0);
             final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
             final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-            sql = "select * from " + Event.INDEX_NAME + whereClause;
+            String sql = "select * from " + Event.INDEX_NAME + whereClause;
             if (Order.DES.equals(queryOrder)) {
                 sql += " order by " + Event.START_TIME + " desc";
             } else {

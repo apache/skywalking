@@ -35,8 +35,4 @@ public class MySQLAlarmQueryDAO extends H2AlarmQueryDAO {
         sql.append(" LIMIT ").append(from).append(", ").append(limit);
     }
     
-    @Override
-    protected String buildCountStatement(String sql) {
-        return "select count(1) total " + sql;
-    }
 }

@@ -102,7 +102,6 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
         if (resp.size() == 0) {
             return events;
         }
-        events.setTotal(resp.size());
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             events.getEvents().add(buildEventView(dataPoint));
         }
@@ -116,8 +115,6 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
         for (final EventQueryCondition cond : conditionList) {
             final Events singleEvents = this.queryEvents(cond);
             totalEvents.getEvents().addAll(singleEvents.getEvents());
-            // TODO: a simple sum but may not be accurate
-            totalEvents.setTotal(totalEvents.getTotal() + singleEvents.getTotal());
         }
         return totalEvents;
     }

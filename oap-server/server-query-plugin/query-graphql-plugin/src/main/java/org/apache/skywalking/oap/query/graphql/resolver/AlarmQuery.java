@@ -43,6 +43,7 @@ import org.apache.skywalking.oap.server.core.query.type.event.Source;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
@@ -112,7 +113,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
         final EventQueryCondition.EventQueryConditionBuilder conditionPrototype
     ) throws Exception {
 
-        if (alarms.getTotal() < 1) {
+        if (CollectionUtils.isEmpty(alarms.getMsgs())) {
             return alarms;
         }
 

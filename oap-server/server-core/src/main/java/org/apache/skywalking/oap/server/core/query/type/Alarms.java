@@ -21,14 +21,11 @@ package org.apache.skywalking.oap.server.core.query.type;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class Alarms {
 
     private final List<AlarmMessage> msgs;
-    @Setter
-    private int total;
 
     public Alarms() {
         this.msgs = new ArrayList<>();

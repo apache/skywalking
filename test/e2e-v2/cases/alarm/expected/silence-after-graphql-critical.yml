@@ -64,4 +64,3 @@ msgs:
         layer: GENERAL
       {{- end }}
   {{- end }}
-total: {{ gt .total 1 }}
