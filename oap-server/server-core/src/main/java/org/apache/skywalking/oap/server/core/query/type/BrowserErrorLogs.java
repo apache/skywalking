@@ -20,13 +20,10 @@ package org.apache.skywalking.oap.server.core.query.type;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class BrowserErrorLogs {
     private final List<BrowserErrorLog> logs;
-    @Setter
-    private int total;
 
     public BrowserErrorLogs() {
         this.logs = new ArrayList<>();

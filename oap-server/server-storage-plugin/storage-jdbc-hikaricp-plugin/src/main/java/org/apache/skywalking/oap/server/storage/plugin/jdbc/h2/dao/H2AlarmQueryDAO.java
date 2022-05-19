@@ -114,13 +114,6 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
         Alarms alarms = new Alarms();
         try (Connection connection = client.getConnection()) {
 
-            try (ResultSet resultSet = client.executeQuery(connection, buildCountStatement(sql.toString()), parameters
-                .toArray(new Object[0]))) {
-                while (resultSet.next()) {
-                    alarms.setTotal(resultSet.getInt("total"));
-                }
-            }
-
             this.buildLimit(sql, from, limit);
 
             try (ResultSet resultSet = client.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
@@ -144,10 +137,6 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
         }
 
         return alarms;
-    }
-
-    protected String buildCountStatement(String sql) {
-        return "select count(1) total from (select 1 " + sql + " )";
     }
 
     protected void buildLimit(StringBuilder sql, int from, int limit) {
