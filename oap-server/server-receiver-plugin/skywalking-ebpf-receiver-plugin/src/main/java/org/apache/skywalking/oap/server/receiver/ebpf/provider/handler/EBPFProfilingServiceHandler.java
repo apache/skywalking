@@ -20,8 +20,11 @@ package org.apache.skywalking.oap.server.receiver.ebpf.provider.handler;
 
 import com.google.common.base.Joiner;
 import io.grpc.stub.StreamObserver;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFOffCPUProfiling;
 import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFOnCPUProfiling;
 import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFProfilingServiceGrpc;
 import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFProfilingStackMetadata;
@@ -30,6 +33,7 @@ import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFProfilingTaskQuer
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingStackType;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.query.type.Process;
@@ -44,7 +48,6 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.network.trace.component.command.EBPFProfilingTaskCommand;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,6 +161,13 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
                             log.warn("process ON_CPU profiling data failure", e);
                         }
                         break;
+                    case OFFCPU:
+                        try {
+                            processOffCPUProfiling(data, ebpfProfilingData.getOffCPU());
+                        } catch (IOException e) {
+                            log.warn("process OFF_CPU profiling data failure", e);
+                        }
+                        break;
                     default:
                         throw new IllegalArgumentException("the profiling data not set");
                 }
@@ -179,25 +189,40 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
     }
 
     private void processOnCPUProfiling(EBPFProfilingData data, EBPFOnCPUProfiling onCPU) throws IOException {
-        orderMetadataAndSetToData(data, onCPU.getStacksList(), COMMON_STACK_TYPE_ORDER);
-        data.setDumpCount(onCPU.getDumpCount());
+        Tuple2<String, List<EBPFProfilingStackMetadata>> order = orderMetadataAndSetToData(onCPU.getStacksList(), COMMON_STACK_TYPE_ORDER);
+        data.setStackIdList(order._1);
+        data.setTargetType(EBPFProfilingTargetType.ON_CPU);
+        data.setStacksBinary(EBPFOnCPUProfiling.newBuilder()
+                .addAllStacks(order._2)
+                .setDumpCount(onCPU.getDumpCount())
+                .build().toByteArray());
     }
 
-    private void orderMetadataAndSetToData(EBPFProfilingData data, List<EBPFProfilingStackMetadata> original,
-                                           List<EBPFProfilingStackType> order) throws IOException {
+    private void processOffCPUProfiling(EBPFProfilingData data, EBPFOffCPUProfiling offCPUProfiling) throws IOException {
+        Tuple2<String, List<EBPFProfilingStackMetadata>> order = orderMetadataAndSetToData(offCPUProfiling.getStacksList(), COMMON_STACK_TYPE_ORDER);
+        data.setStackIdList(order._1);
+        data.setTargetType(EBPFProfilingTargetType.OFF_CPU);
+        data.setStacksBinary(EBPFOffCPUProfiling.newBuilder()
+                .addAllStacks(order._2)
+                .setSwitchCount(offCPUProfiling.getSwitchCount())
+                .setDuration(offCPUProfiling.getDuration())
+                .build().toByteArray());
+    }
+
+    private Tuple2<String, List<EBPFProfilingStackMetadata>> orderMetadataAndSetToData(List<EBPFProfilingStackMetadata> original,
+                                           List<EBPFProfilingStackType> order) {
         final HashMap<EBPFProfilingStackType, EBPFProfilingStackMetadata> tmp = new HashMap<>();
         original.forEach(e -> tmp.put(EBPFProfilingStackType.valueOf(e.getStackType()), e));
 
-        final ByteArrayOutputStream result = new ByteArrayOutputStream();
         final List<Integer> stackIdList = new ArrayList<>();
+        final ArrayList<EBPFProfilingStackMetadata> result = new ArrayList<>();
         for (EBPFProfilingStackType orderStack : order) {
             final EBPFProfilingStackMetadata stack = tmp.get(orderStack);
             if (stack != null) {
-                stack.writeDelimitedTo(result);
+                result.add(stack);
                 stackIdList.add(stack.getStackId());
             }
         }
-        data.setStacksBinary(result.toByteArray());
-        data.setStackIdList(Joiner.on("_").join(stackIdList));
+        return Tuple.of(Joiner.on("_").join(stackIdList), result);
     }
 }

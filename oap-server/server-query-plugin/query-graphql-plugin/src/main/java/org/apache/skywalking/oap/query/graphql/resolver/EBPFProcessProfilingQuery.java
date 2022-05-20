@@ -72,6 +72,6 @@ public class EBPFProcessProfilingQuery implements GraphQLQueryResolver {
     public EBPFProfilingAnalyzation analysisEBPFProfilingResult(List<String> scheduleIdList,
                                                                 List<EBPFProfilingAnalyzeTimeRange> timeRanges,
                                                                 EBPFProfilingAnalyzeAggregateType aggregateType) throws IOException {
-        return getQueryService().getEBPFProfilingAnalyzation(scheduleIdList, timeRanges);
+        return getQueryService().getEBPFProfilingAnalyzation(scheduleIdList, timeRanges, aggregateType);
     }
 }

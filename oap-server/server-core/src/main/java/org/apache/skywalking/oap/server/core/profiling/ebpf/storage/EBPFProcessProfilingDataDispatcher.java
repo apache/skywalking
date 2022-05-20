@@ -30,9 +30,9 @@ public class EBPFProcessProfilingDataDispatcher implements SourceDispatcher<EBPF
         record.setScheduleId(source.getScheduleId());
         record.setTaskId(source.getTaskId());
         record.setStackIdList(source.getStackIdList());
-        record.setStacksBinary(source.getStacksBinary());
+        record.setTargetType(source.getTargetType().value());
+        record.setDataBinary(source.getStacksBinary());
         record.setUploadTime(source.getUploadTime());
-        record.setStackDumpCount(source.getDumpCount());
         record.setTimeBucket(TimeBucket.getRecordTimeBucket(source.getUploadTime()));
         RecordStreamProcessor.getInstance().in(record);
     }
