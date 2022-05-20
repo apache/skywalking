@@ -93,6 +93,8 @@
 * Fix duration time.
 * Remove the total field from query conditions.
 * Fix minDuration and maxDuration for the trace filter.
+* Add Log configuration for the browser templates.
+* Fix query conditions for the browser logs.
 
 #### Documentation
 
