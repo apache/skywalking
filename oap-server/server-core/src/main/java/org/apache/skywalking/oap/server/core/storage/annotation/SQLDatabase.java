@@ -53,4 +53,64 @@ public @interface SQLDatabase {
     @interface MultipleQueryUnifiedIndex {
         QueryUnifiedIndex[] value();
     }
+
+    /**
+     * Support create additional tables from a model.<br>
+     * <p>
+     * Notice:
+     * <li>This feature only support `Record` type.
+     * <li>An additional table only supports one list-type field.
+     * <li>Create `MultiColumnsIndex` on the additional table only when it contains all need columns.
+     * <p>
+     * The typical use is: when need to storage a `List` field, we can transform it to another table as row set.<br>
+     * For example in SegmentRecord#tags create an additional table:
+     * <pre>{@code
+     *     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
+     *     private List<String> tags;}</pre>
+     * <p>
+     * In H2TraceQueryDAO#queryBasicTraces query tags as condition from this additional table, could build sql like this:
+     * <pre>{@code
+     *             if (!CollectionUtils.isEmpty(tags)) {
+     *             for (int i = 0; i < tags.size(); i++) {
+     *                 sql.append(" inner join ").append(SegmentRecord.ADDITIONAL_TAG_TABLE).append(" ");
+     *                 sql.append(SegmentRecord.ADDITIONAL_TAG_TABLE + i);
+     *                 sql.append(" on ").append(SegmentRecord.INDEX_NAME).append(".").append(ID_COLUMN).append(" = ");
+     *                 sql.append(SegmentRecord.ADDITIONAL_TAG_TABLE + i).append(".").append(ID_COLUMN);
+     *             }
+     *         }
+     *         ...
+     *             if (CollectionUtils.isNotEmpty(tags)) {
+     *             for (int i = 0; i < tags.size(); i++) {
+     *                 final int foundIdx = searchableTagKeys.indexOf(tags.get(i).getKey());
+     *                 if (foundIdx > -1) {
+     *                     sql.append(" and ").append(SegmentRecord.ADDITIONAL_TAG_TABLE + i).append(".");
+     *                     sql.append(SegmentRecord.TAGS).append(" = ?");
+     *                     parameters.add(tags.get(i).toString());
+     *                 } else {
+     *                     //If the tag is not searchable, but is required, then don't need to run the real query.
+     *                     return new TraceBrief();
+     *                 }
+     *             }
+     *         }
+     *         }</pre>
+     * <p>
+     * <li>If no tags condition, only query segment table, the SQL should be: select
+     * column1, column2 ... from segment where 1=1 and colunm1=xx ...
+     *
+     *<li> If 1 tag condition, query both segment and segment_tag tables, the SQL should be: select column1, column2 ...
+     * from segment inner join segment_tag segment_tag0 on segment.id=segment_tag0.id where 1=1 and colunm1=xx ... and
+     * segment_tag0=tagString0
+     *
+     *<li> If 2 or more tags condition, query both segment and segment_tag tables, the SQL should be: select column1,
+     * column2 ... from segment inner join segment_tag segment_tag0 on segment.id=segment_tag0.id inner join segment_tag
+     * segment_tag1 on segment.id=segment_tag1.id ... where 1=1 and colunm1=xx ... and segment_tag0=tagString0 and
+     * segment_tag1=tagString1 ...
+     *
+     */
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface AdditionalEntity {
+        String[] additionalTables();
+        boolean reserveOriginalColumns() default false;
+    }
 }

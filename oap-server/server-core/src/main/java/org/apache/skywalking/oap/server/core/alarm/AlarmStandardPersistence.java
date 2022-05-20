@@ -64,7 +64,6 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
             record.setRuleName(message.getRuleName());
             Collection<Tag> tags = appendSearchableTags(message.getTags());
-            record.setTags(new ArrayList<>(tags));
             record.setTagsRawData(gson.toJson(message.getTags()).getBytes(Charsets.UTF_8));
             record.setTagsInString(Tag.Util.toStringList(new ArrayList<>(tags)));
             RecordStreamProcessor.getInstance().in(record);

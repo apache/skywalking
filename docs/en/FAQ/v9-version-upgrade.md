@@ -20,4 +20,5 @@ Notice **Incompatibility (1)**, the UI template configuration protocol is incomp
    These data would be incompatible with previous versions.
    Make sure to remove the older `ServiceTraffic` table before OAP(v9) starts. 
    OAP would generate the new table in the start procedure, and recreate all existing services when traffic comes.
+   Since V9.1, SQL Database: move `Tags list` from `Segment`, `Logs`, `Alarms` to their additional tables, remove them before OAP starts.
 5. UI-template: Re-design for V9. Make sure to remove the older `ui_template` table before OAP(v9) starts.

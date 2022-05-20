@@ -28,13 +28,13 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
@@ -45,22 +45,17 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller.ID_COLUMN;
 
 public class H2TraceQueryDAO implements ITraceQueryDAO {
     private ModuleManager manager;
     private JDBCHikariCPClient h2Client;
     private List<String> searchableTagKeys;
-    private int maxSizeOfArrayColumn;
-    private int numOfSearchableValuesPerTag;
 
     public H2TraceQueryDAO(ModuleManager manager,
-                           JDBCHikariCPClient h2Client,
-                           final int maxSizeOfArrayColumn,
-                           final int numOfSearchableValuesPerTag) {
+                           JDBCHikariCPClient h2Client) {
         this.h2Client = h2Client;
         this.manager = manager;
-        this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
-        this.numOfSearchableValuesPerTag = numOfSearchableValuesPerTag;
     }
 
     @Override
@@ -82,15 +77,26 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                                                        .provider()
                                                        .getService(ConfigService.class);
             searchableTagKeys = Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA));
-            if (searchableTagKeys.size() > maxSizeOfArrayColumn) {
-                this.searchableTagKeys = searchableTagKeys.subList(0, maxSizeOfArrayColumn);
-            }
         }
 
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
 
-        sql.append("from ").append(SegmentRecord.INDEX_NAME).append(" where ");
+        sql.append("from ").append(SegmentRecord.INDEX_NAME);
+
+        /**
+         * This is an AdditionalEntity feature, see:
+         * {@link org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase.AdditionalEntity}
+         */
+        if (!CollectionUtils.isEmpty(tags)) {
+            for (int i = 0; i < tags.size(); i++) {
+                sql.append(" inner join ").append(SegmentRecord.ADDITIONAL_TAG_TABLE).append(" ");
+                sql.append(SegmentRecord.ADDITIONAL_TAG_TABLE + i);
+                sql.append(" on ").append(SegmentRecord.INDEX_NAME).append(".").append(ID_COLUMN).append(" = ");
+                sql.append(SegmentRecord.ADDITIONAL_TAG_TABLE + i).append(".").append(ID_COLUMN);
+            }
+        }
+        sql.append(" where ");
         sql.append(" 1=1 ");
         if (startSecondTB != 0 && endSecondTB != 0) {
             sql.append(" and ").append(SegmentRecord.TIME_BUCKET).append(" >= ?");
@@ -123,19 +129,12 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             parameters.add(traceId);
         }
         if (CollectionUtils.isNotEmpty(tags)) {
-            for (final Tag tag : tags) {
-                final int foundIdx = searchableTagKeys.indexOf(tag.getKey());
+            for (int i = 0; i < tags.size(); i++) {
+                final int foundIdx = searchableTagKeys.indexOf(tags.get(i).getKey());
                 if (foundIdx > -1) {
-                    sql.append(" and (");
-                    for (int i = 0; i < numOfSearchableValuesPerTag; i++) {
-                        final String physicalColumn = SegmentRecord.TAGS + "_" + (foundIdx * numOfSearchableValuesPerTag + i);
-                        sql.append(physicalColumn).append(" = ? ");
-                        parameters.add(tag.toString());
-                        if (i != numOfSearchableValuesPerTag - 1) {
-                            sql.append(" or ");
-                        }
-                    }
-                    sql.append(")");
+                    sql.append(" and ").append(SegmentRecord.ADDITIONAL_TAG_TABLE + i).append(".");
+                    sql.append(SegmentRecord.TAGS).append(" = ?");
+                    parameters.add(tags.get(i).toString());
                 } else {
                     //If the tag is not searchable, but is required, then don't need to run the real query.
                     return new TraceBrief();

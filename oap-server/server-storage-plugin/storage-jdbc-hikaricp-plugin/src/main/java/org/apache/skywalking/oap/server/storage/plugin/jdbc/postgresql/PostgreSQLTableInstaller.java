@@ -31,9 +31,8 @@ import java.util.List;
 
 public class PostgreSQLTableInstaller extends MySQLTableInstaller {
 
-    public PostgreSQLTableInstaller(Client client, ModuleManager moduleManager, int maxSizeOfArrayColumn,
-                                    int numOfSearchableValuesPerTag) {
-        super(client, moduleManager, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
+    public PostgreSQLTableInstaller(Client client, ModuleManager moduleManager) {
+        super(client, moduleManager);
     }
 
     @Override
@@ -59,15 +58,7 @@ public class PostgreSQLTableInstaller extends MySQLTableInstaller {
             }
         } else if (List.class.isAssignableFrom(type)) {
             final Type elementType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
-            String oneColumnType = transform(column, (Class<?>) elementType, elementType);
-            // Remove the storageName as prefix
-            oneColumnType = oneColumnType.substring(storageName.length());
-            StringBuilder columns = new StringBuilder();
-            for (int i = 0; i < maxSizeOfArrayColumn; i++) {
-                columns.append(storageName).append("_").append(i).append(oneColumnType)
-                       .append(i == maxSizeOfArrayColumn - 1 ? "" : ",");
-            }
-            return columns.toString();
+            return transform(column, (Class<?>) elementType, elementType);
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }

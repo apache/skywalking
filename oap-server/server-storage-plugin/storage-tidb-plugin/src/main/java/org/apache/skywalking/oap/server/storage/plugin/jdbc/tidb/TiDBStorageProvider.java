@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.tidb;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -119,9 +118,7 @@ public class TiDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient, config.getMaxSizeOfBatchSql(), config.getAsyncBatchPersistentPoolSize()));
         this.registerServiceImplementation(
             StorageDAO.class,
-            new H2StorageDAO(
-                getManager(), mysqlClient, config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag())
-        );
+            new H2StorageDAO(mysqlClient));
         this.registerServiceImplementation(
             INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(mysqlClient));
 
@@ -129,34 +126,19 @@ public class TiDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(mysqlClient));
         this.registerServiceImplementation(
             ITraceQueryDAO.class,
-            new MySQLTraceQueryDAO(
-                getManager(),
-                mysqlClient,
-                config.getMaxSizeOfArrayColumn(),
-                config.getNumOfSearchableValuesPerTag()
-            )
+            new MySQLTraceQueryDAO(getManager(), mysqlClient)
         );
         this.registerServiceImplementation(IBrowserLogQueryDAO.class, new MysqlBrowserLogQueryDAO(mysqlClient));
         this.registerServiceImplementation(
             IMetadataQueryDAO.class, new H2MetadataQueryDAO(mysqlClient, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new MySQLAggregationQueryDAO(mysqlClient));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new MySQLAlarmQueryDAO(
-                mysqlClient,
-                getManager(),
-                config.getMaxSizeOfArrayColumn(),
-                config.getNumOfSearchableValuesPerTag()));
+        this.registerServiceImplementation(IAlarmQueryDAO.class, new MySQLAlarmQueryDAO(mysqlClient, getManager()));
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(mysqlClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(mysqlClient));
         this.registerServiceImplementation(
             ILogQueryDAO.class,
-            new MySQLLogQueryDAO(
-                mysqlClient,
-                getManager(),
-                config.getMaxSizeOfArrayColumn(),
-                config.getNumOfSearchableValuesPerTag()
-            )
-        );
+            new MySQLLogQueryDAO(mysqlClient, getManager()));
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(mysqlClient));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(mysqlClient));
@@ -180,34 +162,11 @@ public class TiDBStorageProvider extends ModuleProvider {
         final ConfigService configService = getManager().find(CoreModule.NAME)
                                                         .provider()
                                                         .getService(ConfigService.class);
-        final int numOfSearchableTags = configService.getSearchableTracesTags().split(Const.COMMA).length;
-        if (numOfSearchableTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
-            throw new ModuleStartException("Size of searchableTracesTags[" + numOfSearchableTags
-                                               + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
-                                               + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
-                                               + "]. Potential out of bound in the runtime.");
-        }
-        final int numOfSearchableLogsTags = configService.getSearchableLogsTags().split(Const.COMMA).length;
-        if (numOfSearchableLogsTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
-            throw new ModuleStartException("Size of searchableLogsTags[" + numOfSearchableLogsTags
-                                               + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
-                                               + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
-                                               + "]. Potential out of bound in the runtime.");
-        }
-        final int numOfSearchableAlarmTags = configService.getSearchableAlarmTags().split(Const.COMMA).length;
-        if (numOfSearchableAlarmTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
-            throw new ModuleStartException("Size of searchableAlarmTags[" + numOfSearchableAlarmTags
-                    + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
-                    + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
-                    + "]. Potential out of bound in the runtime.");
-        }
 
         try {
             mysqlClient.connect();
 
-            MySQLTableInstaller installer = new MySQLTableInstaller(
-                mysqlClient, getManager(), config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag()
-            );
+            MySQLTableInstaller installer = new MySQLTableInstaller(mysqlClient, getManager());
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);

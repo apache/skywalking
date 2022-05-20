@@ -25,10 +25,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryD
 public class MySQLTraceQueryDAO extends H2TraceQueryDAO {
 
     public MySQLTraceQueryDAO(ModuleManager manager,
-                              JDBCHikariCPClient h2Client,
-                              final int maxSizeOfArrayColumn,
-                              final int numOfSearchableValuesPerTag) {
-        super(manager, h2Client, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
+                              JDBCHikariCPClient h2Client) {
+        super(manager, h2Client);
     }
 
     @Override

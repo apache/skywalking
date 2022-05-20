@@ -24,10 +24,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLAlarmQuer
 
 public class PostgreSQLAlarmQueryDAO extends MySQLAlarmQueryDAO {
 
-    public PostgreSQLAlarmQueryDAO(final JDBCHikariCPClient client,
-                              final ModuleManager manager,
-                              final int maxSizeOfArrayColumn, final int numOfSearchValuesPerTag) {
-        super(client, manager, maxSizeOfArrayColumn, numOfSearchValuesPerTag);
+    public PostgreSQLAlarmQueryDAO(final JDBCHikariCPClient client, final ModuleManager manager) {
+        super(client, manager);
     }
     
     @Override

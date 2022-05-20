@@ -59,6 +59,9 @@
 * Storage(ElasticSearch): add search options to tolerate inexisting indices.
 * Fix the problem that `MQ` has the wrong `Layer` type.
 * Fix NoneStream model has wrong downsampling(was Second, should be Minute).
+* SQL Database: provide `@SQLDatabase.AdditionalEntity` to support create additional tables from a model. 
+* [Breaking Change] SQL Database: remove SQL Database config `maxSizeOfArrayColumn` and `numOfSearchableValuesPerTag`.
+* [Breaking Change] SQL Database: move `Tags list` from `Segment`,`Logs`,`Alarms` to their additional table.
 * [Breaking Change] Remove `total` field in Trace, Log, Event, Browser log, and alarm list query.
 
 #### UI
