@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeAggregateType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTree;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -65,7 +66,9 @@ public class EBPFProfilingAnalyzer {
     /**
      * search data and analyze
      */
-    public EBPFProfilingAnalyzation analyze(List<String> scheduleIdList, List<EBPFProfilingAnalyzeTimeRange> ranges) throws IOException {
+    public EBPFProfilingAnalyzation analyze(List<String> scheduleIdList,
+                                            List<EBPFProfilingAnalyzeTimeRange> ranges,
+                                            EBPFProfilingAnalyzeAggregateType aggregateType) throws IOException {
         EBPFProfilingAnalyzation analyzation = new EBPFProfilingAnalyzation();
 
         // query data
@@ -80,7 +83,7 @@ public class EBPFProfilingAnalyzer {
             }
         }).flatMap(Collection::stream).map(e -> {
             try {
-                return EBPFProfilingStack.deserialize(e);
+                return EBPFProfilingStack.deserialize(e, aggregateType);
             } catch (Exception ex) {
                 log.warn("could not deserialize the stack", ex);
                 return null;

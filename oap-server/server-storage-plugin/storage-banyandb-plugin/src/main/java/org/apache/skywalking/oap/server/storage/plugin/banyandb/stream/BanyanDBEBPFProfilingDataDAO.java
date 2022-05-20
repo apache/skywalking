@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
 public class BanyanDBEBPFProfilingDataDAO extends AbstractBanyanDBDAO implements IEBPFProfilingDataDAO {
     private static final Set<String> TAGS = ImmutableSet.of(EBPFProfilingDataRecord.UPLOAD_TIME,
             EBPFProfilingDataRecord.SCHEDULE_ID,
-            EBPFProfilingDataRecord.STACK_DUMP_COUNT,
             EBPFProfilingDataRecord.STACK_ID_LIST,
-            EBPFProfilingDataRecord.STACKS_BINARY,
+            EBPFProfilingDataRecord.TARGET_TYPE,
+            EBPFProfilingDataRecord.DATA_BINARY,
             EBPFProfilingDataRecord.TASK_ID,
             EBPFProfilingDataRecord.TIME_BUCKET);
 

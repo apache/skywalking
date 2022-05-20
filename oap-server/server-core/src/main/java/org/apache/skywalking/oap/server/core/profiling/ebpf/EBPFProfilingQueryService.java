@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.analyze.EBPFProfilin
 import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeAggregateType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
@@ -194,8 +195,10 @@ public class EBPFProfilingQueryService implements Service {
         return schedules;
     }
 
-    public EBPFProfilingAnalyzation getEBPFProfilingAnalyzation(List<String> scheduleIdList, List<EBPFProfilingAnalyzeTimeRange> timeRanges) throws IOException {
-        return getProfilingAnalyzer().analyze(scheduleIdList, timeRanges);
+    public EBPFProfilingAnalyzation getEBPFProfilingAnalyzation(List<String> scheduleIdList,
+                                                                List<EBPFProfilingAnalyzeTimeRange> timeRanges,
+                                                                EBPFProfilingAnalyzeAggregateType aggregateType) throws IOException {
+        return getProfilingAnalyzer().analyze(scheduleIdList, timeRanges, aggregateType);
     }
 
     private Process convertProcess(ProcessTraffic traffic) {
