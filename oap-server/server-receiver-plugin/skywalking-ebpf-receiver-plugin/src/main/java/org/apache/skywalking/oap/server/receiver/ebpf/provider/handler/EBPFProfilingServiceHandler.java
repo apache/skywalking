@@ -192,7 +192,7 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
         Tuple2<String, List<EBPFProfilingStackMetadata>> order = orderMetadataAndSetToData(onCPU.getStacksList(), COMMON_STACK_TYPE_ORDER);
         data.setStackIdList(order._1);
         data.setTargetType(EBPFProfilingTargetType.ON_CPU);
-        data.setStacksBinary(EBPFOnCPUProfiling.newBuilder()
+        data.setDataBinary(EBPFOnCPUProfiling.newBuilder()
                 .addAllStacks(order._2)
                 .setDumpCount(onCPU.getDumpCount())
                 .build().toByteArray());
@@ -202,7 +202,7 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
         Tuple2<String, List<EBPFProfilingStackMetadata>> order = orderMetadataAndSetToData(offCPUProfiling.getStacksList(), COMMON_STACK_TYPE_ORDER);
         data.setStackIdList(order._1);
         data.setTargetType(EBPFProfilingTargetType.OFF_CPU);
-        data.setStacksBinary(EBPFOffCPUProfiling.newBuilder()
+        data.setDataBinary(EBPFOffCPUProfiling.newBuilder()
                 .addAllStacks(order._2)
                 .setSwitchCount(offCPUProfiling.getSwitchCount())
                 .setDuration(offCPUProfiling.getDuration())

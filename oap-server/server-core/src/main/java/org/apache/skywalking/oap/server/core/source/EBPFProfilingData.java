@@ -48,6 +48,6 @@ public class EBPFProfilingData extends Source {
     private long uploadTime;
     private String stackIdList;
     private EBPFProfilingTargetType targetType;
-    private byte[] stacksBinary;
+    private byte[] dataBinary;
 
 }
