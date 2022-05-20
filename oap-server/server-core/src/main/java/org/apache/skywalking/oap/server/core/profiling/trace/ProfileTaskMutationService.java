@@ -93,7 +93,7 @@ public class ProfileTaskMutationService implements Service {
         task.setDumpPeriod(dumpPeriod);
         task.setCreateTime(createTime);
         task.setMaxSamplingCount(maxSamplingCount);
-        task.setTimeBucket(TimeBucket.getRecordTimeBucket(taskEndTime));
+        task.setTimeBucket(TimeBucket.getMinuteTimeBucket(taskStartTime));
         NoneStreamProcessor.getInstance().in(task);
 
         return ProfileTaskCreationResult.builder().id(task.id()).build();
