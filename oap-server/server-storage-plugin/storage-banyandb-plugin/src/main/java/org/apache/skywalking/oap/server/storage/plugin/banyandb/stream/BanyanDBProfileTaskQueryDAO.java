@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -46,8 +47,11 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
             ProfileTaskRecord.MAX_SAMPLING_COUNT
     );
 
-    public BanyanDBProfileTaskQueryDAO(BanyanDBStorageClient client) {
+    private final int queryMaxSize;
+
+    public BanyanDBProfileTaskQueryDAO(BanyanDBStorageClient client, int queryMaxSize) {
         super(client);
+        this.queryMaxSize = queryMaxSize;
     }
 
     @Override
@@ -70,7 +74,10 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
                         }
                         if (limit != null) {
                             query.setLimit(limit);
+                        } else {
+                            query.setLimit(BanyanDBProfileTaskQueryDAO.this.queryMaxSize);
                         }
+                        query.setOrderBy(new AbstractQuery.OrderBy(ProfileTaskRecord.START_TIME, AbstractQuery.Sort.DESC));
                     }
                 });
 
