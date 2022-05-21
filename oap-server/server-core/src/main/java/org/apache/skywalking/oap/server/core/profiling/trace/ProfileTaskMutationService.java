@@ -138,8 +138,8 @@ public class ProfileTaskMutationService implements Service {
         }
 
         // Each service can monitor up to 1 endpoints during the execution of tasks
-        long startTimeBucket = TimeBucket.getTimeBucket(monitorStartTime, DownSampling.Second);
-        long endTimeBucket = TimeBucket.getTimeBucket(monitorEndTime, DownSampling.Second);
+        long startTimeBucket = TimeBucket.getMinuteTimeBucket(monitorStartTime);
+        long endTimeBucket = TimeBucket.getMinuteTimeBucket(monitorEndTime);
         final List<ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(
             serviceId, null, startTimeBucket, endTimeBucket, 1);
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {
