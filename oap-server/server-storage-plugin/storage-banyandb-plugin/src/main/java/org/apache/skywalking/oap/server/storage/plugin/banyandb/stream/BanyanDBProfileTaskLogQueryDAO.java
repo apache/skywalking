@@ -29,7 +29,6 @@ import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTas
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -43,9 +42,10 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
 
     private final int queryMaxSize;
 
-    public BanyanDBProfileTaskLogQueryDAO(BanyanDBStorageClient client, int queryMaxSize) {
+    public BanyanDBProfileTaskLogQueryDAO(BanyanDBStorageClient client, int profileTaskQueryMaxSize) {
         super(client);
-        this.queryMaxSize = queryMaxSize;
+        // query log size use profile task query max size * per log count
+        this.queryMaxSize = profileTaskQueryMaxSize * 50;
     }
 
     @Override
@@ -57,10 +57,6 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
                         query.setLimit(BanyanDBProfileTaskLogQueryDAO.this.queryMaxSize);
                     }
                 });
-
-        if (resp.size() == 0) {
-            return Collections.emptyList();
-        }
 
         final LinkedList<ProfileTaskLog> tasks = new LinkedList<>();
         for (final RowEntity rowEntity : resp.getElements()) {

@@ -285,6 +285,8 @@ jobs:
           - name: Agent Lua
             config: test/e2e-v2/cases/lua/e2e.yaml
 
+          - name: BanyanDB
+            config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
           - name: Storage H2
             config: test/e2e-v2/cases/storage/h2/e2e.yaml
           - name: Storage MySQL
@@ -398,6 +400,8 @@ jobs:
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
             env: ES_VERSION=7.15.0
 
+          - name: Trace Profiling BanyanDB
+            config: test/e2e-v2/cases/profiling/trace/banyandb/e2e.yaml
           - name: Trace Profiling H2
             config: test/e2e-v2/cases/profiling/trace/h2/e2e.yaml
           - name: Trace Profiling ES
@@ -405,6 +409,8 @@ jobs:
           - name: Trace Profiling MySQL
             config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
 
+          - name: eBPF Profiling BanyanDB
+            config: test/e2e-v2/cases/profiling/ebpf/banyandb/e2e.yaml
           - name: eBPF Profiling H2
             config: test/e2e-v2/cases/profiling/ebpf/h2/e2e.yaml
           - name: eBPF Profiling ES

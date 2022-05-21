@@ -44,8 +44,8 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     private int concurrentWriteThreads = 2;
     /**
-     * Max size of {@link org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog} to be fetched
+     * Max size of {@link org.apache.skywalking.oap.server.core.query.type.ProfileTask} to be fetched
      * in a single request.
      */
-    private int fetchTaskLogMaxSize;
+    private int profileTaskQueryMaxSize = 200;
 }

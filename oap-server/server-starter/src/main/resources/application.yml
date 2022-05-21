@@ -240,7 +240,7 @@ storage:
     maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
     flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
     concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
-    fetchTaskLogMaxSize: ${SW_STORAGE_BANYANDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
+    profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
 
 agent-analyzer:
   selector: ${SW_AGENT_ANALYZER:default}
