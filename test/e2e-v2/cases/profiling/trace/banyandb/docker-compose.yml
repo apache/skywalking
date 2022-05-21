@@ -17,7 +17,7 @@ version: '3.8'
 
 services:
   banyandb:
-    image: ghcr.io/apache/skywalking-banyandb:f868a5dcd881c21dbf044013228994f49f15bd83
+    image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}"
     networks:
       - e2e
     expose:
