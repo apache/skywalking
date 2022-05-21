@@ -9,6 +9,8 @@
 * Upgrade OAP dependencies zipkin to 2.23.16, H2 to 2.1.212, Apache Freemarker to 2.3.31, gRPC-java 1.46.0, netty to
   4.1.76.
 * Upgrade Webapp dependencies, spring-cloud-dependencies to 2021.0.2, logback-classic to 1.2.11
+* [**IMPORTANT**] Add BanyanDB storage implementation. Notice BanyanDB is currently under active development
+  and **SHOULD NOT** be used in production cluster.
 
 #### OAP Server
 
