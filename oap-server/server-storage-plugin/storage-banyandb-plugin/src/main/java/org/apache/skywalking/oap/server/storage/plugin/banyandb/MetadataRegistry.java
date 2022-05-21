@@ -63,8 +63,8 @@ public enum MetadataRegistry {
 
     private final Map<String, Schema> registry = new HashMap<>();
 
-    public NamedSchema<?> registerModel(Model model) {
-        final SchemaMetadata schemaMetadata = parseMetadata(model);
+    public NamedSchema<?> registerModel(Model model, BanyanDBStorageConfig config) {
+        final SchemaMetadata schemaMetadata = parseMetadata(model, config);
         Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
@@ -251,16 +251,20 @@ public enum MetadataRegistry {
         throw new IllegalStateException("type " + modelColumn.getType().toString() + " is not supported");
     }
 
-    public SchemaMetadata parseMetadata(Model model) {
+    public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config) {
         if (model.isRecord()) {
             String group = "stream-default";
             if (model.isSuperDataset()) {
                 // for superDataset, we should use separate group
                 group = "stream-" + model.getName();
             }
-            return new SchemaMetadata(group, model.getName(), Kind.STREAM);
+            return new SchemaMetadata(group,
+                    model.getName(),
+                    Kind.STREAM,
+                    model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : config.getRecordShardsFactor()
+            );
         }
-        return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE);
+        return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE, config.getMetricsShardsFactor());
     }
 
     @RequiredArgsConstructor
@@ -269,6 +273,8 @@ public enum MetadataRegistry {
         private final String group;
         private final String name;
         private final Kind kind;
+
+        private final int shard;
 
         public Optional<NamedSchema<?>> findRemoteSchema(BanyanDBClient client) throws BanyanDBException {
             try {
@@ -315,9 +321,9 @@ public enum MetadataRegistry {
             }
             switch (kind) {
                 case STREAM:
-                    return client.define(Group.create(this.group, Catalog.STREAM, 2, 0, Duration.ofDays(7)));
+                    return client.define(Group.create(this.group, Catalog.STREAM, this.shard, 0, Duration.ofDays(7)));
                 case MEASURE:
-                    return client.define(Group.create(this.group, Catalog.MEASURE, 2, 12, Duration.ofDays(7)));
+                    return client.define(Group.create(this.group, Catalog.MEASURE, this.shard, 12, Duration.ofDays(7)));
                 default:
                     throw new IllegalStateException("should not reach here");
             }

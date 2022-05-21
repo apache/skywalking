@@ -145,7 +145,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.client.registerChecker(healthChecker);
         try {
             this.client.connect();
-            BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, getManager());
+            BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, getManager(), this.config);
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);

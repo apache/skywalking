@@ -239,6 +239,9 @@ storage:
     group: ${SW_STORAGE_BANYANDB_GROUP:default}
     maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
     flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
+    metricsShardsFactor: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_FACTOR:2}
+    recordShardsFactor: ${SW_STORAGE_BANYANDB_RECORD_SHARDS_FACTOR:2}
+    superDatasetShardsFactor: ${SW_STORAGE_BANYANDB_SUPERDATASET_SHARDS_FACTOR:2}
     concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
     profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
 

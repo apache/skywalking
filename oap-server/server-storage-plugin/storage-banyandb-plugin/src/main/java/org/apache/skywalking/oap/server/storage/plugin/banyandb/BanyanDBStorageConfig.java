@@ -47,5 +47,17 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      * Max size of {@link org.apache.skywalking.oap.server.core.query.type.ProfileTask} to be fetched
      * in a single request.
      */
-    private int profileTaskQueryMaxSize = 200;
+    private int profileTaskQueryMaxSize;
+    /**
+     * Shards Factor for measure/metrics.
+     */
+    private int metricsShardsFactor;
+    /**
+     * Shards Factor for a normal record.
+     */
+    private int recordShardsFactor;
+    /**
+     * Shards Factor for a super dataset
+     */
+    private int superDatasetShardsFactor;
 }
