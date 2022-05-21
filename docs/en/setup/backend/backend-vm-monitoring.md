@@ -1,7 +1,7 @@
 # Linux Monitoring
-SkyWalking leverages Prometheus node-exporter to collect metrics data from the VMs, and leverages OpenTelemetry Collector to transfer the metrics to
+SkyWalking leverages Prometheus node-exporter to collect metrics data from the VMs and leverages OpenTelemetry Collector to transfer the metrics to
 [OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).  
-VM entity as a `Service` in OAP, and on the `Layer: OS_LINUX`.  
+VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.  
 
 ## Data flow
 1. The Prometheus node-exporter collects metrics data from the VMs.
@@ -38,4 +38,4 @@ The metrics definition and expression rules are found in `/config/otel-oc-rules/
 The dashboard panel confirmations are found in `/config/ui-initialized-templates/os_linux`.
 
 ## Blog
-For more details, see blog article [SkyWalking 8.4 provides infrastructure monitoring](https://skywalking.apache.org/blog/2021-02-07-infrastructure-monitoring/).
+For more details, see the blog article [SkyWalking 8.4 provides infrastructure monitoring](https://skywalking.apache.org/blog/2021-02-07-infrastructure-monitoring/).

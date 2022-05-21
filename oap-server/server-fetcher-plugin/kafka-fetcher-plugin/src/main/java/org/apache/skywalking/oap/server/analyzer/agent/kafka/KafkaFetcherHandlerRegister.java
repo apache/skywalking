@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.analyzer.agent.kafka;
 
 import com.google.common.collect.ImmutableMap;
+
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +31,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -46,28 +49,29 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.server.pool.CustomThreadFactory;
 
 /**
- * Configuring and initializing a KafkaConsumer client as a dispatcher to delivery Kafka Message to registered handler by topic.
+ * Configuring and initializing a KafkaConsumer client as a dispatcher to delivery Kafka Message to registered handler
+ * by topic.
  */
 @Slf4j
-public class KafkaFetcherHandlerRegister implements Runnable {
+public class KafkaFetcherHandlerRegister {
 
     private ImmutableMap.Builder<String, KafkaHandler> builder = ImmutableMap.builder();
     private ImmutableMap<String, KafkaHandler> handlerMap;
 
-    private final KafkaConsumer<String, Bytes> consumer;
     private final KafkaFetcherConfig config;
     private final Properties properties;
 
     private final ThreadPoolExecutor executor;
     private final boolean enableKafkaMessageAutoCommit;
+    private final List<KafkaConsumer<String, Bytes>> consumers = Lists.newArrayList();
 
     public KafkaFetcherHandlerRegister(KafkaFetcherConfig config) {
         this.config = config;
 
         properties = new Properties();
-        properties.putAll(config.getKafkaConsumerConfig());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, config.getGroupId());
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
+        properties.putAll(config.getKafkaConsumerConfig());
 
         int threadPoolSize = Runtime.getRuntime().availableProcessors() * 2;
         if (config.getKafkaHandlerThreadPoolSize() > 0) {
@@ -80,9 +84,13 @@ public class KafkaFetcherHandlerRegister implements Runnable {
 
         enableKafkaMessageAutoCommit = (boolean) properties.getOrDefault(
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
-        consumer = new KafkaConsumer<>(properties, new StringDeserializer(), new BytesDeserializer());
-        executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize,
-                                          60, TimeUnit.SECONDS,
+        for (int i = 0; i < config.getConsumers(); i++) {
+            KafkaConsumer<String, Bytes> consumer = new KafkaConsumer<>(
+                properties, new StringDeserializer(), new BytesDeserializer());
+
+            consumers.add(consumer);
+        }
+        executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize, 60, TimeUnit.SECONDS,
                                           new ArrayBlockingQueue<>(threadPoolQueueSize),
                                           new CustomThreadFactory("KafkaConsumer"),
                                           new ThreadPoolExecutor.CallerRunsPolicy()
@@ -98,14 +106,14 @@ public class KafkaFetcherHandlerRegister implements Runnable {
         builder = null;
 
         createTopicIfNeeded(handlerMap.keySet(), properties);
-
-        consumer.subscribe(handlerMap.keySet());
-        consumer.seekToEnd(consumer.assignment());
-        executor.submit(this);
+        for (KafkaConsumer<String, Bytes> consumer : consumers) {
+            consumer.subscribe(handlerMap.keySet());
+            consumer.seekToEnd(consumer.assignment());
+            executor.submit(() -> runTask(consumer));
+        }
     }
 
-    @Override
-    public void run() {
+    private void runTask(final KafkaConsumer<String, Bytes> consumer) {
         while (true) {
             try {
                 ConsumerRecords<String, Bytes> consumerRecords = consumer.poll(Duration.ofMillis(500L));
@@ -131,28 +139,28 @@ public class KafkaFetcherHandlerRegister implements Runnable {
 
         AdminClient adminClient = AdminClient.create(adminProps);
         Set<String> missedTopics = adminClient.describeTopics(topics)
-                .values()
-                .entrySet()
-                .stream()
-                .map(entry -> {
-                    try {
-                        entry.getValue().get();
-                        return null;
-                    } catch (InterruptedException | ExecutionException ignore) {
-                    }
-                    return entry.getKey();
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+                                              .values()
+                                              .entrySet()
+                                              .stream()
+                                              .map(entry -> {
+                                                  try {
+                                                      entry.getValue().get();
+                                                      return null;
+                                                  } catch (InterruptedException | ExecutionException ignore) {
+                                                  }
+                                                  return entry.getKey();
+                                              })
+                                              .filter(Objects::nonNull)
+                                              .collect(Collectors.toSet());
 
         if (!missedTopics.isEmpty()) {
             log.info("Topics " + missedTopics + " not exist.");
             List<NewTopic> newTopicList = missedTopics.stream()
-                    .map(topic -> new NewTopic(
-                            topic,
-                            config.getPartitions(),
-                            (short) config.getReplicationFactor()
-                    )).collect(Collectors.toList());
+                                                      .map(topic -> new NewTopic(
+                                                          topic,
+                                                          config.getPartitions(),
+                                                          (short) config.getReplicationFactor()
+                                                      )).collect(Collectors.toList());
 
             try {
                 adminClient.createTopics(newTopicList).all().get();

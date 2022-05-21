@@ -1,9 +1,9 @@
 # Alarm
-Alarm core is driven by a collection of rules, which are defined in `config/alarm-settings.yml`.
-There are three parts in alarm rule definition.
+The alarm core is driven by a collection of rules defined in `config/alarm-settings.yml.`
+There are three parts to alarm rule definitions.
 1. [Alarm rules](#rules). They define how metrics alarm should be triggered and what conditions should be considered.
-1. [Webhooks](#webhook). The list of web service endpoints, which should be called after the alarm is triggered.
-1. [gRPCHook](#grpchook). The host and port of the remote gRPC method, which should be called after the alarm is triggered.
+1. [Webhooks](#webhook). The list of web service endpoints, which should be called after an alarm is triggered.
+1. [gRPCHook](#grpchook). The host and port of the remote gRPC method, which should be called after an alarm is triggered.
 
 ## Entity name
 Defines the relation between scope and entity name.
@@ -21,31 +21,31 @@ Defines the relation between scope and entity name.
 An alarm rule is made up of the following elements:
 - **Rule name**. A unique name shown in the alarm message. It must end with `_rule`.
 - **Metrics name**. This is also the metrics name in the OAL script. Only long, double, int types are supported. See the
-[list of all potential metrics name](#list-of-all-potential-metrics-name). Events can be also configured as the source
-of alarm, please refer to [the event doc](../../concepts-and-designs/event.md) for more details.
-- **Include names**. Entity names which are included in this rule. Please follow the [entity name definitions](#entity-name).
-- **Exclude names**. Entity names which are excluded from this rule. Please follow the [entity name definitions](#entity-name).
+[list of all potential metrics name](#list-of-all-potential-metrics-name). Events can also be configured as the source
+of Alarm. Please refer to [the event doc](../../concepts-and-designs/event.md) for more details.
+- **Include names**. Entity names that are included in this rule. Please follow the [entity name definitions](#entity-name).
+- **Exclude names**. Entity names that are excluded from this rule. Please follow the [entity name definitions](#entity-name).
 - **Include names regex**. A regex that includes entity names. If both include-name list and include-name regex are set, both rules will take effect.
-- **Exclude names regex**. A regex that excludes entity names. If both exclude-name list and exclude-name regex are set, both rules will take effect.
-- **Include labels**. Metric labels which are included in this rule.
-- **Exclude labels**. Metric labels which are excluded from this rule.
+- **Exclude names regex**. A regex that excludes entity names. Both rules will take effect if both include-label list and include-label regex are set.
+- **Include labels**. Metric labels that are included in this rule.
+- **Exclude labels**. Metric labels that are excluded from this rule.
 - **Include labels regex**. A regex that includes labels. If both include-label list and include-label regex are set, both rules will take effect.
-- **Exclude labels regex**. A regex that exclude labels. If both the exclude-label list and exclude-label regex are set, both rules will take effect.
-- **Tags**. Tags are key/value pairs that are attached to alarms. Tags are used to specify distinguishing attributes of alarms that are meaningful and relevant to users. If you would like to make these tags searchable on the SkyWalking UI, you may set the tag keys in `core/default/searchableAlarmTags`, or through system environment variable `SW_SEARCHABLE_ALARM_TAG_KEYS`. The key `level` is supported by default.
+- **Exclude labels regex**. A regex that excludes labels. Both rules will take effect if both exclude-label list and exclude-label regex are set.
+- **Tags**. Tags are key/value pairs that are attached to alarms. Tags are used to specify distinguishing attributes of alarms that are meaningful and relevant to users. If you want to make these tags searchable on the SkyWalking UI, you may set the tag keys in `core/default/searchableAlarmTags` or through the system environment variable `SW_SEARCHABLE_ALARM_TAG_KEYS`. The key `level` is supported by default.
 
-*Label settings are required by the meter-system. They are used to store metrics from the label-system platform, such as Prometheus, Micrometer, etc.
+*Label settings are required by the meter system. They are used to store metrics from the label-system platform, such as Prometheus, Micrometer, etc.
 The four label settings mentioned above must implement `LabeledValueHolder`.*
 
 - **Threshold**. The target value. 
 For multiple-value metrics, such as **percentile**, the threshold is an array. It is described as:  `value1, value2, value3, value4, value5`.
-Each value may serve as the threshold for each value of the metrics. Set the value to `-` if you do not wish to trigger the alarm by one or more of the values.  
-For example in **percentile**, `value1` is the threshold of P50, and `-, -, value3, value4, value5` means that there is no threshold for P50 and P75 in the percentile alarm rule.
+Each value may serve as the threshold for each value of the metrics. Set the value to `-` if you do not wish to trigger the Alarm by one or more of the values.  
+For example, in **percentile**, `value1` is the threshold of P50, and `-, -, value3, value4, value5` means that there is no threshold for P50 and P75 in the percentile alarm rule.
 - **OP**. The operator. It supports `>`, `>=`, `<`, `<=`, `==`. We welcome contributions of all OPs.
 - **Period**. The size of metrics cache in minutes for checking the alarm conditions. This is a time window that corresponds to the backend deployment env time.
 - **Count**. Within a period window, if the number of times which **value** goes over the threshold (based on OP) reaches `count`, then an alarm will be sent.
-- **Only as condition**. Indicates if the rule can send notifications, or if it simply serves as an condition of the composite rule.
-- **Silence period**. After the alarm is triggered in Time-N, there will be silence during the **TN -> TN + period**.
-By default, it works in the same manner as **period**. The same alarm (having the same ID in the same metrics name) may only be triggered once within a period. 
+- **Only as condition**. Indicates if the rule can send notifications or if it simply serves as a condition of the composite rule.
+- **Silence period**. After the alarm is triggered at Time-N (TN), there will be silence during the **TN -> TN + period**.
+By default, it works in the same manner as **period**. The same Alarm (having the same ID in the same metrics name) may only be triggered once within a period. 
 
 ### Composite rules
 **NOTE**: Composite rules are only applicable to alarm rules targeting the same entity level, such as service-level alarm rules (`service_percent_rule && service_resp_time_percentile_rule`). Do not compose alarm rules of different entity levels, such as an alarm rule of the service metrics with another rule of the endpoint metrics.
@@ -134,9 +134,9 @@ The metrics names are defined in the official [OAL scripts](../../guides/backend
 [MAL scripts](../../concepts-and-designs/mal.md), the [Event](../../concepts-and-designs/event.md) names can also serve
 as the metrics names, all possible event names can be also found in [the Event doc](../../concepts-and-designs/event.md).
 
-Currently, metrics from the **Service**, **Service Instance**, **Endpoint**, **Service Relation**, **Service Instance Relation**, **Endpoint Relation** scopes could be used in Alarm, and the **Database access** scope is same as **Service**.
+Currently, metrics from the **Service**, **Service Instance**, **Endpoint**, **Service Relation**, **Service Instance Relation**, **Endpoint Relation** scopes could be used in Alarm, and the **Database access** scope is the same as **Service**.
 
-Submit an issue or a pull request if you want to support any other scopes in alarm.
+Submit an issue or a pull request if you want to support any other scopes in Alarm.
 
 ## Webhook
 The Webhook requires the peer to be a web container. The alarm message will be sent through HTTP post by `application/json` content type. The JSON format is based on `List<org.apache.skywalking.oap.server.core.alarm.AlarmMessage>` with the following key information:
@@ -152,27 +152,27 @@ The Webhook requires the peer to be a web container. The alarm message will be s
 See the following example:
 ```json
 [{
-	"scopeId": 1, 
-	"scope": "SERVICE",
-	"name": "serviceA", 
-	"id0": "12",  
-	"id1": "",  
+  "scopeId": 1, 
+  "scope": "SERVICE",
+  "name": "serviceA", 
+  "id0": "12",  
+  "id1": "",  
     "ruleName": "service_resp_time_rule",
-	"alarmMessage": "alarmMessage xxxx",
-	"startTime": 1560524171000,
+  "alarmMessage": "alarmMessage xxxx",
+  "startTime": 1560524171000,
     "tags": [{
         "key": "level",
         "value": "WARNING"
      }]
 }, {
-	"scopeId": 1,
-	"scope": "SERVICE",
-	"name": "serviceB",
-	"id0": "23",
-	"id1": "",
+  "scopeId": 1,
+  "scope": "SERVICE",
+  "name": "serviceB",
+  "id0": "23",
+  "id1": "",
     "ruleName": "service_resp_time_rule",
-	"alarmMessage": "alarmMessage yyy",
-	"startTime": 1560524171000,
+  "alarmMessage": "alarmMessage yyy",
+  "startTime": 1560524171000,
     "tags": [{
         "key": "level",
         "value": "CRITICAL"
@@ -243,10 +243,10 @@ wechatHooks:
     - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
 ```
 
-## Dingtalk Hook
+## DingTalk Hook
 Follow the [Dingtalk Webhooks guide](https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/uKPlK) and create new Webhooks.
-For security purposes, you can config an optional secret for an individual webhook URL.
-The alarm message will be sent through HTTP post by `application/json` content type if you have configured Dingtalk Webhooks as follows:
+You can configure an optional secret for an individual webhook URL for security purposes.
+The alarm message will be sent through HTTP post by `application/json` content type if you have configured DingTalk Webhooks as follows:
 ```yml
 dingtalkHooks:
   textTemplate: |-
@@ -263,8 +263,8 @@ dingtalkHooks:
 
 ## Feishu Hook
 Follow the [Feishu Webhooks guide](https://www.feishu.cn/hc/zh-cn/articles/360024984973) and create new Webhooks.
-For security purposes, you can config an optional secret for an individual webhook URL.
-If you would like to direct a text to a user, you can config `ats` which is the feishu's user_id and separated by "," .
+You can configure an optional secret for an individual webhook URL for security purposes.
+If you want to direct a text to a user, you can configure `ats`, which is Feishu's user_id and separated by "," .
 The alarm message will be sent through HTTP post by `application/json` content type if you have configured Feishu Webhooks as follows:
 ```yml
 feishuHooks:
@@ -305,4 +305,4 @@ which will override the settings in `alarm-settings.yml`.
 
 In order to determine whether an alarm rule is triggered or not, SkyWalking needs to cache the metrics of a time window for
 each alarm rule. If any attribute (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
-the sliding window will be destroyed and re-created, causing the alarm of this specific rule to restart again.
+the sliding window will be destroyed and re-created, causing the Alarm of this specific rule to restart again.

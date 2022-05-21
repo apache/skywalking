@@ -94,7 +94,6 @@ public class EventGrpcServiceHandler extends EventServiceGrpc.EventServiceImplBa
             @Override
             public void onError(Throwable throwable) {
                 log.error(throwable.getMessage(), throwable);
-                responseObserver.onCompleted();
             }
 
             @Override

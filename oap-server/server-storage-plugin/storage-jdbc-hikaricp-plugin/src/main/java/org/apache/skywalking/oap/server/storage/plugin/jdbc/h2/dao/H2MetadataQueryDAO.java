@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDete
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.enumeration.Language;
+import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.Process;
@@ -207,7 +208,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             serviceInstance.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
             serviceInstance.setName(resultSet.getString(InstanceTraffic.NAME));
             serviceInstance.setInstanceUUID(serviceInstance.getId());
-            serviceInstance.setLayer(Layer.valueOf(resultSet.getInt(ServiceTraffic.LAYER)).name());
 
             String propertiesString = resultSet.getString(InstanceTraffic.PROPERTIES);
             if (!Strings.isNullOrEmpty(propertiesString)) {
@@ -232,12 +232,13 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId, String agentId,
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
                                        final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, profilingSupportStatus,
+                lastPingStartTimeBucket, lastPingEndTimeBucket);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -251,12 +252,12 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public long getProcessesCount(String serviceId, String instanceId, String agentId,
+    public long getProcessesCount(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
                                   final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
         sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId,
+        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, profilingSupportStatus,
                 lastPingStartTimeBucket, lastPingEndTimeBucket);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -273,7 +274,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     private void appendProcessWhereQuery(StringBuilder sql, List<Object> condition, String serviceId, String instanceId,
-                                         String agentId, final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) {
+                                         String agentId, final ProfilingSupportStatus profilingSupportStatus,
+                                         final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) {
         if (StringUtil.isNotEmpty(serviceId) || StringUtil.isNotEmpty(instanceId) || StringUtil.isNotEmpty(agentId)) {
             sql.append(" where ");
         }
@@ -295,6 +297,13 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             }
             sql.append(ProcessTraffic.AGENT_ID).append("=?");
             condition.add(agentId);
+        }
+        if (profilingSupportStatus != null) {
+            if (!condition.isEmpty()) {
+                sql.append(" and ");
+            }
+            sql.append(ProcessTraffic.PROFILING_SUPPORT_STATUS).append("=?");
+            condition.add(profilingSupportStatus.value());
         }
         if (lastPingStartTimeBucket > 0) {
             if (!condition.isEmpty()) {
@@ -345,7 +354,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             process.setInstanceId(instanceId);
             final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(instanceId);
             process.setInstanceName(instanceIDDefinition.getName());
-            process.setLayer(Layer.valueOf(resultSet.getInt(ProcessTraffic.LAYER)).name());
             process.setAgentId(resultSet.getString(ProcessTraffic.AGENT_ID));
             process.setDetectType(ProcessDetectType.valueOf(resultSet.getInt(ProcessTraffic.DETECT_TYPE)).name());
             String propertiesString = resultSet.getString(ProcessTraffic.PROPERTIES);

@@ -62,18 +62,27 @@ public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAl
 
             SearchResponse results =
                 getClient().search(NetworkAddressAlias.INDEX_NAME, search, params);
-            while (results.getHits().getTotal() > 0) {
-                for (SearchHit searchHit : results.getHits()) {
-                    networkAddressAliases.add(
-                        builder.storage2Entity(new HashMapConverter.ToEntity(searchHit.getSource())));
+            while (true) {
+                final String scrollId = results.getScrollId();
+                try {
+                    if (results.getHits().getTotal() == 0) {
+                        break;
+                    }
+                    for (SearchHit searchHit : results.getHits()) {
+                        networkAddressAliases.add(
+                            builder.storage2Entity(
+                                new HashMapConverter.ToEntity(searchHit.getSource())));
+                    }
+                    if (results.getHits().getTotal() < batchSize) {
+                        break;
+                    }
+                    if (networkAddressAliases.size() >= resultWindowMaxSize) {
+                        break;
+                    }
+                    results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
+                } finally {
+                    getClient().deleteScrollContextQuietly(scrollId);
                 }
-                if (results.getHits().getTotal() < batchSize) {
-                    break;
-                }
-                if (networkAddressAliases.size() >= resultWindowMaxSize) {
-                    break;
-                }
-                results = getClient().scroll(SCROLL_CONTEXT_RETENTION, results.getScrollId());
             }
         } catch (Throwable t) {
             log.error(t.getMessage(), t);

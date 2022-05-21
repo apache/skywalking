@@ -253,12 +253,13 @@ public class ElasticSearchClient implements Client, HealthCheckable {
             Arrays.stream(indices.get())
                   .map(indexNameConverter)
                   .toArray(String[]::new);
+        final SearchParams params = new SearchParams()
+            .allowNoIndices(true)
+            .ignoreUnavailable(true)
+            .expandWildcards("open");
         return es.get().search(
             search,
-            new SearchParams()
-                .ignoreUnavailable(true)
-                .allowNoIndices(true)
-                .expandWildcards("open"),
+            params,
             indexNames);
     }
 
@@ -276,6 +277,15 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     public SearchResponse scroll(Duration contextRetention, String scrollId) {
         return es.get().scroll(contextRetention, scrollId);
+    }
+
+    public boolean deleteScrollContextQuietly(String scrollId) {
+        try {
+            return es.get().deleteScrollContext(scrollId);
+        } catch (Exception e) {
+            log.warn("Failed to delete scroll context: {}", scrollId, e);
+            return false;
+        }
     }
 
     public Optional<Document> get(String indexName, String id) {

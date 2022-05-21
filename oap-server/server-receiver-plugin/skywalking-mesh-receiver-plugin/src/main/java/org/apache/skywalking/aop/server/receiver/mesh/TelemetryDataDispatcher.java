@@ -133,6 +133,8 @@ public class TelemetryDataDispatcher {
         service.setHttpResponseStatusCode(metrics.getResponseCode());
         service.setType(protocol2Type(metrics.getProtocol()));
         service.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        service.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
+        service.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
         service.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
         service.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
@@ -157,6 +159,8 @@ public class TelemetryDataDispatcher {
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
         serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        serviceRelation.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
+        serviceRelation.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
         serviceRelation.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
         serviceRelation.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
@@ -168,13 +172,15 @@ public class TelemetryDataDispatcher {
         serviceInstance.setTimeBucket(minuteTimeBucket);
         serviceInstance.setName(metrics.getDestServiceInstance());
         serviceInstance.setServiceName(metrics.getDestServiceName());
-        serviceInstance.setLayer(Layer.MESH);
+        serviceInstance.setServiceLayer(Layer.MESH);
         serviceInstance.setEndpointName(metrics.getEndpoint());
         serviceInstance.setLatency(metrics.getLatency());
         serviceInstance.setStatus(metrics.getStatus());
         serviceInstance.setHttpResponseStatusCode(metrics.getResponseCode());
         serviceInstance.setType(protocol2Type(metrics.getProtocol()));
         serviceInstance.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        serviceInstance.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
+        serviceInstance.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
         serviceInstance.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
         serviceInstance.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
@@ -200,6 +206,8 @@ public class TelemetryDataDispatcher {
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
         serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        serviceRelation.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
+        serviceRelation.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
         serviceRelation.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
         serviceRelation.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
@@ -221,6 +229,8 @@ public class TelemetryDataDispatcher {
         endpoint.setHttpResponseStatusCode(metrics.getResponseCode());
         endpoint.setType(protocol2Type(metrics.getProtocol()));
         endpoint.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        endpoint.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
+        endpoint.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
 
         SOURCE_RECEIVER.receive(endpoint);
     }

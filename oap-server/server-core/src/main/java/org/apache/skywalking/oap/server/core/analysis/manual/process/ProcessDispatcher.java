@@ -34,7 +34,6 @@ public class ProcessDispatcher implements SourceDispatcher<Process> {
         traffic.setServiceId(source.getServiceId());
         traffic.setInstanceId(source.getInstanceId());
         traffic.setName(source.getName());
-        traffic.setLayer(source.getLayer().value());
         if (CollectionUtils.isNotEmpty(source.getLabels())) {
             traffic.setLabelsJson(GSON.toJson(source.getLabels()));
         } else {
@@ -43,6 +42,9 @@ public class ProcessDispatcher implements SourceDispatcher<Process> {
 
         traffic.setAgentId(source.getAgentId());
         traffic.setProperties(source.getProperties());
+        if (source.getProfilingSupportStatus() != null) {
+            traffic.setProfilingSupportStatus(source.getProfilingSupportStatus().value());
+        }
         if (source.getDetectType() != null) {
             traffic.setDetectType(source.getDetectType().value());
         }

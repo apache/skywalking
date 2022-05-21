@@ -25,5 +25,4 @@
   {{- end}}
   language: PYTHON
   instanceuuid: {{ b64enc "provider-py-kafka" }}.1_{{ b64enc "provider-py-kafka-instance" }}
-  layer: GENERAL
 {{- end}}

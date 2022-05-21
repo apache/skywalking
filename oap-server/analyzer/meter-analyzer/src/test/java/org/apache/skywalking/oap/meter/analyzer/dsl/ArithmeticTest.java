@@ -56,144 +56,144 @@ public class ArithmeticTest {
         return Arrays.asList(new Object[][] {
             {
                 "plus-scalar-1",
-                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(1600592418480.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build(),
                     Sample.builder()
                           .labels(of("idc", "t2"))
                           .value(1600592418481.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
-                "1000 + instance_cpu_percentage.tagEqual('idc','t1')",
+                "1000 + http_success_request.tagEqual('idc','t1')",
                 Result.success(SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(1600592419480.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
                 false,
                 },
             {
                 "plus-scalar",
-                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(1600592418480.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build(),
                     Sample.builder()
                           .labels(of("idc", "t2"))
                           .value(1600592418481.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
-                "instance_cpu_percentage.tagEqual('idc','t1') + 1000",
+                "http_success_request.tagEqual('idc','t1') + 1000",
                 Result.success(SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(1600592419480.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
                 false,
                 },
             {
                 "minus-scalar",
-                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(1600592418480.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build(),
                     Sample.builder()
                           .labels(of("idc", "t2"))
                           .value(1600592418481.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
-                "instance_cpu_percentage.tagEqual('idc','t1') - 1000",
+                "http_success_request.tagEqual('idc','t1') - 1000",
                 Result.success(SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(1600592417480.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
                 false,
                 },
             {
                 "multiply-scalar",
-                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(1600592418480.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build(),
                     Sample.builder()
                           .labels(of("idc", "t2"))
                           .value(1600592418481.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
-                "instance_cpu_percentage.tagEqual('idc','t1') * 1000",
+                "http_success_request.tagEqual('idc','t1') * 1000",
                 Result.success(SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(1600592418480000.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
                 false,
                 },
             {
                 "divide-scalar",
-                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(1600592418480.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build(),
                     Sample.builder()
                           .labels(of("idc", "t2"))
                           .value(1600592418481.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
-                "instance_cpu_percentage.tagEqual('idc','t1') / 10",
+                "http_success_request.tagEqual('idc','t1') / 10",
                 Result.success(SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(160059241848.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
                 false,
                 },
             {
                 "divide-zero",
-                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(1600592418480.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build(),
                     Sample.builder()
                           .labels(of("idc", "t2"))
                           .value(1600592418481.0)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
-                "instance_cpu_percentage.tagEqual('idc','t1') / 0",
+                "http_success_request.tagEqual('idc','t1') / 0",
                 Result.success(SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(of("idc", "t1"))
                           .value(Double.POSITIVE_INFINITY)
-                          .name("instance_cpu_percentage")
+                          .name("http_success_request")
                           .build()
                 ).build()),
                 false,

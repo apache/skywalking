@@ -64,6 +64,11 @@ public class MeshReceiverProvider extends ModuleProvider {
                     .getService(OALEngineLoaderService.class)
                     .load(CoreOALDefine.INSTANCE);
 
+        getManager().find(CoreModule.NAME)
+                    .provider()
+                    .getService(OALEngineLoaderService.class)
+                    .load(MeshOALDefine.INSTANCE);
+
         TelemetryDataDispatcher.init(getManager());
         GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME)
                                                   .provider()

@@ -18,10 +18,14 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.trace;
 
+import java.util.Arrays;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -86,8 +90,13 @@ public class SpanForward {
             zipkinSpan.setLatency((int) latency);
             zipkinSpan.setDataBinary(SpanBytesEncoder.PROTO3.encode(span));
 
+            List<String> searchTagKeys = Arrays.asList(config.getSearchableTracesTags().split(Const.COMMA));
             span.tags().forEach((key, value) -> {
-                zipkinSpan.getTags().add(key + "=" + value);
+                if (searchTagKeys.contains(key)) {
+                    String tagString = key + "=" + value;
+                    zipkinSpan.getTags().add(tagString);
+                    addAutocompleteTags(minuteTimeBucket, key, value);
+                }
             });
 
             receiver.receive(zipkinSpan);
@@ -100,6 +109,15 @@ public class SpanForward {
             serviceMeta.setLayer(Layer.GENERAL);
             receiver.receive(serviceMeta);
         });
+    }
+
+    private void addAutocompleteTags(final long minuteTimeBucket, final String key, final String value) {
+        TagAutocomplete tagAutocomplete = new TagAutocomplete();
+        tagAutocomplete.setTagKey(key);
+        tagAutocomplete.setTagValue(value);
+        tagAutocomplete.setTagType(TagType.TRACE);
+        tagAutocomplete.setTimeBucket(minuteTimeBucket);
+        receiver.receive(tagAutocomplete);
     }
 
     private String getServiceInstanceName(Span span) {

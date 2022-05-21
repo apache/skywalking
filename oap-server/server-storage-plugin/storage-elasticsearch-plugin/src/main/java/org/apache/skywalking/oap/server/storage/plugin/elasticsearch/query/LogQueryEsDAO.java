@@ -141,7 +141,6 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
         SearchResponse response = getClient().search(index, search.build());
 
         Logs logs = new Logs();
-        logs.setTotal(response.getHits().getTotal());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             Log log = new Log();

@@ -141,7 +141,7 @@ This returns a resulting sample family containing the error rate of trace analys
 have no match and will not show up in the result:
 
 ```
-{region="us-west",az="az-1"} 0.8  // 20 / 100
+{region="us-west",az="az-1"} 0.2  // 20 / 100
 {region="asia-north",az="az-1"} 0.3333  // 11 / 33
 ```
 
@@ -176,7 +176,7 @@ instance_trace_count{az="az-3"} 20
 
 ### Function
 
-`Duraton` is a textual representation of a time range. The formats accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+`Duration` is a textual representation of a time range. The formats accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
  where a day is regarded as exactly 24 hours.
 
 Examples:

@@ -21,8 +21,8 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingQueryService;
-import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeAggregateType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
@@ -65,11 +65,13 @@ public class EBPFProcessProfilingQuery implements GraphQLQueryResolver {
         return getQueryService().queryEBPFProfilingTasks(serviceId);
     }
 
-    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId, Duration duration) throws IOException {
-        return getQueryService().queryEBPFProfilingSchedules(taskId, duration);
+    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws IOException {
+        return getQueryService().queryEBPFProfilingSchedules(taskId);
     }
 
-    public EBPFProfilingAnalyzation analysisEBPFProfilingResult(List<String> scheduleIdList, List<EBPFProfilingAnalyzeTimeRange> timeRanges) throws IOException {
-        return getQueryService().getEBPFProfilingAnalyzation(scheduleIdList, timeRanges);
+    public EBPFProfilingAnalyzation analysisEBPFProfilingResult(List<String> scheduleIdList,
+                                                                List<EBPFProfilingAnalyzeTimeRange> timeRanges,
+                                                                EBPFProfilingAnalyzeAggregateType aggregateType) throws IOException {
+        return getQueryService().getEBPFProfilingAnalyzation(scheduleIdList, timeRanges, aggregateType);
     }
 }

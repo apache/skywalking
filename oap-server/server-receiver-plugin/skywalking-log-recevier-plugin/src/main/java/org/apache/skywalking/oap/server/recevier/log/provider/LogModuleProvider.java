@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.oap.server.recevier.log.provider;
 
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.Collections;
 import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
@@ -65,7 +67,9 @@ public class LogModuleProvider extends ModuleProvider {
         HTTPHandlerRegister httpHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(HTTPHandlerRegister.class);
-        httpHandlerRegister.addHandler(new LogReportServiceHTTPHandler(getManager()));
+        httpHandlerRegister.addHandler(new LogReportServiceHTTPHandler(getManager()),
+                                       Collections.singletonList(HttpMethod.POST)
+        );
     }
 
     @Override

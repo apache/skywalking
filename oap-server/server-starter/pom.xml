@@ -184,17 +184,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-influxdb-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>storage-tidb-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-iotdb-plugin</artifactId>
+            <artifactId>storage-banyandb-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- storage module -->
@@ -357,7 +352,6 @@
                     <includeOnlyProperties>
                         <includeOnlyProperty>^git.build.version$</includeOnlyProperty>
                         <includeOnlyProperty>^git.commit.id$</includeOnlyProperty>
-                        <includeOnlyProperty>^git.build.time$</includeOnlyProperty>
                     </includeOnlyProperties>
                 </configuration>
             </plugin>

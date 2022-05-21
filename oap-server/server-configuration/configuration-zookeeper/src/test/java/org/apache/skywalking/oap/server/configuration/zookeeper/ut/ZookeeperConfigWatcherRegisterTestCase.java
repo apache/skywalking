@@ -35,7 +35,7 @@ public class ZookeeperConfigWatcherRegisterTestCase {
     @Test
     public void TestCase() throws Exception {
         final String namespace = "/default";
-        final String key = "receiver-trace.default.slowDBAccessThreshold";
+        final String key = "agent-analyzer.default.slowDBAccessThreshold";
         final String value = "default:100,mongodb:50";
 
         final ZookeeperServerSettings mockSettings = mock(ZookeeperServerSettings.class);

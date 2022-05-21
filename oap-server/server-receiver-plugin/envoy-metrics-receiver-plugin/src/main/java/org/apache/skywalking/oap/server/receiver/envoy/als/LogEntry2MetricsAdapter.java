@@ -100,6 +100,10 @@ public class LogEntry2MetricsAdapter {
         final Protocol protocol = requestProtocol(entry.getRequest());
         final String tlsMode = parseTLS(properties.getTlsProperties());
         final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());
+        final long internalRequestLatencyNanos = properties.getTimeToFirstUpstreamTxByte().getNanos();
+        final long internalResponseLatencyNanos =
+            properties.getTimeToFirstDownstreamTxByte().getNanos()
+                - properties.getTimeToFirstUpstreamRxByte().getNanos();
 
         final ServiceMeshMetric.Builder builder =
             ServiceMeshMetric.newBuilder()
@@ -108,7 +112,9 @@ public class LogEntry2MetricsAdapter {
                              .setStatus(status)
                              .setProtocol(protocol)
                              .setTlsMode(tlsMode)
-                             .setInternalErrorCode(internalErrorCode);
+                             .setInternalErrorCode(internalErrorCode)
+                             .setInternalRequestLatencyNanos(internalRequestLatencyNanos)
+                             .setInternalResponseLatencyNanos(internalResponseLatencyNanos);
 
         Optional.ofNullable(sourceService)
                 .map(ServiceMetaInfo::getServiceName)

@@ -26,6 +26,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
+import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.TermsAggregationBuilder;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
@@ -206,7 +207,11 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                 .terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID)
                 .subAggregation(
                     Aggregation.terms(ServiceRelationServerSideMetrics.COMPONENT_ID)
-                               .field(ServiceRelationServerSideMetrics.COMPONENT_ID))
+                               .field(ServiceRelationServerSideMetrics.COMPONENT_ID)
+                               .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
+                               .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
+                .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
+                .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                 .size(1000));
 
         final String index =
@@ -242,8 +247,11 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                 .terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID)
                 .subAggregation(
                     Aggregation.terms(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID)
-                               .field(
-                                   ServiceInstanceRelationServerSideMetrics.COMPONENT_ID))
+                               .field(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID)
+                               .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
+                               .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
+                .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
+                .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                 .size(1000));
 
         final String index =
@@ -273,7 +281,10 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     private List<Call.CallDetail> loadEndpoint(SearchBuilder sourceBuilder, String indexName,
                                                DetectPoint detectPoint) {
         sourceBuilder.aggregation(
-            Aggregation.terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID).size(1000));
+            Aggregation.terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID)
+                       .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
+                       .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
+                       .size(1000));
 
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(indexName);

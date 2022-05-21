@@ -74,10 +74,9 @@ core:
     restHost: ${SW_CORE_REST_HOST:0.0.0.0}
     restPort: ${SW_CORE_REST_PORT:12800}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
-    restMinThreads: ${SW_CORE_REST_JETTY_MIN_THREADS:1}
-    restMaxThreads: ${SW_CORE_REST_JETTY_MAX_THREADS:200}
-    restIdleTimeOut: ${SW_CORE_REST_JETTY_IDLE_TIMEOUT:30000}
-    restAcceptQueueSize: ${SW_CORE_REST_JETTY_QUEUE_SIZE:0}
+    restMaxThreads: ${SW_CORE_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_CORE_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_CORE_REST_QUEUE_SIZE:0}
     httpMaxRequestHeaderSize: ${SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
@@ -167,8 +166,6 @@ storage:
     url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1}
     user: ${SW_STORAGE_H2_USER:sa}
     metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
-    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
-    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:100}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:1}
   mysql:
@@ -181,8 +178,6 @@ storage:
       dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
-    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
   tidb:
@@ -196,21 +191,8 @@ storage:
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
       dataSource.useAffectedRows: ${SW_DATA_SOURCE_USE_AFFECTED_ROWS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
-    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
-  influxdb:
-    # InfluxDB configuration
-    url: ${SW_STORAGE_INFLUXDB_URL:http://localhost:8086}
-    user: ${SW_STORAGE_INFLUXDB_USER:root}
-    password: ${SW_STORAGE_INFLUXDB_PASSWORD:}
-    database: ${SW_STORAGE_INFLUXDB_DATABASE:skywalking}
-    actions: ${SW_STORAGE_INFLUXDB_ACTIONS:1000} # the number of actions to collect
-    duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
-    batchEnabled: ${SW_STORAGE_INFLUXDB_BATCH_ENABLED:true}
-    fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
-    connectionResponseFormat: ${SW_STORAGE_INFLUXDB_CONNECTION_RESPONSE_FORMAT:MSGPACK} # the response format of connection to influxDB, cannot be anything but MSGPACK or JSON.
   postgresql:
     properties:
       jdbcUrl: ${SW_JDBC_URL:"jdbc:postgresql://localhost:5432/skywalking"}
@@ -221,8 +203,6 @@ storage:
       dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
-    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
   zipkin-elasticsearch:
@@ -253,14 +233,14 @@ storage:
     oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
-  iotdb:
-    host: ${SW_STORAGE_IOTDB_HOST:127.0.0.1}
-    rpcPort: ${SW_STORAGE_IOTDB_RPC_PORT:6667}
-    username: ${SW_STORAGE_IOTDB_USERNAME:root}
-    password: ${SW_STORAGE_IOTDB_PASSWORD:root}
-    storageGroup: ${SW_STORAGE_IOTDB_STORAGE_GROUP:root.skywalking}
-    sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:8} # If it's zero, the SessionPool size will be 2*CPU_Cores
-    fetchTaskLogMaxSize: ${SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
+  banyandb:
+    host: ${SW_STORAGE_BANYANDB_HOST:127.0.0.1}
+    port: ${SW_STORAGE_BANYANDB_PORT:17912}
+    group: ${SW_STORAGE_BANYANDB_GROUP:default}
+    maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
+    flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
+    concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
+    fetchTaskLogMaxSize: ${SW_STORAGE_BANYANDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
 
 agent-analyzer:
   selector: ${SW_AGENT_ANALYZER:default}
@@ -273,7 +253,7 @@ agent-analyzer:
     # Nginx and Envoy agents can't get the real remote address.
     # Exit spans with the component in the list would not generate the client-side instance relation metrics.
     noUpstreamRealAddressAgents: ${SW_NO_UPSTREAM_REAL_ADDRESS:6000,9000}
-    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite,spring-sleuth} # Which files could be meter analyzed, files split by ","
+    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite} # Which files could be meter analyzed, files split by ","
 
 log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
@@ -288,14 +268,13 @@ event-analyzer:
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
-    # For Jetty server
+    # For HTTP server
     restHost: ${SW_RECEIVER_SHARING_REST_HOST:0.0.0.0}
     restPort: ${SW_RECEIVER_SHARING_REST_PORT:0}
     restContextPath: ${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
-    restMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
-    restMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
-    restIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
-    restAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
+    restMaxThreads: ${SW_RECEIVER_SHARING_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_RECEIVER_SHARING_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_RECEIVER_SHARING_REST_QUEUE_SIZE:0}
     httpMaxRequestHeaderSize: ${SW_RECEIVER_SHARING_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
     # For gRPC server
     gRPCHost: ${SW_RECEIVER_GRPC_HOST:0.0.0.0}
@@ -330,7 +309,7 @@ receiver-profile:
   default:
 
 receiver-zabbix:
-  selector: ${SW_RECEIVER_ZABBIX:default}
+  selector: ${SW_RECEIVER_ZABBIX:-}
   default:
     port: ${SW_RECEIVER_ZABBIX_PORT:10051}
     host: ${SW_RECEIVER_ZABBIX_HOST:0.0.0.0}
@@ -367,6 +346,7 @@ kafka-fetcher:
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableNativeProtoLog: ${SW_KAFKA_FETCHER_ENABLE_NATIVE_PROTO_LOG:true}
     enableNativeJsonLog: ${SW_KAFKA_FETCHER_ENABLE_NATIVE_JSON_LOG:true}
+    consumers: ${SW_KAFKA_FETCHER_CONSUMERS:1}
     kafkaHandlerThreadPoolSize: ${SW_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
     kafkaHandlerThreadPoolQueueSize: ${SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:-1}
 
@@ -383,15 +363,15 @@ receiver-otel:
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
-    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
-    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
-    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
-    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
-    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
-    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
-    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
-    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
+    # For HTTP server
+    restHost: ${SW_RECEIVER_ZIPKIN_REST_HOST:0.0.0.0}
+    restPort: ${SW_RECEIVER_ZIPKIN_REST_PORT:9411}
+    restContextPath: ${SW_RECEIVER_ZIPKIN_REST_CONTEXT_PATH:/}
+    restMaxThreads: ${SW_RECEIVER_ZIPKIN_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_RECEIVER_ZIPKIN_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_REST_QUEUE_SIZE:0}
     instanceNameRule: ${SW_RECEIVER_ZIPKIN_INSTANCE_NAME_RULE:[spring.instance_id,node_id]}
+    searchableTracesTags: ${SW_ZIPKIN_SEARCHABLE_TAG_KEYS:http.method}
 
 receiver-browser:
   selector: ${SW_RECEIVER_BROWSER:default}

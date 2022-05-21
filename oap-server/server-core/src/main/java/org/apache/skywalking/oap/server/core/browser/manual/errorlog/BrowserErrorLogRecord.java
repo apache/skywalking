@@ -23,12 +23,11 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @SuperDataset
@@ -56,7 +55,7 @@ public class BrowserErrorLogRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = SERVICE_ID)
-    @BanyanDBShardingKey(index = 0)
+    @BanyanDB.ShardingKey(index = 0)
     private String serviceId;
 
     @Setter
@@ -95,7 +94,7 @@ public class BrowserErrorLogRecord extends Record {
             record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             record.setErrorCategory(((Number) converter.get(ERROR_CATEGORY)).intValue());
-            record.setDataBinary(converter.getWith(DATA_BINARY, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
+            record.setDataBinary(converter.getBytes(DATA_BINARY));
             return record;
         }
 

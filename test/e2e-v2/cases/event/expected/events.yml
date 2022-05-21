@@ -34,5 +34,4 @@ events:
     endtime: {{ gt .endtime 0 }}
     layer: GENERAL
   {{- end }}
-total: 1
 

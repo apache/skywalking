@@ -179,6 +179,8 @@ catalog:
                 path: "/en/setup/backend/backend-health-check"
       - name: "CLI Setup"
         path: "https://github.com/apache/skywalking-cli"
+      - name: "Mock Data Generator Setup"
+        path: "/en/setup/backend/backend-data-generator"
   - name: "Contributing Guides"
     catalog:
       - name: "Contribute"
@@ -237,7 +239,3 @@ catalog:
         path: "/en/changes/changes-6.x"
       - name: "5.x"
         path: "/en/changes/changes-5.x"
-
-
-
-

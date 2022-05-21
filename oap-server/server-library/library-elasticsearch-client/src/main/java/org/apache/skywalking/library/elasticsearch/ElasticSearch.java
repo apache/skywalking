@@ -187,6 +187,10 @@ public final class ElasticSearch implements Closeable {
                   .build());
     }
 
+    public boolean deleteScrollContext(String scrollId) {
+        return searchClient.deleteScrollContext(scrollId);
+    }
+
     @Override
     public void close() {
         endpointGroup.removeListener(healthyEndpointListener);

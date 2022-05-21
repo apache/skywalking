@@ -59,14 +59,22 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
         final List<EBPFProfilingDataRecord> records = new ArrayList<>();
 
         SearchResponse results = getClient().search(index, search.build(), params);
-        while (results.getHits().getTotal() > 0) {
-            final List<EBPFProfilingDataRecord> batch = buildDataList(results);
-            records.addAll(batch);
-            // The last iterate, there is no more data
-            if (batch.size() < scrollingBatchSize) {
-                break;
+        while (true) {
+            final String scrollId = results.getScrollId();
+            try {
+                if (results.getHits().getTotal() == 0) {
+                    break;
+                }
+                final List<EBPFProfilingDataRecord> batch = buildDataList(results);
+                records.addAll(batch);
+                // The last iterate, there is no more data
+                if (batch.size() < scrollingBatchSize) {
+                    break;
+                }
+                results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
+            } finally {
+                getClient().deleteScrollContextQuietly(scrollId);
             }
-            results = getClient().scroll(SCROLL_CONTEXT_RETENTION, results.getScrollId());
         }
         return records;
     }

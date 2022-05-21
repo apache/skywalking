@@ -24,15 +24,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.analyze.EBPFProfilingAnalyzer;
-import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeAggregateType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
@@ -124,8 +124,8 @@ public class EBPFProfilingQueryService implements Service {
 
     private EBPFProfilingAnalyzer getProfilingAnalyzer() {
         if (profilingAnalyzer == null) {
-            this.profilingAnalyzer = new EBPFProfilingAnalyzer(moduleManager, config.getMaxDurationOfAnalyzeEBPFProfiling(),
-                    config.getMaxDurationOfQueryEBPFProfilingData(), config.getMaxThreadCountOfQueryEBPFProfilingData());
+            this.profilingAnalyzer = new EBPFProfilingAnalyzer(moduleManager, config.getMaxDurationOfQueryEBPFProfilingData(),
+                    config.getMaxThreadCountOfQueryEBPFProfilingData());
         }
         return profilingAnalyzer;
     }
@@ -154,7 +154,7 @@ public class EBPFProfilingQueryService implements Service {
         final long endTimestamp = System.currentTimeMillis();
         final long startTimestamp = endTimestamp - TimeUnit.MINUTES.toMillis(10);
         final long processesCount = getMetadataQueryDAO().getProcessesCount(serviceId, null, null,
-                TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute),
+                ProfilingSupportStatus.SUPPORT_EBPF_PROFILING, TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute),
                 TimeBucket.getTimeBucket(endTimestamp, DownSampling.Minute));
         if (processesCount <= 0) {
             prepare.setCouldProfiling(false);
@@ -175,8 +175,8 @@ public class EBPFProfilingQueryService implements Service {
         return getTaskDAO().queryTasks(Arrays.asList(serviceId), null, 0, 0);
     }
 
-    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId, Duration duration) throws IOException {
-        final List<EBPFProfilingSchedule> schedules = getScheduleDAO().querySchedules(taskId, duration.getStartTimeBucket(), duration.getEndTimeBucket());
+    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws IOException {
+        final List<EBPFProfilingSchedule> schedules = getScheduleDAO().querySchedules(taskId);
         if (CollectionUtils.isNotEmpty(schedules)) {
             final Model processModel = getProcessModel();
             final List<Metrics> processMetrics = schedules.stream()
@@ -195,8 +195,10 @@ public class EBPFProfilingQueryService implements Service {
         return schedules;
     }
 
-    public EBPFProfilingAnalyzation getEBPFProfilingAnalyzation(List<String> scheduleIdList, List<EBPFProfilingAnalyzeTimeRange> timeRanges) throws IOException {
-        return getProfilingAnalyzer().analyze(scheduleIdList, timeRanges);
+    public EBPFProfilingAnalyzation getEBPFProfilingAnalyzation(List<String> scheduleIdList,
+                                                                List<EBPFProfilingAnalyzeTimeRange> timeRanges,
+                                                                EBPFProfilingAnalyzeAggregateType aggregateType) throws IOException {
+        return getProfilingAnalyzer().analyze(scheduleIdList, timeRanges, aggregateType);
     }
 
     private Process convertProcess(ProcessTraffic traffic) {
@@ -209,7 +211,6 @@ public class EBPFProfilingQueryService implements Service {
         final String instanceId = traffic.getInstanceId();
         process.setInstanceId(instanceId);
         process.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
-        process.setLayer(Layer.valueOf(traffic.getLayer()).name());
         process.setAgentId(traffic.getAgentId());
         process.setDetectType(ProcessDetectType.valueOf(traffic.getDetectType()).name());
         if (traffic.getProperties() != null) {

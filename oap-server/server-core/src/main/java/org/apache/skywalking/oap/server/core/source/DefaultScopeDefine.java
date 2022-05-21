@@ -101,6 +101,7 @@ public class DefaultScopeDefine {
     public static final int EBPF_PROFILING_SCHEDULE = 47;
     public static final int EBPF_PROFILING_DATA = 48;
     public static final int SERVICE_LABEL = 49;
+    public static final int TAG_AUTOCOMPLETE = 50;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

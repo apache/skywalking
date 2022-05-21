@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import lombok.AllArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
@@ -38,15 +36,13 @@ public class H2EBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO {
     private JDBCHikariCPClient h2Client;
 
     @Override
-    public List<EBPFProfilingSchedule> querySchedules(String taskId, long startTimeBucket, long endTimeBucket) throws IOException {
+    public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
         final StringBuilder sql = new StringBuilder();
         final StringBuilder conditionSql = new StringBuilder();
         List<Object> condition = new ArrayList<>(4);
         sql.append("select * from ").append(EBPFProfilingScheduleRecord.INDEX_NAME);
 
         appendCondition(conditionSql, condition, EBPFProfilingScheduleRecord.TASK_ID, "=", taskId);
-        appendCondition(conditionSql, condition, EBPFProfilingTaskRecord.START_TIME, ">=", TimeBucket.getTimestamp(startTimeBucket));
-        appendCondition(conditionSql, condition, EBPFProfilingTaskRecord.START_TIME, "<=", TimeBucket.getTimestamp(endTimeBucket));
 
         if (conditionSql.length() > 0) {
             sql.append(" where ").append(conditionSql);

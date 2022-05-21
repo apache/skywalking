@@ -393,7 +393,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
                 }
                 return Layer.GENERAL;
             case MQ:
-                return Layer.MQ;
+                return Layer.VIRTUAL_MQ;
             case Cache:
                 return Layer.CACHE;
             case UNRECOGNIZED:

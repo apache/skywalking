@@ -27,7 +27,6 @@ import lombok.Setter;
 @Getter
 public class Logs {
     private final List<Log> logs;
-    private int total;
 
     public Logs() {
         this.logs = new ArrayList<>();

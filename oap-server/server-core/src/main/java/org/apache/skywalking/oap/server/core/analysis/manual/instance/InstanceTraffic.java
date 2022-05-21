@@ -25,7 +25,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -52,7 +51,6 @@ public class InstanceTraffic extends Metrics {
     public static final String NAME = "name";
     public static final String LAST_PING_TIME_BUCKET = "last_ping";
     public static final String PROPERTIES = "properties";
-    public static final String LAYER = "layer";
 
     private static final Gson GSON = new Gson();
 
@@ -75,11 +73,6 @@ public class InstanceTraffic extends Metrics {
     @Getter
     @Column(columnName = PROPERTIES, storageOnly = true, length = 50000)
     private JsonObject properties;
-
-    @Setter
-    @Getter
-    @Column(columnName = LAYER)
-    private Layer layer = Layer.UNDEFINED;
 
     @Override
     public boolean combine(final Metrics metrics) {
@@ -106,7 +99,6 @@ public class InstanceTraffic extends Metrics {
     public void deserialize(final RemoteData remoteData) {
         setServiceId(remoteData.getDataStrings(0));
         setName(remoteData.getDataStrings(1));
-        setLayer(Layer.valueOf(remoteData.getDataIntegers(0)));
         final String propString = remoteData.getDataStrings(2);
         if (StringUtil.isNotEmpty(propString)) {
             setProperties(GSON.fromJson(propString, JsonObject.class));
@@ -120,7 +112,6 @@ public class InstanceTraffic extends Metrics {
         final RemoteData.Builder builder = RemoteData.newBuilder();
         builder.addDataStrings(serviceId);
         builder.addDataStrings(name);
-        builder.addDataIntegers(layer.value());
         if (properties == null) {
             builder.addDataStrings(Const.EMPTY_STRING);
         } else {
@@ -148,9 +139,6 @@ public class InstanceTraffic extends Metrics {
             }
             instanceTraffic.setLastPingTimestamp(((Number) converter.get(LAST_PING_TIME_BUCKET)).longValue());
             instanceTraffic.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
-            if (converter.get(LAYER) != null) {
-                instanceTraffic.setLayer(Layer.valueOf(((Number) converter.get(LAYER)).intValue()));
-            }
             return instanceTraffic;
         }
 
@@ -165,8 +153,6 @@ public class InstanceTraffic extends Metrics {
             }
             converter.accept(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
-            Layer layer = storageData.getLayer();
-            converter.accept(LAYER, layer != null ? layer.value() : Layer.UNDEFINED.value());
         }
     }
 

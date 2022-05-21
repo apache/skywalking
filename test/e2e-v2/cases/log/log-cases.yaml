@@ -14,19 +14,8 @@
 # limitations under the License.
 
   cases:
-    # service list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
-      expected: expected/service.yml
-    # service endpoint
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=users --service-name=e2e-service-provider
-      expected: expected/service-endpoint.yml
-    # service instance list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
-      expected: expected/service-instance.yml
-    # logs
-    - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=e2e-service-provider --trace-id=$( \
-            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls \
-              | yq e '.traces | select(.[].endpointnames[0]=="POST:/users") | .[0].traceids[0]' -
-        )
-      expected: expected/logs.yml
+    - includes:
+        - log-cases-base.yaml
+    # metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=log_count_info --instance-name=provider1 --service-name=e2e-service-provider  |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml

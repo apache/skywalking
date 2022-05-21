@@ -27,7 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 
 @Getter
@@ -79,18 +79,18 @@ public class AnalyzerSetting {
 
     public enum Generator {
         OAP_ANALYZER_SETTING_GENERATOR(
-            ElasticSearchMatchQuery.AnalyzerType.OAP_ANALYZER,
+            ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER,
             config -> new Gson().fromJson(config.getOapAnalyzer(), AnalyzerSetting.class)
         ),
         OAP_LOG_ANALYZER_SETTING_GENERATOR(
-            ElasticSearchMatchQuery.AnalyzerType.OAP_LOG_ANALYZER,
+            ElasticSearch.MatchQuery.AnalyzerType.OAP_LOG_ANALYZER,
             config -> new Gson().fromJson(config.getOapLogAnalyzer(), AnalyzerSetting.class)
         );
 
-        private final ElasticSearchMatchQuery.AnalyzerType type;
+        private final ElasticSearch.MatchQuery.AnalyzerType type;
         private final GenerateAnalyzerSettingFunc func;
 
-        Generator(final ElasticSearchMatchQuery.AnalyzerType type,
+        Generator(final ElasticSearch.MatchQuery.AnalyzerType type,
                   final GenerateAnalyzerSettingFunc func) {
             this.type = type;
             this.func = func;
@@ -100,7 +100,7 @@ public class AnalyzerSetting {
             return this.func;
         }
 
-        public static Generator getGenerator(ElasticSearchMatchQuery.AnalyzerType type) throws StorageException {
+        public static Generator getGenerator(ElasticSearch.MatchQuery.AnalyzerType type) throws StorageException {
             for (final Generator value : Generator.values()) {
                 if (value.type == type) {
                     return value;

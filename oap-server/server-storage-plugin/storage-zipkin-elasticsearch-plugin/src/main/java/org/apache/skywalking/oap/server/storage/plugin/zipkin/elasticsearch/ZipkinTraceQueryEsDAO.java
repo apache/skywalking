@@ -53,7 +53,6 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
-
 import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.ENDPOINT_ID;
 import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.LATENCY;
@@ -143,7 +142,6 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         SearchResponse response = getClient().search(ZipkinSpanRecord.INDEX_NAME, search.build());
 
         TraceBrief traceBrief = new TraceBrief();
-        traceBrief.setTotal(response.getHits().getTotal());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();

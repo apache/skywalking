@@ -40,7 +40,6 @@ public class LogRecordDispatcher implements SourceDispatcher<Log> {
         record.setContent(source.getContent());
         record.setTagsRawData(source.getTagsRawData());
         record.setTagsInString(Tag.Util.toStringList(source.getTags()));
-        record.setTags(source.getTags());
 
         RecordStreamProcessor.getInstance().in(record);
     }

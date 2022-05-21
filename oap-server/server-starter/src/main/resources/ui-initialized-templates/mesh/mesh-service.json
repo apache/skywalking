@@ -464,6 +464,61 @@
                     "sortMetrics"
                   ],
                   "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 54,
+                  "w": 8,
+                  "h": 13,
+                  "i": "23",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "service_sidecar_internal_req_latency_nanos"
+                  ],
+                  "moved": false,
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Request)",
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
+                  },
+                  "metricConfig": []
+                },
+                {
+                  "x": 8,
+                  "y": 54,
+                  "w": 8,
+                  "h": 13,
+                  "i": "24",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "service_sidecar_internal_resp_latency_nanos"
+                  ],
+                  "moved": false,
+                  "widget": {
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Response)",
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
                 }
               ]
             },
@@ -692,6 +747,49 @@
                   "metricTypes": [
                     ""
                   ],
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "eBPF Profiling",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 47,
+                  "i": "0",
+                  "type": "Ebpf",
+                  "metricTypes": [
+                    ""
+                  ],
+                  "metrics": [
+                    ""
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 2,
+                  "i": "2",
+                  "type": "Text",
+                  "metricTypes": [
+                    ""
+                  ],
+                  "metrics": [
+                    ""
+                  ],
+                  "graph": {
+                    "fontColor": "white",
+                    "backgroundColor": "blue",
+                    "content": "eBPF Profiling support services written in C, C++, Golang, and Rust. SkyWalking Rover provides this profiling capability. ",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "url": "https://skywalking.apache.org/docs/skywalking-rover/latest/readme/"
+                  },
                   "moved": false
                 }
               ]

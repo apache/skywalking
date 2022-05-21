@@ -153,27 +153,27 @@ public class StorageEsInstaller extends ModelInstaller {
                 if (!isAcknowledged) {
                     throw new IOException("create " + tableName + " index template failure, ");
                 }
+            }
 
-                if (esClient.isExistsIndex(indexName)) {
-                    Mappings historyMapping = esClient.getIndex(indexName)
-                                                      .map(Index::getMappings)
-                                                      .orElseGet(Mappings::new);
-                    Mappings appendMapping = structures.diffStructure(tableName, historyMapping);
-                    if (appendMapping.getProperties() != null && !appendMapping.getProperties().isEmpty()) {
-                        isAcknowledged = esClient.updateIndexMapping(indexName, appendMapping);
-                        log.info("update {} index finished, isAcknowledged: {}, append mappings: {}", indexName,
-                                 isAcknowledged, appendMapping
-                        );
-                        if (!isAcknowledged) {
-                            throw new StorageException("update " + indexName + " time series index failure");
-                        }
-                    }
-                } else {
-                    isAcknowledged = esClient.createIndex(indexName);
-                    log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
+            if (esClient.isExistsIndex(indexName)) {
+                Mappings historyMapping = esClient.getIndex(indexName)
+                        .map(Index::getMappings)
+                        .orElseGet(Mappings::new);
+                Mappings appendMapping = structures.diffStructure(tableName, historyMapping);
+                if (appendMapping.getProperties() != null && !appendMapping.getProperties().isEmpty()) {
+                    boolean isAcknowledged = esClient.updateIndexMapping(indexName, appendMapping);
+                    log.info("update {} index finished, isAcknowledged: {}, append mappings: {}", indexName,
+                            isAcknowledged, appendMapping
+                    );
                     if (!isAcknowledged) {
-                        throw new StorageException("create " + indexName + " time series index failure");
+                        throw new StorageException("update " + indexName + " time series index failure");
                     }
+                }
+            } else {
+                boolean isAcknowledged = esClient.createIndex(indexName);
+                log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
+                if (!isAcknowledged) {
+                    throw new StorageException("create " + indexName + " time series index failure");
                 }
             }
         } catch (IOException e) {

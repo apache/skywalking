@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.BatchSQLExecutor;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 
 @Slf4j
 public class H2BatchDAO implements IBatchDAO {
@@ -59,11 +61,22 @@ public class H2BatchDAO implements IBatchDAO {
         if (CollectionUtils.isEmpty(prepareRequests)) {
             return CompletableFuture.completedFuture(null);
         }
+
+        List<PrepareRequest> sqls = new ArrayList<>();
+        prepareRequests.forEach(prepareRequest -> {
+            sqls.add(prepareRequest);
+            SQLExecutor sqlExecutor = (SQLExecutor) prepareRequest;
+            if (!CollectionUtils.isEmpty(sqlExecutor.getAdditionalSQLs())) {
+                sqls.addAll(sqlExecutor.getAdditionalSQLs());
+            }
+        });
+
         if (log.isDebugEnabled()) {
-            log.debug("to execute sql statements execute, data size: {}, maxBatchSqlSize: {}", prepareRequests.size(), maxBatchSqlSize);
+            log.debug("to execute sql statements execute, data size: {}, maxBatchSqlSize: {}", sqls.size(), maxBatchSqlSize);
         }
+
         final Map<PrepareRequest, List<PrepareRequest>> batchRequestMap =
-                prepareRequests.stream().collect(Collectors.groupingBy(Function.identity()));
+            sqls.stream().collect(Collectors.groupingBy(Function.identity()));
         try (Connection connection = h2Client.getConnection()) {
             batchRequestMap.forEach((key, requests) -> {
                 try {

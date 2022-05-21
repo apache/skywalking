@@ -1,8 +1,8 @@
 # Cluster Management
-In many product environments, the backend needs to support high throughput and provide HA to maintain robustness,
+In many production environments, the backend needs to support high throughput and provide high availability (HA) to maintain robustness,
 so you always need cluster management in product env.
 
-NOTICE, cluster management doesn't provide service discovery mechanism for agents and probes. We recommend agents/probes using
+NOTICE, cluster management doesn't provide a service discovery mechanism for agents and probes. We recommend agents/probes using
 gateway to load balancer to access OAP clusters.
 
 The core feature of cluster management is supporting the whole OAP cluster running distributed aggregation and analysis for telemetry data.
@@ -37,10 +37,10 @@ cluster:
 - `hostPort`, `baseSleepTimeMs` and `maxRetries` are settings of Zookeeper curator client.
 
 Note: 
-- If `Zookeeper ACL` is enabled and `/skywalking` exists, you must make sure that `SkyWalking` has `CREATE`, `READ` and `WRITE` permissions. If `/skywalking` does not exist, it will be created by SkyWalking and all permissions to the specified user will be granted. Simultaneously, znode grants the READ permission to anyone.
+- If `Zookeeper ACL` is enabled and `/skywalking` exists, you must ensure that `SkyWalking` has `CREATE`, `READ` and `WRITE` permissions. If `/skywalking` does not exist, it will be created by SkyWalking, and all permissions to the specified user will be granted. Simultaneously, znode grants READ permission to anyone.
 - If you set `schema` as `digest`, the password of the expression is set in **clear text**. 
 
-In some cases, the OAP default gRPC host and port in core are not suitable for internal communication among the OAP nodes.
+In some cases, the OAP default gRPC host and port in the core are not suitable for internal communication among the OAP nodes.
 The following settings are provided to set the host and port manually, based on your own LAN env.
 - internalComHost: The registered host and other OAP nodes use this to communicate with the current node.
 - internalComPort: the registered port and other OAP nodes use this to communicate with the current node.
@@ -62,7 +62,7 @@ zookeeper:
 
 
 ## Kubernetes
-The require backend clusters are deployed inside Kubernetes. See the guides in [Deploy in kubernetes](backend-k8s.md).
+The required backend clusters are deployed inside Kubernetes. See the guides in [Deploy in kubernetes](backend-k8s.md).
 Set the selector to `kubernetes`.
 
 ```yaml
@@ -82,9 +82,9 @@ cluster:
 ```
 
 Same as the Zookeeper coordinator,
-in some cases, the OAP default gRPC host and port in core are not suitable for internal communication among the OAP nodes.
+in some cases, the OAP default gRPC host and port in the core are not suitable for internal communication among the OAP nodes.
 The following settings are provided to set the host and port manually, based on your own LAN env.
-- internalComHost: The registed host and other OAP nodes use this to communicate with the current node.
+- internalComHost: The registered host and other OAP nodes use this to communicate with the current node.
 - internalComPort: The registered port and other OAP nodes use this to communicate with the current node.
 
 
@@ -106,7 +106,7 @@ cluster:
 ```
 
 Same as the Zookeeper coordinator,
-in some cases, the OAP default gRPC host and port in core are not suitable for internal communication among the oap nodes.
+in some cases, the OAP default gRPC host and port in the core are not suitable for internal communication among the OAP nodes.
 The following settings are provided to set the host and port manually, based on your own LAN env.
 - internalComHost: The registered host and other OAP nodes use this to communicate with the current node.
 - internalComPort: The registered port and other OAP nodes use this to communicate with the current node.
@@ -130,7 +130,7 @@ nacos:
 ```
 
 Same as the Zookeeper coordinator,
-in some cases, the OAP default gRPC host and port in core are not suitable for internal communication among the OAP nodes.
+in some cases, the OAP default gRPC host and port in the core are not suitable for internal communication among the OAP nodes.
 The following settings are provided to set the host and port manually, based on your own LAN env.
 - internalComHost: The registered host and other OAP nodes use this to communicate with the current node.
 - internalComPort: The registered port and other OAP nodes use this to communicate with the current node.

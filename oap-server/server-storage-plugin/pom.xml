@@ -31,8 +31,7 @@
         <module>storage-jdbc-hikaricp-plugin</module>
         <module>storage-elasticsearch-plugin</module>
         <module>storage-zipkin-elasticsearch-plugin</module>
-        <module>storage-influxdb-plugin</module>
         <module>storage-tidb-plugin</module>
-        <module>storage-iotdb-plugin</module>
+        <module>storage-banyandb-plugin</module>
     </modules>
 </project>

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.profiling.trace;
 
-import java.util.Base64;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -26,12 +25,12 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_SEGMENT_SNAPSHOT;
 
@@ -52,11 +51,12 @@ public class ProfileThreadSnapshotRecord extends Record {
     public static final String STACK_BINARY = "stack_binary";
 
     @Column(columnName = TASK_ID)
-    @QueryUnifiedIndex(withColumns = {SEGMENT_ID})
+    @SQLDatabase.QueryUnifiedIndex(withColumns = {SEGMENT_ID})
     private String taskId;
     @Column(columnName = SEGMENT_ID)
-    @QueryUnifiedIndex(withColumns = {SEQUENCE})
-    @QueryUnifiedIndex(withColumns = {DUMP_TIME})
+    @SQLDatabase.QueryUnifiedIndex(withColumns = {SEQUENCE})
+    @SQLDatabase.QueryUnifiedIndex(withColumns = {DUMP_TIME})
+    @BanyanDB.ShardingKey(index = 0)
     private String segmentId;
     @Column(columnName = DUMP_TIME)
     private long dumpTime;
@@ -79,11 +79,7 @@ public class ProfileThreadSnapshotRecord extends Record {
             snapshot.setDumpTime(((Number) converter.get(DUMP_TIME)).longValue());
             snapshot.setSequence(((Number) converter.get(SEQUENCE)).intValue());
             snapshot.setTimeBucket(((Number) converter.get(TIME_BUCKET)).intValue());
-            if (StringUtil.isEmpty((String) converter.get(STACK_BINARY))) {
-                snapshot.setStackBinary(new byte[] {});
-            } else {
-                snapshot.setStackBinary(Base64.getDecoder().decode((String) converter.get(STACK_BINARY)));
-            }
+            snapshot.setStackBinary(converter.getBytes(STACK_BINARY));
             return snapshot;
         }
 
@@ -94,7 +90,7 @@ public class ProfileThreadSnapshotRecord extends Record {
             converter.accept(DUMP_TIME, storageData.getDumpTime());
             converter.accept(SEQUENCE, storageData.getSequence());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
-            converter.accept(STACK_BINARY, new String(Base64.getEncoder().encode(storageData.getStackBinary())));
+            converter.accept(STACK_BINARY, storageData.getStackBinary());
         }
     }
 }

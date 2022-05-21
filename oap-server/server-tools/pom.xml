@@ -30,5 +30,6 @@
 
     <modules>
         <module>profile-exporter</module>
+        <module>data-generator</module>
     </modules>
 </project>

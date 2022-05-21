@@ -19,7 +19,7 @@ in Cloud Native architecture.
 The core features are following.
 
 - Service, service instance, endpoint metrics analysis
-- Root cause analysis. Profile the code on the runtime
+- Root cause analysis. Profile the code on the runtime powered by in-process agent and ebpf profiler.
 - Service topology map analysis
 - Service, service instance and endpoint dependency analysis
 - Slow services and endpoints detecting
@@ -32,19 +32,21 @@ The core features are following.
 - Infrastructure(VM, network, disk etc.) monitoring
 - Collaboration across metrics, traces, and logs
 
-<img src="https://skywalking.apache.org/images/SkyWalking_Architecture_20210424.png?t=20210424"/>
+<img src="https://skywalking.apache.org/images/home/architecture.svg?t=20220513"/>
 
 SkyWalking supports to collect telemetry (metrics, traces, and logs) data from multiple sources
 and multiple formats,
 including
 1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
-1. Go, C++, and Rust SDKs.
-1. LUA agent especially for Nginx, OpenResty and Apache APISIX.
-1. Browser agent.
-1. Service Mesh Observability. Control plane and data plane. 
-1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer), Zabbix.
-1. Logs.
-1. Zipkin v1/v2 trace.(No Analysis)
+2. Go, C++, and Rust SDKs.
+3. [Agent profiling](https://skywalking.apache.org/docs/main/latest/en/concepts-and-designs/sdk-profiling/) for Java and Python.
+4. [ebpf profiling](https://github.com/apache/skywalking-rover) C, C++, Golang, and Rust.
+5. LUA agent especially for Nginx, OpenResty and Apache APISIX.
+6. Browser agent.
+7. Service Mesh Observability. Control plane and data plane.
+8. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer), Zabbix.
+9. Logs.
+10. Zipkin v1/v2 trace.(No Analysis)
 
 SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario 
 for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.

@@ -112,7 +112,6 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
             @Override
             public void onError(Throwable throwable) {
                 LOGGER.error(throwable.getMessage(), throwable);
-                responseObserver.onCompleted();
             }
 
             @Override

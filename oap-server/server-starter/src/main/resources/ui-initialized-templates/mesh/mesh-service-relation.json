@@ -311,6 +311,115 @@
                     ""
                   ],
                   "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "10",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "service_client_sidecar_internal_req_latency_nanos"
+                  ],
+                  "moved": false,
+                  "widget": {
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Client Request)",
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": []
+                },
+                {
+                  "x": 18,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "11",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "service_server_sidecar_internal_resp_latency_nanos"
+                  ],
+                  "moved": false,
+                  "widget": {
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Server Response)",
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
+                },
+                {
+                  "x": 6,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "12",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "service_relation_client_resp_time"
+                  ],
+                  "moved": false,
+                  "widget": {
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon",
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Client Response)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "13",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "service_server_sidecar_internal_req_latency_nanos"
+                  ],
+                  "moved": false,
+                  "widget": {
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Server Request)",
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
                 }
               ]
             },

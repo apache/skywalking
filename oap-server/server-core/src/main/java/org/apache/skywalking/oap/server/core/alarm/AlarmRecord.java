@@ -23,16 +23,16 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
@@ -44,6 +44,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AL
 public class AlarmRecord extends Record {
 
     public static final String INDEX_NAME = "alarm_record";
+    public static final String ADDITIONAL_TAG_TABLE = "alarm_record_tag";
     public static final String SCOPE = "scope";
     public static final String NAME = "name";
     public static final String ID0 = "id0";
@@ -64,23 +65,22 @@ public class AlarmRecord extends Record {
     @Column(columnName = NAME, storageOnly = true)
     private String name;
     @Column(columnName = ID0, storageOnly = true)
+    @BanyanDB.ShardingKey(index = 0)
     private String id0;
     @Column(columnName = ID1, storageOnly = true)
     private String id1;
     @Column(columnName = START_TIME)
     private long startTime;
     @Column(columnName = ALARM_MESSAGE)
-    @ElasticSearchMatchQuery
+    @ElasticSearch.MatchQuery
     private String alarmMessage;
     @Column(columnName = RULE_NAME)
     private String ruleName;
     @Column(columnName = TAGS, indexOnly = true)
+    @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
     @Column(columnName = TAGS_RAW_DATA, storageOnly = true)
     private byte[] tagsRawData;
-    @Setter
-    @Getter
-    private List<Tag> tags;
 
     public static class Builder implements StorageBuilder<AlarmRecord> {
         @Override
@@ -94,7 +94,7 @@ public class AlarmRecord extends Record {
             record.setStartTime(((Number) converter.get(START_TIME)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             record.setRuleName((String) converter.get(RULE_NAME));
-            record.setTagsRawData(converter.getWith(TAGS_RAW_DATA, HashMapConverter.ToEntity.Base64Decoder.INSTANCE));
+            record.setTagsRawData(converter.getBytes(TAGS_RAW_DATA));
             // Don't read the TAGS as they are only for query.
             return record;
         }

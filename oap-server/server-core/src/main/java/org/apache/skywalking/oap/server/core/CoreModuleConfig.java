@@ -103,10 +103,6 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private int maxSizeOfAnalyzeProfileSnapshot = 12000;
     /**
-     * Analyze eBPF profiling data max duration(minute)
-     */
-    private int maxDurationOfAnalyzeEBPFProfiling = 10;
-    /**
      * Query the eBPF Profiling data max duration(second) from database.
      */
     private int maxDurationOfQueryEBPFProfilingData = 30;

@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.ComparableStorageData;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -44,6 +45,7 @@ public abstract class TopN extends Record implements ComparableStorageData {
     @Getter
     @Setter
     @Column(columnName = SERVICE_ID)
+    @BanyanDB.ShardingKey(index = 0)
     private String serviceId;
 
     @Override

@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.EndpointInfo;
@@ -103,7 +104,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
     }
 
     public List<Process> listProcesses(final Duration duration, final String instanceId) throws IOException {
-        return getMetadataQueryDAO().listProcesses(null, instanceId, null,
+        return getMetadataQueryDAO().listProcesses(null, instanceId, null, null,
                 duration.getStartTimeBucket(), duration.getEndTimeBucket());
     }
 
@@ -121,7 +122,8 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         final long endTimestamp = System.currentTimeMillis();
         final long startTimestamp = endTimestamp - TimeUnit.MINUTES.toMillis(10);
         final List<Process> processes = getMetadataQueryDAO().listProcesses(serviceId, null, null,
-                TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute), TimeBucket.getTimeBucket(endTimestamp, DownSampling.Minute));
+                ProfilingSupportStatus.SUPPORT_EBPF_PROFILING, TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute),
+                TimeBucket.getTimeBucket(endTimestamp, DownSampling.Minute));
         return CollectionUtils.isEmpty(processes) ?
                 0L :
                 processes.stream().filter(p -> p.getLabels().containsAll(labels)).count();

@@ -155,7 +155,7 @@ The unit of `timestamp` is millisecond.
 - `layer`
 
 `layer` extracts the [layer](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java) from the `parsed` result, and set it into the `LogData`, which will be persisted (if
-not dropped) and is used to associate with service / instance.
+not dropped) and is used to associate with service.
 
 - `tag`
 

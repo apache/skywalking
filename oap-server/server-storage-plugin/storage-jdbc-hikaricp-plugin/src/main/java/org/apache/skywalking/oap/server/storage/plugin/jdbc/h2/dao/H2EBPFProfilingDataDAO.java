@@ -68,11 +68,11 @@ public class H2EBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
             data.setScheduleId(resultSet.getString(EBPFProfilingDataRecord.SCHEDULE_ID));
             data.setTaskId(resultSet.getString(EBPFProfilingDataRecord.TASK_ID));
             data.setStackIdList(resultSet.getString(EBPFProfilingDataRecord.STACK_ID_LIST));
-            String dataBinaryBase64 = resultSet.getString(EBPFProfilingDataRecord.STACKS_BINARY);
+            String dataBinaryBase64 = resultSet.getString(EBPFProfilingDataRecord.DATA_BINARY);
             if (StringUtil.isNotEmpty(dataBinaryBase64)) {
-                data.setStacksBinary(Base64.getDecoder().decode(dataBinaryBase64));
+                data.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
             }
-            data.setStackDumpCount(resultSet.getLong(EBPFProfilingDataRecord.STACK_DUMP_COUNT));
+            data.setTargetType(resultSet.getInt(EBPFProfilingDataRecord.TARGET_TYPE));
             data.setUploadTime(resultSet.getLong(EBPFProfilingDataRecord.UPLOAD_TIME));
 
             dataList.add(data);

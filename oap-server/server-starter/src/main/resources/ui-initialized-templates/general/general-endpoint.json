@@ -233,7 +233,7 @@
                     ""
                   ],
                   "moved": false,
-                  "linkDashboard": "Endpoint-Relation",
+                  "linkDashboard": "General-Endpoint-Relation",
                   "nodeDashboard": "General-Endpoint",
                   "linkServerMetrics": [
                     "endpoint_relation_sla",
