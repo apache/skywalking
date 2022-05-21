@@ -64,6 +64,7 @@
 * [Breaking Change] SQL Database: move `Tags list` from `Segment`,`Logs`,`Alarms` to their additional table.
 * [Breaking Change] Remove `total` field in Trace, Log, Event, Browser log, and alarm list query.
 * Support `OFF_CPU` eBPF Profiling.
+* Fix SumAggregationBuilder#build should use the SumAggregation rather than MaxAggregation.
 
 #### UI
 
