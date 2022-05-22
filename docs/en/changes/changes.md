@@ -67,6 +67,7 @@
 * [Breaking Change] Remove `total` field in Trace, Log, Event, Browser log, and alarm list query.
 * Support `OFF_CPU` eBPF Profiling.
 * Fix SumAggregationBuilder#build should use the SumAggregation rather than MaxAggregation.
+* Add TiDB, OpenSearch, Postgres storage optional to Trace and eBPF Profiling E2E testing.
 
 #### UI
 
