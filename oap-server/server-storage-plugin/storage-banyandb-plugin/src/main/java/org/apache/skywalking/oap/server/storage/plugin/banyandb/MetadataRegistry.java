@@ -37,21 +37,16 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
 import org.apache.skywalking.banyandb.v1.client.metadata.NamedSchema;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
-import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -68,8 +63,8 @@ public enum MetadataRegistry {
 
     private final Map<String, Schema> registry = new HashMap<>();
 
-    public NamedSchema<?> registerModel(Model model) {
-        final SchemaMetadata schemaMetadata = parseMetadata(model);
+    public NamedSchema<?> registerModel(Model model, BanyanDBStorageConfig config) {
+        final SchemaMetadata schemaMetadata = parseMetadata(model, config);
         Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
@@ -136,8 +131,8 @@ public enum MetadataRegistry {
                     .compressWithZSTD()
                     .encodeWithGorilla()
                     .build();
-        } else if (DataTable.class.equals(modelColumn.getType())) {
-            return Measure.FieldSpec.newBinaryField(valueColumn.getValueCName())
+        } else if (StorageDataComplexObject.class.isAssignableFrom(modelColumn.getType())) {
+            return Measure.FieldSpec.newStringField(valueColumn.getValueCName())
                     .compressWithZSTD()
                     .build();
         } else if (double.class.equals(modelColumn.getType())) {
@@ -225,30 +220,6 @@ public enum MetadataRegistry {
     }
 
     /**
-     * Extract extra tags from Configuration.
-     * They are for tags defined for {@link SegmentRecord}, {@link LogRecord} and {@link AlarmRecord}.
-     *
-     * @param tags a series of tags joint by comma
-     * @return a list of {@link org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec.TagSpec} generated from input
-     */
-    private List<TagMetadata> parseExtraTagSpecs(String tags, Schema.SchemaBuilder builder) {
-        if (StringUtil.isEmpty(tags)) {
-            return Collections.emptyList();
-        }
-        String[] tagsArray = tags.split(",");
-        if (tagsArray.length == 0) {
-            return Collections.emptyList();
-        }
-        List<TagMetadata> extraTagMetadataList = new ArrayList<>();
-        for (final String tagName : tagsArray) {
-            builder.spec(tagName, new ColumnSpec(ColumnType.TAG, String.class));
-            extraTagMetadataList.add(new TagMetadata(parseIndexRule(tagName, null),
-                    TagFamilySpec.TagSpec.newStringTag(tagName)));
-        }
-        return extraTagMetadataList;
-    }
-
-    /**
      * Parse TagSpec from {@link ModelColumn}
      *
      * @param modelColumn the column in the model to be parsed
@@ -258,7 +229,7 @@ public enum MetadataRegistry {
     private TagFamilySpec.TagSpec parseTagSpec(ModelColumn modelColumn) {
         final Class<?> clazz = modelColumn.getType();
         final String colName = modelColumn.getColumnName().getStorageName();
-        if (String.class.equals(clazz) || DataTable.class.equals(clazz) || JsonObject.class.equals(clazz)) {
+        if (String.class.equals(clazz) || StorageDataComplexObject.class.isAssignableFrom(clazz) || JsonObject.class.equals(clazz)) {
             return TagFamilySpec.TagSpec.newStringTag(colName);
         } else if (int.class.equals(clazz) || long.class.equals(clazz)) {
             return TagFamilySpec.TagSpec.newIntTag(colName);
@@ -280,16 +251,21 @@ public enum MetadataRegistry {
         throw new IllegalStateException("type " + modelColumn.getType().toString() + " is not supported");
     }
 
-    public SchemaMetadata parseMetadata(Model model) {
+    public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config) {
         if (model.isRecord()) {
             String group = "stream-default";
             if (model.isSuperDataset()) {
                 // for superDataset, we should use separate group
                 group = "stream-" + model.getName();
             }
-            return new SchemaMetadata(group, model.getName(), Kind.STREAM);
+            return new SchemaMetadata(group,
+                    model.getName(),
+                    Kind.STREAM,
+                    config.getRecordShardsNumber() *
+                            (model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : 1)
+            );
         }
-        return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE);
+        return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE, config.getMetricsShardsNumber());
     }
 
     @RequiredArgsConstructor
@@ -298,6 +274,8 @@ public enum MetadataRegistry {
         private final String group;
         private final String name;
         private final Kind kind;
+
+        private final int shard;
 
         public Optional<NamedSchema<?>> findRemoteSchema(BanyanDBClient client) throws BanyanDBException {
             try {
@@ -344,9 +322,9 @@ public enum MetadataRegistry {
             }
             switch (kind) {
                 case STREAM:
-                    return client.define(Group.create(this.group, Catalog.STREAM, 2, 0, Duration.ofDays(7)));
+                    return client.define(Group.create(this.group, Catalog.STREAM, this.shard, 0, Duration.ofDays(7)));
                 case MEASURE:
-                    return client.define(Group.create(this.group, Catalog.MEASURE, 2, 12, Duration.ofDays(7)));
+                    return client.define(Group.create(this.group, Catalog.MEASURE, this.shard, 12, Duration.ofDays(7)));
                 default:
                     throw new IllegalStateException("should not reach here");
             }

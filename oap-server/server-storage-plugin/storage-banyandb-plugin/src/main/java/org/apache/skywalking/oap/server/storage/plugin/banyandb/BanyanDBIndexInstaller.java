@@ -34,13 +34,16 @@ import java.io.IOException;
 
 @Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
-    public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager) {
+    private final BanyanDBStorageConfig config;
+
+    public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager, BanyanDBStorageConfig config) {
         super(client, moduleManager);
+        this.config = config;
     }
 
     @Override
     protected boolean isExists(Model model) throws StorageException {
-        final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model);
+        final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model, config);
         try {
             final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
             // first check group
@@ -51,7 +54,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             log.info("group {} created", g.name());
             // then check entity schema
             if (metadata.findRemoteSchema(c).isPresent()) {
-                MetadataRegistry.INSTANCE.registerModel(model);
+                MetadataRegistry.INSTANCE.registerModel(model, config);
                 return true;
             }
             return false;
@@ -64,13 +67,13 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     protected void createTable(Model model) throws StorageException {
         try {
             if (model.isTimeSeries() && model.isRecord()) { // stream
-                Stream stream = (Stream) MetadataRegistry.INSTANCE.registerModel(model);
+                Stream stream = (Stream) MetadataRegistry.INSTANCE.registerModel(model, config);
                 if (stream != null) {
                     log.info("install stream schema {}", model.getName());
                     ((BanyanDBStorageClient) client).define(stream);
                 }
             } else if (model.isTimeSeries() && !model.isRecord()) { // measure
-                Measure measure = (Measure) MetadataRegistry.INSTANCE.registerModel(model);
+                Measure measure = (Measure) MetadataRegistry.INSTANCE.registerModel(model, config);
                 if (measure != null) {
                     log.info("install measure schema {}", model.getName());
                     ((BanyanDBStorageClient) client).define(measure);
