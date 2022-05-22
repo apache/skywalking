@@ -45,13 +45,13 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     private int profileTaskQueryMaxSize;
     /**
-     * Shards Factor for measure/metrics.
+     * Shards Number for measure/metrics.
      */
-    private int metricsShardsFactor;
+    private int metricsShardsNumber;
     /**
-     * Shards Factor for a normal record.
+     * Shards Number for a normal record.
      */
-    private int recordShardsFactor;
+    private int recordShardsNumber;
     /**
      * Shards Factor for a super dataset
      */

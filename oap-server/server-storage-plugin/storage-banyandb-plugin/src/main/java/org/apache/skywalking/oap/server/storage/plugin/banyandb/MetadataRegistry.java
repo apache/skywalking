@@ -261,10 +261,11 @@ public enum MetadataRegistry {
             return new SchemaMetadata(group,
                     model.getName(),
                     Kind.STREAM,
-                    model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : config.getRecordShardsFactor()
+                    config.getRecordShardsNumber() *
+                            (model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : 1)
             );
         }
-        return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE, config.getMetricsShardsFactor());
+        return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE, config.getMetricsShardsNumber());
     }
 
     @RequiredArgsConstructor

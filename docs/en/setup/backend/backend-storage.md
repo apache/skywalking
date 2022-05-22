@@ -274,14 +274,14 @@ storage:
     port: ${SW_STORAGE_BANYANDB_PORT:17912}
     maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
     flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
-    metricsShardsFactor: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_FACTOR:1}
-    recordShardsFactor: ${SW_STORAGE_BANYANDB_RECORD_SHARDS_FACTOR:1}
+    metricsShardsNumber: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_NUMBER:1}
+    recordShardsNumber: ${SW_STORAGE_BANYANDB_RECORD_SHARDS_NUMBER:1}
     superDatasetShardsFactor: ${SW_STORAGE_BANYANDB_SUPERDATASET_SHARDS_FACTOR:2}
     concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
-    profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200}
+    profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
 ```
 
-For details, please refer to the [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/latest/readme/) 
+For more details, please refer to the documents of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/latest/readme/) 
 and [BanyanDB Java Client](https://github.com/apache/skywalking-banyandb-java-client) subprojects.
 
 ## More storage extension solutions
