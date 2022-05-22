@@ -28,10 +28,6 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private String host = "127.0.0.1";
     private int port = 17912;
     /**
-     * Group of the schema in BanyanDB
-     */
-    private String group = "default";
-    /**
      * The maximum size of write entities in a single batch write call.
      */
     private int maxBulkSize = 5000;
