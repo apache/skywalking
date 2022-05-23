@@ -17,17 +17,11 @@ version: '2.1'
 
 services:
   banyandb:
-    image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}"
+    extends:
+      file: ../docker-compose.yml
+      service: banyandb
     networks:
       - e2e
-    expose:
-      - 17912
-    command: standalone --stream-root-path /tmp/stream-data --measure-root-path /tmp/measure-data
-    healthcheck:
-      test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 17912" ]
-      interval: 5s
-      timeout: 60s
-      retries: 120
 
   oap:
     extends:
@@ -37,7 +31,6 @@ services:
       - e2e
     environment:
       SW_STORAGE: banyandb
-      SW_STORAGE_BANYANDB_HOST: "banyandb"
     depends_on:
       banyandb:
         condition: service_healthy

@@ -21,6 +21,11 @@ services:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
 
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+
   sqrt:
     build:
       context: .
