@@ -28,7 +28,7 @@ services:
 
   sqrt:
     build:
-      context: ..
+      context: .
       dockerfile: Dockerfile.sqrt
     networks:
       - e2e
