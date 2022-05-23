@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
+version: '3.8'
 
 services:
   banyandb:
@@ -29,35 +29,12 @@ services:
       service: oap
     environment:
       SW_STORAGE: banyandb
-    ports:
-      - 12800
     depends_on:
       banyandb:
         condition: service_healthy
-
-  provider:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: provider
     ports:
-      - 9090
-    networks:
-      - e2e
-    depends_on:
-      oap:
-        condition: service_healthy
-
-  consumer:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: consumer
-    ports:
-      - 9092
-    depends_on:
-      oap:
-        condition: service_healthy
-      provider:
-        condition: service_healthy
+    - 11800
+    - 12800
 
 networks:
   e2e:
