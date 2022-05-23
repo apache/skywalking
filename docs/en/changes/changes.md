@@ -68,6 +68,7 @@
 * Support `OFF_CPU` eBPF Profiling.
 * Fix SumAggregationBuilder#build should use the SumAggregation rather than MaxAggregation.
 * Add TiDB, OpenSearch, Postgres storage optional to Trace and eBPF Profiling E2E testing.
+* Add OFF CPU eBPF Profiling E2E Testing.
 
 #### UI
 
@@ -99,6 +100,8 @@
 * Fix minDuration and maxDuration for the trace filter.
 * Add Log configuration for the browser templates.
 * Fix query conditions for the browser logs.
+* Add Spanish Translation.
+* Visualize the OFF CPU eBPF profiling.
 
 #### Documentation
 

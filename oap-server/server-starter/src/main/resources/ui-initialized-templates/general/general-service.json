@@ -728,20 +728,9 @@
                   "x": 0,
                   "y": 2,
                   "w": 24,
-                  "h": 47,
+                  "h": 46,
                   "i": "0",
-                  "type": "Profile",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Profile"
                 },
                 {
                   "x": 0,
@@ -750,12 +739,6 @@
                   "h": 2,
                   "i": "2",
                   "type": "Text",
-                  "metricTypes": [
-                    ""
-                  ],
-                  "metrics": [
-                    ""
-                  ],
                   "graph": {
                     "fontColor": "white",
                     "backgroundColor": "blue",
@@ -763,8 +746,7 @@
                     "fontSize": 14,
                     "textAlign": "left",
                     "url": ""
-                  },
-                  "moved": false
+                  }
                 }
               ]
             },
@@ -773,32 +755,11 @@
               "children": [
                 {
                   "x": 0,
-                  "y": 2,
-                  "w": 24,
-                  "h": 47,
-                  "i": "1",
-                  "type": "Ebpf",
-                  "metricTypes": [
-                    ""
-                  ],
-                  "metrics": [
-                    ""
-                  ],
-                  "moved": false
-                },
-                {
-                  "x": 0,
                   "y": 0,
                   "w": 24,
                   "h": 2,
                   "i": "3",
                   "type": "Text",
-                  "metricTypes": [
-                    ""
-                  ],
-                  "metrics": [
-                    ""
-                  ],
                   "graph": {
                     "fontColor": "white",
                     "backgroundColor": "blue",
@@ -806,8 +767,15 @@
                     "fontSize": 14,
                     "textAlign": "left",
                     "url": "https://skywalking.apache.org/docs/skywalking-rover/latest/readme/"
-                  },
-                  "moved": false
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 46,
+                  "i": "5",
+                  "type": "Ebpf"
                 }
               ]
             },
