@@ -346,6 +346,8 @@ jobs:
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
             env: ES_VERSION=8.0.0
 
+          - name: Event BanyanDB
+            config: test/e2e-v2/cases/event/banyandb/e2e.yaml
           - name: Event H2
             config: test/e2e-v2/cases/event/h2/e2e.yaml
           - name: Event ES
