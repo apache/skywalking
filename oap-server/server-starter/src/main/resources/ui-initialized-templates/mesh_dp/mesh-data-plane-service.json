@@ -27,13 +27,6 @@
           "h": 52,
           "i": "0",
           "type": "Tab",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
-          "activedTabIndex": 0,
           "children": [
             {
               "name": "Instances",
@@ -45,9 +38,6 @@
                   "h": 52,
                   "i": "0",
                   "type": "Widget",
-                  "widget": {
-                    "title": ""
-                  },
                   "graph": {
                     "type": "InstanceList",
                     "dashboardName": "Mesh-Data-Plane-Instance",
@@ -63,7 +53,6 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "Connections Used",
@@ -86,32 +75,11 @@
               "children": [
                 {
                   "x": 0,
-                  "y": 2,
-                  "w": 24,
-                  "h": 47,
-                  "i": "0",
-                  "type": "Ebpf",
-                  "metricTypes": [
-                    ""
-                  ],
-                  "metrics": [
-                    ""
-                  ],
-                  "moved": false
-                },
-                {
-                  "x": 0,
                   "y": 0,
                   "w": 24,
                   "h": 2,
                   "i": "2",
                   "type": "Text",
-                  "metricTypes": [
-                    ""
-                  ],
-                  "metrics": [
-                    ""
-                  ],
                   "graph": {
                     "fontColor": "white",
                     "backgroundColor": "blue",
@@ -119,13 +87,19 @@
                     "fontSize": 14,
                     "textAlign": "left",
                     "url": "https://skywalking.apache.org/docs/skywalking-rover/latest/readme/"
-                  },
-                  "moved": false
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 46,
+                  "i": "4",
+                  "type": "Ebpf"
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
         }
       ],
       "layer": "MESH_DP",

@@ -760,14 +760,7 @@
                   "w": 24,
                   "h": 47,
                   "i": "0",
-                  "type": "Ebpf",
-                  "metricTypes": [
-                    ""
-                  ],
-                  "metrics": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Ebpf"
                 },
                 {
                   "x": 0,
@@ -776,12 +769,6 @@
                   "h": 2,
                   "i": "2",
                   "type": "Text",
-                  "metricTypes": [
-                    ""
-                  ],
-                  "metrics": [
-                    ""
-                  ],
                   "graph": {
                     "fontColor": "white",
                     "backgroundColor": "blue",
@@ -789,13 +776,11 @@
                     "fontSize": 14,
                     "textAlign": "left",
                     "url": "https://skywalking.apache.org/docs/skywalking-rover/latest/readme/"
-                  },
-                  "moved": false
+                  }
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
         }
       ],
       "layer": "MESH",

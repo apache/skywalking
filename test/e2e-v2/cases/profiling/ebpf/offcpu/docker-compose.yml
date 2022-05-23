@@ -18,18 +18,15 @@ version: '2.1'
 services:
   oap:
     extends:
-      file: ../../../script/docker-compose/base-compose.yml
+      file: ../../../../script/docker-compose/base-compose.yml
       service: oap
+    ports:
+      - 12800
 
-  banyandb:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: banyandb
-
-  sqrt:
+  file:
     build:
       context: .
-      dockerfile: Dockerfile.sqrt
+      dockerfile: Dockerfile.file
     networks:
       - e2e
 
@@ -45,9 +42,9 @@ services:
       ROVER_PROCESS_DISCOVERY_HEARTBEAT_PERIOD: 2s
       ROVER_PROCESS_DISCOVERY_VM_ACTIVE: "true"
       ROVER_PROCESS_DISCOVERY_SCAN_MODE: REGEX
-      ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_MATCH_CMD: sqrt
+      ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_MATCH_CMD: /file
       ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_LAYER: OS_LINUX
-      ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_SERVICE_NAME: sqrt
+      ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_SERVICE_NAME: file
       ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_INSTANCE_NAME: test-instance
       ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_PROCESS_NAME: "{{.Process.ExeName}}"
       ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_LABELS: e2e-label1,e2e-label2
