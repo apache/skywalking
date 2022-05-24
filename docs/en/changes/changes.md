@@ -69,6 +69,7 @@
 * Fix SumAggregationBuilder#build should use the SumAggregation rather than MaxAggregation.
 * Add TiDB, OpenSearch, Postgres storage optional to Trace and eBPF Profiling E2E testing.
 * Add OFF CPU eBPF Profiling E2E Testing.
+* Fix searchableTag as `rpc.status_code` and `http.status_code`. `status_code` had been removed.
 
 #### UI
 
