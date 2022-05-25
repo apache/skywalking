@@ -50,7 +50,7 @@ import java.util.stream.Stream;
 public class EBPFProfilingAnalyzer {
 
     private static final EBPFProfilingAnalyzeCollector ANALYZE_COLLECTOR = new EBPFProfilingAnalyzeCollector();
-    private static final Long FETCH_DATA_DURATION = TimeUnit.MINUTES.toMillis(2);
+    private static final Long FETCH_DATA_DURATION = TimeUnit.SECONDS.toMillis(10);
 
     private final ModuleManager moduleManager;
     protected IEBPFProfilingDataDAO dataDAO;

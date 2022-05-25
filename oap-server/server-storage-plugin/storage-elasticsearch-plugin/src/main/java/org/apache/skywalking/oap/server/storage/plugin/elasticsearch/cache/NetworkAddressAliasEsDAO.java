@@ -62,9 +62,9 @@ public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAl
 
             SearchResponse results =
                 getClient().search(NetworkAddressAlias.INDEX_NAME, search, params);
-            while (true) {
-                final String scrollId = results.getScrollId();
-                try {
+            final String scrollId = results.getScrollId();
+            try {
+                while (true) {
                     if (results.getHits().getTotal() == 0) {
                         break;
                     }
@@ -80,9 +80,9 @@ public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAl
                         break;
                     }
                     results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
-                } finally {
-                    getClient().deleteScrollContextQuietly(scrollId);
                 }
+            } finally {
+                getClient().deleteScrollContextQuietly(scrollId);
             }
         } catch (Throwable t) {
             log.error(t.getMessage(), t);

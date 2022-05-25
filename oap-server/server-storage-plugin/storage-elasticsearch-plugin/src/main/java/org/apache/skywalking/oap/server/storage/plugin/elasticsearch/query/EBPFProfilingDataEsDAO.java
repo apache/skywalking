@@ -43,7 +43,7 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
 
     public EBPFProfilingDataEsDAO(ElasticSearchClient client, StorageModuleElasticsearchConfig config) {
         super(client);
-        this.scrollingBatchSize = config.getScrollingBatchSize();
+        this.scrollingBatchSize = config.getProfileDataQueryBatchSize();
     }
 
     @Override
@@ -59,9 +59,9 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
         final List<EBPFProfilingDataRecord> records = new ArrayList<>();
 
         SearchResponse results = getClient().search(index, search.build(), params);
-        while (true) {
-            final String scrollId = results.getScrollId();
-            try {
+        final String scrollId = results.getScrollId();
+        try {
+            while (true) {
                 if (results.getHits().getTotal() == 0) {
                     break;
                 }
@@ -72,9 +72,9 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
                     break;
                 }
                 results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
-            } finally {
-                getClient().deleteScrollContextQuietly(scrollId);
             }
+        } finally {
+            getClient().deleteScrollContextQuietly(scrollId);
         }
         return records;
     }
