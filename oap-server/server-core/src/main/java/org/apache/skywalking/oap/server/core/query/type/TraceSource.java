@@ -16,20 +16,8 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql;
+package org.apache.skywalking.oap.server.core.query.type;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-
-/**
- * The config of {@code query.graphql}.
- */
-@Getter
-@Setter
-public class GraphQLQueryConfig extends ModuleConfig {
-    private boolean enableLogTestTool;
-    private int maxQueryComplexity = 1000;
-    private boolean enableUpdateUITemplate = false;
-    private boolean enableOnDemandPodLog = false;
+public enum TraceSource {
+    SKYWALKING, ZIPKIN
 }
