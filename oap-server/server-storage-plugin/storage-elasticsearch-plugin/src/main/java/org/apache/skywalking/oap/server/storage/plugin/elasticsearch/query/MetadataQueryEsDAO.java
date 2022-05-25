@@ -93,9 +93,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         final List<Service> services = new ArrayList<>();
 
         SearchResponse results = getClient().search(index, search.build(), params);
-        while (true) {
-            final String scrollId = results.getScrollId();
-            try {
+        String scrollId = results.getScrollId();
+        try {
+            while (true) {
                 if (results.getHits().getTotal() == 0) {
                     break;
                 }
@@ -110,9 +110,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                     break;
                 }
                 results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
-            } finally {
-                getClient().deleteScrollContextQuietly(scrollId);
             }
+        } finally {
+            getClient().deleteScrollContextQuietly(scrollId);
         }
         return services;
     }

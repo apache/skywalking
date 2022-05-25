@@ -118,6 +118,12 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int segmentQueryMaxSize = 200;
     private int profileTaskQueryMaxSize = 200;
     /**
+     * The batch size that used to scroll on the large eBPF profiling data result.
+     * The profiling data contains full symbol data, that could make ElasticSearch response large content,
+     * so could not same with {@link #scrollingBatchSize}.
+     */
+    private int profileDataQueryBatchSize = 100;
+    /**
      * The default analyzer for match query field. {@link ElasticSearch.MatchQuery.AnalyzerType#OAP_ANALYZER}
      *
      * @since 8.4.0
