@@ -103,6 +103,7 @@
 * Fix query conditions for the browser logs.
 * Add Spanish Translation.
 * Visualize the OFF CPU eBPF profiling.
+* Add Spanish language to UI.
 
 #### Documentation
 
