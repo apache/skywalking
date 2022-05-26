@@ -24,7 +24,6 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
-import org.apache.skywalking.oap.server.core.query.type.TraceSource;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 
 @Getter
@@ -41,5 +40,4 @@ public class TraceQueryCondition {
     private QueryOrder queryOrder;
     private Pagination paging;
     private List<Tag> tags;
-    private TraceSource prioritizedSource;
 }
