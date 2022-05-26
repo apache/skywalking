@@ -61,7 +61,7 @@
 * Storage(ElasticSearch): add search options to tolerate inexisting indices.
 * Fix the problem that `MQ` has the wrong `Layer` type.
 * Fix NoneStream model has wrong downsampling(was Second, should be Minute).
-* SQL Database: provide `@SQLDatabase.AdditionalEntity` to support create additional tables from a model. 
+* SQL Database: provide `@SQLDatabase.AdditionalEntity` to support create additional tables from a model.
 * [Breaking Change] SQL Database: remove SQL Database config `maxSizeOfArrayColumn` and `numOfSearchableValuesPerTag`.
 * [Breaking Change] SQL Database: move `Tags list` from `Segment`,`Logs`,`Alarms` to their additional table.
 * [Breaking Change] Remove `total` field in Trace, Log, Event, Browser log, and alarm list query.
@@ -72,6 +72,7 @@
 * Fix searchableTag as `rpc.status_code` and `http.status_code`. `status_code` had been removed.
 * Fix scroll query failure exception.
 * Add `profileDataQueryBatchSize` config in Elasticsearch Storage.
+* Add APIs to query Pod log on demand.
 
 #### UI
 
