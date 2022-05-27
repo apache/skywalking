@@ -254,7 +254,7 @@ The text of each license is the standard Apache 2.0 license.
     Apache: freemarker 2.3.31: https://github.com/apache/freemarker, Apache 2.0
     Apache: Tomcat-embed 9.0.62 https://tomcat.apache.org, Apache 2.0
     Apache: httpclient 4.5.13 https://hc.apache.org/, Apache 2.0
-    netty 4.1.76: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
+    netty 4.1.77: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     netty: netty-tcnative-boringssl-static 2.0.51:  https://github.com/netty/netty-tcnative, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.6: https://github.com/spullara/mustache.java, Apache 2.0
