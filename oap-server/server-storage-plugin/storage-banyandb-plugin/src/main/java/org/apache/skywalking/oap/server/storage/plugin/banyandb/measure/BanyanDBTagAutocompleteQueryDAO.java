@@ -47,7 +47,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
     }
 
     @Override
-    public Set<String> queryTagAutocompleteKeys(TagType tagType, long startSecondTB, long endSecondTB) throws IOException {
+    public Set<String> queryTagAutocompleteKeys(TagType tagType, int limit, long startSecondTB, long endSecondTB) throws IOException {
         TimestampRange range = null;
         if (startSecondTB > 0 && endSecondTB > 0) {
             range = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
@@ -59,6 +59,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
                     @Override
                     protected void apply(MeasureQuery query) {
                         query.groupBy(ImmutableSet.of(TagAutocompleteData.TAG_KEY));
+                        query.setLimit(limit);
                         query.and(eq(TagAutocompleteData.TAG_TYPE, tagType.name()));
                     }
                 }

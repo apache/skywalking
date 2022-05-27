@@ -158,7 +158,22 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String searchableAlarmTags = "";
-
+    /**
+     * The max size of tags keys for autocomplete select.
+     *
+     * @since 9.1.0
+     */
+    @Setter
+    @Getter
+    private int autocompleteTagKeysQueryMaxSize = 100;
+    /**
+     * The max size of tags values for autocomplete select.
+     *
+     * @since 9.1.0
+     */
+    @Setter
+    @Getter
+    private int autocompleteTagValuesQueryMaxSize = 100;
     /**
      * The number of threads used to prepare metrics data to the storage.
      *

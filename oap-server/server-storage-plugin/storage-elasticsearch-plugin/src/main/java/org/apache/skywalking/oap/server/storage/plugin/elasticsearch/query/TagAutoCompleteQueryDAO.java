@@ -47,13 +47,15 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
 
     @Override
     public Set<String> queryTagAutocompleteKeys(final TagType tagType,
+                                                final int limit,
                                                 final long startSecondTB,
                                                 final long endSecondTB) throws IOException {
         BoolQueryBuilder query = Query.bool();
         query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
         final SearchBuilder search = Search.builder().query(query);
         search.aggregation(Aggregation.terms(TagAutocompleteData.TAG_KEY)
-                                      .field(TagAutocompleteData.TAG_KEY));
+                                      .field(TagAutocompleteData.TAG_KEY)
+                                      .size(limit));
 
         final SearchResponse response = getClient().search(
             new TimeRangeIndexNameGenerator(

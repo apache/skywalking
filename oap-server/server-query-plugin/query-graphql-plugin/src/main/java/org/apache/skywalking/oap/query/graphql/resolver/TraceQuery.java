@@ -99,6 +99,6 @@ public class TraceQuery implements GraphQLQueryResolver {
     }
 
     public Set<String> queryTraceTagAutocompleteValues(final String tagKey, final Duration queryDuration) throws IOException {
-        return getTagQueryService().queryTagAutocompleteValues(TagType.TRACE, tagKey, 100, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
+        return getTagQueryService().queryTagAutocompleteValues(TagType.TRACE, tagKey, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
     }
 }
