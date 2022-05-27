@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface ITagAutoCompleteQueryDAO extends Service {
     Set<String> queryTagAutocompleteKeys(final TagType tagType,
+                                         final int limit,
                                          final long startSecondTB,
                                          final long endSecondTB) throws IOException;
 
