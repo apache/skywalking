@@ -20,7 +20,7 @@ An event contains the following fields. The definitions of event can be found at
 
 ### UUID
 
-Unique ID of the event. Since an event may span a long period of time, the UUID is necessary to associate the start time with the end time of the same event. 
+Unique ID of the event. Since an event may span a long period of time, the UUID is necessary to associate the start time with the end time of the same event.
 
 ### Source
 
@@ -42,7 +42,7 @@ It's NOT recommended to include the detailed logs of this event, such as the exc
 
 ### Parameters
 
-The parameters in the `message` field. This is a simple `<string,string>` map. 
+The parameters in the `message` field. This is a simple `<string,string>` map.
 
 ### Start Time
 
@@ -106,11 +106,6 @@ however, you can use the methods in [How to Report Events](#how-to-report-events
 SkyWalking UI visualizes the events in the dashboard when the event service / instance / endpoint matches the displayed
 service / instance / endpoint.
 
-By default, SkyWalking also generates some metrics for events by using [OAL](oal.md). The default metrics list of event
-may change over time, you can find the complete list
-in [event.oal](../../../oap-server/server-starter/src/main/resources/oal/event.oal). If you want to generate you
-custom metrics from events, please refer to [OAL](oal.md) about how to write OAL rules.
-
 ## Known Events
 
 | Name | Type | When | Where |
@@ -121,7 +116,7 @@ custom metrics from events, please refer to [OAL](oal.md) about how to write OAL
 
 The following events are all reported
 by [Kubernetes Event Exporter](http://github.com/apache/skywalking-kubernetes-event-exporter), in order to see these
-events, please make sure you have deployed the exporter. 
+events, please make sure you have deployed the exporter.
 
 | Name | Type | When | Where |
 | :----: | :----: | :-----| :---- |
