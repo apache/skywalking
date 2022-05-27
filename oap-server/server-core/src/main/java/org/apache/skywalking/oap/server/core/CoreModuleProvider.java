@@ -264,7 +264,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
         this.registerServiceImplementation(EventQueryService.class, new EventQueryService(getManager()));
-        this.registerServiceImplementation(TagAutoCompleteQueryService.class, new TagAutoCompleteQueryService(getManager()));
+        this.registerServiceImplementation(TagAutoCompleteQueryService.class, new TagAutoCompleteQueryService(getManager(), moduleConfig));
 
         // add profile service implementations
         this.registerServiceImplementation(
