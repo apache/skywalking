@@ -73,6 +73,7 @@
 * Fix scroll query failure exception.
 * Add `profileDataQueryBatchSize` config in Elasticsearch Storage.
 * Add APIs to query Pod log on demand.
+* Remove OAL for events.
 
 #### UI
 
