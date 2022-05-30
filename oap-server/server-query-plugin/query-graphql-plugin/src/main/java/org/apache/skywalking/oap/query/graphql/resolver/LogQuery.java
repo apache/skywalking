@@ -106,6 +106,6 @@ public class LogQuery implements GraphQLQueryResolver {
     }
 
     public Set<String> queryLogTagAutocompleteValues(final String tagKey, final Duration queryDuration) throws IOException {
-        return getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, 100, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
+        return getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
     }
 }

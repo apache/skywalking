@@ -38,6 +38,7 @@ public class H2TagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
 
     @Override
     public Set<String> queryTagAutocompleteKeys(final TagType tagType,
+                                                final int limit,
                                                 final long startSecondTB,
                                                 final long endSecondTB) throws IOException {
         StringBuilder sql = new StringBuilder();
@@ -47,6 +48,7 @@ public class H2TagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
            .append(TagAutocompleteData.INDEX_NAME).append(" where ");
         sql.append(" 1=1 ");
         appendTagAutocompleteCondition(tagType, startSecondTB, endSecondTB, sql, condition);
+        sql.append(" limit ").append(limit);
         try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
             Set<String> tagKeys = new HashSet<>();

@@ -18,41 +18,34 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 import com.google.common.base.Strings;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
-import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
-import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-@ScopeDeclaration(id = EVENT, name = "Event", catalog = SERVICE_CATALOG_NAME)
-@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
+@ScopeDeclaration(id = EVENT, name = "Event")
 @Stream(name = Event.INDEX_NAME, scopeId = EVENT, builder = Event.Builder.class, processor = MetricsStreamProcessor.class)
+@MetricsExtension(supportDownSampling = false, supportUpdate = true)
 @EqualsAndHashCode(
     callSuper = false,
     of = "uuid"
 )
-@MetricsExtension(supportDownSampling = false, supportUpdate = true)
-public class Event extends Metrics implements ISource, WithMetadata, LongValueHolder {
+public class Event extends Metrics {
 
     public static final String INDEX_NAME = "events";
 
@@ -118,13 +111,9 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
     @Column(columnName = LAYER)
     private Layer layer;
 
-    private transient long value = 1;
-
     @Override
     public boolean combine(final Metrics metrics) {
         final Event event = (Event) metrics;
-
-        value++;
 
         // Set time bucket only when it's never set.
         if (getTimeBucket() <= 0) {
@@ -221,36 +210,6 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
     @Override
     public int remoteHashCode() {
         return hashCode();
-    }
-
-    @Override
-    public MetricsMetaInfo getMeta() {
-        int scope = DefaultScopeDefine.SERVICE;
-        if (isNotBlank(getServiceInstance())) {
-            scope = DefaultScopeDefine.SERVICE_INSTANCE;
-        } else if (isNotBlank(getEndpoint())) {
-            scope = DefaultScopeDefine.ENDPOINT;
-        }
-
-        String id = getEntityId();
-        return new MetricsMetaInfo(getName(), scope, id);
-    }
-
-    @Override
-    public int scope() {
-        return EVENT;
-    }
-
-    @Override
-    public String getEntityId() {
-        final String serviceId = IDManager.ServiceID.buildId(getService(), true);
-        String id = serviceId;
-        if (isNotBlank(getServiceInstance())) {
-            id = IDManager.ServiceInstanceID.buildId(serviceId, getServiceInstance());
-        } else if (isNotBlank(getEndpoint())) {
-            id = IDManager.EndpointID.buildId(serviceId, getEndpoint());
-        }
-        return id;
     }
 
     public static class Builder implements StorageBuilder<Event> {

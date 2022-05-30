@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.Set;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
@@ -28,10 +29,12 @@ import org.apache.skywalking.oap.server.library.module.Service;
 
 public class TagAutoCompleteQueryService implements Service {
     private final ModuleManager moduleManager;
+    private final CoreModuleConfig config;
     private ITagAutoCompleteQueryDAO tagAutoCompleteQueryDAO;
 
-    public TagAutoCompleteQueryService(ModuleManager moduleManager) {
+    public TagAutoCompleteQueryService(ModuleManager moduleManager, CoreModuleConfig config) {
         this.moduleManager = moduleManager;
+        this.config = config;
     }
 
     private ITagAutoCompleteQueryDAO getTagAutoCompleteQueryDAO() {
@@ -44,15 +47,14 @@ public class TagAutoCompleteQueryService implements Service {
     public Set<String> queryTagAutocompleteKeys(final TagType tagType,
                                                 final long startSecondTB,
                                                 final long endSecondTB) throws IOException {
-        return getTagAutoCompleteQueryDAO().queryTagAutocompleteKeys(tagType, startSecondTB, endSecondTB);
+        return getTagAutoCompleteQueryDAO().queryTagAutocompleteKeys(tagType, config.getAutocompleteTagKeysQueryMaxSize(), startSecondTB, endSecondTB);
     }
 
     public Set<String> queryTagAutocompleteValues(final TagType tagType,
                                                   final String tagKey,
-                                                  final int limit,
                                                   final long startSecondTB,
                                                   final long endSecondTB) throws IOException {
         return getTagAutoCompleteQueryDAO().queryTagAutocompleteValues(
-            tagType, tagKey, limit, startSecondTB, endSecondTB);
+            tagType, tagKey, config.getAutocompleteTagValuesQueryMaxSize(), startSecondTB, endSecondTB);
     }
 }

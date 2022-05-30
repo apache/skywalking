@@ -121,6 +121,10 @@ core:
     searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:level}
     # Define the set of alarm tag keys, which should be searchable through the GraphQL.
     searchableAlarmTags: ${SW_SEARCHABLE_ALARM_TAG_KEYS:level}
+    # The max size of tags keys for autocomplete select.
+    autocompleteTagKeysQueryMaxSize: ${SW_AUTOCOMPLETE_TAG_KEYS_QUERY_MAX_SIZE:100}
+    # The max size of tags values for autocomplete select.
+    autocompleteTagValuesQueryMaxSize: ${SW_AUTOCOMPLETE_TAG_VALUES_QUERY_MAX_SIZE:100}
     # The number of threads used to prepare metrics data to the storage.
     prepareThreads: ${SW_CORE_PREPARE_THREADS:2}
     # Turn it on then automatically grouping endpoint by the given OpenAPI definitions.
