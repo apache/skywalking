@@ -49,18 +49,12 @@ public class TimeSeriesUtils {
      * @return formatted latest index name, based on current timestamp.
      */
     public static String latestWriteIndexName(Model model) {
-        long timeBucket;
         String tableName = IndexController.INSTANCE.getTableName(model);
+        long dayTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
         if (model.isRecord() && model.isSuperDataset()) {
-            timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), model.getDownsampling());
-            return tableName + Const.LINE + compressTimeBucket(timeBucket / 1000000, SUPER_DATASET_DAY_STEP);
-        } else if (model.isRecord()) {
-            timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), model.getDownsampling());
-            return tableName + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
-        } else {
-            timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
-            return tableName + Const.LINE + compressTimeBucket(timeBucket / 10000, DAY_STEP);
+            return tableName + Const.LINE + compressTimeBucket(dayTimeBucket, SUPER_DATASET_DAY_STEP);
         }
+        return tableName + Const.LINE + compressTimeBucket(dayTimeBucket, DAY_STEP);
     }
 
     /**

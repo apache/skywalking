@@ -74,6 +74,7 @@
 * Add `profileDataQueryBatchSize` config in Elasticsearch Storage.
 * Add APIs to query Pod log on demand.
 * Remove OAL for events.
+* Simplify the format index name logical in ES storage.
 
 #### UI
 
