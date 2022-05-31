@@ -38,10 +38,10 @@ public class TimeSeriesUtilsTest {
     @Before
     public void prepare() {
         superDatasetModel = new Model("superDatasetModel", Lists.newArrayList(),
-                                      0, DownSampling.Minute, true, true, "", true, new SQLDatabaseModelExtension()
+                                      0, DownSampling.Second, true, true, "", true, new SQLDatabaseModelExtension()
         );
         normalRecordModel = new Model("normalRecordModel", Lists.newArrayList(),
-                                      0, DownSampling.Minute, true, false, "", true, new SQLDatabaseModelExtension()
+                                      0, DownSampling.Second, true, false, "", true, new SQLDatabaseModelExtension()
         );
         normalMetricsModel = new Model("normalMetricsModel", Lists.newArrayList(),
                                        0, DownSampling.Minute, false, false, "", true, new SQLDatabaseModelExtension()
