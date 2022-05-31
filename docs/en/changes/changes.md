@@ -75,6 +75,7 @@
 * Add APIs to query Pod log on demand.
 * Remove OAL for events.
 * Simplify the format index name logical in ES storage.
+* Add instance properties extractor in MAL.
 
 #### UI
 
