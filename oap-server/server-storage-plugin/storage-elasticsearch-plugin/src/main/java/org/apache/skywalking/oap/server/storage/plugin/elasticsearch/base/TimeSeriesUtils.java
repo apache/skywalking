@@ -87,8 +87,6 @@ public class TimeSeriesUtils {
         String tableName = IndexController.INSTANCE.getTableName(model);
         if (model.isRecord() && model.isSuperDataset()) {
             return tableName + Const.LINE + compressTimeBucket(timeBucket / 1000000, SUPER_DATASET_DAY_STEP);
-        } else if (model.isRecord()) {
-            return tableName + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
         } else {
             switch (model.getDownsampling()) {
                 case None:
