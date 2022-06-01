@@ -21,8 +21,7 @@ On a high level, there are four typical categories in all SkyWalking probes.
   span data. See
   [Receiver for Zipkin traces](../setup/backend/zipkin-trace.md) for more information.
 
-- **eBPF agent**. The eBPF agents is deployed in the host. Based on the eBPF technology, collect metrics, profiling data, 
-  and other contents of the processes in the current host.
+- **eBPF agent**. The eBPF agent collects metrics and proifiling the target service powered by the eBPF technology of Linux kernel.
 
 You don't need to use **Language based native agent** and **Service Mesh probe** at the same time, since they both serve
 to collect metrics data. Otherwise, your system will suffer twice the payload, and the analytic numbers will be doubled.
@@ -35,7 +34,7 @@ There are several recommended ways on how to use these probes:
 1. Use **Service Mesh probe** with **Language based native agent** or **3rd-party instrument library** in tracing
    status. (Advanced usage)
 1. Use **eBPF agent** only.
-1. Use **eBPF agent** with **Language based native agent** in detect agent process automatically.
+1. Use **eBPF agent** with **Language based native agent** collaboratively.
 
 What is the meaning of **in tracing status**?
 
