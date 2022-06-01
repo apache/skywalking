@@ -23,9 +23,9 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
@@ -34,64 +34,87 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.skywalking.oap.query.graphql.type.InternalLog;
 import org.apache.skywalking.oap.query.graphql.type.LogAdapter;
+import org.apache.skywalking.oap.query.graphql.type.OndemandContainergQueryCondition;
 import org.apache.skywalking.oap.query.graphql.type.OndemandLogQueryCondition;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic.PropertyUtil;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
+import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Container;
-import io.kubernetes.client.openapi.models.V1Namespace;
-import io.kubernetes.client.openapi.models.V1NamespaceList;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodSpec;
 import io.kubernetes.client.util.Config;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 public class OndemandLogQuery implements GraphQLQueryResolver {
     private final Gson gson = new Gson();
     private final Type responseType = new TypeToken<Map<String, Object>>() {
     }.getType();
     private CoreV1Api kApi;
 
-    public List<String> listNamespaces() throws IOException {
-        try {
-            final V1NamespaceList nsList =
-                kApi().listNamespace(null, null, null, null, null, null, null, null, null, null);
-            return nsList
-                .getItems()
-                .stream()
-                .map(V1Namespace::getMetadata)
-                .filter(Objects::nonNull)
-                .map(V1ObjectMeta::getName)
-                .collect(Collectors.toList());
-        } catch (ApiException e) {
-            log.error("Failed to list namespaces from Kubernetes, {}", e.getResponseBody(), e);
+    private final MetadataQueryV2 metadataQuery;
 
-            Map<String, Object> responseBody = gson.fromJson(e.getResponseBody(), responseType);
-            String message = responseBody.getOrDefault("message", e.getCode()).toString();
-            throw new RuntimeException(message);
-        }
+    public List<String> listContainers(final OndemandContainergQueryCondition condition)
+        throws IOException {
+        final ServiceInstance instance =
+            metadataQuery.getInstance(condition.getServiceInstanceId());
+        final Map<String, String> attributesMap = convertInstancePropertiesToMap(instance);
+        final String ns = attributesMap.get(PropertyUtil.NAMESPACE);
+        final String pod = attributesMap.get(PropertyUtil.POD);
+        return listContainers(ns, pod);
     }
 
-    public List<String> listContainers(final OndemandLogQueryCondition condition)
+    public Logs ondemandPodLogs(final OndemandLogQueryCondition condition)
         throws IOException {
-        final String ns = condition.getNamespace();
-        final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition =
-            IDManager.ServiceInstanceID.analysisId(condition.getServiceInstanceId());
-        final String instanceName = instanceIDDefinition.getName();
+        final ServiceInstance instance =
+            metadataQuery.getInstance(condition.getServiceInstanceId());
+        final Map<String, String> attributesMap = convertInstancePropertiesToMap(instance);
+        final String ns = attributesMap.get(PropertyUtil.NAMESPACE);
+        final String pod = attributesMap.get(PropertyUtil.POD);
+        return ondemandPodLogs(ns, pod, condition);
+    }
 
+    protected Map<String, String> convertInstancePropertiesToMap(final ServiceInstance instance) {
+        if (instance == null) {
+            return Collections.emptyMap();
+        }
+        final List<Attribute> attributes = instance.getAttributes();
+        if (attributes == null || attributes.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        final Map<String, String> attributesMap =
+            attributes
+                .stream()
+                .collect(Collectors.toMap(Attribute::getName, Attribute::getValue));
+        if (!attributesMap.containsKey(PropertyUtil.NAMESPACE)
+            || !attributesMap.containsKey(PropertyUtil.POD)) {
+            return Collections.emptyMap();
+        }
+        return attributesMap;
+    }
+
+    public List<String> listContainers(
+        final String namespace,
+        final String podName) throws IOException {
         try {
-            final V1Pod pod = kApi().readNamespacedPod(instanceName, ns, null);
+            if (Strings.isNullOrEmpty(namespace) || Strings.isNullOrEmpty(podName)) {
+                return Collections.emptyList();
+            }
+            final V1Pod pod = kApi().readNamespacedPod(podName, namespace, null);
             final V1PodSpec spec = pod.getSpec();
             if (isNull(spec)) {
-                throw new RuntimeException(String.format("No spec: %s:%s", ns, instanceName));
+                return Collections.emptyList();
             }
 
             final List<String> containers = spec.getContainers().stream()
@@ -114,23 +137,19 @@ public class OndemandLogQuery implements GraphQLQueryResolver {
         }
     }
 
-    public Logs ondemandPodLogs(OndemandLogQueryCondition condition)
-        throws IOException {
-        final String ns = condition.getNamespace();
-        final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition =
-            IDManager.ServiceInstanceID.analysisId(condition.getServiceInstanceId());
-        final String instanceName = instanceIDDefinition.getName();
-
+    public Logs ondemandPodLogs(
+        final String namespace,
+        final String podName,
+        final OndemandLogQueryCondition condition) throws IOException {
         try {
-            final V1Pod pod = kApi().readNamespacedPod(instanceName, ns, null);
+            final V1Pod pod = kApi().readNamespacedPod(podName, namespace, null);
             final V1ObjectMeta podMetadata = pod.getMetadata();
             if (isNull(podMetadata)) {
-                throw new RuntimeException(
-                    String.format("No such instance: %s:%s", ns, instanceName));
+                return new Logs();
             }
             final V1PodSpec spec = pod.getSpec();
             if (isNull(spec)) {
-                throw new RuntimeException(String.format("No spec: %s:%s", ns, instanceName));
+                return new Logs();
             }
 
             final Duration duration = new Duration();

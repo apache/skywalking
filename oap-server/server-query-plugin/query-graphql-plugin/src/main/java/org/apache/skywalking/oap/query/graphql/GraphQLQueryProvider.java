@@ -78,6 +78,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
+        final MetadataQueryV2 metadataQueryV2 = new MetadataQueryV2(getManager());
         schemaBuilder.file("query-protocol/common.graphqls")
                      .resolvers(new Query(), new Mutation(), new HealthQuery(getManager()))
                      .file("query-protocol/metadata.graphqls")
@@ -118,14 +119,14 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .file("query-protocol/event.graphqls")
                      .resolvers(new EventQuery(getManager()))
                      .file("query-protocol/metadata-v2.graphqls")
-                     .resolvers(new MetadataQueryV2(getManager()))
+                     .resolvers(metadataQueryV2)
                      .file("query-protocol/ebpf-profiling.graphqls")
                      .resolvers(new EBPFProcessProfilingQuery(getManager()), new EBPFProcessProfilingMutation(getManager()));
 
         if (config.isEnableOnDemandPodLog()) {
             schemaBuilder
                 .file("query-protocol/ondemand-pod-log.graphqls")
-                .resolvers(new OndemandLogQuery());
+                .resolvers(new OndemandLogQuery(metadataQueryV2));
         }
 
         schemaBuilder.scalars(ExtendedScalars.GraphQLLong);

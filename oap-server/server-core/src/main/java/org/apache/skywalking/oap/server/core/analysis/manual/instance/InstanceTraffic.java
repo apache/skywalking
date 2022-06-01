@@ -175,6 +175,17 @@ public class InstanceTraffic extends Metrics {
     }
 
     public static class PropertyUtil {
+        /**
+         * `namespace` and `pod` are key properties that help "on demand Pod logs"
+         * to locate the corresponding Pod in Kubernetes, when language agent is
+         * registering a new service instance that is supposed to work in terms of
+         * "on demand Pod logs", the agent should also fill in these 2 properties.
+         *
+         * @since 9.1.0
+         */
+        public static final String NAMESPACE = "namespace";
+        public static final String POD = "pod";
+
         public static final String LANGUAGE = "language";
         public static final String IPV4 = "ipv4";
         public static final String IPV4S = "ipv4s";

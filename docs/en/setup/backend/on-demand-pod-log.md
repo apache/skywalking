@@ -11,8 +11,13 @@ feature is disabled by default, please read the configuration documentation to e
 
 As the name indicates, this feature only works for Kubernetes Pods.
 
-SkyWalking OAP lists the Kubernetes namespaces, services, Pods and containers in the UI for users to select,
-users can select the same and UI should fetch the logs in a given interval and display the logs in UI.
+SkyWalking OAP collects and saves the service instance's namespace and Pod name in ther serivce instance's
+properties, named `namespace` and `pod`, users can select the same and UI should fetch the logs by service
+instance in a given interval and display the logs in UI, OAP receives the query and checks the instance's
+properties and use the `namespace` and `pod` to locate the Pod and query the logs.
+
+If you want to register a service instance that has on demand logs available, you should add `namespace`
+and `pod` in the service instance properties, so that you can query the real time logs from that Pod.
 
 That said, in order to make this feature work properly, you should in advance configure the cluster role for
 OAP to list/get namespaces, services, pods and pods/log.

@@ -19,18 +19,11 @@
 
 package org.apache.skywalking.oap.query.graphql.type;
 
-import java.util.Collections;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.query.input.Duration;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class OndemandLogQueryCondition {
-    private String container;
+public class OndemandContainergQueryCondition {
     private String serviceInstanceId;
-    private Duration duration;
-    private List<String> keywordsOfContent = Collections.emptyList();
-    private List<String> excludingKeywordsOfContent = Collections.emptyList();
 }
