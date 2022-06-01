@@ -134,7 +134,7 @@ catalog:
               - name: "Log Collecting And Analysis"
                 path: "/en/setup/backend/log-analyzer"
               - name: "On Demand Pod Logs"
-                path: "/en/setup/backend/on-demand-pod-logg"
+                path: "/en/setup/backend/on-demand-pod-log"
           - name: "Extension"
             catalog:
               - name: "Metrics Exporter"
