@@ -79,7 +79,10 @@ public class InstanceTraffic extends Metrics {
         final InstanceTraffic instanceTraffic = (InstanceTraffic) metrics;
         this.lastPingTimestamp = instanceTraffic.getLastPingTimestamp();
         if (instanceTraffic.getProperties() != null && instanceTraffic.getProperties().size() > 0) {
-            this.properties = instanceTraffic.getProperties();
+            if (this.properties == null) {
+                this.properties = new JsonObject();
+            }
+            instanceTraffic.getProperties().entrySet().forEach(it -> this.properties.add(it.getKey(), it.getValue()));
         }
         /**
          * Keep the time bucket as the same time inserted.

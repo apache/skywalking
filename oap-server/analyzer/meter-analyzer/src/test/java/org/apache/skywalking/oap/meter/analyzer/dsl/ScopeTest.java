@@ -413,15 +413,15 @@ public class ScopeTest {
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newServiceInstance("t1", "us", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t1", "us", Layer.GENERAL, null),
                             new Sample[] {Sample.builder().labels(of()).value(150).name("http_success_request").build()}
                         );
                         put(
-                            MeterEntity.newServiceInstance("t3", "cn", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t3", "cn", Layer.GENERAL, null),
                             new Sample[] {Sample.builder().labels(of()).value(54).name("http_success_request").build()}
                         );
                         put(
-                            MeterEntity.newServiceInstance("t1", "", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t1", "", Layer.GENERAL, null),
                             new Sample[] {Sample.builder().labels(of()).value(50).name("http_success_request").build()}
                         );
                     }
@@ -457,7 +457,7 @@ public class ScopeTest {
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newServiceInstance("t1", "us", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t1", "us", Layer.GENERAL, null),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -470,7 +470,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newServiceInstance("t3", "cn", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t3", "cn", Layer.GENERAL, null),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -483,7 +483,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newServiceInstance("t1", "", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t1", "", Layer.GENERAL, null),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
