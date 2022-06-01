@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.meter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -39,6 +40,7 @@ public class MeterEntity {
     private ScopeType scopeType;
     private String serviceName;
     private String instanceName;
+    private Map<String, String> instanceProperties;
     private String endpointName;
     private String sourceServiceName;
     private String destServiceName;
@@ -103,11 +105,12 @@ public class MeterEntity {
     /**
      * Create a service instance level meter entity.
      */
-    public static MeterEntity newServiceInstance(String serviceName, String serviceInstance, Layer layer) {
+    public static MeterEntity newServiceInstance(String serviceName, String serviceInstance, Layer layer, Map<String, String> properties) {
         final MeterEntity meterEntity = new MeterEntity();
         meterEntity.scopeType = ScopeType.SERVICE_INSTANCE;
         meterEntity.serviceName = NAMING_CONTROL.formatServiceName(serviceName);
         meterEntity.instanceName = NAMING_CONTROL.formatInstanceName(serviceInstance);
+        meterEntity.instanceProperties = properties;
         meterEntity.layer = layer;
         return meterEntity;
     }

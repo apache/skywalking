@@ -448,7 +448,9 @@ public class SampleFamily {
         return createMeterSamples(new ServiceEntityDescription(labelKeys, layer, delimiter));
     }
 
-    public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys, Layer layer) {
+    public SampleFamily instance(List<String> serviceKeys, String serviceDelimiter,
+                                 List<String> instanceKeys, String instanceDelimiter,
+                                 Layer layer, Closure<Map<String, String>> propertiesExtractor) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(instanceKeys.size() > 0);
         ExpressionParsingContext.get().ifPresent(ctx -> {
@@ -459,7 +461,12 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new InstanceEntityDescription(serviceKeys, instanceKeys, layer, Const.POINT));
+        return createMeterSamples(new InstanceEntityDescription(
+            serviceKeys, instanceKeys, layer, serviceDelimiter, instanceDelimiter, propertiesExtractor));
+    }
+
+    public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys, Layer layer) {
+        return instance(serviceKeys, Const.POINT, instanceKeys, Const.POINT, layer, null);
     }
 
     public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys, Layer layer) {
@@ -620,10 +627,15 @@ public class SampleFamily {
                     );
                 case SERVICE_INSTANCE:
                     InstanceEntityDescription instanceEntityDescription = (InstanceEntityDescription) entityDescription;
+                    Map<String, String> properties = null;
+                    if (instanceEntityDescription.getPropertiesExtractor() != null) {
+                        properties = instanceEntityDescription.getPropertiesExtractor().call(samples.get(0).labels);
+                    }
                     return MeterEntity.newServiceInstance(
-                        InternalOps.dim(samples, instanceEntityDescription.getServiceKeys(), instanceEntityDescription.getDelimiter()),
-                        InternalOps.dim(samples, instanceEntityDescription.getInstanceKeys(), instanceEntityDescription.getDelimiter()),
-                        instanceEntityDescription.getLayer()
+                        InternalOps.dim(samples, instanceEntityDescription.getServiceKeys(), instanceEntityDescription.getServiceDelimiter()),
+                        InternalOps.dim(samples, instanceEntityDescription.getInstanceKeys(), instanceEntityDescription.getInstanceDelimiter()),
+                        instanceEntityDescription.getLayer(),
+                        properties
                     );
                 case ENDPOINT:
                     EndpointEntityDescription endpointEntityDescription = (EndpointEntityDescription) entityDescription;

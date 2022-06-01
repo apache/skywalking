@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.meter.analyzer;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonObject;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.List;
@@ -87,8 +88,8 @@ public class Analyzer {
             filter = new FilterExpression(filterExpression);
         }
         ExpressionParsingContext ctx = e.parse();
-        Analyzer analyzer = new Analyzer(metricName, filter, e, meterSystem);
-        analyzer.init(ctx);
+        Analyzer analyzer = new Analyzer(metricName, filter, e, meterSystem, ctx);
+        analyzer.init();
         return analyzer;
     }
 
@@ -101,6 +102,8 @@ public class Analyzer {
     private final Expression expression;
 
     private final MeterSystem meterSystem;
+
+    private final ExpressionParsingContext ctx;
 
     private MetricType metricType;
 
@@ -221,7 +224,7 @@ public class Analyzer {
         private final String literal;
     }
 
-    private void init(final ExpressionParsingContext ctx) {
+    private void init() {
         this.samples = ctx.getSamples();
         if (ctx.isHistogram()) {
             if (ctx.getPercentiles() != null && ctx.getPercentiles().length > 0) {
@@ -282,6 +285,11 @@ public class Analyzer {
             instanceTraffic.setServiceId(entity.serviceId());
             instanceTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
             instanceTraffic.setLastPingTimestamp(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+            if (entity.getInstanceProperties() != null && !entity.getInstanceProperties().isEmpty()) {
+                final JsonObject properties = new JsonObject();
+                entity.getInstanceProperties().forEach((k, v) -> properties.addProperty(k, v));
+                instanceTraffic.setProperties(properties);
+            }
             MetricsStreamProcessor.getInstance().in(instanceTraffic);
         }
         if (!com.google.common.base.Strings.isNullOrEmpty(entity.getEndpointName())) {
