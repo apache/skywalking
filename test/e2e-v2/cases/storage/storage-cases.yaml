@@ -42,8 +42,11 @@ cases:
     expected: expected/metrics-has-value.yml
 
   # trace segment list
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls  --tags http.method=POST
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=POST
     expected: expected/traces-list.yml
+  # negative tags search: relationship should be logical AND instead of logical OR
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=POST,http.status_code=200
+    expected: expected/empty-traces-list.yml
   # native tracing: trace detail
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $( \
