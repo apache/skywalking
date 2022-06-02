@@ -438,6 +438,7 @@ batch-processor 1.0.0: https://github.com/wnr/batch-processor MIT
 d3-tip 0.9.1: https: //github.com/Caged/d3-tip MIT
 ctrl/tinycolor 3.4.0: https: //github.com/scttcper/tinycolor MIT
 element-plus/icons-vue 0.2.7:  https://github.com/element-plus/element-plus-icons   MIT
+monaco-editor 0.27.0: https://github.com/microsoft/monaco-editor MIT
 ========================================
 Apache 2.0 licenses
 ========================================
