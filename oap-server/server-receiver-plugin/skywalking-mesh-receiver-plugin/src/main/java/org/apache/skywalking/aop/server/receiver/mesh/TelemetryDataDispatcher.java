@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -32,6 +33,7 @@ import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -41,6 +43,7 @@ import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import com.google.gson.JsonObject;
 
 /**
  * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to source
@@ -110,6 +113,7 @@ public class TelemetryDataDispatcher {
         if (org.apache.skywalking.apm.network.common.v3.DetectPoint.server.equals(metrics.getDetectPoint())) {
             toService(metrics, minuteTimeBucket);
             toServiceInstance(metrics, minuteTimeBucket);
+            toServiceInstanceTraffic(metrics, minuteTimeBucket);
             toEndpoint(metrics, minuteTimeBucket);
         }
 
@@ -185,6 +189,22 @@ public class TelemetryDataDispatcher {
         serviceInstance.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
         SOURCE_RECEIVER.receive(serviceInstance);
+    }
+
+    private static void toServiceInstanceTraffic(ServiceMeshMetric.Builder metrics, long minuteTimeBucket) {
+        ServiceInstanceUpdate instanceTraffic = new ServiceInstanceUpdate();
+        instanceTraffic.setTimeBucket(minuteTimeBucket);
+        instanceTraffic.setName(metrics.getDestServiceInstance());
+        instanceTraffic.setServiceId(IDManager.ServiceID.buildId(metrics.getDestServiceName(), true));
+        if (metrics.getDestInstancePropertiesList() != null) {
+            final JsonObject properties = new JsonObject();
+            metrics
+                .getDestInstancePropertiesList()
+                .stream()
+                .forEach(it -> properties.addProperty(it.getKey(), it.getValue()));
+            instanceTraffic.setProperties(properties);
+        }
+        SOURCE_RECEIVER.receive(instanceTraffic);
     }
 
     private static void toServiceInstanceRelation(ServiceMeshMetric.Builder metrics, long minuteTimeBucket) {
