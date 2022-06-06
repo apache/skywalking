@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 
@@ -128,6 +129,26 @@ public class LogEntry2MetricsAdapter {
         Optional.ofNullable(targetService)
                 .map(ServiceMetaInfo::getServiceInstanceName)
                 .ifPresent(builder::setDestServiceInstance);
+
+        Optional
+            .ofNullable(sourceService)
+            .map(ServiceMetaInfo::getTags)
+            .ifPresent(tags -> {
+                tags.forEach(p -> {
+                    builder.addSourceInstanceProperties(
+                        KeyStringValuePair.newBuilder().setKey(p.getKey()).setValue(p.getValue()));
+                });
+            });
+
+        Optional
+            .ofNullable(targetService)
+            .map(ServiceMetaInfo::getTags)
+            .ifPresent(tags -> {
+                tags.forEach(p -> {
+                    builder.addDestInstanceProperties(
+                        KeyStringValuePair.newBuilder().setKey(p.getKey()).setValue(p.getValue()));
+                });
+            });
 
         return builder;
     }
