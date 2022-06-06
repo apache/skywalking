@@ -110,6 +110,8 @@
 * Add Spanish Translation.
 * Visualize the OFF CPU eBPF profiling.
 * Add Spanish language to UI.
+* Sort spans with startTime or spanId in a segment.
+* Visualize a on-demand log widget.
 
 #### Documentation
 
