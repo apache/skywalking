@@ -112,6 +112,7 @@
 * Add Spanish language to UI.
 * Sort spans with startTime or spanId in a segment.
 * Visualize a on-demand log widget.
+* FaaS dashboard support on-demand log ([OpenFunction/functions-framework-go](https://github.com/OpenFunction/functions-framework-go) version > 0.3.0).
 
 #### Documentation
 
