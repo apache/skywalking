@@ -23,11 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
 
 //TODO: Not support BanyanDB for query yet.
-public class BanyanDBZipkinQueryDAO implements IZipkinQueryDAO {
+public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipkinQueryDAO {
+
+    public BanyanDBZipkinQueryDAO(BanyanDBStorageClient client) {
+        super(client);
+    }
+
     @Override
     public List<String> getServiceNames(final long startTimeMillis, final long endTimeMillis) throws IOException {
         return new ArrayList<>();
