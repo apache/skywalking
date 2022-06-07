@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   oap:
-    image: skywalking/oap:latest
+    image: gcr.io/skywalking-live-demo/oap:latest
     expose:
       - 11800
       - 12800

@@ -37,15 +37,14 @@ services:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
-      SW_STORAGE: mysql
-      SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
+      SW_STORAGE: elasticsearch
+      SW_STORAGE_ES_CLUSTER_NODES: es:9200
       SW_QUERY_ZIPKIN: default
       SW_RECEIVER_ZIPKIN: default
     expose:
       - 9411
     ports:
       - 9412
-    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
     networks:
       - e2e
     depends_on:
@@ -53,29 +52,21 @@ services:
         condition: service_healthy
 
   frontend:
-    image: ghcr.io/openzipkin/brave-example:armeria
-    entrypoint: start-frontend
-    networks:
-      - e2e
-    environment:
-      ZIPKIN_BASEURL: http://oap:9411
-    ports:
-      - 8081
+    extends:
+      file: ../docker-compose-brave.yml
+      service: frontend
     depends_on:
       backend:
         condition: service_healthy
       oap:
         condition: service_healthy
+    ports:
+      - 8081
 
   backend:
-    image: ghcr.io/openzipkin/brave-example:armeria
-    entrypoint: start-backend
-    networks:
-      - e2e
-    environment:
-      ZIPKIN_BASEURL: http://oap:9411
-    expose:
-      - 9000
+    extends:
+      file: ../docker-compose-brave.yml
+      service: backend
     depends_on:
       oap:
         condition: service_healthy
