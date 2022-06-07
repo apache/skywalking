@@ -1,5 +1,5 @@
 ## Zipkin receiver
-The Zipkin receiver makes the OAP server work as an alternative Zipkin server implementation for collect traces. 
+The Zipkin receiver makes the OAP server work as an alternative Zipkin server implementation for collecting traces. 
 It supports Zipkin v1/v2 formats through the HTTP service.
 
 Use the following config to activate it.
