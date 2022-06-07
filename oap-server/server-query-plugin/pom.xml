@@ -29,5 +29,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>query-graphql-plugin</module>
+        <module>zipkin-query-plugin</module>
     </modules>
 </project>

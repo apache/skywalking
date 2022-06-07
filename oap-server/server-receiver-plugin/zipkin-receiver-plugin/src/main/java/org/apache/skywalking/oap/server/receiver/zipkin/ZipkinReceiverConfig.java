@@ -23,9 +23,6 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Setter
 @Getter
 public class ZipkinReceiverConfig extends ModuleConfig {
@@ -35,11 +32,12 @@ public class ZipkinReceiverConfig extends ModuleConfig {
     private int restMaxThreads = 200;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
-    private List<String> instanceNameRule = new ArrayList<>();
     private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
+    private int sampleRate = 10000;
 
     private static final String DEFAULT_SEARCHABLE_TAG_KEYS = String.join(
         Const.COMMA,
         "http.method"
     );
 }
+
