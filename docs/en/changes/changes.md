@@ -114,6 +114,7 @@
 * Add Spanish language to UI.
 * Sort spans with startTime or spanId in a segment.
 * Visualize a on-demand log widget.
+* Fix activate the correct tab index after renaming a Tabs name.
 
 #### Documentation
 
