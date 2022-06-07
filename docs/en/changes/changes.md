@@ -76,6 +76,8 @@
 * Remove OAL for events.
 * Simplify the format index name logical in ES storage.
 * Add instance properties extractor in MAL.
+* Support Zipkin traces collect and zipkin traces query API.
+* [Breaking Change] Zipkin receiver mechanism changes and traces do not stream into OAP Segment anymore.
 
 #### UI
 

@@ -161,28 +161,6 @@ index.max_result_window: 1000000
 
 We strongly recommend that you read more about these configurations from ElasticSearch's official documentation since they directly impact the performance of ElasticSearch.
 
-
-### ElasticSearch with Zipkin trace extension
-This implementation is very similar to `elasticsearch`, except that it extends to support Zipkin span storage.
-The configurations are largely the same.
-```yaml
-storage:
-  selector: ${SW_STORAGE:zipkin-elasticsearch}
-  zipkin-elasticsearch:
-    namespace: ${SW_NAMESPACE:""}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
-    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
-    user: ${SW_ES_USER:""}
-    password: ${SW_ES_PASSWORD:""}
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
-    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
-    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
-    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
-    bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
-    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
-    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
-```
-
 ### About Namespace
 When a namespace is set, all index names in ElasticSearch will use it as the prefix.
 

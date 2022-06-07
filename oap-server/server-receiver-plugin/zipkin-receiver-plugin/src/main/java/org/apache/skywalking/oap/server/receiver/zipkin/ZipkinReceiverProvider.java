@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.zipkin;
 
 import com.linecorp.armeria.common.HttpMethod;
-import java.util.Collections;
+import java.util.Arrays;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -62,6 +62,10 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        if (config.getSampleRate() < 0 || config.getSampleRate() > 10000) {
+            throw new IllegalArgumentException(
+                "sampleRate: " + config.getSampleRate() + ", should be between 0 and 10000");
+        }
         HTTPServerConfig httpServerConfig = HTTPServerConfig.builder()
                                                             .host(config.getRestHost())
                                                             .port(config.getRestPort())
@@ -74,8 +78,9 @@ public class ZipkinReceiverProvider extends ModuleProvider {
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.initialize();
 
-        httpServer.addHandler(new ZipkinSpanHTTPHandler(config, getManager()),
-                              Collections.singletonList(HttpMethod.POST)
+        httpServer.addHandler(
+            new ZipkinSpanHTTPHandler(config, getManager()),
+            Arrays.asList(HttpMethod.POST, HttpMethod.GET)
         );
     }
 

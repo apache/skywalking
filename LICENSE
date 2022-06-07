@@ -221,3 +221,4 @@ The text of each license is the standard Apache 2.0 license.
    flatbuffers files from istio/proxy: https://github.com/istio/proxy Apache 2.0
    mvnw files from https://github.com/apache/maven-wrapper Apache 2.0
    svg files from skywalking-ui/src/assets/icons: https://github.com/google/material-design-icons Apache 2.0
+   ZipkinQueryHandler.java reference from zipkin2.server.internal.ZipkinQueryApiV2: https://github.com/openzipkin/zipkin  Apache 2.0
