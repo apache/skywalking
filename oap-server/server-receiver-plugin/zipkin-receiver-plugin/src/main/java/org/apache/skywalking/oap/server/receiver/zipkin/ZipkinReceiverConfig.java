@@ -23,9 +23,6 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Setter
 @Getter
 public class ZipkinReceiverConfig extends ModuleConfig {
