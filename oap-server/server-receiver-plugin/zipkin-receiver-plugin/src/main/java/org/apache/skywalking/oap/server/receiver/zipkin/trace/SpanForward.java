@@ -40,7 +40,6 @@ import zipkin2.internal.RecyclableBuffers;
 public class SpanForward {
     private final NamingControl namingControl;
     private final SourceReceiver receiver;
-    private final ZipkinReceiverConfig config;
     private final List<String> searchTagKeys;
 
     public SpanForward(final NamingControl namingControl,
@@ -48,7 +47,6 @@ public class SpanForward {
                        final ZipkinReceiverConfig config) {
         this.namingControl = namingControl;
         this.receiver = receiver;
-        this.config = config;
         this.searchTagKeys =  Arrays.asList(config.getSearchableTracesTags().split(Const.COMMA));
     }
 
@@ -56,12 +54,6 @@ public class SpanForward {
         spanList.forEach(span -> {
             ZipkinSpan zipkinSpan = new ZipkinSpan();
             zipkinSpan.setSpanId(span.id());
-            String serviceName = span.localServiceName();
-            if (StringUtil.isEmpty(serviceName)) {
-                serviceName = "Unknown";
-            }
-            serviceName = namingControl.formatServiceName(serviceName);
-            String serviceId = IDManager.ServiceID.buildId(serviceName, true);
             zipkinSpan.setTraceId(span.traceId());
             zipkinSpan.setSpanId(span.id());
             zipkinSpan.setParentId(span.parentId());
