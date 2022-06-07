@@ -61,11 +61,17 @@ public class SpanForward {
             zipkinSpan.setLocalEndpointServiceName(span.localServiceName());
             zipkinSpan.setLocalEndpointIPV4(span.localEndpoint().ipv4());
             zipkinSpan.setLocalEndpointIPV6(span.localEndpoint().ipv6());
-            zipkinSpan.setLocalEndpointPort(span.localEndpoint().port());
+            Integer localPort = span.localEndpoint().port();
+            if (localPort != null) {
+                zipkinSpan.setLocalEndpointPort(localPort);
+            }
             zipkinSpan.setRemoteEndpointServiceName(span.remoteServiceName());
             zipkinSpan.setRemoteEndpointIPV4(span.remoteEndpoint().ipv4());
             zipkinSpan.setRemoteEndpointIPV6(span.remoteEndpoint().ipv6());
-            zipkinSpan.setRemoteEndpointPort(span.remoteEndpoint().port());
+            Integer remotePort = span.remoteEndpoint().port();
+            if (remotePort != null) {
+                zipkinSpan.setRemoteEndpointPort(remotePort);
+            }
             zipkinSpan.setTimestamp(span.timestampAsLong());
             zipkinSpan.setDebug(span.debug());
             zipkinSpan.setShared(span.shared());

@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
@@ -100,6 +101,7 @@ public class ZipkinSpanRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = LOCAL_ENDPOINT_SERVICE_NAME)
+    @BanyanDB.ShardingKey(index = 0)
     private String localEndpointServiceName;
     @Setter
     @Getter
@@ -112,7 +114,7 @@ public class ZipkinSpanRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = LOCAL_ENDPOINT_PORT, storageOnly = true)
-    private Integer localEndpointPort;
+    private int localEndpointPort;
     @Setter
     @Getter
     @Column(columnName = REMOTE_ENDPOINT_SERVICE_NAME)
@@ -128,7 +130,7 @@ public class ZipkinSpanRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = REMOTE_ENDPOINT_PORT, storageOnly = true)
-    private Integer remoteEndpointPort;
+    private int remoteEndpointPort;
     @Setter
     @Getter
     @Column(columnName = ANNOTATIONS, storageOnly = true, length = 50000)
@@ -170,12 +172,16 @@ public class ZipkinSpanRecord extends Record {
             record.setDuration(((Number) converter.get(DURATION)).longValue());
             record.setLocalEndpointServiceName((String) converter.get(LOCAL_ENDPOINT_SERVICE_NAME));
             record.setLocalEndpointIPV4((String) converter.get(LOCAL_ENDPOINT_IPV4));
-            record.setLocalEndpointIPV6((String) converter.get(LOCAL_ENDPOINT_IPV4));
-            record.setLocalEndpointPort((Integer) converter.get(LOCAL_ENDPOINT_PORT));
+            record.setLocalEndpointIPV6((String) converter.get(LOCAL_ENDPOINT_IPV6));
+            if (converter.get(LOCAL_ENDPOINT_PORT) != null) {
+                record.setLocalEndpointPort(((Number) converter.get(LOCAL_ENDPOINT_PORT)).intValue());
+            }
             record.setRemoteEndpointServiceName((String) converter.get(REMOTE_ENDPOINT_SERVICE_NAME));
             record.setRemoteEndpointIPV4((String) converter.get(REMOTE_ENDPOINT_IPV4));
             record.setRemoteEndpointIPV6((String) converter.get(REMOTE_ENDPOINT_IPV6));
-            record.setRemoteEndpointPort((Integer) converter.get(REMOTE_ENDPOINT_PORT));
+            if (converter.get(REMOTE_ENDPOINT_PORT) != null) {
+                record.setRemoteEndpointPort(((Number) converter.get(REMOTE_ENDPOINT_PORT)).intValue());
+            }
             final String annotationsString = (String) converter.get(ANNOTATIONS);
             if (StringUtil.isNotEmpty(annotationsString)) {
                 record.setAnnotations(GSON.fromJson(annotationsString, JsonObject.class));
@@ -185,10 +191,10 @@ public class ZipkinSpanRecord extends Record {
                 record.setTags(GSON.fromJson(tagsString, JsonObject.class));
             }
             if (converter.get(DEBUG) != null) {
-                record.setDebug((Integer) converter.get(DEBUG));
+                record.setDebug(((Number) converter.get(DEBUG)).intValue());
             }
-            if (converter.get(DEBUG) != null) {
-                record.setShared((Integer) converter.get(SHARED));
+            if (converter.get(SHARED) != null) {
+                record.setShared(((Number) converter.get(SHARED)).intValue());
             }
             return record;
         }
@@ -206,11 +212,15 @@ public class ZipkinSpanRecord extends Record {
             converter.accept(LOCAL_ENDPOINT_SERVICE_NAME, storageData.getLocalEndpointServiceName());
             converter.accept(LOCAL_ENDPOINT_IPV4, storageData.getLocalEndpointIPV4());
             converter.accept(LOCAL_ENDPOINT_IPV6, storageData.getLocalEndpointIPV6());
-            converter.accept(LOCAL_ENDPOINT_PORT, storageData.getLocalEndpointPort());
+            if (storageData.getLocalEndpointPort() != 0) {
+                converter.accept(LOCAL_ENDPOINT_PORT, storageData.getLocalEndpointPort());
+            }
             converter.accept(REMOTE_ENDPOINT_SERVICE_NAME, storageData.getRemoteEndpointServiceName());
             converter.accept(REMOTE_ENDPOINT_IPV4, storageData.getRemoteEndpointIPV4());
             converter.accept(REMOTE_ENDPOINT_IPV6, storageData.getRemoteEndpointIPV6());
-            converter.accept(REMOTE_ENDPOINT_PORT, storageData.getRemoteEndpointPort());
+            if (storageData.getRemoteEndpointPort() != 0) {
+                converter.accept(REMOTE_ENDPOINT_PORT, storageData.getRemoteEndpointPort());
+            }
             if (storageData.getAnnotations() != null) {
                 converter.accept(ANNOTATIONS, GSON.toJson(storageData.getAnnotations()));
             } else {
@@ -225,7 +235,7 @@ public class ZipkinSpanRecord extends Record {
             if (storageData.getDebug() == BooleanUtils.booleanToValue(true)) {
                 converter.accept(DEBUG, storageData.getDebug());
             }
-            if (storageData.getDebug() == BooleanUtils.booleanToValue(true)) {
+            if (storageData.getShared() == BooleanUtils.booleanToValue(true)) {
                 converter.accept(SHARED, storageData.getShared());
             }
         }

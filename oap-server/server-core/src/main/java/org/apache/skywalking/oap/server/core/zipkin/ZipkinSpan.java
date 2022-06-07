@@ -75,7 +75,7 @@ public class ZipkinSpan extends Source {
     private String localEndpointIPV6;
     @Setter
     @Getter
-    private Integer localEndpointPort;
+    private int localEndpointPort;
     @Setter
     @Getter
     private String remoteEndpointServiceName;
@@ -87,7 +87,7 @@ public class ZipkinSpan extends Source {
     private String remoteEndpointIPV6;
     @Setter
     @Getter
-    private Integer remoteEndpointPort;
+    private int remoteEndpointPort;
     @Setter
     @Getter
     private JsonObject annotations;
