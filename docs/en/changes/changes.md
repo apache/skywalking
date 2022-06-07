@@ -76,6 +76,7 @@
 * Remove OAL for events.
 * Simplify the format index name logical in ES storage.
 * Add instance properties extractor in MAL.
+* Support Zipkin traces collect and zipkin traces query API.
 
 #### UI
 

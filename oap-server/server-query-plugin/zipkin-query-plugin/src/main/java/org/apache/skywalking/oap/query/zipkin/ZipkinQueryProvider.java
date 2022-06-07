@@ -16,10 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin;
+package org.apache.skywalking.oap.query.zipkin;
 
 import com.linecorp.armeria.common.HttpMethod;
-import java.util.Arrays;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -28,16 +28,16 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
-import org.apache.skywalking.oap.server.receiver.zipkin.handler.ZipkinSpanHTTPHandler;
+import org.apache.skywalking.oap.query.zipkin.handler.ZipkinQueryHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
-public class ZipkinReceiverProvider extends ModuleProvider {
+public class ZipkinQueryProvider extends ModuleProvider {
     public static final String NAME = "default";
-    private final ZipkinReceiverConfig config;
+    private final ZipkinQueryConfig config;
     private HTTPServer httpServer;
 
-    public ZipkinReceiverProvider() {
-        config = new ZipkinReceiverConfig();
+    public ZipkinQueryProvider() {
+        config = new ZipkinQueryConfig();
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
     @Override
     public Class<? extends ModuleDefine> module() {
-        return ZipkinReceiverModule.class;
+        return ZipkinQueryModule.class;
     }
 
     @Override
@@ -62,10 +62,6 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        if (config.getSampleRate() < 0 || config.getSampleRate() > 10000) {
-            throw new IllegalArgumentException(
-                "sampleRate: " + config.getSampleRate() + ", should be between 0 and 10000");
-        }
         HTTPServerConfig httpServerConfig = HTTPServerConfig.builder()
                                                             .host(config.getRestHost())
                                                             .port(config.getRestPort())
@@ -77,10 +73,9 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.initialize();
-
         httpServer.addHandler(
-            new ZipkinSpanHTTPHandler(config, getManager()),
-            Arrays.asList(HttpMethod.POST, HttpMethod.GET)
+            new ZipkinQueryHandler(config, getManager()),
+            Collections.singletonList(HttpMethod.GET)
         );
     }
 

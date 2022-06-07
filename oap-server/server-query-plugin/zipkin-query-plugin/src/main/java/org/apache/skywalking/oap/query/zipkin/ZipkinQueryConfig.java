@@ -16,31 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin;
+package org.apache.skywalking.oap.query.zipkin;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Setter
 @Getter
-public class ZipkinReceiverConfig extends ModuleConfig {
+public class ZipkinQueryConfig extends ModuleConfig {
     private String restHost;
     private int restPort;
     private String restContextPath;
     private int restMaxThreads = 200;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
-    private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
-    private int sampleRate = 10000;
-
-    private static final String DEFAULT_SEARCHABLE_TAG_KEYS = String.join(
-        Const.COMMA,
-        "http.method"
-    );
+    private long lookback = 86400000L;
+    private int namesMaxAge = 300;
+    private int uiQueryLimit = 10;
+    private String uiEnvironment = "";
+    private long uiDefaultLookback = 900000L;
+    private boolean uiSearchEnabled = true;
 }
-

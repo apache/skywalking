@@ -16,8 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.zipkin;
+package org.apache.skywalking.oap.server.core.zipkin;
 
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -26,9 +27,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.source.Source;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ZIPKIN_SPAN;
-
-@ScopeDeclaration(id = ZIPKIN_SPAN, name = "ZipkinSpan")
+@ScopeDeclaration(id = DefaultScopeDefine.ZIPKIN_SPAN, name = "ZipkinSpan")
 public class ZipkinSpan extends Source {
 
     @Override
@@ -38,7 +37,7 @@ public class ZipkinSpan extends Source {
 
     @Override
     public String getEntityId() {
-        return traceId + spanId;
+        return traceId + "-" + spanId;
     }
 
     @Setter
@@ -46,38 +45,62 @@ public class ZipkinSpan extends Source {
     private String traceId;
     @Setter
     @Getter
+    private String parentId;
+    @Setter
+    @Getter
+    private String name;
+    @Setter
+    @Getter
+    private long duration;
+    @Setter
+    @Getter
     private String spanId;
     @Setter
     @Getter
-    private String serviceId;
+    private String kind;
     @Setter
     @Getter
-    private String serviceInstanceId;
+    private long timestampMillis;
     @Setter
     @Getter
-    private String endpointName;
+    private long timestamp;
     @Setter
     @Getter
-    private String endpointId;
+    private String localEndpointServiceName;
     @Setter
     @Getter
-    private long startTime;
+    private String localEndpointIPV4;
     @Setter
     @Getter
-    private long endTime;
+    private String localEndpointIPV6;
     @Setter
     @Getter
-    private int latency;
+    private Integer localEndpointPort;
     @Setter
     @Getter
-    private int isError;
+    private String remoteEndpointServiceName;
     @Setter
     @Getter
-    private byte[] dataBinary;
+    private String remoteEndpointIPV4;
     @Setter
     @Getter
-    private int encode;
+    private String remoteEndpointIPV6;
     @Setter
     @Getter
-    private List<String> tags = new ArrayList<>();
+    private Integer remoteEndpointPort;
+    @Setter
+    @Getter
+    private JsonObject annotations;
+    @Setter
+    @Getter
+    private JsonObject tags;
+    @Setter
+    @Getter
+    private Boolean debug;
+    @Setter
+    @Getter
+    private Boolean shared;
+    @Setter
+    @Getter
+    private List<String> query = new ArrayList<>();
 }
