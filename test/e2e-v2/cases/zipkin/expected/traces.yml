@@ -17,6 +17,51 @@
 -
   {{- contains . }}
   - traceId: {{ notEmpty .traceId }}
+    id: {{ notEmpty .id }}
+    kind: SERVER
+    name: post /
+    timestamp: {{ ge .timestamp 0}}
+    duration: {{ ge .duration 0}}
+    localEndpoint:
+      serviceName: frontend
+      ipv4: {{ notEmpty .localEndpoint.ipv4 }}
+    remoteEndpoint:
+      ipv4: {{ notEmpty .remoteEndpoint.ipv4 }}
+      port: {{ ge .remoteEndpoint.port 0}}
+    annotations:
+      {{- contains .annotations }}
+      - timestamp: {{ ge .timestamp 0}}
+        value: wr
+      - timestamp: {{ ge .timestamp 0}}
+        value: ws
+      {{- end }}
+    tags:
+      http.method: POST
+      http.path: /
+  - traceId: {{ notEmpty .traceId }}
+    parentId: {{ .parentId }}
+    id: {{ notEmpty .id }}
+    kind: SERVER
+    name: get /api
+    timestamp: {{ ge .timestamp 0}}
+    duration: {{ ge .duration 0}}
+    localEndpoint:
+      serviceName: backend
+      ipv4: {{ notEmpty .localEndpoint.ipv4 }}
+    remoteEndpoint:
+      ipv4: {{ notEmpty .remoteEndpoint.ipv4 }}
+      port: {{ ge .remoteEndpoint.port 0}}
+    annotations:
+      {{- contains .annotations }}
+      - timestamp: {{ ge .timestamp 0}}
+        value: wr
+      - timestamp: {{ ge .timestamp 0}}
+        value: ws
+      {{- end }}
+    tags:
+      http.method: GET
+      http.path: /api
+  - traceId: {{ notEmpty .traceId }}
     parentId: {{ .parentId }}
     id: {{ notEmpty .id }}
     kind: CLIENT
