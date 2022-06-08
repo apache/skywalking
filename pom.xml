@@ -22,13 +22,13 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>9.1.0-SNAPSHOT</version>
+    <version>9.2.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>25</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <modules>
