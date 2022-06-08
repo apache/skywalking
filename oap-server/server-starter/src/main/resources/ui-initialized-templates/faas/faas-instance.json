@@ -151,6 +151,19 @@
                   "moved": false
                 }
               ]
+            },
+            {
+              "name": "Pod Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 44,
+                  "i": "0",
+                  "type": "DemandLog"
+                }
+              ]
             }
           ],
           "moved": false
