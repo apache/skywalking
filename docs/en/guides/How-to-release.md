@@ -110,7 +110,7 @@ account if a quality vote is called for this build.
 
 Release notes:
 
- * https://github.com/apache/skywalking/blob/master/changes/changes-x.y.z.md
+ * https://github.com/apache/skywalking/blob/master/docs/en/changes/changes-x.y.z.md
 
 Release Candidate:
 
@@ -125,7 +125,7 @@ Maven 2 staging repository:
 
 Release Tag :
 
- * (Git Tag) x.y.z
+ * (Git Tag) vx.y.z
 
 Release CommitID :
 
@@ -141,7 +141,7 @@ Keys to verify the Release Candidate :
 
 Guide to build the release from source :
 
- * https://github.com/apache/skywalking/blob/x.y.z/docs/en/guides/How-to-build.md
+ * https://github.com/apache/skywalking/blob/vx.y.z/docs/en/guides/How-to-build.md
 
 A vote regarding the quality of this test build will be initiated
 within the next couple of days.
@@ -163,7 +163,7 @@ This is a call for vote to release Apache SkyWalking version x.y.z.
 
 Release notes:
 
- * https://github.com/apache/skywalking/blob/master/changes/changes-x.y.z.md
+ * https://github.com/apache/skywalking/blob/master/docs/en/changes/changes-x.y.z.md
 
 Release Candidate:
 
@@ -178,7 +178,7 @@ Maven 2 staging repository:
 
 Release Tag :
 
- * (Git Tag) x.y.z
+ * (Git Tag) vx.y.z
 
 Release CommitID :
 
@@ -194,7 +194,7 @@ Keys to verify the Release Candidate :
 
 Guide to build the release from source :
 
- * https://github.com/apache/skywalking/blob/x.y.z/docs/en/guides/How-to-build.md
+ * https://github.com/apache/skywalking/blob/vx.y.z/docs/en/guides/How-to-build.md
 
 Voting will start now (xxxx date) and will remain open for at least 72 hours, Request all PMC members to give their vote.
 [ ] +1 Release this package.
@@ -260,7 +260,7 @@ version a.b.c(last release). The notable changes since x.y.z include:
 3. ...
 
 Please refer to the change log for the complete list of changes:
-https://github.com/apache/skywalking/blob/master/changes/changes-x.y.z.md
+https://github.com/apache/skywalking/blob/master/docs/en/changes/changes-x.y.z.md
 
 Apache SkyWalking website:
 http://skywalking.apache.org/

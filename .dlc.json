@@ -4,7 +4,7 @@
       "pattern": "^http://localhost"
     },
     {
-      "pattern": "^https://github.com/apache/skywalking/blob/master/changes/changes-x.y.z.md$"
+      "pattern": "^https://github.com/apache/skywalking/blob/master/docs/en/changes/changes-x.y.z.md$"
     },
     {
       "pattern": "^https://dist.apache.org/repos/dist/dev/skywalking/x.y.z$"
