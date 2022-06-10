@@ -69,9 +69,11 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         final List<String> services = new ArrayList<>();
 
         SearchResponse response = getClient().search(index, search.build(), params);
-        String scrollId = response.getScrollId();
+        final Set<String> scrollIds = new HashSet<>();
         try {
             while (response.getHits().getHits().size() != 0) {
+                String scrollId = response.getScrollId();
+                scrollIds.add(scrollId);
                 for (SearchHit searchHit : response.getHits()) {
                     Map<String, Object> sourceAsMap = searchHit.getSource();
                     ZipkinServiceTraffic record = new ZipkinServiceTraffic.Builder().storage2Entity(
@@ -82,10 +84,9 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
                     break;
                 }
                 response = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
-                scrollId = response.getScrollId();
             }
         } finally {
-            getClient().deleteScrollContextQuietly(scrollId);
+            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
         }
         return services;
     }
@@ -203,19 +204,20 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
 
         SearchResponse response = getClient().search(index, search.build(), params);
-        String scrollId = response.getScrollId();
+        final Set<String> scrollIds = new HashSet<>();
         Map<String, List<Span>> groupedByTraceId = new LinkedHashMap<String, List<Span>>();
         try {
             while (response.getHits().getHits().size() != 0) {
+                String scrollId = response.getScrollId();
+                scrollIds.add(scrollId);
                 buildTraces(response, groupedByTraceId);
                 if (response.getHits().getHits().size() < SCROLLING_BATCH_SIZE) {
                     break;
                 }
                 response = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
-                scrollId = response.getScrollId();
             }
         } finally {
-            getClient().deleteScrollContextQuietly(scrollId);
+            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
         }
         return new ArrayList<>(groupedByTraceId.values());
     }
