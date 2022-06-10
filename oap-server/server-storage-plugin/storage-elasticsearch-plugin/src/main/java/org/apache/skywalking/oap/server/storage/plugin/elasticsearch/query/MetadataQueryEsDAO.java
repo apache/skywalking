@@ -24,8 +24,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
@@ -93,9 +95,11 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         final List<Service> services = new ArrayList<>();
 
         SearchResponse results = getClient().search(index, search.build(), params);
-        String scrollId = results.getScrollId();
+        Set<String> scrollIds = new HashSet<>();
         try {
             while (true) {
+                String scrollId = results.getScrollId();
+                scrollIds.add(scrollId);
                 if (results.getHits().getTotal() == 0) {
                     break;
                 }
@@ -112,7 +116,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                 results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
             }
         } finally {
-            getClient().deleteScrollContextQuietly(scrollId);
+            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
         }
         return services;
     }
