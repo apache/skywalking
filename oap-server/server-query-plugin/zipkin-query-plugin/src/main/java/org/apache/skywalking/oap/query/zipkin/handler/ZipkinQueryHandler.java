@@ -117,9 +117,7 @@ public class ZipkinQueryHandler {
     @Get("/api/v2/services")
     @Blocking
     public AggregatedHttpResponse getServiceNames() throws IOException {
-        long endTimeMillis = System.currentTimeMillis();
-        long startTimeMillis = endTimeMillis - defaultLookback;
-        List<String> serviceNames = getZipkinQueryDAO().getServiceNames(startTimeMillis, endTimeMillis);
+        List<String> serviceNames = getZipkinQueryDAO().getServiceNames();
         serviceCount = serviceNames.size();
        return cachedResponse(serviceCount > 3, serviceNames);
     }
@@ -127,18 +125,14 @@ public class ZipkinQueryHandler {
     @Get("/api/v2/remoteServices")
     @Blocking
     public AggregatedHttpResponse getRemoteServiceNames(@Param("serviceName") String serviceName) throws IOException {
-        long endTimeMillis = System.currentTimeMillis();
-        long startTimeMillis = endTimeMillis - defaultLookback;
-        List<String> remoteServiceNames = getZipkinQueryDAO().getRemoteServiceNames(startTimeMillis, endTimeMillis, serviceName);
+        List<String> remoteServiceNames = getZipkinQueryDAO().getRemoteServiceNames(serviceName);
         return cachedResponse(serviceCount > 3, remoteServiceNames);
     }
 
     @Get("/api/v2/spans")
     @Blocking
     public AggregatedHttpResponse getSpanNames(@Param("serviceName") String serviceName) throws IOException {
-        long endTimeMillis = System.currentTimeMillis();
-        long startTimeMillis = endTimeMillis - defaultLookback;
-        List<String> spanNames = getZipkinQueryDAO().getSpanNames(startTimeMillis, endTimeMillis, serviceName);
+        List<String> spanNames = getZipkinQueryDAO().getSpanNames(serviceName);
         return cachedResponse(serviceCount > 3, spanNames);
     }
 

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.zipkin;
+package org.apache.skywalking.oap.server.core.zipkin.source;
 
 import com.google.gson.JsonObject;
 import java.util.ArrayList;

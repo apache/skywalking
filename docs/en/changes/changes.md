@@ -4,6 +4,8 @@
 
 #### OAP Server
 
+* Add more entities for Zipkin to improve performance.
+
 #### Documentation
 
 * Fix invalid links in release docs

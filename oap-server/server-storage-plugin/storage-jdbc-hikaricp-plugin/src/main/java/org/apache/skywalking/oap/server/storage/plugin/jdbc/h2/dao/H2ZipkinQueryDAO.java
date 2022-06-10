@@ -32,6 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceSpanTraffic;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -44,7 +47,7 @@ import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2Tabl
 
 public class H2ZipkinQueryDAO implements IZipkinQueryDAO {
     private final JDBCHikariCPClient h2Client;
-    private final int nameQueryMaxSize = Integer.MAX_VALUE;
+    private final static int NAME_QUERY_MAX_SIZE = Integer.MAX_VALUE;
     private static final Gson GSON = new Gson();
 
     public H2ZipkinQueryDAO(JDBCHikariCPClient h2Client) {
@@ -52,20 +55,65 @@ public class H2ZipkinQueryDAO implements IZipkinQueryDAO {
     }
 
     @Override
-    public List<String> getServiceNames(final long startTimeMillis, final long endTimeMillis) throws IOException {
-        return queryNames(ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME, startTimeMillis, endTimeMillis, null);
+    public List<String> getServiceNames() throws IOException {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select ").append(ZipkinServiceTraffic.SERVICE_NAME).append(" from ").append(ZipkinServiceTraffic.INDEX_NAME);
+        sql.append(" where ").append("1=1");
+        sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
+        try (Connection connection = h2Client.getConnection()) {
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString());
+            List<String> services = new ArrayList<>();
+            while (resultSet.next()) {
+                services.add(resultSet.getString(ZipkinServiceTraffic.SERVICE_NAME));
+            }
+            return services;
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
-    public List<String> getRemoteServiceNames(final long startTimeMillis,
-                                              final long endTimeMillis,
-                                              final String serviceName) throws IOException {
-        return queryNames(ZipkinSpanRecord.REMOTE_ENDPOINT_SERVICE_NAME, startTimeMillis, endTimeMillis, serviceName);
+    public List<String> getRemoteServiceNames(final String serviceName) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(1);
+        sql.append("select ").append(ZipkinServiceRelationTraffic.REMOTE_SERVICE_NAME).append(" from ")
+           .append(ZipkinServiceRelationTraffic.INDEX_NAME);
+        sql.append(" where ");
+        sql.append(ZipkinServiceRelationTraffic.SERVICE_NAME).append(" = ?");
+        sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
+        condition.add(serviceName);
+        try (Connection connection = h2Client.getConnection()) {
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
+            List<String> remoteServices = new ArrayList<>();
+            while (resultSet.next()) {
+                remoteServices.add(resultSet.getString(ZipkinServiceRelationTraffic.REMOTE_SERVICE_NAME));
+            }
+            return remoteServices;
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
-    public List<String> getSpanNames(final long startTimeMillis, final long endTimeMillis, final String serviceName) throws IOException {
-        return queryNames(ZipkinSpanRecord.NAME, startTimeMillis, endTimeMillis, serviceName);
+    public List<String> getSpanNames(final String serviceName) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(1);
+        sql.append("select ").append(ZipkinServiceSpanTraffic.SPAN_NAME).append(" from ")
+           .append(ZipkinServiceSpanTraffic.INDEX_NAME);
+        sql.append(" where ");
+        sql.append(ZipkinServiceSpanTraffic.SERVICE_NAME).append(" = ?");
+        sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
+        condition.add(serviceName);
+        try (Connection connection = h2Client.getConnection()) {
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
+            List<String> spanNames = new ArrayList<>();
+            while (resultSet.next()) {
+                spanNames.add(resultSet.getString(ZipkinServiceSpanTraffic.SPAN_NAME));
+            }
+            return spanNames;
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
@@ -95,7 +143,8 @@ public class H2ZipkinQueryDAO implements IZipkinQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         List<Map.Entry<String, String>> annotations = new ArrayList<>(request.annotationQuery().entrySet());
-        sql.append("select distinct ").append(ZipkinSpanRecord.TRACE_ID).append(" from ");
+        sql.append("select ").append(ZipkinSpanRecord.TRACE_ID).append(", ")
+            .append("max(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(")").append(" from ");
         sql.append(ZipkinSpanRecord.INDEX_NAME);
         /**
          * This is an AdditionalEntity feature, see:
@@ -158,6 +207,8 @@ public class H2ZipkinQueryDAO implements IZipkinQueryDAO {
                 }
             }
         }
+        sql.append(" group by ").append(ZipkinSpanRecord.TRACE_ID);
+        sql.append(" order by max(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(") desc");
         sql.append(" limit ").append(request.limit());
         Set<String> traceIds = new HashSet<>();
         try (Connection connection = h2Client.getConnection()) {
@@ -196,45 +247,6 @@ public class H2ZipkinQueryDAO implements IZipkinQueryDAO {
         try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
             return buildTraces(resultSet);
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-    }
-
-    private List<String> queryNames(String selectedColumn,
-                                    final long startTimeMillis,
-                                    final long endTimeMillis,
-                                    String serviceName) throws IOException {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        sql.append("select distinct ").append(selectedColumn).append(" from ");
-        sql.append(ZipkinSpanRecord.INDEX_NAME);
-        sql.append(" where ");
-        sql.append(" 1=1 ");
-        if (startTimeMillis > 0 && endTimeMillis > 0) {
-            sql.append(" and ");
-            sql.append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" >= ?");
-            condition.add(startTimeMillis);
-            sql.append(" and ");
-            sql.append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" <= ?");
-            condition.add(endTimeMillis);
-        }
-        if (!StringUtil.isEmpty(serviceName)) {
-            sql.append(" and ");
-            sql.append(ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME).append(" = ?");
-            condition.add(serviceName);
-        }
-        sql.append(" and ").append(selectedColumn).append(" is not NULL ");
-        sql.append(" limit ").append(nameQueryMaxSize);
-
-        List<String> names = new ArrayList<>();
-        try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
-            while (resultSet.next()) {
-                String name = resultSet.getString(selectedColumn);
-                names.add(name);
-            }
-            return names;
         } catch (SQLException e) {
             throw new IOException(e);
         }

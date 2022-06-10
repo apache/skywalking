@@ -16,10 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.zipkin;
+package org.apache.skywalking.oap.server.core.zipkin.dispatcher;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
 public class ZipkinSpanRecordDispatcher implements SourceDispatcher<ZipkinSpan> {
