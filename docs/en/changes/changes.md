@@ -4,6 +4,8 @@
 
 #### OAP Server
 
+* ElasticSearch: scroll id should be updated when scrolling as it may change
+
 #### Documentation
 
 * Fix invalid links in release docs

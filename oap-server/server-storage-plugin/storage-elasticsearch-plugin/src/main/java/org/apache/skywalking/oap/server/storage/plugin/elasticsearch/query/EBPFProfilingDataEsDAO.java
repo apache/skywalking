@@ -35,8 +35,10 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexC
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataDAO {
     private final int scrollingBatchSize;
@@ -59,9 +61,11 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
         final List<EBPFProfilingDataRecord> records = new ArrayList<>();
 
         SearchResponse results = getClient().search(index, search.build(), params);
-        final String scrollId = results.getScrollId();
+        final Set<String> scrollIds = new HashSet<>();
         try {
             while (true) {
+                final String scrollId = results.getScrollId();
+                scrollIds.add(scrollId);
                 if (results.getHits().getTotal() == 0) {
                     break;
                 }
@@ -74,7 +78,7 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
                 results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
             }
         } finally {
-            getClient().deleteScrollContextQuietly(scrollId);
+            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
         }
         return records;
     }

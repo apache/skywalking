@@ -151,16 +151,21 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         SearchBuilder search = Search.builder().query(query).size(5000); //max span size for 1 scroll
         final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
         SearchResponse response = getClient().search(index, search.build(), params);
-        String scrollId = response.getScrollId();
 
         Map<String, List<Span>> groupedByTraceId = new LinkedHashMap<String, List<Span>>();
+        final Set<String> scrollIds = new HashSet<>();
         try {
-            while (response.getHits().getHits().size() != 0) {
+            while (true) {
+                String scrollId = response.getScrollId();
+                scrollIds.add(scrollId);
+                if (response.getHits().getHits().size() == 0) {
+                    break;
+                }
                 buildTraces(response, groupedByTraceId);
                 response = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
             }
         } finally {
-            getClient().deleteScrollContextQuietly(scrollId);
+            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
         }
         return new ArrayList<>(groupedByTraceId.values());
     }
