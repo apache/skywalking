@@ -19,7 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -62,9 +64,11 @@ public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAl
 
             SearchResponse results =
                 getClient().search(NetworkAddressAlias.INDEX_NAME, search, params);
-            final String scrollId = results.getScrollId();
+            final Set<String> scrollIds = new HashSet<>();
             try {
                 while (true) {
+                    final String scrollId = results.getScrollId();
+                    scrollIds.add(scrollId);
                     if (results.getHits().getTotal() == 0) {
                         break;
                     }
@@ -82,7 +86,7 @@ public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAl
                     results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
                 }
             } finally {
-                getClient().deleteScrollContextQuietly(scrollId);
+                scrollIds.forEach(getClient()::deleteScrollContextQuietly);
             }
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
