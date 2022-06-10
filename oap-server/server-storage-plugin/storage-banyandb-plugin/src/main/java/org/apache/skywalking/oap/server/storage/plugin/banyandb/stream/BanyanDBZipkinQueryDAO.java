@@ -35,21 +35,17 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     }
 
     @Override
-    public List<String> getServiceNames(final long startTimeMillis, final long endTimeMillis) throws IOException {
+    public List<String> getServiceNames() throws IOException {
         return new ArrayList<>();
     }
 
     @Override
-    public List<String> getRemoteServiceNames(final long startTimeMillis,
-                                              final long endTimeMillis,
-                                              final String serviceName) throws IOException {
+    public List<String> getRemoteServiceNames(final String serviceName) throws IOException {
         return new ArrayList<>();
     }
 
     @Override
-    public List<String> getSpanNames(final long startTimeMillis,
-                                     final long endTimeMillis,
-                                     final String serviceName) throws IOException {
+    public List<String> getSpanNames(final String serviceName) throws IOException {
         return new ArrayList<>();
     }
 

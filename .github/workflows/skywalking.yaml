@@ -497,6 +497,12 @@ jobs:
             config: test/e2e-v2/cases/zipkin/es/e2e.yaml
           - name: Zipkin MySQL
             config: test/e2e-v2/cases/zipkin/mysql/e2e.yaml
+          - name: Zipkin Opensearch
+            config: test/e2e-v2/cases/zipkin/opensearch/e2e.yaml
+          - name: Zipkin H2
+            config: test/e2e-v2/cases/zipkin/h2/e2e.yaml
+          - name: Zipkin Postgres
+            config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

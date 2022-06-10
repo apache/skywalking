@@ -392,14 +392,14 @@ query-zipkin:
     restMaxThreads: ${SW_QUERY_ZIPKIN_REST_MAX_THREADS:200}
     restIdleTimeOut: ${SW_QUERY_ZIPKIN_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_QUERY_ZIPKIN_REST_QUEUE_SIZE:0}
-    # Default look back for serviceNames, remoteServiceNames and spanNames, 1 day in millis
+    # Default look back for traces and autocompleteTags, 1 day in millis
     lookback: ${SW_QUERY_ZIPKIN_LOOKBACK:86400000}
     # The Cache-Control max-age (seconds) for serviceNames, remoteServiceNames and spanNames
     namesMaxAge: ${SW_QUERY_ZIPKIN_NAMES_MAX_AGE:300}
     ## The below config are OAP support for zipkin-lens UI
     # Default traces query max size
     uiQueryLimit: ${SW_QUERY_ZIPKIN_UI_QUERY_LIMIT:10}
-    # Default look back for search traces, 15 minutes in millis
+    # Default look back on the UI for search traces, 15 minutes in millis
     uiDefaultLookback: ${SW_QUERY_ZIPKIN_UI_DEFAULT_LOOKBACK:900000}
 
 alarm:

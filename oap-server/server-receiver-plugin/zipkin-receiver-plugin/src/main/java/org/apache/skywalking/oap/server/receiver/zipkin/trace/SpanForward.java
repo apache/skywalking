@@ -26,10 +26,14 @@ import java.util.Map;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
-import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpan;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinService;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinServiceRelation;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinServiceSpan;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import zipkin2.Annotation;
 import zipkin2.Span;
@@ -51,21 +55,25 @@ public class SpanForward {
     public void send(List<Span> spanList) {
         spanList.forEach(span -> {
             ZipkinSpan zipkinSpan = new ZipkinSpan();
+            String serviceName = span.localServiceName();
+            if (StringUtil.isEmpty(serviceName)) {
+                serviceName = "Unknown";
+            }
             zipkinSpan.setSpanId(span.id());
             zipkinSpan.setTraceId(span.traceId());
             zipkinSpan.setSpanId(span.id());
             zipkinSpan.setParentId(span.parentId());
-            zipkinSpan.setName(span.name());
+            zipkinSpan.setName(namingControl.formatEndpointName(serviceName, span.name()));
             zipkinSpan.setDuration(span.duration());
             zipkinSpan.setKind(span.kind().name());
-            zipkinSpan.setLocalEndpointServiceName(span.localServiceName());
+            zipkinSpan.setLocalEndpointServiceName(namingControl.formatServiceName(serviceName));
             zipkinSpan.setLocalEndpointIPV4(span.localEndpoint().ipv4());
             zipkinSpan.setLocalEndpointIPV6(span.localEndpoint().ipv6());
             Integer localPort = span.localEndpoint().port();
             if (localPort != null) {
                 zipkinSpan.setLocalEndpointPort(localPort);
             }
-            zipkinSpan.setRemoteEndpointServiceName(span.remoteServiceName());
+            zipkinSpan.setRemoteEndpointServiceName(namingControl.formatServiceName(span.remoteServiceName()));
             zipkinSpan.setRemoteEndpointIPV4(span.remoteEndpoint().ipv4());
             zipkinSpan.setRemoteEndpointIPV6(span.remoteEndpoint().ipv6());
             Integer remotePort = span.remoteEndpoint().port();
@@ -111,6 +119,12 @@ public class SpanForward {
                 zipkinSpan.setTags(tagsJson);
             }
             receiver.receive(zipkinSpan);
+
+            toService(zipkinSpan, minuteTimeBucket);
+            toServiceSpan(zipkinSpan, minuteTimeBucket);
+            if (!StringUtil.isEmpty(zipkinSpan.getRemoteEndpointServiceName())) {
+                toServiceRelation(zipkinSpan, minuteTimeBucket);
+            }
         });
     }
 
@@ -121,5 +135,28 @@ public class SpanForward {
         tagAutocomplete.setTagType(TagType.ZIPKIN);
         tagAutocomplete.setTimeBucket(minuteTimeBucket);
         receiver.receive(tagAutocomplete);
+    }
+
+    private void toService(ZipkinSpan zipkinSpan, final long minuteTimeBucket) {
+        ZipkinService service = new ZipkinService();
+        service.setServiceName(zipkinSpan.getLocalEndpointServiceName());
+        service.setTimeBucket(minuteTimeBucket);
+        receiver.receive(service);
+    }
+
+    private void toServiceSpan(ZipkinSpan zipkinSpan, final long minuteTimeBucket) {
+        ZipkinServiceSpan serviceSpan = new ZipkinServiceSpan();
+        serviceSpan.setServiceName(zipkinSpan.getLocalEndpointServiceName());
+        serviceSpan.setSpanName(zipkinSpan.getName());
+        serviceSpan.setTimeBucket(minuteTimeBucket);
+        receiver.receive(serviceSpan);
+    }
+
+    private void toServiceRelation(ZipkinSpan zipkinSpan, final long minuteTimeBucket) {
+        ZipkinServiceRelation relation = new ZipkinServiceRelation();
+        relation.setServiceName(zipkinSpan.getLocalEndpointServiceName());
+        relation.setRemoteServiceName(zipkinSpan.getRemoteEndpointServiceName());
+        relation.setTimeBucket(minuteTimeBucket);
+        receiver.receive(relation);
     }
 }

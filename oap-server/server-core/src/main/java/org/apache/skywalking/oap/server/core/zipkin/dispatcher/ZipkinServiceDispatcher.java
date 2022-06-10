@@ -16,25 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.query;
+package org.apache.skywalking.oap.server.core.zipkin.dispatcher;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-import org.apache.skywalking.oap.server.core.storage.DAO;
-import zipkin2.Span;
-import zipkin2.storage.QueryRequest;
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceTraffic;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinService;
 
-public interface IZipkinQueryDAO extends DAO {
-    List<String> getServiceNames() throws IOException;
+public class ZipkinServiceDispatcher implements SourceDispatcher<ZipkinService> {
 
-    List<String> getRemoteServiceNames(final String serviceName) throws IOException;
-
-    List<String> getSpanNames(final String serviceName) throws IOException;
-
-    List<Span> getTrace(final String traceId) throws IOException;
-
-    List<List<Span>> getTraces(final QueryRequest request) throws IOException;
-
-    List<List<Span>> getTraces(final Set<String> traceIds) throws IOException;
+    @Override
+    public void dispatch(ZipkinService source) {
+        ZipkinServiceTraffic traffic = new ZipkinServiceTraffic();
+        traffic.setServiceName(source.getServiceName());
+        traffic.setTimeBucket(source.getTimeBucket());
+        MetricsStreamProcessor.getInstance().in(traffic);
+    }
 }

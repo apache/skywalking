@@ -4,7 +4,8 @@
 
 #### OAP Server
 
-* ElasticSearch: scroll id should be updated when scrolling as it may change
+* Add more entities for Zipkin to improve performance.
+* ElasticSearch: scroll id should be updated when scrolling as it may change.
 
 #### Documentation
 

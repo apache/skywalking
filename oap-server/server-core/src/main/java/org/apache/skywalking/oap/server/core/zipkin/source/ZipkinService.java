@@ -16,25 +16,28 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.query;
+package org.apache.skywalking.oap.server.core.zipkin.source;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-import org.apache.skywalking.oap.server.core.storage.DAO;
-import zipkin2.Span;
-import zipkin2.storage.QueryRequest;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.source.Source;
 
-public interface IZipkinQueryDAO extends DAO {
-    List<String> getServiceNames() throws IOException;
+@ScopeDeclaration(id = DefaultScopeDefine.ZIPKIN_SERVICE, name = "ZipkinService")
+public class ZipkinService extends Source {
 
-    List<String> getRemoteServiceNames(final String serviceName) throws IOException;
+    @Override
+    public int scope() {
+        return DefaultScopeDefine.ZIPKIN_SERVICE;
+    }
 
-    List<String> getSpanNames(final String serviceName) throws IOException;
+    @Override
+    public String getEntityId() {
+        return serviceName;
+    }
 
-    List<Span> getTrace(final String traceId) throws IOException;
-
-    List<List<Span>> getTraces(final QueryRequest request) throws IOException;
-
-    List<List<Span>> getTraces(final Set<String> traceIds) throws IOException;
+    @Setter
+    @Getter
+    private String serviceName;
 }

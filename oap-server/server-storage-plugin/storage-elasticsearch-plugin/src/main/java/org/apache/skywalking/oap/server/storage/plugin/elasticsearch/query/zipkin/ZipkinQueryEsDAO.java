@@ -38,6 +38,9 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceSpanTraffic;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -49,27 +52,76 @@ import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
 
 public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
-    private final int nameQueryMaxSize = Integer.MAX_VALUE;
+    private final static int NAME_QUERY_MAX_SIZE = 10000;
+    private final static int SCROLLING_BATCH_SIZE = 5000;
 
     public ZipkinQueryEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
     @Override
-    public List<String> getServiceNames(final long startTimeMillis, final long endTimeMillis) {
-        return queryNames(ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME, startTimeMillis, endTimeMillis, null);
+    public List<String> getServiceNames() {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinServiceTraffic.INDEX_NAME);
+        final BoolQueryBuilder query = Query.bool();
+        final SearchBuilder search = Search.builder().query(query).size(SCROLLING_BATCH_SIZE);
+        final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
+        final List<String> services = new ArrayList<>();
+
+        SearchResponse response = getClient().search(index, search.build(), params);
+        final Set<String> scrollIds = new HashSet<>();
+        try {
+            while (response.getHits().getHits().size() != 0) {
+                String scrollId = response.getScrollId();
+                scrollIds.add(scrollId);
+                for (SearchHit searchHit : response.getHits()) {
+                    Map<String, Object> sourceAsMap = searchHit.getSource();
+                    ZipkinServiceTraffic record = new ZipkinServiceTraffic.Builder().storage2Entity(
+                        new HashMapConverter.ToEntity(sourceAsMap));
+                    services.add(record.getServiceName());
+                }
+                if (services.size() < SCROLLING_BATCH_SIZE) {
+                    break;
+                }
+                response = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
+            }
+        } finally {
+            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
+        }
+        return services;
     }
 
     @Override
-    public List<String> getRemoteServiceNames(final long startTimeMillis,
-                                              final long endTimeMillis,
-                                              final String serviceName) {
-        return queryNames(ZipkinSpanRecord.REMOTE_ENDPOINT_SERVICE_NAME, startTimeMillis, endTimeMillis, serviceName);
+    public List<String> getRemoteServiceNames(final String serviceName) {
+        String index = IndexController.LogicIndicesRegister.getPhysicalTableName(
+            ZipkinServiceRelationTraffic.INDEX_NAME);
+        BoolQueryBuilder query = Query.bool().must(Query.term(ZipkinServiceRelationTraffic.SERVICE_NAME, serviceName));
+        SearchBuilder search = Search.builder().query(query).size(NAME_QUERY_MAX_SIZE);
+        SearchResponse response = getClient().search(index, search.build());
+        List<String> remoteServices = new ArrayList<>();
+        for (SearchHit searchHit : response.getHits()) {
+            Map<String, Object> sourceAsMap = searchHit.getSource();
+            ZipkinServiceRelationTraffic record = new ZipkinServiceRelationTraffic.Builder().storage2Entity(
+                new HashMapConverter.ToEntity(sourceAsMap));
+            remoteServices.add(record.getRemoteServiceName());
+        }
+        return remoteServices;
     }
 
     @Override
-    public List<String> getSpanNames(final long startTimeMillis, final long endTimeMillis, final String serviceName) {
-        return queryNames(ZipkinSpanRecord.NAME, startTimeMillis, endTimeMillis, serviceName);
+    public List<String> getSpanNames(final String serviceName) {
+        String index = IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinServiceSpanTraffic.INDEX_NAME);
+        BoolQueryBuilder query = Query.bool().must(Query.term(ZipkinServiceSpanTraffic.SERVICE_NAME, serviceName));
+        SearchBuilder search = Search.builder().query(query).size(NAME_QUERY_MAX_SIZE);
+        SearchResponse response = getClient().search(index, search.build());
+        List<String> spanNames = new ArrayList<>();
+        for (SearchHit searchHit : response.getHits()) {
+            Map<String, Object> sourceAsMap = searchHit.getSource();
+            ZipkinServiceSpanTraffic record = new ZipkinServiceSpanTraffic.Builder().storage2Entity(
+                new HashMapConverter.ToEntity(sourceAsMap));
+            spanNames.add(record.getSpanName());
+        }
+        return spanNames;
     }
 
     @Override
@@ -148,56 +200,26 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
     public List<List<Span>> getTraces(final Set<String> traceIds) {
         String index = IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME);
         BoolQueryBuilder query = Query.bool().must(Query.terms(ZipkinSpanRecord.TRACE_ID, new ArrayList<>(traceIds)));
-        SearchBuilder search = Search.builder().query(query).size(5000); //max span size for 1 scroll
+        SearchBuilder search = Search.builder().query(query).size(SCROLLING_BATCH_SIZE); //max span size for 1 scroll
         final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
-        SearchResponse response = getClient().search(index, search.build(), params);
 
-        Map<String, List<Span>> groupedByTraceId = new LinkedHashMap<String, List<Span>>();
+        SearchResponse response = getClient().search(index, search.build(), params);
         final Set<String> scrollIds = new HashSet<>();
+        Map<String, List<Span>> groupedByTraceId = new LinkedHashMap<String, List<Span>>();
         try {
-            while (true) {
+            while (response.getHits().getHits().size() != 0) {
                 String scrollId = response.getScrollId();
                 scrollIds.add(scrollId);
-                if (response.getHits().getHits().size() == 0) {
+                buildTraces(response, groupedByTraceId);
+                if (response.getHits().getHits().size() < SCROLLING_BATCH_SIZE) {
                     break;
                 }
-                buildTraces(response, groupedByTraceId);
                 response = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
             }
         } finally {
             scrollIds.forEach(getClient()::deleteScrollContextQuietly);
         }
         return new ArrayList<>(groupedByTraceId.values());
-    }
-
-    private List<String> queryNames(String aggregationFiled,
-                                    final long startTimeMillis,
-                                    final long endTimeMillis,
-                                    String serviceName) {
-        List<String> names = new ArrayList<>();
-
-        String index = IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME);
-        BoolQueryBuilder query = Query.bool().must(Query.range(ZipkinSpanRecord.TIMESTAMP_MILLIS)
-                                                        .gte(startTimeMillis)
-                                                        .lte(endTimeMillis));
-        if (!StringUtil.isEmpty(serviceName)) {
-            query.must(Query.term(ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME, serviceName));
-        }
-        SearchBuilder search = Search.builder().query(query);
-        search.aggregation(Aggregation.terms(aggregationFiled)
-                                      .field(aggregationFiled).size(nameQueryMaxSize));
-        SearchResponse response = getClient().search(index, search.build());
-        Map<String, Object> terms =
-            (Map<String, Object>) response.getAggregations().get(aggregationFiled);
-        List<Map<String, Object>> buckets = (List<Map<String, Object>>) terms.get("buckets");
-        for (Map<String, Object> bucket : buckets) {
-            String name = (String) bucket.get("key");
-            if (bucket.get("key") == null) {
-                continue;
-            }
-            names.add(name);
-        }
-        return names;
     }
 
     private List<Span> buildSingleTrace(SearchResponse response) {
