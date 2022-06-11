@@ -168,6 +168,7 @@ public enum FieldsHelper {
                         continue;
                     }
                     values[i] = value.getStringValue();
+                    break;
                 }
             }
             final String value = Strings.lenientFormat(serviceNameFormat.format, values);
