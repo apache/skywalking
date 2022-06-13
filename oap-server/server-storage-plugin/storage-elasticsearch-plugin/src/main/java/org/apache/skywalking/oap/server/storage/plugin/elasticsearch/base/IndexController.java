@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 @Slf4j
 public enum IndexController {
     INSTANCE;
+    public static final int DOC_ID_MAX_LENGTH = 500;
 
     public String getTableName(Model model) {
         return isMetricModel(model) ? model.getAggregationFunctionName() : model.getName();
@@ -43,17 +44,30 @@ public enum IndexController {
      * to avoid conflicts.
      */
     public String generateDocId(Model model, String originalID) {
+        String docId = originalID;
         if (!isMetricModel(model)) {
-            return originalID;
+            if (docId.length() > DOC_ID_MAX_LENGTH) {
+                docId = docId.substring(0, DOC_ID_MAX_LENGTH);
+            }
+            return docId;
         }
-        return this.generateDocId(model.getName(), originalID);
+        docId = this.generateDocId(model.getName(), originalID);
+        if (docId.length() > DOC_ID_MAX_LENGTH) {
+            docId = docId.substring(0, DOC_ID_MAX_LENGTH);
+        }
+        return docId;
+
     }
 
     /**
      * Generate the index doc ID.
      */
     public String generateDocId(String logicTableName, String originalID) {
-        return logicTableName + Const.ID_CONNECTOR + originalID;
+        String docId = logicTableName + Const.ID_CONNECTOR + originalID;
+        if (docId.length() > DOC_ID_MAX_LENGTH) {
+            docId = docId.substring(0, DOC_ID_MAX_LENGTH);
+        }
+        return docId;
     }
 
     /**
