@@ -1,3 +1,4 @@
+
 ## 9.2.0
 
 #### Project
@@ -11,5 +12,6 @@
 #### Documentation
 
 * Fix invalid links in release docs
+* Fix elasticsearch doc id  is too long, must be no longer than 512 bytes
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/136?closed=1)
