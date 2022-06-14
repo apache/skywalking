@@ -207,6 +207,8 @@ catalog:
     catalog:
       - name: "Current Version"
         path: "/en/changes/changes"
+      - name: "9.1.0"
+        path: "/en/changes/changes-9.1.0"
       - name: "9.0.0"
         path: "/en/changes/changes-9.0.0"
       - name: "8.9.1"
