@@ -1,9 +1,9 @@
-# Alarm
-The alarm core is driven by a collection of rules defined in `config/alarm-settings.yml.`
-There are three parts to alarm rule definitions.
-1. [Alarm rules](#rules). They define how metrics alarm should be triggered and what conditions should be considered.
-1. [Webhooks](#webhook). The list of web service endpoints, which should be called after an alarm is triggered.
-1. [gRPCHook](#grpchook). The host and port of the remote gRPC method, which should be called after an alarm is triggered.
+# Alerting
+The alerting core is driven by a collection of rules defined in `config/alarm-settings.yml.`
+There are three parts to alerting rule definitions.
+1. [alerting rules](#rules). They define how metrics alerting should be triggered and what conditions should be considered.
+1. [Webhooks](#webhook). The list of web service endpoints, which should be called after an alerting is triggered.
+1. [gRPCHook](#grpchook). The host and port of the remote gRPC method, which should be called after an alerting is triggered.
 
 ## Entity name
 Defines the relation between scope and entity name.
@@ -18,7 +18,7 @@ Defines the relation between scope and entity name.
 ## Rules
 **There are two types of rules: individual rules and composite rules. A composite rule is a combination of individual rules.**
 ### Individual rules
-An alarm rule is made up of the following elements:
+An alerting rule is made up of the following elements:
 - **Rule name**. A unique name shown in the alarm message. It must end with `_rule`.
 - **Metrics name**. This is also the metrics name in the OAL script. Only long, double, int types are supported. See the
 [list of all potential metrics name](#list-of-all-potential-metrics-name). Events can also be configured as the source
@@ -48,7 +48,7 @@ For example, in **percentile**, `value1` is the threshold of P50, and `-, -, val
 By default, it works in the same manner as **period**. The same Alarm (having the same ID in the same metrics name) may only be triggered once within a period. 
 
 ### Composite rules
-**NOTE**: Composite rules are only applicable to alarm rules targeting the same entity level, such as service-level alarm rules (`service_percent_rule && service_resp_time_percentile_rule`). Do not compose alarm rules of different entity levels, such as an alarm rule of the service metrics with another rule of the endpoint metrics.
+**NOTE**: Composite rules are only applicable to alerting rules targeting the same entity level, such as service-level alarm rules (`service_percent_rule && service_resp_time_percentile_rule`). Do not compose alarm rules of different entity levels, such as an alarm rule of the service metrics with another rule of the endpoint metrics.
 
 A composite rule is made up of the following elements:
 - **Rule name**. A unique name shown in the alarm message. Must end with `_rule`.
@@ -300,9 +300,9 @@ welinkHooks:
 ```
 
 ## Update the settings dynamically
-Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
+Since 6.5.0, the alerting settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
 which will override the settings in `alarm-settings.yml`.
 
-In order to determine whether an alarm rule is triggered or not, SkyWalking needs to cache the metrics of a time window for
-each alarm rule. If any attribute (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
+In order to determine whether an alerting rule is triggered or not, SkyWalking needs to cache the metrics of a time window for
+each alerting rule. If any attribute (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
 the sliding window will be destroyed and re-created, causing the Alarm of this specific rule to restart again.
