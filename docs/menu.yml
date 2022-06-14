@@ -127,7 +127,7 @@ catalog:
                 path: "/en/setup/backend/spring-sleuth-setup"
               - name: "Prometheus Metrics"
                 path: "/en/setup/backend/prometheus-metrics"
-              - name: "Alarm"
+              - name: "Alerting"
                 path: "/en/setup/backend/backend-alarm"
           - name: "Logging"
             catalog:
