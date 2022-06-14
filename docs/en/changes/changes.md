@@ -8,6 +8,11 @@
 * ElasticSearch: scroll id should be updated when scrolling as it may change.
 * Mesh: fix only last rule works when multiple rules are defined in metadata-service-mapping.yaml.
 
+#### UI
+
+* Fix query conditions for the browser logs.
+* Implement a url parameter to activate tab index.
+
 #### Documentation
 
 * Fix invalid links in release docs
