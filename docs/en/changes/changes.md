@@ -12,6 +12,7 @@
 
 * Fix query conditions for the browser logs.
 * Implement a url parameter to activate tab index.
+* Fix clear interval fail when switch autoRefresh to off
 
 #### Documentation
 
