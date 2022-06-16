@@ -12,7 +12,10 @@
 
 * Fix query conditions for the browser logs.
 * Implement a url parameter to activate tab index.
-* Fix clear interval fail when switch autoRefresh to off
+* Fix clear interval fail when switch autoRefresh to off.
+* Optimize log tables.
+* Fix log detail pop-up page doesn't work.
+* Optimize table widget to hide the whole metric column when no metric is set.
 
 #### Documentation
 
