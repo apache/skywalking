@@ -39,12 +39,12 @@ In addition, you can integrate
 ## Architecture
 SkyWalking is logically split into four parts: Probes, Platform backend, Storage and UI.
 
-<img src="https://skywalking.apache.org/images/SkyWalking_Architecture_20210424.png?t=20210424"/>
+<img src="https://skywalking.apache.org/images/home/architecture_2160x720.png?t=20220617"/>
 
-- **Probe**s collect data and reformat them for SkyWalking requirements (different probes support different sources).
-- **Platform backend** supports data aggregation, analysis and streaming process covers traces, metrics, and logs.
+- **Probe**s collect telemetry data, including metrics, traces, logs and events in various formats(SkyWalking, Zipkin, OpenTelemetry, Prometheus, Zabbix, etc.)
+- **Platform backend** supports data aggregation, analysis and streaming process covers traces, metrics, logs and events. Work as Aggregator Role, Receiver Role or both.
 - **Storage** houses SkyWalking data through an open/plugable interface. You can choose an existing implementation, such as
-  ElasticSearch, H2, MySQL, TiDB, InfluxDB, or implement your own. Patches for new storage implementors welcome!
+  ElasticSearch, H2, MySQL, TiDB, BanyanDB, or implement your own. 
 - **UI** is a highly customizable web based interface allowing SkyWalking end users to visualize and manage SkyWalking data.
 
 
