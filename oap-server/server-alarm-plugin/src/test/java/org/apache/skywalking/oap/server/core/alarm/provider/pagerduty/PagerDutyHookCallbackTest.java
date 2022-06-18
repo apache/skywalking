@@ -15,13 +15,15 @@ public class PagerDutyHookCallbackTest {
     @Ignore
     @Test
     public void testWithRealAccount() {
-        // replace this with your actual integration key and run this test manually
-        String yourIntegrationKey = "";
+        // replace this with your actual integration key(s) and run this test manually
+        List<String> integrationKeys = Arrays.asList(
+                "dummy-integration-key"
+        );
 
         Rules rules = new Rules();
         rules.setPagerDutySettings(
                 PagerDutySettings.builder()
-                        .integrationKeys(Arrays.asList(yourIntegrationKey))
+                        .integrationKeys(integrationKeys)
                         .textTemplate("Apache SkyWalking Alarm: \n %s.")
                         .build()
         );
