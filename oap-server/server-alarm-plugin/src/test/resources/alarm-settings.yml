@@ -134,3 +134,9 @@ welinkHooks:
       group_ids: "dummy_group_id"
       # make a name you like for the robot, it will display in group
       robot_name: robot
+
+pagerDutyHooks:
+  textTemplate: "dummy_text_template"
+  integrationKeys:
+    - dummy_key
+    - dummy_key2

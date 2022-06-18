@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
@@ -283,8 +285,22 @@ public class RulesReader {
         rules.setWelinks(welinkSettings);
     }
 
+    /**
+     * Read PagerDuty hook config into {@link PagerDutySettings}
+     */
     private void readPagerDutyConfig(Rules rules) {
+        Map<String, Object> pagerDutyConfig = (Map<String, Object>) yamlData.get("pagerDutyHooks");
+        if (pagerDutyConfig != null) {
+            PagerDutySettings pagerDutySettings = new PagerDutySettings();
+            String textTemplate = (String) pagerDutyConfig.getOrDefault("textTemplate", "");
+            pagerDutySettings.setTextTemplate(textTemplate);
 
+            List<String> integrationKeys = (List<String>) pagerDutyConfig.get("integrationKeys");
+            if (integrationKeys != null) {
+                pagerDutySettings.getIntegrationKeys().addAll(integrationKeys);
+            }
+
+            rules.setPagerDutySettings(pagerDutySettings);
+        }
     }
-
 }
