@@ -70,6 +70,7 @@ public class RulesReader {
             readDingtalkConfig(rules);
             readFeishuConfig(rules);
             readWeLinkConfig(rules);
+            readPagerDutyConfig(rules);
         }
         return rules;
     }
@@ -281,4 +282,9 @@ public class RulesReader {
         welinkSettings.setWebhooks(webHookUrls);
         rules.setWelinks(welinkSettings);
     }
+
+    private void readPagerDutyConfig(Rules rules) {
+
+    }
+
 }
