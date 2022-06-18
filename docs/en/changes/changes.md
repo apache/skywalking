@@ -7,6 +7,7 @@
 * Add more entities for Zipkin to improve performance.
 * ElasticSearch: scroll id should be updated when scrolling as it may change.
 * Mesh: fix only last rule works when multiple rules are defined in metadata-service-mapping.yaml.
+* Support sending alarm messages to PagerDuty.
 
 #### UI
 
