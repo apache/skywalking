@@ -29,16 +29,20 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 public class PagerDutyHookCallback implements AlarmCallback {
@@ -94,8 +98,11 @@ public class PagerDutyHookCallback implements AlarmCallback {
             );
             httpResponse = httpClient.execute(post);
             StatusLine statusLine = httpResponse.getStatusLine();
-            if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                log.error("send PagerDuty alarm to {} failure. Response code: {} ", PAGER_DUTY_EVENTS_API_V2_URL, statusLine.getStatusCode());
+            if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_ACCEPTED) {
+                log.error("send PagerDuty alarm to {} failure. Response code: {}, message: {} ",
+                        PAGER_DUTY_EVENTS_API_V2_URL, statusLine.getStatusCode(),
+                        EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8)
+                );
             }
         } catch (Throwable e) {
             log.error("send PagerDuty alarm to {} failure.", PAGER_DUTY_EVENTS_API_V2_URL, e);
@@ -114,12 +121,14 @@ public class PagerDutyHookCallback implements AlarmCallback {
         JsonObject body = new JsonObject();
         JsonObject payload = new JsonObject();
         payload.add("summary", new JsonPrimitive(getFormattedMessage(alarmMessage)));
+        payload.add("severity", new JsonPrimitive("warning"));
+        payload.add("source", new JsonPrimitive("Skywalking"));
         body.add("payload", payload);
         body.add("routing_key", new JsonPrimitive(integrationKey));
-        body.add("dedup_key", new JsonPrimitive(alarmMessage.getId0()));
+        body.add("dedup_key", new JsonPrimitive(UUID.randomUUID().toString()));
         body.add("event_action", new JsonPrimitive("trigger"));
 
-        return new StringEntity("");
+        return new StringEntity(GSON.toJson(body), ContentType.APPLICATION_JSON);
     }
 
     private String getFormattedMessage(AlarmMessage alarmMessage) {
