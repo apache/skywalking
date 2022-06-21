@@ -44,7 +44,6 @@ import static java.util.Objects.nonNull;
 public class ZipkinSpanHTTPHandler {
     private final HistogramMetrics histogram;
     private final CounterMetrics errorCounter;
-    private final CounterMetrics msgIncr;
     private final SpanForward spanForward;
 
     public ZipkinSpanHTTPHandler(ZipkinReceiverConfig config, ModuleManager manager) {
@@ -53,15 +52,12 @@ public class ZipkinSpanHTTPHandler {
                                                .provider()
                                                .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "zipkin_trace_in_latency", "The process latency of trace data",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("HTTP")
+            "trace_in_latency", "The process latency of trace data",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-http")
         );
-        msgIncr = metricsCreator.createCounter(
-            "zipkin_trace_received_count", "The number of zipkin trace received",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("HTTP"));
         errorCounter = metricsCreator.createCounter(
-            "zipkin_trace_analysis_error_count", "The error number of trace analysis",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("HTTP")
+            "trace_analysis_error_count", "The error number of trace analysis",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-http")
         );
     }
 
@@ -102,7 +98,6 @@ public class ZipkinSpanHTTPHandler {
     HttpResponse doCollectSpans(final SpanBytesDecoder decoder,
                                 final ServiceRequestContext ctx,
                                 final HttpRequest req) {
-        msgIncr.inc();
         final HistogramMetrics.Timer timer = histogram.createTimer();
         final HttpResponse response = HttpResponse.from(req.aggregate().thenApply(request -> {
             final HttpData httpData = UnzippingBytesRequestConverter.convertRequest(ctx, request);

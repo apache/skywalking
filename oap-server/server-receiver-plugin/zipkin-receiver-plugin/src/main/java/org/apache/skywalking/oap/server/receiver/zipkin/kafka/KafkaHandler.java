@@ -54,7 +54,6 @@ public class KafkaHandler {
     private final ThreadPoolExecutor executor;
     private final boolean enableKafkaMessageAutoCommit;
     private final List<String> topics;
-    private final CounterMetrics msgIncr;
     private final CounterMetrics msgDroppedIncr;
     private final CounterMetrics errorCounter;
     private final HistogramMetrics histogram;
@@ -95,17 +94,14 @@ public class KafkaHandler {
             "trace_in_latency",
             "The process latency of trace data",
             new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values("kafka")
+            new MetricsTag.Values("zipkin-kafka")
         );
-        msgIncr = metricsCreator.createCounter(
-            "zipkin_trace_received_count", "The number of zipkin trace received",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("kafka"));
         msgDroppedIncr = metricsCreator.createCounter(
-            "zipkin_trace_dropped_count", "The dropped number of zipkin traces",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("kafka"));
+            "trace_dropped_count", "The dropped number of traces",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-kafka"));
         errorCounter = metricsCreator.createCounter(
-            "zipkin_trace_analysis_error_count", "The error number of zipkin trace analysis",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("kafka")
+            "trace_analysis_error_count", "The error number of trace analysis",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-kafka")
         );
     }
 
@@ -133,20 +129,16 @@ public class KafkaHandler {
                 }
                 if (!consumerRecords.isEmpty()) {
                     for (final ConsumerRecord<byte[], byte[]> record : consumerRecords) {
-                        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
-                            final byte[] bytes = record.value();
-                            msgIncr.inc();
-                            //empty or illegal message
-                            if (bytes.length < 2) {
-                                msgDroppedIncr.inc();
-                                continue;
-                            }
-                            executor.submit(() -> handleRecord(bytes));
+                        final byte[] bytes = record.value();
+                        //empty or illegal message
+                        if (bytes.length < 2) {
+                            msgDroppedIncr.inc();
+                            continue;
                         }
-                        if (!enableKafkaMessageAutoCommit) {
-                            consumer.commitAsync();
-                        }
-
+                        executor.submit(() -> handleRecord(bytes));
+                    }
+                    if (!enableKafkaMessageAutoCommit) {
+                        consumer.commitAsync();
                     }
                 }
             } catch (Exception e) {
