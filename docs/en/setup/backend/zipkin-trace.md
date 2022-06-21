@@ -3,7 +3,7 @@ The Zipkin receiver makes the OAP server work as an alternative Zipkin server im
 It supports Zipkin v1/v2 formats through the HTTP collector and Kafka collector.
 
 Use the following config to activate it.
-Set `enableHttpCollector` to enable HTTP collector and `enableKafkaCollector` to enable HTTP collector.
+Set `enableHttpCollector` to enable HTTP collector and `enableKafkaCollector` to enable Kafka collector.
 
 ```yaml
 receiver-zipkin:
