@@ -2,6 +2,8 @@
 
 #### Project
 
+* Upgrade Armeria to 1.16.0, Kubernetes Java client to 15.0.1.
+
 #### OAP Server
 
 * Add more entities for Zipkin to improve performance.

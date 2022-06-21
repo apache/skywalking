@@ -288,7 +288,7 @@ The text of each license is the standard Apache 2.0 license.
     HikariCP 3.1.0: https://github.com/brettwooldridge/HikariCP, Apache 2.0
     zipkin 2.23.16: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
-    kubernetes-client 14.0.0: https://github.com/kubernetes-client/java, Apache 2.0
+    kubernetes-client 15.0.1: https://github.com/kubernetes-client/java, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
     nacos 1.4.2: https://github.com/alibaba/nacos, Apache 2.0
@@ -308,9 +308,9 @@ The text of each license is the standard Apache 2.0 license.
     javaassist 3.25.0-GA: https://github.com/jboss-javassist/javassist Apache 2.0
     jackson-module-afterburner 2.12.2: https://github.com/FasterXML/jackson-modules-base, Apache 2.0
     perfmark-api 0.23.0: https://github.com/perfmark/perfmark, Apache 2.0
-    logging-interceptor 4.9.1: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
-    swagger-annotations 1.6.3: https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations, Apache 2.0
-    jose4j 0.7.9: https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j, Apache 2.0
+    logging-interceptor 4.9.2: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
+    swagger-annotations 1.6.5: https://mvnrepository.com/artifact/io.swagger/swagger-annotations, Apache 2.0
+    jose4j 0.7.11: https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j, Apache 2.0
     vavr 0.10.3: https://github.com/vavr-io/vavr, Apache 2.0
     kafka-clients 2.4.1: https://github.com/apache/kafka, Apache 2.0
     lz4-java 1.6.0: https://github.com/jpountz/lz4-java, Apache 2.0
@@ -318,12 +318,12 @@ The text of each license is the standard Apache 2.0 license.
     slf4j-api 1.7.30: http://www.slf4j.org, Apache 2.0
     mvel 2.4.8: https://github.com/mvel/mvel, Apache 2.0
     okio 1.17.2: https://github.com/square/okio Apache 2.0
-    simpleclient_httpserver 0.12.0 from prometheus https://github.com/prometheus/client_java Apache 2.0
+    simpleclient_httpserver 0.15.0 from prometheus https://github.com/prometheus/client_java Apache 2.0
     jetcd 0.5.3, https://github.com/etcd-io/jetcd, Apache 2.0
     failasfe 2.3.4, https://github.com/jhalterman/failsafe, Apache 2.0
-    Armeria 1.14.1, http://github.com/line/armeria, Apache 2.0
-    Brotli4j 1.6.0, https://github.com/hyperxpro/Brotli4j, Apache 2.0
-    micrometer 1.8.2, https://github.com/micrometer-metrics/micrometer, Apache 2.0
+    Armeria 1.16.0, http://github.com/line/armeria, Apache 2.0
+    Brotli4j 1.7.1, https://github.com/hyperxpro/Brotli4j, Apache 2.0
+    micrometer 1.8.5, https://github.com/micrometer-metrics/micrometer, Apache 2.0
     j2objc 1.3: https://github.com/google/j2objc Apache 2.0
     evictor 1.0.0: https://github.com/stoyanr/Evictor Apache 2.0
 
@@ -337,10 +337,10 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     slf4j 1.7.25: https://www.slf4j.org/ , MIT
     GraphQL java 8.0: https://github.com/graphql-java/graphql-java , MIT
     GraphQL Java Tools 5.2.3: https://github.com/graphql-java/graphql-java-tools , MIT
-    bcpkix-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
-    bcprov-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
-    bcprov-ext-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
-    bcutil-ext-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
+    bcpkix-jdk15on 1.70: http://www.bouncycastle.org/licence.html , MIT
+    bcprov-jdk15on 1.70: http://www.bouncycastle.org/licence.html , MIT
+    bcprov-ext-jdk15on 1.70: http://www.bouncycastle.org/licence.html , MIT
+    bcutil-ext-jdk15on 1.70: http://www.bouncycastle.org/licence.html , MIT
     checker-qual 2.8.1: https://github.com/typetools/checker-framework, MIT
 
 ========================================================================
