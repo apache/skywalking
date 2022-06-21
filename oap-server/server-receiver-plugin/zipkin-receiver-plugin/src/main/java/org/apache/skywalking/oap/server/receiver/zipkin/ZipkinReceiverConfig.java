@@ -26,6 +26,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Setter
 @Getter
 public class ZipkinReceiverConfig extends ModuleConfig {
+    // HTTP collector config
+    private boolean enableHttpCollector = true;
     private String restHost;
     private int restPort;
     private String restContextPath;
@@ -39,5 +41,28 @@ public class ZipkinReceiverConfig extends ModuleConfig {
         Const.COMMA,
         "http.method"
     );
+    // kafka collector config
+    private boolean enableKafkaCollector = false;
+    /**
+     *  A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
+     */
+    private String kafkaBootstrapServers;
+
+    private String kafkaGroupId = "zipkin";
+
+    private String kafkaTopic = "zipkin";
+
+    /**
+     * Kafka consumer config,JSON format as Properties. If it contains the same key with above, would override.
+     */
+    private String kafkaConsumerConfig = "{\"auto.offset.reset\":\"earliest\",\"enable.auto.commit\":true}";
+
+    private int kafkaConsumers = 1;
+
+    private int kafkaHandlerThreadPoolSize;
+
+    private int kafkaHandlerThreadPoolQueueSize;
+
+
 }
 

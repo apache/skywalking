@@ -155,7 +155,7 @@ public class ZipkinSpanRecord extends Record {
 
     @Override
     public String id() {
-        return traceId + "-" + spanId;
+        return spanId + Const.LINE + kind;
     }
 
     public static class Builder implements StorageBuilder<ZipkinSpanRecord> {

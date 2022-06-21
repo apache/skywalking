@@ -26,12 +26,8 @@ import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.annotation.ConsumesJson;
 import com.linecorp.armeria.server.annotation.ConsumesProtobuf;
 import com.linecorp.armeria.server.annotation.Post;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.trace.SpanForward;
@@ -42,35 +38,30 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
-import zipkin2.internal.HexCodec;
-
 import static java.util.Objects.nonNull;
 
 @Slf4j
 public class ZipkinSpanHTTPHandler {
-    private final ZipkinReceiverConfig config;
-    private final SourceReceiver sourceReceiver;
-    private final NamingControl namingControl;
     private final HistogramMetrics histogram;
     private final CounterMetrics errorCounter;
-    private final long samplerBoundary;
+    private final CounterMetrics msgIncr;
+    private final SpanForward spanForward;
 
     public ZipkinSpanHTTPHandler(ZipkinReceiverConfig config, ModuleManager manager) {
-        sourceReceiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        namingControl = manager.find(CoreModule.NAME).provider().getService(NamingControl.class);
-        this.config = config;
-        float sampleRate = (float) config.getSampleRate() / 10000;
-        samplerBoundary = (long) (Long.MAX_VALUE * sampleRate);
+        this.spanForward = new SpanForward(config, manager);
         MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
                                                .provider()
                                                .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "trace_in_latency", "The process latency of trace data",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin")
+            "zipkin_trace_in_latency", "The process latency of trace data",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("HTTP")
         );
+        msgIncr = metricsCreator.createCounter(
+            "zipkin_trace_received_count", "The number of zipkin trace received",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("HTTP"));
         errorCounter = metricsCreator.createCounter(
-            "trace_analysis_error_count", "The error number of trace analysis",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin")
+            "zipkin_trace_analysis_error_count", "The error number of trace analysis",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("HTTP")
         );
     }
 
@@ -111,12 +102,12 @@ public class ZipkinSpanHTTPHandler {
     HttpResponse doCollectSpans(final SpanBytesDecoder decoder,
                                 final ServiceRequestContext ctx,
                                 final HttpRequest req) {
+        msgIncr.inc();
         final HistogramMetrics.Timer timer = histogram.createTimer();
         final HttpResponse response = HttpResponse.from(req.aggregate().thenApply(request -> {
             final HttpData httpData = UnzippingBytesRequestConverter.convertRequest(ctx, request);
             final List<Span> spanList = decoder.decodeList(httpData.byteBuf().nioBuffer());
-            final SpanForward forward = new SpanForward(namingControl, sourceReceiver, config);
-            forward.send(getSampledTraces(spanList));
+            spanForward.send(spanList);
             return HttpResponse.of(HttpStatus.OK);
         }));
         response.whenComplete().handle((unused, throwable) -> {
@@ -127,25 +118,5 @@ public class ZipkinSpanHTTPHandler {
             return null;
         });
         return response;
-    }
-
-    private List<Span> getSampledTraces(List<Span> input) {
-        //100% sampleRate
-        if (config.getSampleRate() == 10000) {
-            return input;
-        }
-        List<Span> sampledTraces = new ArrayList<>(input.size());
-        for (Span span : input) {
-            if (Boolean.TRUE.equals(span.debug())) {
-                sampledTraces.add(span);
-                continue;
-            }
-            long traceId = HexCodec.lowerHexToUnsignedLong(span.traceId());
-            traceId = traceId == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(traceId);
-            if (traceId <= samplerBoundary) {
-                sampledTraces.add(span);
-            }
-        }
-        return sampledTraces;
     }
 }

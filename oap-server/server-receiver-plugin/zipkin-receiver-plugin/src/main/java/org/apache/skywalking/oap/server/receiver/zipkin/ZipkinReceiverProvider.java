@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.ZipkinSpanHTTPHandler;
+import org.apache.skywalking.oap.server.receiver.zipkin.kafka.KafkaHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class ZipkinReceiverProvider extends ModuleProvider {
@@ -57,7 +58,6 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-
     }
 
     @Override
@@ -66,22 +66,31 @@ public class ZipkinReceiverProvider extends ModuleProvider {
             throw new IllegalArgumentException(
                 "sampleRate: " + config.getSampleRate() + ", should be between 0 and 10000");
         }
-        HTTPServerConfig httpServerConfig = HTTPServerConfig.builder()
-                                                            .host(config.getRestHost())
-                                                            .port(config.getRestPort())
-                                                            .contextPath(config.getRestContextPath())
-                                                            .idleTimeOut(config.getRestIdleTimeOut())
-                                                            .maxThreads(config.getRestMaxThreads())
-                                                            .acceptQueueSize(config.getRestAcceptQueueSize())
-                                                            .build();
 
-        httpServer = new HTTPServer(httpServerConfig);
-        httpServer.initialize();
+        if (config.isEnableHttpCollector()) {
+            HTTPServerConfig httpServerConfig = HTTPServerConfig.builder()
+                                                                .host(config.getRestHost())
+                                                                .port(config.getRestPort())
+                                                                .contextPath(config.getRestContextPath())
+                                                                .idleTimeOut(config.getRestIdleTimeOut())
+                                                                .maxThreads(config.getRestMaxThreads())
+                                                                .acceptQueueSize(config.getRestAcceptQueueSize())
+                                                                .build();
 
-        httpServer.addHandler(
-            new ZipkinSpanHTTPHandler(config, getManager()),
-            Arrays.asList(HttpMethod.POST, HttpMethod.GET)
-        );
+            httpServer = new HTTPServer(httpServerConfig);
+            httpServer.initialize();
+
+            httpServer.addHandler(
+                new ZipkinSpanHTTPHandler(config, getManager()),
+                Arrays.asList(HttpMethod.POST, HttpMethod.GET)
+            );
+        }
+
+        if (config.isEnableKafkaCollector()) {
+            {
+                new KafkaHandler(config, getManager()).start();
+            }
+        }
     }
 
     @Override

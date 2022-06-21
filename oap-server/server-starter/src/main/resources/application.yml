@@ -340,18 +340,30 @@ receiver-otel:
     enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane,k8s-node,oap,vm"}
 
 receiver-zipkin:
-  selector: ${SW_RECEIVER_ZIPKIN:-}
+  selector: ${SW_RECEIVER_ZIPKIN:default}
   default:
-    # For HTTP server
+    searchableTracesTags: ${SW_ZIPKIN_SEARCHABLE_TAG_KEYS:http.method}
+    # The sample rate precision is 1/10000, should be between 0 and 10000
+    sampleRate: ${SW_ZIPKIN_SAMPLE_RATE:10000}
+    ## The below configs are for OAP collect zipkin trace from HTTP
+    enableHttpCollector: ${SW_ZIPKIN_HTTP_COLLECTOR_ENABLED:true}
     restHost: ${SW_RECEIVER_ZIPKIN_REST_HOST:0.0.0.0}
     restPort: ${SW_RECEIVER_ZIPKIN_REST_PORT:9411}
     restContextPath: ${SW_RECEIVER_ZIPKIN_REST_CONTEXT_PATH:/}
     restMaxThreads: ${SW_RECEIVER_ZIPKIN_REST_MAX_THREADS:200}
     restIdleTimeOut: ${SW_RECEIVER_ZIPKIN_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_REST_QUEUE_SIZE:0}
-    searchableTracesTags: ${SW_ZIPKIN_SEARCHABLE_TAG_KEYS:http.method}
-    # The sample rate precision is 1/10000, should be between 0 and 10000
-    sampleRate: ${SW_ZIPKIN_SAMPLE_RATE:10000}
+    ## The below configs are for OAP collect zipkin trace from kafka
+    enableKafkaCollector: ${SW_ZIPKIN_KAFKA_COLLECTOR_ENABLED:false}
+    kafkaBootstrapServers: ${SW_ZIPKIN_KAFKA_SERVERS:localhost:9092}
+    kafkaGroupId: ${SW_ZIPKIN_KAFKA_GROUP_ID:zipkin}
+    kafkaTopic: ${SW_ZIPKIN_KAFKA_TOPIC:zipkin}
+    # Kafka consumer config, JSON format as Properties. If it contains the same key with above, would override.
+    kafkaConsumerConfig: ${SW_ZIPKIN_KAFKA_CONSUMER_CONFIG:"{\"auto.offset.reset\":\"earliest\",\"enable.auto.commit\":true}"}
+    # The Count of the topic consumers
+    kafkaConsumers: ${SW_ZIPKIN_KAFKA_CONSUMERS:1}
+    kafkaHandlerThreadPoolSize: ${SW_ZIPKIN_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
+    kafkaHandlerThreadPoolQueueSize: ${SW_ZIPKIN_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:-1}
 
 receiver-browser:
   selector: ${SW_RECEIVER_BROWSER:default}
@@ -383,7 +395,7 @@ query:
 
 # This module is for Zipkin query API and support zipkin-lens UI
 query-zipkin:
-  selector: ${SW_QUERY_ZIPKIN:-}
+  selector: ${SW_QUERY_ZIPKIN:default}
   default:
     # For HTTP server
     restHost: ${SW_QUERY_ZIPKIN_REST_HOST:0.0.0.0}
@@ -407,7 +419,7 @@ alarm:
   default:
 
 telemetry:
-  selector: ${SW_TELEMETRY:none}
+  selector: ${SW_TELEMETRY:prometheus}
   none:
   prometheus:
     host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}

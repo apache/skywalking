@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.source.Source;
@@ -37,7 +38,7 @@ public class ZipkinSpan extends Source {
 
     @Override
     public String getEntityId() {
-        return traceId + "-" + spanId;
+        return spanId + Const.LINE + kind;
     }
 
     @Setter
