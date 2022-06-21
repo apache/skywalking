@@ -36,6 +36,7 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     public static final String NAME = "default";
     private final ZipkinReceiverConfig config;
     private HTTPServer httpServer;
+    private KafkaHandler kafkaHandler;
 
     public ZipkinReceiverProvider() {
         config = new ZipkinReceiverConfig();
@@ -87,15 +88,19 @@ public class ZipkinReceiverProvider extends ModuleProvider {
         }
 
         if (config.isEnableKafkaCollector()) {
-            {
-                new KafkaHandler(config, getManager()).start();
-            }
+            kafkaHandler = new KafkaHandler(config, getManager());
         }
     }
 
     @Override
-    public void notifyAfterCompleted() {
-        httpServer.start();
+    public void notifyAfterCompleted() throws ModuleStartException {
+        if (config.isEnableHttpCollector()) {
+            httpServer.start();
+        }
+
+        if (config.isEnableKafkaCollector()) {
+            kafkaHandler.start();
+        }
     }
 
     @Override
