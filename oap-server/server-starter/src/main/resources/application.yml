@@ -340,7 +340,7 @@ receiver-otel:
     enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane,k8s-node,oap,vm"}
 
 receiver-zipkin:
-  selector: ${SW_RECEIVER_ZIPKIN:default}
+  selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
     searchableTracesTags: ${SW_ZIPKIN_SEARCHABLE_TAG_KEYS:http.method}
     # The sample rate precision is 1/10000, should be between 0 and 10000
@@ -395,7 +395,7 @@ query:
 
 # This module is for Zipkin query API and support zipkin-lens UI
 query-zipkin:
-  selector: ${SW_QUERY_ZIPKIN:default}
+  selector: ${SW_QUERY_ZIPKIN:-}
   default:
     # For HTTP server
     restHost: ${SW_QUERY_ZIPKIN_REST_HOST:0.0.0.0}
@@ -419,7 +419,7 @@ alarm:
   default:
 
 telemetry:
-  selector: ${SW_TELEMETRY:prometheus}
+  selector: ${SW_TELEMETRY:none}
   none:
   prometheus:
     host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
