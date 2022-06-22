@@ -20,6 +20,8 @@
 * Optimize log tables.
 * Fix log detail pop-up page doesn't work.
 * Optimize table widget to hide the whole metric column when no metric is set.
+* Implement the Event widget.
+* Fix span detail text overlap.
 
 #### Documentation
 
