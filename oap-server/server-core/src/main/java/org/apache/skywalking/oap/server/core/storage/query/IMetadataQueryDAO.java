@@ -67,8 +67,8 @@ public interface IMetadataQueryDAO extends DAO {
      * @return list of processes matching the given conditions.
      */
     List<Process> listProcesses(final String serviceId, final String instanceId, final String agentId,
-                                final ProfilingSupportStatus profilingSupportStatus, final boolean excludeVirtual,
-                                final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException;
+                                final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
+                                final long lastPingEndTimeBucket) throws IOException;
 
     /**
      * get the count of processes
@@ -78,8 +78,8 @@ public interface IMetadataQueryDAO extends DAO {
      * @return the size of processes
      */
     long getProcessesCount(final String serviceId, final String instanceId, final String agentId,
-                           final ProfilingSupportStatus profilingSupportStatus, final boolean excludeVirtual,
-                           final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException;
+                           final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
+                           final long lastPingEndTimeBucket) throws IOException;
 
     /**
      * @param processId the id of the process.

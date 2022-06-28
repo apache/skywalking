@@ -233,11 +233,11 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     public List<Process> listProcesses(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
-                                       boolean excludeVirtual, final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
+                                       final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, profilingSupportStatus, excludeVirtual,
+        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, profilingSupportStatus,
                 lastPingStartTimeBucket, lastPingEndTimeBucket);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
@@ -253,11 +253,11 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     public long getProcessesCount(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
-                                  boolean excludeVirtual, final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
+                                  final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
         sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, profilingSupportStatus, excludeVirtual,
+        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, profilingSupportStatus,
                 lastPingStartTimeBucket, lastPingEndTimeBucket);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -274,7 +274,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     private void appendProcessWhereQuery(StringBuilder sql, List<Object> condition, String serviceId, String instanceId,
-                                         String agentId, final ProfilingSupportStatus profilingSupportStatus, boolean excludeVirtual,
+                                         String agentId, final ProfilingSupportStatus profilingSupportStatus,
                                          final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) {
         if (StringUtil.isNotEmpty(serviceId) || StringUtil.isNotEmpty(instanceId) || StringUtil.isNotEmpty(agentId)) {
             sql.append(" where ");
@@ -298,13 +298,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             sql.append(ProcessTraffic.AGENT_ID).append("=?");
             condition.add(agentId);
         }
-        if (excludeVirtual) {
-            if (!condition.isEmpty()) {
-                sql.append(" and ");
-            }
-            sql.append(ProcessTraffic.DETECT_TYPE).append("!=?");
-            condition.add(ProcessDetectType.VIRTUAL.value());
-        }
         if (profilingSupportStatus != null) {
             if (!condition.isEmpty()) {
                 sql.append(" and ");
@@ -326,6 +319,11 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             sql.append(ProcessTraffic.LAST_PING_TIME_BUCKET).append("<=?");
             condition.add(lastPingEndTimeBucket);
         }
+        if (!condition.isEmpty()) {
+            sql.append(" and ");
+        }
+        sql.append(ProcessTraffic.DETECT_TYPE).append("!=?");
+        condition.add(ProcessDetectType.VIRTUAL.value());
     }
 
     @Override
