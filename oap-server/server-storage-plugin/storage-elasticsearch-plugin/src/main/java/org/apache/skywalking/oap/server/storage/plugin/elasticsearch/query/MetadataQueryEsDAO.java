@@ -244,8 +244,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     private void appendProcessWhereQuery(BoolQueryBuilder query, String serviceId, String instanceId, String agentId,
-                                         final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
-                                         final long lastPingEndTimeBucket) {
+                                         final ProfilingSupportStatus profilingSupportStatus,
+                                         final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) {
         if (StringUtil.isNotEmpty(serviceId)) {
             query.must(Query.term(ProcessTraffic.SERVICE_ID, serviceId));
         }
@@ -268,6 +268,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         if (lastPingStartTimeBucket > 0 || lastPingEndTimeBucket > 0) {
             query.must(rangeQuery);
         }
+        query.mustNot(Query.term(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
     }
 
     @Override
