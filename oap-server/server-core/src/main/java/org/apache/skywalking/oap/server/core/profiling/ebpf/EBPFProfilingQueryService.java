@@ -154,7 +154,7 @@ public class EBPFProfilingQueryService implements Service {
         final long endTimestamp = System.currentTimeMillis();
         final long startTimestamp = endTimestamp - TimeUnit.MINUTES.toMillis(10);
         final long processesCount = getMetadataQueryDAO().getProcessesCount(serviceId, null, null,
-                ProfilingSupportStatus.SUPPORT_EBPF_PROFILING, TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute),
+                ProfilingSupportStatus.SUPPORT_EBPF_PROFILING, true, TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute),
                 TimeBucket.getTimeBucket(endTimestamp, DownSampling.Minute));
         if (processesCount <= 0) {
             prepare.setCouldProfiling(false);

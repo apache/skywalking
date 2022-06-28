@@ -11,6 +11,7 @@
 * Mesh: fix only last rule works when multiple rules are defined in metadata-service-mapping.yaml.
 * Support sending alarm messages to PagerDuty.
 * Support Zipkin kafka collector.
+* Add `VIRTUAL` detect type to Process for Network Profiling.
 
 #### UI
 

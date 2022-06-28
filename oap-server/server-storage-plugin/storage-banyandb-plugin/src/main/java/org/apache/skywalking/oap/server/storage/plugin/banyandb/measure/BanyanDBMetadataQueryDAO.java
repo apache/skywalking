@@ -201,7 +201,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId, String agentId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+    public List<Process> listProcesses(String serviceId, String instanceId, String agentId, ProfilingSupportStatus profilingSupportStatus, boolean excludeVirtual, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
@@ -216,6 +216,9 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         }
                         if (StringUtil.isNotEmpty(agentId)) {
                             query.and(eq(ProcessTraffic.AGENT_ID, agentId));
+                        }
+                        if (excludeVirtual) {
+                            query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
                         }
                         if (lastPingStartTimeBucket > 0) {
                             query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
@@ -239,7 +242,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public long getProcessesCount(String serviceId, String instanceId, String agentId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+    public long getProcessesCount(String serviceId, String instanceId, String agentId, ProfilingSupportStatus profilingSupportStatus, boolean excludeVirtual, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
@@ -254,6 +257,9 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         }
                         if (StringUtil.isNotEmpty(agentId)) {
                             query.and(eq(ProcessTraffic.AGENT_ID, instanceId));
+                        }
+                        if (excludeVirtual) {
+                            query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
                         }
                         if (lastPingStartTimeBucket > 0) {
                             query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
