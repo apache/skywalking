@@ -12,7 +12,8 @@
 * Support sending alarm messages to PagerDuty.
 * Support Zipkin kafka collector.
 * Add `VIRTUAL` detect type to Process for Network Profiling.
-* Add component ID(128) for Java Hutool plugin
+* Add component ID(128) for Java Hutool plugin.
+* Add Zipkin query exception handler, response error message for illegal arguments.
 
 #### UI
 
