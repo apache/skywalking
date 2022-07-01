@@ -59,8 +59,7 @@ public class MetricsMetadataQueryService implements Service {
                                            .stream()
                                            .filter(
                                                metadata ->
-                                                   StringUtil.isNotEmpty(regex) ?
-                                                       metadata.getKey().matches(regex) : true)
+                                                       !StringUtil.isNotEmpty(regex) || metadata.getKey().matches(regex))
                                            .map(metadata -> new MetricDefinition(
                                                     metadata.getKey(),
                                                     typeOfMetrics(metadata.getKey()),

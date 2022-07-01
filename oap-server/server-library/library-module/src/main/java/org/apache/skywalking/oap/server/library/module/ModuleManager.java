@@ -52,7 +52,7 @@ public class ModuleManager implements ModuleDefineHolder {
         isInPrepareStage = false;
 
         if (moduleSet.size() > 0) {
-            throw new ModuleNotFoundException(moduleSet.toString() + " missing.");
+            throw new ModuleNotFoundException(moduleSet + " missing.");
         }
 
         BootstrapFlow bootstrapFlow = new BootstrapFlow(loadedModules);

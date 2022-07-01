@@ -176,8 +176,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     BanyanDB.NoIndexing.class);
                 BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
                     banyanDBShardingKey == null ? -1 : banyanDBShardingKey.index(),
-                    banyanDBGlobalIndex == null ? false : true,
-                    banyanDBNoIndex != null ? false : column.storageOnly()
+                        banyanDBGlobalIndex != null,
+                        banyanDBNoIndex == null && column.storageOnly()
                 );
 
                 final ModelColumn modelColumn = new ModelColumn(

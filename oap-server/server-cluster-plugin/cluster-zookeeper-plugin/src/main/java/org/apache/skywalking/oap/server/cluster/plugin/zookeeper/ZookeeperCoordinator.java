@@ -98,11 +98,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
             List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
             serviceInstances.forEach(serviceInstance -> {
                 RemoteInstance instance = serviceInstance.getPayload();
-                if (instance.getAddress().equals(selfAddress)) {
-                    instance.getAddress().setSelf(true);
-                } else {
-                    instance.getAddress().setSelf(false);
-                }
+                instance.getAddress().setSelf(instance.getAddress().equals(selfAddress));
                 remoteInstances.add(instance);
             });
             ClusterHealthStatus healthStatus = OAPNodeChecker.isHealth(remoteInstances);

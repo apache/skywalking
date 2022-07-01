@@ -80,7 +80,7 @@ public class ProfileSnapshotExporterTest {
         Mockito.when(moduleProvider.getService(TraceQueryService.class))
                .thenReturn(new TraceQueryService(moduleManager));
 
-        try (final Reader reader = ResourceUtils.read("profile.yml");) {
+        try (final Reader reader = ResourceUtils.read("profile.yml")) {
             exportedData = new Yaml().loadAs(reader, ExportedData.class);
         }
         Mockito.when(moduleProvider.getService(IProfileThreadSnapshotQueryDAO.class))
