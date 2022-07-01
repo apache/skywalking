@@ -64,7 +64,7 @@ import static com.linecorp.armeria.common.MediaType.ANY_TEXT_TYPE;
 /**
  * Reference from zipkin2.server.internal.ZipkinQueryApiV2 for the API consistent.
  */
-@ExceptionHandler(ZipkinQueryExceptionHandle.class)
+@ExceptionHandler(ZipkinQueryExceptionHandler.class)
 public class ZipkinQueryHandler {
     private final ZipkinQueryConfig config;
     private final ModuleManager moduleManager;

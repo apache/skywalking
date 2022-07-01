@@ -27,7 +27,7 @@ import static com.linecorp.armeria.common.HttpStatus.BAD_REQUEST;
 import static com.linecorp.armeria.common.HttpStatus.INTERNAL_SERVER_ERROR;
 import static com.linecorp.armeria.common.MediaType.ANY_TEXT_TYPE;
 
-public class ZipkinQueryExceptionHandle implements ExceptionHandlerFunction {
+public class ZipkinQueryExceptionHandler implements ExceptionHandlerFunction {
     @Override
     public HttpResponse handleException(final ServiceRequestContext ctx, final HttpRequest req, final Throwable cause) {
         String rspMsg = cause.getMessage() != null ? cause.getMessage() : cause.getClass().getSimpleName();
