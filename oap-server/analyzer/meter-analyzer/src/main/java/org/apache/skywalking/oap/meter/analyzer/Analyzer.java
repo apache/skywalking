@@ -265,10 +265,13 @@ public class Analyzer {
     private void generateTraffic(MeterEntity entity) {
         if (entity.getDetectPoint() != null) {
             switch (entity.getScopeType()) {
-                case SERVICE_INSTANCE:
+                case SERVICE_RELATION:
                     serviceRelationTraffic(entity);
+                    break;
                 case PROCESS_RELATION:
                     processRelationTraffic(entity);
+                    break;
+                default:
             }
         } else {
             toService(requireNonNull(entity.getServiceName()), entity.getLayer());
