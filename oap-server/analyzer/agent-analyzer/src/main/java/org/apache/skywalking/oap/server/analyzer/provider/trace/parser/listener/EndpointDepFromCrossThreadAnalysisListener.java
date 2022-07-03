@@ -93,6 +93,7 @@ public class EndpointDepFromCrossThreadAnalysisListener extends CommonAnalysisLi
                     } else {
                         sourceBuilder.setSourceLayer(Layer.VIRTUAL_GATEWAY);
                     }
+                    sourceBuilder.setSourceEndpointOwnerServiceLayer(Layer.GENERAL);
                 } else {
                     sourceBuilder.setSourceServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(reference.getParentServiceInstance());
