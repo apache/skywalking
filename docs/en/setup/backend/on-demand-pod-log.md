@@ -11,7 +11,7 @@ feature is disabled by default, please read the configuration documentation to e
 
 As the name indicates, this feature only works for Kubernetes Pods.
 
-SkyWalking OAP collects and saves the service instance's namespace and Pod name in ther serivce instance's
+SkyWalking OAP collects and saves the service instance's namespace and Pod name in the service instance's
 properties, named `namespace` and `pod`, users can select the same and UI should fetch the logs by service
 instance in a given interval and display the logs in UI, OAP receives the query and checks the instance's
 properties and use the `namespace` and `pod` to locate the Pod and query the logs.

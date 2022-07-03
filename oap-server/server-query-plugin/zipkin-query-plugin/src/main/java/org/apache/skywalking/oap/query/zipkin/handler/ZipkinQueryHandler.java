@@ -29,6 +29,7 @@ import com.linecorp.armeria.common.ResponseHeaders;
 import com.linecorp.armeria.common.ResponseHeadersBuilder;
 import com.linecorp.armeria.server.annotation.Blocking;
 import com.linecorp.armeria.server.annotation.Default;
+import com.linecorp.armeria.server.annotation.ExceptionHandler;
 import com.linecorp.armeria.server.annotation.Get;
 import com.linecorp.armeria.server.annotation.Param;
 import java.io.IOException;
@@ -63,6 +64,7 @@ import static com.linecorp.armeria.common.MediaType.ANY_TEXT_TYPE;
 /**
  * Reference from zipkin2.server.internal.ZipkinQueryApiV2 for the API consistent.
  */
+@ExceptionHandler(ZipkinQueryExceptionHandler.class)
 public class ZipkinQueryHandler {
     private final ZipkinQueryConfig config;
     private final ModuleManager moduleManager;

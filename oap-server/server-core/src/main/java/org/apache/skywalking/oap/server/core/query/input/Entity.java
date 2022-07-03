@@ -36,7 +36,7 @@ public class Entity {
     /**
      * <pre>
      * 1. scope=All, no name is required.
-     * 2. scope=Service, ServiceInstance and Endpoint, set neccessary serviceName/serviceInstanceName/endpointName
+     * 2. scope=Service, ServiceInstance and Endpoint, set necessary serviceName/serviceInstanceName/endpointName
      * 3. Scope=ServiceRelation, ServiceInstanceRelation and EndpointRelation
      *    serviceName/serviceInstanceName/endpointName is/are the source(s)
      *    estServiceName/destServiceInstanceName/destEndpointName is/are destination(s)
