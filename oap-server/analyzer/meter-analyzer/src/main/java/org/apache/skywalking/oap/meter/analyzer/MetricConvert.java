@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 
@@ -49,13 +50,22 @@ public class MetricConvert {
     public MetricConvert(MetricRuleConfig rule, MeterSystem service) {
         Preconditions.checkState(!Strings.isNullOrEmpty(rule.getMetricPrefix()));
         this.analyzers = rule.getMetricsRules().stream().map(
-            r -> Analyzer.build(
-                formatMetricName(rule, r.getName()),
-                rule.getFilter(),
-                Strings.isNullOrEmpty(rule.getExpSuffix()) ?
-                    r.getExp() : String.format("(%s).%s", r.getExp(), rule.getExpSuffix()),
-                service
-            )
+            r -> {
+                String exp = r.getExp();
+                if (!Strings.isNullOrEmpty(rule.getExpPrefix())) {
+                    exp = String.format("(%s.%s).%s", StringUtils.substringBefore(exp, "."), rule.getExpPrefix(),
+                            StringUtils.substringAfter(exp, "."));
+                }
+                if (!Strings.isNullOrEmpty(rule.getExpSuffix())) {
+                    exp = String.format("(%s).%s", exp, rule.getExpSuffix());
+                }
+                return Analyzer.build(
+                    formatMetricName(rule, r.getName()),
+                    rule.getFilter(),
+                    exp,
+                    service
+                );
+            }
         ).collect(toList());
     }
 

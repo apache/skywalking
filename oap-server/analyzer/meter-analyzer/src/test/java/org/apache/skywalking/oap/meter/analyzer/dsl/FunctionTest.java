@@ -123,6 +123,19 @@ public class FunctionTest {
                 ),
                 false,
             },
+            {
+                "for-each",
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("region", "us")).name("http_success_request").build(),
+                    Sample.builder().labels(of("region", "cn")).name("http_success_request").build()
+                ).build()),
+                "http_success_request.forEach(['v1', 'v2'], {element, tags -> tags[element] = 'test'})",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("region", "us", "v1", "test", "v2", "test")).name("http_success_request").build(),
+                    Sample.builder().labels(of("region", "cn", "v1", "test", "v2", "test")).name("http_success_request").build()
+                ).build()),
+                false,
+            },
         });
     }
 

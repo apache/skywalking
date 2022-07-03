@@ -13,6 +13,8 @@
 * Support Zipkin kafka collector.
 * Add `VIRTUAL` detect type to Process for Network Profiling.
 * Add component ID(128) for Java Hutool plugin
+* Add `forEach`, `processRelation` function to MAL expression.
+* Add `expPrefix` in MAL config.
 
 #### UI
 

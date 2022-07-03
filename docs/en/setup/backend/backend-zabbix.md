@@ -32,6 +32,8 @@ You can find details on Zabbix agent items from [Zabbix Agent documentation](htt
 ```yaml
 # insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>
 metricPrefix: <string>
+# expPrefix is executed before the metrics executes other functions.
+expPrefix: <string>
 # expSuffix is appended to all expression in this file.
 expSuffix: <string>
 # Datasource from Zabbix Item keys.

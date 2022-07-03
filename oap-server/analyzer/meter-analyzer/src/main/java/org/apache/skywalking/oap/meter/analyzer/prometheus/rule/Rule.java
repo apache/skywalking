@@ -37,6 +37,7 @@ public class Rule implements MetricRuleConfig {
     private StaticConfig staticConfig;
     private String metricPrefix;
     private String expSuffix;
+    private String expPrefix;
     private String filter;
     private List<MetricsRule> metricsRules;
 }
