@@ -15,6 +15,8 @@
 * Add component ID(128) for Java Hutool plugin.
 * Add Zipkin query exception handler, response error message for illegal arguments.
 * Fix a NullPointerException in the endpoint analysis, which would cause missing MQ-related `LocalSpan` in the trace.
+* Add component ID(7014) for Python Bottle plugin
+
 
 #### UI
 
