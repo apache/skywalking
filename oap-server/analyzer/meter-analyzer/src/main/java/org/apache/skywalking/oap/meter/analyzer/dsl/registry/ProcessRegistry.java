@@ -49,9 +49,6 @@ public class ProcessRegistry {
      * @return the process id
      */
     public static String generateVirtualRemoteProcess(String service, String instance, String remoteAddress) {
-        // trigger K8sInfoRegistry to start
-        K8sInfoRegistry.getInstance().start();
-
         // remove port
         String ip = StringUtils.substringBeforeLast(remoteAddress, ":");
 
