@@ -41,7 +41,7 @@ public class MeterProcessService implements IMeterProcessService {
 
     public void start(List<MeterConfig> configs) {
         final MeterSystem meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
-        this.metricConverts = configs.stream().map(c -> new MetricConvert(c, meterSystem)).collect(Collectors.toList());
+        this.metricConverts = configs.stream().peek(MeterConfig::init).map(c -> new MetricConvert(c, meterSystem)).collect(Collectors.toList());
     }
 
     /**

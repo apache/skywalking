@@ -15,7 +15,7 @@
 * Add component ID(128) for Java Hutool plugin.
 * Add Zipkin query exception handler, response error message for illegal arguments.
 * Add `forEach`, `processRelation` function to MAL expression.
-* Add `expPrefix` in MAL config.
+* Add `expPrefix`, `kubernetesAware` in MAL config.
 
 #### UI
 
