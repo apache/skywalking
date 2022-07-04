@@ -14,6 +14,7 @@
 * Add `VIRTUAL` detect type to Process for Network Profiling.
 * Add component ID(128) for Java Hutool plugin.
 * Add Zipkin query exception handler, response error message for illegal arguments.
+* Fix a NullPointerException in the endpoint analysis, which would cause missing MQ-related `LocalSpan` in the trace.
 * Add `forEach`, `processRelation` function to MAL expression.
 * Add `expPrefix`, `kubernetesAware` in MAL config.
 
