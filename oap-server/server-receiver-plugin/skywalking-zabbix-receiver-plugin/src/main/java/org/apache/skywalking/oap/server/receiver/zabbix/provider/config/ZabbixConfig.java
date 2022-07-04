@@ -30,6 +30,7 @@ public class ZabbixConfig implements MetricRuleConfig {
     private String expSuffix;
     private String expPrefix;
     private String filter;
+    private String initExp;
     private Entities entities;
     private List<String> requiredZabbixItemKeys;
     private List<Metric> metrics;

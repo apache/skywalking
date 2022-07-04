@@ -362,7 +362,6 @@ public class SampleFamily {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(newLabelName));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(existingLabelName));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(namespaceLabelName));
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.isRetagByK8sMeta = true);
         if (this == EMPTY) {
             return EMPTY;
         }

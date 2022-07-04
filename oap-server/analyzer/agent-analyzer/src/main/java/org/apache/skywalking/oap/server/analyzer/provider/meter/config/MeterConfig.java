@@ -33,13 +33,7 @@ public class MeterConfig implements MetricRuleConfig {
     private String expPrefix;
     private String filter;
     private List<Rule> metricsRules;
-    private boolean kubernetesAware;
-
-    public void init() {
-        if (this.kubernetesAware) {
-            K8sInfoRegistry.getInstance().start();
-        }
-    }
+    private String initExp;
 
     @Data
     @NoArgsConstructor

@@ -243,10 +243,6 @@ public class Analyzer {
             }
         }
         createMetric(ctx.getScopeType(), metricType.literal, ctx.getDownsampling());
-
-        if (ctx.isRetagByK8sMeta()) {
-            K8sInfoRegistry.getInstance().start();
-        }
     }
 
     private void createMetric(final ScopeType scopeType,

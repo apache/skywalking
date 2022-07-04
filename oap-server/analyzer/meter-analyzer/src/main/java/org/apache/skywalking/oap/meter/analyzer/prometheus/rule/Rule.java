@@ -39,5 +39,6 @@ public class Rule implements MetricRuleConfig {
     private String expSuffix;
     private String expPrefix;
     private String filter;
+    private String initExp;
     private List<MetricsRule> metricsRules;
 }

@@ -16,7 +16,7 @@
 * Add Zipkin query exception handler, response error message for illegal arguments.
 * Fix a NullPointerException in the endpoint analysis, which would cause missing MQ-related `LocalSpan` in the trace.
 * Add `forEach`, `processRelation` function to MAL expression.
-* Add `expPrefix`, `kubernetesAware` in MAL config.
+* Add `expPrefix`, `initExp` in MAL config.
 
 #### UI
 
