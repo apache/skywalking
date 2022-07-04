@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.analyzer.provider.meter.config;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.skywalking.oap.meter.analyzer.MetricRuleConfig;
-import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 
 import java.util.List;
 
