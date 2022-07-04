@@ -16,51 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer;
+package org.apache.skywalking.oap.meter.analyzer.k8s;
 
-import java.util.List;
-
-/**
- * Metrics rules convert to meter system.
- */
-public interface MetricRuleConfig {
-
+public class Kubernetes {
     /**
-     * Get metrics name prefix
+     * Start the listen the kubernetes metadata
      */
-    String getMetricPrefix();
-
-    /**
-     * Get MAL expression suffix
-     */
-    String getExpSuffix();
-
-    /**
-     * Get MAL expression prefix
-     */
-    String getExpPrefix();
-
-    /**
-     * Get all rules
-     */
-    List<? extends RuleConfig> getMetricsRules();
-
-    String getFilter();
-
-    /**
-     * Get the init expression script
-     */
-    String getInitExp();
-
-    interface RuleConfig {
-        /**
-         * Get definition metrics name
-         */
-        String getName();
-
-        /**
-         * Build metrics MAL
-         */
-        String getExp();
+    public static void startMetadataListener() {
+        K8sInfoRegistry.getInstance().start();
     }
 }

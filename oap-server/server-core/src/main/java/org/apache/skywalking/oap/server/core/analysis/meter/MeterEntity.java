@@ -44,6 +44,8 @@ public class MeterEntity {
     private String endpointName;
     private String sourceServiceName;
     private String destServiceName;
+    private String sourceProcessId;
+    private String destProcessId;
     private DetectPoint detectPoint;
     private Layer layer;
 
@@ -66,6 +68,11 @@ public class MeterEntity {
                     sourceServiceId(),
                     destServiceId()
                 ));
+            case PROCESS_RELATION:
+                return IDManager.ProcessID.buildRelationId(new IDManager.ProcessID.ProcessRelationDefine(
+                    sourceProcessId,
+                    destProcessId
+                ));
             default:
                 throw new UnexpectedException("Unexpected scope type of entity " + this.toString());
         }
@@ -73,6 +80,10 @@ public class MeterEntity {
 
     public String serviceId() {
         return IDManager.ServiceID.buildId(serviceName, true);
+    }
+
+    public String serviceInstanceId() {
+        return IDManager.ServiceInstanceID.buildId(serviceId(), instanceName);
     }
 
     public String sourceServiceId() {
@@ -136,6 +147,18 @@ public class MeterEntity {
         meterEntity.destServiceName = NAMING_CONTROL.formatServiceName(destServiceName);
         meterEntity.detectPoint = detectPoint;
         meterEntity.layer = layer;
+        return meterEntity;
+    }
+
+    public static MeterEntity newProcessRelation(String serviceName, String instanceName,
+                                                 String sourceProcessId, String destProcessId, DetectPoint detectPoint) {
+        final MeterEntity meterEntity = new MeterEntity();
+        meterEntity.scopeType = ScopeType.PROCESS_RELATION;
+        meterEntity.serviceName = serviceName;
+        meterEntity.instanceName = instanceName;
+        meterEntity.sourceProcessId = sourceProcessId;
+        meterEntity.destProcessId = destProcessId;
+        meterEntity.detectPoint = detectPoint;
         return meterEntity;
     }
 }
