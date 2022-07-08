@@ -29,6 +29,8 @@
 * Optimize table widget to hide the whole metric column when no metric is set.
 * Implement the Event widget.
 * Fix span detail text overlap.
+* Add Python Bottle Plugin Logo.
+* Implement an association between widgets(line, bar, area graphs) with time
 
 #### Documentation
 
