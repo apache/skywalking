@@ -24,13 +24,17 @@ import io.kubernetes.client.informer.ResourceEventHandler;
 import io.kubernetes.client.informer.SharedInformerFactory;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
+import io.kubernetes.client.openapi.models.V1LoadBalancerIngress;
+import io.kubernetes.client.openapi.models.V1LoadBalancerStatus;
 import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceList;
+import io.kubernetes.client.openapi.models.V1ServiceStatus;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.models.V1Pod;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +44,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
@@ -52,6 +58,8 @@ public class K8sInfoRegistry {
     private final Map<String/* podName.namespace */, V1Pod> namePodMap = new ConcurrentHashMap<>();
     protected final Map<String/* serviceName.namespace  */, V1Service> nameServiceMap = new ConcurrentHashMap<>();
     private final Map<String/* podName.namespace */, String /* serviceName.namespace */> podServiceMap = new ConcurrentHashMap<>();
+    private final Map<String/* podIP */, String /* podName.namespace */> ipPodMap = new ConcurrentHashMap<>();
+    private final Map<String/* serviceIP */, String /* serviceName.namespace */> ipServiceMap = new ConcurrentHashMap<>();
     private ExecutorService executor;
     private static final String SEPARATOR = ".";
 
@@ -168,6 +176,10 @@ public class K8sInfoRegistry {
         ofNullable(service.getMetadata()).ifPresent(
             metadata -> nameServiceMap.remove(metadata.getName() + SEPARATOR + metadata.getNamespace())
         );
+        ofNullable(service.getStatus()).map(V1ServiceStatus::getLoadBalancer).filter(Objects::nonNull)
+            .map(V1LoadBalancerStatus::getIngress).filter(CollectionUtils::isNotEmpty)
+            .ifPresent(l -> l.stream().filter(i -> StringUtil.isNotEmpty(i.getIp()))
+                    .forEach(i -> ipServiceMap.remove(i.getIp())));
         recompose();
     }
 
@@ -184,10 +196,18 @@ public class K8sInfoRegistry {
 
         ofNullable(pod.getMetadata()).ifPresent(
             metadata -> podServiceMap.remove(metadata.getName() + SEPARATOR + metadata.getNamespace()));
+
+        ofNullable(pod.getStatus()).filter(s -> StringUtil.isNotEmpty(s.getPodIP())).ifPresent(
+            status -> ipPodMap.remove(status.getPodIP()));
     }
 
     private void recompose() {
         namePodMap.forEach((podName, pod) -> {
+            if (!isNull(pod.getMetadata())) {
+                ofNullable(pod.getStatus()).filter(s -> StringUtil.isNotEmpty(s.getPodIP())).ifPresent(
+                        status -> ipPodMap.put(status.getPodIP(), podName));
+            }
+
             nameServiceMap.forEach((serviceName, service) -> {
                 if (isNull(pod.getMetadata()) || isNull(service.getMetadata()) || isNull(service.getSpec())) {
                     return;
@@ -213,10 +233,33 @@ public class K8sInfoRegistry {
                 }
             });
         });
+        nameServiceMap.forEach((serviceName, service) -> {
+            if (isNull(service.getMetadata()) || isNull(service.getStatus()) || isNull(service.getStatus().getLoadBalancer())) {
+                return;
+            }
+            final List<V1LoadBalancerIngress> ingress = service.getStatus().getLoadBalancer().getIngress();
+            if (CollectionUtils.isEmpty(ingress)) {
+                return;
+            }
+
+            for (V1LoadBalancerIngress loadBalancerIngress : ingress) {
+                if (StringUtil.isNotEmpty(loadBalancerIngress.getIp())) {
+                    ipServiceMap.put(loadBalancerIngress.getIp(), serviceName);
+                }
+            }
+        });
     }
 
     public String findServiceName(String namespace, String podName) {
         return this.podServiceMap.get(podName + SEPARATOR + namespace);
+    }
+
+    public String findPodByIP(String ip) {
+        return this.ipPodMap.get(ip);
+    }
+
+    public String findServiceByIP(String ip) {
+        return this.ipServiceMap.get(ip);
     }
 
     private boolean hasIntersection(Collection<?> o, Collection<?> c) {

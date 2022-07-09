@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCCallback;
+import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutyHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackhookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkHookCallback;
@@ -185,6 +186,7 @@ public class NotifyHandler implements MetricsNotify {
         allCallbacks.add(new FeishuHookCallback(alarmRulesWatcher));
         allCallbacks.add(new EventHookCallback(this.manager));
         allCallbacks.add(new WeLinkHookCallback(alarmRulesWatcher));
+        allCallbacks.add(new PagerDutyHookCallback(alarmRulesWatcher));
         core.start(allCallbacks);
     }
 }

@@ -299,6 +299,22 @@ welinkHooks:
       robot_name: robot
 ```
 
+
+## PagerDuty Hook
+The PagerDuty hook is based on [Events API v2](https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTgw-events-api-v2-overview).
+
+Follow the [Getting Started](https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTgw-events-api-v2-overview#getting-started) section to create an **Events API v2** integration on your PagerDuty service and copy the integration key.
+
+Then configure as follows:
+```yml
+pagerDutyHooks:
+  textTemplate: "Apache SkyWalking Alarm: \n %s."
+  integrationKeys:
+    - 5c6d805c9dcf4e03d09dfa81e8789ba1
+```
+
+You can also configure multiple integration keys.
+
 ## Update the settings dynamically
 Since 6.5.0, the alerting settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
 which will override the settings in `alarm-settings.yml`.

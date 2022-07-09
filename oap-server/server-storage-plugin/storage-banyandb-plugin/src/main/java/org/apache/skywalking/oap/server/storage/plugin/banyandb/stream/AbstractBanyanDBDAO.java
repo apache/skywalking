@@ -122,5 +122,9 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         protected PairQueryCondition<String> eq(String name, String value) {
             return PairQueryCondition.StringQueryCondition.eq(name, value);
         }
+
+        protected PairQueryCondition<Long> ne(String name, long value) {
+            return PairQueryCondition.LongQueryCondition.ne(name, value);
+        }
     }
 }

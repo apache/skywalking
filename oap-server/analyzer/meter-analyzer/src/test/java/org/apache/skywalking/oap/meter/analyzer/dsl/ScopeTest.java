@@ -532,6 +532,46 @@ public class ScopeTest {
                         );
                     }
                 }
+            },
+            {
+                "sum_process_relation",
+                of("rover_network_profiling_process_write_bytes", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                        .labels(of("service", "test", "instance", "test-instance", "side", "server", "client_process_id", "abc", "server_process_id", "def"))
+                        .value(11)
+                        .name("rover_network_profiling_process_write_bytes")
+                        .build(),
+                    Sample.builder()
+                        .labels(of("service", "test", "instance", "test-instance", "side", "client", "client_process_id", "abc", "server_process_id", "def"))
+                        .value(12)
+                        .name("rover_network_profiling_process_write_bytes")
+                        .build()
+                ).build()),
+                "rover_network_profiling_process_write_bytes.sum(['service' ,'instance', 'side', 'client_process_id', 'server_process_id'])" +
+                    ".processRelation('side', ['service'], ['instance'], 'client_process_id', 'server_process_id')",
+                false,
+                new HashMap<MeterEntity, Sample[]>() {
+                    {
+                        put(
+                            MeterEntity.newProcessRelation("test", "test-instance", "abc", "def", DetectPoint.SERVER),
+                            new Sample[] {
+                                Sample.builder()
+                                    .labels(of())
+                                    .value(11)
+                                    .name("rover_network_profiling_process_write_bytes").build()
+                            }
+                        );
+                        put(
+                            MeterEntity.newProcessRelation("test", "test-instance", "abc", "def", DetectPoint.CLIENT),
+                            new Sample[] {
+                                Sample.builder()
+                                    .labels(of())
+                                    .value(12)
+                                    .name("rover_network_profiling_process_write_bytes").build()
+                            }
+                        );
+                    }
+                }
             }
         });
     }

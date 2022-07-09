@@ -211,6 +211,10 @@ Examples:
 #### time
 `time()`: Returns the number of seconds since January 1, 1970 UTC.
 
+#### foreach
+`forEach([string_array], Closure<Void> each)`: Iterates all samples according to the first array argument, and provide two parameters in the second closure argument:
+1. `element`: element in the array.
+2. `tags`: tags in each sample.
 
 ## Down Sampling Operation
 MAL should instruct meter-system on how to downsample for metrics. It doesn't only refer to aggregate raw samples to
@@ -245,6 +249,8 @@ They extract level relevant labels from metric labels, then informs the meter-sy
                                                                       extracts endpoint level labels from the second array argument, extracts layer from `Layer` argument.
  - `serviceRelation(DetectPoint, [source_svc_label1...], [dest_svc_label1...], Layer)` DetectPoint including `DetectPoint.CLIENT` and `DetectPoint.SERVER`,
    extracts `sourceService` labels from the first array argument, extracts `destService` labels from the second array argument, extracts layer from `Layer` argument.
+ - `processRelation(detect_point_label, [service_label1...], [instance_label1...], source_process_id_label, dest_process_id_label)` extracts `DetectPoint` labels from first argument, the label value should be `client` or `server`.
+   extracts `Service` labels from the first array argument, extracts `Instance` labels from the second array argument, extracts `ProcessID` labels from the fourth and fifth arguments of the source and destination.
 
 ## More Examples
 

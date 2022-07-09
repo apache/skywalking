@@ -20,9 +20,9 @@ don't belong to the Apache Software Foundation.
 
 | OAP Server Version | DotNet        | Go2sky        | cpp2sky   | PHP agent  |
 |--------------------|---------------|---------------|-----------|------------|
-| 8.0.1 - 8.3.0      | 1.0.0 - 1.3.0 | 0.4.0 - 0.6.0 | < = 0.2.0 | \> = 3.0.0 |
-| 8.4.0+             | \> = 1.0.0    | \> = 0.4.0    | All       | \> = 3.0.0 |
-| 9.0.0+             | \> = 1.0.0    | \> = 0.4.0    | All       | \> = 3.0.0 |
+| 8.0.1 - 8.3.0      | 1.0.0 - 1.3.0 | 0.4.0 - 0.6.0 | < = 0.2.0 | \> = 3.0.0 && < 5.0.0 |
+| 8.4.0+             | \> = 1.0.0    | \> = 0.4.0    | All       | \> = 5.0.0 |
+| 9.0.0+             | \> = 1.0.0    | \> = 0.4.0    | All       | \> = 5.0.0 |
 
 All these projects are maintained by their own communities, and please reach them if you face any compatibility issues.
 

@@ -29,8 +29,10 @@ import java.util.List;
 public class MeterConfig implements MetricRuleConfig {
     private String metricPrefix;
     private String expSuffix;
+    private String expPrefix;
     private String filter;
     private List<Rule> metricsRules;
+    private String initExp;
 
     @Data
     @NoArgsConstructor

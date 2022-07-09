@@ -36,11 +36,21 @@ public interface MetricRuleConfig {
     String getExpSuffix();
 
     /**
+     * Get MAL expression prefix
+     */
+    String getExpPrefix();
+
+    /**
      * Get all rules
      */
     List<? extends RuleConfig> getMetricsRules();
 
     String getFilter();
+
+    /**
+     * Get the init expression script
+     */
+    String getInitExp();
 
     interface RuleConfig {
         /**

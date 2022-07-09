@@ -19,11 +19,13 @@
 package org.apache.skywalking.oap.server.receiver.zipkin.trace;
 
 import com.google.gson.JsonObject;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinService;
@@ -33,27 +35,36 @@ import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import zipkin2.Annotation;
 import zipkin2.Span;
+import zipkin2.internal.HexCodec;
 import zipkin2.internal.RecyclableBuffers;
 
 public class SpanForward {
+    private final ZipkinReceiverConfig config;
     private final NamingControl namingControl;
     private final SourceReceiver receiver;
     private final List<String> searchTagKeys;
+    private final long samplerBoundary;
 
-    public SpanForward(final NamingControl namingControl,
-                       final SourceReceiver receiver,
-                       final ZipkinReceiverConfig config) {
-        this.namingControl = namingControl;
-        this.receiver = receiver;
-        this.searchTagKeys =  Arrays.asList(config.getSearchableTracesTags().split(Const.COMMA));
+    public SpanForward(final ZipkinReceiverConfig config, final ModuleManager manager) {
+        this.config = config;
+        this.namingControl = manager.find(CoreModule.NAME).provider().getService(NamingControl.class);
+        this.receiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        this.searchTagKeys = Arrays.asList(config.getSearchableTracesTags().split(Const.COMMA));
+        float sampleRate = (float) config.getSampleRate() / 10000;
+        samplerBoundary = (long) (Long.MAX_VALUE * sampleRate);
     }
 
     public void send(List<Span> spanList) {
-        spanList.forEach(span -> {
+        if (CollectionUtils.isEmpty(spanList)) {
+            return;
+        }
+        getSampledTraces(spanList).forEach(span -> {
             ZipkinSpan zipkinSpan = new ZipkinSpan();
             String serviceName = span.localServiceName();
             if (StringUtil.isEmpty(serviceName)) {
@@ -73,12 +84,14 @@ public class SpanForward {
             if (localPort != null) {
                 zipkinSpan.setLocalEndpointPort(localPort);
             }
-            zipkinSpan.setRemoteEndpointServiceName(namingControl.formatServiceName(span.remoteServiceName()));
-            zipkinSpan.setRemoteEndpointIPV4(span.remoteEndpoint().ipv4());
-            zipkinSpan.setRemoteEndpointIPV6(span.remoteEndpoint().ipv6());
-            Integer remotePort = span.remoteEndpoint().port();
-            if (remotePort != null) {
-                zipkinSpan.setRemoteEndpointPort(remotePort);
+            if (span.remoteEndpoint() != null) {
+                zipkinSpan.setRemoteEndpointServiceName(namingControl.formatServiceName(span.remoteServiceName()));
+                zipkinSpan.setRemoteEndpointIPV4(span.remoteEndpoint().ipv4());
+                zipkinSpan.setRemoteEndpointIPV6(span.remoteEndpoint().ipv6());
+                Integer remotePort = span.remoteEndpoint().port();
+                if (remotePort != null) {
+                    zipkinSpan.setRemoteEndpointPort(remotePort);
+                }
             }
             zipkinSpan.setTimestamp(span.timestampAsLong());
             zipkinSpan.setDebug(span.debug());
@@ -158,5 +171,25 @@ public class SpanForward {
         relation.setRemoteServiceName(zipkinSpan.getRemoteEndpointServiceName());
         relation.setTimeBucket(minuteTimeBucket);
         receiver.receive(relation);
+    }
+
+    private List<Span> getSampledTraces(List<Span> input) {
+        //100% sampleRate
+        if (config.getSampleRate() == 10000) {
+            return input;
+        }
+        List<Span> sampledTraces = new ArrayList<>(input.size());
+        for (Span span : input) {
+            if (Boolean.TRUE.equals(span.debug())) {
+                sampledTraces.add(span);
+                continue;
+            }
+            long traceId = HexCodec.lowerHexToUnsignedLong(span.traceId());
+            traceId = traceId == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(traceId);
+            if (traceId <= samplerBoundary) {
+                sampledTraces.add(span);
+            }
+        }
+        return sampledTraces;
     }
 }

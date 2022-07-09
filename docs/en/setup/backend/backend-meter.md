@@ -81,8 +81,12 @@ If you're using Spring Sleuth, see [Spring Sleuth Setup](spring-sleuth-setup.md)
 ### Meters configuration
 
 ```yaml
+# initExp is the expression that initializes the current configuration file
+initExp: <string>
 # filter the metrics, only those metrics that satisfy this condition will be passed into the `metricsRules` below.
 filter: <closure> # example: '{ tags -> tags.job_name == "vm-monitoring" }'
+# expPrefix is executed before the metrics executes other functions.
+expPrefix: <string>
 # expSuffix is appended to all expression in this file.
 expSuffix: <string>
 # insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>

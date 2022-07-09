@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+initExp: Kubernetes.startMetadataListener()
 filter: "{ tags -> tags.job_name in [ 'kubernetes-cadvisor', 'kube-state-metrics' ] }" # The OpenTelemetry job name
 expSuffix: |-
   service(['cluster' , 'service'], '::', Layer.K8S_SERVICE)

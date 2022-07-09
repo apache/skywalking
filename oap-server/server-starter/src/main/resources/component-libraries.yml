@@ -413,6 +413,9 @@ AWSLambdaGatewayAPIREST:
 Apache-ShenYu:
   id: 127
   languages: Java
+Hutool:
+  id: 128
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -585,6 +588,9 @@ MysqlClient:
   languages: Python
 FastAPI:
   id: 7014
+  languages: Python
+Bottle:
+  id: 7015
   languages: Python
 
 # PHP components
