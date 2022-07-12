@@ -187,14 +187,4 @@ public abstract class LatestFunction extends Meter implements AcceptableValue<Lo
     public int hashCode() {
         return Objects.hash(entityId, getTimeBucket());
     }
-
-    @Override
-    public boolean haveDefault() {
-        return true;
-    }
-
-    @Override
-    public boolean isDefaultValue() {
-        return value == 0;
-    }
 }
