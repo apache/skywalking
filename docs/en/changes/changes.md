@@ -17,7 +17,8 @@
 * Fix a NullPointerException in the endpoint analysis, which would cause missing MQ-related `LocalSpan` in the trace.
 * Add `forEach`, `processRelation` function to MAL expression.
 * Add `expPrefix`, `initExp` in MAL config.
-* Add component ID(7015) for Python Bottle plugin
+* Add component ID(7015) for Python Bottle plugin.
+* Remove legacy OAL `percentile` functions, `p99`, `p95`, `p90`, `p75`, `p50` func(s).
 
 #### UI
 
