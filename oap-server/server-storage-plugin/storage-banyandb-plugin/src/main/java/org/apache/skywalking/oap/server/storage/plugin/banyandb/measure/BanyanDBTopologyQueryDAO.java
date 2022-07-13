@@ -26,6 +26,8 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -194,6 +196,16 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         return queryEndpointRelation(startTB, endTB, queryBuilderList, DetectPoint.SERVER);
     }
 
+    @Override
+    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
+        return queryProcessRelation(startTB, endTB, serviceInstanceId, DetectPoint.CLIENT);
+    }
+
+    @Override
+    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
+        return queryProcessRelation(startTB, endTB, serviceInstanceId, DetectPoint.SERVER);
+    }
+
     private List<QueryBuilder<MeasureQuery>> buildEndpointRelationsQueries(String destEndpointId) {
         List<QueryBuilder<MeasureQuery>> queryBuilderList = new ArrayList<>(2);
         queryBuilderList.add(new QueryBuilder<MeasureQuery>() {
@@ -232,6 +244,29 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
             call.buildFromEndpointRelation(entityId, detectPoint);
             callMap.putIfAbsent(entityId, call);
         }
+        return new ArrayList<>(callMap.values());
+    }
+
+    List<Call.CallDetail> queryProcessRelation(long startTB, long endTB, String serviceInstanceId, DetectPoint detectPoint) throws IOException {
+        TimestampRange timestampRange = null;
+        if (startTB > 0 && endTB > 0) {
+            timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
+        }
+        final String modelName = detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME :
+            ProcessRelationClientSideMetrics.INDEX_NAME;
+        final Map<String, Call.CallDetail> callMap = new HashMap<>();
+        MeasureQueryResponse resp = query(modelName,
+            ImmutableSet.of(Metrics.ENTITY_ID),
+            Collections.emptySet(), timestampRange, new QueryBuilder<MeasureQuery>() {
+                @Override
+                protected void apply(MeasureQuery query) {
+                    query.and(eq(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID, serviceInstanceId));
+                }
+            });
+        final Call.CallDetail call = new Call.CallDetail();
+        final String entityId = resp.getDataPoints().get(0).getTagValue(Metrics.ENTITY_ID);
+        call.buildProcessRelation(entityId, detectPoint);
+        callMap.putIfAbsent(entityId, call);
         return new ArrayList<>(callMap.values());
     }
 }

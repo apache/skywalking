@@ -22,6 +22,9 @@
 * Revert [#8066](https://github.com/apache/skywalking/pull/8066). Keep all metrics persistent even it is default value.
 * Skip loading UI templates if folder is empty or doesn't exist.
 * Optimize ElasticSearch query performance by using `_mGet` and physical index name rather than alias in these scenarios,  (a) Metrics aggregation (b) Zipkin query (c) Metrics query (d) Log query
+* Support the `NETWORK` type of eBPF Profiling task.
+* Support `sumHistogram` in `MAL`.
+* [Breaking Change] Make the eBPF Profiling task support to the service instance level, index/table `ebpf_profiling_task` is required to be re-created when bump up from previous releases.
 
 #### UI
 
@@ -34,7 +37,10 @@
 * Implement the Event widget.
 * Fix span detail text overlap.
 * Add Python Bottle Plugin Logo.
-* Implement an association between widgets(line, bar, area graphs) with time
+* Implement an association between widgets(line, bar, area graphs) with time.
+* Fix tag dropdown style.
+* Hide the copy button when db.statement is empty.
+* Fix legend metrics for topology.
 
 #### Documentation
 

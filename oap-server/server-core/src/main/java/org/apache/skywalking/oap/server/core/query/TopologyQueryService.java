@@ -33,10 +33,12 @@ import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.query.type.EndpointNode;
 import org.apache.skywalking.oap.server.core.query.type.EndpointTopology;
 import org.apache.skywalking.oap.server.core.query.type.Node;
+import org.apache.skywalking.oap.server.core.query.type.ProcessTopology;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstanceTopology;
 import org.apache.skywalking.oap.server.core.query.type.Topology;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -45,11 +47,13 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 @Slf4j
 public class TopologyQueryService implements Service {
     private final ModuleManager moduleManager;
+    private final StorageModels storageModels;
     private ITopologyQueryDAO topologyQueryDAO;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
 
-    public TopologyQueryService(ModuleManager moduleManager) {
+    public TopologyQueryService(ModuleManager moduleManager, StorageModels storageModels) {
         this.moduleManager = moduleManager;
+        this.storageModels = storageModels;
     }
 
     private ITopologyQueryDAO getTopologyQueryDAO() {
@@ -193,6 +197,14 @@ public class TopologyQueryService implements Service {
         });
 
         return topology;
+    }
+
+    public ProcessTopology getProcessTopology(final String instanceId, final long startTB, final long endTB) throws IOException {
+        final List<Call.CallDetail> clientCalls = getTopologyQueryDAO().loadProcessRelationDetectedAtClientSide(instanceId, startTB, endTB);
+        final List<Call.CallDetail> serverCalls = getTopologyQueryDAO().loadProcessRelationDetectedAtServerSide(instanceId, startTB, endTB);
+
+        final ProcessTopologyBuilder topologyBuilder = new ProcessTopologyBuilder(moduleManager, storageModels);
+        return topologyBuilder.build(clientCalls, serverCalls);
     }
 
     @Deprecated
