@@ -21,7 +21,7 @@
 * Remove legacy OAL `percentile` functions, `p99`, `p95`, `p90`, `p75`, `p50` func(s).
 * Revert [#8066](https://github.com/apache/skywalking/pull/8066). Keep all metrics persistent even it is default value.
 * Skip loading UI templates if folder is empty or doesn't exist.
-* Optimize elasticsearch query performance by using `_mGet` and physical index name.
+* Optimize ElasticSearch query performance by using `_mGet` and physical index name rather than alias in these scenarios,  (a) Metrics aggregation (b) Zipkin query (c) Metrics query
 
 #### UI
 
