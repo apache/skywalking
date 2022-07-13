@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingQueryService;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeAggregateType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
@@ -58,11 +59,11 @@ public class EBPFProcessProfilingQuery implements GraphQLQueryResolver {
         return getQueryService().queryPrepareCreateEBPFProfilingTaskData(serviceId);
     }
 
-    public List<EBPFProfilingTask> queryEBPFProfilingTasks(String serviceId) throws IOException {
-        if (StringUtil.isEmpty(serviceId)) {
-            throw new IllegalArgumentException("please provide the service id");
+    public List<EBPFProfilingTask> queryEBPFProfilingTasks(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targets) throws IOException {
+        if (StringUtil.isEmpty(serviceId) && StringUtil.isEmpty(serviceInstanceId)) {
+            throw new IllegalArgumentException("please provide the service id or instance id");
         }
-        return getQueryService().queryEBPFProfilingTasks(serviceId);
+        return getQueryService().queryEBPFProfilingTasks(serviceId, serviceInstanceId, targets);
     }
 
     public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws IOException {

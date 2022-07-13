@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.command;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -49,13 +50,13 @@ public class CommandService implements Service {
     /**
      * Used to notify the eBPF Profiling task to the eBPF agent side
      */
-    public EBPFProfilingTaskCommand newEBPFProfilingTaskCommand(EBPFProfilingTask task, String processId) {
+    public EBPFProfilingTaskCommand newEBPFProfilingTaskCommand(EBPFProfilingTask task, List<String> processId) {
         final String serialNumber = UUID.randomUUID().toString();
         EBPFProfilingTaskCommand.FixedTrigger fixedTrigger = null;
         if (Objects.equals(task.getTriggerType(), EBPFProfilingTriggerType.FIXED_TIME)) {
             fixedTrigger = new EBPFProfilingTaskCommand.FixedTrigger(task.getFixedTriggerDuration());
         }
-        return new EBPFProfilingTaskCommand(serialNumber, task.getTaskId(), processId, task.getCreateTime(),
+        return new EBPFProfilingTaskCommand(serialNumber, task.getTaskId(), processId, task.getTaskStartTime(),
                 task.getLastUpdateTime(), task.getTriggerType().name(), fixedTrigger, task.getTargetType().name());
     }
 

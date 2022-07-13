@@ -21,7 +21,9 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingMutationService;
+import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingNetworkTaskRequest;
 import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingTaskFixedTimeCreationRequest;
+import org.apache.skywalking.oap.server.core.query.type.EBPFNetworkKeepProfilingResult;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskCreationResult;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -47,5 +49,13 @@ public class EBPFProcessProfilingMutation implements GraphQLMutationResolver {
 
     public EBPFProfilingTaskCreationResult createEBPFProfilingFixedTimeTask(EBPFProfilingTaskFixedTimeCreationRequest request) throws IOException {
         return getMutationService().createTask(request);
+    }
+
+    public EBPFProfilingTaskCreationResult createEBPFNetworkProfiling(EBPFProfilingNetworkTaskRequest request) throws IOException {
+        return getMutationService().createTask(request);
+    }
+
+    public EBPFNetworkKeepProfilingResult keepEBPFNetworkProfiling(String taskId) throws IOException {
+        return getMutationService().keepEBPFNetworkProfiling(taskId);
     }
 }
