@@ -105,7 +105,7 @@ public class TimeSeriesUtils {
                 return tableName + Const.LINE + compressTimeBucket(pointOfTB / 1000000, DAY_STEP);
         }
 
-        throw new UnexpectedException("Failed to get the index name.");
+        throw new UnexpectedException("Failed to get the index name from tableName:" + tableName + ", pointOfTB:" + pointOfTB + ", step:" + step.name());
     }
 
     /**
