@@ -23,8 +23,7 @@
 * Skip loading UI templates if folder is empty or doesn't exist.
 * Support the `NETWORK` type of eBPF Profiling task.
 * Support `sumHistogram` in `MAL`.
-* [Breaking Change] Let the eBPF Profiling task support to the service instance level, please delete
-    index/table: `ebpf_profiling_task`.
+* [Breaking Change] Make the eBPF Profiling task support to the service instance level, index/table `ebpf_profiling_task` is required to be re-created when bump up from previous releases.
 
 #### UI
 
