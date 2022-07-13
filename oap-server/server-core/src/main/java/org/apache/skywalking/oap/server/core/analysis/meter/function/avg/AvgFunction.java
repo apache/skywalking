@@ -214,14 +214,4 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
     public int hashCode() {
         return Objects.hash(entityId, getTimeBucket());
     }
-
-    @Override
-    public boolean haveDefault() {
-        return true;
-    }
-
-    @Override
-    public boolean isDefaultValue() {
-        return value == 0;
-    }
 }

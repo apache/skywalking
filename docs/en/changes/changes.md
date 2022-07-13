@@ -17,6 +17,9 @@
 * Fix a NullPointerException in the endpoint analysis, which would cause missing MQ-related `LocalSpan` in the trace.
 * Add `forEach`, `processRelation` function to MAL expression.
 * Add `expPrefix`, `initExp` in MAL config.
+* Add component ID(7015) for Python Bottle plugin.
+* Remove legacy OAL `percentile` functions, `p99`, `p95`, `p90`, `p75`, `p50` func(s).
+* Revert [#8066](https://github.com/apache/skywalking/pull/8066). Keep all metrics persistent even it is default value.
 * Add component ID(7015) for Python Bottle plugin
 * Support the `NETWORK` type of eBPF Profiling task.
 * Support `sumHistogram` in `MAL`.
@@ -33,9 +36,12 @@
 * Optimize table widget to hide the whole metric column when no metric is set.
 * Implement the Event widget.
 * Fix span detail text overlap.
+* Add Python Bottle Plugin Logo.
+* Implement an association between widgets(line, bar, area graphs) with time
 
 #### Documentation
 
-* Fix invalid links in release docs
+* Fix invalid links in release docs.
+* Clean up doc about event metrics.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/136?closed=1)

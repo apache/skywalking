@@ -40,19 +40,6 @@ rules:
     count: 1
     tags:
       level: WARNING
-#  unhealthy_event_rule:
-#    metrics-name: Unhealthy
-     # Healthiness check is usually a scheduled task,
-     # they may be unhealthy for the first few times,
-     # and can be unhealthy occasionally due to network jitter,
-     # please adjust the threshold as per your actual situation.
-#    threshold: 5
-#    op: ">"
-#    period: 10
-#    count: 1
-#    message: Service instance has been unhealthy for 10 minutes
-#    tags:
-#      level: ERROR
 
 webhooks:
 #  - http://127.0.0.1/notify/

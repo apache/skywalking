@@ -184,14 +184,4 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
     public int hashCode() {
         return Objects.hash(getEntityId(), getTimeBucket());
     }
-
-    @Override
-    public boolean haveDefault() {
-        return true;
-    }
-
-    @Override
-    public boolean isDefaultValue() {
-        return value == 0;
-    }
 }
