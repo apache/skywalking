@@ -20,6 +20,7 @@
 * Add component ID(7015) for Python Bottle plugin.
 * Remove legacy OAL `percentile` functions, `p99`, `p95`, `p90`, `p75`, `p50` func(s).
 * Revert [#8066](https://github.com/apache/skywalking/pull/8066). Keep all metrics persistent even it is default value.
+* Skip loading UI templates if folder is empty or doesn't exist.
 
 #### UI
 

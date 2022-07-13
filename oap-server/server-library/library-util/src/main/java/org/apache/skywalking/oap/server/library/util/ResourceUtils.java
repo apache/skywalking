@@ -27,10 +27,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class ResourceUtils {
 
@@ -53,22 +51,6 @@ public class ResourceUtils {
         }
         return Arrays.stream(Objects.requireNonNull(new File(url.getPath()).listFiles(), "No files in " + path))
                      .filter(File::isFile).toArray(File[]::new);
-    }
-
-    public static File[] getPathFiles(String parentPath, String[] fileNames) throws FileNotFoundException {
-        URL url = ResourceUtils.class.getClassLoader().getResource(parentPath);
-        if (url == null) {
-            throw new FileNotFoundException("path not found: " + parentPath);
-        }
-        final Set<String> nameSet = new HashSet<>(Arrays.asList(fileNames));
-        final File[] listFiles = Objects.requireNonNull(
-            new File(url.getPath())
-                .listFiles((dir, name) -> nameSet.contains(name)), "No files in " + parentPath);
-
-        if (listFiles.length == 0) {
-            throw new FileNotFoundException("files not found:" + nameSet);
-        }
-        return listFiles;
     }
 
     /**
