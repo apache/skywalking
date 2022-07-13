@@ -33,7 +33,10 @@
 * Implement the Event widget.
 * Fix span detail text overlap.
 * Add Python Bottle Plugin Logo.
-* Implement an association between widgets(line, bar, area graphs) with time
+* Implement an association between widgets(line, bar, area graphs) with time.
+* Fix tag dropdown style.
+* Hide the copy button when db.statement is empty.
+* Fix legend metrics for topology.
 
 #### Documentation
 
