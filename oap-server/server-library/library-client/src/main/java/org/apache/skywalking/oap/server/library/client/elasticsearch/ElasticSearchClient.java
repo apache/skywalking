@@ -24,6 +24,8 @@ import com.google.common.collect.Iterables;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -33,12 +35,13 @@ import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.elasticsearch.requests.search.Query;
+import org.apache.skywalking.library.elasticsearch.response.Documents;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.library.elasticsearch.ElasticSearch;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchBuilder;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
 import org.apache.skywalking.library.elasticsearch.bulk.BulkProcessor;
-import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.response.Document;
@@ -300,13 +303,33 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return es.get().documents().exists(indexName, TYPE, id);
     }
 
-    public SearchResponse ids(String indexName, Iterable<String> ids) {
-        indexName = indexNameConverter.apply(indexName);
+
+    /**
+     * @since 9.2.0 Provide to get documents from multi indices by ids.
+     * @param indexIdsGroup key: indexName, value: ids list
+     * @return Documents
+     */
+    public Optional<Documents> ids(Map<String, List<String>> indexIdsGroup) {
+        Map<String, List<String>> map = new HashMap<>();
+        indexIdsGroup.forEach((indexName, ids) -> {
+            map.put(indexNameConverter.apply(indexName), ids);
+        });
+        return es.get().documents().mGet(TYPE, map);
+    }
+
+    /**
+     * Query by ids with index alias. When can not locate the physical index.
+     * @param indexAlias Index alias name
+     * @param ids Query ids
+     * @return SearchResponse
+     */
+    public SearchResponse idsWithIndexAlias(String indexAlias, Iterable<String> ids) {
+        indexAlias = indexNameConverter.apply(indexAlias);
 
         return es.get().search(Search.builder()
                                      .size(Iterables.size(ids))
                                      .query(Query.ids(ids))
-                                     .build(), indexName);
+                                     .build(), indexAlias);
     }
 
     public void forceInsert(String indexName, String id, Map<String, Object> source) {

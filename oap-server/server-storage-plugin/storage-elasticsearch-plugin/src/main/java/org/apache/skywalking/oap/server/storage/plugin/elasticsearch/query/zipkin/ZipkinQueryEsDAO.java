@@ -36,6 +36,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.B
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.TermsAggregationBuilder;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
@@ -47,6 +48,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 import zipkin2.Endpoint;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
@@ -137,7 +139,6 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
     public List<List<Span>> getTraces(final QueryRequest request) {
         final long startTimeMillis = request.endTs() - request.lookback();
         final long endTimeMillis = request.endTs();
-        String index = IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME);
         BoolQueryBuilder query = Query.bool();
         if (startTimeMillis > 0 && endTimeMillis > 0) {
             query.must(Query.range(ZipkinSpanRecord.TIMESTAMP_MILLIS)
@@ -182,7 +183,11 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
                        .order(BucketOrder.aggregation(ZipkinSpanRecord.TIMESTAMP_MILLIS, false));
 
         SearchBuilder search = Search.builder().query(query).aggregation(traceIdAggregation);
-        SearchResponse traceIdResponse = getClient().search(index, search.build());
+        SearchResponse traceIdResponse = getClient().search(new TimeRangeIndexNameGenerator(
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME),
+            TimeBucket.getRecordTimeBucket(startTimeMillis),
+            TimeBucket.getRecordTimeBucket(endTimeMillis)
+        ), search.build());
         final Map<String, Object> idTerms =
             (Map<String, Object>) traceIdResponse.getAggregations().get(ZipkinSpanRecord.TRACE_ID);
         final List<Map<String, Object>> buckets =
