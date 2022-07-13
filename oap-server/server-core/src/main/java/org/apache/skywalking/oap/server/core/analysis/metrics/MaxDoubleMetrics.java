@@ -52,15 +52,4 @@ public abstract class MaxDoubleMetrics extends Metrics implements DoubleValueHol
     @Override
     public void calculate() {
     }
-
-    @Override
-    public boolean haveDefault() {
-        return true;
-    }
-
-    @Override
-    public boolean isDefaultValue() {
-        // Value in the query stage will ignore decimal places after a decimal point
-        return Double.valueOf(value).longValue() == 0;
-    }
 }

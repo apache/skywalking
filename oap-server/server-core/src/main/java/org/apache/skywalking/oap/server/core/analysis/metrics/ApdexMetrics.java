@@ -95,14 +95,4 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     public int getValue() {
         return value;
     }
-
-    @Override
-    public boolean haveDefault() {
-        return true;
-    }
-
-    @Override
-    public boolean isDefaultValue() {
-        return value == 0;
-    }
 }

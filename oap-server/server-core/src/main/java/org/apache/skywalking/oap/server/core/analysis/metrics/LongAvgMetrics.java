@@ -64,14 +64,4 @@ public abstract class LongAvgMetrics extends Metrics implements LongValueHolder 
     public final void calculate() {
         this.value = this.summation / this.count;
     }
-
-    @Override
-    public boolean haveDefault() {
-        return true;
-    }
-
-    @Override
-    public boolean isDefaultValue() {
-        return value == 0;
-    }
 }
