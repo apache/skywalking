@@ -76,4 +76,20 @@ public interface ITopologyQueryDAO extends Service {
     List<Call.CallDetail> loadEndpointRelation(long startTB,
                                                long endTB,
                                                String destEndpointId) throws IOException;
+
+    /**
+     * Query {@link org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationClientSideMetrics}
+     * through given conditions, including the specific service instance id
+     */
+    List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId,
+                                                                  long startTB,
+                                                                  long endTB) throws IOException;
+
+    /**
+     * Query {@link org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationServerSideMetrics}
+     * through given conditions, including the specific service instance id
+     */
+    List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId,
+                                                                  long startTB,
+                                                                  long endTB) throws IOException;
 }

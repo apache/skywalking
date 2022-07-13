@@ -19,38 +19,14 @@
 package org.apache.skywalking.oap.server.core.query.type;
 
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
-
-import java.util.List;
 
 @Data
-public class EBPFProfilingTask {
-
-    private String taskId;
+public class ProcessNode {
+    private String id;
     private String serviceId;
     private String serviceName;
     private String serviceInstanceId;
     private String serviceInstanceName;
-    private List<String> processLabels;
-    private long taskStartTime;
-    private EBPFProfilingTriggerType triggerType;
-    private long fixedTriggerDuration;
-    private EBPFProfilingTargetType targetType;
-    private long createTime;
-    private long lastUpdateTime;
-
-    /**
-     * combine the same task
-     * @param task have same {@link #taskId}
-     */
-    public EBPFProfilingTask combine(EBPFProfilingTask task) {
-        if (task.getFixedTriggerDuration() > this.getFixedTriggerDuration()) {
-            this.setFixedTriggerDuration(task.getFixedTriggerDuration());
-        }
-        if (task.getLastUpdateTime() > this.getLastUpdateTime()) {
-            this.setLastUpdateTime(task.getLastUpdateTime());
-        }
-        return this;
-    }
+    private String name;
+    private boolean isReal;
 }

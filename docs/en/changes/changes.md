@@ -18,6 +18,10 @@
 * Add `forEach`, `processRelation` function to MAL expression.
 * Add `expPrefix`, `initExp` in MAL config.
 * Add component ID(7015) for Python Bottle plugin
+* Support the `NETWORK` type of eBPF Profiling task.
+* Support `sumHistogram` in `MAL`.
+* [Breaking Change] Let the eBPF Profiling task support to the service instance level, please delete
+    index/table: `ebpf_profiling_task`.
 
 #### UI
 
