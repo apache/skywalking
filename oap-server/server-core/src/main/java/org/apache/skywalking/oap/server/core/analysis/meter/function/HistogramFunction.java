@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
  * Histogram includes data range buckets and the amount matched/grouped in the buckets. This is for original histogram
  * graph visualization
  */
-@MeterFunction(functionName = "histogram")
+@MeterFunction(functionName = "sumHistogram")
 @Slf4j
 @ToString
 public abstract class HistogramFunction extends Meter implements AcceptableValue<BucketedValues> {

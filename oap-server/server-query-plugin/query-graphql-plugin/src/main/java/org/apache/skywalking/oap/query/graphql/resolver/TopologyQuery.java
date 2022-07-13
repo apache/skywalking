@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.EndpointTopology;
+import org.apache.skywalking.oap.server.core.query.type.ProcessTopology;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstanceTopology;
 import org.apache.skywalking.oap.server.core.query.type.Topology;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -83,5 +84,9 @@ public class TopologyQuery implements GraphQLQueryResolver {
                                                     final Duration duration) throws IOException {
         return getQueryService().getEndpointDependencies(
             duration.getStartTimeBucket(), duration.getEndTimeBucket(), endpointId);
+    }
+
+    public ProcessTopology getProcessTopology(final String instanceId, final Duration duration) throws IOException {
+        return getQueryService().getProcessTopology(instanceId, duration.getStartTimeBucket(), duration.getEndTimeBucket());
     }
 }

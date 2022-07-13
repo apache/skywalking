@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,8 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -197,6 +200,50 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
         return loadEndpoint(
             sourceBuilder, EndpointRelationServerSideMetrics.INDEX_NAME, DetectPoint.SERVER);
+    }
+
+    @Override
+    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
+        return buildProcessRelation(serviceInstanceId, startTB, endTB, DetectPoint.CLIENT);
+    }
+
+    @Override
+    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
+        return buildProcessRelation(serviceInstanceId, startTB, endTB, DetectPoint.SERVER);
+    }
+
+    private List<Call.CallDetail> buildProcessRelation(String serviceInstanceId, long startTB, long endTB, DetectPoint detectPoint) throws IOException {
+        final SearchBuilder sourceBuilder = Search.builder().size(0);
+        sourceBuilder.query(Query.bool()
+            .must(Query.term(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID, serviceInstanceId))
+            .must(Query.range(EndpointRelationServerSideMetrics.TIME_BUCKET)
+                .gte(startTB)
+                .lte(endTB)));
+        sourceBuilder.aggregation(
+            Aggregation
+                .terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID)
+                .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
+                .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
+                .size(1000));
+
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(detectPoint == DetectPoint.SERVER ?
+                ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME);
+        final SearchResponse response = getClient().search(index, sourceBuilder.build());
+
+        final List<Call.CallDetail> calls = new ArrayList<>();
+        final Map<String, Object> entityTerms =
+            (Map<String, Object>) response.getAggregations().get(Metrics.ENTITY_ID);
+        final List<Map<String, Object>> buckets =
+            (List<Map<String, Object>>) entityTerms.get("buckets");
+        for (final Map<String, Object> entityBucket : buckets) {
+            String entityId = (String) entityBucket.get("key");
+
+            Call.CallDetail call = new Call.CallDetail();
+            call.buildProcessRelation(entityId, detectPoint);
+            calls.add(call);
+        }
+        return calls;
     }
 
     private List<Call.CallDetail> buildServiceRelation(SearchBuilder sourceBuilder,

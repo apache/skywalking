@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -57,14 +58,13 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
     }
 
     @Override
-    public List<EBPFProfilingTask> queryTasks(List<String> serviceIdList, EBPFProfilingTargetType targetType, long taskStartTime, long latestUpdateTime) throws IOException {
+    public List<EBPFProfilingTask> queryTasksByServices(List<String> serviceIdList, long taskStartTime, long latestUpdateTime) throws IOException {
         final String index =
-                IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingTaskRecord.INDEX_NAME);
+            IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingTaskRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
 
-        query.must(Query.terms(EBPFProfilingTaskRecord.SERVICE_ID, serviceIdList));
-        if (targetType != null) {
-            query.must(Query.term(EBPFProfilingTaskRecord.TARGET_TYPE, targetType.value()));
+        if (CollectionUtils.isNotEmpty(serviceIdList)) {
+            query.must(Query.terms(EBPFProfilingTaskRecord.SERVICE_ID, serviceIdList));
         }
         if (taskStartTime > 0) {
             query.must(Query.range(EBPFProfilingTaskRecord.START_TIME).gte(taskStartTime));
@@ -74,11 +74,62 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
         }
 
         final SearchBuilder search = Search.builder().query(query)
-                .sort(EBPFProfilingTaskRecord.CREATE_TIME, Sort.Order.DESC)
-                .size(taskMaxSize);
+            .sort(EBPFProfilingTaskRecord.CREATE_TIME, Sort.Order.DESC)
+            .size(taskMaxSize);
 
         final SearchResponse response = getClient().search(index, search.build());
         return response.getHits().getHits().stream().map(this::parseTask).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EBPFProfilingTask> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes, long taskStartTime, long latestUpdateTime) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingTaskRecord.INDEX_NAME);
+        final BoolQueryBuilder query = Query.bool();
+
+        if (StringUtil.isNotEmpty(serviceId)) {
+            query.must(Query.term(EBPFProfilingTaskRecord.SERVICE_ID, serviceId));
+        }
+        if (StringUtil.isNotEmpty(serviceInstanceId)) {
+            query.must(Query.term(EBPFProfilingTaskRecord.INSTANCE_ID, serviceInstanceId));
+        }
+        if (CollectionUtils.isNotEmpty(targetTypes)) {
+            query.must(Query.terms(EBPFProfilingTaskRecord.TARGET_TYPE, targetTypes.stream()
+                .map(EBPFProfilingTargetType::value).collect(Collectors.toList())));
+        }
+        if (taskStartTime > 0) {
+            query.must(Query.range(EBPFProfilingTaskRecord.START_TIME).gte(taskStartTime));
+        }
+        if (latestUpdateTime > 0) {
+            query.must(Query.range(EBPFProfilingTaskRecord.LAST_UPDATE_TIME).gt(latestUpdateTime));
+        }
+
+        final SearchBuilder search = Search.builder().query(query)
+            .sort(EBPFProfilingTaskRecord.CREATE_TIME, Sort.Order.DESC)
+            .size(taskMaxSize);
+
+        final SearchResponse response = getClient().search(index, search.build());
+        return response.getHits().getHits().stream().map(this::parseTask).collect(Collectors.toList());
+    }
+
+    @Override
+    public EBPFProfilingTask queryById(String id) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingTaskRecord.INDEX_NAME);
+        final BoolQueryBuilder query = Query.bool().must(Query.term(EBPFProfilingTaskRecord.LOGICAL_ID, id));
+
+        final SearchBuilder search = Search.builder().query(query).size(taskMaxSize);
+
+        final SearchResponse response = getClient().search(index, search.build());
+        final List<EBPFProfilingTask> tasks = response.getHits().getHits().stream().map(this::parseTask).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(tasks)) {
+            return null;
+        }
+        EBPFProfilingTask result = tasks.get(0);
+        for (int i = 1; i < tasks.size(); i++) {
+            result = result.combine(tasks.get(i));
+        }
+        return result;
     }
 
     private EBPFProfilingTask parseTask(final SearchHit hit) {
@@ -87,13 +138,17 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
         final EBPFProfilingTaskRecord record = builder.storage2Entity(new HashMapConverter.ToEntity(sourceAsMap));
 
         final EBPFProfilingTask task = new EBPFProfilingTask();
-        task.setTaskId(record.id());
+        task.setTaskId(record.getLogicalId());
         task.setServiceId(record.getServiceId());
         task.setServiceName(IDManager.ServiceID.analysisId(record.getServiceId()).getName());
         if (StringUtil.isNotEmpty(record.getProcessLabelsJson())) {
             task.setProcessLabels(GSON.<List<String>>fromJson(record.getProcessLabelsJson(), ArrayList.class));
         } else {
             task.setProcessLabels(Collections.emptyList());
+        }
+        if (StringUtil.isNotEmpty(record.getInstanceId())) {
+            task.setServiceInstanceId(record.getInstanceId());
+            task.setServiceInstanceName(IDManager.ServiceInstanceID.analysisId(record.getInstanceId()).getName());
         }
         task.setTaskStartTime(record.getStartTime());
         task.setTriggerType(EBPFProfilingTriggerType.valueOf(record.getTriggerType()));

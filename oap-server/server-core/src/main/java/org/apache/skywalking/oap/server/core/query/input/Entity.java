@@ -53,6 +53,7 @@ public class Entity {
     private Boolean normal;
     private String serviceInstanceName;
     private String endpointName;
+    private String processName;
 
     private String destServiceName;
     /**
@@ -62,6 +63,7 @@ public class Entity {
     private Boolean destNormal;
     private String destServiceInstanceName;
     private String destEndpointName;
+    private String destProcessName;
 
     public boolean isService() {
         return Scope.Service.equals(scope);
@@ -91,6 +93,11 @@ public class Entity {
             case EndpointRelation:
                 return Objects.nonNull(serviceName) && Objects.nonNull(destServiceName)
                     && Objects.nonNull(endpointName) && Objects.nonNull(destEndpointName)
+                    && Objects.nonNull(normal) && Objects.nonNull(destNormal);
+            case ProcessRelation:
+                return Objects.nonNull(serviceName) && Objects.nonNull(destServiceName)
+                    && Objects.nonNull(serviceInstanceName) && Objects.nonNull(destServiceInstanceName)
+                    && Objects.nonNull(processName) && Objects.nonNull(destProcessName)
                     && Objects.nonNull(normal) && Objects.nonNull(destNormal);
             default:
                 return false;
@@ -135,6 +142,17 @@ public class Entity {
                         endpointName,
                         IDManager.ServiceID.buildId(destServiceName, destNormal),
                         destEndpointName
+                    )
+                );
+            case ProcessRelation:
+                return IDManager.ProcessID.buildRelationId(
+                    new IDManager.ProcessID.ProcessRelationDefine(
+                        IDManager.ProcessID.buildId(IDManager.ServiceInstanceID.buildId(
+                            IDManager.ServiceID.buildId(serviceName, normal), serviceInstanceName),
+                            processName),
+                        IDManager.ProcessID.buildId(IDManager.ServiceInstanceID.buildId(
+                            IDManager.ServiceID.buildId(destServiceName, destNormal), destServiceInstanceName),
+                            destProcessName)
                     )
                 );
             default:
