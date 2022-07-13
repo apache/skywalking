@@ -20,7 +20,6 @@
 * Add component ID(7015) for Python Bottle plugin.
 * Remove legacy OAL `percentile` functions, `p99`, `p95`, `p90`, `p75`, `p50` func(s).
 * Revert [#8066](https://github.com/apache/skywalking/pull/8066). Keep all metrics persistent even it is default value.
-* Add component ID(7015) for Python Bottle plugin
 * Support the `NETWORK` type of eBPF Profiling task.
 * Support `sumHistogram` in `MAL`.
 * [Breaking Change] Let the eBPF Profiling task support to the service instance level, please delete
