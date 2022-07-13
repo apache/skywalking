@@ -93,7 +93,7 @@ public class TimeSeriesUtils {
         }
         if (isRecord && isSuperDataSet) {
             return tableName + Const.LINE + compressTimeBucket(pointOfTB / 1000000, SUPER_DATASET_DAY_STEP);
-        } else {
+        } else
             switch (step) {
                 case DAY:
                     return tableName + Const.LINE + compressTimeBucket(pointOfTB, DAY_STEP);
@@ -104,7 +104,6 @@ public class TimeSeriesUtils {
                 case SECOND:
                     return tableName + Const.LINE + compressTimeBucket(pointOfTB / 1000000, DAY_STEP);
             }
-        }
 
         throw new UnexpectedException("Failed to get the index name.");
     }

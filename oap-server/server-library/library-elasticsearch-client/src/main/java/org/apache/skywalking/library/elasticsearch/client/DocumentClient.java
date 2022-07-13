@@ -86,10 +86,10 @@ public final class DocumentClient {
     }
 
     @SneakyThrows
-    public Optional<Documents> mGet(String type, Map<String, List<String>> indexIdsGroup) {
+    public Optional<Documents> mGet(String type, Map<String, List<String>> indexIds) {
         final CompletableFuture<Optional<Documents>> future =
             version.thenCompose(
-                v -> client.execute(v.requestFactory().document().mget(type, indexIdsGroup))
+                v -> client.execute(v.requestFactory().document().mget(type, indexIds))
                            .aggregate().thenApply(response -> {
                         if (response.status() != HttpStatus.OK) {
                             throw new RuntimeException(response.contentUtf8());
@@ -104,11 +104,11 @@ public final class DocumentClient {
                     }));
         future.whenComplete((result, exception) -> {
             if (exception != null) {
-                log.error("Failed to get doc by indexIdsGroup {}", indexIdsGroup, exception);
+                log.error("Failed to get doc by indexIds {}", indexIds, exception);
                 return;
             }
             if (log.isDebugEnabled()) {
-                log.debug("Docs by indexIdsGroup {}: {}", indexIdsGroup, result);
+                log.debug("Docs by indexIds {}: {}", indexIds, result);
             }
         });
         return future.get();

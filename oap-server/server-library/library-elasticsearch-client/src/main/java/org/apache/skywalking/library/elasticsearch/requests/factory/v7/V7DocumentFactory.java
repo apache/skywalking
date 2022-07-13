@@ -92,11 +92,11 @@ final class V7DocumentFactory implements DocumentFactory {
 
     @SneakyThrows
     @Override
-    public HttpRequest mget(final String type, final Map<String, List<String>> indexIdsGroup) {
+    public HttpRequest mget(final String type, final Map<String, List<String>> indexIds) {
         checkArgument(!isNullOrEmpty(type), "type cannot be null or empty");
-        checkArgument(indexIdsGroup != null && !indexIdsGroup.isEmpty(), "ids cannot be null or empty");
+        checkArgument(indexIds != null && !indexIds.isEmpty(), "ids cannot be null or empty");
         final List<Map<String, String>> indexIdList = new ArrayList<>();
-        indexIdsGroup.forEach((index, ids) -> {
+        indexIds.forEach((index, ids) -> {
             checkArgument(ids != null && !isEmpty(ids), "ids cannot be null or empty");
             ids.forEach(id -> {
                 indexIdList.add(ImmutableMap.of("_index", index, "_id", id));
@@ -105,7 +105,7 @@ final class V7DocumentFactory implements DocumentFactory {
         final Map<String, Iterable<Map<String, String>>> m = ImmutableMap.of("docs", indexIdList);
         final byte[] content = version.codec().encode(m);
         if (log.isDebugEnabled()) {
-            log.debug("mget indexIdsGroup request: {}", new String(content));
+            log.debug("mget indexIds request: {}", new String(content));
         }
 
         return HttpRequest.builder()

@@ -306,30 +306,31 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     /**
      * @since 9.2.0 Provide to get documents from multi indices by ids.
-     * @param indexIdsGroup key: indexName, value: ids list
+     * @param indexIds key: indexName, value: ids list
      * @return Documents
      */
-    public Optional<Documents> ids(Map<String, List<String>> indexIdsGroup) {
+    public Optional<Documents> ids(Map<String, List<String>> indexIds) {
         Map<String, List<String>> map = new HashMap<>();
-        indexIdsGroup.forEach((indexName, ids) -> {
+        indexIds.forEach((indexName, ids) -> {
             map.put(indexNameConverter.apply(indexName), ids);
         });
         return es.get().documents().mGet(TYPE, map);
     }
 
     /**
-     * Query by ids with index alias. When can not locate the physical index.
-     * @param indexAlias Index alias name
-     * @param ids Query ids
+     * Search by ids with index alias.
+     * When can not locate the physical index. Otherwise, recommend use method {@link #ids}
+     * @param indexName Index alias name or physical name
+     * @param ids ids
      * @return SearchResponse
      */
-    public SearchResponse idsWithIndexAlias(String indexAlias, Iterable<String> ids) {
-        indexAlias = indexNameConverter.apply(indexAlias);
+    public SearchResponse searchIDs(String indexName, Iterable<String> ids) {
+        indexName = indexNameConverter.apply(indexName);
 
         return es.get().search(Search.builder()
                                      .size(Iterables.size(ids))
                                      .query(Query.ids(ids))
-                                     .build(), indexAlias);
+                                     .build(), indexName);
     }
 
     public void forceInsert(String indexName, String id, Map<String, Object> source) {

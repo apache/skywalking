@@ -73,7 +73,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
             List<String> ids = metricList.stream()
                                          .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
                                          .collect(Collectors.toList());
-            final SearchResponse response = getClient().idsWithIndexAlias(tableName, ids);
+            final SearchResponse response = getClient().searchIDs(tableName, ids);
             response.getHits().getHits().forEach(hit -> {
                 Metrics source = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(hit.getSource()));
                 result.add(source);
@@ -87,11 +87,13 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
                                          .collect(Collectors.toList());
             indexIdsGroup.put(tableName, ids);
         });
-        final Optional<Documents> response = getClient().ids(indexIdsGroup);
-        response.ifPresent(documents -> documents.forEach(document -> {
-            Metrics source = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(document.getSource()));
-            result.add(source);
-        }));
+        if (!indexIdsGroup.isEmpty()) {
+            final Optional<Documents> response = getClient().ids(indexIdsGroup);
+            response.ifPresent(documents -> documents.forEach(document -> {
+                Metrics source = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(document.getSource()));
+                result.add(source);
+            }));
+        }
 
         return result;
     }

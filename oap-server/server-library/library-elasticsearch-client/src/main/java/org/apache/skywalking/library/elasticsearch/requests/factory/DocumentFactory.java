@@ -43,7 +43,7 @@ public interface DocumentFactory {
     /**
      * Returns a request to get multiple documents of {@code indexIds}.
      */
-    HttpRequest mget(final String type, final Map<String, List<String>> indexIdsGroup);
+    HttpRequest mget(final String type, final Map<String, List<String>> indexIds);
 
     /**
      * Returns a request to index a document with {@link IndexRequest}.
