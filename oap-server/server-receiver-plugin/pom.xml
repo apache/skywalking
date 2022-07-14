@@ -33,6 +33,7 @@
         <module>skywalking-mesh-receiver-plugin</module>
         <module>skywalking-management-receiver-plugin</module>
         <module>skywalking-jvm-receiver-plugin</module>
+        <module>skywalking-golang-receiver-plugin</module>
         <module>envoy-metrics-receiver-plugin</module>
         <module>skywalking-sharing-server-plugin</module>
         <module>skywalking-clr-receiver-plugin</module>

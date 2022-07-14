@@ -130,7 +130,7 @@ core:
     # Turn it on then automatically grouping endpoint by the given OpenAPI definitions.
     enableEndpointNameGroupingByOpenapi: ${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:true}
 storage:
-  selector: ${SW_STORAGE:h2}
+  selector: ${SW_STORAGE:mysql}
   elasticsearch:
     namespace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
@@ -177,7 +177,7 @@ storage:
     properties:
       jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true"}
       dataSource.user: ${SW_DATA_SOURCE_USER:root}
-      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:1874ypj!}
       dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
       dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
       dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}

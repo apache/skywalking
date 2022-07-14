@@ -98,6 +98,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-golang-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-trace-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
