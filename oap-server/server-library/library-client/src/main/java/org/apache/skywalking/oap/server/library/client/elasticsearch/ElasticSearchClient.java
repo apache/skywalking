@@ -305,9 +305,10 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
 
     /**
-     * @since 9.2.0 Provide to get documents from multi indices by ids.
+     * Provide to get documents from multi indices by IDs.
      * @param indexIds key: indexName, value: ids list
      * @return Documents
+     * @since 9.2.0
      */
     public Optional<Documents> ids(Map<String, List<String>> indexIds) {
         Map<String, List<String>> map = new HashMap<>();
