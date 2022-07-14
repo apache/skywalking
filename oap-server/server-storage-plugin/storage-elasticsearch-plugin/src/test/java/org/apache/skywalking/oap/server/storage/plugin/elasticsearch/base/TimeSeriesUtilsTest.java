@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
 import org.junit.Assert;
@@ -90,6 +91,30 @@ public class TimeSeriesUtilsTest {
         Assert.assertEquals(
             "normalMetricsModel-20200810",
             writeIndexName(normalMetricsModel, minuteTimeBucket)
+        );
+    }
+
+    @Test
+    public void queryIndexNameTest() {
+        Assert.assertEquals(
+            "metrics-apdex-20220710",
+            TimeSeriesUtils.queryIndexName("metrics-apdex", 20220710111111L, Step.SECOND, false, false)
+        );
+        Assert.assertEquals(
+            "metrics-apdex-20220710",
+            TimeSeriesUtils.queryIndexName("metrics-apdex", 202207101111L, Step.MINUTE, false, false)
+        );
+        Assert.assertEquals(
+            "metrics-apdex-20220710",
+            TimeSeriesUtils.queryIndexName("metrics-apdex", 2022071011L, Step.HOUR, false, false)
+        );
+        Assert.assertEquals(
+            "metrics-apdex-20220710",
+            TimeSeriesUtils.queryIndexName("metrics-apdex", 20220710L, Step.DAY, false, false)
+        );
+        Assert.assertEquals(
+            "metrics-apdex-20220710",
+            TimeSeriesUtils.queryIndexName("metrics-apdex", 20220710111111L, Step.DAY, true, true)
         );
     }
 

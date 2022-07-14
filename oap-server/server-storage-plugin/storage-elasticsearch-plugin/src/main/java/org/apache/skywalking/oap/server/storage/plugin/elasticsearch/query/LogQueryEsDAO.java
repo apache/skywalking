@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotEmpty;
@@ -71,9 +72,6 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
                           final List<Tag> tags,
                           final List<String> keywordsOfContent,
                           final List<String> excludingKeywordsOfContent) throws IOException {
-        final String index =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(LogRecord.INDEX_NAME);
-
         final BoolQueryBuilder query = Query.bool();
         if (startSecondTB != 0 && endSecondTB != 0) {
             query.must(Query.range(Record.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
@@ -138,7 +136,11 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
                   .size(limit)
                   .from(from);
 
-        SearchResponse response = getClient().search(index, search.build());
+        SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
+            IndexController.LogicIndicesRegister.getPhysicalTableName(LogRecord.INDEX_NAME),
+            startSecondTB,
+            endSecondTB
+        ), search.build());
 
         Logs logs = new Logs();
 
