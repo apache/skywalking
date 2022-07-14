@@ -318,11 +318,12 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     }
 
     /**
-     * Search by ids with index alias.
-     * When can not locate the physical index. Otherwise, recommend use method {@link #ids}
+     * Search by ids with index alias, when can not locate the physical index. 
+     * Otherwise, recommend use method {@link #ids}
      * @param indexName Index alias name or physical name
-     * @param ids ids
+     * @param ids ID list
      * @return SearchResponse
+     * @since 9.2.0 this method was ids
      */
     public SearchResponse searchIDs(String indexName, Iterable<String> ids) {
         indexName = indexNameConverter.apply(indexName);
