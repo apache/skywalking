@@ -52,7 +52,6 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) {
-        Map<String, List<Metrics>> groupAliasIndices = new HashMap<>();
         Map<String, List<Metrics>> groupIndices = new HashMap<>();
         metrics.forEach(metric -> {
                              if (model.isTimeRelativeID()) {
@@ -63,38 +62,38 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
                                  // Metadata level metrics, always use alias name, due to the physical index of the records
                                  // can't be located through timestamp.
                                  String indexName = IndexController.INSTANCE.getTableName(model);
-                                 groupAliasIndices.computeIfAbsent(indexName, v -> new ArrayList<>()).add(metric);
+                                 groupIndices.computeIfAbsent(indexName, v -> new ArrayList<>()).add(metric);
                              }
                          });
-        // The groupIndices mostly include one or two group,
-        // the current day and the T-1 day(if at the edge between days)
+
         List<Metrics> result = new ArrayList<>(metrics.size());
-        groupAliasIndices.forEach((tableName, metricList) -> {
-            List<String> ids = metricList.stream()
-                                         .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
-                                         .collect(Collectors.toList());
-            final SearchResponse response = getClient().searchIDs(tableName, ids);
-            response.getHits().getHits().forEach(hit -> {
-                Metrics source = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(hit.getSource()));
-                result.add(source);
+        if (model.isTimeRelativeID()) {
+            Map<String, List<String>> indexIdsGroup = new HashMap<>();
+            groupIndices.forEach((tableName, metricList) -> {
+                List<String> ids = metricList.stream()
+                                             .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
+                                             .collect(Collectors.toList());
+                indexIdsGroup.put(tableName, ids);
             });
-        });
-
-        Map<String, List<String>> indexIdsGroup = new HashMap<>();
-        groupIndices.forEach((tableName, metricList) -> {
-            List<String> ids = metricList.stream()
-                                         .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
-                                         .collect(Collectors.toList());
-            indexIdsGroup.put(tableName, ids);
-        });
-        if (!indexIdsGroup.isEmpty()) {
-            final Optional<Documents> response = getClient().ids(indexIdsGroup);
-            response.ifPresent(documents -> documents.forEach(document -> {
-                Metrics source = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(document.getSource()));
-                result.add(source);
-            }));
+            if (!indexIdsGroup.isEmpty()) {
+                final Optional<Documents> response = getClient().ids(indexIdsGroup);
+                response.ifPresent(documents -> documents.forEach(document -> {
+                    Metrics source = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(document.getSource()));
+                    result.add(source);
+                }));
+            }
+        } else {
+            groupIndices.forEach((tableName, metricList) -> {
+                List<String> ids = metricList.stream()
+                                             .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
+                                             .collect(Collectors.toList());
+                final SearchResponse response = getClient().searchIDs(tableName, ids);
+                response.getHits().getHits().forEach(hit -> {
+                    Metrics source = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(hit.getSource()));
+                    result.add(source);
+                });
+            });
         }
-
         return result;
     }
 
