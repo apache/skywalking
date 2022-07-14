@@ -105,7 +105,7 @@ final class V7DocumentFactory implements DocumentFactory {
         final Map<String, Iterable<Map<String, String>>> m = ImmutableMap.of("docs", indexIdList);
         final byte[] content = version.codec().encode(m);
         if (log.isDebugEnabled()) {
-            log.debug("mget indexIds request: {}", new String(content));
+            log.debug("mget indexIds request: {}", new String(content, Charset.defaultCharset()));
         }
 
         return HttpRequest.builder()
