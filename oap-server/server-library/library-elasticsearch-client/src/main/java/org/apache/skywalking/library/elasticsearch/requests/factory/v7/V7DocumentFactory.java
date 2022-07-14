@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpRequestBuilder;
 import com.linecorp.armeria.common.MediaType;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
