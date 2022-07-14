@@ -53,21 +53,15 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) {
         Map<String, List<Metrics>> groupIndices = new HashMap<>();
-        metrics.forEach(metric -> {
-                             if (model.isTimeRelativeID()) {
-                                 // Try to use with timestamp index name(write index),
-                                 String indexName = TimeSeriesUtils.writeIndexName(model, metric.getTimeBucket());
-                                 groupIndices.computeIfAbsent(indexName, v -> new ArrayList<>()).add(metric);
-                             } else {
-                                 // Metadata level metrics, always use alias name, due to the physical index of the records
-                                 // can't be located through timestamp.
-                                 String indexName = IndexController.INSTANCE.getTableName(model);
-                                 groupIndices.computeIfAbsent(indexName, v -> new ArrayList<>()).add(metric);
-                             }
-                         });
-
         List<Metrics> result = new ArrayList<>(metrics.size());
+
         if (model.isTimeRelativeID()) {
+            metrics.forEach(metric -> {
+                // Try to use with timestamp index name(write index),
+                String indexName = TimeSeriesUtils.writeIndexName(model, metric.getTimeBucket());
+                groupIndices.computeIfAbsent(indexName, v -> new ArrayList<>()).add(metric);
+            });
+
             Map<String, List<String>> indexIdsGroup = new HashMap<>();
             groupIndices.forEach((tableName, metricList) -> {
                 List<String> ids = metricList.stream()
@@ -83,6 +77,12 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
                 }));
             }
         } else {
+            metrics.forEach(metric -> {
+                // Metadata level metrics, always use alias name, due to the physical index of the records
+                // can't be located through timestamp.
+                String indexName = IndexController.INSTANCE.getTableName(model);
+                groupIndices.computeIfAbsent(indexName, v -> new ArrayList<>()).add(metric);
+            });
             groupIndices.forEach((tableName, metricList) -> {
                 List<String> ids = metricList.stream()
                                              .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
