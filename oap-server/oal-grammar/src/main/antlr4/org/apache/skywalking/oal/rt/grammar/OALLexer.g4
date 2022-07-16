@@ -45,6 +45,7 @@ SRC_SERVICE_INSTANCE_CLR_GC: 'ServiceInstanceCLRGC';
 SRC_SERVICE_INSTANCE_CLR_THREAD: 'ServiceInstanceCLRThread';
 SRC_ENVOY_INSTANCE_METRIC: 'EnvoyInstanceMetric';
 SRC_EVENT: 'Event';
+SRC_SERVICE_INSTANCE_GOLANG_STACK: 'ServiceInstanceGolangStack';
 
 // Browser keywords
 SRC_BROWSER_APP_PERF: 'BrowserAppPerf';

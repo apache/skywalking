@@ -102,6 +102,14 @@ public class DefaultScopeDefine {
     public static final int EBPF_PROFILING_DATA = 48;
     public static final int SERVICE_LABEL = 49;
     public static final int TAG_AUTOCOMPLETE = 50;
+    public static final int SERVICE_INSTANCE_GOLANG_HEAP = 51;
+    public static final int SERVICE_INSTANCE_GOLANG_STACK = 52;
+    public static final int SERVICE_INSTANCE_GOLANG_GC_NUM = 53;
+    public static final int SERVICE_INSTANCE_GOLANG_GC_TIME = 54;
+    public static final int SERVICE_INSTANCE_GOLANG_GOROUTINE_NUM = 55;
+    public static final int SERVICE_INSTANCE_GOLANG_THREAD_NUM = 56;
+    public static final int SERVICE_INSTANCE_GOLANG_CPU = 57;
+    public static final int SERVICE_INSTANCE_GOLANG_MEM = 58;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
