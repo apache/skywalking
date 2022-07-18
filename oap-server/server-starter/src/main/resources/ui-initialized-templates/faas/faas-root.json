@@ -120,7 +120,7 @@
                     ""
                   ],
                   "moved": false,
-                  "linkDashboard": "Function-Function-Relation",
+                  "linkDashboard": "FaaS-Function-Relation",
                   "nodeDashboard": [
                     {
                       "scope": "Service",
@@ -245,7 +245,7 @@
             "content": "FaaS (Function-as-a-Service) is a type of cloud-computing service that allows you to execute code in response to events without the complex infrastructure typically associated with building and launching microservices applications. OpenFunction as a FaaS platform, provides out-of-box observability with SkyWalking integration.",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://openfunction.dev/docs/best-practices/skywalking-solution-for-openfunction/"
+            "url": "https://openfunction.dev/"
           },
           "moved": false
         }
