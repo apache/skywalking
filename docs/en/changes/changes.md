@@ -41,7 +41,7 @@
 * Fix tag dropdown style.
 * Hide the copy button when db.statement is empty.
 * Fix legend metrics for topology.
-* Dashboard: Add metrics associate.
+* Dashboard: Add metrics association.
 * Dashboard: Fix `FaaS-Root` document link and topology service relation dashboard link.
 * Dashboard: Fix `Mesh-Instance` metric `Throughput`.
 * Dashboard: Fix `Mesh-Service-Relation` metric `Throughput` and `Proxy Sidecar Internal Latency in Nanoseconds (Client Response)`.
