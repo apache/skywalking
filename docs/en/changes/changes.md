@@ -48,6 +48,7 @@
 * Dashboard: Fix `Mesh-Service-Relation` metric `Throughput` and `Proxy Sidecar Internal Latency in Nanoseconds (Client Response)`.
 * Dashboard: Fix `Mesh-Instance-Relation` metric `Throughput`.
 * Enhance associations for the Event widget.
+* Add event widgets in dashboard where applicable.
 
 #### Documentation
 
