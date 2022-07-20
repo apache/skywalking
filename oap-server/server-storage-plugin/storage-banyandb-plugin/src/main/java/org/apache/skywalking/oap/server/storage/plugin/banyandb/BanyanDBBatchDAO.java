@@ -82,7 +82,9 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
     private StreamBulkWriteProcessor getStreamBulkWriteProcessor() {
         if (streamBulkWriteProcessor == null) {
             synchronized (STREAM_SYNCHRONIZER) {
-                this.streamBulkWriteProcessor = getClient().createStreamBulkProcessor(maxBulkSize, flushInterval, concurrency);
+                if (streamBulkWriteProcessor == null) {
+                    this.streamBulkWriteProcessor = getClient().createStreamBulkProcessor(maxBulkSize, flushInterval, concurrency);
+                }
             }
         }
         return streamBulkWriteProcessor;
@@ -91,7 +93,9 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
     private MeasureBulkWriteProcessor getMeasureBulkWriteProcessor() {
         if (measureBulkWriteProcessor == null) {
             synchronized (MEASURE_SYNCHRONIZER) {
-                this.measureBulkWriteProcessor = getClient().createMeasureBulkProcessor(maxBulkSize, flushInterval, concurrency);
+                if (measureBulkWriteProcessor == null) {
+                    this.measureBulkWriteProcessor = getClient().createMeasureBulkProcessor(maxBulkSize, flushInterval, concurrency);
+                }
             }
         }
         return measureBulkWriteProcessor;
