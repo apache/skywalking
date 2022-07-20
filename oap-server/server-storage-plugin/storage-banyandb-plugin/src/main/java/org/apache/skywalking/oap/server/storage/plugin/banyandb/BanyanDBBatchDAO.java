@@ -31,9 +31,10 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBS
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> implements IBatchDAO {
+    private static final Object STREAM_SYNCHRONIZER = new Object();
+    private static final Object MEASURE_SYNCHRONIZER = new Object();
     private StreamBulkWriteProcessor streamBulkWriteProcessor;
 
     private MeasureBulkWriteProcessor measureBulkWriteProcessor;
@@ -44,8 +45,6 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
 
     private final int concurrency;
 
-    private final AtomicBoolean initialized = new AtomicBoolean(false);
-
     public BanyanDBBatchDAO(BanyanDBStorageClient client, int maxBulkSize, int flushInterval, int concurrency) {
         super(client);
         this.maxBulkSize = maxBulkSize;
@@ -55,37 +54,50 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
 
     @Override
     public void insert(InsertRequest insertRequest) {
-        if (initialized.compareAndSet(false, true)) {
-            this.streamBulkWriteProcessor = getClient().createStreamBulkProcessor(maxBulkSize, flushInterval, concurrency);
-            this.measureBulkWriteProcessor = getClient().createMeasureBulkProcessor(maxBulkSize, flushInterval, concurrency);
-        }
         if (insertRequest instanceof BanyanDBStreamInsertRequest) {
-            this.streamBulkWriteProcessor.add(((BanyanDBStreamInsertRequest) insertRequest).getStreamWrite());
+            getStreamBulkWriteProcessor().add(((BanyanDBStreamInsertRequest) insertRequest).getStreamWrite());
         } else if (insertRequest instanceof BanyanDBMeasureInsertRequest) {
-            this.measureBulkWriteProcessor.add(((BanyanDBMeasureInsertRequest) insertRequest).getMeasureWrite());
+            getMeasureBulkWriteProcessor().add(((BanyanDBMeasureInsertRequest) insertRequest).getMeasureWrite());
         }
     }
 
     @Override
     public CompletableFuture<Void> flush(List<PrepareRequest> prepareRequests) {
-        if (initialized.compareAndSet(false, true)) {
-            this.streamBulkWriteProcessor = getClient().createStreamBulkProcessor(maxBulkSize, flushInterval, concurrency);
-            this.measureBulkWriteProcessor = getClient().createMeasureBulkProcessor(maxBulkSize, flushInterval, concurrency);
-        }
-
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
             for (final PrepareRequest r : prepareRequests) {
                 if (r instanceof BanyanDBStreamInsertRequest) {
                     // TODO: return CompletableFuture<Void>
-                    this.streamBulkWriteProcessor.add(((BanyanDBStreamInsertRequest) r).getStreamWrite());
+                    getStreamBulkWriteProcessor().add(((BanyanDBStreamInsertRequest) r).getStreamWrite());
                 } else if (r instanceof BanyanDBMeasureInsertRequest) {
-                    this.measureBulkWriteProcessor.add(((BanyanDBMeasureInsertRequest) r).getMeasureWrite());
+                    getMeasureBulkWriteProcessor().add(((BanyanDBMeasureInsertRequest) r).getMeasureWrite());
                 } else if (r instanceof BanyanDBMeasureUpdateRequest) {
-                    this.measureBulkWriteProcessor.add(((BanyanDBMeasureUpdateRequest) r).getMeasureWrite());
+                    getMeasureBulkWriteProcessor().add(((BanyanDBMeasureUpdateRequest) r).getMeasureWrite());
                 }
             }
         }
 
         return CompletableFuture.completedFuture(null);
+    }
+
+    private StreamBulkWriteProcessor getStreamBulkWriteProcessor() {
+        if (streamBulkWriteProcessor == null) {
+            synchronized (STREAM_SYNCHRONIZER) {
+                if (streamBulkWriteProcessor == null) {
+                    this.streamBulkWriteProcessor = getClient().createStreamBulkProcessor(maxBulkSize, flushInterval, concurrency);
+                }
+            }
+        }
+        return streamBulkWriteProcessor;
+    }
+
+    private MeasureBulkWriteProcessor getMeasureBulkWriteProcessor() {
+        if (measureBulkWriteProcessor == null) {
+            synchronized (MEASURE_SYNCHRONIZER) {
+                if (measureBulkWriteProcessor == null) {
+                    this.measureBulkWriteProcessor = getClient().createMeasureBulkProcessor(maxBulkSize, flushInterval, concurrency);
+                }
+            }
+        }
+        return measureBulkWriteProcessor;
     }
 }
