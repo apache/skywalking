@@ -49,6 +49,9 @@
 * Dashboard: Fix `Mesh-Instance-Relation` metric `Throughput`.
 * Enhance associations for the Event widget.
 * Add event widgets in dashboard where applicable.
+* Fix dashboard list search box not work.
+* Fix short time range.
+* Fix event widget incompatibility in Safari.
 
 #### Documentation
 
