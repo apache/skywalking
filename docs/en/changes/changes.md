@@ -25,6 +25,7 @@
 * Support the `NETWORK` type of eBPF Profiling task.
 * Support `sumHistogram` in `MAL`.
 * [Breaking Change] Make the eBPF Profiling task support to the service instance level, index/table `ebpf_profiling_task` is required to be re-created when bump up from previous releases.
+* Fix race condition in Banyandb storage
 
 #### UI
 
@@ -41,6 +42,16 @@
 * Fix tag dropdown style.
 * Hide the copy button when db.statement is empty.
 * Fix legend metrics for topology.
+* Dashboard: Add metrics association.
+* Dashboard: Fix `FaaS-Root` document link and topology service relation dashboard link.
+* Dashboard: Fix `Mesh-Instance` metric `Throughput`.
+* Dashboard: Fix `Mesh-Service-Relation` metric `Throughput` and `Proxy Sidecar Internal Latency in Nanoseconds (Client Response)`.
+* Dashboard: Fix `Mesh-Instance-Relation` metric `Throughput`.
+* Enhance associations for the Event widget.
+* Add event widgets in dashboard where applicable.
+* Fix dashboard list search box not work.
+* Fix short time range.
+* Fix event widget incompatibility in Safari.
 
 #### Documentation
 
