@@ -13,20 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-  {{- contains . }}
-- taskid: {{ notEmpty .taskid }}
-  serviceid: {{ b64enc "file" }}.1
-  servicename: file
-  serviceinstanceid: null
-  serviceinstancename: null
-  processlabels:
-    {{- contains .processlabels }}
-    - e2e-label1
-    - e2e-label2
-    {{- end }}
-  taskstarttime: {{ gt .taskstarttime 0 }}
-  triggertype: FIXED_TIME
-  fixedtriggerduration: 60
-  targettype: OFF_CPU
-  createtime: {{ gt .createtime 0 }}
-  {{- end }}
+{{- contains . }}
+- id: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
+  name: productpage
+  attributes: []
+  language: UNKNOWN
+  instanceuuid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
+{{- end }}

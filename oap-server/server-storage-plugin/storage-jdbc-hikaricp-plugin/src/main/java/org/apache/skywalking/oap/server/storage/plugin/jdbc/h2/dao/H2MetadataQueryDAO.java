@@ -361,6 +361,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             process.setInstanceName(instanceIDDefinition.getName());
             process.setAgentId(resultSet.getString(ProcessTraffic.AGENT_ID));
             process.setDetectType(ProcessDetectType.valueOf(resultSet.getInt(ProcessTraffic.DETECT_TYPE)).name());
+            process.setProfilingSupportStatus(ProfilingSupportStatus.valueOf(resultSet.getInt(ProcessTraffic.PROFILING_SUPPORT_STATUS)).name());
             String propertiesString = resultSet.getString(ProcessTraffic.PROPERTIES);
             if (!Strings.isNullOrEmpty(propertiesString)) {
                 JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);

@@ -350,6 +350,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         process.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
         process.setAgentId(dataPoint.getTagValue(ProcessTraffic.AGENT_ID));
         process.setDetectType(ProcessDetectType.valueOf(((Number) dataPoint.getTagValue(ProcessTraffic.DETECT_TYPE)).intValue()).name());
+        process.setProfilingSupportStatus(ProfilingSupportStatus.valueOf(((Number) dataPoint.getTagValue(ProcessTraffic.PROFILING_SUPPORT_STATUS)).intValue()).name());
 
         String propString = dataPoint.getTagValue(ProcessTraffic.PROPERTIES);
         if (!Strings.isNullOrEmpty(propString)) {

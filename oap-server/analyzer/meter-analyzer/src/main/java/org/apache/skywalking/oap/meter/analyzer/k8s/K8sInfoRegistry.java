@@ -29,12 +29,12 @@ import io.kubernetes.client.openapi.models.V1LoadBalancerStatus;
 import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceList;
+import io.kubernetes.client.openapi.models.V1ServiceSpec;
 import io.kubernetes.client.openapi.models.V1ServiceStatus;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.models.V1Pod;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -180,6 +180,8 @@ public class K8sInfoRegistry {
             .map(V1LoadBalancerStatus::getIngress).filter(CollectionUtils::isNotEmpty)
             .ifPresent(l -> l.stream().filter(i -> StringUtil.isNotEmpty(i.getIp()))
                     .forEach(i -> ipServiceMap.remove(i.getIp())));
+        ofNullable(service.getSpec()).map(V1ServiceSpec::getClusterIPs).filter(CollectionUtils::isNotEmpty)
+            .ifPresent(l -> l.stream().filter(StringUtil::isNotEmpty).forEach(ipServiceMap::remove));
         recompose();
     }
 
@@ -234,17 +236,17 @@ public class K8sInfoRegistry {
             });
         });
         nameServiceMap.forEach((serviceName, service) -> {
-            if (isNull(service.getMetadata()) || isNull(service.getStatus()) || isNull(service.getStatus().getLoadBalancer())) {
-                return;
+            if (!isNull(service.getSpec()) && CollectionUtils.isNotEmpty(service.getSpec().getClusterIPs())) {
+                for (String clusterIP : service.getSpec().getClusterIPs()) {
+                    ipServiceMap.put(clusterIP, serviceName);
+                }
             }
-            final List<V1LoadBalancerIngress> ingress = service.getStatus().getLoadBalancer().getIngress();
-            if (CollectionUtils.isEmpty(ingress)) {
-                return;
-            }
-
-            for (V1LoadBalancerIngress loadBalancerIngress : ingress) {
-                if (StringUtil.isNotEmpty(loadBalancerIngress.getIp())) {
-                    ipServiceMap.put(loadBalancerIngress.getIp(), serviceName);
+            if (!isNull(service.getStatus()) && !isNull(service.getStatus().getLoadBalancer())
+                && CollectionUtils.isNotEmpty(service.getStatus().getLoadBalancer().getIngress())) {
+                for (V1LoadBalancerIngress loadBalancerIngress : service.getStatus().getLoadBalancer().getIngress()) {
+                    if (StringUtil.isNotEmpty(loadBalancerIngress.getIp())) {
+                        ipServiceMap.put(loadBalancerIngress.getIp(), serviceName);
+                    }
                 }
             }
         });

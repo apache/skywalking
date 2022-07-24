@@ -353,6 +353,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             process.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
             process.setAgentId(processTraffic.getAgentId());
             process.setDetectType(ProcessDetectType.valueOf(processTraffic.getDetectType()).name());
+            process.setProfilingSupportStatus(ProfilingSupportStatus.valueOf(processTraffic.getProfilingSupportStatus()).name());
 
             JsonObject properties = processTraffic.getProperties();
             if (properties != null) {

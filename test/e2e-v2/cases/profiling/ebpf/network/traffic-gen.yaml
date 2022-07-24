@@ -13,20 +13,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-  {{- contains . }}
-- taskid: {{ notEmpty .taskid }}
-  serviceid: {{ b64enc "file" }}.1
-  servicename: file
-  serviceinstanceid: null
-  serviceinstancename: null
-  processlabels:
-    {{- contains .processlabels }}
-    - e2e-label1
-    - e2e-label2
-    {{- end }}
-  taskstarttime: {{ gt .taskstarttime 0 }}
-  triggertype: FIXED_TIME
-  fixedtriggerduration: 60
-  targettype: OFF_CPU
-  createtime: {{ gt .createtime 0 }}
-  {{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trafficgenerator
+  labels:
+    app: trafficgenerator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trafficgenerator
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      labels:
+        app: trafficgenerator
+    spec:
+      containers:
+        - name: trafficgenerator
+          image: williamyeh/wrk
+          command: ["wrk", "-t1", "-c1", "-d2000m", "http://istio-ingressgateway.istio-system:80/productpage"]
+          resources:
+            requests:
+              cpu: 0.1

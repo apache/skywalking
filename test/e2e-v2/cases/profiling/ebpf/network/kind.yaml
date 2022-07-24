@@ -13,20 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-  {{- contains . }}
-- taskid: {{ notEmpty .taskid }}
-  serviceid: {{ b64enc "file" }}.1
-  servicename: file
-  serviceinstanceid: null
-  serviceinstancename: null
-  processlabels:
-    {{- contains .processlabels }}
-    - e2e-label1
-    - e2e-label2
-    {{- end }}
-  taskstarttime: {{ gt .taskstarttime 0 }}
-  triggertype: FIXED_TIME
-  fixedtriggerduration: 60
-  targettype: OFF_CPU
-  createtime: {{ gt .createtime 0 }}
-  {{- end }}
+# this config file contains all config fields with comments
+# NOTE: this is not a particularly useful config file
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  # the control plane node config
+  - role: control-plane
+  # the three workers
+  - role: worker
+  - role: worker
+  - role: worker
