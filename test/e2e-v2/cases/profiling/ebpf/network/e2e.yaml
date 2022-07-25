@@ -68,19 +68,19 @@ setup:
         - namespace: istio-system
           resource: deployments/skywalking-oap
           for: condition=available
-    - name: Install SkyWalking Rover
-      command: |
-        envsubst < test/e2e-v2/cases/profiling/ebpf/network/rover.yaml | kubectl apply -f -
-      wait:
-        - namespace: default
-          resource: pod
-          for: condition=Ready
     - name: Deploy demo services
       command: |
         kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
         kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/bookinfo-gateway.yaml
         kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/destination-rule-all.yaml
         kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/virtual-service-all-v1.yaml
+      wait:
+        - namespace: default
+          resource: pod
+          for: condition=Ready
+    - name: Install SkyWalking Rover
+      command: |
+        envsubst < test/e2e-v2/cases/profiling/ebpf/network/rover.yaml | kubectl apply -f -
       wait:
         - namespace: default
           resource: pod
