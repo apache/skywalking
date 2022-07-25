@@ -35,7 +35,7 @@
 * Optimize log tables.
 * Fix log detail pop-up page doesn't work.
 * Optimize table widget to hide the whole metric column when no metric is set.
-* Implement the Event widget.
+* Implement the Event widget. Remove `event` menu.
 * Fix span detail text overlap.
 * Add Python Bottle Plugin Logo.
 * Implement an association between widgets(line, bar, area graphs) with time.
@@ -51,7 +51,7 @@
 * Add event widgets in dashboard where applicable.
 * Fix dashboard list search box not work.
 * Fix short time range.
-* Fix event widget incompatibility in Safari.
+* Fix event widget incompatibility in Safari.  
 
 #### Documentation
 
