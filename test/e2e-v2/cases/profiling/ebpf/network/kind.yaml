@@ -20,7 +20,19 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   # the control plane node config
   - role: control-plane
+    extraMounts:
+      - hostPath: /
+        containerPath: /host
   # the three workers
   - role: worker
+    extraMounts:
+      - hostPath: /
+        containerPath: /host
   - role: worker
+    extraMounts:
+      - hostPath: /
+        containerPath: /host
   - role: worker
+    extraMounts:
+      - hostPath: /
+        containerPath: /host
