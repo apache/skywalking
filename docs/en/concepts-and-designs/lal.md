@@ -107,7 +107,7 @@ filter {
 
 - `grok` (TODO)
 
-We're aware of certains performance issues in the grok Java library, and so we're currently conducting investigations and benchmarking. Contributions are
+We're aware of certain performance issues in the grok Java library, and so we're currently conducting investigations and benchmarking. Contributions are
 welcome.
 
 ### Extractor
@@ -359,7 +359,7 @@ filter {
         sampler {
             // ... sampler configs
         }
-        if (parserd.level == "ERROR" || parsed.userId == "TestingUserId") { // sample error logs or testing users' logs (userId == "TestingUserId") even if the sampling strategy is configured
+        if (parsed.level == "ERROR" || parsed.userId == "TestingUserId") { // sample error logs or testing users' logs (userId == "TestingUserId") even if the sampling strategy is configured
             enforcer {
             }
         }
