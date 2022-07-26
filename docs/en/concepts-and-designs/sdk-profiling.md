@@ -87,7 +87,7 @@ threadPool.submit(new Task2(countDownLatch));
  
 try {
    countDownLatch.await(500, TimeUnit.MILLISECONDS);
-} catch (InterruptedExceptione) {
+} catch (InterruptedException) {
 }
 ```
 

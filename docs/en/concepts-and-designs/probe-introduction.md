@@ -21,7 +21,7 @@ On a high level, there are four typical categories in all SkyWalking probes.
   span data. See
   [Receiver for Zipkin traces](../setup/backend/zipkin-trace.md) for more information.
 
-- **eBPF agent**. The eBPF agent collects metrics and proifiling the target service powered by the eBPF technology of Linux kernel.
+- **eBPF agent**. The eBPF agent collects metrics and profiling the target service powered by the eBPF technology of Linux kernel.
 
 You don't need to use **Language based native agent** and **Service Mesh probe** at the same time, since they both serve
 to collect metrics data. Otherwise, your system will suffer twice the payload, and the analytic numbers will be doubled.
