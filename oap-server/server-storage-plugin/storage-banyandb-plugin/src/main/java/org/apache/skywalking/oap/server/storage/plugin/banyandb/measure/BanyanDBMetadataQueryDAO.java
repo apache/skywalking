@@ -201,7 +201,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public List<Process> listProcessesByService(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+    public List<Process> listProcesses(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
             PROCESS_TRAFFIC_TAGS,
             Collections.emptySet(),
@@ -226,7 +226,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public List<Process> listProcessesByServiceInstance(String serviceInstanceId, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+    public List<Process> listProcesses(String serviceInstanceId, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
             PROCESS_TRAFFIC_TAGS,
             Collections.emptySet(),
@@ -250,7 +250,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public List<Process> listProcessesByAgent(String agentId) throws IOException {
+    public List<Process> listProcesses(String agentId) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
             PROCESS_TRAFFIC_TAGS,
             Collections.emptySet(),
@@ -272,7 +272,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public long getProcessCountByService(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+    public long getProcessCount(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
             PROCESS_TRAFFIC_TAGS,
             Collections.emptySet(),
@@ -294,7 +294,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public long getProcessCountByServiceInstance(String instanceId) throws IOException {
+    public long getProcessCount(String instanceId) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
             PROCESS_TRAFFIC_TAGS,
             Collections.emptySet(),

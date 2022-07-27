@@ -266,7 +266,7 @@ public class EBPFProfilingMutationService implements Service {
         }
 
         // validate have processes under the instance
-        final long processesCount = getMetadataQueryDAO().getProcessCountByServiceInstance(request.getInstanceId());
+        final long processesCount = getMetadataQueryDAO().getProcessCount(request.getInstanceId());
         if (processesCount <= 0) {
             return "The instance doesn't have processes.";
         }

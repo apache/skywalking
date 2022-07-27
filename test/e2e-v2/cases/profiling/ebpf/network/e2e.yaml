@@ -150,35 +150,35 @@ verify:
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
         --service-name default::productpage --instance-name productpage --process-name envoy \
         --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
-        --name=process_relation_client_write_rtt_time_histogram|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+        --name=process_relation_client_write_rtt_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
       expected: expected/metrics-has-value-label.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
         --service-name default::productpage --instance-name productpage --process-name envoy \
         --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
-        --name=process_relation_client_write_exe_time_histogram|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+        --name=process_relation_client_write_exe_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
       expected: expected/metrics-has-value-label.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
         --service-name default::productpage --instance-name productpage --process-name envoy \
         --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
-        --name=process_relation_client_read_exe_time_histogram|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+        --name=process_relation_client_read_exe_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
       expected: expected/metrics-has-value-label.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
         --service-name default::productpage --instance-name productpage --process-name envoy \
         --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
-        --name=process_relation_server_write_rtt_time_histogram|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+        --name=process_relation_server_write_rtt_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
       expected: expected/metrics-has-value-label.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
         --service-name default::productpage --instance-name productpage --process-name envoy \
         --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
-        --name=process_relation_server_write_exe_time_histogram|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+        --name=process_relation_server_write_exe_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
       expected: expected/metrics-has-value-label.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
         --service-name default::productpage --instance-name productpage --process-name envoy \
         --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
-        --name=process_relation_server_write_exe_time_histogram|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+        --name=process_relation_server_write_exe_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
       expected: expected/metrics-has-value-label.yml
