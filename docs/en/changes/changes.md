@@ -51,7 +51,9 @@
 * Add event widgets in dashboard where applicable.
 * Fix dashboard list search box not work.
 * Fix short time range.
-* Fix event widget incompatibility in Safari.  
+* Fix event widget incompatibility in Safari.
+* Refactor the tags component to support searching for tag keys and values.
+* Implement the log widget and the trace widget associate with each other, remove log tables on the trace widget.
 
 #### Documentation
 
