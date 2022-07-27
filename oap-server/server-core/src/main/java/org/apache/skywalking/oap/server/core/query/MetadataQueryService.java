@@ -104,8 +104,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
     }
 
     public List<Process> listProcesses(final Duration duration, final String instanceId) throws IOException {
-        return getMetadataQueryDAO().listProcesses(null, instanceId, null, null,
-                duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        return getMetadataQueryDAO().listProcessesByServiceInstance(instanceId, duration.getStartTimeBucket(), duration.getEndTimeBucket());
     }
 
     public Process getProcess(String processId) throws IOException {
@@ -121,7 +120,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         }
         final long endTimestamp = System.currentTimeMillis();
         final long startTimestamp = endTimestamp - TimeUnit.MINUTES.toMillis(10);
-        final List<Process> processes = getMetadataQueryDAO().listProcesses(serviceId, null, null,
+        final List<Process> processes = getMetadataQueryDAO().listProcessesByService(serviceId,
                 ProfilingSupportStatus.SUPPORT_EBPF_PROFILING, TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute),
                 TimeBucket.getTimeBucket(endTimestamp, DownSampling.Minute));
         return CollectionUtils.isEmpty(processes) ?

@@ -214,30 +214,66 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
-                                       final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
+    public List<Process> listProcessesByService(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query = Query.bool();
         final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
-        appendProcessWhereQuery(query, serviceId, instanceId, agentId, profilingSupportStatus,
-                lastPingStartTimeBucket, lastPingEndTimeBucket);
+        appendProcessWhereQuery(query, serviceId, null, null, supportStatus, lastPingStartTimeBucket, lastPingEndTimeBucket);
         final SearchResponse results = getClient().search(index, search.build());
 
         return buildProcesses(results);
     }
 
     @Override
-    public long getProcessesCount(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
-                                  final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
+    public List<Process> listProcessesByServiceInstance(String serviceInstanceId, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         final String index =
-                IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
+
+        final BoolQueryBuilder query = Query.bool();
+        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+        appendProcessWhereQuery(query, null, serviceInstanceId, null, null, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        final SearchResponse results = getClient().search(index, search.build());
+
+        return buildProcesses(results);
+    }
+
+    @Override
+    public List<Process> listProcessesByAgent(String agentId) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
+
+        final BoolQueryBuilder query = Query.bool();
+        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+        appendProcessWhereQuery(query, null, null, agentId, null, 0, 0);
+        final SearchResponse results = getClient().search(index, search.build());
+
+        return buildProcesses(results);
+    }
+
+    @Override
+    public long getProcessCountByService(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query = Query.bool();
         final SearchBuilder search = Search.builder().query(query).size(0);
-        appendProcessWhereQuery(query, serviceId, instanceId, agentId, profilingSupportStatus,
-                lastPingStartTimeBucket, lastPingEndTimeBucket);
+        appendProcessWhereQuery(query, serviceId, null, null, profilingSupportStatus,
+            lastPingStartTimeBucket, lastPingEndTimeBucket);
+        final SearchResponse results = getClient().search(index, search.build());
+
+        return results.getHits().getTotal();
+    }
+
+    @Override
+    public long getProcessCountByServiceInstance(String instanceId) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
+
+        final BoolQueryBuilder query = Query.bool();
+        final SearchBuilder search = Search.builder().query(query).size(0);
+        appendProcessWhereQuery(query, null, instanceId, null, null, 0, 0);
         final SearchResponse results = getClient().search(index, search.build());
 
         return results.getHits().getTotal();
