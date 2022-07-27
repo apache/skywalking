@@ -54,6 +54,7 @@
 * Fix event widget incompatibility in Safari.
 * Refactor the tags component to support searching for tag keys and values.
 * Implement the log widget and the trace widget associate with each other, remove log tables on the trace widget.
+* Add log widget to general service root.
 
 #### Documentation
 
