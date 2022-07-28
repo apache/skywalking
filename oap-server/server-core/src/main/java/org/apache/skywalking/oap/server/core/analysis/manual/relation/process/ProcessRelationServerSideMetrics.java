@@ -96,6 +96,7 @@ public class ProcessRelationServerSideMetrics extends Metrics {
         setSourceProcessId(remoteData.getDataStrings(1));
         setDestProcessId(remoteData.getDataStrings(2));
         setEntityId(remoteData.getDataStrings(3));
+        setTimeBucket(remoteData.getDataLongs(0));
     }
 
     @Override
@@ -105,6 +106,7 @@ public class ProcessRelationServerSideMetrics extends Metrics {
         builder.addDataStrings(getSourceProcessId());
         builder.addDataStrings(getDestProcessId());
         builder.addDataStrings(getEntityId());
+        builder.addDataLongs(getTimeBucket());
         return builder;
     }
 

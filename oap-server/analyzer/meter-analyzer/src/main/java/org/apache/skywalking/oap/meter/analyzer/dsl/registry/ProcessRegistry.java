@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.meter.analyzer.dsl.registry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -71,6 +72,8 @@ public class ProcessRegistry {
         traffic.setServiceId(serviceId);
         traffic.setInstanceId(IDManager.ServiceInstanceID.buildId(serviceId, instance));
         traffic.setName(processName);
+        traffic.setAgentId(Const.EMPTY_STRING);
+        traffic.setLabelsJson(Const.EMPTY_STRING);
         traffic.setDetectType(ProcessDetectType.VIRTUAL.value());
         traffic.setTimeBucket(TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute));
         MetricsStreamProcessor.getInstance().in(traffic);
