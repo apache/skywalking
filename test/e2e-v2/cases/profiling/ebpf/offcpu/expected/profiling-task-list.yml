@@ -17,6 +17,8 @@
 - taskid: {{ notEmpty .taskid }}
   serviceid: {{ b64enc "file" }}.1
   servicename: file
+  serviceinstanceid: null
+  serviceinstancename: null
   processlabels:
     {{- contains .processlabels }}
     - e2e-label1

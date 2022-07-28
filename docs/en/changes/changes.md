@@ -26,6 +26,8 @@
 * Support `sumHistogram` in `MAL`.
 * [Breaking Change] Make the eBPF Profiling task support to the service instance level, index/table `ebpf_profiling_task` is required to be re-created when bump up from previous releases.
 * Fix race condition in Banyandb storage
+* Support `SUM_PER_MIN` downsampling in `MAL`.
+* Support `sumHistogramPercentile` in `MAL`.
 
 #### UI
 

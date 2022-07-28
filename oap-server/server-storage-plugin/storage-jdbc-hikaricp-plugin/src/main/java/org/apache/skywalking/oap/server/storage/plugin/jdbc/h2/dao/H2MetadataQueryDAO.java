@@ -185,6 +185,101 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         return endpoints;
     }
 
+    @Override
+    public List<Process> listProcesses(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>();
+        sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(sql, condition, serviceId, null, null, supportStatus, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        sql.append(" limit ").append(metadataQueryMaxSize);
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]))) {
+                return buildProcesses(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public List<Process> listProcesses(String serviceInstanceId, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>();
+        sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(sql, condition, null, serviceInstanceId, null, null, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        sql.append(" limit ").append(metadataQueryMaxSize);
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]))) {
+                return buildProcesses(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public List<Process> listProcesses(String agentId) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(2);
+        sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(sql, condition, null, null, agentId, null, 0, 0);
+        sql.append(" limit ").append(metadataQueryMaxSize);
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]))) {
+                return buildProcesses(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public long getProcessCount(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(5);
+        sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(sql, condition, serviceId, null, null, profilingSupportStatus,
+            lastPingStartTimeBucket, lastPingEndTimeBucket);
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]))) {
+                if (!resultSet.next()) {
+                    return 0;
+                }
+                return resultSet.getLong("total");
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public long getProcessCount(String instanceId) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(3);
+        sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
+        appendProcessWhereQuery(sql, condition, null, instanceId, null, null, 0, 0);
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]))) {
+                if (!resultSet.next()) {
+                    return 0;
+                }
+                return resultSet.getLong("total");
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
     private List<Service> buildServices(ResultSet resultSet) throws SQLException {
         List<Service> services = new ArrayList<>();
         while (resultSet.next()) {
@@ -229,48 +324,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             serviceInstances.add(serviceInstance);
         }
         return serviceInstances;
-    }
-
-    @Override
-    public List<Process> listProcesses(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
-                                       final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(3);
-        sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, profilingSupportStatus,
-                lastPingStartTimeBucket, lastPingEndTimeBucket);
-        sql.append(" limit ").append(metadataQueryMaxSize);
-
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(
-                    connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildProcesses(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-    }
-
-    @Override
-    public long getProcessesCount(String serviceId, String instanceId, String agentId, final ProfilingSupportStatus profilingSupportStatus,
-                                  final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(3);
-        sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, instanceId, agentId, profilingSupportStatus,
-                lastPingStartTimeBucket, lastPingEndTimeBucket);
-
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(
-                    connection, sql.toString(), condition.toArray(new Object[0]))) {
-                if (!resultSet.next()) {
-                    return 0;
-                }
-                return resultSet.getLong("total");
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
     }
 
     private void appendProcessWhereQuery(StringBuilder sql, List<Object> condition, String serviceId, String instanceId,
@@ -361,6 +414,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             process.setInstanceName(instanceIDDefinition.getName());
             process.setAgentId(resultSet.getString(ProcessTraffic.AGENT_ID));
             process.setDetectType(ProcessDetectType.valueOf(resultSet.getInt(ProcessTraffic.DETECT_TYPE)).name());
+            process.setProfilingSupportStatus(ProfilingSupportStatus.valueOf(resultSet.getInt(ProcessTraffic.PROFILING_SUPPORT_STATUS)).name());
             String propertiesString = resultSet.getString(ProcessTraffic.PROPERTIES);
             if (!Strings.isNullOrEmpty(propertiesString)) {
                 JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);

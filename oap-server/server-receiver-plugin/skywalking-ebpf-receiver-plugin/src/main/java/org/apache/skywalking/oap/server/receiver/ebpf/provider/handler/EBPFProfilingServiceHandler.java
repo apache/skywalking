@@ -84,8 +84,7 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
         final long latestUpdateTime = request.getLatestUpdateTime();
         try {
             // find exists process from agent
-            final List<Process> processes = metadataQueryDAO.listProcesses(null, null, agentId,
-                    ProfilingSupportStatus.SUPPORT_EBPF_PROFILING, 0, 0);
+            final List<Process> processes = metadataQueryDAO.listProcesses(agentId);
             if (CollectionUtils.isEmpty(processes)) {
                 responseObserver.onNext(Commands.newBuilder().build());
                 responseObserver.onCompleted();
@@ -120,8 +119,9 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
         }
         final ArrayList<EBPFProfilingTaskCommand> commands = new ArrayList<>(processes.size());
         for (Process process : processes) {
-            // The service id must match between process and task
-            if (!Objects.equals(process.getServiceId(), task.getServiceId())) {
+            // The service id must match between process and task and must could profiling
+            if (!Objects.equals(process.getServiceId(), task.getServiceId())
+                || !ProfilingSupportStatus.SUPPORT_EBPF_PROFILING.name().equals(process.getProfilingSupportStatus())) {
                 continue;
             }
 

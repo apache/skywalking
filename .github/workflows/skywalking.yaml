@@ -441,6 +441,9 @@ jobs:
             env: OPENSEARCH_VERSION=1.2.0
           - name: eBPF Profiling Off CPU
             config: test/e2e-v2/cases/profiling/ebpf/offcpu/e2e.yaml
+          - name: eBPF Profiling Network
+            config: test/e2e-v2/cases/profiling/ebpf/network/e2e.yaml
+            env: ISTIO_VERSION=1.13.1
 
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml
@@ -530,6 +533,12 @@ jobs:
         uses: apache/skywalking-infra-e2e@main
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        name: Upload Logs
+        with:
+          name: logs
+          path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
   e2e-test-istio:
     if: |
