@@ -116,7 +116,12 @@ public enum Layer {
     /**
      * Kubernetes service
      */
-    K8S_SERVICE(17, true);
+    K8S_SERVICE(17, true),
+
+    /**
+     * Telemetry from MYSQL
+     */
+    MYSQL(18, true);
 
     private final int value;
     /**
