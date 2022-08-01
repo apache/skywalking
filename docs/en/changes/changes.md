@@ -28,7 +28,7 @@
 * Fix race condition in Banyandb storage
 * Support `SUM_PER_MIN` downsampling in `MAL`.
 * Support `sumHistogramPercentile` in `MAL`.
-* Add `VIRTUAL_CACHE` to Layer, to fix [#9404](https://github.com/apache/skywalking/issues/9404)
+* Add `VIRTUAL_CACHE` to Layer, to fix conjectured Redis server, which icon can't show on the topology.
 
 #### UI
 
