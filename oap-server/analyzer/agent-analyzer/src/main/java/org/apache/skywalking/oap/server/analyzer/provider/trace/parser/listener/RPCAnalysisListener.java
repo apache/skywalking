@@ -395,7 +395,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             case MQ:
                 return Layer.VIRTUAL_MQ;
             case Cache:
-                return Layer.CACHE;
+                return Layer.VIRTUAL_CACHE;
             case UNRECOGNIZED:
                 return Layer.UNDEFINED;
             case FAAS:

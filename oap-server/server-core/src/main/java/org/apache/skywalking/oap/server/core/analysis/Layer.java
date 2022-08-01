@@ -121,7 +121,12 @@ public enum Layer {
     /**
      * MySQL Server, also known as mysqld, is a single multithreaded program that does most of the work in a MySQL installation. 
      */
-    MYSQL(18, true);
+    MYSQL(18, true),
+
+    /**
+     * Cache conjectured by client side plugin(eg. skywalking-java -> JedisPlugin LettucePlugin)
+     */
+    VIRTUAL_CACHE(19, false);
 
     private final int value;
     /**
