@@ -77,7 +77,7 @@ public class TimeSeriesUtilsTest {
             writeIndexName(normalRecordModel, secondTimeBucket)
         );
         Assert.assertEquals(
-            "normalMetricsModel-20200807",
+            "metrics-all-20200807",
             writeIndexName(normalMetricsModel, minuteTimeBucket)
         );
         secondTimeBucket += 1000000;
@@ -91,7 +91,7 @@ public class TimeSeriesUtilsTest {
             writeIndexName(normalRecordModel, secondTimeBucket)
         );
         Assert.assertEquals(
-            "normalMetricsModel-20200810",
+            "metrics-all-20200810",
             writeIndexName(normalMetricsModel, minuteTimeBucket)
         );
     }
