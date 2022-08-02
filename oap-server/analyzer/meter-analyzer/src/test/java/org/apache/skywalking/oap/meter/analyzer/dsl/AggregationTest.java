@@ -58,9 +58,9 @@ public class AggregationTest {
                 "sum",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
-                        Sample.builder().labels(of("idc", "t1")).value(3).name("http_success_request").build()
+                        Sample.builder().labels(of("idc", "t2")).value(3).name("http_success_request").build()
                     ).build()),
-                "http_success_request.sum(['idc'])",
+                "http_success_request.sum()",
                 Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().labels(ImmutableMap.of()).value(53).name("http_success_request").build()).build()),
                 false,
             },

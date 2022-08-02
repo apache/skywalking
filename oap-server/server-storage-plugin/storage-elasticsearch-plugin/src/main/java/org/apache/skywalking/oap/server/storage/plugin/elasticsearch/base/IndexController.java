@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,7 +52,7 @@ public enum IndexController {
         if (!logicSharding) {
             return isMetricModel(model) ? "metrics-all" : model.getName();
         }
-        String aggFuncName = FunctionCategory.uniqueFunctionName(model.getAClass());
+        String aggFuncName = FunctionCategory.uniqueFunctionName(model.getStreamClass());
         return StringUtil.isNotBlank(aggFuncName) ? aggFuncName : model.getName();
     }
 
@@ -63,7 +64,7 @@ public enum IndexController {
         if (!isMetricModel(model)) {
             return originalID;
         }
-        if (logicSharding && !isFunctionMetricModel(model)) {
+        if (logicSharding && !isFunctionMetric(model)) {
             return originalID;
         }
         return this.generateDocId(model.getName(), originalID);
@@ -80,11 +81,11 @@ public enum IndexController {
      * Check the mode of the Model definition.
      */
     public boolean isMetricModel(Model model) {
-        return Metrics.class.isAssignableFrom(model.getAClass());
+        return Metrics.class.isAssignableFrom(model.getStreamClass());
     }
 
-    public boolean isFunctionMetricModel(Model model) {
-        return StringUtil.isNotBlank(FunctionCategory.uniqueFunctionName(model.getAClass()));
+    public boolean isFunctionMetric(Model model) {
+        return StringUtil.isNotBlank(FunctionCategory.uniqueFunctionName(model.getStreamClass()));
     }
 
     /**
@@ -105,9 +106,9 @@ public enum IndexController {
         /**
          * The relations of the logic table and the physical table.
          */
-        private static final Map<String, String> LOGIC_INDICES_CATALOG = new ConcurrentHashMap<>();
+        private static final Map<String, String> LOGIC_INDICES_CATALOG = new HashMap<>();
 
-        private static final Map<String, Map<String, ModelColumn>> PHYSICAL_INDICES_COLUMNS = new ConcurrentHashMap<>();
+        private static final Map<String/*physical index name*/, Map<String/*column name*/, ModelColumn>> PHYSICAL_INDICES_COLUMNS = new HashMap<>();
 
         /**
          * The metric table name in aggregation physical storage.

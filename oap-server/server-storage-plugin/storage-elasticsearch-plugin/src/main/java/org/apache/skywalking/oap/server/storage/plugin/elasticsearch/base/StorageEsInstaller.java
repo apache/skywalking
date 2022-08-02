@@ -261,7 +261,7 @@ public class StorageEsInstaller extends ModelInstaller {
         }
 
         if ((IndexController.INSTANCE.isMetricModel(model) && !config.isLogicSharding())
-            || (config.isLogicSharding() && IndexController.INSTANCE.isFunctionMetricModel(model))) {
+            || (config.isLogicSharding() && IndexController.INSTANCE.isFunctionMetric(model))) {
             Map<String, Object> column = new HashMap<>();
             column.put("type", "keyword");
             properties.put(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, column);
