@@ -166,9 +166,7 @@ storage:
     oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
-    # If disabled, all metrics will persist in one index, to reduce the number of indexes.
-    # If enabled, the metrics will persist in multi indexes according to their index name and aggregation function name,
-    # the metrics which has the same aggregation function name will persist in one index.
+    # Enable shard metrics indices into multi-physical indices, one index template per metric/meter aggregation function.
     logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
   h2:
     driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
