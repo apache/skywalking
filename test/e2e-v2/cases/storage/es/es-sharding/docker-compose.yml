@@ -16,8 +16,8 @@
 version: '2.1'
 
 services:
-  opensearch:
-    image: opensearchproject/opensearch:${OPENSEARCH_VERSION}
+  es:
+    image: elastic/elasticsearch:7.15.0
     expose:
       - 9200
     networks:
@@ -25,46 +25,51 @@ services:
     environment:
       - discovery.type=single-node
       - cluster.routing.allocation.disk.threshold_enabled=false
-      - plugins.security.ssl.http.enabled=false
+      - xpack.security.enabled=false
     healthcheck:
-      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200" ]
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
       interval: 5s
       timeout: 60s
       retries: 120
 
   oap:
     extends:
-      file: ../docker-compose.yml
+      file: ../../../../script/docker-compose/base-compose.yml
       service: oap
-    networks:
-      - e2e
     environment:
       SW_STORAGE: elasticsearch
-      SW_STORAGE_ES_CLUSTER_NODES: opensearch:9200
-      SW_ES_USER: admin
-      SW_ES_PASSWORD: admin
+      SW_STORAGE_ES_CLUSTER_NODES: es:9200
       SW_STORAGE_ES_LOGIC_SHARDING: "true"
-    depends_on:
-      opensearch:
-        condition: service_healthy
     ports:
-    - 12800
-
-  sqrt:
-    extends:
-      file: ../docker-compose.yml
-      service: sqrt
+      - 12800
+    depends_on:
+      es:
+        condition: service_healthy
     networks:
       - e2e
 
-  rover:
+  provider:
     extends:
-      file: ../docker-compose.yml
-      service: rover
-    networks:
-      - e2e
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: provider
+    ports:
+      - 9090
     depends_on:
       oap:
+        condition: service_healthy
+    networks:
+      - e2e
+
+  consumer:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: consumer
+    ports:
+      - 9092
+    depends_on:
+      oap:
+        condition: service_healthy
+      provider:
         condition: service_healthy
 
 networks:

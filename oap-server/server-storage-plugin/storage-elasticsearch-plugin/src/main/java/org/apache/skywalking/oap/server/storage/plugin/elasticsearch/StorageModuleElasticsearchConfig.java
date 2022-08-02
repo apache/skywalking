@@ -142,4 +142,13 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * If the value is <= 0, the number of available processors will be used.
      */
     private int numHttpClientThread;
+
+    /**
+     * If disabled, all metrics will persist in one physical index, to reduce the number of physical indices.
+     * If enabled, the metrics will persist in multi physical indices according to their model index name and aggregation function name,
+     * the metrics which has the same aggregation function name will persist in one physical index.
+     *
+     * @since 9.2.0
+     */
+    private boolean logicSharding = false;
 }

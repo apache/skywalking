@@ -36,7 +36,7 @@ public class Model {
     private final boolean record;
     private final boolean superDataset;
     private final boolean isTimeSeries;
-    private final String aggregationFunctionName;
+    private final Class<?> aClass;
     private final boolean timeRelativeID;
     private final SQLDatabaseModelExtension sqlDBModelExtension;
 
@@ -46,7 +46,7 @@ public class Model {
                  final DownSampling downsampling,
                  final boolean record,
                  final boolean superDataset,
-                 final String aggregationFunctionName,
+                 final Class<?> aClass,
                  boolean timeRelativeID,
                  final SQLDatabaseModelExtension sqlDBModelExtension) {
         this.name = name;
@@ -56,7 +56,7 @@ public class Model {
         this.isTimeSeries = !DownSampling.None.equals(downsampling);
         this.record = record;
         this.superDataset = superDataset;
-        this.aggregationFunctionName = aggregationFunctionName;
+        this.aClass = aClass;
         this.timeRelativeID = timeRelativeID;
         this.sqlDBModelExtension = sqlDBModelExtension;
     }

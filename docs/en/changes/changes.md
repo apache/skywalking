@@ -29,6 +29,9 @@
 * Support `SUM_PER_MIN` downsampling in `MAL`.
 * Support `sumHistogramPercentile` in `MAL`.
 * Add `VIRTUAL_CACHE` to Layer, to fix conjectured Redis server, which icon can't show on the topology.
+* [Breaking Change] Elasticsearch storage support merge all metrics/meter indices into one physical index `metrics-all`. 
+  Provide config `SW_STORAGE_ES_LOGIC_SHARDING` to sharding metrics indices into multi physical indices as before, but disabled by default.
+* [Breaking Change] Many metrics model columns names are changed, JDBC storage(H2/Mysql/Tidb/Postgres) require to remove all metrics related table for OAP to re-create or use a new database instance.
 
 #### UI
 
