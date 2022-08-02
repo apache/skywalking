@@ -45,7 +45,6 @@ public enum IndexController {
      * Init in StorageModuleElasticsearchProvider.prepare() and the value from the config.
      */
     @Setter
-    @Getter
     private boolean logicSharding = false;
 
     public String getTableName(Model model) {
