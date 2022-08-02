@@ -133,16 +133,16 @@ public enum IndexController {
         }
 
         private static void checkModelColumnConflicts(ModelColumn mc1, ModelColumn mc2, String physicalName) {
-            if (!mc1.isIndexOnly() && mc2.isIndexOnly()) {
+            if (!(mc1.isIndexOnly() == mc2.isIndexOnly())) {
                 throw new IllegalArgumentException(mc1.getColumnName() + " and " + mc2.getColumnName() + " isIndexOnly conflict in index: " + physicalName);
             }
-            if (!mc1.isStorageOnly() && mc2.isStorageOnly()) {
+            if (!(mc1.isStorageOnly() == mc2.isStorageOnly())) {
                 throw new IllegalArgumentException(mc1.getColumnName() + " and " + mc2.getColumnName() + " isStorageOnly conflict in index: " + physicalName);
             }
             if (!mc1.getType().equals(mc2.getType())) {
                 throw new IllegalArgumentException(mc1.getColumnName() + " and " + mc2.getColumnName() + " Class type conflict in index: " + physicalName);
             }
-            if (!mc1.getElasticSearchExtension().needMatchQuery() && mc1.getElasticSearchExtension().needMatchQuery()) {
+            if (!(mc1.getElasticSearchExtension().needMatchQuery() == mc2.getElasticSearchExtension().needMatchQuery())) {
                 throw new IllegalArgumentException(mc1.getColumnName() + " and " + mc2.getColumnName() + " needMatchQuery conflict in index: " + physicalName);
             }
         }

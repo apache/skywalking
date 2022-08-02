@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -48,7 +49,7 @@ import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
 public class ServiceTraffic extends Metrics {
     public static final String INDEX_NAME = "service_traffic";
 
-    public static final String NAME = "service_name";
+    public static final String NAME = "service_traffic_name";
 
     public static final String SHORT_NAME = "short_name";
 
@@ -61,6 +62,7 @@ public class ServiceTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = NAME)
+    @ElasticSearch.MatchQuery
     private String name = Const.EMPTY_STRING;
 
     @Setter
