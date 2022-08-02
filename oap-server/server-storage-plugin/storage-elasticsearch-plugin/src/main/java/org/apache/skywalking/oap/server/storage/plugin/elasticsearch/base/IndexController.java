@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
@@ -43,6 +44,7 @@ public enum IndexController {
      * Init in StorageModuleElasticsearchProvider.prepare() and the value from the config.
      */
     @Setter
+    @Getter
     private boolean logicSharding = false;
 
     public String getTableName(Model model) {
@@ -61,6 +63,9 @@ public enum IndexController {
         if (!isMetricModel(model)) {
             return originalID;
         }
+        if (logicSharding && !isFunctionMetricModel(model)) {
+            return originalID;
+        }
         return this.generateDocId(model.getName(), originalID);
     }
 
@@ -76,6 +81,10 @@ public enum IndexController {
      */
     public boolean isMetricModel(Model model) {
         return Metrics.class.isAssignableFrom(model.getAClass());
+    }
+
+    public boolean isFunctionMetricModel(Model model) {
+        return StringUtil.isNotBlank(FunctionCategory.uniqueFunctionName(model.getAClass()));
     }
 
     /**

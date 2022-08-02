@@ -45,7 +45,7 @@ public class EndpointTraffic extends Metrics {
     public static final String INDEX_NAME = "endpoint_traffic";
 
     public static final String SERVICE_ID = "service_id";
-    public static final String NAME = "endpoint_name";
+    public static final String NAME = "endpoint_traffic_name";
 
     @Setter
     @Getter
