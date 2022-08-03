@@ -69,9 +69,9 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
     private static final String DEFAULT_GROUP = "pD";
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
-    public static final String VALUE = "value";
-    protected static final String SUMMATION = "summation";
-    protected static final String COUNT = "count";
+    public static final String VALUE = "datatable_value";
+    protected static final String SUMMATION = "datatable_summation";
+    protected static final String COUNT = "datatable_count";
 
     @Setter
     @Getter

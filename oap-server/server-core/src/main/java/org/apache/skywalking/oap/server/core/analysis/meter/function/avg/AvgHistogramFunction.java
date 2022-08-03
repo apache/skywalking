@@ -55,8 +55,8 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @ToString
 public abstract class AvgHistogramFunction extends Meter implements AcceptableValue<BucketedValues> {
     public static final String DATASET = "dataset";
-    protected static final String SUMMATION = "summation";
-    protected static final String COUNT = "count";
+    protected static final String SUMMATION = "datatable_summation";
+    protected static final String COUNT = "datatable_count";
 
     @Setter
     @Getter

@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
@@ -34,6 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 @Slf4j
 public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAliasDAO {
@@ -50,20 +52,24 @@ public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAl
     @Override
     public List<NetworkAddressAlias> loadLastUpdate(long timeBucketInMinute) {
         List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>();
-
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(NetworkAddressAlias.INDEX_NAME);
         try {
             final int batchSize = Math.min(resultWindowMaxSize, scrollingBatchSize);
-            final Search search =
-                Search.builder().query(
-                          Query.range(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET)
-                               .gte(timeBucketInMinute))
-                      .size(batchSize)
-                      .build();
+            final BoolQueryBuilder query = Query.bool();
+            if (IndexController.LogicIndicesRegister.isPhysicalTable(NetworkAddressAlias.INDEX_NAME)) {
+                query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, NetworkAddressAlias.INDEX_NAME));
+            }
+            query.must(Query.range(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET)
+                             .gte(timeBucketInMinute));
+
+            final Search search = Search.builder().query(query).size(batchSize).build();
+
             final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
             final NetworkAddressAlias.Builder builder = new NetworkAddressAlias.Builder();
 
             SearchResponse results =
-                getClient().search(NetworkAddressAlias.INDEX_NAME, search, params);
+                getClient().search(index, search, params);
             final Set<String> scrollIds = new HashSet<>();
             try {
                 while (true) {

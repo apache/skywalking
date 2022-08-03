@@ -13,14 +13,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-traces:
-{{- contains .traces }}
-- segmentid: {{ notEmpty .segmentid }}
-  endpointnames:
-    - POST:/users
-  duration: {{ ge .duration 0 }}
-  start: "{{ notEmpty .start}}"
-  iserror: false
-  traceids:
-    - {{ index .traceids 0 }}
+{{- contains . }}
+- key: 0
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 1 }}
+  {{- end }}
+- key: 1
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 1 }}
+  {{- end }}
+- key: 2
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 1 }}
+  {{- end }}
+- key: 3
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 1 }}
+  {{- end }}
+- key: 4
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 1 }}
+  {{- end }}
 {{- end }}

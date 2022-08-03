@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @MetricsFunction(functionName = "percentile")
 public abstract class PercentileMetrics extends Metrics implements MultiIntValuesHolder {
     protected static final String DATASET = "dataset";
-    protected static final String VALUE = "value";
+    protected static final String VALUE = "datatable_value";
     protected static final String PRECISION = "precision";
 
     private static final int[] RANKS = {

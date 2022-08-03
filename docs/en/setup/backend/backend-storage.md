@@ -49,6 +49,10 @@ Since 8.8.0, SkyWalking rebuilds the ElasticSearch client on top of ElasticSearc
 correct request formats according to the server-side version, hence you don't need to download different binaries
 and don't need to configure different storage selectors for different ElasticSearch server-side versions anymore.
 
+Since 9.2.0, SkyWalking merges all metrics/meter indices into one physical index template `metrics-all` on the default setting.
+Provide system environment variable(`SW_STORAGE_ES_LOGIC_SHARDING`) to shard metrics indices into multi-physical indices as the previous versions(one index template per metric/meter aggregation function).
+In the current one index mode, users still could choose to adjust ElasticSearch's shard number(`SW_STORAGE_ES_INDEX_SHARDS_NUMBER`) to scale out.
+
 For now, SkyWalking supports ElasticSearch 6.x, ElasticSearch 7.x, ElasticSearch 8.x, and OpenSearch 1.x, their
 configurations are as follows:
 
@@ -83,6 +87,7 @@ storage:
     oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
+    logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
 ```
 
 ### ElasticSearch With Https SSL Encrypting communications.

@@ -66,6 +66,9 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinServiceTraffic.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(ZipkinServiceTraffic.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ZipkinServiceTraffic.INDEX_NAME));
+        }
         final SearchBuilder search = Search.builder().query(query).size(SCROLLING_BATCH_SIZE);
         final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
         final List<String> services = new ArrayList<>();
@@ -98,6 +101,9 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         String index = IndexController.LogicIndicesRegister.getPhysicalTableName(
             ZipkinServiceRelationTraffic.INDEX_NAME);
         BoolQueryBuilder query = Query.bool().must(Query.term(ZipkinServiceRelationTraffic.SERVICE_NAME, serviceName));
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(ZipkinServiceRelationTraffic.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ZipkinServiceRelationTraffic.INDEX_NAME));
+        }
         SearchBuilder search = Search.builder().query(query).size(NAME_QUERY_MAX_SIZE);
         SearchResponse response = getClient().search(index, search.build());
         List<String> remoteServices = new ArrayList<>();
@@ -114,6 +120,9 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
     public List<String> getSpanNames(final String serviceName) {
         String index = IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinServiceSpanTraffic.INDEX_NAME);
         BoolQueryBuilder query = Query.bool().must(Query.term(ZipkinServiceSpanTraffic.SERVICE_NAME, serviceName));
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(ZipkinServiceSpanTraffic.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ZipkinServiceSpanTraffic.INDEX_NAME));
+        }
         SearchBuilder search = Search.builder().query(query).size(NAME_QUERY_MAX_SIZE);
         SearchResponse response = getClient().search(index, search.build());
         List<String> spanNames = new ArrayList<>();

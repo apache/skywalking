@@ -44,6 +44,7 @@ public class StorageEsInstaller extends ModelInstaller {
     private final StorageModuleElasticsearchConfig config;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
 
+
     /**
      * The mappings of the template .
      */
@@ -66,7 +67,7 @@ public class StorageEsInstaller extends ModelInstaller {
     protected boolean isExists(Model model) {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         String tableName = IndexController.INSTANCE.getTableName(model);
-        IndexController.LogicIndicesRegister.registerRelation(model.getName(), tableName);
+        IndexController.LogicIndicesRegister.registerRelation(model, tableName);
         if (!model.isTimeSeries()) {
             boolean exist = esClient.isExistsIndex(tableName);
             if (exist) {
@@ -151,7 +152,7 @@ public class StorageEsInstaller extends ModelInstaller {
                     tableName, settings, structures.getMapping(tableName), config.getIndexTemplateOrder());
                 log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
                 if (!isAcknowledged) {
-                    throw new IOException("create " + tableName + " index template failure, ");
+                    throw new IOException("create " + tableName + " index template failure");
                 }
             }
 
@@ -203,7 +204,8 @@ public class StorageEsInstaller extends ModelInstaller {
             indexRefreshInterval = 5;
         }
         setting.put("index.refresh_interval", indexRefreshInterval + "s");
-        setting.put("analysis", getAnalyzerSetting(model.getColumns()));
+        List<ModelColumn> columns = IndexController.LogicIndicesRegister.getPhysicalTableColumns(model);
+        setting.put("analysis", getAnalyzerSetting(columns));
         if (!StringUtil.isEmpty(config.getAdvanced())) {
             Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);
             setting.putAll(advancedSettings);
@@ -258,7 +260,8 @@ public class StorageEsInstaller extends ModelInstaller {
             }
         }
 
-        if (IndexController.INSTANCE.isMetricModel(model)) {
+        if ((IndexController.INSTANCE.isMetricModel(model) && !config.isLogicSharding())
+            || (config.isLogicSharding() && IndexController.INSTANCE.isFunctionMetric(model))) {
             Map<String, Object> column = new HashMap<>();
             column.put("type", "keyword");
             properties.put(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, column);

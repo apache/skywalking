@@ -61,8 +61,8 @@ public abstract class SumHistogramPercentileFunction extends Meter implements Ac
     private static final String DEFAULT_GROUP = "pD";
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
-    public static final String VALUE = "value";
-    protected static final String SUMMATION = "summation";
+    public static final String VALUE = "datatable_value";
+    protected static final String SUMMATION = "datatable_summation";
 
     @Setter
     @Getter
