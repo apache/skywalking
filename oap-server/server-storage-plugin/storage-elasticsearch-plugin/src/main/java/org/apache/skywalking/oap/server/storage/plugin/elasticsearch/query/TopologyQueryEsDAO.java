@@ -239,11 +239,12 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                 .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                 .size(1000));
 
-        final String index =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(detectPoint == DetectPoint.SERVER ?
-                ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME);
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(EndpointRelationServerSideMetrics.INDEX_NAME)) {
-            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, EndpointRelationServerSideMetrics.INDEX_NAME));
+        String indexName = detectPoint == DetectPoint.SERVER ?
+            ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME;
+
+        final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(indexName);
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(indexName)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, indexName));
         }
         final SearchResponse response = getClient().search(index, sourceBuilder.build());
 
