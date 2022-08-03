@@ -65,7 +65,7 @@ public class EBPFProfilingScheduleEsDAO extends EsDAO implements IEBPFProfilingS
 
     private EBPFProfilingSchedule parseSchedule(final SearchHit hit) {
         final EBPFProfilingSchedule schedule = new EBPFProfilingSchedule();
-        schedule.setScheduleId(hit.getId());
+        schedule.setScheduleId((String) hit.getSource().get(EBPFProfilingScheduleRecord.EBPF_PROFILING_SCHEDULE_ID));
         schedule.setTaskId((String) hit.getSource().get(EBPFProfilingScheduleRecord.TASK_ID));
         schedule.setProcessId((String) hit.getSource().get(EBPFProfilingScheduleRecord.PROCESS_ID));
         schedule.setStartTime(((Number) hit.getSource().get(EBPFProfilingScheduleRecord.START_TIME)).longValue());
