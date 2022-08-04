@@ -139,9 +139,30 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
     public List<Span> getTrace(final String traceId) {
         String index = IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME);
         BoolQueryBuilder query = Query.bool().must(Query.term(ZipkinSpanRecord.TRACE_ID, traceId));
-        SearchBuilder search = Search.builder().query(query);
-        SearchResponse response = getClient().search(index, search.build());
-        return buildSingleTrace(response);
+        SearchBuilder search = Search.builder().query(query).size(SCROLLING_BATCH_SIZE);
+        final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
+        SearchResponse response = getClient().search(index, search.build(), params);
+        final Set<String> scrollIds = new HashSet<>();
+        List<Span> trace = new ArrayList<>();
+        try {
+            while (response.getHits().getHits().size() != 0) {
+                String scrollId = response.getScrollId();
+                scrollIds.add(scrollId);
+                for (SearchHit searchHit : response.getHits()) {
+                    Map<String, Object> sourceAsMap = searchHit.getSource();
+                    ZipkinSpanRecord record = new ZipkinSpanRecord.Builder().storage2Entity(
+                        new HashMapConverter.ToEntity(sourceAsMap));
+                    trace.add(buildSpanFromRecord(record));
+                }
+                if (response.getHits().getHits().size() < SCROLLING_BATCH_SIZE) {
+                    break;
+                }
+                response = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
+            }
+        } finally {
+            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
+        }
+        return trace;
     }
 
     @Override
@@ -234,17 +255,6 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
             scrollIds.forEach(getClient()::deleteScrollContextQuietly);
         }
         return new ArrayList<>(groupedByTraceId.values());
-    }
-
-    private List<Span> buildSingleTrace(SearchResponse response) {
-        List<Span> trace = new ArrayList<>();
-        for (SearchHit searchHit : response.getHits()) {
-            Map<String, Object> sourceAsMap = searchHit.getSource();
-            ZipkinSpanRecord record = new ZipkinSpanRecord.Builder().storage2Entity(
-                new HashMapConverter.ToEntity(sourceAsMap));
-            trace.add(buildSpanFromRecord(record));
-        }
-        return trace;
     }
 
     private void buildTraces(SearchResponse response, Map<String, List<Span>> groupedByTraceId) {
