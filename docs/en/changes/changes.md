@@ -33,6 +33,7 @@
   Provide system environment variable(`SW_STORAGE_ES_LOGIC_SHARDING`) to shard metrics/records indices into multi-physical indices as the previous versions(one index template per metric/meter aggregation function).
   In the current one index mode, users still could choose to adjust ElasticSearch's shard number(`SW_STORAGE_ES_INDEX_SHARDS_NUMBER`) to scale out.
 * [Breaking Change] Many columns of metrics and records model names are changed, The H2/Mysql/Tidb/Postgres storage users are required to remove all metrics-related and records-related tables for OAP to re-create or use a new database instance.
+* Fix Zipkin trace query the max size of spans.
 
 #### UI
 
