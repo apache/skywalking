@@ -195,6 +195,7 @@ public class IndexStructuresTest {
         structures.putStructure("test", Mappings.builder()
                                                 .type(ElasticSearchClient.TYPE)
                                                 .properties(properties)
+                                                .source(new Mappings.Source())
                                                 .build());
 
         HashMap<String, Object> properties2 = new HashMap<>();
@@ -205,6 +206,7 @@ public class IndexStructuresTest {
             Mappings.builder()
                     .type(ElasticSearchClient.TYPE)
                     .properties(properties2)
+                    .source(new Mappings.Source())
                     .build()
         ));
 
