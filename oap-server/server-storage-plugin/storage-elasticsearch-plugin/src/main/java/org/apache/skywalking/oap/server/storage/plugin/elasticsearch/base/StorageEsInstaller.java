@@ -266,6 +266,11 @@ public class StorageEsInstaller extends ModelInstaller {
             column.put("type", "keyword");
             properties.put(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, column);
         }
+        if (!config.isLogicSharding() && IndexController.INSTANCE.isRecordModel(model) && !model.isSuperDataset()) {
+            Map<String, Object> column = new HashMap<>();
+            column.put("type", "keyword");
+            properties.put(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, column);
+        }
         Mappings mappings = Mappings.builder()
                                     .type("type")
                                     .properties(properties)

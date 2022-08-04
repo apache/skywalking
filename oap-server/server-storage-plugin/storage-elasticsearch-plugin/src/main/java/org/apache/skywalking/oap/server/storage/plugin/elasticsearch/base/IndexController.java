@@ -28,6 +28,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -48,7 +49,8 @@ public enum IndexController {
 
     public String getTableName(Model model) {
         if (!logicSharding) {
-            return isMetricModel(model) ? "metrics-all" : model.getName();
+            return isMetricModel(model) ? "metrics-all" :
+                (isRecordModel(model) && !model.isSuperDataset() ? "records-all" : model.getName());
         }
         String aggFuncName = FunctionCategory.uniqueFunctionName(model.getStreamClass());
         return StringUtil.isNotBlank(aggFuncName) ? aggFuncName : model.getName();
@@ -59,6 +61,9 @@ public enum IndexController {
      * to avoid conflicts.
      */
     public String generateDocId(Model model, String originalID) {
+        if (!logicSharding && isRecordModel(model) && !model.isSuperDataset()) {
+            return this.generateDocId(model.getName(), originalID);
+        }
         if (!isMetricModel(model)) {
             return originalID;
         }
@@ -82,20 +87,31 @@ public enum IndexController {
         return Metrics.class.isAssignableFrom(model.getStreamClass());
     }
 
+    public boolean isRecordModel(Model model) {
+        return Record.class.isAssignableFrom(model.getStreamClass());
+    }
+
     public boolean isFunctionMetric(Model model) {
         return StringUtil.isNotBlank(FunctionCategory.uniqueFunctionName(model.getStreamClass()));
     }
 
     /**
-     * When a model is the metric storage mode, a column named {@link LogicIndicesRegister#METRIC_TABLE_NAME} would be
+     * There have two cases:
+     * 1. When a model is the metric storage mode, a column named {@link LogicIndicesRegister#METRIC_TABLE_NAME} would be
      * appended to the physical index. The value of the column is the original table name in other storages, such as the
      * OAL name.
+     *
+     * 2. When a model is the record storage mode, it's not have the super dataset and the storage is not sharding,
+     * a column named {@link LogicIndicesRegister#RECORD_TABLE_NAME} would be appended to the physical index.
+     * The value of the column is the original table name in other storages.
      */
-    public Map<String, Object> appendMetricTableColumn(Model model, Map<String, Object> columns) {
-        if (!isMetricModel(model)) {
-            return columns;
+    public Map<String, Object> appendTableColumn(Model model, Map<String, Object> columns) {
+        if (isMetricModel(model)) {
+            columns.put(LogicIndicesRegister.METRIC_TABLE_NAME, model.getName());
         }
-        columns.put(LogicIndicesRegister.METRIC_TABLE_NAME, model.getName());
+        if (!logicSharding && isRecordModel(model) && !model.isSuperDataset()) {
+            columns.put(LogicIndicesRegister.RECORD_TABLE_NAME, model.getName());
+        }
         return columns;
     }
 
@@ -112,6 +128,11 @@ public enum IndexController {
          * The metric table name in aggregation physical storage.
          */
         public static final String METRIC_TABLE_NAME = "metric_table";
+
+        /**
+         * The record table name in aggregation physical storage.
+         */
+        public static final String RECORD_TABLE_NAME = "record_table";
 
         public static String getPhysicalTableName(String logicName) {
             return Optional.ofNullable(LOGIC_INDICES_CATALOG.get(logicName)).orElse(logicName);

@@ -55,6 +55,9 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
                  .must(Query.range(TopN.TIME_BUCKET)
                             .gte(duration.getStartTimeBucketInSec())
                             .lte(duration.getEndTimeBucketInSec()));
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, condition.getName()));
+        }
 
         if (StringUtil.isNotEmpty(condition.getParentService())) {
             final String serviceId =

@@ -94,7 +94,8 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
 
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(1);
-        sql.append("select * from ").append(ProfileTaskRecord.INDEX_NAME).append(" where id=? LIMIT 1");
+        sql.append("select * from ").append(ProfileTaskRecord.INDEX_NAME)
+            .append(" where " + ProfileTaskRecord.TASK_ID + "=? LIMIT 1");
         condition.add(id);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -115,7 +116,7 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
      */
     private ProfileTask parseTask(ResultSet data) throws SQLException {
         return ProfileTask.builder()
-                          .id(data.getString("id"))
+                          .id(data.getString(ProfileTaskRecord.TASK_ID))
                           .serviceId(data.getString(ProfileTaskRecord.SERVICE_ID))
                           .endpointName(data.getString(ProfileTaskRecord.ENDPOINT_NAME))
                           .startTime(data.getLong(ProfileTaskRecord.START_TIME))

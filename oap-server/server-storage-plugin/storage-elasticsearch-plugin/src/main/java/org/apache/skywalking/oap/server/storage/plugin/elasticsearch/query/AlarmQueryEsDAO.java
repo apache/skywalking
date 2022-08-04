@@ -56,6 +56,9 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(AlarmRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(AlarmRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, AlarmRecord.INDEX_NAME));
+        }
 
         if (startTB != 0 && endTB != 0) {
             query.must(Query.range(AlarmRecord.TIME_BUCKET).gte(startTB).lte(endTB));

@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.profiling.trace;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
@@ -43,6 +42,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
 public class ProfileTaskRecord extends NoneStream {
 
     public static final String INDEX_NAME = "profile_task";
+    public static final String TASK_ID = "task_id";
     public static final String SERVICE_ID = "service_id";
     public static final String ENDPOINT_NAME = "endpoint_name";
     public static final String START_TIME = "start_time";
@@ -54,7 +54,7 @@ public class ProfileTaskRecord extends NoneStream {
 
     @Override
     public String id() {
-        return getCreateTime() + Const.ID_CONNECTOR + getServiceId();
+        return taskId;
     }
 
     @Column(columnName = SERVICE_ID)
@@ -62,6 +62,8 @@ public class ProfileTaskRecord extends NoneStream {
     private String serviceId;
     @Column(columnName = ENDPOINT_NAME)
     private String endpointName;
+    @Column(columnName = TASK_ID)
+    private String taskId;
     @Column(columnName = START_TIME)
     private long startTime;
     @Column(columnName = DURATION)
@@ -81,6 +83,7 @@ public class ProfileTaskRecord extends NoneStream {
             final ProfileTaskRecord record = new ProfileTaskRecord();
             record.setServiceId((String) converter.get(SERVICE_ID));
             record.setEndpointName((String) converter.get(ENDPOINT_NAME));
+            record.setTaskId((String) converter.get(TASK_ID));
             record.setStartTime(((Number) converter.get(START_TIME)).longValue());
             record.setDuration(((Number) converter.get(DURATION)).intValue());
             record.setMinDurationThreshold(((Number) converter.get(MIN_DURATION_THRESHOLD)).intValue());
@@ -95,6 +98,7 @@ public class ProfileTaskRecord extends NoneStream {
         public void entity2Storage(final ProfileTaskRecord storageData, final Convert2Storage converter) {
             converter.accept(SERVICE_ID, storageData.getServiceId());
             converter.accept(ENDPOINT_NAME, storageData.getEndpointName());
+            converter.accept(TASK_ID, storageData.getTaskId());
             converter.accept(START_TIME, storageData.getStartTime());
             converter.accept(DURATION, storageData.getDuration());
             converter.accept(MIN_DURATION_THRESHOLD, storageData.getMinDurationThreshold());

@@ -62,6 +62,9 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingTaskRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(EBPFProfilingTaskRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, EBPFProfilingTaskRecord.INDEX_NAME));
+        }
 
         if (CollectionUtils.isNotEmpty(serviceIdList)) {
             query.must(Query.terms(EBPFProfilingTaskRecord.SERVICE_ID, serviceIdList));

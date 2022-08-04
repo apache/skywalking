@@ -112,13 +112,14 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
             return null;
         }
 
-        RowEntity first = resp.getElements().stream().filter(e -> id.equals(e.getId())).findFirst().orElse(null);
+        RowEntity first = resp.getElements().stream().filter(e -> id.equals(e.getTagValue(ProfileTaskRecord.TASK_ID)))
+            .findFirst().orElse(null);
         return first == null ? null : buildProfileTask(first);
     }
 
     private ProfileTask buildProfileTask(RowEntity data) {
         return ProfileTask.builder()
-                .id(data.getId())
+                .id(data.getTagValue(ProfileTaskRecord.TASK_ID))
                 .serviceId(data.getTagValue(ProfileTaskRecord.SERVICE_ID))
                 .endpointName(data.getTagValue(ProfileTaskRecord.ENDPOINT_NAME))
                 .startTime(((Number) data.getTagValue(ProfileTaskRecord.START_TIME)).longValue())
