@@ -40,6 +40,7 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
     private static final Set<String> TAGS = ImmutableSet.of(
             ProfileTaskRecord.SERVICE_ID,
             ProfileTaskRecord.ENDPOINT_NAME,
+            ProfileTaskRecord.TASK_ID,
             ProfileTaskRecord.START_TIME,
             ProfileTaskRecord.CREATE_TIME,
             ProfileTaskRecord.DURATION,
