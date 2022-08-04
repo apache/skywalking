@@ -73,7 +73,7 @@ public class TimeSeriesUtilsTest {
             writeIndexName(superDatasetModel, secondTimeBucket)
         );
         Assert.assertEquals(
-            "normalRecordModel-20200807",
+            "records-all-20200807",
             writeIndexName(normalRecordModel, secondTimeBucket)
         );
         Assert.assertEquals(
@@ -87,7 +87,7 @@ public class TimeSeriesUtilsTest {
             writeIndexName(superDatasetModel, secondTimeBucket)
         );
         Assert.assertEquals(
-            "normalRecordModel-20200810",
+            "records-all-20200810",
             writeIndexName(normalRecordModel, secondTimeBucket)
         );
         Assert.assertEquals(
