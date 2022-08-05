@@ -101,7 +101,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) {
         final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
         storageBuilder.entity2Storage(metrics, toStorage);
-        Map<String, Object> builder = IndexController.INSTANCE.appendMetricTableColumn(model, toStorage.obtain());
+        Map<String, Object> builder = IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareInsert(modelName, id, builder);
@@ -112,7 +112,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
         storageBuilder.entity2Storage(metrics, toStorage);
         Map<String, Object> builder =
-            IndexController.INSTANCE.appendMetricTableColumn(model, toStorage.obtain());
+            IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareUpdate(modelName, id, builder);

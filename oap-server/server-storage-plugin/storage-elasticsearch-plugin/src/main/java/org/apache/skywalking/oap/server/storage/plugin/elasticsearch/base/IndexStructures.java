@@ -121,7 +121,7 @@ public class IndexStructures {
             if (!isContains) {
                 return false;
             }
-            return Objects.equals(this.source, fields.source);
+            return fields.source.getExcludes().containsAll(this.source.getExcludes());
         }
 
         /**

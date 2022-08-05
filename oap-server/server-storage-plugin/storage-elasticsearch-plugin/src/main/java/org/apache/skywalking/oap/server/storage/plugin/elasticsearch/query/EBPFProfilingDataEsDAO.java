@@ -53,6 +53,9 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
         final String index =
                 IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingDataRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(EBPFProfilingDataRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, EBPFProfilingDataRecord.INDEX_NAME));
+        }
         final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
         query.must(Query.terms(EBPFProfilingDataRecord.SCHEDULE_ID, scheduleIdList));
         query.must(Query.range(EBPFProfilingDataRecord.UPLOAD_TIME).gte(beginTime).lt(endTime));

@@ -278,6 +278,10 @@ jobs:
             config: test/e2e-v2/cases/go/e2e.yaml
           - name: Agent NodeJS Frontend
             config: test/e2e-v2/cases/browser/e2e.yaml
+          - name: Agent NodeJS Frontend ES
+            config: test/e2e-v2/cases/browser/es/e2e.yaml
+          - name: Agent NodeJS Frontend ES Sharding
+            config: test/e2e-v2/cases/browser/es/es-sharding/e2e.yaml
           - name: Agent PHP
             config: test/e2e-v2/cases/php/e2e.yaml
           - name: Agent Python
@@ -329,6 +333,8 @@ jobs:
             config: test/e2e-v2/cases/alarm/h2/e2e.yaml
           - name: Alarm ES
             config: test/e2e-v2/cases/alarm/es/e2e.yaml
+          - name: Alarm ES Sharding
+            config: test/e2e-v2/cases/alarm/es/es-sharding/e2e.yaml
           - name: Alarm MySQL
             config: test/e2e-v2/cases/alarm/mysql/e2e.yaml
           - name: Alarm PostgreSQL
@@ -384,6 +390,9 @@ jobs:
           - name: Log ES 8.0.0
             config: test/e2e-v2/cases/log/es/e2e.yaml
             env: ES_VERSION=8.0.0
+          - name: Log ES 8.0.0 Shardng
+            config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
+            env: ES_VERSION=8.0.0
 
           - name: Log FluentBit ES 6.3.2
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
@@ -410,6 +419,8 @@ jobs:
             config: test/e2e-v2/cases/profiling/trace/h2/e2e.yaml
           - name: Trace Profiling ES
             config: test/e2e-v2/cases/profiling/trace/es/e2e.yaml
+          - name: Trace Profiling ES Sharding
+            config: test/e2e-v2/cases/profiling/trace/es/es-sharding/e2e.yaml
           - name: Trace Profiling MySQL
             config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
           - name: Trace Profiling Postgres
@@ -429,6 +440,8 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/h2/e2e.yaml
           - name: eBPF Profiling On CPU ES
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/e2e.yaml
+          - name: eBPF Profiling On CPU ES
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/es-sharding/e2e.yaml
           - name: eBPF Profiling On CPU MySQL
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/mysql/e2e.yaml
           - name: eBPF Profiling On CPU Postgres
@@ -500,6 +513,8 @@ jobs:
 
           - name: Zipkin ES
             config: test/e2e-v2/cases/zipkin/es/e2e.yaml
+          - name: Zipkin ES Sharding
+            config: test/e2e-v2/cases/zipkin/es/es-sharding/e2e.yaml
           - name: Zipkin MySQL
             config: test/e2e-v2/cases/zipkin/mysql/e2e.yaml
           - name: Zipkin Opensearch

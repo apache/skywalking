@@ -52,6 +52,9 @@ public class BrowserLogQueryEsDAO extends EsDAO implements IBrowserLogQueryDAO {
                                                   final int limit,
                                                   final int from) throws IOException {
         final BoolQueryBuilder boolQueryBuilder = Query.bool();
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(BrowserErrorLogRecord.INDEX_NAME)) {
+            boolQueryBuilder.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, BrowserErrorLogRecord.INDEX_NAME));
+        }
 
         if (startSecondTB != 0 && endSecondTB != 0) {
             boolQueryBuilder.must(

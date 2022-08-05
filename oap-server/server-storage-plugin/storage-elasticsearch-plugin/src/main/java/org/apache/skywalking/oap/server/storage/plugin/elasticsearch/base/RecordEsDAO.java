@@ -41,7 +41,7 @@ public class RecordEsDAO extends EsDAO implements IRecordDAO {
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
         final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
         storageBuilder.entity2Storage(record, toStorage);
-        Map<String, Object> builder = IndexController.INSTANCE.appendMetricTableColumn(model, toStorage.obtain());
+        Map<String, Object> builder = IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, record.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, record.id());
         return getClient().prepareInsert(modelName, id, builder);
