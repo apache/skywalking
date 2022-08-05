@@ -49,9 +49,18 @@ Since 8.8.0, SkyWalking rebuilds the ElasticSearch client on top of ElasticSearc
 correct request formats according to the server-side version, hence you don't need to download different binaries
 and don't need to configure different storage selectors for different ElasticSearch server-side versions anymore.
 
-Since 9.2.0, SkyWalking merges all metrics/meter indices into one physical index template `metrics-all` on the default setting.
+Since 9.2.0, SkyWalking merges all metrics/meter and records(without super datasets) indices into one physical index template `metrics-all` and `records-all` on the default setting.
 Provide system environment variable(`SW_STORAGE_ES_LOGIC_SHARDING`) to shard metrics indices into multi-physical indices as the previous versions(one index template per metric/meter aggregation function).
 In the current one index mode, users still could choose to adjust ElasticSearch's shard number(`SW_STORAGE_ES_INDEX_SHARDS_NUMBER`) to scale out.
+After merge all indices, the following indices are available:
+
+* sw_ui_template
+* sw_metrics-all-`${day-format}`
+* sw_log-`${day-format}`
+* sw_segment-`${day-format}`
+* sw_browser_error_log-`${day-format}`
+* sw_zipkin_span-`${day-format}`
+* sw_records-all-`${day-format}`
 
 For now, SkyWalking supports ElasticSearch 6.x, ElasticSearch 7.x, ElasticSearch 8.x, and OpenSearch 1.x, their
 configurations are as follows:
