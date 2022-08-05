@@ -34,7 +34,7 @@
   In the current one index mode, users still could choose to adjust ElasticSearch's shard number(`SW_STORAGE_ES_INDEX_SHARDS_NUMBER`) to scale out.
 * [Breaking Change] Many columns of metrics and records model names are changed, The H2/Mysql/Tidb/Postgres storage users are required to remove all metrics-related and records-related tables for OAP to re-create or use a new database instance.
 * Fix Zipkin trace query the max size of spans.
-* Adding `TLS` and `https` into component for Network Profiling.
+* Adding `tls` and `https` into component for Network Profiling.
 
 #### UI
 
