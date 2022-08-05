@@ -416,6 +416,12 @@ Apache-ShenYu:
 Hutool:
   id: 128
   languages: Java
+https:
+  id: 129
+  languages: Java,C#,Node.js,Python
+TLS:
+  id: 130
+  languages: Java,C#,Node.js,Python
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

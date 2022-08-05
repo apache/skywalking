@@ -61,4 +61,7 @@ public class ProcessRelation extends Source {
     @Getter
     @Setter
     private DetectPoint detectPoint;
+    @Setter
+    @Getter
+    private int componentId;
 }

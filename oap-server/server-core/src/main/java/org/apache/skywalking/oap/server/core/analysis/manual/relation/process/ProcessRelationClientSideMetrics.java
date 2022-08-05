@@ -45,6 +45,7 @@ public class ProcessRelationClientSideMetrics extends Metrics {
     public static final String SERVICE_INSTANCE_ID = "service_instance_id";
     public static final String SOURCE_PROCESS_ID = "source_process_id";
     public static final String DEST_PROCESS_ID = "dest_process_id";
+    public static final String COMPONENT_ID = "component_id";
 
     @Setter
     @Getter
@@ -62,6 +63,10 @@ public class ProcessRelationClientSideMetrics extends Metrics {
     @Getter
     @Column(columnName = ENTITY_ID, length = 512)
     private String entityId;
+    @Setter
+    @Getter
+    @Column(columnName = COMPONENT_ID, storageOnly = true)
+    private int componentId;
 
     @Override
     protected String id0() {
@@ -97,6 +102,7 @@ public class ProcessRelationClientSideMetrics extends Metrics {
         setDestProcessId(remoteData.getDataStrings(2));
         setEntityId(remoteData.getDataStrings(3));
         setTimeBucket(remoteData.getDataLongs(0));
+        setComponentId(remoteData.getDataIntegers(0));
     }
 
     @Override
@@ -107,6 +113,7 @@ public class ProcessRelationClientSideMetrics extends Metrics {
         builder.addDataStrings(getDestProcessId());
         builder.addDataStrings(getEntityId());
         builder.addDataLongs(getTimeBucket());
+        builder.addDataIntegers(getComponentId());
         return builder;
     }
 
@@ -124,6 +131,7 @@ public class ProcessRelationClientSideMetrics extends Metrics {
             metrics.setDestProcessId((String) converter.get(DEST_PROCESS_ID));
             metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             metrics.setEntityId((String) converter.get(ENTITY_ID));
+            metrics.setComponentId(((Number) converter.get(COMPONENT_ID)).intValue());
             return metrics;
         }
 
@@ -135,6 +143,7 @@ public class ProcessRelationClientSideMetrics extends Metrics {
             converter.accept(SOURCE_PROCESS_ID, storageData.getSourceProcessId());
             converter.accept(DEST_PROCESS_ID, storageData.getDestProcessId());
             converter.accept(ENTITY_ID, storageData.getEntityId());
+            converter.accept(COMPONENT_ID, storageData.getComponentId());
         }
     }
 }
