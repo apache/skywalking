@@ -37,9 +37,9 @@ expPrefix: |-
     } else if (protocol == 'http') {
       result = '49'   // http
     } else if (ssl == 'true') {
-      result = '130'  // TLS
+      result = '130'  // tls
     } else {
-      result = '50'   // rpc
+      result = '110'  // tcp
     }
     tags[key] = result
   })
