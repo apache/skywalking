@@ -48,6 +48,7 @@ public class MeterEntity {
     private String destProcessId;
     private DetectPoint detectPoint;
     private Layer layer;
+    private int componentId;
 
     private MeterEntity() {
 
@@ -151,13 +152,15 @@ public class MeterEntity {
     }
 
     public static MeterEntity newProcessRelation(String serviceName, String instanceName,
-                                                 String sourceProcessId, String destProcessId, DetectPoint detectPoint) {
+                                                 String sourceProcessId, String destProcessId,
+                                                 int componentId, DetectPoint detectPoint) {
         final MeterEntity meterEntity = new MeterEntity();
         meterEntity.scopeType = ScopeType.PROCESS_RELATION;
         meterEntity.serviceName = serviceName;
         meterEntity.instanceName = instanceName;
         meterEntity.sourceProcessId = sourceProcessId;
         meterEntity.destProcessId = destProcessId;
+        meterEntity.componentId = componentId;
         meterEntity.detectPoint = detectPoint;
         return meterEntity;
     }

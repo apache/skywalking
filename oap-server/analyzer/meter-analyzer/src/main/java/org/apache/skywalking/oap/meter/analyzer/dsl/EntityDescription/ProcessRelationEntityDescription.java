@@ -36,6 +36,7 @@ public class ProcessRelationEntityDescription implements EntityDescription {
     private final String sourceProcessIdKey;
     private final String destProcessIdKey;
     private final String detectPointKey;
+    private final String componentKey;
     private final String delimiter;
 
     @Override
@@ -43,6 +44,6 @@ public class ProcessRelationEntityDescription implements EntityDescription {
         return ImmutableList.<String>builder()
                 .addAll(serviceKeys)
                 .addAll(instanceKeys)
-                .add(detectPointKey, sourceProcessIdKey, destProcessIdKey).build();
+                .add(detectPointKey, sourceProcessIdKey, destProcessIdKey, componentKey).build();
     }
 }

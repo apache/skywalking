@@ -416,6 +416,12 @@ Apache-ShenYu:
 Hutool:
   id: 128
   languages: Java
+https:
+  id: 129
+  languages: ebpf
+tls:
+  id: 130
+  languages: ebpf
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

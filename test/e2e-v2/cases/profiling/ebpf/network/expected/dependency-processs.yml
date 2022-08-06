@@ -23,6 +23,14 @@
 {{- end }}
 {{- end}}
 
+# ingress pod name
+{{ $ingressProcessName := "" }}
+{{ range .nodes }}
+{{ if hasPrefix .name "istio-ingressgateway" }}
+{{ $ingressProcessName = .name }}
+{{ end }}
+{{ end }}
+
 nodes:
 {{- contains .nodes }}
 - id: {{template "genProcessId" "/usr/local/bin/python"}}
@@ -39,23 +47,57 @@ nodes:
   serviceinstanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
   serviceinstancename: productpage
   isreal: true
+- id: {{template "genProcessId" $ingressProcessName }}
+  name: {{$ingressProcessName}}
+  serviceid: {{ b64enc "default::productpage" }}.1
+  servicename: default::productpage
+  serviceinstanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
+  serviceinstancename: productpage
+  isreal: false
+- id: {{template "genProcessId" "kube-dns.kube-system" }}
+  name: kube-dns.kube-system
+  serviceid: {{ b64enc "default::productpage" }}.1
+  servicename: default::productpage
+  serviceinstanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
+  serviceinstancename: productpage
+  isreal: false
 {{- end }}
 calls:
 {{- contains .calls }}
 - source: {{template "genProcessId" "/usr/local/bin/python"}}
-  sourcecomponents: []
+  sourcecomponents:
+    - http
   target: {{template "genProcessId" "envoy"}}
-  targetcomponents: []
+  targetcomponents:
+    - http
   id: {{template "genProcessId" "/usr/local/bin/python"}}-{{template "genProcessId" "envoy"}}
   detectpoints:
     - CLIENT
     - SERVER
 - source: {{template "genProcessId" "envoy"}}
-  sourcecomponents: []
+  sourcecomponents:
+    - http
   target: {{template "genProcessId" "/usr/local/bin/python"}}
-  targetcomponents: []
+  targetcomponents:
+    - http
   id: {{template "genProcessId" "envoy"}}-{{template "genProcessId" "/usr/local/bin/python"}}
   detectpoints:
     - CLIENT
     - SERVER
+- source: {{template "genProcessId" $ingressProcessName}}
+  sourcecomponents: []
+  target: {{template "genProcessId" "envoy"}}
+  targetcomponents:
+    - https
+  id: {{template "genProcessId" $ingressProcessName}}-{{template "genProcessId" "envoy"}}
+  detectpoints:
+    - SERVER
+- source: {{template "genProcessId" "envoy"}}
+  sourcecomponents:
+    - tcp
+  target: {{template "genProcessId" "kube-dns.kube-system"}}
+  targetcomponents: []
+  id: {{template "genProcessId" "envoy"}}-{{template "genProcessId" "kube-dns.kube-system"}}
+  detectpoints:
+    - CLIENT
 {{- end }}

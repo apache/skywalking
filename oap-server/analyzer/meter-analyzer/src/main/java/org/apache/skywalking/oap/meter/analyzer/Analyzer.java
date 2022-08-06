@@ -357,6 +357,7 @@ public class Analyzer {
         metrics.setSourceProcessId(entity.getSourceProcessId());
         metrics.setDestProcessId(entity.getDestProcessId());
         metrics.setEntityId(entity.id());
+        metrics.setComponentId(entity.getComponentId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
@@ -367,6 +368,7 @@ public class Analyzer {
         metrics.setSourceProcessId(entity.getSourceProcessId());
         metrics.setDestProcessId(entity.getDestProcessId());
         metrics.setEntityId(entity.id());
+        metrics.setComponentId(entity.getComponentId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 

@@ -459,6 +459,9 @@ jobs:
           - name: eBPF Profiling Network
             config: test/e2e-v2/cases/profiling/ebpf/network/e2e.yaml
             env: ISTIO_VERSION=1.13.1
+          - name: eBPF Profiling Network ES Sharding
+            config: test/e2e-v2/cases/profiling/ebpf/network/es-sharding/e2e.yaml
+            env: ISTIO_VERSION=1.13.1
 
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml

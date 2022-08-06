@@ -264,11 +264,11 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
                 connection,
-                "select " + Metrics.ENTITY_ID + " from " + (detectPoint == DetectPoint.SERVER ?
-                    ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME)
+                "select " + Metrics.ENTITY_ID +  ", " + ProcessRelationServerSideMetrics.COMPONENT_ID
+                    + " from " + (detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME)
                     + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and "
                     + ProcessRelationClientSideMetrics.SERVICE_INSTANCE_ID + "=?"
-                    + " group by " + Metrics.ENTITY_ID,
+                    + " group by " + Metrics.ENTITY_ID + ", " + ProcessRelationServerSideMetrics.COMPONENT_ID,
                 conditions
             )) {
                 buildProcessCalls(resultSet, calls, detectPoint);
@@ -316,7 +316,8 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         while (resultSet.next()) {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
-            call.buildProcessRelation(entityId, detectPoint);
+            int componentId = resultSet.getInt(ProcessRelationServerSideMetrics.COMPONENT_ID);
+            call.buildProcessRelation(entityId, componentId, detectPoint);
             calls.add(call);
         }
     }
