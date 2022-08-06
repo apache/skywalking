@@ -153,6 +153,8 @@ catalog:
                 path: "/en/setup/service-agent/server-agents"
               - name: "Compatibility"
                 path: "/en/setup/service-agent/agent-compatibility"
+              - name: "Virtual Database"
+                path: "/en/setup/service-agent/virtual-database"
           - name: "Service Mesh"
             catalog:
               - name: "Observe Service Mesh"
@@ -171,8 +173,8 @@ catalog:
             path: "/en/setup/service-agent/browser-agent"
           - name: "Database Monitoring"
             catalog:
-              - name: "Virtual Database"
-                path: "/en/setup/service-agent/virtual-database"
+              - name: "MYSQL Monitoring"
+                path: "/en/setup/backend/backend-mysql-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP Telemetry"
