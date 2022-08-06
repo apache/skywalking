@@ -43,9 +43,9 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @MeterFunction(functionName = "avgLabeled")
 @ToString
 public abstract class AvgLabeledFunction extends Meter implements AcceptableValue<DataTable>, LabeledValueHolder {
-    protected static final String SUMMATION = "summation";
-    protected static final String COUNT = "count";
-    protected static final String VALUE = "value";
+    protected static final String SUMMATION = "datatable_summation";
+    protected static final String COUNT = "datatable_count";
+    protected static final String VALUE = "datatable_value";
 
     @Setter
     @Getter

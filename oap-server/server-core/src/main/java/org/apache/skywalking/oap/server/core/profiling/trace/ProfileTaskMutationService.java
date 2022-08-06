@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.network.constants.ProfileConstants;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -84,6 +85,7 @@ public class ProfileTaskMutationService implements Service {
         // create task
         final long createTime = System.currentTimeMillis();
         final ProfileTaskRecord task = new ProfileTaskRecord();
+        task.setTaskId(createTime + Const.ID_CONNECTOR + serviceId);
         task.setServiceId(serviceId);
         task.setEndpointName(endpointName.trim());
         task.setStartTime(taskStartTime);

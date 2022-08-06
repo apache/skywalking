@@ -73,6 +73,9 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                                        QueryOrder queryOrder,
                                        final List<Tag> tags) throws IOException {
         final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(SegmentRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, SegmentRecord.INDEX_NAME));
+        }
 
         if (startSecondTB != 0 && endSecondTB != 0) {
             query.must(Query.range(SegmentRecord.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));

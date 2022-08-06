@@ -47,7 +47,7 @@ public class ManagementEsDAO extends EsDAO implements IManagementDAO {
         final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
         storageBuilder.entity2Storage(managementData, toStorage);
         Map<String, Object> source =
-            IndexController.INSTANCE.appendMetricTableColumn(model, toStorage.obtain());
+            IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         getClient().forceInsert(tableName, docId, source);
     }
 }

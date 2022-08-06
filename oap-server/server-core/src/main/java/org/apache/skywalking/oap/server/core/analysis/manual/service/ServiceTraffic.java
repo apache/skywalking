@@ -49,7 +49,7 @@ import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
 public class ServiceTraffic extends Metrics {
     public static final String INDEX_NAME = "service_traffic";
 
-    public static final String NAME = "name";
+    public static final String NAME = "service_traffic_name";
 
     public static final String SHORT_NAME = "short_name";
 

@@ -43,6 +43,7 @@ services:
       SW_STORAGE_ES_CLUSTER_NODES: opensearch:9200
       SW_ES_USER: admin
       SW_ES_PASSWORD: admin
+      SW_STORAGE_ES_LOGIC_SHARDING: "true"
     depends_on:
       opensearch:
         condition: service_healthy

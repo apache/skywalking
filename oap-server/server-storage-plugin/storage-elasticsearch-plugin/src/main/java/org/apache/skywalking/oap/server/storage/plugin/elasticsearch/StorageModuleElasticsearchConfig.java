@@ -142,4 +142,12 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * If the value is <= 0, the number of available processors will be used.
      */
     private int numHttpClientThread;
+
+    /**
+     * If disabled, all metrics would be persistent in one physical index template, to reduce the number of physical indices.
+     * If enabled, shard metrics indices into multi-physical indices, one index template per metric/meter aggregation function.
+     *
+     * @since 9.2.0
+     */
+    private boolean logicSharding = false;
 }

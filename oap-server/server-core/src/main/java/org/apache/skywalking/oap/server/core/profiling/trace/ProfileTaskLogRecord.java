@@ -48,9 +48,9 @@ public class ProfileTaskLogRecord extends Record {
     public static final String OPERATION_TYPE = "operation_type";
     public static final String OPERATION_TIME = "operation_time";
 
-    @Column(columnName = TASK_ID, storageOnly = true)
+    @Column(columnName = TASK_ID)
     private String taskId;
-    @Column(columnName = INSTANCE_ID, storageOnly = true)
+    @Column(columnName = INSTANCE_ID)
     @BanyanDB.ShardingKey(index = 0)
     private String instanceId;
     @Column(columnName = OPERATION_TYPE, storageOnly = true)

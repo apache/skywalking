@@ -15,9 +15,9 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- contains .}}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
-  name: {{ notEmpty .name }}
+{{- contains . }}
+- id: {{ b64enc "e2e-service-consumer" }}.1_{{ b64enc "consumer1" }}
+  name: consumer1
   attributes:
   {{- contains .attributes }}
   - name: OS Name
@@ -25,7 +25,7 @@
   - name: hostname
     value: {{ notEmpty .value }}
   - name: Process No.
-    value: "1"
+    value: {{ notEmpty .value }}
   - name: Start Time
     value: {{ notEmpty .value }}
   - name: JVM Arguments
@@ -36,5 +36,5 @@
     value: {{ notEmpty .value }}
   {{- end}}
   language: JAVA
-  instanceuuid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
+  instanceuuid: {{ b64enc "e2e-service-consumer" }}.1_{{ b64enc "consumer1" }}
 {{- end}}
