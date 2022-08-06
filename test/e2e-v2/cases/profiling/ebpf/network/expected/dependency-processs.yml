@@ -94,7 +94,7 @@ calls:
     - SERVER
 - source: {{template "genProcessId" "envoy"}}
   sourcecomponents:
-    - rpc
+    - tcp
   target: {{template "genProcessId" "kube-dns.kube-system"}}
   targetcomponents: []
   id: {{template "genProcessId" "envoy"}}-{{template "genProcessId" "kube-dns.kube-system"}}

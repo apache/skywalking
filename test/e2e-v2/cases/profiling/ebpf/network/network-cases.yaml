@@ -1,0 +1,100 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cases:
+  # service list
+  - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls
+    expected: expected/service.yml
+  # service instance list
+  - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=default::productpage
+    expected: expected/service-instance.yml
+  - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql process list --service-name=default::productpage --instance-name=productpage
+    expected: expected/process.yml
+
+  # create network profiling task
+  - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql profiling ebpf create network --service-name=default::productpage --instance-name=productpage
+    expected: expected/profiling-create.yml
+  - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dep process --service-name default::productpage --instance-name=productpage
+    expected: expected/dependency-processs.yml
+
+  # single value of process relation, client/server side read/write
+  - query: |
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear \
+      --service-name default::productpage --instance-name productpage --process-name envoy \
+      --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
+      --name process_relation_client_write_cpm|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear \
+      --service-name default::productpage --instance-name productpage --process-name envoy \
+      --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
+      --name process_relation_client_write_total_bytes|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear \
+      --service-name default::productpage --instance-name productpage --process-name envoy \
+      --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
+      --name process_relation_client_write_avg_exe_time|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear \
+      --service-name default::productpage --instance-name productpage --process-name envoy \
+      --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
+      --name process_relation_client_read_cpm|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear \
+      --service-name default::productpage --instance-name productpage --process-name envoy \
+      --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
+      --name process_relation_server_write_cpm|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+
+  # histogram value of process relation, client side write_rtt/write_exe/read time
+  - query: |
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
+      --service-name default::productpage --instance-name productpage --process-name envoy \
+      --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
+      --name=process_relation_client_write_rtt_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: |
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
+      --service-name default::productpage --instance-name productpage --process-name envoy \
+      --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
+      --name=process_relation_client_write_exe_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: |
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
+      --service-name default::productpage --instance-name productpage --process-name envoy \
+      --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
+      --name=process_relation_client_read_exe_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: |
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
+      --service-name default::productpage --instance-name productpage --process-name envoy \
+      --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
+      --name=process_relation_server_write_rtt_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: |
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
+      --service-name default::productpage --instance-name productpage --process-name envoy \
+      --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
+      --name=process_relation_server_write_exe_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: |
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear \
+      --service-name default::productpage --instance-name productpage --process-name envoy \
+      --dest-service-name default::productpage --dest-instance-name productpage --dest-process-name /usr/local/bin/python \
+      --name=process_relation_server_write_exe_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
