@@ -46,7 +46,7 @@
                "graph":{
                   "fontColor":"blue",
                   "backgroundColor":"white",
-                  "content":"Provide MySQL monitoring.",
+                  "content":"Provide MySQL Server monitoring through OpenTelemetry's MySQL Receiver",
                   "fontSize":14,
                   "textAlign":"left",
                   "url":"https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-mysql-monitoring/"
