@@ -72,13 +72,11 @@ metricsRules:
   - name: connects_available
     exp: mysql_global_variables_max_connections.sum(['host_name']) - mysql_global_status_threads_connected.sum(['host_name'])
   - name: connection_errors_max_connections
-    exp: mysql_global_status_connection_errors_total.tagMatch('error','max_connection')
+    exp: mysql_global_status_connection_errors_total.tagEqual('error','max_connection')
   - name: connection_errors_internal
-    exp: mysql_global_status_connection_errors_total.tagMatch('error','internal')
+    exp: mysql_global_status_connection_errors_total.tagEqual('error','internal')
 
   # slow queries
-  - name: slow_queries
-    exp: mysql_global_status_slow_queries
   - name: slow_queries_rate
     exp: mysql_global_status_slow_queries.rate('PT1M')
     

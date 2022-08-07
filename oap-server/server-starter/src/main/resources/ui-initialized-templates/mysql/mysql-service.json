@@ -40,14 +40,14 @@
                   "showUnit":true
                },
                "widget":{
-                  "title":"MySQL Uptime"
+                  "title":"MySQL Uptime (day)"
                }
             },
             {
                "x":0,
                "y":11,
-               "w":8,
-               "h":17,
+               "w":6,
+               "h":14,
                "i":"1",
                "type":"Widget",
                "metricTypes":[
@@ -65,7 +65,7 @@
                   "showYAxis":true
                },
                "widget":{
-                  "title":"Current_QPS"
+                  "title":"Current QPS"
                },
                "value":"1",
                "label":"1"
@@ -145,10 +145,10 @@
                }
             },
             {
-               "x":8,
+               "x":6,
                "y":11,
-               "w":8,
-               "h":17,
+               "w":6,
+               "h":14,
                "i":"5",
                "type":"Widget",
                "metricTypes":[
@@ -172,10 +172,10 @@
                "label":"5"
             },
             {
-               "x":16,
+               "x":12,
                "y":11,
-               "w":8,
-               "h":17,
+               "w":6,
+               "h":14,
                "i":"6",
                "type":"Widget",
                "metricTypes":[
@@ -197,16 +197,16 @@
                   "showYAxis":true
                },
                "widget":{
-                  "title":"Commands Rate"
+                  "title":"Commands Trend"
                },
                "value":"6",
                "label":"6"
             },
             {
-               "x":8,
-               "y":28,
-               "w":8,
-               "h":15,
+               "x":6,
+               "y":25,
+               "w":6,
+               "h":13,
                "i":"7",
                "type":"Widget",
                "metricTypes":[
@@ -235,9 +235,9 @@
             },
             {
                "x":0,
-               "y":28,
-               "w":8,
-               "h":15,
+               "y":25,
+               "w":6,
+               "h":13,
                "i":"8",
                "type":"Widget",
                "metricTypes":[
@@ -263,33 +263,10 @@
                "label":"8"
             },
             {
-               "x":8,
-               "y":43,
-               "w":8,
-               "h":15,
-               "i":"9",
-               "type":"Widget",
-               "metricTypes":[
-                  "readMetricsValue"
-               ],
-               "metrics":[
-                  "meter_mysql_slow_queries"
-               ],
-               "graph":{
-                  "type":"Card",
-                  "fontSize":40,
-                  "textAlign":"center",
-                  "showUnit":true
-               },
-               "widget":{
-                  "title":"Slow Queries"
-               }
-            },
-            {
-               "x":0,
-               "y":43,
-               "w":8,
-               "h":15,
+               "x":18,
+               "y":11,
+               "w":6,
+               "h":14,
                "i":"10",
                "type":"Widget",
                "metricTypes":[
@@ -307,16 +284,16 @@
                   "showYAxis":true
                },
                "widget":{
-                  "title":"Slow Quries Rate"
+                  "title":"Slow Quries Trend"
                },
                "value":"10",
                "label":"10"
             },
             {
-               "x":16,
-               "y":28,
-               "w":8,
-               "h":15,
+               "x":12,
+               "y":25,
+               "w":6,
+               "h":13,
                "i":"11",
                "type":"Widget",
                "metricTypes":[

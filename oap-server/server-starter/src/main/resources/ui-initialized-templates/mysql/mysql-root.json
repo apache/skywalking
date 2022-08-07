@@ -46,17 +46,17 @@
                "graph":{
                   "fontColor":"blue",
                   "backgroundColor":"white",
-                  "content":"Provide MySQL Server monitoring through OpenTelemetry's MySQL Receiver",
+                  "content":"Provide MySQL Server monitoring through OpenTelemetry's Prometheus Receiver",
                   "fontSize":14,
                   "textAlign":"left",
                   "url":"https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-mysql-monitoring/"
                }
             }
          ],
+         "id":"b6e3763c-882d-417f-8556-3cf0187cb8db",
          "layer":"MYSQL",
          "entity":"All",
          "name":"MySQL-Root",
-         "id":"b6e3763c-882d-417f-8556-3cf0187cb8db",
          "isRoot":true
       }
    }
