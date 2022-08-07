@@ -51,9 +51,9 @@ metricsRules:
     exp: mysql_global_status_commands_total.tagEqual('command','delete').rate('PT1M')
   - name: commands_update_rate
     exp: mysql_global_status_commands_total.tagEqual('command','update').rate('PT1M')
-  - name: QPS
+  - name: qps
     exp: mysql_global_status_queries.rate('PT1M')
-  - name: TPS
+  - name: tps
     exp: mysql_global_status_commands_total.tagMatch('command','rollback|commit').rate('PT1M')
 
   # connections
