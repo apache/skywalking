@@ -28,7 +28,7 @@ MySQL monitoring provides monitoring of the status and resources of the MySQL se
 | Threads |    | meter_mysql_threads_connected<br />meter_mysql_threads_created<br />meter_mysql_threads_cached<br />meter_mysql_threads_running | The number of currently open connections(threads_connected) <br/> The number of threads created(threads_created) <br/> The number of threads in the thread cache(threads_cached) <br/> The number of threads that are not sleeping(threads_running) | mysqld_exporter|
 | Connects |    | meter_mysql_connects_available<br />meter_mysql_connects_aborted | The number of available connections(connects_available)<br/>The number of MySQL instance connection rejections(connects_aborted)| mysqld_exporter|
 | Connection Errors |      | meter_mysql_connection_errors_internal </br> meter_mysql_connection_errors_max_connections | Errors due to exceeding the max_connections(connection_errors_max_connections) </br>Error caused by internal system(connection_errors_internal) | mysqld_exporter|
-| Slow Quries |      | meter_mysql_slow_queries | The number of slow queries   | mysqld_exporter|
+| Slow Queries |      | meter_mysql_slow_queries | The number of slow queries   | mysqld_exporter|
 | Slow Queries Rate |      | meter_mysql_slow_queries_rate | The rate of slow queries  | mysqld_exporter|
 
 
