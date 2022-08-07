@@ -35,6 +35,7 @@
 * [Breaking Change] Many columns of metrics and records model names are changed, The H2/Mysql/Tidb/Postgres storage users are required to remove all metrics-related and records-related tables for OAP to re-create or use a new database instance.
 * Fix Zipkin trace query the max size of spans.
 * Support MySQL monitoring.
+* Add `tls` and `https` component IDs for Network Profiling.
 
 #### UI
 

@@ -513,7 +513,7 @@ public class SampleFamily {
         }).toArray(Sample[]::new));
     }
 
-    public SampleFamily processRelation(String detectPointKey, List<String> serviceKeys, List<String> instanceKeys, String sourceProcessIdKey, String destProcessIdKey) {
+    public SampleFamily processRelation(String detectPointKey, List<String> serviceKeys, List<String> instanceKeys, String sourceProcessIdKey, String destProcessIdKey, String componentKey) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(instanceKeys.size() > 0);
         Preconditions.checkArgument(StringUtil.isNotEmpty(sourceProcessIdKey));
@@ -525,11 +525,12 @@ public class SampleFamily {
             ctx.scopeLabels.add(detectPointKey);
             ctx.scopeLabels.add(sourceProcessIdKey);
             ctx.scopeLabels.add(destProcessIdKey);
+            ctx.scopeLabels.add(componentKey);
         });
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new ProcessRelationEntityDescription(serviceKeys, instanceKeys, sourceProcessIdKey, destProcessIdKey, detectPointKey, Const.POINT));
+        return createMeterSamples(new ProcessRelationEntityDescription(serviceKeys, instanceKeys, sourceProcessIdKey, destProcessIdKey, detectPointKey, componentKey, Const.POINT));
     }
 
     private SampleFamily createMeterSamples(EntityDescription entityDescription) {
@@ -690,11 +691,14 @@ public class SampleFamily {
                     final ProcessRelationEntityDescription processRelationEntityDescription = (ProcessRelationEntityDescription) entityDescription;
                     final String detectPointValue = InternalOps.dim(samples, Collections.singletonList(processRelationEntityDescription.getDetectPointKey()), processRelationEntityDescription.getDelimiter());
                     DetectPoint point = StringUtils.equalsAnyIgnoreCase(detectPointValue, "server") ? DetectPoint.SERVER : DetectPoint.CLIENT;
+                    final String componentValue = InternalOps.dim(samples, Collections.singletonList(processRelationEntityDescription.getComponentKey()), processRelationEntityDescription.getDelimiter());
+                    final int componentId = StringUtil.isNotEmpty(componentValue) ? Integer.parseInt(componentValue) : 0;
                     return MeterEntity.newProcessRelation(
                         InternalOps.dim(samples, processRelationEntityDescription.getServiceKeys(), processRelationEntityDescription.getDelimiter()),
                         InternalOps.dim(samples, processRelationEntityDescription.getInstanceKeys(), processRelationEntityDescription.getDelimiter()),
                         InternalOps.dim(samples, Collections.singletonList(processRelationEntityDescription.getSourceProcessIdKey()), processRelationEntityDescription.getDelimiter()),
                         InternalOps.dim(samples, Collections.singletonList(processRelationEntityDescription.getDestProcessIdKey()), processRelationEntityDescription.getDelimiter()),
+                        componentId,
                         point
                     );
                 default:

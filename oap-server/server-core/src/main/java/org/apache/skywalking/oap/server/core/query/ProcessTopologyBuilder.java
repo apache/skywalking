@@ -19,10 +19,12 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.query.type.ProcessNode;
 import org.apache.skywalking.oap.server.core.query.type.ProcessTopology;
@@ -46,6 +48,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class ProcessTopologyBuilder {
+    private final IComponentLibraryCatalogService componentLibraryCatalogService;
     private final IMetricsDAO metricsDAO;
     private Model processTrafficModel;
 
@@ -61,6 +64,9 @@ public class ProcessTopologyBuilder {
         if (this.processTrafficModel == null) {
             throw new IllegalStateException("could not found the process traffic model");
         }
+        this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
+            .provider()
+            .getService(IComponentLibraryCatalogService.class);
     }
 
     ProcessTopology build(List<Call.CallDetail> clientCalls,
@@ -84,7 +90,6 @@ public class ProcessTopologyBuilder {
             .map(t -> (ProcessTraffic) t)
             .collect(Collectors.toMap(Metrics::id, this::buildNode));
 
-        // adding client side call
         for (Call.CallDetail clientCall : clientCalls) {
             if (!callMap.containsKey(clientCall.getId())) {
                 Call call = new Call();
@@ -94,25 +99,25 @@ public class ProcessTopologyBuilder {
                 call.setTarget(clientCall.getTarget());
                 call.setId(clientCall.getId());
                 call.addDetectPoint(DetectPoint.CLIENT);
+                call.addSourceComponent(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
                 calls.add(call);
             }
         }
 
         // adding server side call
         for (Call.CallDetail serverCall : serverCalls) {
-            if (!callMap.containsKey(serverCall.getId())) {
-                Call call = new Call();
+            Call call = callMap.get(serverCall.getId());
+            if (call == null) {
+                call = new Call();
 
                 callMap.put(serverCall.getId(), call);
                 call.setSource(serverCall.getSource());
                 call.setTarget(serverCall.getTarget());
                 call.setId(serverCall.getId());
-                call.addDetectPoint(DetectPoint.SERVER);
                 calls.add(call);
-            } else {
-                Call call = callMap.get(serverCall.getId());
-                call.addDetectPoint(DetectPoint.SERVER);
             }
+            call.addDetectPoint(DetectPoint.SERVER);
+            call.addTargetComponent(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
         }
 
         ProcessTopology topology = new ProcessTopology();

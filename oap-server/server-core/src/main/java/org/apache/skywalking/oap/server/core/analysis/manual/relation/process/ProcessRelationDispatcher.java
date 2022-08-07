@@ -43,6 +43,7 @@ public class ProcessRelationDispatcher implements SourceDispatcher<ProcessRelati
         metrics.setSourceProcessId(relation.getSourceProcessId());
         metrics.setDestProcessId(relation.getDestProcessId());
         metrics.setEntityId(relation.getEntityId());
+        metrics.setComponentId(relation.getComponentId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
@@ -53,6 +54,7 @@ public class ProcessRelationDispatcher implements SourceDispatcher<ProcessRelati
         metrics.setSourceProcessId(entity.getSourceProcessId());
         metrics.setDestProcessId(entity.getDestProcessId());
         metrics.setEntityId(entity.getEntityId());
+        metrics.setComponentId(entity.getComponentId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 

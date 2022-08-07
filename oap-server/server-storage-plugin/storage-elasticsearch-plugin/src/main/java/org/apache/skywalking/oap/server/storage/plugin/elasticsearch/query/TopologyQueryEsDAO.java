@@ -235,6 +235,11 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.aggregation(
             Aggregation
                 .terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID)
+                .subAggregation(
+                    Aggregation.terms(ProcessRelationServerSideMetrics.COMPONENT_ID)
+                        .field(ProcessRelationServerSideMetrics.COMPONENT_ID)
+                        .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
+                        .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
                 .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                 .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                 .size(1000));
@@ -255,9 +260,15 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             (List<Map<String, Object>>) entityTerms.get("buckets");
         for (final Map<String, Object> entityBucket : buckets) {
             String entityId = (String) entityBucket.get("key");
+            final Map<String, Object> componentTerms =
+                (Map<String, Object>) entityBucket.get(
+                    ServiceRelationServerSideMetrics.COMPONENT_ID);
+            final List<Map<String, Object>> subAgg =
+                (List<Map<String, Object>>) componentTerms.get("buckets");
+            final int componentId = ((Number) subAgg.iterator().next().get("key")).intValue();
 
             Call.CallDetail call = new Call.CallDetail();
-            call.buildProcessRelation(entityId, detectPoint);
+            call.buildProcessRelation(entityId, componentId, detectPoint);
             calls.add(call);
         }
         return calls;

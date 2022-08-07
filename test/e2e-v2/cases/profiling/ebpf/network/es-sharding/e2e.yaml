@@ -17,8 +17,8 @@
 
 setup:
   env: kind
-  file: kind.yaml
-  init-system-environment: ../../../../script/env
+  file: ../kind.yaml
+  init-system-environment: ../../../../../script/env
   kind:
     import-images:
       - skywalking/ui:latest
@@ -57,6 +57,7 @@ setup:
                        --set elasticsearch.minimumMasterNodes=1 \
                        --set elasticsearch.imageTag=7.5.1 \
                        --set oap.env.SW_METER_ANALYZER_ACTIVE_FILES='network-profiling' \
+                       --set oap.env.SW_STORAGE_ES_LOGIC_SHARDING='true' \
                        --set oap.envoy.als.enabled=true \
                        --set oap.replicas=1 \
                        --set ui.image.repository=skywalking/ui \
@@ -86,7 +87,7 @@ setup:
           resource: pod
           for: condition=Ready
     - name: Generate traffic
-      path: traffic-gen.yaml
+      path: ../traffic-gen.yaml
       wait:
         - namespace: default
           resource: pod
@@ -99,4 +100,4 @@ verify:
     interval: 10s
   cases:
     - includes:
-        - ./network-cases.yaml
+        - ../network-cases.yaml

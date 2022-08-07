@@ -537,23 +537,23 @@ public class ScopeTest {
                 "sum_process_relation",
                 of("rover_network_profiling_process_write_bytes", SampleFamilyBuilder.newBuilder(
                     Sample.builder()
-                        .labels(of("service", "test", "instance", "test-instance", "side", "server", "client_process_id", "abc", "server_process_id", "def"))
+                        .labels(of("service", "test", "instance", "test-instance", "side", "server", "client_process_id", "abc", "server_process_id", "def", "component", "1"))
                         .value(11)
                         .name("rover_network_profiling_process_write_bytes")
                         .build(),
                     Sample.builder()
-                        .labels(of("service", "test", "instance", "test-instance", "side", "client", "client_process_id", "abc", "server_process_id", "def"))
+                        .labels(of("service", "test", "instance", "test-instance", "side", "client", "client_process_id", "abc", "server_process_id", "def", "component", "2"))
                         .value(12)
                         .name("rover_network_profiling_process_write_bytes")
                         .build()
                 ).build()),
-                "rover_network_profiling_process_write_bytes.sum(['service' ,'instance', 'side', 'client_process_id', 'server_process_id'])" +
-                    ".processRelation('side', ['service'], ['instance'], 'client_process_id', 'server_process_id')",
+                "rover_network_profiling_process_write_bytes.sum(['service' ,'instance', 'side', 'client_process_id', 'server_process_id', 'component'])" +
+                    ".processRelation('side', ['service'], ['instance'], 'client_process_id', 'server_process_id', 'component')",
                 false,
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newProcessRelation("test", "test-instance", "abc", "def", DetectPoint.SERVER),
+                            MeterEntity.newProcessRelation("test", "test-instance", "abc", "def", 1, DetectPoint.SERVER),
                             new Sample[] {
                                 Sample.builder()
                                     .labels(of())
@@ -562,7 +562,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newProcessRelation("test", "test-instance", "abc", "def", DetectPoint.CLIENT),
+                            MeterEntity.newProcessRelation("test", "test-instance", "abc", "def", 2, DetectPoint.CLIENT),
                             new Sample[] {
                                 Sample.builder()
                                     .labels(of())
