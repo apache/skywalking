@@ -65,6 +65,8 @@
 * Implement the log widget and the trace widget associate with each other, remove log tables on the trace widget.
 * Add log widget to general service root.
 * Associate the event widget with the trace and log widget.
+* Add the MYSQL layer and update layer routers.
+* Fix query order for trace list.
 
 #### Documentation
 
