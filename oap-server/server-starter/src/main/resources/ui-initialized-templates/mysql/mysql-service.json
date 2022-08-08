@@ -39,7 +39,7 @@
                   "textAlign":"center",
                   "showUnit":true
                },
-			   "metricConfig":[
+		"metricConfig":[
                   {
                      "calculation":"secondToDay"
                   }
