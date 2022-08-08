@@ -34,7 +34,7 @@ metricPrefix: meter_mysql
 metricsRules:
   # mysql configurations
   - name: uptime
-    exp: mysql_global_status_uptime / 86400
+    exp: mysql_global_status_uptime
   - name: innodb_buffer_pool_size
     exp: mysql_global_variables_innodb_buffer_pool_size
   - name: max_connections
