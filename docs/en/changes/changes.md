@@ -3,7 +3,8 @@
 #### Project
 
 * [Critical] Fix a low performance issue of metrics persistent in the ElasticSearch storage implementation. One single
-  metric could have to wait for an unnecessary 7~10s(System Env Variable `SW_STORAGE_ES_FLUSH_INTERVAL`).
+  metric could have to wait for an unnecessary 7~10s(System Env Variable `SW_STORAGE_ES_FLUSH_INTERVAL`) since 8.8.0
+  release.
 * Upgrade Armeria to 1.16.0, Kubernetes Java client to 15.0.1.
 
 #### OAP Server
