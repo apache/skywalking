@@ -67,10 +67,12 @@
 * Associate the event widget with the trace and log widget.
 * Add the MYSQL layer and update layer routers.
 * Fix query order for trace list.
+* Add a calculation to convert seconds to days.
 
 #### Documentation
 
 * Fix invalid links in release docs.
 * Clean up doc about event metrics.
+* Add a table for metric calculations in the ui doc.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/136?closed=1)
