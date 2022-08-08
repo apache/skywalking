@@ -44,7 +44,7 @@ import org.joda.time.DateTime;
 public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     protected final StorageBuilder<Metrics> storageBuilder;
 
-    protected MetricsEsDAO(ElasticSearchClient client,
+    public MetricsEsDAO(ElasticSearchClient client,
                            StorageBuilder<Metrics> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
