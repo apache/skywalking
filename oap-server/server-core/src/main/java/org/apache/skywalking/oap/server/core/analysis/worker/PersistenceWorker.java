@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
- * PersistenceWorker take the responsibility to pushing data to the final storage. The target storage is based on the
+ * PersistenceWorker is responsible for pushing data to the final storage. The target storage is based on the
  * activate storage implementation. This worker controls the persistence flow.
  *
  * @param <INPUT> The type of worker input. All inputs will be merged and saved.
@@ -53,7 +53,7 @@ public abstract class PersistenceWorker<INPUT extends StorageData> extends Abstr
 
     /**
      * The persistence process is driven by the {@link org.apache.skywalking.oap.server.core.storage.PersistenceTimer}.
-     * This is a notification method for the worker when every round finished.
+     * This is a notification method for the worker once every round is finished.
      */
     public abstract void endOfRound();
 
