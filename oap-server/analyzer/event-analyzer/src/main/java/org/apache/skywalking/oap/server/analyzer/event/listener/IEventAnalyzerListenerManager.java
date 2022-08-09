@@ -19,9 +19,8 @@
 package org.apache.skywalking.oap.server.analyzer.event.listener;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.library.module.Service;
 
-public interface IEventAnalyzerListenerFactoryManager extends Service {
+public interface IEventAnalyzerListenerManager {
 
     void add(EventAnalyzerListener.Factory factory);
 

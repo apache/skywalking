@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.event.v3.Event;
 import org.apache.skywalking.oap.server.analyzer.event.listener.EventAnalyzerListener;
-import org.apache.skywalking.oap.server.analyzer.event.listener.IEventAnalyzerListenerFactoryManager;
+import org.apache.skywalking.oap.server.analyzer.event.listener.IEventAnalyzerListenerManager;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -35,7 +35,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public class EventAnalyzer {
     private final ModuleManager moduleManager;
 
-    private final IEventAnalyzerListenerFactoryManager factoryManager;
+    private final IEventAnalyzerListenerManager factoryManager;
 
     private final List<EventAnalyzerListener> listeners = new ArrayList<>();
 
