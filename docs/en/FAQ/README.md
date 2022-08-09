@@ -29,6 +29,7 @@ These are known and frequently asked questions about SkyWalking. We welcome you 
 * [Compatibility with other javaagent bytecode processes](Compatible-with-other-javaagent-bytecode-processing.md)
 * [**Java agent memory leak** when enhancing `Worker thread` at Thread Pool](Memory-leak-enhance-Worker-thread.md)
 * [Thrift plugin](thrift-plugin.md)
+* [New ElasticSearch storage option explanation in 9.2.0](New-ElasticSearch-storage-option-explanation-in-9.2.0.md)
 
 ## UI
 * [What is **VNode**? And why does SkyWalking have that?](vnode.md)

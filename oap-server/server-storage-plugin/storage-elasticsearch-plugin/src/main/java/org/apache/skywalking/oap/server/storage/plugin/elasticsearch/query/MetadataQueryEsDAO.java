@@ -448,7 +448,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     /**
-     * When the index column use a alias, we should get it's real physical column name for query.
+     * When the index column use an alias, we should get it's real physical column name for query.
      */
     private void initColumnName() {
         if (!aliasNameInit) {

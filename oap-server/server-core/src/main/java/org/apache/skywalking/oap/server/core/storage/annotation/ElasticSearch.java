@@ -74,9 +74,9 @@ public @interface ElasticSearch {
     @interface Column {
 
         /**
-         * Warning: this is only used to solve the excited column conflict since we need support merge all metrics
-         * in one index or sharding storage type both. If create a new a column, we should avoid the compatibility issue
-         * between these 2 storage type rather than use this alias.
+         * Warning: this is only used to solve the conflict among the existing columns since we need support to merge all metrics
+         * in one physical index template. When creating a new column, we should avoid the compatibility issue
+         * between these 2 storage modes rather than use this alias.
          */
         @Deprecated
         String columnAlias();

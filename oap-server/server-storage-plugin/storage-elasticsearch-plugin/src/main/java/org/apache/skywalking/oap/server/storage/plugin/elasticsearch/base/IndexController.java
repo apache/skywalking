@@ -184,6 +184,11 @@ public enum IndexController {
             return new ArrayList<>(PHYSICAL_INDICES_COLUMNS.get(tableName).values());
         }
 
+        /**
+         * Get real physical column name by logic name.
+         * Warning: This is only used to solve the column has alias.
+         */
+        @Deprecated
         public static String getPhysicalColumnName(String modelName, String columnName) {
             if (IndexController.INSTANCE.logicSharding) {
                 return columnName;
