@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 /**
  * Percentile is a better implementation than deprecated PxxMetrics in older releases.
@@ -38,7 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @MetricsFunction(functionName = "percentile")
 public abstract class PercentileMetrics extends Metrics implements MultiIntValuesHolder {
     protected static final String DATASET = "dataset";
-    protected static final String VALUE = "datatable_value";
+    protected static final String VALUE = "value";
     protected static final String PRECISION = "precision";
 
     private static final int[] RANKS = {
@@ -52,6 +53,7 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "datatable_value")
     private DataTable percentileValues;
     @Getter
     @Setter
