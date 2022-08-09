@@ -1,4 +1,7 @@
 # Alerting
+Alerting mechanism measures system performance according to the metrics of services/instances/endpoints from different layers.
+Alerting kernel is an in-memory, time-window based queue.
+
 The alerting core is driven by a collection of rules defined in `config/alarm-settings.yml.`
 There are three parts to alerting rule definitions.
 1. [alerting rules](#rules). They define how metrics alerting should be triggered and what conditions should be considered.
@@ -46,6 +49,17 @@ For example, in **percentile**, `value1` is the threshold of P50, and `-, -, val
 - **Only as condition**. Indicates if the rule can send notifications or if it simply serves as a condition of the composite rule.
 - **Silence period**. After the alarm is triggered at Time-N (TN), there will be silence during the **TN -> TN + period**.
 By default, it works in the same manner as **period**. The same Alarm (having the same ID in the same metrics name) may only be triggered once within a period. 
+
+Such as for a metric, there is a shifting window as following at T7.
+
+| T1     | T2     | T3     | T4     | T5     | T6     | T7     |
+|--------|--------|--------|--------|--------|--------|--------|
+| Value1 | Value2 | Value3 | Value4 | Value5 | Value6 | Value7 |
+
+* `Period`(Time point T1 ~ T7) are continuous data points for minutes. Notice, alerting doesn't support for hours/days metrics as pointless.
+* Values(Value1 ~ Value7) are the values or labeled values for every time point.
+* `Count`'s value(N) represents there are N values in the window matched the operator and threshold.
+* In every minute, the window would shift automatically. At T8, Value8 would be cached, and T1/Value1 would be removed from the window. 
 
 ### Composite rules
 **NOTE**: Composite rules are only applicable to alerting rules targeting the same entity level, such as service-level alarm rules (`service_percent_rule && service_resp_time_percentile_rule`). Do not compose alarm rules of different entity levels, such as an alarm rule of the service metrics with another rule of the endpoint metrics.
