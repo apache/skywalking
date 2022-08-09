@@ -45,7 +45,7 @@ public class EndpointTraffic extends Metrics {
     public static final String INDEX_NAME = "endpoint_traffic";
 
     public static final String SERVICE_ID = "service_id";
-    public static final String NAME = "endpoint_traffic_name";
+    public static final String NAME = "name";
 
     @Setter
     @Getter
@@ -55,6 +55,7 @@ public class EndpointTraffic extends Metrics {
     @Getter
     @Column(columnName = NAME)
     @ElasticSearch.MatchQuery
+    @ElasticSearch.Column(columnAlias = "endpoint_traffic_name")
     private String name = Const.EMPTY_STRING;
 
     @Override

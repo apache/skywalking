@@ -23,7 +23,6 @@ import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 
@@ -41,7 +40,7 @@ public class NoneStreamEsDAO extends EsDAO implements INoneStreamDAO {
 
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
-        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+        final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(model.getName());
         storageBuilder.entity2Storage(noneStream, toStorage);
         Map<String, Object> builder =
             IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());

@@ -233,13 +233,18 @@ public class StorageEsInstaller extends ModelInstaller {
         Mappings.Source source = new Mappings.Source();
         for (ModelColumn columnDefine : model.getColumns()) {
             final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType());
+            String columnName = columnDefine.getColumnName().getName();
+            String alias = columnDefine.getElasticSearchExtension().getColumnAlias();
+            if (!config.isLogicSharding() && alias != null) {
+                columnName = alias;
+            }
             if (columnDefine.getElasticSearchExtension().needMatchQuery()) {
-                String matchCName = MatchCNameBuilder.INSTANCE.build(columnDefine.getColumnName().getName());
+                String matchCName = MatchCNameBuilder.INSTANCE.build(columnName);
 
                 Map<String, Object> originalColumn = new HashMap<>();
                 originalColumn.put("type", type);
                 originalColumn.put("copy_to", matchCName);
-                properties.put(columnDefine.getColumnName().getName(), originalColumn);
+                properties.put(columnName, originalColumn);
 
                 Map<String, Object> matchColumn = new HashMap<>();
                 matchColumn.put("type", "text");
@@ -252,11 +257,11 @@ public class StorageEsInstaller extends ModelInstaller {
                 if (columnDefine.isStorageOnly() && !"binary".equals(type)) {
                     column.put("index", false);
                 }
-                properties.put(columnDefine.getColumnName().getName(), column);
+                properties.put(columnName, column);
             }
 
             if (columnDefine.isIndexOnly()) {
-                source.getExcludes().add(columnDefine.getColumnName().getName());
+                source.getExcludes().add(columnName);
             }
         }
 

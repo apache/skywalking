@@ -33,9 +33,9 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchRespons
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
@@ -103,7 +103,7 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
         Set<String> tagValues = new HashSet<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
             TagAutocompleteData tag = new TagAutocompleteData.Builder().storage2Entity(
-                new HashMapConverter.ToEntity(searchHit.getSource()));
+                new ElasticSearchConverter.ToEntity(TagAutocompleteData.INDEX_NAME, searchHit.getSource()));
             tagValues.add(tag.getTagValue());
         }
         return tagValues;

@@ -36,15 +36,17 @@
 * Add `VIRTUAL_CACHE` to Layer, to fix conjectured Redis server, which icon can't show on the topology.
 * [Breaking Change] Elasticsearch storage merge all metrics/meter and records(without super datasets) indices into one
   physical index template `metrics-all` and `records-all` on the default setting.
-  Provide system environment variable(`SW_STORAGE_ES_LOGIC_SHARDING`) to shard metrics/records indices into
+  Provide system environment variable(`SW_STORAGE_ES_LOGIC_SHARDING`) to shard metrics/meter indices into
   multi-physical indices as the previous versions(one index template per metric/meter aggregation function).
   In the current one index mode, users still could choose to adjust ElasticSearch's shard
   number(`SW_STORAGE_ES_INDEX_SHARDS_NUMBER`) to scale out.
-* [Breaking Change] Many columns of metrics and records model names are changed, The H2/Mysql/Tidb/Postgres storage
-  users are required to remove all metrics-related and records-related tables for OAP to re-create or use a new database
-  instance.
+  More details please refer to [New ElasticSearch storage option explanation in 9.2.0](../FAQ/New-ElasticSearch-storage-option-explanation-in-9.2.0.md)
+  and [backend-storage.md](../setup/backend/backend-storage.md)
+* [Breaking Change] Index/table `ebpf_profiling_schedule` added a new column `ebpf_profiling_schedule_id`,
+  the H2/Mysql/Tidb/Postgres storage users are required to re-created it when bump up from previous releases.
 * Fix Zipkin trace query the max size of spans.
 * Add `tls` and `https` component IDs for Network Profiling.
+* Support Elasticsearch column alias for the compatibility between storage logicSharding model and no-logicSharding model.
 
 #### UI
 
@@ -85,5 +87,6 @@
 * Fix invalid links in release docs.
 * Clean up doc about event metrics.
 * Add a table for metric calculations in the ui doc.
+* Add an explanation for alerting kernel and its in-memory window mechanism.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/136?closed=1)
