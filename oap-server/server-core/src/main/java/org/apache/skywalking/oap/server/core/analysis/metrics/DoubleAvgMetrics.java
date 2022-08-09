@@ -26,17 +26,19 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Metrics
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 @MetricsFunction(functionName = "doubleAvg")
 public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHolder {
 
-    protected static final String SUMMATION = "double_summation";
+    protected static final String SUMMATION = "summation";
     protected static final String COUNT = "count";
-    protected static final String VALUE = "double_value";
+    protected static final String VALUE = "value";
 
     @Getter
     @Setter
     @Column(columnName = SUMMATION, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "double_summation")
     private double summation;
     @Getter
     @Setter
@@ -45,6 +47,7 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @ElasticSearch.Column(columnAlias = "double_value")
     private double value;
 
     @Entrance

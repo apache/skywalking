@@ -27,9 +27,9 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
@@ -91,7 +91,7 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
         for (SearchHit hit : response.getHits()) {
             final Map<String, Object> sourceAsMap = hit.getSource();
             final EBPFProfilingDataRecord.Builder builder = new EBPFProfilingDataRecord.Builder();
-            records.add(builder.storage2Entity(new HashMapConverter.ToEntity(sourceAsMap)));
+            records.add(builder.storage2Entity(new ElasticSearchConverter.ToEntity(EBPFProfilingDataRecord.INDEX_NAME, sourceAsMap)));
         }
         return records;
     }

@@ -36,6 +36,8 @@ public class ElasticSearchExtension {
      */
     private final ElasticSearch.MatchQuery.AnalyzerType analyzer;
 
+    private final String columnAlias;
+
     public boolean needMatchQuery() {
         return analyzer != null;
     }

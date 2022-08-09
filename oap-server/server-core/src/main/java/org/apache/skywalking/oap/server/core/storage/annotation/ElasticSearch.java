@@ -68,4 +68,18 @@ public @interface ElasticSearch {
             }
         }
     }
+
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Column {
+
+        /**
+         * Warning: this is only used to solve the conflict among the existing columns since we need support to merge all metrics
+         * in one physical index template. When creating a new column, we should avoid the compatibility issue
+         * between these 2 storage modes rather than use this alias.
+         */
+        @Deprecated
+        String columnAlias();
+
+    }
 }
