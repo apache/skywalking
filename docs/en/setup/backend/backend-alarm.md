@@ -56,7 +56,7 @@ Such as for a metric, there is a shifting window as following at T7.
 |--------|--------|--------|--------|--------|--------|--------|
 | Value1 | Value2 | Value3 | Value4 | Value5 | Value6 | Value7 |
 
-* `Period`(Time point T1 ~ T7) are continuous data points for minutes. Notice, alerting doesn't support for hours/days metrics as pointless.
+* `Period`(Time point T1 ~ T7) are continuous data points for minutes. Notice, alerts are not supported above minute-by-minute periods as these would not be efficient.
 * Values(Value1 ~ Value7) are the values or labeled values for every time point.
 * `Count`'s value(N) represents there are N values in the window matched the operator and threshold.
 * In every minute, the window would shift automatically. At T8, Value8 would be cached, and T1/Value1 would be removed from the window. 
