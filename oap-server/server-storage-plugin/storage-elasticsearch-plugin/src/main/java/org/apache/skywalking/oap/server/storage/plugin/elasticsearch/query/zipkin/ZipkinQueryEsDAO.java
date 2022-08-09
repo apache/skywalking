@@ -38,7 +38,6 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceSpanTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceTraffic;
@@ -46,6 +45,7 @@ import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
@@ -82,7 +82,7 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
                 for (SearchHit searchHit : response.getHits()) {
                     Map<String, Object> sourceAsMap = searchHit.getSource();
                     ZipkinServiceTraffic record = new ZipkinServiceTraffic.Builder().storage2Entity(
-                        new HashMapConverter.ToEntity(sourceAsMap));
+                        new ElasticSearchConverter.ToEntity(ZipkinServiceTraffic.INDEX_NAME, sourceAsMap));
                     services.add(record.getServiceName());
                 }
                 if (services.size() < SCROLLING_BATCH_SIZE) {
@@ -110,7 +110,7 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSource();
             ZipkinServiceRelationTraffic record = new ZipkinServiceRelationTraffic.Builder().storage2Entity(
-                new HashMapConverter.ToEntity(sourceAsMap));
+                new ElasticSearchConverter.ToEntity(ZipkinServiceRelationTraffic.INDEX_NAME, sourceAsMap));
             remoteServices.add(record.getRemoteServiceName());
         }
         return remoteServices;
@@ -129,7 +129,7 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSource();
             ZipkinServiceSpanTraffic record = new ZipkinServiceSpanTraffic.Builder().storage2Entity(
-                new HashMapConverter.ToEntity(sourceAsMap));
+                new ElasticSearchConverter.ToEntity(ZipkinServiceSpanTraffic.INDEX_NAME, sourceAsMap));
             spanNames.add(record.getSpanName());
         }
         return spanNames;
@@ -151,7 +151,7 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
                 for (SearchHit searchHit : response.getHits()) {
                     Map<String, Object> sourceAsMap = searchHit.getSource();
                     ZipkinSpanRecord record = new ZipkinSpanRecord.Builder().storage2Entity(
-                        new HashMapConverter.ToEntity(sourceAsMap));
+                        new ElasticSearchConverter.ToEntity(ZipkinSpanRecord.INDEX_NAME, sourceAsMap));
                     trace.add(buildSpanFromRecord(record));
                 }
                 if (response.getHits().getHits().size() < SCROLLING_BATCH_SIZE) {
@@ -261,7 +261,7 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSource();
             ZipkinSpanRecord record = new ZipkinSpanRecord.Builder().storage2Entity(
-                new HashMapConverter.ToEntity(sourceAsMap));
+                new ElasticSearchConverter.ToEntity(ZipkinSpanRecord.INDEX_NAME, sourceAsMap));
             Span span = buildSpanFromRecord(record);
             String traceId = span.traceId();
             groupedByTraceId.putIfAbsent(traceId, new ArrayList<>());

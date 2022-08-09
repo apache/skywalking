@@ -68,4 +68,18 @@ public @interface ElasticSearch {
             }
         }
     }
+
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Column {
+
+        /**
+         * Warning: this is only used to solve the excited column conflict since we need support merge all metrics
+         * in one index or sharding storage type both. If create a new a column, we should avoid the compatibility issue
+         * between these 2 storage type rather than use this alias.
+         */
+        @Deprecated
+        String columnAlias();
+
+    }
 }

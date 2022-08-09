@@ -23,15 +23,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
@@ -45,6 +46,7 @@ public enum IndexController {
      * Init in StorageModuleElasticsearchProvider.prepare() and the value from the config.
      */
     @Setter
+    @Getter
     private boolean logicSharding = false;
 
     public String getTableName(Model model) {
@@ -124,6 +126,8 @@ public enum IndexController {
 
         private static final Map<String/*physical index name*/, Map<String/*column name*/, ModelColumn>> PHYSICAL_INDICES_COLUMNS = new HashMap<>();
 
+        private static final Map<String/*logic index name*/, Map<String/*column name*/, String/*alias*/>> LOGIC_INDICES_COLUMNS_ALIAS = new HashMap<>();
+
         /**
          * The metric table name in aggregation physical storage.
          */
@@ -141,15 +145,34 @@ public enum IndexController {
         public static void registerRelation(Model model, String physicalName) {
             LOGIC_INDICES_CATALOG.put(model.getName(), physicalName);
             Map<String, ModelColumn> columns = PHYSICAL_INDICES_COLUMNS.computeIfAbsent(
-                physicalName, v -> new ConcurrentHashMap<>());
-            model.getColumns().forEach(modelColumn -> {
-                String columnName = modelColumn.getColumnName().getName();
-                if (columns.containsKey(columnName)) {
-                    checkModelColumnConflicts(columns.get(columnName), modelColumn, physicalName);
-                } else {
-                    columns.put(columnName, modelColumn);
-                }
-            });
+                physicalName, v -> new HashMap<>());
+            if (!IndexController.INSTANCE.logicSharding) {
+                model.getColumns().forEach(modelColumn -> {
+                    String columnName = modelColumn.getColumnName().getName();
+                    String alias = modelColumn.getElasticSearchExtension().getColumnAlias();
+                    if (alias != null) {
+                        Map<String, String> aliasMap = LOGIC_INDICES_COLUMNS_ALIAS.computeIfAbsent(
+                            model.getName(), v -> new HashMap<>());
+                        aliasMap.put(modelColumn.getColumnName().getName(), alias);
+                        columnName = alias;
+                    }
+                    if (columns.containsKey(columnName)) {
+                        checkModelColumnConflicts(columns.get(columnName), modelColumn, physicalName);
+                    } else {
+                        columns.put(columnName, modelColumn);
+                    }
+                });
+            } else {
+                model.getColumns().forEach(modelColumn -> {
+                    String columnName = modelColumn.getColumnName().getName();
+                    if (columns.containsKey(columnName)) {
+                        checkModelColumnConflicts(columns.get(columnName), modelColumn, physicalName);
+                    } else {
+                        columns.put(columnName, modelColumn);
+                    }
+                });
+            }
+
         }
 
         public static boolean isPhysicalTable(String logicName) {
@@ -161,6 +184,22 @@ public enum IndexController {
             return new ArrayList<>(PHYSICAL_INDICES_COLUMNS.get(tableName).values());
         }
 
+        public static String getPhysicalColumnName(String modelName, String columnName) {
+            if (IndexController.INSTANCE.logicSharding) {
+                return columnName;
+            }
+
+            Map<String, String> aliasMap = LOGIC_INDICES_COLUMNS_ALIAS.get(modelName);
+            if (CollectionUtils.isEmpty(aliasMap)) {
+                return columnName;
+            }
+
+            return aliasMap.getOrDefault(columnName, columnName);
+        }
+
+        /**
+         * Check the columns conflicts when they in one physical index
+         */
         private static void checkModelColumnConflicts(ModelColumn mc1, ModelColumn mc2, String physicalName) {
             if (!(mc1.isIndexOnly() == mc2.isIndexOnly())) {
                 throw new IllegalArgumentException(mc1.getColumnName() + " and " + mc2.getColumnName() + " isIndexOnly conflict in index: " + physicalName);
