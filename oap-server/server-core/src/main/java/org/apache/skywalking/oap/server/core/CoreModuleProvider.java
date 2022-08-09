@@ -106,8 +106,8 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
  * Core module provider includes the recommended and default implementations of {@link CoreModule#services()}. All
  * services with these default implementations are widely used including data receiver, data analysis, streaming
  * process, storage and query.
- *
- * NOTICE. In our experiences, no one should re-implement the core module service implementations, unless we are very
+ * <p>
+ * NOTICE: In our experience, no one should re-implement the core module service implementations, unless they are very
  * familiar with all mechanisms of SkyWalking.
  */
 public class CoreModuleProvider extends ModuleProvider {

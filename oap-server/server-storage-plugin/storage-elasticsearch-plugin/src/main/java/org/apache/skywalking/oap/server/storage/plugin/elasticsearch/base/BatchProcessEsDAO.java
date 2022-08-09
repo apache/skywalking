@@ -73,19 +73,20 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
         }
 
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
-            try {
-                return CompletableFuture.allOf(prepareRequests.stream().map(prepareRequest -> {
-                    if (prepareRequest instanceof InsertRequest) {
-                        return bulkProcessor.add(((IndexRequestWrapper) prepareRequest).getRequest());
-                    } else {
-                        return bulkProcessor.add(((UpdateRequestWrapper) prepareRequest).getRequest());
-                    }
-                }).toArray(CompletableFuture[]::new));
-            } finally {
-                // Flush forcedly due to this kind of metrics has been pushed into the bulk processor.
-                bulkProcessor.flush();
-            }
+            return CompletableFuture.allOf(prepareRequests.stream().map(prepareRequest -> {
+                if (prepareRequest instanceof InsertRequest) {
+                    return bulkProcessor.add(((IndexRequestWrapper) prepareRequest).getRequest());
+                } else {
+                    return bulkProcessor.add(((UpdateRequestWrapper) prepareRequest).getRequest());
+                }
+            }).toArray(CompletableFuture[]::new));
         }
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public void endOfFlush() {
+        // Flush forcedly due to this kind of metrics has been pushed into the bulk processor.
+        bulkProcessor.flush();
     }
 }
