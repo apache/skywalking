@@ -25,11 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.event.v3.Event;
 import org.apache.skywalking.oap.server.analyzer.event.listener.EventAnalyzerListener;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.analyzer.event.listener.EventAnalyzerListenerFactoryManager;
+import org.apache.skywalking.oap.server.analyzer.event.listener.IEventAnalyzerListenerFactoryManager;
 
 @Slf4j
 @RequiredArgsConstructor
-public class EventAnalyzerServiceImpl implements EventAnalyzerService, EventAnalyzerListenerFactoryManager {
+public class EventAnalyzerServiceImpl implements EventAnalyzerService, IEventAnalyzerListenerFactoryManager {
     private final ModuleManager moduleManager;
 
     private final List<EventAnalyzerListener.Factory> factories = new ArrayList<>();
@@ -57,7 +57,7 @@ public class EventAnalyzerServiceImpl implements EventAnalyzerService, EventAnal
     }
 
     @Override
-    public List<EventAnalyzerListener.Factory> factories() {
+    public List<EventAnalyzerListener.Factory> getEventAnalyzerListenerFactories() {
         return factories;
     }
 }
