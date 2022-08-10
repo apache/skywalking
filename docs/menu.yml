@@ -173,7 +173,7 @@ catalog:
             path: "/en/setup/service-agent/browser-agent"
           - name: "Database Monitoring"
             catalog:
-              - name: "MYSQL Monitoring"
+              - name: "MySQL Monitoring"
                 path: "/en/setup/backend/backend-mysql-monitoring"
           - name: "Self Observability"
             catalog:
