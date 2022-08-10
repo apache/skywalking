@@ -81,6 +81,7 @@
 * Add the MYSQL layer and update layer routers.
 * Fix query order for trace list.
 * Add a calculation to convert seconds to days.
+* Add component ID(131) for Java Micronaut plugin
 
 #### Documentation
 
