@@ -9,7 +9,7 @@ SkyWalking leverages prometheus/mysqld_exporter for collecting metrics data from
 
 ## Setup 
 1. Setup [mysqld_exporter](https://github.com/prometheus/mysqld_exporter#using-docker).
-2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on Prometheus Receiver in OpenTelemetry Collector, refer to [here](https://github.com/prometheus/prometheus/blob/main/documentation/examples/prometheus-docker.yml). 
+2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on Prometheus Receiver in OpenTelemetry Collector, refer to [here](https://github.com/apache/skywalking/blob/master/test/e2e-v2/cases/mysql/prometheus-mysql-exporter/otel-collector-config.yaml). 
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ## MySQL Monitoring

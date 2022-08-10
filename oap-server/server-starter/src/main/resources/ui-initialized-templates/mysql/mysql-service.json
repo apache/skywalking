@@ -39,11 +39,11 @@
                   "textAlign":"center",
                   "showUnit":true
                },
-		"metricConfig":[
+               "metricConfig":[
                   {
                      "calculation":"secondToDay"
                   }
-               ]
+               ],
                "widget":{
                   "title":"MySQL Uptime (day)"
                }
