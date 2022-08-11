@@ -26,24 +26,42 @@ services:
     ports:
       - 12800
   mysql:
-    image: mysql:5.7
+    image: mysql:8.0.30 
     networks:
       - e2e
     ports:
-      - "3306:3306"
+      - 3306
     environment:
       - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=test2
+
+  mysql-load:
+    image: mysql:8.0.30 
+    depends_on:
+      - otel-collector
+    networks:
+      - e2e
+    entrypoint: bash
+    volumes:
+     - ../prometheus-mysql-exporter:/docker
+    command:
+      - -c
+      - "mysql -h mysql -uroot -ppassword < /docker/mock.sql"
+      
   mysql-service:
-    image: prom/mysqld-exporter
+    image: prom/mysqld-exporter:v0.14.0
     ports:
-      - "9104:9104"
+      - 9104
     environment:
       - DATA_SOURCE_NAME=root:password@(mysql:3306)/
     networks:
       - e2e
+    depends_on:
+      - mysql
+    
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.54.0
+    image: otel/opentelemetry-collector:0.50.0
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]
@@ -54,8 +72,6 @@ services:
     depends_on:
       oap:
         condition: service_healthy
-networks:
-  e2e:
-
+  
 networks:
   e2e:

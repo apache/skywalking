@@ -31,7 +31,15 @@
       
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_select_rate --service-name=mysql::showcase |yq e 'to_entries' -
       expected:  expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_insert_rate --service-name=mysql::showcase |yq e 'to_entries' -
+      expected:  expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_update_rate --service-name=mysql::showcase |yq e 'to_entries' -
+      expected:  expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_delete_rate --service-name=mysql::showcase |yq e 'to_entries' -
+      expected:  expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_qps --service-name=mysql::showcase |yq e 'to_entries' -
+      expected:  expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_tps --service-name=mysql::showcase |yq e 'to_entries' -
       expected:  expected/metrics-has-value.yml
 
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_threads_connected --service-name=mysql::showcase |yq e 'to_entries' -
@@ -45,5 +53,3 @@
       expected:  expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_connects_available --service-name=mysql::showcase |yq e 'to_entries' -
       expected:  expected/metrics-has-value.yml
--
-      expected:  expected/metrics-has-value.yml  

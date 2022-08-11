@@ -7,8 +7,8 @@ SkyWalking leverages prometheus/mysqld_exporter for collecting metrics data from
 2. OpenTelemetry Collector fetches metrics from mysqld_exporter via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via the OpenCensus GRPC Exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results. 
 
-## Setup 
-1. Setup [mysqld_exporter](https://github.com/prometheus/mysqld_exporter#using-docker).
+## Set up 
+1. Set up [mysqld_exporter](https://github.com/prometheus/mysqld_exporter#using-docker).
 2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on Prometheus Receiver in OpenTelemetry Collector, refer to [here](../../../../test/e2e-v2/cases/mysql/prometheus-mysql-exporter/otel-collector-config.yaml). 
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
