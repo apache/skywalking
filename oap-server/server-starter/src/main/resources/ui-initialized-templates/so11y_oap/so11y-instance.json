@@ -241,7 +241,7 @@
           "i": "8",
           "type": "Widget",
           "widget": {
-            "title": "Persistence Execution Latency (ms)"
+            "title": "Persistence Execution Latency Per Metric Type (ms)"
           },
           "graph": {
             "type": "Line",
@@ -267,7 +267,7 @@
           "i": "9",
           "type": "Widget",
           "widget": {
-            "title": "Persistence Preparing Latency (ms)"
+            "title": "Persistence Preparing Latency Per Metric Type (ms)"
           },
           "graph": {
             "type": "Line",

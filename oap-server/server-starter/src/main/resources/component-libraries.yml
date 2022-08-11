@@ -422,6 +422,9 @@ https:
 tls:
   id: 130
   languages: ebpf
+Micronaut:
+  id: 131
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

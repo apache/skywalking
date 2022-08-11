@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -44,7 +43,7 @@ import org.joda.time.DateTime;
 public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     protected final StorageBuilder<Metrics> storageBuilder;
 
-    protected MetricsEsDAO(ElasticSearchClient client,
+    public MetricsEsDAO(ElasticSearchClient client,
                            StorageBuilder<Metrics> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
@@ -72,7 +71,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
             if (!indexIdsGroup.isEmpty()) {
                 final Optional<Documents> response = getClient().ids(indexIdsGroup);
                 response.ifPresent(documents -> documents.forEach(document -> {
-                    Metrics source = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(document.getSource()));
+                    Metrics source = storageBuilder.storage2Entity(new ElasticSearchConverter.ToEntity(model.getName(), document.getSource()));
                     result.add(source);
                 }));
             }
@@ -89,7 +88,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
                                              .collect(Collectors.toList());
                 final SearchResponse response = getClient().searchIDs(tableName, ids);
                 response.getHits().getHits().forEach(hit -> {
-                    Metrics source = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(hit.getSource()));
+                    Metrics source = storageBuilder.storage2Entity(new ElasticSearchConverter.ToEntity(model.getName(), hit.getSource()));
                     result.add(source);
                 });
             });
@@ -99,7 +98,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) {
-        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+        final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(model.getName());
         storageBuilder.entity2Storage(metrics, toStorage);
         Map<String, Object> builder = IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
@@ -109,7 +108,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
 
     @Override
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) {
-        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+        final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(model.getName());
         storageBuilder.entity2Storage(metrics, toStorage);
         Map<String, Object> builder =
             IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());

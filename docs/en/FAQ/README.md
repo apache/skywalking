@@ -11,6 +11,7 @@ These are known and frequently asked questions about SkyWalking. We welcome you 
 * [Compiling issues on Mac's M1 chip](How-to-build-with-mac-m1.md)
 
 ## Runtime
+* [New ElasticSearch storage option explanation in 9.2.0](New-ElasticSearch-storage-option-explanation-in-9.2.0.md)
 * [Version 9.x+ upgrade](v9-version-upgrade.md)
 * [Elasticsearch exception `type=version_conflict_engine_exception` since 8.7.0](es-version-conflict.md)
 * [Version 8.x+ upgrade](v8-version-upgrade.md)

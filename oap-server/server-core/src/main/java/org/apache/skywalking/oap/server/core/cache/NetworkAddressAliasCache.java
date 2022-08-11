@@ -45,7 +45,7 @@ public class NetworkAddressAliasCache implements Service {
     }
 
     /**
-     * @return NULL if alias doesn't exist or has been loaded in the cache.
+     * @return NULL if alias doesn't exist or has not been loaded in the cache.
      */
     public NetworkAddressAlias get(String address) {
         return networkAddressAliasCache.getIfPresent(address);

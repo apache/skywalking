@@ -36,7 +36,6 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHits;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
-import org.apache.skywalking.oap.server.core.analysis.metrics.HistogramMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -64,11 +63,12 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     public long readMetricsValue(final MetricsCondition condition,
                                  final String valueColumnName,
                                  final Duration duration) {
+        final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
         final SearchBuilder sourceBuilder = buildQuery(condition, duration);
         int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
         if (function == Function.Latest) {
-            return readMetricsValues(condition, valueColumnName, duration)
+            return readMetricsValues(condition, realValueColumn, duration)
                 .getValues().latestValue(defaultValue);
         }
 
@@ -78,7 +78,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                        .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                        .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                        .size(1);
-        functionAggregation(function, entityIdAggregation, valueColumnName);
+        functionAggregation(function, entityIdAggregation, realValueColumn);
 
         sourceBuilder.aggregation(entityIdAggregation);
 
@@ -93,7 +93,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             (List<Map<String, Object>>) idTerms.get("buckets");
 
         for (Map<String, Object> idBucket : buckets) {
-            final Map<String, Object> agg = (Map<String, Object>) idBucket.get(valueColumnName);
+            final Map<String, Object> agg = (Map<String, Object>) idBucket.get(realValueColumn);
             return ((Number) agg.get("value")).longValue();
         }
         return defaultValue;
@@ -103,6 +103,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     public MetricsValues readMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
                                            final Duration duration) {
+        final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
         String tableName =
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
@@ -132,7 +133,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                 kvInt.setValue(0);
                 if (idMap.containsKey(id)) {
                     Map<String, Object> source = idMap.get(id);
-                    kvInt.setValue(((Number) source.getOrDefault(valueColumnName, 0)).longValue());
+                    kvInt.setValue(((Number) source.getOrDefault(realValueColumn, 0)).longValue());
                 } else {
                     kvInt.setValue(ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()));
                 }
@@ -152,6 +153,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                                         final String valueColumnName,
                                                         final List<String> labels,
                                                         final Duration duration) {
+        final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         String tableName =
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
@@ -177,7 +179,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             for (final Document document : response.get()) {
                 idMap.put(
                     document.getId(),
-                    new DataTable((String) document.getSource().getOrDefault(valueColumnName, ""))
+                    new DataTable((String) document.getSource().getOrDefault(realValueColumn, ""))
                 );
             }
         }
@@ -188,6 +190,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     public HeatMap readHeatMap(final MetricsCondition condition,
                                final String valueColumnName,
                                final Duration duration) {
+        final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         String tableName =
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
@@ -218,7 +221,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         for (String id : ids) {
             Map<String, Object> source = idMap.get(id);
             if (source != null) {
-                String value = (String) source.get(HistogramMetrics.DATASET);
+                String value = (String) source.get(realValueColumn);
                 heatMap.buildColumn(id, value, defaultValue);
             }
         }

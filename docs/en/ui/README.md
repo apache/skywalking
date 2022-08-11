@@ -24,6 +24,24 @@ so).
 **Notice, dashboard editable is disabled on release; set system env(**SW_ENABLE_UPDATE_UI_TEMPLATE=true**) to activate
 them.** Before you save the edited dashboard, it is just stored in memory. Closing a tab would **LOSE** the change permanently.
 
+There are some calculations for metric values in the dashboard.
+
+|Label|Calculation|
+|----|----|
+|Percentage|Value / 100|
+|Apdex|Value / 10000|
+|Average|Sum of values / Count of values|
+|Percentage + Avg-preview|Sum of values / Count of values / 100|
+|Apdex + Avg-preview|Sum of values / Count of values / 10000|
+|Byte to KB|Value / 1024|
+|Byte to MB|Value / 1024 / 1024|
+|Byte to GB|Value / 1024 / 1024 / 1024|
+|Seconds to YYYY-MM-DD HH:mm:ss|dayjs(value * 1000).format("YYYY-MM-DD HH:mm:ss")|
+|Milliseconds to YYYY-MM-DD HH:mm:ss|dayjs(value).format("YYYY-MM-DD HH:mm:ss")|
+|Precision|Value.toFixed(2)|
+|Milliseconds to seconds|Value / 1000|
+|Seconds to days|Value / 86400|
+
 ## Settings
 
 Settings provide language, server time zone, and auto-fresh options. These settings are stored in the browser's local storage. Unless you clear them manually, those will not change. 

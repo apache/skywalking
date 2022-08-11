@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -48,7 +49,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 public class InstanceTraffic extends Metrics {
     public static final String INDEX_NAME = "instance_traffic";
     public static final String SERVICE_ID = "service_id";
-    public static final String NAME = "instance_traffic_name";
+    public static final String NAME = "name";
     public static final String LAST_PING_TIME_BUCKET = "last_ping";
     public static final String PROPERTIES = "properties";
 
@@ -62,6 +63,7 @@ public class InstanceTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = NAME, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "instance_traffic_name")
     private String name;
 
     @Setter

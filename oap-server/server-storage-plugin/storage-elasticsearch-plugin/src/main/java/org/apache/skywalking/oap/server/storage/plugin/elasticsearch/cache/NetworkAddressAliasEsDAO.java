@@ -31,9 +31,9 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
@@ -81,7 +81,7 @@ public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAl
                     for (SearchHit searchHit : results.getHits()) {
                         networkAddressAliases.add(
                             builder.storage2Entity(
-                                new HashMapConverter.ToEntity(searchHit.getSource())));
+                                new ElasticSearchConverter.ToEntity(NetworkAddressAlias.INDEX_NAME, searchHit.getSource())));
                     }
                     if (results.getHits().getTotal() < batchSize) {
                         break;
