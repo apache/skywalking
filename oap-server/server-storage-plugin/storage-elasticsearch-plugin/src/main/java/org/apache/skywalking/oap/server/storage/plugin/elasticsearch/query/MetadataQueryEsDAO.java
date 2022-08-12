@@ -69,6 +69,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     private final int scrollingBatchSize;
     private String endpointTrafficNameAlias;
     private boolean aliasNameInit = false;
+    private final int layerSize;
 
     public MetadataQueryEsDAO(
         ElasticSearchClient client,
@@ -76,6 +77,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         super(client);
         this.queryMaxSize = config.getMetadataQueryMaxSize();
         this.scrollingBatchSize = config.getScrollingBatchSize();
+        this.layerSize = Layer.values().length;
     }
 
     @Override
@@ -136,7 +138,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         if (IndexController.LogicIndicesRegister.isPhysicalTable(ServiceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceTraffic.INDEX_NAME));
         }
-        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+        final SearchBuilder search = Search.builder().query(query).size(layerSize);
 
         final SearchResponse response = getClient().search(index, search.build());
         return buildServices(response);
