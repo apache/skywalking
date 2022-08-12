@@ -45,9 +45,9 @@
 * [Breaking Change] Index/table `ebpf_profiling_schedule` added a new column `ebpf_profiling_schedule_id`,
   the H2/Mysql/Tidb/Postgres storage users are required to re-created it when bump up from previous releases.
 * Fix Zipkin trace query the max size of spans.
-* Support MySQL monitoring.
 * Add `tls` and `https` component IDs for Network Profiling.
 * Support Elasticsearch column alias for the compatibility between storage logicSharding model and no-logicSharding model.
+* Support MySQL  monitoring.
 
 #### UI
 
