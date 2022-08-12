@@ -47,6 +47,7 @@
 * Fix Zipkin trace query the max size of spans.
 * Add `tls` and `https` component IDs for Network Profiling.
 * Support Elasticsearch column alias for the compatibility between storage logicSharding model and no-logicSharding model.
+* Support MySQL  monitoring.
 
 #### UI
 
