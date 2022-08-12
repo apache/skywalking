@@ -136,10 +136,36 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         if (IndexController.LogicIndicesRegister.isPhysicalTable(ServiceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceTraffic.INDEX_NAME));
         }
-        final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
+        final int batchSize = Math.min(queryMaxSize, scrollingBatchSize);
+        final SearchBuilder search = Search.builder().query(query).size(batchSize);
+        final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
+        final List<Service> services = new ArrayList<>();
 
-        final SearchResponse response = getClient().search(index, search.build());
-        return buildServices(response);
+        SearchResponse results = getClient().search(index, search.build(), params);
+        Set<String> scrollIds = new HashSet<>();
+        try {
+            while (true) {
+                String scrollId = results.getScrollId();
+                scrollIds.add(scrollId);
+                if (results.getHits().getTotal() == 0) {
+                    break;
+                }
+                final List<Service> batch = buildServices(results);
+                services.addAll(batch);
+                // The last iterate, there is no more data
+                if (batch.size() < batchSize) {
+                    break;
+                }
+                // We've got enough data
+                if (services.size() >= queryMaxSize) {
+                    break;
+                }
+                results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
+            }
+        } finally {
+            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
+        }
+        return services;
     }
 
     @Override
