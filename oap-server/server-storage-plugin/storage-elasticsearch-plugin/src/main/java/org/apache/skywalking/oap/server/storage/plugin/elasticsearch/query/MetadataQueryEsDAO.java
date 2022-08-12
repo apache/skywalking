@@ -69,6 +69,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     private final int scrollingBatchSize;
     private String endpointTrafficNameAlias;
     private boolean aliasNameInit = false;
+    private final int layerSize;
 
     public MetadataQueryEsDAO(
         ElasticSearchClient client,
@@ -76,6 +77,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         super(client);
         this.queryMaxSize = config.getMetadataQueryMaxSize();
         this.scrollingBatchSize = config.getScrollingBatchSize();
+        this.layerSize = Layer.values().length;
     }
 
     @Override
@@ -136,36 +138,10 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         if (IndexController.LogicIndicesRegister.isPhysicalTable(ServiceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceTraffic.INDEX_NAME));
         }
-        final int batchSize = Math.min(queryMaxSize, scrollingBatchSize);
-        final SearchBuilder search = Search.builder().query(query).size(batchSize);
-        final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
-        final List<Service> services = new ArrayList<>();
+        final SearchBuilder search = Search.builder().query(query).size(layerSize);
 
-        SearchResponse results = getClient().search(index, search.build(), params);
-        Set<String> scrollIds = new HashSet<>();
-        try {
-            while (true) {
-                String scrollId = results.getScrollId();
-                scrollIds.add(scrollId);
-                if (results.getHits().getTotal() == 0) {
-                    break;
-                }
-                final List<Service> batch = buildServices(results);
-                services.addAll(batch);
-                // The last iterate, there is no more data
-                if (batch.size() < batchSize) {
-                    break;
-                }
-                // We've got enough data
-                if (services.size() >= queryMaxSize) {
-                    break;
-                }
-                results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
-            }
-        } finally {
-            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
-        }
-        return services;
+        final SearchResponse response = getClient().search(index, search.build());
+        return buildServices(response);
     }
 
     @Override
