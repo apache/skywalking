@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkHookCallback;
+import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutyHookCallback;
@@ -187,6 +188,7 @@ public class NotifyHandler implements MetricsNotify {
         allCallbacks.add(new EventHookCallback(this.manager));
         allCallbacks.add(new WeLinkHookCallback(alarmRulesWatcher));
         allCallbacks.add(new PagerDutyHookCallback(alarmRulesWatcher));
+        allCallbacks.add(new DiscordHookCallback(alarmRulesWatcher));
         core.start(allCallbacks);
     }
 }
