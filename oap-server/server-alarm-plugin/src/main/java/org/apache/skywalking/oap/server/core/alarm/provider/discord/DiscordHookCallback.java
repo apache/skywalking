@@ -38,7 +38,6 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Use SkyWalking alarm Discord webhook API.
@@ -66,17 +65,14 @@ public class DiscordHookCallback implements AlarmCallback {
      */
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessages) {
-        if (this.alarmRulesWatcher.getDiscordSettings() == null || this.alarmRulesWatcher.getDiscordSettings()
-                .getWebhooks()
-                .isEmpty()) {
+        DiscordSettings discordSettings = alarmRulesWatcher.getDiscordSettings();
+        if (discordSettings == null || discordSettings.getWebhooks().isEmpty()) {
             return;
         }
-        DiscordSettings discordSettings = this.alarmRulesWatcher.getDiscordSettings();
         discordSettings.getWebhooks().forEach(webHookUrl -> {
             alarmMessages.forEach(alarmMessage -> {
                 String content = String.format(
-                        Locale.US,
-                        this.alarmRulesWatcher.getDiscordSettings().getTextTemplate(),
+                        alarmRulesWatcher.getDiscordSettings().getTextTemplate(),
                         alarmMessage.getAlarmMessage()
                 );
                 sendAlarmMessage(webHookUrl, content);
