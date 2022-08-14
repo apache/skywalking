@@ -72,7 +72,7 @@ public class DiscordHookCallback implements AlarmCallback {
         discordSettings.getWebhooks().forEach(webHookUrl -> {
             alarmMessages.forEach(alarmMessage -> {
                 String content = String.format(
-                        alarmRulesWatcher.getDiscordSettings().getTextTemplate(),
+                        discordSettings.getTextTemplate(),
                         alarmMessage.getAlarmMessage()
                 );
                 sendAlarmMessage(webHookUrl, content);
