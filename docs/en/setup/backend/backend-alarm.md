@@ -329,6 +329,18 @@ pagerDutyHooks:
 
 You can also configure multiple integration keys.
 
+## Discord Hook
+Follow the [Discord Webhooks guide](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) and create a new webhook.
+
+Then configure as follows:
+```yml
+discordHooks:
+  textTemplate: "Apache SkyWalking Alarm: \n %s."
+  webhooks:
+    - url: https://discordapp.com/api/webhooks/1008166889777414645/8e0Am4Zb-YGbBqqbiiq0jSHPTEEaHa4j1vIC-zSSm231T8ewGxgY0_XUYpY-k1nN4HBl
+      username: robot
+```
+
 ## Update the settings dynamically
 Since 6.5.0, the alerting settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
 which will override the settings in `alarm-settings.yml`.

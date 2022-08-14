@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.Expression;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.ExpressionContext;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
@@ -146,5 +147,9 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
 
     public PagerDutySettings getPagerDutySettings() {
         return this.rules.getPagerDutySettings();
+    }
+
+    public DiscordSettings getDiscordSettings() {
+        return this.rules.getDiscordSettings();
     }
 }
