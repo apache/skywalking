@@ -331,14 +331,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         if (profilingSupportStatus != null) {
             query.must(Query.term(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
         }
-        final RangeQueryBuilder rangeQuery = Query.range(ProcessTraffic.LAST_PING_TIME_BUCKET);
         if (lastPingStartTimeBucket > 0) {
+            final RangeQueryBuilder rangeQuery = Query.range(ProcessTraffic.LAST_PING_TIME_BUCKET);
             rangeQuery.gte(lastPingStartTimeBucket);
-        }
-        if (lastPingEndTimeBucket > 0) {
-            rangeQuery.lte(lastPingEndTimeBucket);
-        }
-        if (lastPingStartTimeBucket > 0 || lastPingEndTimeBucket > 0) {
             query.must(rangeQuery);
         }
         query.mustNot(Query.term(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));

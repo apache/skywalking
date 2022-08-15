@@ -365,13 +365,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             sql.append(ProcessTraffic.LAST_PING_TIME_BUCKET).append(">=?");
             condition.add(lastPingStartTimeBucket);
         }
-        if (lastPingEndTimeBucket > 0) {
-            if (!condition.isEmpty()) {
-                sql.append(" and ");
-            }
-            sql.append(ProcessTraffic.LAST_PING_TIME_BUCKET).append("<=?");
-            condition.add(lastPingEndTimeBucket);
-        }
         if (!condition.isEmpty()) {
             sql.append(" and ");
         }
