@@ -51,6 +51,7 @@
 * Fix query services by serviceId error when Elasticsearch storage `SW_STORAGE_ES_QUERY_MAX_SIZE` > 10000.
 * Support sending alarm messages to Discord.
 * Fix query history process data failure.
+* Optimize TTL mechanism for Elasticsearch storage, skip executed indices in one TTL rotation.
 
 #### UI
 
