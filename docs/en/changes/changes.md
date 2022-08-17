@@ -95,5 +95,6 @@
 * Clean up doc about event metrics.
 * Add a table for metric calculations in the ui doc.
 * Add an explanation for alerting kernel and its in-memory window mechanism.
+# Add more docs for widget details.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/136?closed=1)
