@@ -76,7 +76,7 @@ Graph advanced style options.
 <img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-options.png" />
 
 Define the following properties of the widget:
-1. **Name**: The name of the widget, which used to [associate with other widget](##association-options) in the dashboard.
+1. **Name**: The name of the widget, which used to [associate with other widget](#association-options) in the dashboard.
 2. **Title**: The title name of the widget. 
 3. **Tooltip Content**: Additional explanation of the widget. 
 
