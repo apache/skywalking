@@ -24,7 +24,22 @@ so).
 **Notice, dashboard editable is disabled on release; set system env(**SW_ENABLE_UPDATE_UI_TEMPLATE=true**) to activate
 them.** Before you save the edited dashboard, it is just stored in memory. Closing a tab would **LOSE** the change permanently.
 
-There are some calculations for metric values in the dashboard.
+### Widget
+
+The widget provide the ability to visualize the metrics, which can generate from the [OAL](../concepts-and-designs/mal.md), [MAL](../concepts-and-designs/mal.md), or [LAL](../concepts-and-designs/lal.md).
+
+<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-configuration.png" />
+
+#### Metrics
+
+To display one or more metrics in a graph, the following information is required:
+1. **Name**: The name of metrics.
+2. **Data Type**: How to read the metrics data.
+3. **Visualization**: How to visualize the metrics data, which needs to cooperate with the metrics data type.
+4. **Unit**: The unit of the metrics data.
+5. **Calculation**: After the metrics are read, the data can be calculated and display. The following types are supported. 
+
+##### Calculations
 
 |Label|Calculation|
 |----|----|
@@ -41,6 +56,36 @@ There are some calculations for metric values in the dashboard.
 |Precision|Value.toFixed(2)|
 |Milliseconds to seconds|Value / 1000|
 |Seconds to days|Value / 86400|
+
+##### Common Graphs
+
+|Metrics Data Type|Visualization|Demo|
+|----|-------------|----|
+|read all values in the duration|Line|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-line.png" />|
+|get sorted top N values|Top List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-topn.png" />|
+|read all values of labels in the duration|Table|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-tables.png" />|
+|read all values in the duration|Area|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-area.png" />|
+|read all values in the duration|Service/Instance/Endpoint List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-entity-table.png" />|
+
+#### Graph styles
+
+Defines the display style of the graph.
+
+#### Widget options
+
+<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-options.png" />
+
+Define the following properties of the widget:
+1. **Name**: The name of the widget, which used to cooperate with other widget in the dashboard.
+2. **Title**: The title name of the widget. 
+3. **Tooltip Content**: Additional explanation of the widget. 
+
+#### Association Options
+
+<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-association.png" />
+
+Widget provide the ability to link with other widget to display mark lines. When the current widget data point is selected,
+the data point of the associated widget at the same moment would be displayed together.
 
 ## Settings
 
