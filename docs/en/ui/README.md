@@ -39,6 +39,16 @@ To display one or more metrics in a graph, the following information is required
 4. **Unit**: The unit of the metrics data.
 5. **Calculation**: The calculation formula for the metric. The available formulas are [here](#calculations).
 
+##### Common Graphs
+
+|Metrics Data Type|Visualization|Demo|
+|----|-------------|----|
+|read all values in the duration|Line|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-line.png" />|
+|get sorted top N values|Top List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-topn.png" />|
+|read all values of labels in the duration|Table|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-tables.png" />|
+|read all values in the duration|Area|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-area.png" />|
+|read all values in the duration|Service/Instance/Endpoint List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-entity-table.png" />|
+
 ##### Calculations
 
 |Label|Calculation|
@@ -56,16 +66,6 @@ To display one or more metrics in a graph, the following information is required
 |Precision|Value.toFixed(2)|
 |Milliseconds to seconds|Value / 1000|
 |Seconds to days|Value / 86400|
-
-##### Common Graphs
-
-|Metrics Data Type|Visualization|Demo|
-|----|-------------|----|
-|read all values in the duration|Line|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-line.png" />|
-|get sorted top N values|Top List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-topn.png" />|
-|read all values of labels in the duration|Table|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-tables.png" />|
-|read all values in the duration|Area|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-area.png" />|
-|read all values in the duration|Service/Instance/Endpoint List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-entity-table.png" />|
 
 #### Graph styles
 
