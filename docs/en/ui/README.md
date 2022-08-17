@@ -26,18 +26,18 @@ them.** Before you save the edited dashboard, it is just stored in memory. Closi
 
 ### Widget
 
-The widget provide the ability to visualize the metrics, which can generate from the [OAL](../concepts-and-designs/mal.md), [MAL](../concepts-and-designs/mal.md), or [LAL](../concepts-and-designs/lal.md).
+The widget provides the ability to visualize the metrics, generated through [OAL](../concepts-and-designs/mal.md), [MAL](../concepts-and-designs/mal.md), or [LAL](../concepts-and-designs/lal.md) scripts.
 
 <img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-configuration.png" />
 
 #### Metrics
 
 To display one or more metrics in a graph, the following information is required:
-1. **Name**: The name of metrics.
-2. **Data Type**: How to read the metrics data.
-3. **Visualization**: How to visualize the metrics data, which needs to cooperate with the metrics data type.
+1. **Name**: The name of the metric.
+2. **Data Type**: The way of reading the metrics data according to various metric types. 
+3. **Visualization**: The graph options to visualize the metric. Each data type has its own matched graph options. See the [mapping doc](#common-graphs) for more details.
 4. **Unit**: The unit of the metrics data.
-5. **Calculation**: After the metrics are read, the data can be calculated and display. The following types are supported. 
+5. **Calculation**: The calculation formula for the metric. The available formulas are [here](#calculations).
 
 ##### Calculations
 
@@ -69,14 +69,14 @@ To display one or more metrics in a graph, the following information is required
 
 #### Graph styles
 
-Defines the display style of the graph.
+Graph advanced style options.
 
 #### Widget options
 
 <img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-options.png" />
 
 Define the following properties of the widget:
-1. **Name**: The name of the widget, which used to cooperate with other widget in the dashboard.
+1. **Name**: The name of the widget, which used to [associate with other widget](##association-options) in the dashboard.
 2. **Title**: The title name of the widget. 
 3. **Tooltip Content**: Additional explanation of the widget. 
 
@@ -84,8 +84,8 @@ Define the following properties of the widget:
 
 <img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-association.png" />
 
-Widget provide the ability to link with other widget to display mark lines. When the current widget data point is selected,
-the data point of the associated widget at the same moment would be displayed together.
+Widget provides the ability to associate with other widgets to show axis pointer with tips for the same time point, in order to help users to understand
+the connectivity among metrics.
 
 ## Settings
 
