@@ -87,6 +87,7 @@
 * Fix query order for trace list.
 * Add a calculation to convert seconds to days.
 * Add component ID(131) for Java Micronaut plugin
+* Add Spring Sleuth dashboard to general service instance.
 
 #### Documentation
 
