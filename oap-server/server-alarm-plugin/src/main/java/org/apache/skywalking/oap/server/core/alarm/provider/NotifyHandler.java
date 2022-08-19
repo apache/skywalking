@@ -24,6 +24,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.EndpointRelationMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ProcessMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
@@ -32,13 +33,16 @@ import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkHookCallback;
+import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCCallback;
+import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutyHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackhookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkHookCallback;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsEntityMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -64,7 +68,8 @@ public class NotifyHandler implements MetricsNotify {
 
         if (!DefaultScopeDefine.inServiceCatalog(scope) && !DefaultScopeDefine.inServiceInstanceCatalog(scope)
             && !DefaultScopeDefine.inEndpointCatalog(scope) && !DefaultScopeDefine.inServiceRelationCatalog(scope)
-            && !DefaultScopeDefine.inServiceInstanceRelationCatalog(scope) && !DefaultScopeDefine.inEndpointRelationCatalog(scope)) {
+            && !DefaultScopeDefine.inServiceInstanceRelationCatalog(scope) && !DefaultScopeDefine.inEndpointRelationCatalog(scope)
+            && !DefaultScopeDefine.inProcessCatalog(scope)) {
             return;
         }
 
@@ -150,6 +155,16 @@ public class NotifyHandler implements MetricsNotify {
             endpointRelationMetaInAlarm.setName(endpointRelationDefine.getSource() + " in " + sourceService.getName()
                 + " to " + endpointRelationDefine.getDest() + " in " + destService.getName());
             metaInAlarm = endpointRelationMetaInAlarm;
+        } else if (DefaultScopeDefine.inProcessCatalog(scope)) {
+            final String processId = meta.getId();
+            final MetricsEntityMetaInfo entity = meta.getEntity();
+
+            ProcessMetaInAlarm processMetaInAlarm = new ProcessMetaInAlarm();
+            processMetaInAlarm.setMetricsName(meta.getMetricsName());
+            processMetaInAlarm.setId(processId);
+            processMetaInAlarm.setName(entity.getProcessName() + " in " + entity.getInstanceName()
+                    + " of " + entity.getServiceName());
+            metaInAlarm = processMetaInAlarm;
         } else {
             return;
         }
@@ -172,6 +187,8 @@ public class NotifyHandler implements MetricsNotify {
         allCallbacks.add(new FeishuHookCallback(alarmRulesWatcher));
         allCallbacks.add(new EventHookCallback(this.manager));
         allCallbacks.add(new WeLinkHookCallback(alarmRulesWatcher));
+        allCallbacks.add(new PagerDutyHookCallback(alarmRulesWatcher));
+        allCallbacks.add(new DiscordHookCallback(alarmRulesWatcher));
         core.start(allCallbacks);
     }
 }

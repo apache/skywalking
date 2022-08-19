@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.0.0-SNAPSHOT</version>
+        <version>9.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,15 +31,15 @@
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.boot.version>2.4.8</spring.boot.version>
-        <gson.version>2.8.2</gson.version>
-        <apache-httpclient.version>4.5.3</apache-httpclient.version>
-        <spring-cloud-dependencies.version>2020.0.3</spring-cloud-dependencies.version>
-        <frontend-maven-plugin.version>1.11.0</frontend-maven-plugin.version>
-        <logback-classic.version>1.2.3</logback-classic.version>
-        <jackson-version>2.12.2</jackson-version>
+        <spring.boot.version>2.6.6</spring.boot.version>
+        <gson.version>2.9.0</gson.version>
+        <apache-httpclient.version>4.5.13</apache-httpclient.version>
+        <spring-cloud-dependencies.version>2021.0.2</spring-cloud-dependencies.version>
+        <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
+        <logback-classic.version>1.2.11</logback-classic.version>
+        <jackson-version>2.13.2.2</jackson-version>
         <yaml.version>1.28</yaml.version>
-        <netty.version>4.1.68.Final</netty.version>
+        <netty.version>4.1.77.Final</netty.version>
 
         <ui.path>${project.parent.basedir}/skywalking-ui</ui.path>
     </properties>
@@ -147,7 +147,7 @@
                 <version>${frontend-maven-plugin.version}</version>
                 <configuration>
                     <workingDirectory>${ui.path}</workingDirectory>
-                    <nodeVersion>v8.17.0</nodeVersion>
+                    <nodeVersion>v16.14.0</nodeVersion>
                 </configuration>
                 <executions>
                     <execution>

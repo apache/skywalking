@@ -29,7 +29,7 @@
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
 
-expSuffix: tag({tags -> tags.app = 'istio-dp::' + tags.app}).instance(['app'], ['instance'], Layer.MESH_DP)
+expSuffix: instance(['app'], ['instance'], Layer.MESH_DP)
 metricPrefix: envoy
 metricsRules:
   - name: heap_memory_used

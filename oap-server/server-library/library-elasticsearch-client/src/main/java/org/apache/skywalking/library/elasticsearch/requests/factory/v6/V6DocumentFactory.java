@@ -21,6 +21,9 @@ import com.google.common.collect.ImmutableMap;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpRequestBuilder;
 import com.linecorp.armeria.common.MediaType;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -87,6 +90,30 @@ final class V6DocumentFactory implements DocumentFactory {
                           .get("/{index}/{type}/_mget")
                           .pathParam("index", index)
                           .pathParam("type", type)
+                          .content(MediaType.JSON, content)
+                          .build();
+    }
+
+    @SneakyThrows
+    @Override
+    public HttpRequest mget(final String type, final Map<String, List<String>> indexIds) {
+        checkArgument(!isNullOrEmpty(type), "type cannot be null or empty");
+        checkArgument(indexIds != null && !indexIds.isEmpty(), "ids cannot be null or empty");
+        final List<Map<String, String>> indexIdList = new ArrayList<>();
+        indexIds.forEach((index, ids) -> {
+            checkArgument(ids != null && !isEmpty(ids), "ids cannot be null or empty");
+            ids.forEach(id -> {
+                indexIdList.add(ImmutableMap.of("_index", index, "_type", type, "_id", id));
+            });
+        });
+        final Map<String, Iterable<Map<String, String>>> m = ImmutableMap.of("docs", indexIdList);
+        final byte[] content = version.codec().encode(m);
+        if (log.isDebugEnabled()) {
+            log.debug("mget indexIds request: {}", new String(content, Charset.defaultCharset()));
+        }
+
+        return HttpRequest.builder()
+                          .get("/_mget")
                           .content(MediaType.JSON, content)
                           .build();
     }

@@ -18,6 +18,8 @@ name: Dead Link Checker
 
 on:
   pull_request:
+  schedule:
+    - cron: '0 18 * * *'  # TimeZone: UTC 0
 
 concurrency:
   group: dlc-${{ github.event.pull_request.number || github.ref }}
@@ -25,11 +27,12 @@ concurrency:
 
 jobs:
   CheckDeadLinks:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v2
-      - run: sudo npm install -g markdown-link-check@3.8.7
+      - uses: actions/checkout@v3
+      - run: sudo npm install -g markdown-link-check@3.10.0
       - run: |
           for file in $(find . -name "*.md"); do
             markdown-link-check -c .dlc.json -q "$file"

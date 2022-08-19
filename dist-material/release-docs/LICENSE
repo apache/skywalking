@@ -224,28 +224,23 @@ Apache 2.0 licenses
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-    raphw (byte-buddy) 1.10.19: http://bytebuddy.net/ , Apache 2.0
-    Google: grpc-java 1.42.1: https://github.com/grpc/grpc-java, Apache 2.0
-    Google: guava 28.1: https://github.com/google/guava , Apache 2.0
+    Google: grpc-java 1.46.0: https://github.com/grpc/grpc-java, Apache 2.0
+    Google: guava 31.1: https://github.com/google/guava , Apache 2.0
     Google: guice 4.1.0: https://github.com/google/guice , Apache 2.0
-    Google: gson 2.8.6: https://github.com/google/gson , Apache 2.0
+    Google: gson 2.9.0: https://github.com/google/gson , Apache 2.0
     Google: proto-google-common-protos 2.0.1: https://github.com/googleapis/java-common-protos , Apache 2.0
     Google: jsr305 3.0.2: http://central.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.0/jsr305-3.0.0.pom , Apache 2.0
     Google: flatbuffers-java 1.12.0: https://github.com/google/flatbuffers/ , Apache 2.0
-    Eclipse (Jetty) 9.4.40.v20210413: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
     SnakeYAML 1.28: http://www.snakeyaml.org , Apache 2.0
     Joda-Time 2.10.5: http://www.joda.org/joda-time/ , Apache 2.0
     Joda-Convert 2.2.1: http://www.joda.org/joda-convert/ , Apache 2.0
-    Spring Framework 4.3.14.RELEASE: https://github.com/spring-projects/spring-framework, Apache 2.0
-    Spring Boot 2.4.8: https://spring.io/, Apache 2.0
-    Spring Cloud Gateway 3.0.3: https://spring.io/projects/spring-cloud, Apache-2.0
-    Spring Cloud Load Balancer 3.0.3: https://spring.io/projects/spring-cloud, Apache-2.0
-    Spring Cloud Config 1.4.1: https://github.com/spring-cloud/spring-cloud-config, Apache-2.0
-    Spring Cloud Netflix Zuul 1.3.0: https://github.com/spring-cloud/spring-cloud-netflix, Apache 2.0
+    Spring Framework 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
+    Spring Boot 2.6.6: https://spring.io/, Apache 2.0
+    Spring Cloud Gateway 3.1.2: https://spring.io/projects/spring-cloud, Apache-2.0
+    Spring Cloud Load Balancer 3.1.2: https://spring.io/projects/spring-cloud, Apache-2.0
+    Spring Web 5.3.19 https://spring.io/, Apache-2.0
     Apache: commons-logging 1.2: https://github.com/apache/commons-logging, Apache 2.0
     Apache: commons-codec 1.10: https://github.com/apache/commons-codec, Apache 2.0
-    Apache: commons-dbcp 1.4: https://github.com/apache/commons-dbcp, Apache 2.0
-    Apache: commons-pool 2.4.2: https://github.com/apache/commons-pool, Apache 2.0
     Apache: commons-lang 3.6: https://github.com/apache/commons-lang, Apache 2.0
     Apache: commons-text 1.8: https://github.com/apache/commons-text, Apache 2.0
     Apache: commons-beanutils 1.9.4: https://github.com/apache/commons-beanutils, Apache 2.0
@@ -253,19 +248,21 @@ The text of each license is the standard Apache 2.0 license.
     Apache: zookeeper 3.5.7: https://github.com/apache/zookeeper, Apache 2.0
     Apache: commons-collections 3.2.2: https://github.com/apache/commons-collections, Apache 2.0
     Apache: commons-configuration 1.8: https://github.com/apache/commons-configuration, Apache 2.0
-    Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
+    Apache: commons-io 2.7: https://github.com/apache/commons-io, Apache 2.0
     Apache: commons-compress 1.21: https://github.com/apache/commons-compress, Apache 2.0
     Apache: commons-collections4 4.4: https://mvnrepository.com/artifact/org.apache.commons/commons-collections4, Apache 2.0
-    Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
-    netty 4.1.68: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
-    netty: netty-tcnative-boringssl-static 2.0.43:  https://github.com/netty/netty-tcnative, Apache 2.0
+    Apache: freemarker 2.3.31: https://github.com/apache/freemarker, Apache 2.0
+    Apache: Tomcat-embed 9.0.62 https://tomcat.apache.org, Apache 2.0
+    Apache: httpclient 4.5.13 https://hc.apache.org/, Apache 2.0
+    netty 4.1.77: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
+    netty: netty-tcnative-boringssl-static 2.0.51:  https://github.com/netty/netty-tcnative, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.6: https://github.com/spullara/mustache.java, Apache 2.0
-    error_prone_annotations 2.3.2: https://github.com/google/error-prone, Apache 2.0
+    error_prone_annotations 2.11.0: https://github.com/google/error-prone, Apache 2.0
     instrumentation-api 0.4.3: https://github.com/google/instrumentation-java, Apache 2.0
-    jackson-annotations 2.8.0: https://github.com/FasterXML/jackson-annotations, Apache 2.0
-    jackson-core 2.12.2: https://github.com/FasterXML/jackson-core, Apache 2.0
-    jackson-databind 2.12.2: https://github.com/FasterXML/jackson-databind, Apache 2.0
+    jackson-annotations 2.13.2: https://github.com/FasterXML/jackson-annotations, Apache 2.0
+    jackson-core 2.13.2: https://github.com/FasterXML/jackson-core, Apache 2.0
+    jackson-databind 2.13.2.2: https://github.com/FasterXML/jackson-databind, Apache 2.0
     jackson-datatype-jdk8 2.9.5: https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.8.8, Apache 2.0
     jackson-module-kotlin 2.13.1: http://kotlinlang.org, Apache 2.0
     jackson-module-afterburner 2.12.2: https://github.com/FasterXML/jackson-modules-base, Apache 2.0
@@ -289,9 +286,9 @@ The text of each license is the standard Apache 2.0 license.
     servo 0.10.1: https://github.com/Netflix/servo, Apache 2.0
     validation-api 1.1.0.Final: http://beanvalidation.org/licensing/, Apache 2.0
     HikariCP 3.1.0: https://github.com/brettwooldridge/HikariCP, Apache 2.0
-    zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
+    zipkin 2.23.16: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
-    kubernetes-client 14.0.0: https://github.com/kubernetes-client/java, Apache 2.0
+    kubernetes-client 15.0.1: https://github.com/kubernetes-client/java, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
     nacos 1.4.2: https://github.com/alibaba/nacos, Apache 2.0
@@ -311,12 +308,9 @@ The text of each license is the standard Apache 2.0 license.
     javaassist 3.25.0-GA: https://github.com/jboss-javassist/javassist Apache 2.0
     jackson-module-afterburner 2.12.2: https://github.com/FasterXML/jackson-modules-base, Apache 2.0
     perfmark-api 0.23.0: https://github.com/perfmark/perfmark, Apache 2.0
-    moshi 1.5.0: https://github.com/square/moshi, Apache 2.0
-    logging-interceptor 3.13.1: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
-    msgpack-core 0.8.16: https://github.com/msgpack/msgpack-java, Apache 2.0
-    swagger-annotations 1.6.3: https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations, Apache 2.0
-    jose4j 0.7.9: https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j, Apache 2.0
-    converter-moshi 2.5.0: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-moshi, Apache 2.0
+    logging-interceptor 4.9.2: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
+    swagger-annotations 1.6.5: https://mvnrepository.com/artifact/io.swagger/swagger-annotations, Apache 2.0
+    jose4j 0.7.11: https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j, Apache 2.0
     vavr 0.10.3: https://github.com/vavr-io/vavr, Apache 2.0
     kafka-clients 2.4.1: https://github.com/apache/kafka, Apache 2.0
     lz4-java 1.6.0: https://github.com/jpountz/lz4-java, Apache 2.0
@@ -324,18 +318,14 @@ The text of each license is the standard Apache 2.0 license.
     slf4j-api 1.7.30: http://www.slf4j.org, Apache 2.0
     mvel 2.4.8: https://github.com/mvel/mvel, Apache 2.0
     okio 1.17.2: https://github.com/square/okio Apache 2.0
-    simpleclient_httpserver 0.12.0 from prometheus https://github.com/prometheus/client_java Apache 2.0
+    simpleclient_httpserver 0.15.0 from prometheus https://github.com/prometheus/client_java Apache 2.0
     jetcd 0.5.3, https://github.com/etcd-io/jetcd, Apache 2.0
     failasfe 2.3.4, https://github.com/jhalterman/failsafe, Apache 2.0
-    Armeria 1.13.4, http://github.com/line/armeria, Apache 2.0
-    Brotli4j 1.6.0, https://github.com/hyperxpro/Brotli4j, Apache 2.0
-    micrometer 1.7.6, https://github.com/micrometer-metrics/micrometer, Apache 2.0
-    iotdb-session 0.12.4: https://github.com/apache/iotdb, Apache 2.0
-    iotdb-thrift 0.12.4: https://github.com/apache/iotdb, Apache 2.0
-    service-rpc 0.12.4: https://github.com/apache/iotdb, Apache 2.0
-    tsfile 0.12.4 https://github.com/apache/iotdb Apache 2.0
-    libthrift 0.14.1: https://github.com/apache/thrift Apache 2.0
+    Armeria 1.16.0, http://github.com/line/armeria, Apache 2.0
+    Brotli4j 1.7.1, https://github.com/hyperxpro/Brotli4j, Apache 2.0
+    micrometer 1.8.5, https://github.com/micrometer-metrics/micrometer, Apache 2.0
     j2objc 1.3: https://github.com/google/j2objc Apache 2.0
+    evictor 1.0.0: https://github.com/stoyanr/Evictor Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -347,12 +337,11 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     slf4j 1.7.25: https://www.slf4j.org/ , MIT
     GraphQL java 8.0: https://github.com/graphql-java/graphql-java , MIT
     GraphQL Java Tools 5.2.3: https://github.com/graphql-java/graphql-java-tools , MIT
-    bcpkix-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
-    bcprov-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
-    bcprov-ext-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
-    bcutil-ext-jdk15on 1.69: http://www.bouncycastle.org/licence.html , MIT
+    bcpkix-jdk15on 1.70: http://www.bouncycastle.org/licence.html , MIT
+    bcprov-jdk15on 1.70: http://www.bouncycastle.org/licence.html , MIT
+    bcprov-ext-jdk15on 1.70: http://www.bouncycastle.org/licence.html , MIT
+    bcutil-ext-jdk15on 1.70: http://www.bouncycastle.org/licence.html , MIT
     checker-qual 2.8.1: https://github.com/typetools/checker-framework, MIT
-    influxdb-java 2.15: https://github.com/influxdata/influxdb-java, MIT
 
 ========================================================================
 MIT licenses
@@ -371,11 +360,11 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
     asm 9.0:https://gitlab.ow2.org , BSD-3-Clause
     antlr4-runtime 4.9.2: http://www.antlr.org/license.html, BSD-3-Clause
-    Google: protobuf-java 3.19.2: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
-    Google: protobuf-java-util 3.19.2: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
+    Google: protobuf-java 3.19.4: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
+    Google: protobuf-java-util 3.19.4: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
 
     zstd-jni 1.4.3-1: https://github.com/luben/zstd-jni, BSD-3-Clause
-    postgresql 42.3.2: https://jdbc.postgresql.org/about/license.html, BSD-2-Clause
+    postgresql 42.3.3: https://jdbc.postgresql.org/about/license.html, BSD-2-Clause
     LatencyUtils 2.0.3: https://github.com/LatencyUtils/LatencyUtils, BSD-2-Clause
 
 ========================================================================
@@ -385,7 +374,7 @@ MPL 2.0 licenses
 The following components are provided under a MPL 2.0 license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-    H2 Database 2.1.210: http://www.h2database.com/html/main.html , MPL 2.0 or EPL 1.0
+    H2 Database 2.1.212: http://www.h2database.com/html/main.html , MPL 2.0 or EPL 1.0
 
 ========================================
 CC0-1.0 licenses
@@ -401,9 +390,9 @@ EPL licenses
 The following components are provided under the EPL License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-    logback 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
-    logback-classic 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
-    logback-core 1.2.3: https://github.com/qos-ch/logback: EPL 1.0
+    logback 1.2.11: https://github.com/qos-ch/logback: EPL 1.0
+    logback-classic 1.2.11: https://github.com/qos-ch/logback: EPL 1.0
+    logback-core 1.2.11: https://github.com/qos-ch/logback: EPL 1.0
 
 ========================================================================
 CDDL licenses
@@ -424,71 +413,50 @@ The text of each license is also included at licenses/ui-licenses/LICENSE-[proje
 ========================================
 MIT licenses
 ========================================
-vue	2.6.6:	https://github.com/vuejs/vue	MIT
-vue-class-component	6.0.0:	https://github.com/vuejs/vue-class-component	MIT
-vue-property-decorator	7.0.0:	https://github.com/kaorun343/vue-property-decorator	MIT
-vue-router	3.0.1	https://github.com/vuejs/vue-router	MIT
-vuex	3.0.1	https://github.com/vuejs/vuex	MIT
-vuex-class	0.3.1	https://github.com/ktsn/vuex-class	MIT
-dayjs	1.8.8	https://github.com/iamkun/dayjs	MIT
-popper.js	1.14.7:	https://github.com/FezVrasta/popper.js	MIT
-vue-datepicker-local	1.0.19:	https://github.com/weifeiyue/vue-datepicker-local	MIT
-vue-js-modal	1.3.31:	https://github.com/euvl/vue-js-modal	MIT
-lodash	4.17.15:	https://github.com/lodash/lodash	MIT
-gson-fire	1.8.5:	https://mvnrepository.com/artifact/io.gsonfire/gson-fire	MIT
-vue-i18n 8.10.0:  https://github.com/kazupon/vue-i18n   MIT
+vue	3.2.21:	https://github.com/vuejs/vue	MIT
+vue-router	4.0.12:	https://github.com/vuejs/vue-router	MIT
+vuex	4.0.2:	https://github.com/vuejs/vuex	MIT
+dayjs	1.10.7:	https://github.com/iamkun/dayjs	MIT
+lodash	4.17.21:	https://github.com/lodash/lodash	MIT
+vue-i18n 9.1.9:  https://github.com/kazupon/vue-i18n   MIT
+pinia	2.0.5:	https://github.com/posva/pinia	MIT
+async-validator 4.0.7:  https://github.com/yiminghe/async-validator   MIT
+axios 0.24.0:  https://github.com/axios/axios   MIT
+memoize-one 6.0.0:  https://github.com/alexreardon/memoize-one  MIT
+popperjs/core 2.10.2:  https://github.com/popperjs/popper-core  MIT
+vue-demi 0.12.1:  https://github.com/antfu/vue-demi  MIT
+vueuse/core 6.8.0:  https://github.com/vueuse/vueuse  MIT
+vue/devtools-api 6.0.0-beta.20.1:  https://github.com/vuejs/vue-devtools  MIT
+element-plus 2.0.2:  https://github.com/element-plus/element-plus   MIT
+vue-types 4.1.1: https://github.com/dwightjack/vue-types   MIT
+is-plain-object 5.0.0: https://github.com/jonschlinkert/is-plain-object MIT
+vue-grid-layout 3.0.0-beta1: https://github.com/jbaysolutions/vue-grid-layout MIT
+interactjs 1.10.11: https://github.com/taye/interact.js MIT
+mitt 1.1.2: https://github.com/developit/mitt MIT
+element-resize-detector 1.2.4: https://github.com/wnr/element-resize-detector MIT
+batch-processor 1.0.0: https://github.com/wnr/batch-processor MIT
+d3-tip 0.9.1: https: //github.com/Caged/d3-tip MIT
+ctrl/tinycolor 3.4.0: https: //github.com/scttcper/tinycolor MIT
+element-plus/icons-vue 0.2.7:  https://github.com/element-plus/element-plus-icons   MIT
 monaco-editor 0.27.0: https://github.com/microsoft/monaco-editor MIT
-
 ========================================
 Apache 2.0 licenses
 ========================================
-echarts	5.0.2:	https://github.com/apache/echarts	Apache-2.0
-Material Icons 3.0.1 https://github.com/google/material-design-icons Apache-2.0
-groovy             3.0.8 https://github.com/apache/groovy Apache-2.0
-
+echarts 5.2.2: https://github.com/apache/echarts Apache-2.0
+d3-flame-graph 4.1.3: https://github.com/spiermar/d3-flame-graph Apache-2.0
+vis-timeline 7.5.1: https://github.com/visjs/vis-timeline Apache-2.0
+========================================
+ISC licenses
+========================================
+d3 7.3.0: https://github.com/d3/d3  ISC
 ========================================
 BSD licenses
 ========================================
-d3      5.9.1: https://github.com/d3/d3        BSD-3-Clause
-d3-array        1.2.4:  https://github.com/d3/d3-array  BSD-3-Clause
-d3-axis 1.0.12:  https://github.com/d3/d3-axis   BSD-3-Clause
-d3-brush        1.0.6:  https://github.com/d3/d3-brush  BSD-3-Clause
-d3-chord        1.0.6:  https://github.com/d3/d3-chord  BSD-3-Clause
-d3-collection   1.0.7:  https://github.com/d3/d3-collection     BSD-3-Clause
-d3-color        1.2.3:  https://github.com/d3/d3-color  BSD-3-Clause
-d3-contour      1.3.2:  https://github.com/d3/d3-contour  BSD-3-Clause
-d3-dispatch     1.0.5:  https://github.com/d3/d3-dispatch       BSD-3-Clause
-d3-drag 1.2.3:  https://github.com/d3/d3-drag   BSD-3-Clause
-d3-dsv  1.0.10:  https://github.com/d3/d3-dsv    BSD-3-Clause
-d3-ease 1.0.5:  https://github.com/d3/d3-ease   BSD-3-Clause
-d3-fetch 1.1.2:  https://github.com/d3/d3-fetch   BSD-3-Clause
-d3-force        1.1.2:  https://github.com/d3/d3-force  BSD-3-Clause
-d3-format       1.3.2:  https://github.com/d3/d3-format BSD-3-Clause
-d3-geo          1.11.1:  https://github.com/d3/d3-geo BSD-3-Clause
-d3-hierarchy    1.1.8:  https://github.com/d3/d3-hierarchy      BSD-3-Clause
-d3-interpolate  1.3.2:  https://github.com/d3/d3-interpolate    BSD-3-Clause
-d3-path 1.0.7:  https://github.com/d3/d3-path   BSD-3-Clause
-d3-polygon      1.0.5:  https://github.com/d3/d3-polygon        BSD-3-Clause
-d3-quadtree     1.0.5:  https://github.com/d3/d3-quadtree       BSD-3-Clause
-d3-queue        3.0.7:  https://github.com/d3/d3-queue  BSD-3-Clause
-d3-random       1.1.2:  https://github.com/d3/d3-random BSD-3-Clause
-d3-request      1.0.6:  https://github.com/d3/d3-request        BSD-3-Clause
-d3-scale      2.1.2:  https://github.com/d3/d3-scale        BSD-3-Clause
-d3-scale-chromatic      1.3.3:  https://github.com/d3/d3-scale-chromatic        BSD-3-Clause
-d3-selection    1.3.2:  https://github.com/d3/d3-selection      BSD-3-Clause
-d3-shape        1.2.2:  https://github.com/d3/d3-shape  BSD-3-Clause
-d3-time 1.0.10:  https://github.com/d3/d3-time   BSD-3-Clause
-d3-time-format  2.1.3:  https://github.com/d3/d3-time-format    BSD-3-Clause
-d3-timer        1.0.9:  https://github.com/d3/d3-timer  BSD-3-Clause
-d3-tip          0.9.1:  https://github.com/Caged/d3-tip BSD-3-Clause
-d3-transition   1.1.3:  https://github.com/d3/d3-transition     BSD-3-Clause
-d3-voronoi      1.1.4:  https://github.com/d3/d3-voronoi        BSD-3-Clause
-d3-zoom 1.7.3:  https://github.com/d3/d3-zoom   BSD-3-Clause
-zrender 5.0.4:  https://github.com/ecomfe/zrender   BSD-3-Clause
-tslib 2.0.3 https://www.npmjs.com/package/tslib BSD Zero Clause
+normalize-wheel-es 1.1.1:  https://github.com/sxzz/normalize-wheel-es   BSD
+zrender 5.2.1: https://github.com/ecomfe/zrender BSD-3-Clause
+tslib 2.3.0: https://github.com/Microsoft/tslib 0BSD
 
 ========================================
 Public Domain licenses
 ========================================
 aopalliance 1.0: http://aopalliance.sourceforge.net Public Domain
-

@@ -27,8 +27,4 @@ public class PostgreSQLBrowserLogQueryDAO extends H2BrowserLogQueryDAO {
         super(h2Client);
     }
 
-    @Override
-    protected String buildCountStatement(String sql) {
-        return "select count(*) total from (select 1 " + sql + " ) tempTable ";
-    }
 }

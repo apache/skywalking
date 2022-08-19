@@ -24,7 +24,7 @@ metadata:
     app: collector
     release: skywalking
 data:
-  receiver-trace.default.slowDBAccessThreshold: default:200,mongodb:50
+  agent-analyzer.default.slowDBAccessThreshold: default:200,mongodb:50
   alarm.default.alarm-settings: |-
     rules:
       # Rule unique name, must be ended with `_rule`.
@@ -101,7 +101,7 @@ data:
     # tomcat: 1000
     # the threshold of service "springboot1" is 50ms
     # springboot1: 50
-  receiver-trace.default.uninstrumentedGateways: |-
+  agent-analyzer.default.uninstrumentedGateways: |-
     #gateways:
     #  - name: proxy0
     #    instances:

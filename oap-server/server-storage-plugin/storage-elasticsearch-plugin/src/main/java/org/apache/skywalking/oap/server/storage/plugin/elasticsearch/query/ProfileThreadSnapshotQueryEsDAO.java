@@ -36,12 +36,13 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
@@ -65,6 +66,9 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
             Query.bool()
                  .must(Query.term(ProfileThreadSnapshotRecord.TASK_ID, taskId))
                  .must(Query.term(ProfileThreadSnapshotRecord.SEQUENCE, 0));
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(ProfileThreadSnapshotRecord.INDEX_NAME)) {
+            segmentIdQuery.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, ProfileThreadSnapshotRecord.INDEX_NAME));
+        }
 
         final SearchBuilder search =
             Search.builder().query(segmentIdQuery)
@@ -165,7 +169,8 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
 
         List<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
         for (SearchHit searchHit : response.getHits().getHits()) {
-            ProfileThreadSnapshotRecord record = builder.storage2Entity(searchHit.getSource());
+            ProfileThreadSnapshotRecord record = builder.storage2Entity(
+                new ElasticSearchConverter.ToEntity(ProfileThreadSnapshotRecord.INDEX_NAME, searchHit.getSource()));
 
             result.add(record);
         }
@@ -211,7 +216,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
                  .must(Query.term(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
                  .must(Query.range(ProfileThreadSnapshotRecord.DUMP_TIME).gte(start).lte(end));
 
-        final SearchBuilder search = 
+        final SearchBuilder search =
             Search.builder()
                   .query(query).size(0)
                   .aggregation(aggregationBuilder);

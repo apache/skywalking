@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Metrics
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 /**
  * Apdex dissatisfaction levels of Tolerating (apdex_t) and Frustrated (apdex_f) indicate how slow site performance
@@ -61,6 +62,7 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @ElasticSearch.Column(columnAlias = "int_value")
     private int value;
 
     @Entrance
@@ -94,15 +96,5 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     @Override
     public int getValue() {
         return value;
-    }
-
-    @Override
-    public boolean haveDefault() {
-        return true;
-    }
-
-    @Override
-    public boolean isDefaultValue() {
-        return value == 0;
     }
 }

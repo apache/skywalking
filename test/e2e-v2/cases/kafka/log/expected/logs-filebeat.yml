@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+errorreason: null
 logs:
 {{- contains .logs }}
 - servicename: e2e-service-provider
@@ -109,4 +110,3 @@ logs:
     value: {{ notEmpty .value }}
   {{- end }}
 {{- end }}
-total: {{ gt .total 0 }}

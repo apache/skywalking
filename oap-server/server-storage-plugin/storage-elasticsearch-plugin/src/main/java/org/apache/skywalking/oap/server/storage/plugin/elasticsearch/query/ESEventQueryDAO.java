@@ -29,6 +29,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder
 import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -69,7 +70,6 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
             IndexController.LogicIndicesRegister.getPhysicalTableName(Event.INDEX_NAME);
         final SearchResponse response = getClient().search(index, searchBuilder.build());
         final Events events = new Events();
-        events.setTotal(response.getHits().getTotal());
         events.setEvents(response.getHits().getHits().stream()
                                  .map(this::parseSearchHit)
                                  .collect(Collectors.toList()));
@@ -114,6 +114,10 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
             if (startTime.getEndTimestamp() > 0) {
                 query.must(Query.range(Event.END_TIME).lt(startTime.getEndTimestamp()));
             }
+        }
+
+        if (!isNullOrEmpty(condition.getLayer())) {
+            query.must(Query.term(Event.LAYER, condition.getLayer()));
         }
     }
 
@@ -178,6 +182,8 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
         if (!endTimeStr.isEmpty() && !Objects.equals(endTimeStr, "0")) {
             event.setEndTime(Long.parseLong(endTimeStr));
         }
+
+        event.setLayer(Layer.valueOf(Integer.parseInt(searchHit.getSource().get(Event.LAYER).toString())).name());
 
         return event;
     }

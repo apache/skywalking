@@ -18,37 +18,58 @@
 
 package org.apache.skywalking.oap.server.starter;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateInitializer;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @since 8.2.0 SkyWalking supports multiple UI initialized templates, this check is avoiding the duplicated definitions
- * in the multiple files.
- *
- * If the codes include duplicate template name in same or different template files in `ui-initialized-templates`
- * folder, this test case would fail, in order to block the merge.
+ * @since 9.0.0 SkyWalking migrate to skywalking-booster-ui, the configs are changed. This test verifies whether the
+ * config files are legal, otherwise would fail, in order to block the merge.
  */
 public class UITemplateCheckerTest {
     @Test
-    public void testNoTemplateConflict() throws FileNotFoundException {
-        final File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates");
-        final List<UITemplate> uiTemplates = new ArrayList<>();
-        for (final File templateFile : templateFiles) {
-            UITemplateInitializer initializer = new UITemplateInitializer(
-                new FileInputStream(templateFile));
-            uiTemplates.addAll(initializer.read());
-        }
+    public void validateUITemplate() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
+        Set<String> dashboardIds = new HashSet<>();
+        Set<String> dashboardNames = new HashSet<>();
+        for (String folder : UITemplateInitializer.UI_TEMPLATE_FOLDER) {
+            File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + folder.toLowerCase(
+                Locale.ROOT));
+            for (File template : templateFiles) {
+                JsonNode jsonNode = mapper.readTree(template);
+                if (jsonNode == null || jsonNode.size() == 0) {
+                    continue;
+                }
+                if (jsonNode.size() > 1) {
+                    throw new IllegalArgumentException(
+                        "File:  " + template.getName() + " should be only one dashboard setting json object.");
+                }
 
-        final List<UITemplate> distinct = uiTemplates.stream().distinct().collect(Collectors.toList());
-        Assert.assertEquals(distinct.size(), uiTemplates.size());
+                JsonNode configNode = jsonNode.get(0).get("configuration");
+                String inId = jsonNode.get(0).get("id").textValue();
+                String inName = configNode.get("name").textValue();
+                String inLayer = configNode.get("layer").textValue();
+                String inEntity = configNode.get("entity").textValue();
+                Assert.assertFalse("File: " + template + " has duplicate id: " + inId, dashboardIds.contains(inId));
+                dashboardIds.add(inId);
+                String nameKey = StringUtil.join('_', inLayer, inEntity, inName);
+                Assert.assertFalse(
+                    "File:" + template + " has duplicate name: " + inName, dashboardNames.contains(nameKey));
+                dashboardNames.add(nameKey);
+
+                //Todo: implement more validation.
+            }
+        }
     }
 }

@@ -121,5 +121,15 @@ public class Call {
             );
             this.setComponentId(0);
         }
+
+        public void buildProcessRelation(String entityId, int componentId, DetectPoint detectPoint) {
+            this.setId(entityId);
+
+            final IDManager.ProcessID.ProcessRelationDefine processRelationDefine = IDManager.ProcessID.analysisRelationId(entityId);
+            this.setDetectPoint(detectPoint);
+            this.setSource(processRelationDefine.getSourceId());
+            this.setTarget(processRelationDefine.getDestId());
+            this.setComponentId(componentId);
+        }
     }
 }

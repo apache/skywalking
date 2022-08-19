@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * StorageBuilderFactory provides the capabilities to override the default storage builders, which are implementations
- * of {@link StorageHashMapBuilder}.
+ * of {@link StorageBuilder}.
  *
  * Typically, the storage needs to provide a more native format rather than {@link java.util.HashMap}.
  */
@@ -61,14 +61,14 @@ public interface StorageBuilderFactory extends Service {
     }
 
     /**
-     * The default storage builder. Use {@link StorageHashMapBuilder} to provide general suitable entity builder
+     * The default storage builder. Use {@link StorageBuilder} to provide general suitable entity builder
      * implementation, which deliver {@link HashMap} to storage module implementation.
      */
     class Default implements StorageBuilderFactory {
         @Override
         public BuilderTemplateDefinition builderTemplate() {
             return new BuilderTemplateDefinition(
-                StorageHashMapBuilder.class.getName(), "metrics-builder");
+                StorageBuilder.class.getName(), "metrics-builder");
         }
 
         @Override

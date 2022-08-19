@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.core.analysis;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+
+import com.google.common.base.Charsets;
+import com.google.common.hash.Hashing;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -249,6 +252,47 @@ public class IDManager {
              */
             private final String destServiceId;
             private final String dest;
+        }
+    }
+
+    /**
+     * Process ID related functions.
+     */
+    public static class ProcessID {
+        /**
+         * @param instanceId built by {@link ServiceInstanceID#buildId(String, String)}
+         * @param name process name
+         * @return process id
+         */
+        public static String buildId(String instanceId, String name) {
+            return Hashing.sha256().newHasher().putString(String.format("%s_%s",
+                    name, instanceId), Charsets.UTF_8).hash().toString();
+        }
+
+        /**
+         * @return encoded process relation id
+         */
+        public static String buildRelationId(ProcessRelationDefine define) {
+            return define.sourceId + Const.RELATION_ID_CONNECTOR + define.destId;
+        }
+
+        /**
+         * @return process relation ID object decoded from {@link #buildRelationId(ProcessRelationDefine)} result
+         */
+        public static ProcessRelationDefine analysisRelationId(String entityId) {
+            String[] parts = entityId.split(Const.RELATION_ID_PARSER_SPLIT);
+            if (parts.length != 2) {
+                throw new RuntimeException("Illegal Process Relation entity id");
+            }
+            return new ProcessRelationDefine(parts[0], parts[1]);
+        }
+
+        @RequiredArgsConstructor
+        @Getter
+        @EqualsAndHashCode
+        public static class ProcessRelationDefine {
+            private final String sourceId;
+            private final String destId;
         }
     }
 

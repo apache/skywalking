@@ -22,24 +22,25 @@ import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 
 public class RecordEsDAO extends EsDAO implements IRecordDAO {
-    private final StorageHashMapBuilder<Record> storageBuilder;
+    private final StorageBuilder<Record> storageBuilder;
 
     public RecordEsDAO(ElasticSearchClient client,
-                       StorageHashMapBuilder<Record> storageBuilder) {
+                       StorageBuilder<Record> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        Map<String, Object> builder =
-            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(record));
+        final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(model.getName());
+        storageBuilder.entity2Storage(record, toStorage);
+        Map<String, Object> builder = IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, record.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, record.id());
         return getClient().prepareInsert(modelName, id, builder);

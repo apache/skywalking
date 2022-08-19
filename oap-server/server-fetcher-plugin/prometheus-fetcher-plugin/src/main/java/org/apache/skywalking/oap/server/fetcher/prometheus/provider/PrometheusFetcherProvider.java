@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.StaticConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.fetcher.prometheus.http.HttpClient;
+import org.apache.skywalking.oap.server.fetcher.prometheus.http.HTTPClient;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -136,7 +136,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                                 .map(CheckedFunction1.liftTry(target -> {
                                     URI url = new URI(target.getUrl());
                                     URI targetURL = url.resolve(r.getMetricsPath());
-                                    String content = HttpClient.builder().url(targetURL.toString()).caFilePath(target.getSslCaFilePath()).build().request();
+                                    String content = HTTPClient.builder().url(targetURL.toString()).caFilePath(target.getSslCaFilePath()).build().request();
                                     List<Metric> result = new ArrayList<>();
                                     try (InputStream targetStream = new ByteArrayInputStream(content.getBytes(Charsets.UTF_8))) {
                                         Parser p = Parsers.text(targetStream);

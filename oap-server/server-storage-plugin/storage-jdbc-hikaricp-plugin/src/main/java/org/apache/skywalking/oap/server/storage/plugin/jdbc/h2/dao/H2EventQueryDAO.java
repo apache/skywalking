@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -58,20 +59,9 @@ public class H2EventQueryDAO implements IEventQueryDAO {
         final Events result = new Events();
 
         try (final Connection connection = client.getConnection()) {
-            String sql = "select count(1) total from " + Event.INDEX_NAME + whereClause;
-            if (log.isDebugEnabled()) {
-                log.debug("Count SQL: {}, parameters: {}", sql, parameters);
-            }
-            try (final ResultSet resultSet = client.executeQuery(connection, sql, parameters)) {
-                if (!resultSet.next()) {
-                    return result;
-                }
-                result.setTotal(resultSet.getInt("total"));
-            }
-
             final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
             final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-            sql = "select * from " + Event.INDEX_NAME + whereClause;
+            String sql = "select * from " + Event.INDEX_NAME + whereClause;
             if (Order.DES.equals(queryOrder)) {
                 sql += " order by " + Event.START_TIME + " desc";
             } else {
@@ -107,21 +97,10 @@ public class H2EventQueryDAO implements IEventQueryDAO {
 
         final Events result = new Events();
         try (final Connection connection = client.getConnection()) {
-            String sql = "select count(1) total from " + Event.INDEX_NAME + whereClause;
-            if (log.isDebugEnabled()) {
-                log.debug("Count SQL: {}, parameters: {}", sql, parameters);
-            }
-            try (final ResultSet resultSet = client.executeQuery(connection, sql, parameters)) {
-                if (!resultSet.next()) {
-                    return result;
-                }
-                result.setTotal(resultSet.getInt("total"));
-            }
-
             EventQueryCondition condition = conditions.get(0);
             final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
             final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-            sql = "select * from " + Event.INDEX_NAME + whereClause;
+            String sql = "select * from " + Event.INDEX_NAME + whereClause;
             if (Order.DES.equals(queryOrder)) {
                 sql += " order by " + Event.START_TIME + " desc";
             } else {
@@ -156,7 +135,7 @@ public class H2EventQueryDAO implements IEventQueryDAO {
         event.setParameters(resultSet.getString(Event.PARAMETERS));
         event.setStartTime(resultSet.getLong(Event.START_TIME));
         event.setEndTime(resultSet.getLong(Event.END_TIME));
-
+        event.setLayer(Layer.valueOf(resultSet.getInt(Event.LAYER)).name());
         return event;
     }
 
@@ -205,6 +184,11 @@ public class H2EventQueryDAO implements IEventQueryDAO {
                 conditions.add(Event.END_TIME + "<?");
                 parameters.add(time.getEndTimestamp());
             }
+        }
+
+        if (!isNullOrEmpty(condition.getLayer())) {
+            conditions.add(Event.LAYER + "=?");
+            parameters.add(String.valueOf(Layer.nameOf(condition.getLayer()).value()));
         }
 
         return Tuple.of(conditions.build(), parameters.build());

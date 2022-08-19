@@ -24,13 +24,18 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
 public enum Scope {
+    /**
+     * @since Deprecated from 9.0.0
+     */
+    @Deprecated
     All(DefaultScopeDefine.ALL),
     Service(DefaultScopeDefine.SERVICE),
     ServiceInstance(DefaultScopeDefine.SERVICE_INSTANCE),
     Endpoint(DefaultScopeDefine.ENDPOINT),
     ServiceRelation(DefaultScopeDefine.SERVICE_RELATION),
     ServiceInstanceRelation(DefaultScopeDefine.SERVICE_INSTANCE_RELATION),
-    EndpointRelation(DefaultScopeDefine.ENDPOINT_RELATION);
+    EndpointRelation(DefaultScopeDefine.ENDPOINT_RELATION),
+    ProcessRelation(DefaultScopeDefine.PROCESS_RELATION);
 
     @Getter
     private int scopeId;

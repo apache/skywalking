@@ -1,0 +1,84 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# verify: read to analyze stack info
+#   limit: per stack snapshot dump limit
+#   stack: per data means one snapshot, stack elements split by "-"
+# expected: need verify data analyze result
+#   info: follow this pattern: codeSignature(duration:durationExcludeChild)
+#   children: all children nodes
+
+list:
+  - times: 0-3
+    symbols:
+      - 3:A-B-C
+      - 5:A-B
+      - 3:A-B
+    excepted:
+      - data: A:11
+        child:
+          - data: B:11
+            child:
+              - data: C:3
+
+  - times: 0-3
+    symbols:
+      - 2:A-B-C
+      - 3:A-C-B
+      - 4:A-B-A
+    excepted:
+      - data: A:9
+        child:
+          - data: B:6
+            child:
+              - data: C:2
+              - data: A:4
+          - data: C:3
+            child:
+              - data: B:3
+
+  - times: 0-5
+    symbols:
+      - 2:A-B-C
+      - 3:A-B
+      - 4:A-B-C
+      - 5:A-B-C-D
+      - 6:A-B-D
+    excepted:
+      - data: A:20
+        child:
+          - data: B:20
+            child:
+              - data: C:11
+                child:
+                  - data: D:5
+              - data: D:6
+
+  - times: 0-5
+    symbols:
+      - 2:A-B
+      - 3:A-B-B
+      - 4:A-B-B
+      - 5:A-B-B-B
+      - 6:A-B-C
+    excepted:
+      - data: A:20
+        child:
+          - data: B:20
+            child:
+              - data: B:12
+                child:
+                  - data: B:5
+              - data: C:6

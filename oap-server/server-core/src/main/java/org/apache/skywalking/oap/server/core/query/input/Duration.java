@@ -20,11 +20,13 @@ package org.apache.skywalking.oap.server.core.query.input;
 
 import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 
 @Getter
+@Setter
 public class Duration {
     private String start;
     private String end;

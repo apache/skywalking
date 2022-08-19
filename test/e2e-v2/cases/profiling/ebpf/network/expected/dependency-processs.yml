@@ -1,0 +1,103 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- define "genProcessId" }}
+{{- with $processName := . }}
+{{- with $serviceId := "default::productpage" | b64enc | printf "%s.1" }}
+{{- with $instanceId := "productpage" | b64enc | printf "%s_%s" $serviceId }}
+{{- printf "%s" (sha256enc (printf "%s_%s" $processName $instanceId)) }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end}}
+
+# ingress pod name
+{{ $ingressProcessName := "" }}
+{{ range .nodes }}
+{{ if hasPrefix .name "istio-ingressgateway" }}
+{{ $ingressProcessName = .name }}
+{{ end }}
+{{ end }}
+
+nodes:
+{{- contains .nodes }}
+- id: {{template "genProcessId" "/usr/local/bin/python"}}
+  name: /usr/local/bin/python
+  serviceid: {{ b64enc "default::productpage" }}.1
+  servicename: default::productpage
+  serviceinstanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
+  serviceinstancename: productpage
+  isreal: true
+- id: {{template "genProcessId" "envoy"}}
+  name: envoy
+  serviceid: {{ b64enc "default::productpage" }}.1
+  servicename: default::productpage
+  serviceinstanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
+  serviceinstancename: productpage
+  isreal: true
+- id: {{template "genProcessId" $ingressProcessName }}
+  name: {{$ingressProcessName}}
+  serviceid: {{ b64enc "default::productpage" }}.1
+  servicename: default::productpage
+  serviceinstanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
+  serviceinstancename: productpage
+  isreal: false
+- id: {{template "genProcessId" "kube-dns.kube-system" }}
+  name: kube-dns.kube-system
+  serviceid: {{ b64enc "default::productpage" }}.1
+  servicename: default::productpage
+  serviceinstanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
+  serviceinstancename: productpage
+  isreal: false
+{{- end }}
+calls:
+{{- contains .calls }}
+- source: {{template "genProcessId" "/usr/local/bin/python"}}
+  sourcecomponents:
+    - http
+  target: {{template "genProcessId" "envoy"}}
+  targetcomponents:
+    - http
+  id: {{template "genProcessId" "/usr/local/bin/python"}}-{{template "genProcessId" "envoy"}}
+  detectpoints:
+    - CLIENT
+    - SERVER
+- source: {{template "genProcessId" "envoy"}}
+  sourcecomponents:
+    - http
+  target: {{template "genProcessId" "/usr/local/bin/python"}}
+  targetcomponents:
+    - http
+  id: {{template "genProcessId" "envoy"}}-{{template "genProcessId" "/usr/local/bin/python"}}
+  detectpoints:
+    - CLIENT
+    - SERVER
+- source: {{template "genProcessId" $ingressProcessName}}
+  sourcecomponents: []
+  target: {{template "genProcessId" "envoy"}}
+  targetcomponents:
+    - https
+  id: {{template "genProcessId" $ingressProcessName}}-{{template "genProcessId" "envoy"}}
+  detectpoints:
+    - SERVER
+- source: {{template "genProcessId" "envoy"}}
+  sourcecomponents:
+    - tcp
+  target: {{template "genProcessId" "kube-dns.kube-system"}}
+  targetcomponents: []
+  id: {{template "genProcessId" "envoy"}}-{{template "genProcessId" "kube-dns.kube-system"}}
+  detectpoints:
+    - CLIENT
+{{- end }}

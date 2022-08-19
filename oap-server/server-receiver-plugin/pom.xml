@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.0.0-SNAPSHOT</version>
+        <version>9.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -45,6 +45,7 @@
         <module>configuration-discovery-receiver-plugin</module>
         <module>skywalking-event-receiver-plugin</module>
         <module>skywalking-zabbix-receiver-plugin</module>
+        <module>skywalking-ebpf-receiver-plugin</module>
     </modules>
 
     <dependencies>

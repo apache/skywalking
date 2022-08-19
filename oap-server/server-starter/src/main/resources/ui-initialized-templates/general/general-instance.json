@@ -1,0 +1,1035 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "General-Instance",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 12,
+          "w": 24,
+          "h": 52,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 14,
+                  "w": 12,
+                  "h": 13,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Instance Latency (ms)",
+                    "name": "Instance_Latency"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "service_instance_resp_time"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "value": "0-0-0",
+                  "label": "Instance_Latency",
+                  "associate": [
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 9,
+                    "sourceId": "0-0-3"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 12,
+                  "h": 14,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Instance Success Rate (%)",
+                    "name": "Instance_Success_Rate"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "service_instance_sla"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ],
+                  "value": "0-0-1",
+                  "label": "Instance_Success_Rate",
+                  "associate": [
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 9,
+                    "sourceId": "0-0-3"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 12,
+                  "h": 14,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Service Instance Load (calls / min)",
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services, this means Packets Per Minute (PPM)",
+                    "name": "Instance_Load"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "service_instance_cpm"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "value": "0-0-3",
+                  "label": "Instance_Load",
+                  "associate": [
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 28,
+                    "sourceId": "0-0-0"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 14,
+                  "w": 12,
+                  "h": 13,
+                  "i": "10",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Database Connection Pool",
+                    "name": "Database_Connection_Pool"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "meter_datasource"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "value": "0-0-10",
+                  "label": "Database_Connection_Pool",
+                  "associate": [
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 9,
+                    "sourceId": "0-0-3"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 27,
+                  "w": 12,
+                  "h": 14,
+                  "i": "16",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Thread Pool",
+                    "name": "Thread_Pool"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "meter_thread_pool"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "value": "0-0-16",
+                  "label": "0-0-16",
+                  "associate": [
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 9,
+                    "sourceId": "0-0-3"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Trace",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Trace"
+                }
+              ]
+            },
+            {
+              "name": "Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Log"
+                }
+              ]
+            },
+            {
+              "name": "JVM",
+              "children": [
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "JVM Memory (MB)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "instance_jvm_memory_noheap_max",
+                    "instance_jvm_memory_noheap",
+                    "instance_jvm_memory_heap",
+                    "instance_jvm_memory_heap_max"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    }
+                  ],
+                  "value": "0-3-5",
+                  "label": "0-3-5"
+                },
+                {
+                  "x": 8,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "12",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "JVM Thread Count"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "instance_jvm_thread_live_count",
+                    "instance_jvm_thread_daemon_count",
+                    "instance_jvm_thread_peak_count"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "value": "0-3-12",
+                  "label": "0-3-12"
+                },
+                {
+                  "x": 16,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "13",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "JVM Thread State Count"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metrics": [
+                    "instance_jvm_thread_timed_waiting_state_thread_count",
+                    "instance_jvm_thread_blocked_state_thread_count",
+                    "instance_jvm_thread_waiting_state_thread_count",
+                    "instance_jvm_thread_runnable_state_thread_count"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "value": "0-3-13",
+                  "label": "0-3-13"
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "14",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "JVM CPU (%)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "instance_jvm_cpu"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "value": "0-3-14",
+                  "label": "0-3-14"
+                },
+                {
+                  "x": 0,
+                  "y": 26,
+                  "w": 8,
+                  "h": 12,
+                  "i": "15",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "JVM Class Count"
+                  },
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "instance_jvm_class_loaded_class_count",
+                    "instance_jvm_class_total_loaded_class_count",
+                    "instance_jvm_class_total_unloaded_class_count"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "value": "0-3-15",
+                  "label": "0-3-15"
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "JVM GC Time (ms)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "instance_jvm_young_gc_time",
+                    "instance_jvm_old_gc_time",
+                    "instance_jvm_normal_gc_time"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "value": "0-3-6",
+                  "label": "0-3-6"
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "7",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "JVM GC Count"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metrics": [
+                    "instance_jvm_young_gc_count",
+                    "instance_jvm_old_gc_count",
+                    "instance_jvm_normal_gc_count"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "value": "0-3-7",
+                  "label": "0-3-7"
+                }
+              ]
+            },
+            {
+              "name": ".NET",
+              "children": [
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "CLR Thread"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "instance_clr_available_worker_threads",
+                    "instance_clr_available_completion_port_threads",
+                    "instance_clr_max_completion_port_threads"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "value": "0-4-4",
+                  "label": "0-4-4"
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "8",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "CLR Heap Memory (MB)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "instance_clr_heap_memory"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToMB"
+                    }
+                  ],
+                  "value": "0-4-8",
+                  "label": "0-4-8"
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "9",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "CLR GC"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metrics": [
+                    "instance_clr_gen1_collect_count",
+                    "instance_clr_gen0_collect_count",
+                    "instance_clr_gen2_collect_count"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "value": "0-4-9",
+                  "label": "0-4-9"
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "11",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "CLR CPU  (.NET Service)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "instance_clr_cpu"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "value": "0-4-11",
+                  "label": "0-4-11"
+                }
+              ]
+            },
+            {
+              "name": "Spring Sleuth",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "0",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_http_server_requests_count"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "HTTP Request (Count)"
+                  },
+                  "value": "0-5-0",
+                  "label": "0-5-0"
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "1",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_http_server_requests_duration"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "HTTP Request Duration (ms)"
+                  },
+                  "value": "0-5-1",
+                  "label": "0-5-1",
+                  "associate": [
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "2",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_process_cpu_usage"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Instance CPU Usage (%)"
+                  },
+                  "value": "0-5-2",
+                  "label": "0-5-2"
+                },
+                {
+                  "x": 0,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "3",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_system_cpu_usage"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "OS CPU Usage (%)"
+                  },
+                  "value": "0-5-3",
+                  "label": "0-5-3"
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "4",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_jdbc_connections_max",
+                    "meter_jdbc_connections_active",
+                    "meter_jdbc_connections_idle"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "JDBC Connections (Count)"
+                  },
+                  "value": "0-5-4",
+                  "label": "0-5-4"
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "5",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_tomcat_sessions_active_max",
+                    "meter_tomcat_sessions_active_current",
+                    "meter_tomcat_sessions_rejected"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Tomcat Session (Count)"
+                  },
+                  "value": "0-5-5",
+                  "label": "0-5-5"
+                },
+                {
+                  "x": 12,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "6",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_system_load_average_1m"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "OS System Load"
+                  },
+                  "value": "0-5-6",
+                  "label": "0-5-6",
+                  "associate": [
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "7",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_process_files_max",
+                    "meter_process_files_open"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "OS Process File (Count)"
+                  },
+                  "value": "0-5-7",
+                  "label": "0-5-7",
+                  "associate": [
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 6,
+                  "h": 12,
+                  "i": "8",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_jvm_gc_pause_duration"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "JVM GC Pause Duration (ms)"
+                  },
+                  "value": "0-5-8",
+                  "label": "0-5-8"
+                },
+                {
+                  "x": 6,
+                  "y": 24,
+                  "w": 6,
+                  "h": 12,
+                  "i": "9",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_jvm_memory_max",
+                    "meter_jvm_memory_used",
+                    "meter_jvm_memory_committed"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "associate": [
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToMB",
+                      "unit": "MB"
+                    },
+                    {
+                      "calculation": "byteToMB",
+                      "unit": "MB"
+                    },
+                    {
+                      "calculation": "byteToMB",
+                      "unit": "MB"
+                    }
+                  ],
+                  "widget": {
+                    "title": "JVM Memory (MB)"
+                  },
+                  "value": "0-5-9",
+                  "label": "0-5-9"
+                },
+                {
+                  "x": 12,
+                  "y": 24,
+                  "w": 6,
+                  "h": 12,
+                  "i": "10",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_jvm_threads_peak",
+                    "meter_jvm_threads_live",
+                    "meter_jvm_threads_daemon"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "JVM Thread (Count)"
+                  },
+                  "value": "0-5-10",
+                  "label": "0-5-10"
+                },
+                {
+                  "x": 18,
+                  "y": 24,
+                  "w": 6,
+                  "h": 12,
+                  "i": "11",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_jvm_classes_loaded",
+                    "meter_jvm_classes_unloaded"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "JVM classes (Count)"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 12,
+          "i": "1",
+          "type": "Event",
+          "eventAssociate": true
+        }
+      ],
+      "layer": "GENERAL",
+      "entity": "ServiceInstance",
+      "name": "General-Instance",
+      "id": "General-Instance",
+      "isRoot": false
+    }
+  }
+]

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.0.0-SNAPSHOT</version>
+        <version>9.2.0-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -30,30 +30,28 @@
     <properties>
         <slf4j.version>1.7.30</slf4j.version>
         <log4j.version>2.17.1</log4j.version>
+        <google.error_prone_annotations>2.11.0</google.error_prone_annotations>
         <graphql-java-tools.version>12.0.2</graphql-java-tools.version>
         <graphql-java.version>17.3</graphql-java.version>
         <graphql-java-extended-scalars.version>17.0</graphql-java-extended-scalars.version>
         <okhttp.version>3.14.9</okhttp.version>
         <httpclient.version>4.5.13</httpclient.version>
-        <h2.version>2.1.210</h2.version>
+        <h2.version>2.1.212</h2.version>
         <joda-time.version>2.10.5</joda-time.version>
         <zookeeper.version>3.5.7</zookeeper.version>
-        <guava.version>28.1-jre</guava.version>
+        <guava.version>31.1-jre</guava.version>
         <snakeyaml.version>1.28</snakeyaml.version>
-        <protobuf-java.version>3.19.2</protobuf-java.version>
-        <protobuf-java-util.version>3.19.2</protobuf-java-util.version>
+        <protobuf-java.version>3.19.4</protobuf-java.version>
+        <protobuf-java-util.version>3.19.4</protobuf-java-util.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
-        <commons-dbcp.version>1.4</commons-dbcp.version>
-        <netty-tcnative-boringssl-static.version>2.0.43.Final</netty-tcnative-boringssl-static.version>
-        <jetty.version>9.4.40.v20210413</jetty.version>
-        <commons-io.version>2.6</commons-io.version>
-        <kubernetes.version>14.0.0</kubernetes.version>
+        <commons-io.version>2.7</commons-io.version>
+        <kubernetes.version>15.0.1</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
-        <zipkin.version>2.9.1</zipkin.version>
-        <jackson-core.version>2.12.2</jackson-core.version>
-        <jackson-annotations.version>2.12.2</jackson-annotations.version>
-        <jackson-databind.version>2.12.2</jackson-databind.version>
+        <zipkin.version>2.23.16</zipkin.version>
+        <jackson-core.version>2.13.2</jackson-core.version>
+        <jackson-annotations.version>2.13.2</jackson-annotations.version>
+        <jackson-databind.version>2.13.2.2</jackson-databind.version>
         <commons-text.version>1.4</commons-text.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.8.0</apollo.version>
@@ -61,25 +59,23 @@
         <curator.version>4.3.0</curator.version>
         <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.18.0</etcd4j.version>
-        <netty.version>4.1.68.Final</netty.version>
         <jackson-module-afterburner.version>2.12.2</jackson-module-afterburner.version>
         <antlr.version>4.9.2</antlr.version>
-        <freemarker.version>2.3.28</freemarker.version>
+        <freemarker.version>2.3.31</freemarker.version>
         <javaassist.version>3.25.0-GA</javaassist.version>
         <vavr.version>0.10.3</vavr.version>
         <groovy.version>3.0.8</groovy.version>
         <mvel.version>2.4.8.Final</mvel.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <flatbuffers-java.version>1.12.0</flatbuffers-java.version>
-        <postgresql.version>42.3.2</postgresql.version>
+        <postgresql.version>42.3.3</postgresql.version>
         <jetcd.version>0.5.3</jetcd.version>
         <testcontainers.version>1.15.3</testcontainers.version>
-        <armeria.version>1.13.4</armeria.version>
+        <armeria.version>1.16.0</armeria.version>
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
         <commons-compress.version>1.21</commons-compress.version>
-        <iotdb-session.version>0.12.4</iotdb-session.version>
-        <lz4-java.version>1.6.0</lz4-java.version>
+        <banyandb-java-client.version>0.1.0</banyandb-java-client.version>
     </properties>
 
     <dependencyManagement>
@@ -88,6 +84,13 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
                 <version>${netty.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>com.linecorp.armeria</groupId>
+                <artifactId>armeria-bom</artifactId>
+                <version>${armeria.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -115,6 +118,11 @@
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
                 <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>${google.error_prone_annotations}</version>
             </dependency>
             <dependency>
                 <groupId>com.graphql-java-kickstart</groupId>
@@ -276,21 +284,6 @@
                 <version>${grpc.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-server</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlet</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-dbcp</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <version>${commons-dbcp.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
@@ -391,6 +384,29 @@
                 <version>${jackson-module-afterburner.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.skywalking</groupId>
+                <artifactId>banyandb-java-client</artifactId>
+                <version>${banyandb-java-client.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.grpc</groupId>
+                        <artifactId>grpc-netty</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.grpc</groupId>
+                        <artifactId>grpc-protobuf</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.grpc</groupId>
+                        <artifactId>grpc-stub</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty-tcnative-boringssl-static</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.curator</groupId>
@@ -546,16 +562,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commons-compress.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.iotdb</groupId>
-                <artifactId>iotdb-session</artifactId>
-                <version>${iotdb-session.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.lz4</groupId>
-                <artifactId>lz4-java</artifactId>
-                <version>${lz4-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

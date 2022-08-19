@@ -19,17 +19,18 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.util.List;
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,7 +42,13 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DefaultScopeDefine.class})
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
+@PowerMockIgnore({
+    "com.sun.org.apache.xerces.*",
+    "javax.xml.*",
+    "org.xml.*",
+    "javax.management.*",
+    "org.w3c.*"
+})
 public class StorageModelsTest {
     @BeforeClass
     public static void setup() {
@@ -67,12 +74,10 @@ public class StorageModelsTest {
         Assert.assertEquals(false, model.getColumns().get(2).isStorageOnly());
         Assert.assertEquals(true, model.getColumns().get(3).isStorageOnly());
 
-        final List<ExtraQueryIndex> extraQueryIndices = model.getExtraQueryIndices();
-        Assert.assertEquals(3, extraQueryIndices.size());
         Assert.assertArrayEquals(new String[] {
             "column2",
             "column"
-        }, extraQueryIndices.get(2).getColumns());
+        }, model.getColumns().get(2).getSqlDatabaseExtension().getIndices().get(1).getColumns());
     }
 
     @Stream(name = "StorageModelsTest", scopeId = -1, builder = TestModel.Builder.class, processor = MetricsStreamProcessor.class)
@@ -81,27 +86,26 @@ public class StorageModelsTest {
         private String column;
 
         @Column(columnName = "column1")
-        @QueryUnifiedIndex(withColumns = {"column2"})
+        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column2"})
         private String column1;
 
         @Column(columnName = "column2")
-        @QueryUnifiedIndex(withColumns = {"column1"})
-        @QueryUnifiedIndex(withColumns = {"column"})
+        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column1"})
+        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column"})
         private String column2;
 
         @Column(columnName = "column", storageOnly = true)
         private String column4;
 
-        static class Builder implements StorageHashMapBuilder<StorageData> {
-
+        static class Builder implements StorageBuilder<StorageData> {
             @Override
-            public StorageData storage2Entity(final Map dbMap) {
+            public StorageData storage2Entity(final Convert2Entity converter) {
                 return null;
             }
 
             @Override
-            public Map<String, Object> entity2Storage(final StorageData storageData) {
-                return null;
+            public void entity2Storage(final StorageData entity, final Convert2Storage converter) {
+
             }
         }
     }

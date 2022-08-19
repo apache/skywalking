@@ -20,13 +20,19 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.io.IOException;
+import java.util.Set;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
+import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.LogQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -34,6 +40,7 @@ import static java.util.Objects.nonNull;
 public class LogQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private LogQueryService logQueryService;
+    private TagAutoCompleteQueryService tagQueryService;
 
     public LogQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -44,6 +51,13 @@ public class LogQuery implements GraphQLQueryResolver {
             this.logQueryService = moduleManager.find(CoreModule.NAME).provider().getService(LogQueryService.class);
         }
         return logQueryService;
+    }
+
+    private TagAutoCompleteQueryService getTagQueryService() {
+        if (tagQueryService == null) {
+            this.tagQueryService = moduleManager.find(CoreModule.NAME).provider().getService(TagAutoCompleteQueryService.class);
+        }
+        return tagQueryService;
     }
 
     public boolean supportQueryLogsByKeywords() {
@@ -61,7 +75,18 @@ public class LogQuery implements GraphQLQueryResolver {
             endSecondTB = condition.getQueryDuration().getEndTimeBucketInSec();
         }
         Order queryOrder = isNull(condition.getQueryOrder()) ? Order.DES : condition.getQueryOrder();
-
+        if (CollectionUtils.isNotEmpty(condition.getTags())) {
+            condition.getTags().forEach(tag -> {
+                if (tag != null) {
+                    if (StringUtil.isNotEmpty(tag.getKey())) {
+                        tag.setKey(tag.getKey().trim());
+                    }
+                    if (StringUtil.isNotEmpty(tag.getValue())) {
+                        tag.setValue(tag.getValue().trim());
+                    }
+                }
+            });
+        }
         return getQueryService().queryLogs(
             condition.getServiceId(),
             condition.getServiceInstanceId(),
@@ -74,5 +99,13 @@ public class LogQuery implements GraphQLQueryResolver {
             condition.getKeywordsOfContent(),
             condition.getExcludingKeywordsOfContent()
         );
+    }
+
+    public Set<String> queryLogTagAutocompleteKeys(final Duration queryDuration) throws IOException {
+        return getTagQueryService().queryTagAutocompleteKeys(TagType.LOG, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
+    }
+
+    public Set<String> queryLogTagAutocompleteValues(final String tagKey, final Duration queryDuration) throws IOException {
+        return getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
     }
 }

@@ -36,7 +36,7 @@ public class NacosConfigWatcherRegisterTest {
     @Test
     public void shouldReadConfigs() throws NacosException {
         final String group = "skywalking";
-        final String testKey1 = "receiver-trace.default.slowDBAccessThreshold";
+        final String testKey1 = "agent-analyzer.default.slowDBAccessThreshold";
         final String testVal1 = "test";
         final String testKey2 = "testKey";
         final String testVal2 = "testVal";

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.0.0-SNAPSHOT</version>
+        <version>9.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -108,6 +108,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>zipkin-query-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>envoy-metrics-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -156,6 +161,11 @@
             <artifactId>skywalking-zabbix-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-ebpf-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- receiver module -->
 
         <!-- fetcher module -->
@@ -179,17 +189,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-influxdb-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>storage-tidb-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-iotdb-plugin</artifactId>
+            <artifactId>storage-banyandb-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- storage module -->
@@ -318,7 +323,7 @@
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
-                        <phase>process-resources</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
@@ -352,7 +357,6 @@
                     <includeOnlyProperties>
                         <includeOnlyProperty>^git.build.version$</includeOnlyProperty>
                         <includeOnlyProperty>^git.commit.id$</includeOnlyProperty>
-                        <includeOnlyProperty>^git.build.time$</includeOnlyProperty>
                     </includeOnlyProperties>
                 </configuration>
             </plugin>

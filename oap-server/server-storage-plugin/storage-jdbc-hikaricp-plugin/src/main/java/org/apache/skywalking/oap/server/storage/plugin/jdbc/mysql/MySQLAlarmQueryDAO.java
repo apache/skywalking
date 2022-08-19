@@ -24,10 +24,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AlarmQueryD
 
 public class MySQLAlarmQueryDAO extends H2AlarmQueryDAO {
 
-    public MySQLAlarmQueryDAO(final JDBCHikariCPClient client,
-                            final ModuleManager manager,
-                            final int maxSizeOfArrayColumn, final int numOfSearchValuesPerTag) {
-        super(client, manager, maxSizeOfArrayColumn, numOfSearchValuesPerTag);
+    public MySQLAlarmQueryDAO(final JDBCHikariCPClient client, final ModuleManager manager) {
+        super(client, manager);
     }
 
     @Override
@@ -35,8 +33,4 @@ public class MySQLAlarmQueryDAO extends H2AlarmQueryDAO {
         sql.append(" LIMIT ").append(from).append(", ").append(limit);
     }
     
-    @Override
-    protected String buildCountStatement(String sql) {
-        return "select count(1) total " + sql;
-    }
 }

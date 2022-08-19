@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public class LogAnalyzer {
     private final ModuleManager moduleManager;
     private final LogAnalyzerModuleConfig moduleConfig;
-    private final ILogAnalysisListenerFactoryManager factoryManager;
+    private final ILogAnalysisListenerManager factoryManager;
 
     private final List<LogAnalysisListener> listeners = new ArrayList<>();
 

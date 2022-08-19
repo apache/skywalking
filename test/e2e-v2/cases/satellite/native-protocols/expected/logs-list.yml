@@ -13,14 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+errorreason: null
 logs:
 {{- contains .logs }}
   - servicename: e2e-service-provider
     serviceid: {{ b64enc "e2e-service-provider" }}.1
     serviceinstancename: provider1
     serviceinstanceid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
-    endpointname: null
-    endpointid: null
+    endpointname: POST:/info
+    endpointid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/info" }}
     traceid: {{ .traceid }}
     timestamp: {{ gt .timestamp 0 }}
     contenttype: TEXT
@@ -36,4 +37,3 @@ logs:
       value: {{ notEmpty .value }}
     {{- end }}
 {{- end }}
-total: {{ gt .total 0 }}

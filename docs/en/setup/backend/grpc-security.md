@@ -28,10 +28,10 @@ We need the following files:
 
 ## TLS on OAP servers
 
-By default, the communication between OAP nodes and the communication between receiver and probe share the same gRPC server. That means once you enabling SSL for receivers and probes, the OAP nodes will enable it too.
+By default, the communication between OAP nodes and the communication between receiver and probe share the same gRPC server. That means once you enable SSL for receivers and probes, the OAP nodes will enable it too.
 
 
-**NOTE**: SkyWalking **does not** support to enable mTLS on `OAP server nodes communication`. That means you have to enable `receiver-sharing-server` for enabling mTLS on communication between probes ang OAP servers. More details see [Enable mTLS mode on gRPC receiver](#Enable_mTLS_mode_on_gRPC_receiver).
+**NOTE**: SkyWalking **does not** support enabling mTLS on `OAP server nodes communication`. That means you have to enable `receiver-sharing-server` for enabling mTLS on communication between probes and OAP servers. More details see [Enable mTLS mode on gRPC receiver](#enable-mtls-mode-on-grpc-receiver).
 
 
 You can enable gRPC SSL by adding the following lines to `application.yml/core/default`.
@@ -46,7 +46,7 @@ gRPCSslTrustedCAPath: /path/to/ca.crt
 `gRPCSslKeyPath` and `gRPCSslCertChainPath` are loaded by the OAP server to encrypt communication. `gRPCSslTrustedCAPath`
 helps the gRPC client to verify server certificates in cluster mode.
 
-> There is a gRPC client and server in every OAP server node. The gRPC client comunicates with OAP servers in cluster mode. They are sharing the core module configuration.
+> There is a gRPC client and server in every OAP server node. The gRPC client communicates with OAP servers in cluster mode. They are sharing the core module configuration.
 
 **When new files are in place, they can be loaded dynamically, and you won't have to restart an OAP instance.**
 
@@ -62,13 +62,13 @@ gRPCSslKeyPath: /path/to/server.pem
 gRPCSslCertChainPath: /path/to/server.crt
 ```
 
-Since `recevier-sharing-server` only receives data from an external source, it doesn't need a CA at all. But you have to configure the CA for the clients, such as [Java agent](http://github.com/apache/skywalking-java), [Satellite](http://github.com/apache/skywalking-satellite). If you port to Java agent, refer to [the Java agent repo](http://github.com/apache/skywalking-java) to configure java agent and enable TLS.
+Since `receiver-sharing-server` only receives data from an external source, it doesn't need a CA at all. But you have to configure the CA for the clients, such as [Java agent](http://github.com/apache/skywalking-java), [Satellite](http://github.com/apache/skywalking-satellite). If you port to the Java agent, refer to [the Java agent repo](http://github.com/apache/skywalking-java) to configure the Java agent and enable TLS.
 
-**NOTE**: change the `SW_RECEIVER_GRPC_PORT` as non-zore to enable `receiver-sharing-server`. And the port is open for the clients.
+**NOTE**: change the `SW_RECEIVER_GRPC_PORT` as non-zero to enable `receiver-sharing-server`. And the port is open for the clients.
 
 ### Enable mTLS mode on gRPC receiver
 
-Since 8.8.0, SkyWalking supports enable mutual TLS authentication for transporting between clients and OAP servers. To enable `mTLS` mode for gRPC channel requires [Sharing gRPC Server](backend-expose.md) enabled, as the following configuration.
+Since 8.8.0, SkyWalking has supported mutual TLS authentication for transporting between clients and OAP servers. Enable `mTLS` mode for the gRPC channel requires [Sharing gRPC Server](backend-expose.md) enabled, as the following configuration.
 
 ```yaml
 receiver-sharing-server:

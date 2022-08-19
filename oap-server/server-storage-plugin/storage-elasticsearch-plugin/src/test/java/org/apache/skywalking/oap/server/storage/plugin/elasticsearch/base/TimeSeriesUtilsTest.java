@@ -20,7 +20,11 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,14 +40,14 @@ public class TimeSeriesUtilsTest {
 
     @Before
     public void prepare() {
-        superDatasetModel = new Model("superDatasetModel", Lists.newArrayList(), Lists.newArrayList(),
-                                      0, DownSampling.Minute, true, true, "", true
+        superDatasetModel = new Model("superDatasetModel", Lists.newArrayList(),
+                                      0, DownSampling.Second, true, true, Record.class, true, new SQLDatabaseModelExtension()
         );
-        normalRecordModel = new Model("normalRecordModel", Lists.newArrayList(), Lists.newArrayList(),
-                                      0, DownSampling.Minute, true, false, "", true
+        normalRecordModel = new Model("normalRecordModel", Lists.newArrayList(),
+                                      0, DownSampling.Second, true, false, Record.class, true, new SQLDatabaseModelExtension()
         );
-        normalMetricsModel = new Model("normalMetricsModel", Lists.newArrayList(), Lists.newArrayList(),
-                                       0, DownSampling.Minute, false, false, "", true
+        normalMetricsModel = new Model("normalMetricsModel", Lists.newArrayList(),
+                                       0, DownSampling.Minute, false, false, Metrics.class, true, new SQLDatabaseModelExtension()
         );
         TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(1);
         TimeSeriesUtils.setDAY_STEP(3);
@@ -69,11 +73,11 @@ public class TimeSeriesUtilsTest {
             writeIndexName(superDatasetModel, secondTimeBucket)
         );
         Assert.assertEquals(
-            "normalRecordModel-20200807",
+            "records-all-20200807",
             writeIndexName(normalRecordModel, secondTimeBucket)
         );
         Assert.assertEquals(
-            "normalMetricsModel-20200807",
+            "metrics-all-20200807",
             writeIndexName(normalMetricsModel, minuteTimeBucket)
         );
         secondTimeBucket += 1000000;
@@ -83,12 +87,36 @@ public class TimeSeriesUtilsTest {
             writeIndexName(superDatasetModel, secondTimeBucket)
         );
         Assert.assertEquals(
-            "normalRecordModel-20200810",
+            "records-all-20200810",
             writeIndexName(normalRecordModel, secondTimeBucket)
         );
         Assert.assertEquals(
-            "normalMetricsModel-20200810",
+            "metrics-all-20200810",
             writeIndexName(normalMetricsModel, minuteTimeBucket)
+        );
+    }
+
+    @Test
+    public void queryIndexNameTest() {
+        Assert.assertEquals(
+            "metrics-apdex-20220710",
+            TimeSeriesUtils.queryIndexName("metrics-apdex", 20220710111111L, Step.SECOND, false, false)
+        );
+        Assert.assertEquals(
+            "metrics-apdex-20220710",
+            TimeSeriesUtils.queryIndexName("metrics-apdex", 202207101111L, Step.MINUTE, false, false)
+        );
+        Assert.assertEquals(
+            "metrics-apdex-20220710",
+            TimeSeriesUtils.queryIndexName("metrics-apdex", 2022071011L, Step.HOUR, false, false)
+        );
+        Assert.assertEquals(
+            "metrics-apdex-20220710",
+            TimeSeriesUtils.queryIndexName("metrics-apdex", 20220710L, Step.DAY, false, false)
+        );
+        Assert.assertEquals(
+            "metrics-apdex-20220710",
+            TimeSeriesUtils.queryIndexName("metrics-apdex", 20220710111111L, Step.DAY, true, true)
         );
     }
 

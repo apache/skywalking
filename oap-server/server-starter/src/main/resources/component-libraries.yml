@@ -410,6 +410,21 @@ AWSLambdaGatewayAPIHTTP:
 AWSLambdaGatewayAPIREST:
   id: 126
   languages: Java,C#,Node.js,Python
+Apache-ShenYu:
+  id: 127
+  languages: Java
+Hutool:
+  id: 128
+  languages: Java
+https:
+  id: 129
+  languages: ebpf
+tls:
+  id: 130
+  languages: ebpf
+Micronaut:
+  id: 131
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -580,8 +595,11 @@ Falcon:
 MysqlClient:
   id: 7013
   languages: Python
-FastApi:
+FastAPI:
   id: 7014
+  languages: Python
+Bottle:
+  id: 7015
   languages: Python
 
 # PHP components

@@ -16,10 +16,9 @@
 # under the License.
 
 {{- contains .}}
-- id: {{ b64enc "oap::oap-server" }}.1_{{ b64enc "http://localhost:1234" }}
+- id: {{ b64enc "oap-server" }}.1_{{ b64enc "http://localhost:1234" }}
   name: http://localhost:1234
   attributes: []
   language: UNKNOWN
-  instanceuuid: {{ b64enc "oap::oap-server" }}.1_{{ b64enc "http://localhost:1234" }}
-  layer: SO11Y_OAP
+  instanceuuid: {{ b64enc "oap-server" }}.1_{{ b64enc "http://localhost:1234" }}
 {{- end}}

@@ -25,6 +25,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 
 /**
@@ -158,7 +159,11 @@ public class HeatMap {
 
         private String[] parseKey(String key) {
             if (key.contains(":")) {
-                return key.split(":");
+                // split the group and bucket
+                return new String[] {
+                    StringUtils.substringBeforeLast(key, ":"),
+                    StringUtils.substringAfterLast(key, ":"),
+                };
             }
             return new String[] {"default", key};
         }

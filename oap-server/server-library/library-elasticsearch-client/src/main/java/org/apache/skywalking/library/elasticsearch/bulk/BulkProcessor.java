@@ -37,6 +37,7 @@ import org.apache.skywalking.library.elasticsearch.ElasticSearch;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
 import org.apache.skywalking.library.elasticsearch.requests.factory.RequestFactory;
+import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 
 import static java.util.Objects.requireNonNull;
 
@@ -72,7 +73,8 @@ public final class BulkProcessor {
         scheduler.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
         scheduler.setRemoveOnCancelPolicy(true);
         scheduler.scheduleWithFixedDelay(
-            this::flush, 0, flushInterval.getSeconds(), TimeUnit.SECONDS);
+                new RunnableWithExceptionProtection(this::flush,
+                        t -> log.error("flush data to ES failure:", t)), 0, flushInterval.getSeconds(), TimeUnit.SECONDS);
     }
 
     public CompletableFuture<Void> add(IndexRequest request) {
@@ -99,7 +101,7 @@ public final class BulkProcessor {
         }
     }
 
-    void flush() {
+    public void flush() {
         if (requests.isEmpty()) {
             return;
         }

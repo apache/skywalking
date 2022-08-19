@@ -23,16 +23,17 @@ import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -42,6 +43,7 @@ import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import com.google.gson.JsonObject;
 
 /**
  * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to source
@@ -69,9 +71,10 @@ public class TelemetryDataDispatcher {
             "mesh_analysis_latency", "The process latency of service mesh telemetry", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
         );
-        MESH_ERROR_METRICS = metricsCreator.createCounter("mesh_analysis_error_count", "The error number of mesh analysis",
-                MetricsTag.EMPTY_KEY,
-                MetricsTag.EMPTY_VALUE
+        MESH_ERROR_METRICS = metricsCreator.createCounter("mesh_analysis_error_count",
+                                                          "The error number of mesh analysis",
+                                                          MetricsTag.EMPTY_KEY,
+                                                          MetricsTag.EMPTY_VALUE
         );
     }
 
@@ -108,9 +111,9 @@ public class TelemetryDataDispatcher {
         long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getStartTime());
 
         if (org.apache.skywalking.apm.network.common.v3.DetectPoint.server.equals(metrics.getDetectPoint())) {
-            toAll(metrics, minuteTimeBucket);
             toService(metrics, minuteTimeBucket);
             toServiceInstance(metrics, minuteTimeBucket);
+            toServiceInstanceTraffic(metrics, minuteTimeBucket);
             toEndpoint(metrics, minuteTimeBucket);
         }
 
@@ -122,35 +125,20 @@ public class TelemetryDataDispatcher {
         }
     }
 
-    private static void toAll(ServiceMeshMetric.Builder metrics, long minuteTimeBucket) {
-        All all = new All();
-        all.setTimeBucket(minuteTimeBucket);
-        all.setName(metrics.getDestServiceName());
-        all.setServiceInstanceName(metrics.getDestServiceInstance());
-        all.setEndpointName(metrics.getEndpoint());
-        all.setLatency(metrics.getLatency());
-        all.setStatus(metrics.getStatus());
-        all.setResponseCode(metrics.getResponseCode());
-        all.setHttpResponseStatusCode(metrics.getResponseCode());
-        all.setType(protocol2Type(metrics.getProtocol()));
-
-        SOURCE_RECEIVER.receive(all);
-    }
-
     private static void toService(ServiceMeshMetric.Builder metrics, long minuteTimeBucket) {
         Service service = new Service();
         service.setTimeBucket(minuteTimeBucket);
         service.setName(metrics.getDestServiceName());
         service.setLayer(Layer.MESH);
-        service.setNormal(true);
         service.setServiceInstanceName(metrics.getDestServiceInstance());
         service.setEndpointName(metrics.getEndpoint());
         service.setLatency(metrics.getLatency());
         service.setStatus(metrics.getStatus());
-        service.setResponseCode(metrics.getResponseCode());
         service.setHttpResponseStatusCode(metrics.getResponseCode());
         service.setType(protocol2Type(metrics.getProtocol()));
         service.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        service.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
+        service.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
         service.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
         service.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
@@ -162,22 +150,21 @@ public class TelemetryDataDispatcher {
         serviceRelation.setTimeBucket(minuteTimeBucket);
         serviceRelation.setSourceServiceName(metrics.getSourceServiceName());
         serviceRelation.setSourceLayer(Layer.MESH);
-        serviceRelation.setSourceNormal(true);
         serviceRelation.setSourceServiceInstanceName(metrics.getSourceServiceInstance());
         serviceRelation.setDestServiceName(metrics.getDestServiceName());
         serviceRelation.setDestLayer(Layer.MESH);
-        serviceRelation.setDestNormal(true);
         serviceRelation.setDestServiceInstanceName(metrics.getDestServiceInstance());
         serviceRelation.setEndpoint(metrics.getEndpoint());
         serviceRelation.setLatency(metrics.getLatency());
         serviceRelation.setStatus(metrics.getStatus());
         serviceRelation.setType(protocol2Type(metrics.getProtocol()));
-        serviceRelation.setResponseCode(metrics.getResponseCode());
         serviceRelation.setHttpResponseStatusCode(metrics.getResponseCode());
         serviceRelation.setDetectPoint(detectPointMapping(metrics.getDetectPoint()));
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
         serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        serviceRelation.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
+        serviceRelation.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
         serviceRelation.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
         serviceRelation.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
@@ -189,19 +176,35 @@ public class TelemetryDataDispatcher {
         serviceInstance.setTimeBucket(minuteTimeBucket);
         serviceInstance.setName(metrics.getDestServiceInstance());
         serviceInstance.setServiceName(metrics.getDestServiceName());
-        serviceInstance.setLayer(Layer.MESH);
-        serviceInstance.setServiceNormal(true);
+        serviceInstance.setServiceLayer(Layer.MESH);
         serviceInstance.setEndpointName(metrics.getEndpoint());
         serviceInstance.setLatency(metrics.getLatency());
         serviceInstance.setStatus(metrics.getStatus());
-        serviceInstance.setResponseCode(metrics.getResponseCode());
         serviceInstance.setHttpResponseStatusCode(metrics.getResponseCode());
         serviceInstance.setType(protocol2Type(metrics.getProtocol()));
         serviceInstance.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        serviceInstance.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
+        serviceInstance.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
         serviceInstance.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
         serviceInstance.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
         SOURCE_RECEIVER.receive(serviceInstance);
+    }
+
+    private static void toServiceInstanceTraffic(ServiceMeshMetric.Builder metrics, long minuteTimeBucket) {
+        ServiceInstanceUpdate instanceTraffic = new ServiceInstanceUpdate();
+        instanceTraffic.setTimeBucket(minuteTimeBucket);
+        instanceTraffic.setName(metrics.getDestServiceInstance());
+        instanceTraffic.setServiceId(IDManager.ServiceID.buildId(metrics.getDestServiceName(), true));
+        if (metrics.getDestInstancePropertiesList() != null) {
+            final JsonObject properties = new JsonObject();
+            metrics
+                .getDestInstancePropertiesList()
+                .stream()
+                .forEach(it -> properties.addProperty(it.getKey(), it.getValue()));
+            instanceTraffic.setProperties(properties);
+        }
+        SOURCE_RECEIVER.receive(instanceTraffic);
     }
 
     private static void toServiceInstanceRelation(ServiceMeshMetric.Builder metrics, long minuteTimeBucket) {
@@ -210,10 +213,8 @@ public class TelemetryDataDispatcher {
         serviceRelation.setSourceServiceInstanceName(metrics.getSourceServiceInstance());
         serviceRelation.setSourceServiceName(metrics.getSourceServiceName());
         serviceRelation.setSourceServiceLayer(Layer.MESH);
-        serviceRelation.setSourceServiceNormal(true);
         serviceRelation.setDestServiceInstanceName(metrics.getDestServiceInstance());
         serviceRelation.setDestServiceLayer(Layer.MESH);
-        serviceRelation.setDestServiceNormal(true);
         serviceRelation.setDestServiceName(metrics.getDestServiceName());
         serviceRelation.setEndpoint(metrics.getEndpoint());
         serviceRelation.setLatency(metrics.getLatency());
@@ -225,6 +226,8 @@ public class TelemetryDataDispatcher {
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
         serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        serviceRelation.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
+        serviceRelation.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
         serviceRelation.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
         serviceRelation.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
@@ -239,14 +242,15 @@ public class TelemetryDataDispatcher {
         endpoint.setTimeBucket(minuteTimeBucket);
         endpoint.setName(metrics.getEndpoint());
         endpoint.setServiceName(metrics.getDestServiceName());
-        endpoint.setServiceNormal(true);
+        endpoint.setServiceLayer(Layer.MESH);
         endpoint.setServiceInstanceName(metrics.getDestServiceInstance());
         endpoint.setLatency(metrics.getLatency());
         endpoint.setStatus(metrics.getStatus());
-        endpoint.setResponseCode(metrics.getResponseCode());
         endpoint.setHttpResponseStatusCode(metrics.getResponseCode());
         endpoint.setType(protocol2Type(metrics.getProtocol()));
         endpoint.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        endpoint.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
+        endpoint.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
 
         SOURCE_RECEIVER.receive(endpoint);
     }

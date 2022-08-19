@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
@@ -55,6 +56,9 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(AlarmRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(AlarmRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, AlarmRecord.INDEX_NAME));
+        }
 
         if (startTB != 0 && endTB != 0) {
             query.must(Query.range(AlarmRecord.TIME_BUCKET).gte(startTB).lte(endTB));
@@ -81,11 +85,10 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         SearchResponse response = getClient().search(index, search.build());
 
         Alarms alarms = new Alarms();
-        alarms.setTotal(response.getHits().getTotal());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();
-            AlarmRecord alarmRecord = builder.storage2Entity(searchHit.getSource());
+            AlarmRecord alarmRecord = builder.storage2Entity(new ElasticSearchConverter.ToEntity(AlarmRecord.INDEX_NAME, searchHit.getSource()));
 
             AlarmMessage message = new AlarmMessage();
             message.setId(String.valueOf(alarmRecord.getId0()));

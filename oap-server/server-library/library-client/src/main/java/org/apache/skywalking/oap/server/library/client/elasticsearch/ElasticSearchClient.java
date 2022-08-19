@@ -24,6 +24,8 @@ import com.google.common.collect.Iterables;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -33,13 +35,15 @@ import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.elasticsearch.requests.search.Query;
+import org.apache.skywalking.library.elasticsearch.response.Documents;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.library.elasticsearch.ElasticSearch;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchBuilder;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
 import org.apache.skywalking.library.elasticsearch.bulk.BulkProcessor;
-import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.response.Document;
 import org.apache.skywalking.library.elasticsearch.response.Index;
 import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
@@ -252,21 +256,39 @@ public class ElasticSearchClient implements Client, HealthCheckable {
             Arrays.stream(indices.get())
                   .map(indexNameConverter)
                   .toArray(String[]::new);
+        final SearchParams params = new SearchParams()
+            .allowNoIndices(true)
+            .ignoreUnavailable(true)
+            .expandWildcards("open");
         return es.get().search(
             search,
-            ImmutableMap.of(
-                "ignore_unavailable", true,
-                "allow_no_indices", true,
-                "expand_wildcards", "open"
-            ),
-            indexNames
-        );
+            params,
+            indexNames);
     }
 
     public SearchResponse search(String indexName, Search search) {
         indexName = indexNameConverter.apply(indexName);
 
         return es.get().search(search, indexName);
+    }
+
+    public SearchResponse search(String indexName, Search search, SearchParams params) {
+        indexName = indexNameConverter.apply(indexName);
+
+        return es.get().search(search, params, indexName);
+    }
+
+    public SearchResponse scroll(Duration contextRetention, String scrollId) {
+        return es.get().scroll(contextRetention, scrollId);
+    }
+
+    public boolean deleteScrollContextQuietly(String scrollId) {
+        try {
+            return es.get().deleteScrollContext(scrollId);
+        } catch (Exception e) {
+            log.warn("Failed to delete scroll context: {}", scrollId, e);
+            return false;
+        }
     }
 
     public Optional<Document> get(String indexName, String id) {
@@ -281,7 +303,30 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return es.get().documents().exists(indexName, TYPE, id);
     }
 
-    public SearchResponse ids(String indexName, Iterable<String> ids) {
+
+    /**
+     * Provide to get documents from multi indices by IDs.
+     * @param indexIds key: indexName, value: ids list
+     * @return Documents
+     * @since 9.2.0
+     */
+    public Optional<Documents> ids(Map<String, List<String>> indexIds) {
+        Map<String, List<String>> map = new HashMap<>();
+        indexIds.forEach((indexName, ids) -> {
+            map.put(indexNameConverter.apply(indexName), ids);
+        });
+        return es.get().documents().mGet(TYPE, map);
+    }
+
+    /**
+     * Search by ids with index alias, when can not locate the physical index. 
+     * Otherwise, recommend use method {@link #ids}
+     * @param indexName Index alias name or physical name
+     * @param ids ID list
+     * @return SearchResponse
+     * @since 9.2.0 this method was ids
+     */
+    public SearchResponse searchIDs(String indexName, Iterable<String> ids) {
         indexName = indexNameConverter.apply(indexName);
 
         return es.get().search(Search.builder()

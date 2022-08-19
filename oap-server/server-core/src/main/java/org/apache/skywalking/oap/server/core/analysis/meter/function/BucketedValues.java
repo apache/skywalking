@@ -23,6 +23,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
@@ -71,10 +72,14 @@ public class BucketedValues {
         final List<String> sortedKeys = dataset.sortedKeys(new HeatMap.KeyComparator(true));
         long[] existedBuckets = new long[sortedKeys.size()];
         for (int i = 0; i < sortedKeys.size(); i++) {
-            final String key = sortedKeys.get(i);
+            String key = sortedKeys.get(i);
             if (key.equals(Bucket.INFINITE_NEGATIVE)) {
                 existedBuckets[i] = Long.MIN_VALUE;
             } else {
+                // remove the group name
+                if (key.contains(":")) {
+                    key = StringUtils.substringAfterLast(key, ":");
+                }
                 existedBuckets[i] = Long.parseLong(key);
             }
         }

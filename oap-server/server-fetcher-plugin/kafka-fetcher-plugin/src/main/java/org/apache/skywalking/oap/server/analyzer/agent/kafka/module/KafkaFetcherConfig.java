@@ -43,16 +43,6 @@ public class KafkaFetcherConfig extends ModuleConfig {
     private String groupId = "skywalking-consumer";
 
     /**
-     * Which PartitionId(s) of the topics assign to the OAP server. If more than one, is separated by commas.
-     */
-    private String consumePartitions = "";
-
-    /**
-     * isSharding was true when OAP Server in cluster.
-     */
-    private boolean isSharding = false;
-
-    /**
      * If true, create the Kafka topic when it does not exist.
      */
     private boolean createTopicIfNotExist = true;
@@ -92,9 +82,11 @@ public class KafkaFetcherConfig extends ModuleConfig {
     private int kafkaHandlerThreadPoolQueueSize;
 
     private String namespace = "";
-    
+
     private String mm2SourceAlias = "";
 
     private String mm2SourceSeparator = "";
-    
+
+    private int consumers = 1;
+
 }

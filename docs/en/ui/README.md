@@ -1,133 +1,99 @@
 # Introduction to UI
-The SkyWalking official UI provides the default and powerful visualization capabilities for SkyWalking to observe distributed
-clusters.
 
-<img src="https://skywalking.apache.org/ui-doc/8.9.0/dashboard.png"/>
+The SkyWalking official UI provides the default and powerful visualization capabilities for SkyWalking to observe full-stack applications.
 
-The right top has the setup zone. User could set time range, time zone, auto refresh and language from there.
+<img src="https://skywalking.apache.org/ui-doc/9.0.0/home.png"/>
 
-## Dashboard
-The dashboard provides metrics of services, service instances, and endpoints. Here's a quick terminology guide on metrics:
-* **Throughput CPM**: Represents calls per minute.
-* **Apdex score**: See [Apdex on Wiki](https://en.wikipedia.org/wiki/Apdex).
-* **Response Time Percentile**: Includes `p99`, `p95`, `p90`, `p75`, and `p50`. See [percentile on Wiki](https://en.wikipedia.org/wiki/Percentile).
-* **SLA**: Represents the success rate. For HTTP, the response status code is default to 200.
+The left side menu lists all available supported stacks with default dashboards.
 
-The UI would check the local dashboard settings with the OAP backend in every 3 days, once inconsistent detected, a notification
-box would pop up asking for reload.
+Follow the `Official Dashboards` menu to explore all default dashboards on their ways to monitor different tech stacks.
 
-### Custom Dashboard
-Users may customize their dashboards. The default dashboards are provided in the default templates located in the `/ui-initialized-templates` folders.
+## Custom Dashboard
 
-The template file must end with `.yml` or `.yaml`. It follows this format:
-```yaml
-templates:
-  - name: template name # The unique name
-    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
-    # DASHBOARD type templates could have multiple definitions, by using different names.
-    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, 
-    # as they are used in the topology page only.
-    type: "DASHBOARD" 
-    # Custom the dashboard or create a new one on the UI, set the metrics as you like in the edit mode.
-    # Then, you could export this configuration through the page and add it here.
-    configuration: |-
-      [
-        {
-          "name":"Spring Sleuth",
-          "type":"service",
-          "children":[
-            {
-              "name":"Sleuth",
-              "children": [{
-                "width": "3",
-                "title": "HTTP Request",
-                "height": "200",
-                "entityType": "ServiceInstance",
-                "independentSelector": false,
-                "metricType": "REGULAR_VALUE",
-                "metricName": "meter_http_server_requests_count",
-                "queryMetricType": "readMetricsValues",
-                "chartType": "ChartLine",
-                "unit": "Count"
-              }
-              ...
-              ]
-            }
-          ]
-      }
-      ]
-    # Activated means this templates added into the UI page automatically.
-    # False means providing a basic template, user needs to add it manually on the page.
-    activated: false
-    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
-    disabled: false
-```
+Besides official dashboards, **Dashboards** provide customization capabilities to end-users to add new tabs/pages/widgets, and
+flexibility to re-config the dashboard on your own preference.
 
-**NOTE**: UI initialized templates would only be initialized if no template in the storage has the same name.
-Check the entity named `ui_template` in your storage.
+The dashboard has two key attributes, **Layer** and **Entity Type**. Learn these two concepts first before you begin any
+customization. Also, trace, metrics, and log analysis are relative to OAL, MAL, and LAL engines in the SkyWalking kernel. It would help if you
+learned them first, too.
 
-## Topology
-A topology map shows the relationship between services and instances with metrics.
+Service and All entity type dashboard could be set as root(`set this to root`), which means this dashboard would be used
+as the entrance of its Layer. If you have multiple root dashboards, UI will choose one randomly (We don't recommend doing
+so).
 
-<img src="https://skywalking.apache.org/ui-doc/8.4.0/topology.png"/>
+**Notice, dashboard editable is disabled on release; set system env(**SW_ENABLE_UPDATE_UI_TEMPLATE=true**) to activate
+them.** Before you save the edited dashboard, it is just stored in memory. Closing a tab would **LOSE** the change permanently.
 
-Global topology is shown by default, which means that all services are included.
-* **Service Selector** provides two-level selectors, service group lists, and service name lists. The group name is separated from 
-the service name if it follows the `<group name>::<logic name>` format. Topology maps are available for single group, single service, 
-or global (where all services are included).
-* **Custom Group** allows you to create sub-topologies for a service group.
-* **Service Deep Dive** opens when you click on any service. The honeycomb could carry out metrics, trace, and alarm query of the selected service.
-* **Service Relationship Metrics** provides the metrics of service RPC interactions and the instances of these two services.
+### Widget
 
-## Trace Query
-Since SkyWalking provides distributed agents, trace query is a key feature.
+The widget provides the ability to visualize the metrics, generated through [OAL](../concepts-and-designs/mal.md), [MAL](../concepts-and-designs/mal.md), or [LAL](../concepts-and-designs/lal.md) scripts.
 
-<img src="https://skywalking.apache.org/ui-doc/7.0.0/trace.png"/>
+<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-configuration.png" />
 
-* **Trace Segment List** is not the same as a trace list. Every trace has several segments belonging to different services. If you start a query by all services or by trace IDs, different segments with the same trace ID may be listed there.
-* **Span** can be clicked. The details of each span will pop up on the left.
-* **Trace Views** provides three typical and different usage views to visualize the trace. 
+#### Metrics
 
-## Profile
-Profile is an interactive feature. It provides method-level performance diagnoses. 
+To display one or more metrics in a graph, the following information is required:
+1. **Name**: The name of the metric.
+2. **Data Type**: The way of reading the metrics data according to various metric types. 
+3. **Visualization**: The graph options to visualize the metric. Each data type has its own matched graph options. See the [mapping doc](#common-graphs) for more details.
+4. **Unit**: The unit of the metrics data.
+5. **Calculation**: The calculation formula for the metric. The available formulas are [here](#calculations).
 
-Make sure you have read the blog [**Apache SkyWalking: Use Profiling to Fix the Blind Spot of Distributed Tracing**](https://skywalking.apache.org/blog/2020-04-13-apache-skywalking-profiling/) first.
-If you are using Python agent, the blog [**Python Agent Supports Profiling**](https://skywalking.apache.org/blog/2021-09-12-skywalking-python-profiling/) should be read too.
+##### Common Graphs
 
-To start profile analysis, you need to create a profile task:
+|Metrics Data Type|Visualization|Demo|
+|----|-------------|----|
+|read all values in the duration|Line|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-line.png" />|
+|get sorted top N values|Top List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-topn.png" />|
+|read all values of labels in the duration|Table|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-tables.png" />|
+|read all values in the duration|Area|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-area.png" />|
+|read all values in the duration|Service/Instance/Endpoint List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-entity-table.png" />|
 
-<img src="https://skywalking.apache.org/ui-doc/7.0.0/profile-create.png" width="440px"/>
+##### Calculations
 
-1. Select the specific service. 
-1. Set the Endpoint Name. This endpoint name is typically the operation name of the first span. Find this on the trace 
-segment list view.
-1. Monitor Time could start right now or from any given future time.
-1. Monitor Duration defines the observation time window to find the suitable request to conduct performance analysis.
-Even though the profile has a very limited performance impact on the target system, it still amounts to an additional load. Setting this duration allows you to control the impact.
-1. Min Duration Threshold provides a filter mechanism. If a request of the given endpoint responds quickly, it will not be profiled. This ensures that the profiled data is the expected one.
-1. Max Sampling Count gives the maximum dataset to be collected by the agent. It helps reduce memory and network load.
-1. An implicit condition is that **at any moment, SkyWalking only accepts one profile task for each service**.
-1. Individual agents may have different settings to control or limit this feature. Read document setup for more details.
-1. Not all SkyWalking ecosystem agents support this feature. Java agent from version 7.0.0 supports this by default.
+|Label|Calculation|
+|----|----|
+|Percentage|Value / 100|
+|Apdex|Value / 10000|
+|Average|Sum of values / Count of values|
+|Percentage + Avg-preview|Sum of values / Count of values / 100|
+|Apdex + Avg-preview|Sum of values / Count of values / 10000|
+|Byte to KB|Value / 1024|
+|Byte to MB|Value / 1024 / 1024|
+|Byte to GB|Value / 1024 / 1024 / 1024|
+|Seconds to YYYY-MM-DD HH:mm:ss|dayjs(value * 1000).format("YYYY-MM-DD HH:mm:ss")|
+|Milliseconds to YYYY-MM-DD HH:mm:ss|dayjs(value).format("YYYY-MM-DD HH:mm:ss")|
+|Precision|Value.toFixed(2)|
+|Milliseconds to seconds|Value / 1000|
+|Seconds to days|Value / 86400|
 
-Once the profile is done, the profiled trace segments would show up, and you could request to analyze any span.
-Typically, we analyze spans with long self duration. If a span and its children both have long duration, you could set the analysis boundaries by choosing to `Include Children` or `Exclude Children`. 
+#### Graph styles
 
-Choose the appropriate span, and click `Analyze`. You will see the stack-based analysis results. The slowest methods are highlighted.
+Graph advanced style options.
 
-<img src="https://skywalking.apache.org/ui-doc/7.0.0/profile-result.png"/>
+#### Widget options
 
-### Advanced features
-1. Since version 7.1.0, the profiled trace automatically collects the HTTP request parameters for Tomcat and SpringMVC Controller.
+<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-options.png" />
 
-## Log
-Since version 8.3.0, SkyWalking has provided log query for browser monitoring. Use [Apache SkyWalking Client JS](https://github.com/apache/skywalking-client-js) agent to collect metrics and error logs.
+Define the following properties of the widget:
+1. **Name**: The name of the widget, which used to [associate with other widget](#association-options) in the dashboard.
+2. **Title**: The title name of the widget. 
+3. **Tooltip Content**: Additional explanation of the widget. 
 
-Since version 8.5.0, SkyWalking supports collecting logs through its native agents and third party agents (such as Fluentd and Filebeat). 
-See [Log Analyzer Document](../setup/backend/log-analyzer.md) for more details.
+#### Association Options
 
-<img src="https://skywalking.apache.org/ui-doc/8.3.0/log.png"/>
+<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-association.png" />
 
-## Alarm
-The alarm page lists all triggered alarms. See backend setup documentation to learn how to set up alarm rules or integrate
-with third party systems.
+Widget provides the ability to associate with other widgets to show axis pointer with tips for the same time point, in order to help users to understand
+the connectivity among metrics.
+
+## Settings
+
+Settings provide language, server time zone, and auto-fresh options. These settings are stored in the browser's local storage. Unless you clear them manually, those will not change. 
+
+## FAQ
+
+### Login and Authentication
+
+SkyWalking doesn't provide login and authentication as usual for years. If you need, a lot of Gateway solutions have
+provides well-established solutions, such as the Nginx ecosystem.

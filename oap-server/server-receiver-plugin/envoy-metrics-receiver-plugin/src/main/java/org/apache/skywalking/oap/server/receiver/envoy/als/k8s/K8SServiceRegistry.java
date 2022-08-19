@@ -34,7 +34,7 @@ import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceList;
 import io.kubernetes.client.util.Config;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,9 +64,9 @@ public class K8SServiceRegistry {
 
     protected final ServiceNameFormatter serviceNameFormatter;
 
-    private final EnvoyMetricReceiverConfig config;
+    protected final KubernetesNodeRegistry nodeRegistry;
 
-    private final KubernetesNodeRegistry nodeRegistry;
+    private final EnvoyMetricReceiverConfig config;
 
     public K8SServiceRegistry(final EnvoyMetricReceiverConfig config) {
         this.config = config;
@@ -262,14 +262,18 @@ public class K8SServiceRegistry {
         ));
     }
 
-    protected List<ServiceMetaInfo.KeyValue> transformLabelsToTags(final Map<String, String> labels) {
+    protected List<ServiceMetaInfo.KeyValue> transformLabelsToTags(final V1ObjectMeta podMeta) {
+        final Map<String, String> labels = podMeta.getLabels();
+        final List<ServiceMetaInfo.KeyValue> tags = new ArrayList<>();
+        tags.add(new ServiceMetaInfo.KeyValue("pod", podMeta.getName()));
+        tags.add(new ServiceMetaInfo.KeyValue("namespace", podMeta.getNamespace()));
         if (isNull(labels)) {
-            return Collections.emptyList();
+            return tags;
         }
         return labels.entrySet()
                      .stream()
                      .map(each -> new ServiceMetaInfo.KeyValue(each.getKey(), each.getValue()))
-                     .collect(Collectors.toList());
+                     .collect(Collectors.toCollection(() -> tags));
     }
 
     public ServiceMetaInfo findService(final String ip) {
@@ -315,7 +319,7 @@ public class K8SServiceRegistry {
                 }
                 serviceMetaInfo.setServiceInstanceName(
                     String.format("%s.%s", podMetadata.getName(), podMetadata.getNamespace()));
-                serviceMetaInfo.setTags(transformLabelsToTags(podMetadata.getLabels()));
+                serviceMetaInfo.setTags(transformLabelsToTags(podMetadata));
 
                 return serviceMetaInfo;
             });

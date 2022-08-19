@@ -43,6 +43,7 @@ import org.apache.skywalking.oap.server.core.query.type.event.Source;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
@@ -89,7 +90,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
         long endSecondTB = 0;
         final EventQueryCondition.EventQueryConditionBuilder conditionPrototype =
             EventQueryCondition.builder()
-                               .paging(new Pagination(1, IEventQueryDAO.MAX_SIZE, false));
+                               .paging(new Pagination(1, IEventQueryDAO.MAX_SIZE));
         if (nonNull(duration)) {
             startSecondTB = duration.getStartTimeBucketInSec();
             endSecondTB = duration.getEndTimeBucketInSec();
@@ -112,7 +113,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
         final EventQueryCondition.EventQueryConditionBuilder conditionPrototype
     ) throws Exception {
 
-        if (alarms.getTotal() < 1) {
+        if (CollectionUtils.isEmpty(alarms.getMsgs())) {
             return alarms;
         }
 

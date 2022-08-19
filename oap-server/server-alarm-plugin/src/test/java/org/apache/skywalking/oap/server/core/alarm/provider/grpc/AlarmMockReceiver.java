@@ -55,7 +55,6 @@ public class AlarmMockReceiver {
                     if (log.isDebugEnabled()) {
                         log.debug("received alarm message error.");
                     }
-                    responseObserver.onCompleted();
                 }
 
                 @Override

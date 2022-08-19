@@ -22,10 +22,16 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 
+/**
+ * Consider there additional table columns need to remove from model columns, SQL storage implementation
+ * should get model from here.
+ */
 public class TableMetaInfo {
     private static Map<String, Model> TABLES = new HashMap<>();
 
     public static void addModel(Model model) {
+        // remove exclude columns according to @SQLDatabase.AdditionalEntity
+        model.getColumns().removeAll(model.getSqlDBModelExtension().getExcludeColumns());
         TABLES.put(model.getName(), model);
     }
 

@@ -19,44 +19,80 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 @Slf4j
 public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAliasDAO {
     protected final int resultWindowMaxSize;
+    protected final int scrollingBatchSize;
 
-    public NetworkAddressAliasEsDAO(ElasticSearchClient client, int resultWindowMaxSize) {
+    public NetworkAddressAliasEsDAO(ElasticSearchClient client,
+                                    StorageModuleElasticsearchConfig config) {
         super(client);
-        this.resultWindowMaxSize = resultWindowMaxSize;
+        this.resultWindowMaxSize = config.getResultWindowMaxSize();
+        this.scrollingBatchSize = config.getScrollingBatchSize();
     }
 
     @Override
     public List<NetworkAddressAlias> loadLastUpdate(long timeBucketInMinute) {
         List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>();
-
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(NetworkAddressAlias.INDEX_NAME);
         try {
-            final Search search =
-                Search.builder().query(
-                          Query.range(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET)
-                               .gte(timeBucketInMinute))
-                      .size(resultWindowMaxSize)
-                      .build();
+            final int batchSize = Math.min(resultWindowMaxSize, scrollingBatchSize);
+            final BoolQueryBuilder query = Query.bool();
+            if (IndexController.LogicIndicesRegister.isPhysicalTable(NetworkAddressAlias.INDEX_NAME)) {
+                query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, NetworkAddressAlias.INDEX_NAME));
+            }
+            query.must(Query.range(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET)
+                             .gte(timeBucketInMinute));
 
-            final SearchResponse results =
-                getClient().search(NetworkAddressAlias.INDEX_NAME, search);
+            final Search search = Search.builder().query(query).size(batchSize).build();
 
+            final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
             final NetworkAddressAlias.Builder builder = new NetworkAddressAlias.Builder();
-            for (SearchHit searchHit : results.getHits()) {
-                networkAddressAliases.add(builder.storage2Entity(searchHit.getSource()));
+
+            SearchResponse results =
+                getClient().search(index, search, params);
+            final Set<String> scrollIds = new HashSet<>();
+            try {
+                while (true) {
+                    final String scrollId = results.getScrollId();
+                    scrollIds.add(scrollId);
+                    if (results.getHits().getTotal() == 0) {
+                        break;
+                    }
+                    for (SearchHit searchHit : results.getHits()) {
+                        networkAddressAliases.add(
+                            builder.storage2Entity(
+                                new ElasticSearchConverter.ToEntity(NetworkAddressAlias.INDEX_NAME, searchHit.getSource())));
+                    }
+                    if (results.getHits().getTotal() < batchSize) {
+                        break;
+                    }
+                    if (networkAddressAliases.size() >= resultWindowMaxSize) {
+                        break;
+                    }
+                    results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
+                }
+            } finally {
+                scrollIds.forEach(getClient()::deleteScrollContextQuietly);
             }
         } catch (Throwable t) {
             log.error(t.getMessage(), t);

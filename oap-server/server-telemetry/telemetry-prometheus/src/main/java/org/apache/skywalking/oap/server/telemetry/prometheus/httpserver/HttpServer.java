@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.ThreadFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.server.ssl.HttpDynamicSslContext;
+import org.apache.skywalking.oap.server.library.server.ssl.HTTPDynamicSslContext;
 import org.apache.skywalking.oap.server.telemetry.prometheus.PrometheusConfig;
 
 /**
@@ -44,9 +44,9 @@ public final class HttpServer {
 
     public void start() throws InterruptedException {
         // Configure SSL.
-        final HttpDynamicSslContext sslCtx;
+        final HTTPDynamicSslContext sslCtx;
         if (config.isSslEnabled()) {
-            sslCtx = HttpDynamicSslContext.forServer(config.getSslKeyPath(), config.getSslCertChainPath());
+            sslCtx = HTTPDynamicSslContext.forServer(config.getSslKeyPath(), config.getSslCertChainPath());
         } else {
             sslCtx = null;
         }
@@ -62,7 +62,7 @@ public final class HttpServer {
             .childHandler(new HttpServerInitializer(sslCtx));
 
         b.bind(config.getHost(), config.getPort()).sync();
-        Optional.ofNullable(sslCtx).ifPresent(HttpDynamicSslContext::start);
+        Optional.ofNullable(sslCtx).ifPresent(HTTPDynamicSslContext::start);
 
         log.info("Prometheus exporter endpoint:" +
             (config.isSslEnabled() ? "https" : "http") + "://" + config.getHost() + ":" + config.getPort() + '/');

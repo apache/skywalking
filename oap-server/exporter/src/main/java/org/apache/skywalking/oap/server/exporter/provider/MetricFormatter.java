@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.exporter.provider;
 
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsEntityMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
@@ -75,6 +76,9 @@ public class MetricFormatter {
                 endpointRelationDefine.getDestServiceId());
             return endpointRelationDefine.getSource() + " in " + sourceService.getName()
                 + " to " + endpointRelationDefine.getDest() + " in " + destService.getName();
+        } else if (DefaultScopeDefine.inProcessCatalog(scope)) {
+            final MetricsEntityMetaInfo entity = meta.getEntity();
+            return entity.getProcessName() + " in " + entity.getInstanceName() + " of " + entity.getServiceName();
         } else if (scope == DefaultScopeDefine.ALL) {
             return "";
         } else {

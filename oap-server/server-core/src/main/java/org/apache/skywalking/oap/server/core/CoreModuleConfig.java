@@ -32,10 +32,8 @@ public class CoreModuleConfig extends ModuleConfig {
     private String restHost;
     private int restPort;
     private String restContextPath;
-    private int restMinThreads = 1;
     private int restMaxThreads = 200;
     private long restIdleTimeOut = 30000;
-    private int restAcceptorPriorityDelta = 0;
     private int restAcceptQueueSize = 0;
 
     private String gRPCHost;
@@ -105,6 +103,14 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private int maxSizeOfAnalyzeProfileSnapshot = 12000;
     /**
+     * Query the eBPF Profiling data max duration(second) from database.
+     */
+    private int maxDurationOfQueryEBPFProfilingData = 30;
+    /**
+     * Thread Count of query the eBPF Profiling data.
+     */
+    private int maxThreadCountOfQueryEBPFProfilingData = Runtime.getRuntime().availableProcessors();
+    /**
      * Extra model column are the column defined by {@link ScopeDefaultColumn.DefinedByField#requireDynamicActive()} ==
      * true. These columns of model are not required logically in aggregation or further query, and it will cause more
      * load for memory, network of OAP and storage.
@@ -152,7 +158,22 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String searchableAlarmTags = "";
-
+    /**
+     * The max size of tags keys for autocomplete select.
+     *
+     * @since 9.1.0
+     */
+    @Setter
+    @Getter
+    private int autocompleteTagKeysQueryMaxSize = 100;
+    /**
+     * The max size of tags values for autocomplete select.
+     *
+     * @since 9.1.0
+     */
+    @Setter
+    @Getter
+    private int autocompleteTagValuesQueryMaxSize = 100;
     /**
      * The number of threads used to prepare metrics data to the storage.
      *

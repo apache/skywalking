@@ -30,6 +30,7 @@ events:
   {{- end }}
   starttime: {{ gt .starttime 0 }}
   endtime: {{ gt .endtime 0 }}
+  layer: GENERAL
 - uuid: {{ notEmpty .uuid }}
   source:
     service: e2e-service-consumer
@@ -45,5 +46,5 @@ events:
   {{- end }}
   starttime: {{ gt .starttime 0 }}
   endtime: {{ gt .endtime 0 }}
+  layer: GENERAL
 {{- end }}
-total: {{ gt .total 0 }}

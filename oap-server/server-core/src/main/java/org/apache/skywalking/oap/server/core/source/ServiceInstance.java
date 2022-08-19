@@ -59,9 +59,7 @@ public class ServiceInstance extends Source {
     private String serviceName;
     @Getter
     @Setter
-    private Layer layer;
-    @Setter
-    private boolean isServiceNormal;
+    private Layer serviceLayer;
     @Getter
     @Setter
     private String endpointName;
@@ -71,10 +69,6 @@ public class ServiceInstance extends Source {
     @Getter
     @Setter
     private boolean status;
-    @Getter
-    @Setter
-    @Deprecated
-    private int responseCode;
     @Getter
     @Setter
     private int httpResponseStatusCode;
@@ -99,7 +93,7 @@ public class ServiceInstance extends Source {
 
     @Override
     public void prepare() {
-        serviceId = IDManager.ServiceID.buildId(serviceName, isServiceNormal);
+        serviceId = IDManager.ServiceID.buildId(serviceName, serviceLayer.isNormal());
     }
 
     public String getTag(String key) {

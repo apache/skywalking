@@ -1,5 +1,5 @@
 # Backend storage
-The SkyWalking storage is pluggable. We have provided the following storage solutions, which allows you to easily
+The SkyWalking storage is pluggable. We have provided the following storage solutions, which allow you to easily
 use one of them by specifying it as the `selector` in `application.yml`：
 
 ```yaml
@@ -13,13 +13,12 @@ Natively supported storage:
 - ElasticSearch 6, 7, 8
 - MySQL
 - TiDB
-- InfluxDB
 - PostgreSQL
-- IoTDB
+- BanyanDB
 
 
 ## H2
-Activate H2 as storage, set storage provider to **H2** In-Memory Databases. Default in distribution package.
+Activate H2 as storage, set storage provider to **H2** In-Memory Databases. Default in the distribution package.
 Please read `Database URL Overview` in [H2 official document](http://www.h2database.com/html/features.html).
 You can set the target to H2 in **Embedded**, **Server** and **Mixed** modes.
 
@@ -37,18 +36,38 @@ storage:
 
 ## OpenSearch
 
+OpenSearch is a fork from ElasticSearch 7.11 but licensed in Apache 2.0.
 OpenSearch storage shares the same configurations as ElasticSearch.
-In order to activate OpenSearch as storage, set storage provider to **elasticsearch**.
+In order to activate OpenSearch as storage, set the storage provider to **elasticsearch**.
 
 ## ElasticSearch
 
 **NOTE:** Elastic announced through their blog that Elasticsearch will be moving over to a Server Side Public
 License (SSPL), which is incompatible with Apache License 2.0. This license change is effective from Elasticsearch
 version 7.11. So please choose the suitable ElasticSearch version according to your usage.
+If you have concerns about SSPL, choose the versions before 7.11 or switch to OpenSearch.
+
+Since 9.2.0, SkyWalking provides no-sharding/one-index mode to merge all metrics/meter and records(without super datasets) 
+indices into one physical index template `metrics-all` and `records-all` on the default setting.
+In the current one index mode, users still could choose to adjust ElasticSearch's shard number(`SW_STORAGE_ES_INDEX_SHARDS_NUMBER`) to scale out.
+After merge all indices, the following indices are available:
+
+* sw_ui_template
+* sw_metrics-all-`${day-format}`
+* sw_log-`${day-format}`
+* sw_segment-`${day-format}`
+* sw_browser_error_log-`${day-format}`
+* sw_zipkin_span-`${day-format}`
+* sw_records-all-`${day-format}`
+
+___
+Provide system environment variable(`SW_STORAGE_ES_LOGIC_SHARDING`). Set it to `true` could shard metrics indices into multi-physical indices 
+as same as the versions(one index template per metric/meter aggregation function) before 9.2.0.
+___
 
 Since 8.8.0, SkyWalking rebuilds the ElasticSearch client on top of ElasticSearch REST API and automatically picks up
-correct request formats according to the server side version, hence you don't need to download different binaries
-and don't need to configure different storage selector for different ElasticSearch server side version anymore.
+correct request formats according to the server-side version, hence you don't need to download different binaries
+and don't need to configure different storage selectors for different ElasticSearch server-side versions anymore.
 
 For now, SkyWalking supports ElasticSearch 6.x, ElasticSearch 7.x, ElasticSearch 8.x, and OpenSearch 1.x, their
 configurations are as follows:
@@ -80,9 +99,11 @@ storage:
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
+    profileDataQueryScrollBatchSize: ${SW_STORAGE_ES_QUERY_PROFILE_DATA_SCROLLING_BATCH_SIZE:100}
     oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
+    logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
 ```
 
 ### ElasticSearch With Https SSL Encrypting communications.
@@ -108,9 +129,9 @@ storage:
 ### Daily Index Step
 Daily index step(`storage/elasticsearch/dayStep`, default 1) represents the index creation period. In this period, metrics for several days (dayStep value) are saved.
 
-In most cases, users don't need to change the value manually, as SkyWalking is designed to observe large scale distributed systems.
+In most cases, users don't need to change the value manually, as SkyWalking is designed to observe large-scale distributed systems.
 But in some cases, users may want to set a long TTL value, such as more than 60 days. However, their ElasticSearch cluster may not be powerful enough due to low traffic in the production environment.
-This value could be increased to 5 (or more), if users could ensure a single index could support the metrics and traces for these days (5 in this case).
+This value could be increased to 5 (or more) if users could ensure a single index could support the metrics and traces for these days (5 in this case).
 
 For example, if dayStep == 11, 
 1. Data in [2000-01-01, 2000-01-11] will be merged into the index-20000101.
@@ -119,11 +140,11 @@ For example, if dayStep == 11,
 `storage/elasticsearch/superDatasetDayStep` overrides the `storage/elasticsearch/dayStep` if the value is positive.
 This would affect the record-related entities, such as trace segments. In some cases, the size of metrics is much smaller than the record (trace). This would improve the shards balance in the ElasticSearch cluster.
  
-NOTE: TTL deletion would be affected by these steps. You should set an extra dayStep in your TTL. For example, if you want to have TTL == 30 days and dayStep == 10, you are commended to set TTL = 40.
+NOTE: TTL deletion would be affected by these steps. You should set an extra dayStep in your TTL. For example, if you want to have TTL == 30 days and dayStep == 10, you are recommended to set TTL = 40.
 
 ### Secrets Management File Of ElasticSearch Authentication
 The value of `secretsManagementFile` should point to the secrets management file absolute path. 
-The file includes username, password, and JKS password of the ElasticSearch server in the properties format.
+The file includes the username, password, and JKS password of the ElasticSearch server in the properties format.
 ```properties
 user=xxx
 password=yyy
@@ -133,7 +154,7 @@ trustStorePass=zzz
 The major difference between using `user, password, trustStorePass` configs in the `application.yaml` file is that the **Secrets Management File** is being watched by the OAP server. 
 Once it is changed manually or through a 3rd party tool, such as [Vault](https://github.com/hashicorp/vault), 
 the storage provider will use the new username, password, and JKS password to establish the connection and close the old one. If the information exists in the file,
-the `user/password` will be overrided.
+the `user/password` will be overridden.
 
 ### Advanced Configurations For Elasticsearch Index
 You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)
@@ -155,42 +176,20 @@ You could add the following configuration to `elasticsearch.yml`, and set the va
 thread_pool.index.queue_size: 1000 # Only suitable for ElasticSearch 6
 thread_pool.write.queue_size: 1000 # Suitable for ElasticSearch 6 and 7
 
-# When you face query error at trace page, remember to check this.
+# When you face a query error on the traces page, remember to check this.
 index.max_result_window: 1000000
 ```
 
-We strongly recommend that you read more about these configurations from ElasticSearch's official document, since they have a direct impact on the performance of ElasticSearch.
-
-
-### ElasticSearch with Zipkin trace extension
-This implementation is very similar to `elasticsearch`, except that it extends to support Zipkin span storage.
-The configurations are largely the same.
-```yaml
-storage:
-  selector: ${SW_STORAGE:zipkin-elasticsearch}
-  zipkin-elasticsearch:
-    namespace: ${SW_NAMESPACE:""}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
-    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
-    user: ${SW_ES_USER:""}
-    password: ${SW_ES_PASSWORD:""}
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
-    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
-    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
-    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
-    bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
-    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
-    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
-```
+We strongly recommend that you read more about these configurations from ElasticSearch's official documentation since they directly impact the performance of ElasticSearch.
 
 ### About Namespace
-When namespace is set, all index names in ElasticSearch will use it as prefix.
+When a namespace is set, all index names in ElasticSearch will use it as the prefix.
 
 ## MySQL
-Active MySQL as storage, set storage provider to **mysql**. 
+Activate MySQL as storage, and set storage provider to **mysql**. 
 
 **NOTE:** MySQL driver is NOT allowed in Apache official distribution and source codes. 
-Please download MySQL driver on your own. Copy the connection driver jar to `oap-libs`.
+Please download the MySQL driver on your own. Copy the connection driver jar to `oap-libs`.
 
 ```yaml
 storage:
@@ -208,12 +207,12 @@ storage:
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
 ```
-All connection-related settings, including URL link, username, and password are found in `application.yml`. 
-Only part of the settings are listed here. See the [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
+All connection-related settings, including URL link, username, and password, are found in `application.yml`. 
+Only part of the settings is listed here. See the [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
 To understand the function of the parameter `rewriteBatchedStatements=true` in MySQL, see the [MySQL official document](https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-performance-extensions.html#cj-conn-prop_rewriteBatchedStatements).
 
 ## TiDB
-Tested TiDB Server 4.0.8 version and MySQL Client driver 8.0.13 version are currently available.
+Tested TiDB Server 4.0.8 version, and MySQL Client driver 8.0.13 version is currently available.
 Activate TiDB as storage, and set storage provider to **tidb**. 
 
 ```yaml
@@ -239,25 +238,8 @@ All connection-related settings, including URL link, username, and password are 
 For details on settings, refer to the configuration of *MySQL* above.
 To understand the function of the parameter `rewriteBatchedStatements=true` in TiDB, see the document of [TiDB best practices](https://docs.pingcap.com/tidb/stable/java-app-best-practices#use-batch-api).
 
-## InfluxDB
-InfluxDB storage provides a time-series database as a new storage option.
-
-```yaml
-storage:
-  selector: ${SW_STORAGE:influxdb}
-  influxdb:
-    url: ${SW_STORAGE_INFLUXDB_URL:http://localhost:8086}
-    user: ${SW_STORAGE_INFLUXDB_USER:root}
-    password: ${SW_STORAGE_INFLUXDB_PASSWORD:}
-    database: ${SW_STORAGE_INFLUXDB_DATABASE:skywalking}
-    actions: ${SW_STORAGE_INFLUXDB_ACTIONS:1000} # the number of actions to collect
-    duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
-    fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
-```
-All connection related settings, including URL link, username, and password are found in `application.yml`. For metadata storage provider settings, refer to the configurations of **H2/MySQL** above.
-
 ## PostgreSQL
-PostgreSQL jdbc driver uses version 42.3.2. It supports PostgreSQL 8.2 or newer.
+PostgreSQL JDBC driver uses version 42.3.2. It supports PostgreSQL 8.2 or newer.
 Activate PostgreSQL as storage, and set storage provider to **postgresql**. 
 
 ```yaml
@@ -278,26 +260,29 @@ storage:
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
 ```
-All connection-related settings, including URL link, username, and password are found in `application.yml`. 
-Only part of the settings are listed here. Please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
+All connection-related settings, including URL link, username, and password, are found in `application.yml`. 
+Only part of the settings is listed here. Please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
 
-## IoTDB
-IoTDB is a time-series database from Apache, which is one of the storage plugin options.  
-IoTDB storage plugin is still in progress. Its efficiency will improve in the future.
+## BanyanDB
+[BanyanDB](https://github.com/apache/skywalking-banyandb) is a dedicated storage implementation developed by the SkyWalking Team and the community.
+Activate BanyanDB as the storage, and set storage provider to **banyandb**.
 
 ```yaml
 storage:
-  selector: ${SW_STORAGE:iotdb}
-  iotdb:
-    host: ${SW_STORAGE_IOTDB_HOST:127.0.0.1}
-    rpcPort: ${SW_STORAGE_IOTDB_RPC_PORT:6667}
-    username: ${SW_STORAGE_IOTDB_USERNAME:root}
-    password: ${SW_STORAGE_IOTDB_PASSWORD:root}
-    storageGroup: ${SW_STORAGE_IOTDB_STORAGE_GROUP:root.skywalking}
-    sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:8} # If it's zero, the SessionPool size will be 2*CPU_Cores
-    fetchTaskLogMaxSize: ${SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
+  banyandb:
+    host: ${SW_STORAGE_BANYANDB_HOST:127.0.0.1}
+    port: ${SW_STORAGE_BANYANDB_PORT:17912}
+    maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
+    flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
+    metricsShardsNumber: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_NUMBER:1}
+    recordShardsNumber: ${SW_STORAGE_BANYANDB_RECORD_SHARDS_NUMBER:1}
+    superDatasetShardsFactor: ${SW_STORAGE_BANYANDB_SUPERDATASET_SHARDS_FACTOR:2}
+    concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
+    profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
 ```
-All connection related settings, including host, rpcPort, username, and password are found in `application.yml`. Please ensure the IoTDB version >= 0.12.3.
+
+For more details, please refer to the documents of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/latest/readme/) 
+and [BanyanDB Java Client](https://github.com/apache/skywalking-banyandb-java-client) subprojects.
 
 ## More storage extension solutions
 Follow the [Storage extension development guide](../../guides/storage-extention.md) 

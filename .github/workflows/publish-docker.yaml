@@ -36,7 +36,7 @@ jobs:
     env:
       TAG: ${{ github.sha }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Cache local Maven repository
@@ -62,4 +62,4 @@ jobs:
           TAG: ${{ github.sha }}-java17
         run: make build.all docker.push
       - name: Build and push docker images
-        run: make build.all docker.push
+        run: make build.all docker.push push.docker.data-generator

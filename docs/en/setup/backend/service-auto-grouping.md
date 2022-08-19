@@ -9,7 +9,7 @@ Therefore, since version 8.3.0, the SkyWalking OAP has generated the groups base
 ### ${service name} = [${group name}::]${logic name}
 
 If the service name includes double colons (`::`), the literal string before the colons is taken as the group name.
-In the latest GraphQL query, the group name has been provided as an option parameter.
+In the latest GraphQL query, the group name has been provided as an optional parameter.
 > getAllServices(duration: Duration!, group: String): [Service!]!
 
 RocketBot UI dashboards (`Standard` type) support the `group name` for default and custom configurations.

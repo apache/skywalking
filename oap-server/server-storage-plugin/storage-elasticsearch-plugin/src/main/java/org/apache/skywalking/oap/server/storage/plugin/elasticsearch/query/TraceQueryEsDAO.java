@@ -21,10 +21,8 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
@@ -45,6 +43,8 @@ import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
@@ -73,6 +73,9 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                                        QueryOrder queryOrder,
                                        final List<Tag> tags) throws IOException {
         final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(SegmentRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, SegmentRecord.INDEX_NAME));
+        }
 
         if (startSecondTB != 0 && endSecondTB != 0) {
             query.must(Query.range(SegmentRecord.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
@@ -133,7 +136,6 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 endSecondTB
             ), search.build());
         final TraceBrief traceBrief = new TraceBrief();
-        traceBrief.setTotal(response.getHits().getTotal());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();
@@ -171,17 +173,8 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
-            SegmentRecord segmentRecord = new SegmentRecord();
-            segmentRecord.setSegmentId((String) searchHit.getSource().get(SegmentRecord.SEGMENT_ID));
-            segmentRecord.setTraceId((String) searchHit.getSource().get(SegmentRecord.TRACE_ID));
-            segmentRecord.setServiceId((String) searchHit.getSource().get(SegmentRecord.SERVICE_ID));
-            segmentRecord.setStartTime(((Number) searchHit.getSource().get(SegmentRecord.START_TIME)).longValue());
-            segmentRecord.setLatency(((Number) searchHit.getSource().get(SegmentRecord.LATENCY)).intValue());
-            segmentRecord.setIsError(((Number) searchHit.getSource().get(SegmentRecord.IS_ERROR)).intValue());
-            String dataBinaryBase64 = (String) searchHit.getSource().get(SegmentRecord.DATA_BINARY);
-            if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
-                segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
-            }
+            SegmentRecord segmentRecord = new SegmentRecord.Builder().storage2Entity(
+                new ElasticSearchConverter.ToEntity(SegmentRecord.INDEX_NAME, searchHit.getSource()));
             segmentRecords.add(segmentRecord);
         }
         return segmentRecords;

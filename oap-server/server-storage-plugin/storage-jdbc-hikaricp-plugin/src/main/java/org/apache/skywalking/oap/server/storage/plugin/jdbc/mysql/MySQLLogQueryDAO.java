@@ -24,15 +24,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2LogQueryDAO
 
 public class MySQLLogQueryDAO extends H2LogQueryDAO {
 
-    public MySQLLogQueryDAO(final JDBCHikariCPClient h2Client,
-                            final ModuleManager manager,
-                            final int maxSizeOfArrayColumn, final int numOfSearchValuesPerTag) {
-        super(h2Client, manager, maxSizeOfArrayColumn, numOfSearchValuesPerTag);
-    }
-
-    @Override
-    protected String buildCountStatement(String sql) {
-        return "select count(1) total " + sql;
+    public MySQLLogQueryDAO(final JDBCHikariCPClient h2Client, final ModuleManager manager) {
+        super(h2Client, manager);
     }
 
     @Override

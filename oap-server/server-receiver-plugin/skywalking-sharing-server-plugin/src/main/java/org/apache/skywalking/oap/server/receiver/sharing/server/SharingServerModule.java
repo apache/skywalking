@@ -19,12 +19,12 @@
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * Sharing server is an independent gRPC and Jetty servers provided for all receiver modules. In default, this module
- * would not be activated unless the user active explicitly. It only delegates the core gRPC and Jetty servers.
+ * Sharing server is an independent gRPC and REST servers provided for all receiver modules. In default, this module
+ * would not be activated unless the user active explicitly. It only delegates the core gRPC and REST servers.
  *
  * Once it is activated, provides separated servers, then all receivers use these to accept outside requests. Typical,
  * this is activated to avoid the ip, port and thread pool sharing between receiver and internal traffics. For security
@@ -44,7 +44,7 @@ public class SharingServerModule extends ModuleDefine {
     public Class[] services() {
         return new Class[] {
             GRPCHandlerRegister.class,
-            JettyHandlerRegister.class
+            HTTPHandlerRegister.class
         };
     }
 }

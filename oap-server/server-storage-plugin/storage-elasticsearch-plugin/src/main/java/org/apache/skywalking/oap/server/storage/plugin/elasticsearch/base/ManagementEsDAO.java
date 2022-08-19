@@ -22,15 +22,15 @@ import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 
 public class ManagementEsDAO extends EsDAO implements IManagementDAO {
-    private final StorageHashMapBuilder<ManagementData> storageBuilder;
+    private final StorageBuilder<ManagementData> storageBuilder;
 
     public ManagementEsDAO(ElasticSearchClient client,
-                           StorageHashMapBuilder<ManagementData> storageBuilder) {
+                           StorageBuilder<ManagementData> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
@@ -43,9 +43,10 @@ public class ManagementEsDAO extends EsDAO implements IManagementDAO {
         if (exist) {
             return;
         }
+        final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(model.getName());
+        storageBuilder.entity2Storage(managementData, toStorage);
         Map<String, Object> source =
-            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(
-                managementData));
+            IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         getClient().forceInsert(tableName, docId, source);
     }
 }

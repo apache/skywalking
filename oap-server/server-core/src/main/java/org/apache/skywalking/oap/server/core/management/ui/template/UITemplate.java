@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.management.ui.template;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,8 +25,10 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.analysis.worker.ManagementStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.UI_TEMPLATE;
 
@@ -37,56 +37,48 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.UI
 @ScopeDeclaration(id = UI_TEMPLATE, name = "UITemplate")
 @Stream(name = UITemplate.INDEX_NAME, scopeId = UI_TEMPLATE, builder = UITemplate.Builder.class, processor = ManagementStreamProcessor.class)
 @EqualsAndHashCode(of = {
-        "name"
+    "templateId"
 }, callSuper = false)
 public class UITemplate extends ManagementData {
     public static final String INDEX_NAME = "ui_template";
-    public static final String NAME = "name";
-    public static final String TYPE = "type";
+    public static final String TEMPLATE_ID = "template_id";
     public static final String CONFIGURATION = "configuration";
-    public static final String ACTIVATED = "activated";
+    public static final String UPDATE_TIME = "update_time";
     public static final String DISABLED = "disabled";
 
-    @Column(columnName = NAME)
-    private String name;
-    @Column(columnName = TYPE, storageOnly = true)
-    private String type;
+    @Column(columnName = TEMPLATE_ID)
+    private String templateId;
     /**
      * Configuration in JSON format.
      */
     @Column(columnName = CONFIGURATION, storageOnly = true, length = 1_000_000)
     private String configuration;
-    @Column(columnName = ACTIVATED, storageOnly = true)
-    private int activated;
+    @Column(columnName = UPDATE_TIME)
+    private long updateTime;
     @Column(columnName = DISABLED)
     private int disabled;
 
     @Override
     public String id() {
-        return name;
+        return templateId;
     }
 
-    public static class Builder implements StorageHashMapBuilder<UITemplate> {
+    public static class Builder implements StorageBuilder<UITemplate> {
         @Override
-        public UITemplate storage2Entity(final Map<String, Object> dbMap) {
+        public UITemplate storage2Entity(final Convert2Entity converter) {
             UITemplate uiTemplate = new UITemplate();
-            uiTemplate.setName((String) dbMap.get(NAME));
-            uiTemplate.setType((String) dbMap.get(TYPE));
-            uiTemplate.setConfiguration((String) dbMap.get(CONFIGURATION));
-            uiTemplate.setActivated(((Number) dbMap.get(ACTIVATED)).intValue());
-            uiTemplate.setDisabled(((Number) dbMap.get(DISABLED)).intValue());
+            uiTemplate.setTemplateId((String) converter.get(TEMPLATE_ID));
+            uiTemplate.setConfiguration((String) converter.get(CONFIGURATION));
+            uiTemplate.setDisabled(((Number) converter.get(DISABLED)).intValue());
             return uiTemplate;
         }
 
         @Override
-        public Map<String, Object> entity2Storage(final UITemplate storageData) {
-            final HashMap<String, Object> map = new HashMap<>();
-            map.put(NAME, storageData.getName());
-            map.put(TYPE, storageData.getType());
-            map.put(CONFIGURATION, storageData.getConfiguration());
-            map.put(ACTIVATED, storageData.getActivated());
-            map.put(DISABLED, storageData.getDisabled());
-            return map;
+        public void entity2Storage(final UITemplate storageData, final Convert2Storage converter) {
+            converter.accept(TEMPLATE_ID, storageData.getTemplateId());
+            converter.accept(CONFIGURATION, storageData.getConfiguration());
+            converter.accept(UPDATE_TIME, storageData.getUpdateTime());
+            converter.accept(DISABLED, storageData.getDisabled());
         }
     }
 }

@@ -1,0 +1,260 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "FaaS-Root",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 3,
+          "w": 24,
+          "h": 52,
+          "i": "1",
+          "type": "Tab",
+          "widget": {
+            "title": "Title"
+          },
+          "graph": {},
+          "metrics": [
+            ""
+          ],
+          "metricTypes": [
+            ""
+          ],
+          "activedTabIndex": 0,
+          "children": [
+            {
+              "name": "Function",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": ""
+                  },
+                  "graph": {
+                    "type": "ServiceList",
+                    "dashboardName": "FaaS-Function",
+                    "fontSize": 12,
+                    "showXAxis": false,
+                    "showYAxis": false,
+                    "showGroup": false
+                  },
+                  "metrics": [
+                    "service_cpm",
+                    "service_sla",
+                    "service_resp_time",
+                    "service_apdex"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "label": "Load",
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Latency",
+                      "unit": "ms"
+                    },
+                    {
+                      "calculation": "apdexAvg",
+                      "label": "Apdex"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Topology",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Topology",
+                  "widget": {
+                    "title": "Title"
+                  },
+                  "graph": {
+                    "showDepth": true
+                  },
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false,
+                  "linkDashboard": "FaaS-Function-Relation",
+                  "nodeDashboard": [
+                    {
+                      "scope": "Service",
+                      "dashboard": "FaaS-Function"
+                    },
+                    {
+                      "scope": "ServiceInstance",
+                      "dashboard": "FaaS-Instance"
+                    }
+                  ],
+                  "linkServerMetrics": [
+                    "service_relation_server_resp_time",
+                    "service_relation_server_cpm"
+                  ],
+                  "linkClientMetrics": [
+                    "service_relation_client_cpm",
+                    "service_relation_client_resp_time"
+                  ],
+                  "nodeMetrics": [
+                    "service_cpm",
+                    "service_sla",
+                    "service_resp_time"
+                  ],
+                  "legend": [
+                    {
+                      "name": "service_sla",
+                      "condition": "<",
+                      "value": "9500"
+                    },
+                    {
+                      "name": "service_cpm",
+                      "condition": ">",
+                      "value": "1"
+                    }
+                  ],
+                  "description": {
+                    "healthy": "Healthy",
+                    "unhealthy": "Success Rate < 95% and Traffic > 1 calls / min"
+                  },
+                  "nodeMetricConfig": [
+                    {
+                      "unit": "calls / min",
+                      "label": "Load"
+                    },
+                    {
+                      "calculation": "percentage",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Latency"
+                    }
+                  ],
+                  "linkServerMetricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "Server Latency"
+                    },
+                    {
+                      "unit": "calls / min",
+                      "label": "Server Load"
+                    }
+                  ],
+                  "linkClientMetricConfig": [
+                    {
+                      "unit": "calls / min",
+                      "label": "Client Load"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "Client Latency"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Trace",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Trace",
+                  "widget": {
+                    "title": "Title"
+                  },
+                  "graph": {},
+                  "standard": {},
+                  "metrics": [
+                    ""
+                  ],
+                  "metricTypes": [
+                    ""
+                  ],
+                  "moved": false
+                }
+              ]
+            }
+          ],
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 3,
+          "i": "2",
+          "type": "Text",
+          "metricTypes": [
+            ""
+          ],
+          "metrics": [
+            ""
+          ],
+          "graph": {
+            "fontColor": "blue",
+            "backgroundColor": "white",
+            "content": "FaaS (Function-as-a-Service) is a type of cloud-computing service that allows you to execute code in response to events without the complex infrastructure typically associated with building and launching microservices applications. OpenFunction as a FaaS platform, provides out-of-box observability with SkyWalking integration.",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://openfunction.dev/"
+          },
+          "moved": false
+        }
+      ],
+      "id": "FaaS-Root",
+      "layer": "FAAS",
+      "entity": "All",
+      "name": "FaaS-Root",
+      "isRoot": true
+    }
+  }
+]

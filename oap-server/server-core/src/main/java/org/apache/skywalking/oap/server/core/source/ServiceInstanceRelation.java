@@ -61,8 +61,6 @@ public class ServiceInstanceRelation extends Source {
     @Getter
     @Setter
     private Layer sourceServiceLayer;
-    @Setter
-    private boolean isSourceServiceNormal;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "source_service_instance_name", requireDynamicActive = true)
@@ -74,8 +72,6 @@ public class ServiceInstanceRelation extends Source {
     @Getter
     @Setter
     private Layer destServiceLayer;
-    @Setter
-    private boolean isDestServiceNormal;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_name", requireDynamicActive = true)
@@ -124,8 +120,8 @@ public class ServiceInstanceRelation extends Source {
 
     @Override
     public void prepare() {
-        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, isSourceServiceNormal);
-        destServiceId = IDManager.ServiceID.buildId(destServiceName, isDestServiceNormal);
+        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, sourceServiceLayer.isNormal());
+        destServiceId = IDManager.ServiceID.buildId(destServiceName, destServiceLayer.isNormal());
         sourceServiceInstanceId = IDManager.ServiceInstanceID.buildId(sourceServiceId, sourceServiceInstanceName);
         destServiceInstanceId = IDManager.ServiceInstanceID.buildId(destServiceId, destServiceInstanceName);
     }

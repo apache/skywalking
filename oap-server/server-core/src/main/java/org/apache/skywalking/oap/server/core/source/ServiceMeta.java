@@ -37,10 +37,10 @@ public class ServiceMeta extends Source {
 
     @Override
     public String getEntityId() {
-        return IDManager.ServiceID.buildId(name, isNormal);
+        return IDManager.ServiceID.buildId(name, layer.isNormal());
     }
 
     private String name;
     private Layer layer;
-    private boolean isNormal;
+
 }

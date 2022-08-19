@@ -18,38 +18,34 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 import com.google.common.base.Strings;
-import java.util.HashMap;
-import java.util.Map;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
-import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-
-import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
 @ScopeDeclaration(id = EVENT, name = "Event")
 @Stream(name = Event.INDEX_NAME, scopeId = EVENT, builder = Event.Builder.class, processor = MetricsStreamProcessor.class)
+@MetricsExtension(supportDownSampling = false, supportUpdate = true)
 @EqualsAndHashCode(
     callSuper = false,
     of = "uuid"
 )
-@MetricsExtension(supportDownSampling = false, supportUpdate = true)
-public class Event extends Metrics implements ISource, WithMetadata, LongValueHolder {
+public class Event extends Metrics {
 
     public static final String INDEX_NAME = "events";
 
@@ -72,6 +68,10 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
     public static final String START_TIME = "start_time";
 
     public static final String END_TIME = "end_time";
+
+    public static final String LAYER = "layer";
+
+    private static final int PARAMETER_MAX_LENGTH = 2000;
 
     @Override
     protected String id0() {
@@ -99,7 +99,7 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
     @Column(columnName = MESSAGE)
     private String message;
 
-    @Column(columnName = PARAMETERS, storageOnly = true, length = 1024)
+    @Column(columnName = PARAMETERS, storageOnly = true, length = PARAMETER_MAX_LENGTH)
     private String parameters;
 
     @Column(columnName = START_TIME)
@@ -108,13 +108,12 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
     @Column(columnName = END_TIME)
     private long endTime;
 
-    private transient long value = 1;
+    @Column(columnName = LAYER)
+    private Layer layer;
 
     @Override
     public boolean combine(final Metrics metrics) {
         final Event event = (Event) metrics;
-
-        value++;
 
         // Set time bucket only when it's never set.
         if (getTimeBucket() <= 0) {
@@ -146,6 +145,14 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
         return true;
     }
 
+    /**
+     * @since 9.0.0 Limit the length of {@link #parameters}
+     */
+    public void setParameters(String parameters) {
+        this.parameters = parameters == null || parameters.length() <= PARAMETER_MAX_LENGTH ?
+            parameters : parameters.substring(0, PARAMETER_MAX_LENGTH);
+    }
+
     @Override
     public void calculate() {
     }
@@ -174,6 +181,8 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
         setStartTime(remoteData.getDataLongs(0));
         setEndTime(remoteData.getDataLongs(1));
         setTimeBucket(remoteData.getDataLongs(2));
+
+        setLayer(Layer.valueOf(remoteData.getDataIntegers(0)));
     }
 
     @Override
@@ -193,6 +202,8 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
         builder.addDataLongs(getEndTime());
         builder.addDataLongs(getTimeBucket());
 
+        builder.addDataIntegers(getLayer().value());
+
         return builder;
     }
 
@@ -201,69 +212,42 @@ public class Event extends Metrics implements ISource, WithMetadata, LongValueHo
         return hashCode();
     }
 
-    @Override
-    public MetricsMetaInfo getMeta() {
-        int scope = DefaultScopeDefine.SERVICE;
-        if (isNotBlank(getServiceInstance())) {
-            scope = DefaultScopeDefine.SERVICE_INSTANCE;
-        } else if (isNotBlank(getEndpoint())) {
-            scope = DefaultScopeDefine.ENDPOINT;
-        }
-
-        String id = getEntityId();
-        return new MetricsMetaInfo(getName(), scope, id);
-    }
-
-    @Override
-    public int scope() {
-        return EVENT;
-    }
-
-    @Override
-    public String getEntityId() {
-        final String serviceId = IDManager.ServiceID.buildId(getService(), true);
-        String id = serviceId;
-        if (isNotBlank(getServiceInstance())) {
-            id = IDManager.ServiceInstanceID.buildId(serviceId, getServiceInstance());
-        } else if (isNotBlank(getEndpoint())) {
-            id = IDManager.EndpointID.buildId(serviceId, getEndpoint());
-        }
-        return id;
-    }
-
-    public static class Builder implements StorageHashMapBuilder<Event> {
+    public static class Builder implements StorageBuilder<Event> {
         @Override
-        public Map<String, Object> entity2Storage(Event storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(UUID, storageData.getUuid());
-            map.put(SERVICE, storageData.getService());
-            map.put(SERVICE_INSTANCE, storageData.getServiceInstance());
-            map.put(ENDPOINT, storageData.getEndpoint());
-            map.put(NAME, storageData.getName());
-            map.put(TYPE, storageData.getType());
-            map.put(MESSAGE, storageData.getMessage());
-            map.put(PARAMETERS, storageData.getParameters());
-            map.put(START_TIME, storageData.getStartTime());
-            map.put(END_TIME, storageData.getEndTime());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            return map;
-        }
-
-        @Override
-        public Event storage2Entity(Map<String, Object> dbMap) {
+        public Event storage2Entity(final Convert2Entity converter) {
             Event record = new Event();
-            record.setUuid((String) dbMap.get(UUID));
-            record.setService((String) dbMap.get(SERVICE));
-            record.setServiceInstance((String) dbMap.get(SERVICE_INSTANCE));
-            record.setEndpoint((String) dbMap.get(ENDPOINT));
-            record.setName((String) dbMap.get(NAME));
-            record.setType((String) dbMap.get(TYPE));
-            record.setMessage((String) dbMap.get(MESSAGE));
-            record.setParameters((String) dbMap.get(PARAMETERS));
-            record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
-            record.setEndTime(((Number) dbMap.get(END_TIME)).longValue());
-            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            record.setUuid((String) converter.get(UUID));
+            record.setService((String) converter.get(SERVICE));
+            record.setServiceInstance((String) converter.get(SERVICE_INSTANCE));
+            record.setEndpoint((String) converter.get(ENDPOINT));
+            record.setName((String) converter.get(NAME));
+            record.setType((String) converter.get(TYPE));
+            record.setMessage((String) converter.get(MESSAGE));
+            record.setParameters((String) converter.get(PARAMETERS));
+            record.setStartTime(((Number) converter.get(START_TIME)).longValue());
+            record.setEndTime(((Number) converter.get(END_TIME)).longValue());
+            record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            if (converter.get(LAYER) != null) {
+                record.setLayer(Layer.valueOf(((Number) converter.get(LAYER)).intValue()));
+            }
             return record;
+        }
+
+        @Override
+        public void entity2Storage(final Event storageData, final Convert2Storage converter) {
+            converter.accept(UUID, storageData.getUuid());
+            converter.accept(SERVICE, storageData.getService());
+            converter.accept(SERVICE_INSTANCE, storageData.getServiceInstance());
+            converter.accept(ENDPOINT, storageData.getEndpoint());
+            converter.accept(NAME, storageData.getName());
+            converter.accept(TYPE, storageData.getType());
+            converter.accept(MESSAGE, storageData.getMessage());
+            converter.accept(PARAMETERS, storageData.getParameters());
+            converter.accept(START_TIME, storageData.getStartTime());
+            converter.accept(END_TIME, storageData.getEndTime());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            Layer layer = storageData.getLayer();
+            converter.accept(LAYER, layer != null ? layer.value() : Layer.UNDEFINED.value());
         }
     }
 }

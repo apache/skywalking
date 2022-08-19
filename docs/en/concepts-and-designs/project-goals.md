@@ -34,4 +34,3 @@ It is very important to end users that SkyWalking has the ability to accept and 
 ## What is next?
 - See [probe Introduction](probe-introduction.md) to learn about SkyWalking's probe groups.
 - From [backend overview](backend-overview.md), you can understand what the backend does after it receives probe data.
-- If you want to customize the UI, start with the [UI overview](ui-overview.md) document. 

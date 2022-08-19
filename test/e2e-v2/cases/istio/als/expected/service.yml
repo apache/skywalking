@@ -14,22 +14,46 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "e2e::istio-ingressgateway" }}.1
-  name: e2e::istio-ingressgateway
-  group: ""
-- id: {{ b64enc "e2e::reviews" }}.1
-  name: e2e::reviews
-  group: ""
-- id: {{ b64enc "e2e::ratings" }}.1
-  name: e2e::ratings
-  group: ""
-- id: {{ b64enc "e2e::productpage" }}.1
-  name: e2e::productpage
-  group: ""
 - id: {{ b64enc "e2e::details" }}.1
   name: e2e::details
-  group: ""
+  group: "e2e"
+  shortname: details
+  layers:
+    - MESH
+  normal: true
+- id: {{ b64enc "e2e::reviews" }}.1
+  name: e2e::reviews
+  group: "e2e"
+  shortname: reviews
+  layers:
+    - MESH
+  normal: true
+- id: {{ b64enc "e2e::istio-ingressgateway" }}.1
+  name: e2e::istio-ingressgateway
+  group: "e2e"
+  shortname: istio-ingressgateway
+  layers:
+    - MESH
+  normal: true
+- id: {{ b64enc "e2e::ratings" }}.1
+  name: e2e::ratings
+  group: "e2e"
+  shortname: ratings
+  layers:
+    - MESH
+  normal: true
+- id: {{ b64enc "e2e::productpage" }}.1
+  name: e2e::productpage
+  group: "e2e"
+  shortname: productpage
+  layers:
+    - MESH
+  normal: true
 - id: {{ b64enc "e2e::mongodb" }}.1
   name: e2e::mongodb
-  group: ""
+  group: "e2e"
+  shortname: mongodb
+  layers:
+    - MESH
+  normal: true
 {{- end }}

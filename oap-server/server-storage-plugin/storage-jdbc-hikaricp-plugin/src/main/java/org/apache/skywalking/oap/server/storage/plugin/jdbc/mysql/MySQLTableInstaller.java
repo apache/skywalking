@@ -22,12 +22,14 @@ import com.google.gson.JsonObject;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.model.ExtraQueryIndex;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseExtension;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
@@ -42,11 +44,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstal
  */
 @Slf4j
 public class MySQLTableInstaller extends H2TableInstaller {
-    public MySQLTableInstaller(Client client,
-                               ModuleManager moduleManager,
-                               int maxSizeOfArrayColumn,
-                               int numOfSearchableValuesPerTag) {
-        super(client, moduleManager, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
+    public MySQLTableInstaller(Client client, ModuleManager moduleManager) {
+        super(client, moduleManager);
         /*
          * Override column because the default column names in core have syntax conflict with MySQL.
          */
@@ -73,53 +72,55 @@ public class MySQLTableInstaller extends H2TableInstaller {
     @Override
     protected void createTableIndexes(JDBCHikariCPClient client,
                                       Connection connection,
-                                      Model model) throws JDBCClientException {
+                                      String tableName, List<ModelColumn> columns, boolean additionalTable) throws JDBCClientException {
+        // Additional table's id follow the main table can not be primary key
+        if (additionalTable) {
+            SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+            tableIndexSQL.append(tableName.toUpperCase()).append("_id_IDX");
+            tableIndexSQL.append(" ON ").append(tableName).append("(").append(ID_COLUMN).append(")");
+            createIndex(client, connection, tableName, tableIndexSQL);
+        }
+
         int indexSeq = 0;
-        for (final ModelColumn modelColumn : model.getColumns()) {
-            if (!modelColumn.isStorageOnly() && modelColumn.getLength() < 256) {
-                final Class<?> type = modelColumn.getType();
-                if (List.class.isAssignableFrom(type)) {
-                    for (int i = 0; i < maxSizeOfArrayColumn; i++) {
-                        SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-                        tableIndexSQL.append(model.getName().toUpperCase())
-                                     .append("_")
-                                     .append(String.valueOf(indexSeq++))
-                                     .append("_IDX ");
-                        tableIndexSQL.append("ON ").append(model.getName()).append("(")
-                                     .append(modelColumn.getColumnName().getStorageName() + "_" + i)
-                                     .append(")");
-                        createIndex(client, connection, model, tableIndexSQL);
-                    }
-                } else {
+        for (final ModelColumn modelColumn : columns) {
+            if (modelColumn.shouldIndex() && modelColumn.getLength() < 256) {
                     SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-                    tableIndexSQL.append(model.getName().toUpperCase())
+                    tableIndexSQL.append(tableName.toUpperCase())
                                  .append("_")
                                  .append(String.valueOf(indexSeq++))
                                  .append("_IDX ");
-                    tableIndexSQL.append("ON ").append(model.getName()).append("(")
+                    tableIndexSQL.append("ON ").append(tableName).append("(")
                                  .append(modelColumn.getColumnName().getStorageName())
                                  .append(")");
-                    createIndex(client, connection, model, tableIndexSQL);
-                }
+                    createIndex(client, connection, tableName, tableIndexSQL);
             }
         }
 
-        for (final ExtraQueryIndex extraQueryIndex : model.getExtraQueryIndices()) {
-            SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-            tableIndexSQL.append(model.getName().toUpperCase())
-                         .append("_")
-                         .append(String.valueOf(indexSeq++))
-                         .append("_IDX ");
-            tableIndexSQL.append(" ON ").append(model.getName()).append("(");
-            final String[] columns = extraQueryIndex.getColumns();
-            for (int i = 0; i < columns.length; i++) {
-                tableIndexSQL.append(columns[i]);
-                if (i < columns.length - 1) {
-                    tableIndexSQL.append(",");
+        List<String> columnList = columns.stream().map(column -> column.getColumnName().getStorageName()).collect(
+            Collectors.toList());
+        for (final ModelColumn modelColumn : columns) {
+            for (final SQLDatabaseExtension.MultiColumnsIndex index : modelColumn.getSqlDatabaseExtension()
+                                                                                 .getIndices()) {
+                final String[] multiColumns = index.getColumns();
+                //Create MultiColumnsIndex on the additional table only when it contains all need columns.
+                if (additionalTable && !columnList.containsAll(Arrays.asList(multiColumns))) {
+                    continue;
                 }
+                SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+                tableIndexSQL.append(tableName.toUpperCase())
+                             .append("_")
+                             .append(String.valueOf(indexSeq++))
+                             .append("_IDX ");
+                tableIndexSQL.append(" ON ").append(tableName).append("(");
+                for (int i = 0; i < multiColumns.length; i++) {
+                    tableIndexSQL.append(multiColumns[i]);
+                    if (i < multiColumns.length - 1) {
+                        tableIndexSQL.append(",");
+                    }
+                }
+                tableIndexSQL.append(")");
+                createIndex(client, connection, tableName, tableIndexSQL);
             }
-            tableIndexSQL.append(")");
-            createIndex(client, connection, model, tableIndexSQL);
         }
     }
 

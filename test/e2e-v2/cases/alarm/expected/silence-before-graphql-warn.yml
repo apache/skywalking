@@ -37,6 +37,6 @@ msgs:
         parameters: []
         starttime: {{ gt .starttime 0 }}
         endtime: {{ gt .endtime 0 }}
+        layer: GENERAL
       {{- end }}
   {{- end }}
-total: 1

@@ -34,6 +34,9 @@ final class V6MappingsSerializer extends JsonSerializer<Mappings> {
             gen.writeFieldName(value.getType());
             gen.writeStartObject();
             {
+                if (value.getSource() != null && !value.getSource().getExcludes().isEmpty()) {
+                    gen.writeObjectField("_source", value.getSource());
+                }
                 gen.writeObjectField("properties", value.getProperties());
             }
             gen.writeEndObject();

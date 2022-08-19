@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.0.0-SNAPSHOT</version>
+        <version>9.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -46,6 +46,7 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-testing</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mvel</groupId>
@@ -54,6 +55,11 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.linecorp.armeria</groupId>
+            <artifactId>armeria-junit4</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -86,5 +92,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

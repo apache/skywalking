@@ -31,33 +31,33 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 public class Model {
     private final String name;
     private final List<ModelColumn> columns;
-    private final List<ExtraQueryIndex> extraQueryIndices;
     private final int scopeId;
     private final DownSampling downsampling;
     private final boolean record;
     private final boolean superDataset;
     private final boolean isTimeSeries;
-    private final String aggregationFunctionName;
+    private final Class<?> streamClass;
     private final boolean timeRelativeID;
+    private final SQLDatabaseModelExtension sqlDBModelExtension;
 
     public Model(final String name,
                  final List<ModelColumn> columns,
-                 final List<ExtraQueryIndex> extraQueryIndices,
                  final int scopeId,
                  final DownSampling downsampling,
                  final boolean record,
                  final boolean superDataset,
-                 final String aggregationFunctionName,
-                 boolean timeRelativeID) {
+                 final Class<?> streamClass,
+                 boolean timeRelativeID,
+                 final SQLDatabaseModelExtension sqlDBModelExtension) {
         this.name = name;
         this.columns = columns;
-        this.extraQueryIndices = extraQueryIndices;
         this.scopeId = scopeId;
         this.downsampling = downsampling;
         this.isTimeSeries = !DownSampling.None.equals(downsampling);
         this.record = record;
         this.superDataset = superDataset;
-        this.aggregationFunctionName = aggregationFunctionName;
+        this.streamClass = streamClass;
         this.timeRelativeID = timeRelativeID;
+        this.sqlDBModelExtension = sqlDBModelExtension;
     }
 }

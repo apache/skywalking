@@ -24,14 +24,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryD
 
 public class PostgreSQLTraceQueryDAO extends H2TraceQueryDAO {
     
-    public PostgreSQLTraceQueryDAO(ModuleManager manager, JDBCHikariCPClient h2Client, int maxSizeOfArrayColumn,
-            int numOfSearchableValuesPerTag) {
-        super(manager, h2Client, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
-    }
-    
-    @Override
-    protected String buildCountStatement(String sql) {
-        return "select count(*) total from (select 1 " + sql + " ) temp_table ";
+    public PostgreSQLTraceQueryDAO(ModuleManager manager, JDBCHikariCPClient h2Client) {
+        super(manager, h2Client);
     }
     
 }

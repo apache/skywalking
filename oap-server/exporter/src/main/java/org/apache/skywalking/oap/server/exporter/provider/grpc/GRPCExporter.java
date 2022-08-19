@@ -27,8 +27,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
@@ -49,6 +47,8 @@ import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
 import org.apache.skywalking.oap.server.exporter.grpc.ValueType;
 import org.apache.skywalking.oap.server.exporter.provider.MetricFormatter;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.util.GRPCStreamStatus;
 
 @Slf4j
@@ -180,7 +180,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             MetricsMetaInfo meta = row.getMeta();
             builder.setMetricName(meta.getMetricsName());
             builder.setEventType(
-                EventType.INCREMENT.equals(row.getEventType()) ? EventType.INCREMENT : EventType.TOTAL);
+                ExportEvent.EventType.INCREMENT.equals(row.getEventType()) ? EventType.INCREMENT : EventType.TOTAL);
             String entityName = getEntityName(meta);
             if (entityName == null) {
                 return;

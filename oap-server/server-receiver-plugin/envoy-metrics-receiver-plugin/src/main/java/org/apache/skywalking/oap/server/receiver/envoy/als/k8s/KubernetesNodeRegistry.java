@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
-final class KubernetesNodeRegistry implements ResourceEventHandler<V1Node> {
+public final class KubernetesNodeRegistry implements ResourceEventHandler<V1Node> {
     private final Set<String> nodeIPs;
 
     private final ExecutorService executor;
@@ -110,7 +110,7 @@ final class KubernetesNodeRegistry implements ResourceEventHandler<V1Node> {
         forEachAddress(node, nodeIPs::remove);
     }
 
-    void forEachAddress(final V1Node node,
+    public void forEachAddress(final V1Node node,
                         final Consumer<String> consume) {
         Optional.ofNullable(node)
                 .map(V1Node::getStatus)
@@ -123,7 +123,7 @@ final class KubernetesNodeRegistry implements ResourceEventHandler<V1Node> {
                 );
     }
 
-    boolean isNode(final String ip) {
+    public boolean isNode(final String ip) {
         return nodeIPs.contains(ip);
     }
 }

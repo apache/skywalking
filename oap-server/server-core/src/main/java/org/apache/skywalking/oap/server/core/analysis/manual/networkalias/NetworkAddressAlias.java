@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.networkalias;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,8 +28,11 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS_ALIAS;
 
@@ -44,14 +45,15 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NE
 })
 public class NetworkAddressAlias extends Metrics {
     public static final String INDEX_NAME = "network_address_alias";
-    private static final String ADDRESS = "address";
-    private static final String REPRESENT_SERVICE_ID = "represent_service_id";
-    private static final String REPRESENT_SERVICE_INSTANCE_ID = "represent_service_instance_id";
+    public static final String ADDRESS = "address";
+    public static final String REPRESENT_SERVICE_ID = "represent_service_id";
+    public static final String REPRESENT_SERVICE_INSTANCE_ID = "represent_service_instance_id";
     public static final String LAST_UPDATE_TIME_BUCKET = "last_update_time_bucket";
 
     @Setter
     @Getter
     @Column(columnName = ADDRESS)
+    @BanyanDB.ShardingKey(index = 0)
     private String address;
     @Setter
     @Getter
@@ -113,30 +115,6 @@ public class NetworkAddressAlias extends Metrics {
         return builder;
     }
 
-    public static class Builder implements StorageHashMapBuilder<NetworkAddressAlias> {
-        @Override
-        public NetworkAddressAlias storage2Entity(final Map<String, Object> dbMap) {
-            final NetworkAddressAlias networkAddressAlias = new NetworkAddressAlias();
-            networkAddressAlias.setAddress((String) dbMap.get(ADDRESS));
-            networkAddressAlias.setRepresentServiceId((String) dbMap.get(REPRESENT_SERVICE_ID));
-            networkAddressAlias.setRepresentServiceInstanceId((String) dbMap.get(REPRESENT_SERVICE_INSTANCE_ID));
-            networkAddressAlias.setLastUpdateTimeBucket(((Number) dbMap.get(LAST_UPDATE_TIME_BUCKET)).longValue());
-            networkAddressAlias.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            return networkAddressAlias;
-        }
-
-        @Override
-        public Map<String, Object> entity2Storage(final NetworkAddressAlias storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(ADDRESS, storageData.getAddress());
-            map.put(REPRESENT_SERVICE_ID, storageData.getRepresentServiceId());
-            map.put(REPRESENT_SERVICE_INSTANCE_ID, storageData.getRepresentServiceInstanceId());
-            map.put(LAST_UPDATE_TIME_BUCKET, storageData.getLastUpdateTimeBucket());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            return map;
-        }
-    }
-
     @Override
     public void calculate() {
 
@@ -150,5 +128,27 @@ public class NetworkAddressAlias extends Metrics {
     @Override
     public Metrics toDay() {
         return null;
+    }
+
+    public static class Builder implements StorageBuilder<NetworkAddressAlias> {
+        @Override
+        public NetworkAddressAlias storage2Entity(final Convert2Entity converter) {
+            final NetworkAddressAlias networkAddressAlias = new NetworkAddressAlias();
+            networkAddressAlias.setAddress((String) converter.get(ADDRESS));
+            networkAddressAlias.setRepresentServiceId((String) converter.get(REPRESENT_SERVICE_ID));
+            networkAddressAlias.setRepresentServiceInstanceId((String) converter.get(REPRESENT_SERVICE_INSTANCE_ID));
+            networkAddressAlias.setLastUpdateTimeBucket(((Number) converter.get(LAST_UPDATE_TIME_BUCKET)).longValue());
+            networkAddressAlias.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            return networkAddressAlias;
+        }
+
+        @Override
+        public void entity2Storage(final NetworkAddressAlias storageData, final Convert2Storage converter) {
+            converter.accept(ADDRESS, storageData.getAddress());
+            converter.accept(REPRESENT_SERVICE_ID, storageData.getRepresentServiceId());
+            converter.accept(REPRESENT_SERVICE_INSTANCE_ID, storageData.getRepresentServiceInstanceId());
+            converter.accept(LAST_UPDATE_TIME_BUCKET, storageData.getLastUpdateTimeBucket());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+        }
     }
 }

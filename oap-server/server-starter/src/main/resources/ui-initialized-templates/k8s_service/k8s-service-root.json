@@ -1,0 +1,97 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "K8S-Service-Root",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 2,
+          "w": 24,
+          "h": 50,
+          "i": "0",
+          "type": "Widget",
+          "metricTypes": [
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues"
+          ],
+          "metrics": [
+            "k8s_service_pod_total",
+            "k8s_service_cpu_cores_requests",
+            "k8s_service_cpu_cores_limits"
+          ],
+          "moved": false,
+          "graph": {
+            "type": "ServiceList",
+            "dashboardName": "K8S-Service-Service",
+            "fontSize": 12,
+            "showXAxis": false,
+            "showYAxis": false,
+            "showGroup": true
+          },
+          "metricConfig": [
+            {
+              "calculation": "average",
+              "label": "Pod"
+            },
+            {
+              "label": "CPU Requests",
+              "calculation": "average",
+              "unit": "m"
+            },
+            {
+              "label": "CPU Limits",
+              "unit": "m",
+              "calculation": "average"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "100",
+          "type": "Text",
+          "metricTypes": [
+            ""
+          ],
+          "metrics": [
+            ""
+          ],
+          "graph": {
+            "fontColor": "blue",
+            "backgroundColor": "white",
+            "content": "Observe Service status and resources from Kubernetes.",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-k8s-monitoring/"
+          },
+          "moved": false
+        }
+      ],
+      "id": "K8S-Service-Root",
+      "layer": "K8S_SERVICE",
+      "entity": "All",
+      "name": "K8S-Service-Root",
+      "isRoot": true
+    }
+  }
+]

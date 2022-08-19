@@ -21,10 +21,14 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import com.google.common.base.Strings;
 import java.io.IOException;
+import java.util.Set;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
@@ -39,6 +43,7 @@ public class TraceQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
     private TraceQueryService queryService;
+    private TagAutoCompleteQueryService tagQueryService;
 
     public TraceQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -49,6 +54,13 @@ public class TraceQuery implements GraphQLQueryResolver {
             this.queryService = moduleManager.find(CoreModule.NAME).provider().getService(TraceQueryService.class);
         }
         return queryService;
+    }
+
+    private TagAutoCompleteQueryService getTagQueryService() {
+        if (tagQueryService == null) {
+            this.tagQueryService = moduleManager.find(CoreModule.NAME).provider().getService(TagAutoCompleteQueryService.class);
+        }
+        return tagQueryService;
     }
 
     public TraceBrief queryBasicTraces(final TraceQueryCondition condition) throws IOException {
@@ -80,5 +92,13 @@ public class TraceQuery implements GraphQLQueryResolver {
 
     public Trace queryTrace(final String traceId) throws IOException {
         return getQueryService().queryTrace(traceId);
+    }
+
+    public Set<String> queryTraceTagAutocompleteKeys(final Duration queryDuration) throws IOException {
+        return getTagQueryService().queryTagAutocompleteKeys(TagType.TRACE, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
+    }
+
+    public Set<String> queryTraceTagAutocompleteValues(final String tagKey, final Duration queryDuration) throws IOException {
+        return getTagQueryService().queryTagAutocompleteValues(TagType.TRACE, tagKey, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
     }
 }

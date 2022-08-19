@@ -41,6 +41,7 @@ DOCKER_BUILD_TOP:=${CONTEXT}/docker_build
 HUB ?= skywalking
 OAP_NAME ?= oap
 UI_NAME ?= ui
+DATA_GENERATOR_NAME ?= data-generator
 TAG ?= latest
 
 .PHONY: docker docker.all
@@ -57,6 +58,7 @@ BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST) --build-arg SKYWALKING_CLI_
 
 %.ui: NAME = $(UI_NAME)
 %.oap: NAME = $(OAP_NAME)
+%.data-generator: NAME = $(DATA_GENERATOR_NAME)
 
 docker.%: PLATFORMS =
 docker.%: LOAD_OR_PUSH = --load

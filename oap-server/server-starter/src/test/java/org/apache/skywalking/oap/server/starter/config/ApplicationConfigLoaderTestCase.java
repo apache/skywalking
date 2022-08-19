@@ -22,7 +22,6 @@ import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -54,26 +53,18 @@ public class ApplicationConfigLoaderTestCase {
     }
 
     @Test
-    public void testLoadListTypeConfig() {
-        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
-                .getProviderConfiguration("default");
-        List<String> instanceNameRule = (List<String>) providerConfig.get("instanceNameRule");
-        assertEquals(2, instanceNameRule.size());
-    }
-
-    @Test
     public void testLoadStringTypeConfig() {
-        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver-zipkin")
                 .getProviderConfiguration("default");
-        String host = (String) providerConfig.get("host");
+        String host = (String) providerConfig.get("restHost");
         assertEquals("0.0.0.0", host);
     }
 
     @Test
     public void testLoadIntegerTypeConfig() {
-        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver-zipkin")
                 .getProviderConfiguration("default");
-        Integer port = (Integer) providerConfig.get("port");
+        Integer port = (Integer) providerConfig.get("restPort");
         assertEquals(Integer.valueOf(9411), port);
     }
 
