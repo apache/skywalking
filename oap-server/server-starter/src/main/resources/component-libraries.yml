@@ -699,3 +699,5 @@ Component-Server-Mappings:
   ClickHouse-jdbc-driver: ClickHouse
   Apache-Kylin-jdbc-driver: Apache-Kylin
   MysqlClient: Mysql
+  AsyncPG: PostgreSQL
+  AIORedis: Redis
