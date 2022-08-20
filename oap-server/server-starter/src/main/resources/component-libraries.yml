@@ -601,6 +601,12 @@ FastAPI:
 Bottle:
   id: 7015
   languages: Python
+AsyncPG:
+  id: 7016
+  languages: Python
+AIORedis:
+  id: 7017
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
