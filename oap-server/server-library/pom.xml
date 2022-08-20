@@ -34,5 +34,6 @@
         <module>library-client</module>
         <module>library-elasticsearch-client</module>
         <module>library-datacarrier-queue</module>
+        <module>library-kubernetes-support</module>
     </modules>
 </project>

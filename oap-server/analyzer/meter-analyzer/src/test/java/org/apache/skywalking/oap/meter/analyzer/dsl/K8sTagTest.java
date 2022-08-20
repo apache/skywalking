@@ -253,33 +253,33 @@ public class K8sTagTest {
         PowerMockito.doNothing().when(K8sInfoRegistry.getInstance(), "start");
 
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addService", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
+            K8sInfoRegistry.getInstance(), "onServiceAdded", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
                     .thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addService",
+            K8sInfoRegistry.getInstance(), "onServiceAdded",
             mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"), "2.2.2.2")
         ).thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addPod",
+            K8sInfoRegistry.getInstance(), "onPodAdded",
             mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1")
         ).thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addPod",
+            K8sInfoRegistry.getInstance(), "onPodAdded",
             mockPod("kube-state-metrics-6f979fd498-z7xwx", "kube-system", of("run", "kube-state-metrics"), "1.1.1.2")
         ).thenCallRealMethod();
 
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "removeService", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
+            K8sInfoRegistry.getInstance(), "onServiceDeleted", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
                     .thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "removePod",
+            K8sInfoRegistry.getInstance(), "onPodDeleted",
             mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1")
         ).thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addService", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
+            K8sInfoRegistry.getInstance(), "onServiceAdded", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
                     .thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addPod",
+            K8sInfoRegistry.getInstance(), "onPodAdded",
             mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1")
         ).thenCallRealMethod();
 
