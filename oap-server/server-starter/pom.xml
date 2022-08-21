@@ -309,7 +309,7 @@
                         <exclude>envoy-metrics-rules/</exclude>
                         <exclude>meter-analyzer-config/</exclude>
                         <exclude>openapi-definitions/</exclude>
-                        <exclude>otel-oc-rules/</exclude>
+                        <exclude>otel-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>
                         <exclude>zabbix-rules/</exclude>
                         <exclude>lal/</exclude>

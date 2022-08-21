@@ -1,12 +1,12 @@
 # Linux Monitoring
 SkyWalking leverages Prometheus node-exporter to collect metrics data from the VMs and leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).  
-VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.  
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.
 
 ## Data flow
 1. The Prometheus node-exporter collects metrics data from the VMs.
 2. The OpenTelemetry Collector fetches metrics from node-exporter via Prometheus Receiver and pushes metrics to the SkyWalking OAP Server via the OpenCensus gRPC Exporter.
-3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results. 
+3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 
 ## Setup
@@ -14,7 +14,7 @@ VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.
 1. Setup [Prometheus node-exporter](https://prometheus.io/docs/guides/node-exporter/).
 2. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/). This is an example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../../../../test/e2e-v2/cases/vm/prometheus-node-exporter/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
-   
+
 ## Supported Metrics
 
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
@@ -32,9 +32,9 @@ VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.
 | Network Status |  | meter_vm_tcp_curr_estab<br />meter_vm_tcp_tw<br />meter_vm_tcp_alloc<br />meter_vm_sockets_used<br />meter_vm_udp_inuse | The number of TCPs established / TCP time wait / TCPs allocated / sockets in use / UDPs in use | Prometheus node-exporter |
 | Filefd Allocated |  | meter_vm_filefd_allocated | The number of file descriptors allocated | Prometheus node-exporter |
 
-## Customizing 
-You can customize your own metrics/expression/dashboard panel.   
-The metrics definition and expression rules are found in `/config/otel-oc-rules/vm.yaml`.  
+## Customizing
+You can customize your own metrics/expression/dashboard panel.
+The metrics definition and expression rules are found in `/config/otel-rules/vm.yaml`.
 The dashboard panel confirmations are found in `/config/ui-initialized-templates/os_linux`.
 
 ## Blog

@@ -54,6 +54,8 @@
 * Optimize TTL mechanism for Elasticsearch storage, skip executed indices in one TTL rotation.
 * Add Kubernetes support module to share codes between modules and reduce calls to Kubernetes API server.
 * Bump up Kubernetes Java client to fix cve.
+* Adapt OpenTelemetry native metrics protocol.
+* [Breaking Change] rename configuration folder from `otel-oc-rules` to `otel-rules`.
 
 #### UI
 
