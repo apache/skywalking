@@ -36,7 +36,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
@@ -53,7 +52,6 @@ import org.apache.skywalking.oap.server.receiver.otel.Handler;
 
 import static java.util.stream.Collectors.toList;
 
-@Slf4j
 public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase implements Handler {
     private static final String HOST_NAME_LABEL = "node_identifier_host_name";
     private List<PrometheusMetricConverter> metrics;
@@ -175,20 +173,18 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
         return "oc";
     }
 
-    @Override public void active(List<String> enabledRules,
-        MeterSystem service, GRPCHandlerRegister grpcHandlerRegister) {
-        List<Rule> rules;
-        try {
-            rules = Rules.loadRules("otel-oc-rules", enabledRules);
-        } catch (ModuleStartException e) {
-            log.warn("failed to load otel-oc-rules");
-            return;
-        }
+    @Override
+    public void active(
+        List<String> enabledRules,
+        MeterSystem meterSystem,
+        GRPCHandlerRegister grpcHandlerRegister)
+        throws ModuleStartException {
+
+        final List<Rule> rules = Rules.loadRules("otel-rules", enabledRules);
         if (rules.isEmpty()) {
             return;
         }
-        this.metrics = rules.stream().map(r ->
-            new PrometheusMetricConverter(r, service))
+        this.metrics = rules.stream().map(r -> new PrometheusMetricConverter(r, meterSystem))
             .collect(toList());
         grpcHandlerRegister.addHandler(this);
     }

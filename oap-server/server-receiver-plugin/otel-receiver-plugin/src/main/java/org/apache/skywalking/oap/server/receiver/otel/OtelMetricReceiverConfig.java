@@ -35,6 +35,7 @@ public class OtelMetricReceiverConfig extends ModuleConfig {
     private String enabledHandlers;
 
     private String enabledOcRules;
+    private String enabledOtlpRules;
 
     public List<String> getEnabledHandlers() {
         return split(enabledHandlers);

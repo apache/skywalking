@@ -46,20 +46,13 @@ agent-analyzer:
     meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:spring-sleuth}
 ```
 
-## Add UI dashboard
+## Dashboard configuration
 
-1. Open the dashboard view. Click `edit` button to edit the templates.
 
-    ![Click edit button](https://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-01.png)
 
-1. Create a new template. Template type: `Standard` -> Template Configuration: `Spring` -> Input the Template Name.
-
-    ![Create template](https://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-02.png)
-
-1. Click `view` button. You'll see the spring sleuth dashboard.
-
-    ![Save template](https://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-03.png)
-    ![Spring Sleuth Dashboard](https://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200725-04.png)
+SkyWalking provides the Spring Sleuth dashboard by default under the general service instance, which contains the metrics provided by Spring Sleuth by default.
+Once you have added customized metrics in the application and configuration the meter config file in the backend. Please following
+the [customized dashboard documentation](../../ui/README.md#metrics) to add the metrics in the dashboard. 
 
 ## Supported meter
 

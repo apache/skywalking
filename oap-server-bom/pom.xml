@@ -46,7 +46,7 @@
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-io.version>2.7</commons-io.version>
-        <kubernetes.version>15.0.1</kubernetes.version>
+        <kubernetes.version>16.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.23.16</zipkin.version>
         <jackson-core.version>2.13.2</jackson-core.version>
