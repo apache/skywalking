@@ -53,6 +53,7 @@
 * Fix query history process data failure.
 * Optimize TTL mechanism for Elasticsearch storage, skip executed indices in one TTL rotation.
 * Add Kubernetes support module to share codes between modules and reduce calls to Kubernetes API server.
+* Bump up Kubernetes Java client to fix cve.
 
 #### UI
 
