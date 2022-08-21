@@ -30,7 +30,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=password
     ports:
-      - "5432:5432"
+      - 5432
     networks:
       - e2e
   postgres-load:
@@ -52,7 +52,7 @@ services:
     depends_on: 
       - postgres
     ports:
-      - "9187:9187"
+      - 9187
     environment:
       - DATA_SOURCE_NAME=postgresql://postgres:password@postgres:5432/postgres?sslmode=disable
     networks:
