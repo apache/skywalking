@@ -129,7 +129,7 @@ public enum Layer {
     VIRTUAL_CACHE(19, false),
 
     /**
-     * PostgreSQL is a powerful, open source object-relational database system
+     * PostgreSQL is an advanced, enterprise-class, and open-source relational database system.
      */
     POSTGRESQL(20, true);
 
