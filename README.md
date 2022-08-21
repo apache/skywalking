@@ -19,7 +19,9 @@ in Cloud Native architecture.
 The core features are following.
 
 - Service, service instance, endpoint(URI) metrics analysis
-- Root cause analysis. Profile the code on the runtime powered by in-process agent and ebpf profiler.
+- Root cause analysis. 
+  - Profile the code on the runtime powered by in-process agent and ebpf profiler.
+  - Network profiler for TCP, TCP/TLS, HTTP(s) traffic
 - Service topology map analysis
 - Service instance and endpoint(URI) dependency analysis
 - Slow services and endpoints detecting
@@ -40,7 +42,7 @@ including
 1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
 2. Go, C++, and Rust SDKs.
 3. [Agent profiling](https://skywalking.apache.org/docs/main/latest/en/concepts-and-designs/sdk-profiling/) for Java and Python.
-4. [ebpf profiling](https://github.com/apache/skywalking-rover) for C, C++, Golang, and Rust.
+4. [ebpf](https://github.com/apache/skywalking-rover) network profling and ON/OFF CPU profiling.
 5. LUA agent especially for Nginx, OpenResty and Apache APISIX.
 6. Browser agent.
 7. Service Mesh Observability. Control plane and data plane.
