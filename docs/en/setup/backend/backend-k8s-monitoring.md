@@ -1,16 +1,16 @@
-# Kubernetes (K8s) monitoring 
+# Kubernetes (K8s) monitoring
 SkyWalking leverages K8s kube-state-metrics (KSM) and cAdvisor for collecting metrics data from K8s. It leverages OpenTelemetry Collector to transfer the metrics to
 [OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md). This feature requires authorizing the OAP Server to access K8s's `API Server`.
 
 ## Data flow
 1. K8s kube-state-metrics and cAdvisor collect metrics data from K8s.
 2. OpenTelemetry Collector fetches metrics from kube-state-metrics and cAdvisor via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via the OpenCensus GRPC Exporter.
-3. The SkyWalking OAP Server access to K8s's `API Server` gets meta info and parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results. 
+3. The SkyWalking OAP Server access to K8s's `API Server` gets meta info and parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
-## Setup 
+## Setup
 1. Setup [kube-state-metric](https://github.com/kubernetes/kube-state-metrics#kubernetes-deployment).
 2. cAdvisor is integrated into `kubelet` by default.
-3. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). For details on Prometheus Receiver in OpenTelemetry Collector for K8s, refer to [here](https://github.com/prometheus/prometheus/blob/main/documentation/examples/prometheus-kubernetes.yml). 
+3. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). For details on Prometheus Receiver in OpenTelemetry Collector for K8s, refer to [here](https://github.com/prometheus/prometheus/blob/main/documentation/examples/prometheus-kubernetes.yml).
 For a quick start, we have provided a complete example of configuration and recommended version; you can refer to [showcase](https://github.com/apache/skywalking-showcase/tree/main/deploy/platform/kubernetes/feature-kubernetes-monitor).
 4. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
@@ -67,7 +67,7 @@ K8s Service as a `Service` in OAP and land on the `Layer: K8S_SERVICE`.
 | Pod Restarts |  | k8s_service_pod_status_restarts_total | The number of per container restarts related to the pods | K8s kube-state-metrics |
 
 ## Customizations
-You can customize your own metrics/expression/dashboard panel.   
-The metrics definition and expression rules are found in `/config/otel-oc-rules/k8s-cluster.yaml，/config/otel-oc-rules/k8s-node.yaml, /config/otel-oc-rules/k8s-service.yaml`.  
+You can customize your own metrics/expression/dashboard panel.
+The metrics definition and expression rules are found in `/config/otel-rules/k8s-cluster.yaml，/config/otel-rules/k8s-node.yaml, /config/otel-rules/k8s-service.yaml`.
 The K8s Cluster dashboard panel configurations are found in `/config/ui-initialized-templates/k8s`.
 The K8s Service dashboard panel configurations are found in `/config/ui-initialized-templates/k8s_service`.

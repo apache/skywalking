@@ -1,12 +1,12 @@
 # OpenTelemetry receiver
 
 The OpenTelemetry receiver supports ingesting agent metrics by meter-system. The OAP can load the configuration at bootstrap.
-If the new configuration is not well-formed, the OAP may fail to start up. The files are located at `$CLASSPATH/otel-<handler>-rules`.
-E.g. The `oc` handler loads rules from `$CLASSPATH/otel-oc-rules`.
+If the new configuration is not well-formed, the OAP may fail to start up. The files are located at `$CLASSPATH/otel-rules`.
 
 Supported handlers:
 
 * `oc`: [OpenCensus](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/a08903f05d3a544f548535c222b1c205b9f5a154/exporter/opencensusexporter/README.md) gRPC service handler.
+* `otlp`: [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/otlpexporter) gRPC service handler.
 
 **Notice:**  Set `SW_OTEL_RECEIVER=default` through system environment or change `receiver-otel/selector=${SW_OTEL_RECEIVER:default}` to activate the OpenTelemetry receiver.
 
@@ -29,12 +29,12 @@ for identification of the metric data.
 
 | Rule Name | Description | Configuration File | Data Source |
 |----|----|-----|----|
-|istio-controlplane| Metrics of Istio Control Plane | otel-oc-rules/istio-controlplane.yaml | Istio Control Plane -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
-|oap| Metrics of SkyWalking OAP server itself | otel-oc-rules/oap.yaml | SkyWalking OAP Server(SelfObservability) -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
-|vm| Metrics of VMs | otel-oc-rules/vm.yaml | Prometheus node-exporter(VMs) -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
-|k8s-cluster| Metrics of K8s cluster | otel-oc-rules/k8s-cluster.yaml | K8s kube-state-metrics -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
-|k8s-node| Metrics of K8s cluster | otel-oc-rules/k8s-node.yaml | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
-|k8s-service| Metrics of K8s cluster | otel-oc-rules/k8s-service.yaml | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
-|mysql| Metrics of MYSQL| otel-oc-rules/mysql.yaml | prometheus/mysqld_exporter -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|istio-controlplane| Metrics of Istio Control Plane | otel-rules/istio-controlplane.yaml | Istio Control Plane -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|oap| Metrics of SkyWalking OAP server itself | otel-rules/oap.yaml | SkyWalking OAP Server(SelfObservability) -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|vm| Metrics of VMs | otel-rules/vm.yaml | Prometheus node-exporter(VMs) -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|k8s-cluster| Metrics of K8s cluster | otel-rules/k8s-cluster.yaml | K8s kube-state-metrics -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|k8s-node| Metrics of K8s cluster | otel-rules/k8s-node.yaml | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|k8s-service| Metrics of K8s cluster | otel-rules/k8s-service.yaml | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|mysql| Metrics of MYSQL| otel-rules/mysql.yaml | prometheus/mysqld_exporter -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
 
 **Note**: You can also use OpenTelemetry exporter to transport the metrics to SkyWalking OAP directly. See [OpenTelemetry Exporter](./backend-meter.md#opentelemetry-exporter).
