@@ -95,6 +95,9 @@
 * Add a calculation to convert seconds to days.
 * Add component ID(131) for Java Micronaut plugin
 * Add Spring Sleuth dashboard to general service instance.
+* Support the process dashboard and create the time range text widget.
+* Fix picking calendar with a wrong time range and setting a unique value for dashboard grid key.
+* Add PostgreSQL to Database sub-menu.
 
 #### Documentation
 
