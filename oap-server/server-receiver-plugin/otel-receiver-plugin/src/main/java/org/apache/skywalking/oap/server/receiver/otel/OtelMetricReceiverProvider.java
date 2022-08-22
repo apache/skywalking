@@ -68,7 +68,7 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
                 .filter(h -> config.getEnabledHandlers().contains(h.type()))
                 .collect(toList());
         for (Handler h : handlers) {
-            h.active(config.getEnabledRulesFrom(h.type()), meterSystem, grpcHandlerRegister);
+            h.active(config, meterSystem, grpcHandlerRegister);
         }
     }
 

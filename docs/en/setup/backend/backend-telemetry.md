@@ -40,15 +40,15 @@ prometheus-fetcher:
   selector: ${SW_PROMETHEUS_FETCHER:default}
   default:
     enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self"}
-``` 
+```
 
-3. Make sure `config/fetcher-prom-rules/self.yaml` exists. 
+3. Make sure `config/fetcher-prom-rules/self.yaml` exists.
 
 Once you deploy an OAP server cluster, the target host should be replaced with a dedicated IP or hostname. For instance,
 if there are three OAP servers in your cluster, their hosts are `service1`, `service2`, and `service3`, respectively. You should
 update each `self.yaml` to switch the target host.
 
-service1: 
+service1:
 ```yaml
 fetcherInterval: PT15S
 fetcherTimeout: PT10S
@@ -62,7 +62,7 @@ staticConfig:
 ...
 ```
 
-service2: 
+service2:
 ```yaml
 fetcherInterval: PT15S
 fetcherTimeout: PT10S
@@ -76,7 +76,7 @@ staticConfig:
 ...
 ```
 
-service3: 
+service3:
 ```yaml
 fetcherInterval: PT15S
 fetcherTimeout: PT10S
@@ -90,7 +90,7 @@ staticConfig:
 ...
 ```
 ### Service discovery on Kubernetes
-If you deploy an OAP server cluster on Kubernetes, the oap-server instance (pod) would not have a static IP or hostname. We can leverage [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes) to discover the oap-server instance, and scrape & transfer the metrics to OAP [OpenTelemetry receiver](opentelemetry-receiver.md). 
+If you deploy an OAP server cluster on Kubernetes, the oap-server instance (pod) would not have a static IP or hostname. We can leverage [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes) to discover the oap-server instance, and scrape & transfer the metrics to OAP [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 On how to install SkyWalking on k8s, you can refer to [Apache SkyWalking Kubernetes](https://github.com/apache/skywalking-kubernetes).
 
@@ -103,9 +103,9 @@ Set this up following these steps:
   ```
 - Set environment variables.
   ```
-  SW_TELEMETRY=prometheus 
-  SW_OTEL_RECEIVER=default 
-  SW_OTEL_RECEIVER_ENABLED_OC_RULES=oap
+  SW_TELEMETRY=prometheus
+  SW_OTEL_RECEIVER=default
+  SW_OTEL_RECEIVER_ENABLED_OTEL_RULES=oap
   ```
 
   Here is an example to install by Apache SkyWalking Kubernetes:
@@ -123,7 +123,7 @@ Set this up following these steps:
                --set oap.ports.prometheus-port=1234 \ # <<< Expose self observability metrics port
                --set oap.env.SW_TELEMETRY=prometheus \
                --set oap.env.SW_OTEL_RECEIVER=default \ # <<< Enable Otel receiver
-               --set oap.env.SW_OTEL_RECEIVER_ENABLED_OC_RULES=oap # <<< Add oap analyzer for Otel metrics
+               --set oap.env.SW_OTEL_RECEIVER_ENABLED_OTEL_RULES=oap # <<< Add oap analyzer for Otel metrics
   ```
 2. Set up OpenTelemetry Collector and config a scrape job:
 ``` yaml
@@ -134,14 +134,14 @@ Set this up following these steps:
   relabel_configs:
   - source_labels: [__meta_kubernetes_pod_container_name, __meta_kubernetes_pod_container_port_name]
     action: keep
-    regex: oap;prometheus-port  
+    regex: oap;prometheus-port
   - source_labels: []
     target_label: service
     replacement: oap-server
   - source_labels: [__meta_kubernetes_pod_name]
     target_label: host_name
     regex: (.+)
-    replacement: $$1 
+    replacement: $$1
 ```
 For the full example for OpenTelemetry Collector configuration and recommended version, you can refer to [showcase](https://github.com/apache/skywalking-showcase/tree/main/deploy/platform/kubernetes/feature-so11y).
 
@@ -185,5 +185,5 @@ telemetry:
 ```
 
 ### Grafana Visualization
-Provide the Grafana dashboard settings. 
+Provide the Grafana dashboard settings.
 Check [SkyWalking OAP Cluster Monitor Dashboard](grafana-cluster.json) config and [SkyWalking OAP Instance Monitor Dashboard](grafana-instance.json) config.

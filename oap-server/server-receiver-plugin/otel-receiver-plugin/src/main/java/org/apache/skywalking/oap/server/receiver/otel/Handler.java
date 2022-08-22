@@ -54,7 +54,7 @@ public interface Handler {
 
     String type();
 
-    void active(List<String> enabledRules, MeterSystem service,
-        GRPCHandlerRegister grpcHandlerRegister) throws ModuleStartException;
-
+    void active(OtelMetricReceiverConfig config,
+                MeterSystem meterSystem,
+                GRPCHandlerRegister grpcHandlerRegister) throws ModuleStartException;
 }
