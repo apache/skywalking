@@ -15,19 +15,19 @@
 
 receivers:
   prometheus:
-    config: 
+    config:
      scrape_configs:
        - job_name: 'mysql-monitoring'
          scrape_interval: 5s
          static_configs:
            - targets: ['mysql-service:9104']
-             labels: 
+             labels:
                host_name: showcase
 processors:
   batch:
 
 exporters:
-  opencensus:
+  otlp:
     endpoint: oap:11800
     tls:
       insecure: true
@@ -39,4 +39,4 @@ service:
       processors:
       - batch
       exporters:
-      - opencensus
+      - otlp

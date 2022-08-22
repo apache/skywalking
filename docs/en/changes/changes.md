@@ -57,6 +57,8 @@
 * Bump up Kubernetes Java client to fix cve.
 * Adapt OpenTelemetry native metrics protocol.
 * [Breaking Change] rename configuration folder from `otel-oc-rules` to `otel-rules`.
+* [Breaking Change] rename configuration field from `enabledOcRules` to `enabledOtelRules` and
+  environment variable name from `SW_OTEL_RECEIVER_ENABLED_OC_RULES` to `SW_OTEL_RECEIVER_ENABLED_OTEL_RULES`.
 
 #### UI
 

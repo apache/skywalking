@@ -39,6 +39,8 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogra
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
 import org.apache.skywalking.oap.server.receiver.otel.Handler;
+import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.stub.StreamObserver;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
@@ -48,7 +50,9 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.Sum;
 import io.opentelemetry.proto.metrics.v1.SummaryDataPoint.ValueAtQuantile;
 import io.vavr.Function1;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class OpenTelemetryMetricHandler
     extends MetricsServiceGrpc.MetricsServiceImplBase
     implements Handler {
@@ -56,8 +60,10 @@ public class OpenTelemetryMetricHandler
     private static final Map<String, String> LABEL_MAPPINGS =
         ImmutableMap
             .<String, String>builder()
+            .put("net.host.name", "node_identifier_host_name")
             .put("host.name", "node_identifier_host_name")
             .put("job", "job_name")
+            .put("service.name", "job_name")
             .build();
     private List<PrometheusMetricConverter> converters;
 
@@ -68,10 +74,13 @@ public class OpenTelemetryMetricHandler
 
     @Override
     public void active(
-        final List<String> enabledRules,
+        final OtelMetricReceiverConfig config,
         final MeterSystem service,
         final GRPCHandlerRegister grpcHandlerRegister) throws ModuleStartException {
-
+        final List<String> enabledRules =
+            Splitter.on(",")
+                .omitEmptyStrings()
+                .splitToList(config.getEnabledOtelRules());
         final List<Rule> rules = Rules.loadRules("otel-rules", enabledRules);
 
         if (rules.isEmpty()) {
@@ -92,6 +101,10 @@ public class OpenTelemetryMetricHandler
         final StreamObserver<ExportMetricsServiceResponse> responseObserver) {
 
         requests.getResourceMetricsList().forEach(request -> {
+            if (log.isDebugEnabled()) {
+                log.debug("Resource attributes: {}", request.getResource().getAttributesList());
+            }
+
             final Map<String, String> nodeLabels =
                 request
                     .getResource()
@@ -101,7 +114,8 @@ public class OpenTelemetryMetricHandler
                         it -> LABEL_MAPPINGS
                             .getOrDefault(it.getKey(), it.getKey())
                             .replaceAll("\\.", "_"),
-                        it -> it.getValue().getStringValue()));
+                        it -> it.getValue().getStringValue(),
+                        (v1, v2) -> v1));
 
             converters
                 .forEach(convert -> convert.toMeter(

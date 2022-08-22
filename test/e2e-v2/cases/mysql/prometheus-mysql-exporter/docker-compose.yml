@@ -22,11 +22,11 @@ services:
       service: oap
     environment:
       SW_OTEL_RECEIVER: default
-      SW_OTEL_RECEIVER_ENABLED_OC_RULES: mysql
+      SW_OTEL_RECEIVER_ENABLED_OTEL_RULES: mysql
     ports:
       - 12800
   mysql:
-    image: mysql:8.0.30 
+    image: mysql:8.0.30
     networks:
       - e2e
     ports:
@@ -36,7 +36,7 @@ services:
       - MYSQL_DATABASE=test2
 
   mysql-load:
-    image: mysql:8.0.30 
+    image: mysql:8.0.30
     depends_on:
       - otel-collector
     networks:
@@ -47,7 +47,7 @@ services:
     command:
       - -c
       - "mysql -h mysql -uroot -ppassword < /docker/mock.sql"
-      
+
   mysql-service:
     image: prom/mysqld-exporter:v0.14.0
     ports:
@@ -58,7 +58,7 @@ services:
       - e2e
     depends_on:
       - mysql
-    
+
 
   otel-collector:
     image: otel/opentelemetry-collector:0.50.0
@@ -72,6 +72,6 @@ services:
     depends_on:
       oap:
         condition: service_healthy
-  
+
 networks:
   e2e:
