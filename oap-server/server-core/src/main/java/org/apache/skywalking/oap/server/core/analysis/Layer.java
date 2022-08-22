@@ -126,7 +126,12 @@ public enum Layer {
     /**
      * Cache conjectured by client side plugin(eg. skywalking-java -> JedisPlugin LettucePlugin)
      */
-    VIRTUAL_CACHE(19, false);
+    VIRTUAL_CACHE(19, false),
+
+    /**
+     * PostgreSQL is an advanced, enterprise-class, and open-source relational database system.
+     */
+    POSTGRESQL(20, true);
 
     private final int value;
     /**

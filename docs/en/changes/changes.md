@@ -48,6 +48,7 @@
 * Add `tls` and `https` component IDs for Network Profiling.
 * Support Elasticsearch column alias for the compatibility between storage logicSharding model and no-logicSharding model.
 * Support MySQL monitoring.
+* Support PostgreSQL monitoring.
 * Fix query services by serviceId error when Elasticsearch storage `SW_STORAGE_ES_QUERY_MAX_SIZE` > 10000.
 * Support sending alarm messages to Discord.
 * Fix query history process data failure.

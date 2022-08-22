@@ -175,6 +175,8 @@ catalog:
             catalog:
               - name: "MySQL Monitoring"
                 path: "/en/setup/backend/backend-mysql-monitoring"
+              - name: "PostgreSQL Monitoring"
+                path: "/en/setup/backend/backend-postgresql-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP Telemetry"

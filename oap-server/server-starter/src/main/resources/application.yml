@@ -339,8 +339,8 @@ receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
-    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane,k8s-node,oap,vm,mysql"}
-    enabledOtlpRules: ${SW_OTEL_RECEIVER_ENABLED_OTLP_RULES:"istio-controlplane,k8s-node,oap,vm,mysql"}
+    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane,k8s-node,oap,vm,mysql,postgresql"}
+    enabledOtlpRules: ${SW_OTEL_RECEIVER_ENABLED_OTLP_RULES:"istio-controlplane,k8s-node,oap,vm,mysql,postgresql"}
 
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
