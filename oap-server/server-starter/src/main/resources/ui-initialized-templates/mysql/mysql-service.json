@@ -202,7 +202,7 @@
                   "showYAxis":true
                },
                "widget":{
-                  "title":"Commands Trend"
+                  "title":"Commands Trend (rows per second)"
                },
                "value":"6",
                "label":"6"
@@ -289,7 +289,7 @@
                   "showYAxis":true
                },
                "widget":{
-                  "title":"Slow Quries Trend"
+                  "title":"Slow Queries Trend (queries per second)"
                },
                "value":"10",
                "label":"10"
