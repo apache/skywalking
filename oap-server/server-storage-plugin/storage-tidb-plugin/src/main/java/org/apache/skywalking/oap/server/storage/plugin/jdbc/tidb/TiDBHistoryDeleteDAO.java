@@ -78,7 +78,8 @@ public class TiDBHistoryDeleteDAO implements IHistoryDeleteDAO {
                 SQLBuilder additionalTableDeleteSQL = new SQLBuilder("delete from " + additionalTable.getName() + " where ")
                     .append(timeBucketColumnName).append("<= ? ")
                     .append(" and ")
-                    .append(timeBucketColumnName).append(">= ? ");
+                    .append(timeBucketColumnName).append(">= ? ")
+                    .append(" limit 10000");
                 while (client.executeUpdate(connection, additionalTableDeleteSQL.toString(), deadline, minTime) > 0) {
                 }
             }
