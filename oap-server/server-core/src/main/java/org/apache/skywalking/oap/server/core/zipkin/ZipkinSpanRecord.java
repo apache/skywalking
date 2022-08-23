@@ -152,6 +152,14 @@ public class ZipkinSpanRecord extends Record {
     @Column(columnName = QUERY, indexOnly = true)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_QUERY_TABLE})
     private List<String> query;
+    /**
+     * The additional tables need timeBucket for TTL.
+     */
+    @Getter
+    @Setter
+    @Column(columnName = TIME_BUCKET)
+    @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_QUERY_TABLE})
+    private long timeBucket;
 
     @Override
     public String id() {

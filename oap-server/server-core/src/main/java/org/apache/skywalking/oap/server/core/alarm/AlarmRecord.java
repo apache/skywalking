@@ -81,6 +81,14 @@ public class AlarmRecord extends Record {
     private List<String> tagsInString;
     @Column(columnName = TAGS_RAW_DATA, storageOnly = true)
     private byte[] tagsRawData;
+    /**
+     * The additional tables need timeBucket for TTL.
+     */
+    @Getter
+    @Setter
+    @Column(columnName = TIME_BUCKET)
+    @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
+    private long timeBucket;
 
     public static class Builder implements StorageBuilder<AlarmRecord> {
         @Override

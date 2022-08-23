@@ -95,6 +95,14 @@ public class SegmentRecord extends Record {
     @Column(columnName = TAGS, indexOnly = true)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tags;
+    /**
+     * The additional tables need timeBucket for TTL.
+     */
+    @Getter
+    @Setter
+    @Column(columnName = TIME_BUCKET)
+    @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
+    private long timeBucket;
 
     @Override
     public String id() {
