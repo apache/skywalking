@@ -60,7 +60,7 @@
 * [Breaking Change] rename configuration field from `enabledOcRules` to `enabledOtelRules` and
   environment variable name from `SW_OTEL_RECEIVER_ENABLED_OC_RULES` to `SW_OTEL_RECEIVER_ENABLED_OTEL_RULES`.
 * [Breaking Change] Fix JDBC TTL to delete additional tables data. 
-  SQL Database requires removing `segment`,`segment_tag`, `logs`, `logs_tag`, `alarms`, `alarms_tag`, `alarms`, `alarms_tag`, `zipkin_span`, `zipkin_query` before OAP starts.
+  SQL Database requires removing `segment`,`segment_tag`, `logs`, `logs_tag`, `alarms`, `alarms_tag`, `zipkin_span`, `zipkin_query` before OAP starts.
 
 #### UI
 
