@@ -349,7 +349,7 @@ In order to determine whether an alerting rule is triggered or not, SkyWalking n
 each alerting rule. If any attribute (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
 the sliding window will be destroyed and re-created, causing the Alarm of this specific rule to restart again.
 
-### Configuration property key of Alerting element
+### Keys with data types of alerting rule configuration file
 
 | Alerting element     | Configuration property key | Type           | Description        |
 |----------------------|----------------------------|----------------|--------------------|
