@@ -128,7 +128,7 @@ public @interface SQLDatabase {
     }
 
     /**
-     * The support of the multiple {@link ExtraColumn4AdditionalEntity}s on one field.
+     * The support of the multiple {@link ExtraColumn4AdditionalEntity}s on the class.
      */
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
