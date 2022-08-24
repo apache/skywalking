@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
@@ -68,6 +69,16 @@ public class H2HistoryDeleteDAO implements IHistoryDeleteDAO {
                 }
             }
             client.executeUpdate(connection, dataDeleteSQL.toString(), deadline, minTime);
+            //delete additional tables
+            for (SQLDatabaseModelExtension.AdditionalTable additionalTable : model.getSqlDBModelExtension()
+                                                                                  .getAdditionalTables()
+                                                                                  .values()) {
+                SQLBuilder additionalTableDeleteSQL = new SQLBuilder("delete from " + additionalTable.getName() + " where ")
+                    .append(timeBucketColumnName).append("<= ? ")
+                    .append(" and ")
+                    .append(timeBucketColumnName).append(">= ? ");
+                client.executeUpdate(connection, additionalTableDeleteSQL.toString(), deadline, minTime);
+            }
         } catch (JDBCClientException | SQLException e) {
             throw new IOException(e.getMessage(), e);
         }

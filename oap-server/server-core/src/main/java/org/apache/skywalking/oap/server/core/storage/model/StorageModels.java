@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -59,6 +60,32 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         ShardingKeyChecker checker = new ShardingKeyChecker();
         SQLDatabaseModelExtension sqlDBModelExtension = new SQLDatabaseModelExtension();
         retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker, sqlDBModelExtension, record);
+        // Add extra column for additional entities
+        if (aClass.isAnnotationPresent(SQLDatabase.ExtraColumn4AdditionalEntity.class)
+            || aClass.isAnnotationPresent(SQLDatabase.MultipleExtraColumn4AdditionalEntity.class)) {
+            Map<String/*parent column*/, List<String>/*tables*/> extraColumns = new HashMap<>();
+            if (aClass.isAnnotationPresent(SQLDatabase.MultipleExtraColumn4AdditionalEntity.class)) {
+                for (SQLDatabase.ExtraColumn4AdditionalEntity extraColumn : aClass.getAnnotation(
+                    SQLDatabase.MultipleExtraColumn4AdditionalEntity.class).value()) {
+                    List<String> tables = extraColumns.computeIfAbsent(
+                        extraColumn.parentColumn(), v -> new ArrayList<>());
+                    tables.add(extraColumn.additionalTable());
+                }
+            } else {
+                SQLDatabase.ExtraColumn4AdditionalEntity extraColumn = aClass.getAnnotation(
+                    SQLDatabase.ExtraColumn4AdditionalEntity.class);
+                List<String> tables = extraColumns.computeIfAbsent(extraColumn.parentColumn(), v -> new ArrayList<>());
+                tables.add(extraColumn.additionalTable());
+            }
+
+            extraColumns.forEach((extraColumn, tables) -> {
+                if (!addExtraColumn4AdditionalEntity(sqlDBModelExtension, modelColumns, extraColumn, tables)) {
+                    throw new IllegalStateException(
+                        "Model [" + storage.getModelName() + "] defined an extra column  [" + extraColumn + "]  by @SQLDatabase.ExtraColumn4AdditionalEntity, " +
+                            "but couldn't be found from the parent.");
+                }
+            });
+        }
         checker.check(storage.getModelName());
 
         Model model = new Model(
@@ -244,6 +271,20 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                       .forEach(extraQueryIndex -> extraQueryIndex.overrideName(oldName, newName));
             });
         });
+    }
+
+    private boolean addExtraColumn4AdditionalEntity(SQLDatabaseModelExtension sqlDBModelExtension,
+                                                    List<ModelColumn> modelColumns,
+                                                    String extraColumn, List<String> additionalTables) {
+        for (ModelColumn modelColumn : modelColumns) {
+            if (modelColumn.getColumnName().getName().equals(extraColumn)) {
+                additionalTables.forEach(tableName -> {
+                    sqlDBModelExtension.appendAdditionalTable(tableName, modelColumn);
+                });
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
