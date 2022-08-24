@@ -110,5 +110,6 @@
 * Add an explanation for alerting kernel and its in-memory window mechanism.
 * Add more docs for widget details.
 * Update alarm doc introduce configuration property key
+* Fix dependency license's NOTICE and binary jar included issues in the source release.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/136?closed=1)
