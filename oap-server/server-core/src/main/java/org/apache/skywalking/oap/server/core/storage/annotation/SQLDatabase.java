@@ -115,9 +115,9 @@ public @interface SQLDatabase {
     }
 
     /**
-     * Support add an extra column from parent to an additional table.
-     * This column will be created in both the primary and additional tables.
-     * Notice: This annotation should be declared on the subclasses.
+     * Support add an extra column from the parent classes as a column of the additional table.
+     * This column would be created in both the primary and additional tables.
+     * Notice: This annotation should be declared on the leaf subclasses.
      */
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
