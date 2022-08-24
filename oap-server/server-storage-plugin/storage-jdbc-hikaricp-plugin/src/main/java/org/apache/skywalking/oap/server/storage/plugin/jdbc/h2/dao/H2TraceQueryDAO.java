@@ -99,9 +99,9 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         sql.append(" where ");
         sql.append(" 1=1 ");
         if (startSecondTB != 0 && endSecondTB != 0) {
-            sql.append(" and ").append(SegmentRecord.TIME_BUCKET).append(" >= ?");
+            sql.append(" and ").append(SegmentRecord.INDEX_NAME).append(".").append(SegmentRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startSecondTB);
-            sql.append(" and ").append(SegmentRecord.TIME_BUCKET).append(" <= ?");
+            sql.append(" and ").append(SegmentRecord.INDEX_NAME).append(".").append(SegmentRecord.TIME_BUCKET).append(" <= ?");
             parameters.add(endSecondTB);
         }
         if (minDuration != 0) {

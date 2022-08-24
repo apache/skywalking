@@ -34,13 +34,14 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
+import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
 
 @Getter
 @Setter
 @ScopeDeclaration(id = ALARM, name = "Alarm")
 @Stream(name = AlarmRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ALARM, builder = AlarmRecord.Builder.class, processor = RecordStreamProcessor.class)
+@SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AlarmRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
 public class AlarmRecord extends Record {
 
     public static final String INDEX_NAME = "alarm_record";
