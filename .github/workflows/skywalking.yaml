@@ -564,7 +564,7 @@ jobs:
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@main
+        uses: apache/skywalking-infra-e2e@d71bbba95f95d6629db199e4bc0c0e097ae4f2dc
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - uses: actions/upload-artifact@v2
