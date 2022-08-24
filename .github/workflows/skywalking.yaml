@@ -603,7 +603,7 @@ jobs:
         with:
           go-version: '1.16'
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@main
+        uses: apache/skywalking-infra-e2e@d71bbba95f95d6629db199e4bc0c0e097ae4f2dc
         env:
           ISTIO_VERSION: ${{ matrix.istio_version }}
           ALS_ANALYZER: ${{ matrix.analyzer }}
@@ -645,7 +645,7 @@ jobs:
         with:
           go-version: '1.16'
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@main
+        uses: apache/skywalking-infra-e2e@d71bbba95f95d6629db199e4bc0c0e097ae4f2dc
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
