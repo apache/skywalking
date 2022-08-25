@@ -15,17 +15,17 @@
 
 receivers:
   prometheus:
-    config: 
-     scrape_configs:
-       - job_name: 'postgresql-monitoring'
-         scrape_interval: 5s
-         static_configs:
-           - targets: ['postgres-exporter:9187']
+    config:
+      scrape_configs:
+        - job_name: "postgresql-monitoring"
+          scrape_interval: 5s
+          static_configs:
+            - targets: ["postgres-exporter:9187"]
 processors:
   batch:
 
 exporters:
-  opencensus:
+  otlp:
     endpoint: oap:11800
     tls:
       insecure: true
@@ -35,9 +35,9 @@ service:
   pipelines:
     metrics:
       receivers:
-      - prometheus
+        - prometheus
       processors:
-      - batch
+        - batch
       exporters:
-      - logging
-      - opencensus
+        - logging
+        - otlp
