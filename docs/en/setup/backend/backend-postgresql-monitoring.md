@@ -1,15 +1,15 @@
-# PostgreSQL monitoring 
+# PostgreSQL monitoring
 SkyWalking leverages postgres-exporter for collecting metrics data from PostgreSQL. It leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md). 
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
 
 ## Data flow
 1. postgres-exporter collect metrics data from PostgreSQL.
-2. OpenTelemetry Collector fetches metrics from postgres-exporter via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via the OpenCensus GRPC Exporter.
-3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results. 
+2. OpenTelemetry Collector fetches metrics from postgres-exporter via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via the OpenCensus gRPC Exporter or OpenTelemetry gRPC exporter.
+3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
-## Set up 
+## Set up
 1. Set up [postgres-exporter](https://github.com/prometheus-community/postgres_exporter#quick-start).
-2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on Prometheus Receiver in OpenTelemetry Collector, refer to [here](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/otel-collector-config.yaml). 
+2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on Prometheus Receiver in OpenTelemetry Collector, refer to [here](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ## PostgreSQL Monitoring
@@ -22,7 +22,7 @@ PostgreSQL monitoring provides monitoring of the status and resources of the Pos
 | Effective Cache |   GB   | meter_pg_effective_cache | The planner's assumption about the total size of the data caches | postgres-exporter|
 | Maintenance Work Mem |  MB    | meter_pg_maintenance_work_mem | The maximum memory to be used for maintenance operations| postgres-exporter|
 | Seq Page Cost |      | meter_pg_seq_page_cost | The planner's estimate of the cost of a sequentially fetched disk page.| postgres-exporter|
-| Random Page Cost|      | meter_pg_random_page_cost | The planner's estimate of the cost of a nonsequentially fetched disk page. | postgres-exporter| 
+| Random Page Cost|      | meter_pg_random_page_cost | The planner's estimate of the cost of a nonsequentially fetched disk page. | postgres-exporter|
 | Max Worker Processes |      | meter_pg_max_worker_processes | Maximum number of concurrent worker processes | postgres-exporter|
 | Max WAL Size |    GB  | meter_max_wal_size | The WAL size that triggers a checkpoint | postgres-exporter|
 | Max Parallel Workers |      | meter_pg_max_parallel_workers | The maximum number of parallel processes per executor node| postgres-exporter|
@@ -46,8 +46,6 @@ PostgreSQL monitoring provides monitoring of the status and resources of the Pos
 
 
 ## Customizations
-You can customize your own metrics/expression/dashboard panel.   
-The metrics definition and expression rules are found in `/config/otel-rules/postgresql.yaml`.  
+You can customize your own metrics/expression/dashboard panel.
+The metrics definition and expression rules are found in `/config/otel-rules/postgresql.yaml`.
 The PostgreSQL dashboard panel configurations are found in `/config/ui-initialized-templates/postgresql`.
-
-
