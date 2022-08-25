@@ -101,6 +101,9 @@
 * Support the process dashboard and create the time range text widget.
 * Fix picking calendar with a wrong time range and setting a unique value for dashboard grid key.
 * Add PostgreSQL to Database sub-menu.
+* Implement the network profiling widget.
+* Add Nats icon for Java plugin.
+* Bump moment and @vue/cli-plugin-e2e-cypress.
 
 #### Documentation
 
