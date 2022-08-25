@@ -338,7 +338,6 @@ receiver-meter:
 receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
-    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc,otlp"}
     enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"istio-controlplane,k8s-node,oap,vm,mysql,postgresql"}
 

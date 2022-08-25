@@ -4,11 +4,11 @@ Probe protocols describe and define how agents send collected metrics, logs, tra
 ### Tracing
 There are two types of protocols that help language agents work in distributed tracing.
 
-- **Cross Process Propagation Headers Protocol** and **Cross Process Correlation Headers Protocol** come in in-wire data format. Agent/SDK usually uses HTTP/MQ/HTTP2 headers to carry the data with the RPC request. The remote agent will receive this in the request handler, and bind the context with this specific request. 
+- **Cross Process Propagation Headers Protocol** and **Cross Process Correlation Headers Protocol** come in in-wire data format. Agent/SDK usually uses HTTP/MQ/HTTP2 headers to carry the data with the RPC request. The remote agent will receive this in the request handler, and bind the context with this specific request.
 
 [Cross Process Propagation Headers Protocol v3](Skywalking-Cross-Process-Propagation-Headers-Protocol-v3.md) has been the new protocol for in-wire context propagation since the version 8.0.0 release.
 
-[Cross Process Correlation Headers Protocol v1](Skywalking-Cross-Process-Correlation-Headers-Protocol-v1.md) is a new in-wire context propagation protocol which is additional and optional. 
+[Cross Process Correlation Headers Protocol v1](Skywalking-Cross-Process-Correlation-Headers-Protocol-v1.md) is a new in-wire context propagation protocol which is additional and optional.
 Please read SkyWalking language agents documentation to see whether it is supported.
 
 - **Trace Data Protocol** is an out-of-wire data format. Agent/SDK uses this to send traces to SkyWalking OAP server.
@@ -21,7 +21,7 @@ Please read SkyWalking language agents documentation to see whether it is suppor
 
 ### Metrics
 
-SkyWalking has a native metrics format, and supports widely used metric formats, such as Prometheus, OpenCensus, and Zabbix.
+SkyWalking has a native metrics format, and supports widely used metric formats, such as Prometheus, OpenCensus, OpenTelemetry, and Zabbix.
 
 The native metrics format definition could be found [here](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Meter.proto).
 Typically, the agent meter plugin (e.g. [Java Meter Plugin](https://skywalking.apache.org/docs/skywalking-java/latest/en/setup/service-agent/java-agent/java-plugin-development-guide/#meter-plugin)) and
