@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDete
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.analyze.EBPFProfilingAnalyzer;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
@@ -56,6 +57,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -153,7 +155,7 @@ public class EBPFProfilingQueryService implements Service {
         // query process count in last 10 minutes
         final long endTimestamp = System.currentTimeMillis();
         final long startTimestamp = endTimestamp - TimeUnit.MINUTES.toMillis(10);
-        final long processesCount = getMetadataQueryDAO().getProcessesCount(serviceId, null, null,
+        final long processesCount = getMetadataQueryDAO().getProcessCount(serviceId,
                 ProfilingSupportStatus.SUPPORT_EBPF_PROFILING, TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute),
                 TimeBucket.getTimeBucket(endTimestamp, DownSampling.Minute));
         if (processesCount <= 0) {
@@ -171,8 +173,22 @@ public class EBPFProfilingQueryService implements Service {
         return prepare;
     }
 
-    public List<EBPFProfilingTask> queryEBPFProfilingTasks(String serviceId) throws IOException {
-        return getTaskDAO().queryTasks(Arrays.asList(serviceId), null, 0, 0);
+    public List<EBPFProfilingTask> queryEBPFProfilingTasks(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targets) throws IOException {
+        if (CollectionUtils.isEmpty(targets)) {
+            targets = Arrays.asList(EBPFProfilingTargetType.values());
+        }
+        final List<EBPFProfilingTask> tasks = getTaskDAO().queryTasksByTargets(serviceId, serviceInstanceId, targets, 0, 0);
+        // combine same id tasks
+        final LinkedHashMap<String, EBPFProfilingTask> tmpMap = new LinkedHashMap<>();
+        for (EBPFProfilingTask task : tasks) {
+            final EBPFProfilingTask p = tmpMap.get(task.getTaskId());
+            if (p == null) {
+                tmpMap.put(task.getTaskId(), task);
+                continue;
+            }
+            p.combine(task);
+        }
+        return new ArrayList<>(tmpMap.values());
     }
 
     public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws IOException {

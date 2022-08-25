@@ -51,9 +51,11 @@ import org.apache.skywalking.oap.server.network.trace.component.command.EBPFProf
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -82,8 +84,7 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
         final long latestUpdateTime = request.getLatestUpdateTime();
         try {
             // find exists process from agent
-            final List<Process> processes = metadataQueryDAO.listProcesses(null, null, agentId,
-                    ProfilingSupportStatus.SUPPORT_EBPF_PROFILING, 0, 0);
+            final List<Process> processes = metadataQueryDAO.listProcesses(agentId);
             if (CollectionUtils.isEmpty(processes)) {
                 responseObserver.onNext(Commands.newBuilder().build());
                 responseObserver.onCompleted();
@@ -92,11 +93,12 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
 
             // fetch tasks from process id list
             final List<String> serviceIdList = processes.stream().map(Process::getServiceId).distinct().collect(Collectors.toList());
-            final List<EBPFProfilingTask> tasks = taskDAO.queryTasks(serviceIdList, null, 0, latestUpdateTime);
+            final List<EBPFProfilingTask> tasks = taskDAO.queryTasksByServices(serviceIdList, 0, latestUpdateTime);
 
             final Commands.Builder builder = Commands.newBuilder();
-            tasks.stream().flatMap(t -> this.buildProfilingCommands(t, processes).stream())
-                    .map(EBPFProfilingTaskCommand::serialize).forEach(builder::addCommands);
+            tasks.stream().collect(Collectors.toMap(EBPFProfilingTask::getTaskId, Function.identity(), EBPFProfilingTask::combine))
+                .values().stream().flatMap(t -> this.buildProfilingCommands(t, processes).stream())
+                .map(EBPFProfilingTaskCommand::serialize).forEach(builder::addCommands);
             responseObserver.onNext(builder.build());
             responseObserver.onCompleted();
             return;
@@ -108,17 +110,25 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
     }
 
     private List<EBPFProfilingTaskCommand> buildProfilingCommands(EBPFProfilingTask task, List<Process> processes) {
+        if (EBPFProfilingTargetType.NETWORK.equals(task.getTargetType())) {
+            final List<String> processIdList = processes.stream().filter(p -> Objects.equals(p.getInstanceId(), task.getServiceInstanceId())).map(Process::getId).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(processIdList)) {
+                return Collections.emptyList();
+            }
+            return Collections.singletonList(commandService.newEBPFProfilingTaskCommand(task, processIdList));
+        }
         final ArrayList<EBPFProfilingTaskCommand> commands = new ArrayList<>(processes.size());
         for (Process process : processes) {
-            // The service id must match between process and task
-            if (!Objects.equals(process.getServiceId(), task.getServiceId())) {
+            // The service id must match between process and task and must could profiling
+            if (!Objects.equals(process.getServiceId(), task.getServiceId())
+                || !ProfilingSupportStatus.SUPPORT_EBPF_PROFILING.name().equals(process.getProfilingSupportStatus())) {
                 continue;
             }
 
             // If the task doesn't require a label or the process match all labels in task
             if (CollectionUtils.isEmpty(task.getProcessLabels())
                     || process.getLabels().containsAll(task.getProcessLabels())) {
-                commands.add(commandService.newEBPFProfilingTaskCommand(task, process.getId()));
+                commands.add(commandService.newEBPFProfilingTaskCommand(task, Collections.singletonList(process.getId())));
             }
         }
         return commands;

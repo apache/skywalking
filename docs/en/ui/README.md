@@ -24,6 +24,69 @@ so).
 **Notice, dashboard editable is disabled on release; set system env(**SW_ENABLE_UPDATE_UI_TEMPLATE=true**) to activate
 them.** Before you save the edited dashboard, it is just stored in memory. Closing a tab would **LOSE** the change permanently.
 
+### Widget
+
+The widget provides the ability to visualize the metrics, generated through [OAL](../concepts-and-designs/mal.md), [MAL](../concepts-and-designs/mal.md), or [LAL](../concepts-and-designs/lal.md) scripts.
+
+<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-configuration.png" />
+
+#### Metrics
+
+To display one or more metrics in a graph, the following information is required:
+1. **Name**: The name of the metric.
+2. **Data Type**: The way of reading the metrics data according to various metric types. 
+3. **Visualization**: The graph options to visualize the metric. Each data type has its own matched graph options. See the [mapping doc](#common-graphs) for more details.
+4. **Unit**: The unit of the metrics data.
+5. **Calculation**: The calculation formula for the metric. The available formulas are [here](#calculations).
+
+##### Common Graphs
+
+|Metrics Data Type|Visualization|Demo|
+|----|-------------|----|
+|read all values in the duration|Line|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-line.png" />|
+|get sorted top N values|Top List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-topn.png" />|
+|read all values of labels in the duration|Table|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-tables.png" />|
+|read all values in the duration|Area|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-area.png" />|
+|read all values in the duration|Service/Instance/Endpoint List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-entity-table.png" />|
+
+##### Calculations
+
+|Label|Calculation|
+|----|----|
+|Percentage|Value / 100|
+|Apdex|Value / 10000|
+|Average|Sum of values / Count of values|
+|Percentage + Avg-preview|Sum of values / Count of values / 100|
+|Apdex + Avg-preview|Sum of values / Count of values / 10000|
+|Byte to KB|Value / 1024|
+|Byte to MB|Value / 1024 / 1024|
+|Byte to GB|Value / 1024 / 1024 / 1024|
+|Seconds to YYYY-MM-DD HH:mm:ss|dayjs(value * 1000).format("YYYY-MM-DD HH:mm:ss")|
+|Milliseconds to YYYY-MM-DD HH:mm:ss|dayjs(value).format("YYYY-MM-DD HH:mm:ss")|
+|Precision|Value.toFixed(2)|
+|Milliseconds to seconds|Value / 1000|
+|Seconds to days|Value / 86400|
+
+#### Graph styles
+
+Graph advanced style options.
+
+#### Widget options
+
+<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-options.png" />
+
+Define the following properties of the widget:
+1. **Name**: The name of the widget, which used to [associate with other widget](#association-options) in the dashboard.
+2. **Title**: The title name of the widget. 
+3. **Tooltip Content**: Additional explanation of the widget. 
+
+#### Association Options
+
+<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-association.png" />
+
+Widget provides the ability to associate with other widgets to show axis pointer with tips for the same time point, in order to help users to understand
+the connectivity among metrics.
+
 ## Settings
 
 Settings provide language, server time zone, and auto-fresh options. These settings are stored in the browser's local storage. Unless you clear them manually, those will not change. 

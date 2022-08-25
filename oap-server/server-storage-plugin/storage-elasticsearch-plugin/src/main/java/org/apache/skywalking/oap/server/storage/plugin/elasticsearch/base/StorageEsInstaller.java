@@ -44,6 +44,7 @@ public class StorageEsInstaller extends ModelInstaller {
     private final StorageModuleElasticsearchConfig config;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
 
+
     /**
      * The mappings of the template .
      */
@@ -66,7 +67,7 @@ public class StorageEsInstaller extends ModelInstaller {
     protected boolean isExists(Model model) {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         String tableName = IndexController.INSTANCE.getTableName(model);
-        IndexController.LogicIndicesRegister.registerRelation(model.getName(), tableName);
+        IndexController.LogicIndicesRegister.registerRelation(model, tableName);
         if (!model.isTimeSeries()) {
             boolean exist = esClient.isExistsIndex(tableName);
             if (exist) {
@@ -151,7 +152,7 @@ public class StorageEsInstaller extends ModelInstaller {
                     tableName, settings, structures.getMapping(tableName), config.getIndexTemplateOrder());
                 log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
                 if (!isAcknowledged) {
-                    throw new IOException("create " + tableName + " index template failure, ");
+                    throw new IOException("create " + tableName + " index template failure");
                 }
             }
 
@@ -203,7 +204,8 @@ public class StorageEsInstaller extends ModelInstaller {
             indexRefreshInterval = 5;
         }
         setting.put("index.refresh_interval", indexRefreshInterval + "s");
-        setting.put("analysis", getAnalyzerSetting(model.getColumns()));
+        List<ModelColumn> columns = IndexController.LogicIndicesRegister.getPhysicalTableColumns(model);
+        setting.put("analysis", getAnalyzerSetting(columns));
         if (!StringUtil.isEmpty(config.getAdvanced())) {
             Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);
             setting.putAll(advancedSettings);
@@ -231,13 +233,18 @@ public class StorageEsInstaller extends ModelInstaller {
         Mappings.Source source = new Mappings.Source();
         for (ModelColumn columnDefine : model.getColumns()) {
             final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType());
+            String columnName = columnDefine.getColumnName().getName();
+            String alias = columnDefine.getElasticSearchExtension().getColumnAlias();
+            if (!config.isLogicSharding() && alias != null) {
+                columnName = alias;
+            }
             if (columnDefine.getElasticSearchExtension().needMatchQuery()) {
-                String matchCName = MatchCNameBuilder.INSTANCE.build(columnDefine.getColumnName().getName());
+                String matchCName = MatchCNameBuilder.INSTANCE.build(columnName);
 
                 Map<String, Object> originalColumn = new HashMap<>();
                 originalColumn.put("type", type);
                 originalColumn.put("copy_to", matchCName);
-                properties.put(columnDefine.getColumnName().getName(), originalColumn);
+                properties.put(columnName, originalColumn);
 
                 Map<String, Object> matchColumn = new HashMap<>();
                 matchColumn.put("type", "text");
@@ -250,18 +257,24 @@ public class StorageEsInstaller extends ModelInstaller {
                 if (columnDefine.isStorageOnly() && !"binary".equals(type)) {
                     column.put("index", false);
                 }
-                properties.put(columnDefine.getColumnName().getName(), column);
+                properties.put(columnName, column);
             }
 
             if (columnDefine.isIndexOnly()) {
-                source.getExcludes().add(columnDefine.getColumnName().getName());
+                source.getExcludes().add(columnName);
             }
         }
 
-        if (IndexController.INSTANCE.isMetricModel(model)) {
+        if ((IndexController.INSTANCE.isMetricModel(model) && !config.isLogicSharding())
+            || (config.isLogicSharding() && IndexController.INSTANCE.isFunctionMetric(model))) {
             Map<String, Object> column = new HashMap<>();
             column.put("type", "keyword");
             properties.put(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, column);
+        }
+        if (!config.isLogicSharding() && IndexController.INSTANCE.isRecordModel(model) && !model.isSuperDataset()) {
+            Map<String, Object> column = new HashMap<>();
+            column.put("type", "keyword");
+            properties.put(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, column);
         }
         Mappings mappings = Mappings.builder()
                                     .type("type")

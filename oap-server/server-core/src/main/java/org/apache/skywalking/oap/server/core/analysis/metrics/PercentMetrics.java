@@ -34,7 +34,7 @@ public abstract class PercentMetrics extends Metrics implements IntValueHolder {
 
     @Getter
     @Setter
-    @Column(columnName = TOTAL)
+    @Column(columnName = TOTAL, storageOnly = true)
     private long total;
     @Getter
     @Setter
@@ -68,15 +68,5 @@ public abstract class PercentMetrics extends Metrics implements IntValueHolder {
     @Override
     public int getValue() {
         return percentage;
-    }
-
-    @Override
-    public boolean haveDefault() {
-        return true;
-    }
-
-    @Override
-    public boolean isDefaultValue() {
-        return percentage == 0;
     }
 }

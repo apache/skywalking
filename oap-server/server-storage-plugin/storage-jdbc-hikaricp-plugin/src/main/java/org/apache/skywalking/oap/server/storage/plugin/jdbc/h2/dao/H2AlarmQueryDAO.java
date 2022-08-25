@@ -86,9 +86,9 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
             parameters.add(scopeId.intValue());
         }
         if (startTB != 0 && endTB != 0) {
-            sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" >= ?");
+            sql.append(" and ").append(AlarmRecord.INDEX_NAME).append(".").append(AlarmRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startTB);
-            sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" <= ?");
+            sql.append(" and ").append(AlarmRecord.INDEX_NAME).append(".").append(AlarmRecord.TIME_BUCKET).append(" <= ?");
             parameters.add(endTB);
         }
 

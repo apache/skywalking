@@ -27,6 +27,8 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -125,6 +127,16 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                                  EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId, true
             ));
         return calls;
+    }
+
+    @Override
+    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
+        return loadProcessFromSide(startTB, endTB, serviceInstanceId, DetectPoint.CLIENT);
+    }
+
+    @Override
+    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
+        return loadProcessFromSide(startTB, endTB, serviceInstanceId, DetectPoint.SERVER);
     }
 
     private List<Call.CallDetail> loadServiceCalls(String tableName,
@@ -240,6 +252,33 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         return calls;
     }
 
+    private List<Call.CallDetail> loadProcessFromSide(long startTB,
+                                                       long endTB,
+                                                       String instanceId,
+                                                       DetectPoint detectPoint) throws IOException {
+        Object[] conditions = new Object[3];
+        conditions[0] = startTB;
+        conditions[1] = endTB;
+        conditions[2] = instanceId;
+        List<Call.CallDetail> calls = new ArrayList<>();
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection,
+                "select " + Metrics.ENTITY_ID +  ", " + ProcessRelationServerSideMetrics.COMPONENT_ID
+                    + " from " + (detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME)
+                    + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and "
+                    + ProcessRelationClientSideMetrics.SERVICE_INSTANCE_ID + "=?"
+                    + " group by " + Metrics.ENTITY_ID + ", " + ProcessRelationServerSideMetrics.COMPONENT_ID,
+                conditions
+            )) {
+                buildProcessCalls(resultSet, calls, detectPoint);
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+        return calls;
+    }
+
     private void buildServiceCalls(ResultSet resultSet, List<Call.CallDetail> calls,
                                    DetectPoint detectPoint) throws SQLException {
         while (resultSet.next()) {
@@ -268,6 +307,17 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
             call.buildFromEndpointRelation(entityId, detectPoint);
+            calls.add(call);
+        }
+    }
+
+    private void buildProcessCalls(ResultSet resultSet, List<Call.CallDetail> calls,
+                                    DetectPoint detectPoint) throws SQLException {
+        while (resultSet.next()) {
+            Call.CallDetail call = new Call.CallDetail();
+            String entityId = resultSet.getString(Metrics.ENTITY_ID);
+            int componentId = resultSet.getInt(ProcessRelationServerSideMetrics.COMPONENT_ID);
+            call.buildProcessRelation(entityId, componentId, detectPoint);
             calls.add(call);
         }
     }

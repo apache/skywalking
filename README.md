@@ -18,19 +18,21 @@ microservices, cloud native and container-based architectures.
 in Cloud Native architecture.
 The core features are following.
 
-- Service, service instance, endpoint metrics analysis
-- Root cause analysis. Profile the code on the runtime powered by in-process agent and ebpf profiler.
+- Service, service instance, endpoint(URI) metrics analysis
+- Root cause analysis. 
+  - Profile the code on the runtime powered by in-process agent and ebpf profiler.
+  - Network profiler for TCP, TCP/TLS, HTTP(s) traffic
 - Service topology map analysis
-- Service, service instance and endpoint dependency analysis
+- Service instance and endpoint(URI) dependency analysis
 - Slow services and endpoints detecting
 - Performance optimization
 - Distributed tracing and context propagation
 - Database access metrics. Detect slow database access statements(including SQL statements)
 - Message Queue performance and consuming latency monitoring
-- Alarm
 - Browser performance monitoring
 - Infrastructure(VM, network, disk etc.) monitoring
 - Collaboration across metrics, traces, and logs
+- Alerting
 
 <img src="https://skywalking.apache.org/images/home/architecture.svg?t=20220513"/>
 
@@ -40,11 +42,11 @@ including
 1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
 2. Go, C++, and Rust SDKs.
 3. [Agent profiling](https://skywalking.apache.org/docs/main/latest/en/concepts-and-designs/sdk-profiling/) for Java and Python.
-4. [ebpf profiling](https://github.com/apache/skywalking-rover) C, C++, Golang, and Rust.
+4. [ebpf](https://github.com/apache/skywalking-rover) network profling and ON/OFF CPU profiling.
 5. LUA agent especially for Nginx, OpenResty and Apache APISIX.
 6. Browser agent.
 7. Service Mesh Observability. Control plane and data plane.
-8. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer), Zabbix.
+8. Metrics system, including Prometheus, OpenTelemetry, Micrometer(Spring Sleuth), Zabbix.
 9. Logs.
 10. Zipkin v1/v2 trace.(No Analysis)
 

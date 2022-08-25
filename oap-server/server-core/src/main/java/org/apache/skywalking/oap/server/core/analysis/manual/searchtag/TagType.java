@@ -20,5 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.manual.searchtag;
 
 public enum TagType {
     TRACE,
-    LOG
+    LOG,
+    ZIPKIN
 }

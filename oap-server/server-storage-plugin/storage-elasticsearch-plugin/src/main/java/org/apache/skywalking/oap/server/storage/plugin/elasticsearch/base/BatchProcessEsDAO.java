@@ -52,7 +52,8 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
         if (bulkProcessor == null) {
             synchronized (this) {
                 if (bulkProcessor == null) {
-                    this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
+                    this.bulkProcessor = getClient().createBulkProcessor(
+                        bulkActions, flushInterval, concurrentRequests);
                 }
             }
         }
@@ -65,7 +66,8 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
         if (bulkProcessor == null) {
             synchronized (this) {
                 if (bulkProcessor == null) {
-                    this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
+                    this.bulkProcessor = getClient().createBulkProcessor(
+                        bulkActions, flushInterval, concurrentRequests);
                 }
             }
         }
@@ -80,5 +82,11 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
             }).toArray(CompletableFuture[]::new));
         }
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public void endOfFlush() {
+        // Flush forcedly due to this kind of metrics has been pushed into the bulk processor.
+        bulkProcessor.flush();
     }
 }

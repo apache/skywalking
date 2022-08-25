@@ -14,6 +14,7 @@ Natively supported storage:
 - MySQL
 - TiDB
 - PostgreSQL
+- BanyanDB
 
 
 ## H2
@@ -35,6 +36,7 @@ storage:
 
 ## OpenSearch
 
+OpenSearch is a fork from ElasticSearch 7.11 but licensed in Apache 2.0.
 OpenSearch storage shares the same configurations as ElasticSearch.
 In order to activate OpenSearch as storage, set the storage provider to **elasticsearch**.
 
@@ -43,6 +45,25 @@ In order to activate OpenSearch as storage, set the storage provider to **elasti
 **NOTE:** Elastic announced through their blog that Elasticsearch will be moving over to a Server Side Public
 License (SSPL), which is incompatible with Apache License 2.0. This license change is effective from Elasticsearch
 version 7.11. So please choose the suitable ElasticSearch version according to your usage.
+If you have concerns about SSPL, choose the versions before 7.11 or switch to OpenSearch.
+
+Since 9.2.0, SkyWalking provides no-sharding/one-index mode to merge all metrics/meter and records(without super datasets) 
+indices into one physical index template `metrics-all` and `records-all` on the default setting.
+In the current one index mode, users still could choose to adjust ElasticSearch's shard number(`SW_STORAGE_ES_INDEX_SHARDS_NUMBER`) to scale out.
+After merge all indices, the following indices are available:
+
+* sw_ui_template
+* sw_metrics-all-`${day-format}`
+* sw_log-`${day-format}`
+* sw_segment-`${day-format}`
+* sw_browser_error_log-`${day-format}`
+* sw_zipkin_span-`${day-format}`
+* sw_records-all-`${day-format}`
+
+___
+Provide system environment variable(`SW_STORAGE_ES_LOGIC_SHARDING`). Set it to `true` could shard metrics indices into multi-physical indices 
+as same as the versions(one index template per metric/meter aggregation function) before 9.2.0.
+___
 
 Since 8.8.0, SkyWalking rebuilds the ElasticSearch client on top of ElasticSearch REST API and automatically picks up
 correct request formats according to the server-side version, hence you don't need to download different binaries
@@ -78,9 +99,11 @@ storage:
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
+    profileDataQueryScrollBatchSize: ${SW_STORAGE_ES_QUERY_PROFILE_DATA_SCROLLING_BATCH_SIZE:100}
     oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
+    logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
 ```
 
 ### ElasticSearch With Https SSL Encrypting communications.
@@ -158,28 +181,6 @@ index.max_result_window: 1000000
 ```
 
 We strongly recommend that you read more about these configurations from ElasticSearch's official documentation since they directly impact the performance of ElasticSearch.
-
-
-### ElasticSearch with Zipkin trace extension
-This implementation is very similar to `elasticsearch`, except that it extends to support Zipkin span storage.
-The configurations are largely the same.
-```yaml
-storage:
-  selector: ${SW_STORAGE:zipkin-elasticsearch}
-  zipkin-elasticsearch:
-    namespace: ${SW_NAMESPACE:""}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
-    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
-    user: ${SW_ES_USER:""}
-    password: ${SW_ES_PASSWORD:""}
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
-    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
-    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
-    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
-    bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
-    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
-    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
-```
 
 ### About Namespace
 When a namespace is set, all index names in ElasticSearch will use it as the prefix.
@@ -262,6 +263,26 @@ storage:
 All connection-related settings, including URL link, username, and password, are found in `application.yml`. 
 Only part of the settings is listed here. Please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
 
+## BanyanDB
+[BanyanDB](https://github.com/apache/skywalking-banyandb) is a dedicated storage implementation developed by the SkyWalking Team and the community.
+Activate BanyanDB as the storage, and set storage provider to **banyandb**.
+
+```yaml
+storage:
+  banyandb:
+    host: ${SW_STORAGE_BANYANDB_HOST:127.0.0.1}
+    port: ${SW_STORAGE_BANYANDB_PORT:17912}
+    maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
+    flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
+    metricsShardsNumber: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_NUMBER:1}
+    recordShardsNumber: ${SW_STORAGE_BANYANDB_RECORD_SHARDS_NUMBER:1}
+    superDatasetShardsFactor: ${SW_STORAGE_BANYANDB_SUPERDATASET_SHARDS_FACTOR:2}
+    concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
+    profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
+```
+
+For more details, please refer to the documents of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/latest/readme/) 
+and [BanyanDB Java Client](https://github.com/apache/skywalking-banyandb-java-client) subprojects.
 
 ## More storage extension solutions
 Follow the [Storage extension development guide](../../guides/storage-extention.md) 

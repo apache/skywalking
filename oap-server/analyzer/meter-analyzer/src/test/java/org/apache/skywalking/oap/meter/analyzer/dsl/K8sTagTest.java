@@ -19,17 +19,23 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import com.google.common.collect.ImmutableMap;
+import io.kubernetes.client.openapi.models.V1LoadBalancerIngress;
+import io.kubernetes.client.openapi.models.V1LoadBalancerStatus;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1PodStatus;
 import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceSpec;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+
+import io.kubernetes.client.openapi.models.V1ServiceStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.Retag;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -204,6 +210,37 @@ public class K8sTagTest {
                 ).build()),
                 false,
                 },
+            {
+                "IPAddress_to_name",
+                of("rover_network_profiling_process_write_bytes", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                        .labels(
+                            of("service", "test", "instance", "test-instance", "side", "client",
+                                "client_address", "1.1.1.1", "server_address", "2.2.2.2")
+                        )
+                        .value(2)
+                        .name("rover_network_profiling_process_write_bytes")
+                        .build()
+                ).build()),
+                "rover_network_profiling_process_write_bytes.forEach(['client', 'server'] , " +
+                    "{prefix, tags -> tags[prefix + '_process_id'] = ProcessRegistry.generateVirtualRemoteProcess(tags.service, tags.instance, tags[prefix + '_address'])})",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                        .labels(
+                            of("service", "test", "instance", "test-instance", "side", "client",
+                                "client_address", "1.1.1.1", "client_process_id", IDManager.ProcessID.buildId(
+                                    IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId("test", true), "test-instance"),
+                                    "my-nginx-5dc4865748-mbczh.default"),
+                                "server_address", "2.2.2.2", "server_process_id", IDManager.ProcessID.buildId(
+                                    IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId("test", true), "test-instance"),
+                                    "kube-state-metrics.kube-system"))
+                        )
+                        .value(2)
+                        .name("rover_network_profiling_process_write_bytes")
+                        .build()
+                ).build()),
+                false,
+            }
             });
     }
 
@@ -213,36 +250,37 @@ public class K8sTagTest {
         Whitebox.setInternalState(K8sInfoRegistry.class, "INSTANCE",
                                   Mockito.spy(K8sInfoRegistry.getInstance())
         );
+        PowerMockito.doNothing().when(K8sInfoRegistry.getInstance(), "start");
 
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addService", mockService("nginx-service", "default", of("run", "nginx")))
+            K8sInfoRegistry.getInstance(), "onServiceAdded", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
                     .thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addService",
-            mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"))
+            K8sInfoRegistry.getInstance(), "onServiceAdded",
+            mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"), "2.2.2.2")
         ).thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addPod",
-            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"))
+            K8sInfoRegistry.getInstance(), "onPodAdded",
+            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1")
         ).thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addPod",
-            mockPod("kube-state-metrics-6f979fd498-z7xwx", "kube-system", of("run", "kube-state-metrics"))
+            K8sInfoRegistry.getInstance(), "onPodAdded",
+            mockPod("kube-state-metrics-6f979fd498-z7xwx", "kube-system", of("run", "kube-state-metrics"), "1.1.1.2")
         ).thenCallRealMethod();
 
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "removeService", mockService("nginx-service", "default", of("run", "nginx")))
+            K8sInfoRegistry.getInstance(), "onServiceDeleted", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
                     .thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "removePod",
-            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"))
+            K8sInfoRegistry.getInstance(), "onPodDeleted",
+            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1")
         ).thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addService", mockService("nginx-service", "default", of("run", "nginx")))
+            K8sInfoRegistry.getInstance(), "onServiceAdded", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
                     .thenCallRealMethod();
         PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addPod",
-            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"))
+            K8sInfoRegistry.getInstance(), "onPodAdded",
+            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1")
         ).thenCallRealMethod();
 
     }
@@ -266,7 +304,7 @@ public class K8sTagTest {
         assertThat(r, is(want));
     }
 
-    private V1Service mockService(String name, String namespace, Map<String, String> selector) {
+    private V1Service mockService(String name, String namespace, Map<String, String> selector, String ipAddress) {
         V1Service service = new V1Service();
         V1ObjectMeta serviceMeta = new V1ObjectMeta();
         V1ServiceSpec v1ServiceSpec = new V1ServiceSpec();
@@ -277,15 +315,26 @@ public class K8sTagTest {
         v1ServiceSpec.setSelector(selector);
         service.setSpec(v1ServiceSpec);
 
+        final V1ServiceStatus v1ServiceStatus = new V1ServiceStatus();
+        final V1LoadBalancerStatus balancerStatus = new V1LoadBalancerStatus();
+        final V1LoadBalancerIngress loadBalancerIngress = new V1LoadBalancerIngress();
+        loadBalancerIngress.setIp(ipAddress);
+        balancerStatus.setIngress(Arrays.asList(loadBalancerIngress));
+        v1ServiceStatus.setLoadBalancer(balancerStatus);
+        service.setStatus(v1ServiceStatus);
+
         return service;
     }
 
-    private V1Pod mockPod(String name, String namespace, Map<String, String> labels) {
+    private V1Pod mockPod(String name, String namespace, Map<String, String> labels, String ipAddress) {
         V1Pod v1Pod = new V1Pod();
         V1ObjectMeta podMeta = new V1ObjectMeta();
         podMeta.setName(name);
         podMeta.setNamespace(namespace);
         podMeta.setLabels(labels);
+        final V1PodStatus status = new V1PodStatus();
+        status.setPodIP(ipAddress);
+        v1Pod.setStatus(status);
         v1Pod.setMetadata(podMeta);
 
         return v1Pod;

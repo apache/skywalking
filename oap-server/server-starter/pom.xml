@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.1.0-SNAPSHOT</version>
+        <version>9.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -104,6 +104,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>zipkin-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>zipkin-query-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -304,7 +309,7 @@
                         <exclude>envoy-metrics-rules/</exclude>
                         <exclude>meter-analyzer-config/</exclude>
                         <exclude>openapi-definitions/</exclude>
-                        <exclude>otel-oc-rules/</exclude>
+                        <exclude>otel-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>
                         <exclude>zabbix-rules/</exclude>
                         <exclude>lal/</exclude>

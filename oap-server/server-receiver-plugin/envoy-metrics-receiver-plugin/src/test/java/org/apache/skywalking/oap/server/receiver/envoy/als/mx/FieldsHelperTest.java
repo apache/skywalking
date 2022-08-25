@@ -32,8 +32,7 @@ import org.junit.runners.Parameterized;
 import org.powermock.reflect.Whitebox;
 
 import static org.apache.skywalking.oap.server.receiver.envoy.als.k8s.K8SALSServiceMeshHTTPAnalysisTest.getResourceAsStream;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Parameterized.class)
 public class FieldsHelperTest {
@@ -50,6 +49,11 @@ public class FieldsHelperTest {
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
+            {
+                "serviceName: ${LABELS.\"service.istio.io/canonical-name\",LABELS.\"app.kubernetes.io/name\",LABELS.app}\nserviceInstanceName: ${NAME}",
+                "productpage",
+                "productpage-v1-65576bb7bf-4mzsp"
+            },
             {
                 "serviceName: ${LABELS.\"service.istio.io/canonical-name\"}\nserviceInstanceName: ${NAME}",
                 "productpage",
@@ -99,7 +103,7 @@ public class FieldsHelperTest {
                 requestBuilder.getIdentifier().getNode().getMetadata(),
                 info
             );
-            assertThat(info.getServiceName(), equalTo(expectedServiceName));
+            assertThat(info.getServiceName()).isEqualTo(expectedServiceName);
         }
     }
 }

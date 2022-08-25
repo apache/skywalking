@@ -73,11 +73,14 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
             SegmentRecord.TIME_BUCKET,
             SegmentRecord.DATA_BINARY);
 
+    private final int querySegmentMaxSize;
+
     protected final ProfileThreadSnapshotRecord.Builder builder =
             new ProfileThreadSnapshotRecord.Builder();
 
-    public BanyanDBProfileThreadSnapshotQueryDAO(BanyanDBStorageClient client) {
+    public BanyanDBProfileThreadSnapshotQueryDAO(BanyanDBStorageClient client, int profileTaskQueryMaxSize) {
         super(client);
+        this.querySegmentMaxSize = profileTaskQueryMaxSize;
     }
 
     @Override
@@ -89,6 +92,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
                     public void apply(StreamQuery query) {
                         query.and(eq(ProfileThreadSnapshotRecord.TASK_ID, taskId))
                                 .and(eq(ProfileThreadSnapshotRecord.SEQUENCE, 0L));
+                        query.setLimit(querySegmentMaxSize);
                     }
                 });
 

@@ -50,7 +50,9 @@ public class EBPFProfilingScheduleEsDAO extends EsDAO implements IEBPFProfilingS
         final String index =
                 IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingScheduleRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
-
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(EBPFProfilingScheduleRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, EBPFProfilingScheduleRecord.INDEX_NAME));
+        }
         query.must(Query.term(EBPFProfilingScheduleRecord.TASK_ID, taskId));
         query.must(Query.range(EBPFProfilingScheduleRecord.START_TIME));
         final SearchBuilder search = Search.builder().query(query)
@@ -63,7 +65,7 @@ public class EBPFProfilingScheduleEsDAO extends EsDAO implements IEBPFProfilingS
 
     private EBPFProfilingSchedule parseSchedule(final SearchHit hit) {
         final EBPFProfilingSchedule schedule = new EBPFProfilingSchedule();
-        schedule.setScheduleId(hit.getId());
+        schedule.setScheduleId((String) hit.getSource().get(EBPFProfilingScheduleRecord.EBPF_PROFILING_SCHEDULE_ID));
         schedule.setTaskId((String) hit.getSource().get(EBPFProfilingScheduleRecord.TASK_ID));
         schedule.setProcessId((String) hit.getSource().get(EBPFProfilingScheduleRecord.PROCESS_ID));
         schedule.setStartTime(((Number) hit.getSource().get(EBPFProfilingScheduleRecord.START_TIME)).longValue());

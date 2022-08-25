@@ -201,33 +201,19 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, String instanceId, String agentId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+    public List<Process> listProcesses(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
-                PROCESS_TRAFFIC_TAGS,
-                Collections.emptySet(),
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        if (StringUtil.isNotEmpty(serviceId)) {
-                            query.and(eq(ProcessTraffic.SERVICE_ID, serviceId));
-                        }
-                        if (StringUtil.isNotEmpty(instanceId)) {
-                            query.and(eq(ProcessTraffic.INSTANCE_ID, instanceId));
-                        }
-                        if (StringUtil.isNotEmpty(agentId)) {
-                            query.and(eq(ProcessTraffic.AGENT_ID, agentId));
-                        }
-                        if (lastPingStartTimeBucket > 0) {
-                            query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
-                        }
-                        if (lastPingEndTimeBucket > 0) {
-                            query.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingEndTimeBucket));
-                        }
-                        if (profilingSupportStatus != null) {
-                            query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
-                        }
-                    }
-                });
+            PROCESS_TRAFFIC_TAGS,
+            Collections.emptySet(),
+            new QueryBuilder<MeasureQuery>() {
+                @Override
+                protected void apply(MeasureQuery query) {
+                    query.and(eq(ProcessTraffic.SERVICE_ID, serviceId));
+                    query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
+                    query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, supportStatus.value()));
+                    query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
+                }
+            });
 
         final List<Process> processes = new ArrayList<>();
 
@@ -239,38 +225,88 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public long getProcessesCount(String serviceId, String instanceId, String agentId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+    public List<Process> listProcesses(String serviceInstanceId, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
-                PROCESS_TRAFFIC_TAGS,
-                Collections.emptySet(),
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        if (StringUtil.isNotEmpty(serviceId)) {
-                            query.and(eq(ProcessTraffic.SERVICE_ID, serviceId));
-                        }
-                        if (StringUtil.isNotEmpty(instanceId)) {
-                            query.and(eq(ProcessTraffic.INSTANCE_ID, instanceId));
-                        }
-                        if (StringUtil.isNotEmpty(agentId)) {
-                            query.and(eq(ProcessTraffic.AGENT_ID, instanceId));
-                        }
-                        if (lastPingStartTimeBucket > 0) {
-                            query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
-                        }
-                        if (lastPingEndTimeBucket > 0) {
-                            query.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingEndTimeBucket));
-                        }
-                        if (profilingSupportStatus != null) {
-                            query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
-                        }
-                    }
-                });
+            PROCESS_TRAFFIC_TAGS,
+            Collections.emptySet(),
+            new QueryBuilder<MeasureQuery>() {
+                @Override
+                protected void apply(MeasureQuery query) {
+                    query.and(eq(ProcessTraffic.INSTANCE_ID, serviceInstanceId));
+                    query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
+                    query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
+                }
+            });
+
+        final List<Process> processes = new ArrayList<>();
+
+        for (final DataPoint dataPoint : resp.getDataPoints()) {
+            processes.add(buildProcess(dataPoint));
+        }
+
+        return processes;
+    }
+
+    @Override
+    public List<Process> listProcesses(String agentId) throws IOException {
+        MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
+            PROCESS_TRAFFIC_TAGS,
+            Collections.emptySet(),
+            new QueryBuilder<MeasureQuery>() {
+                @Override
+                protected void apply(MeasureQuery query) {
+                    query.and(eq(ProcessTraffic.AGENT_ID, agentId));
+                    query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
+                }
+            });
+
+        final List<Process> processes = new ArrayList<>();
+
+        for (final DataPoint dataPoint : resp.getDataPoints()) {
+            processes.add(buildProcess(dataPoint));
+        }
+
+        return processes;
+    }
+
+    @Override
+    public long getProcessCount(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+        MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
+            PROCESS_TRAFFIC_TAGS,
+            Collections.emptySet(),
+            new QueryBuilder<MeasureQuery>() {
+                @Override
+                protected void apply(MeasureQuery query) {
+                    query.and(eq(ProcessTraffic.SERVICE_ID, serviceId));
+                    query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
+                    query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
+                    query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
+                }
+            });
 
         return resp.getDataPoints()
-                .stream()
-                .collect(Collectors.groupingBy((Function<DataPoint, String>) dataPoint -> dataPoint.getTagValue(ProcessTraffic.PROPERTIES)))
-                .size();
+            .stream()
+            .collect(Collectors.groupingBy((Function<DataPoint, String>) dataPoint -> dataPoint.getTagValue(ProcessTraffic.PROPERTIES)))
+            .size();
+    }
+
+    @Override
+    public long getProcessCount(String instanceId) throws IOException {
+        MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
+            PROCESS_TRAFFIC_TAGS,
+            Collections.emptySet(),
+            new QueryBuilder<MeasureQuery>() {
+                @Override
+                protected void apply(MeasureQuery query) {
+                    query.and(eq(ProcessTraffic.INSTANCE_ID, instanceId));
+                    query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
+                }
+            });
+
+        return resp.getDataPoints()
+            .stream()
+            .collect(Collectors.groupingBy((Function<DataPoint, String>) dataPoint -> dataPoint.getTagValue(ProcessTraffic.PROPERTIES)))
+            .size();
     }
 
     @Override
@@ -348,6 +384,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         process.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
         process.setAgentId(dataPoint.getTagValue(ProcessTraffic.AGENT_ID));
         process.setDetectType(ProcessDetectType.valueOf(((Number) dataPoint.getTagValue(ProcessTraffic.DETECT_TYPE)).intValue()).name());
+        process.setProfilingSupportStatus(ProfilingSupportStatus.valueOf(((Number) dataPoint.getTagValue(ProcessTraffic.PROFILING_SUPPORT_STATUS)).intValue()).name());
 
         String propString = dataPoint.getTagValue(ProcessTraffic.PROPERTIES);
         if (!Strings.isNullOrEmpty(propString)) {

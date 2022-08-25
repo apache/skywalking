@@ -63,6 +63,7 @@ public class ServiceTraffic extends Metrics {
     @Getter
     @Column(columnName = NAME)
     @ElasticSearch.MatchQuery
+    @ElasticSearch.Column(columnAlias = "service_traffic_name")
     private String name = Const.EMPTY_STRING;
 
     @Setter

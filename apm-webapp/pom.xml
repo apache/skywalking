@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.1.0-SNAPSHOT</version>
+        <version>9.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -39,7 +39,7 @@
         <logback-classic.version>1.2.11</logback-classic.version>
         <jackson-version>2.13.2.2</jackson-version>
         <yaml.version>1.28</yaml.version>
-        <netty.version>4.1.76.Final</netty.version>
+        <netty.version>4.1.77.Final</netty.version>
 
         <ui.path>${project.parent.basedir}/skywalking-ui</ui.path>
     </properties>

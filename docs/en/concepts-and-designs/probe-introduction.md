@@ -5,7 +5,7 @@ telemetry data, including tracing and metrics. Depending on the target system te
 how the probe performs such tasks. But ultimately, they all work towards the same goal — to collect and reformat data,
 and then to send them to the backend.
 
-On a high level, there are three typical categories in all SkyWalking probes.
+On a high level, there are four typical categories in all SkyWalking probes.
 
 - **Language based native agent**. These agents run in target service user spaces, such as a part of user codes. For
   example, the SkyWalking Java agent uses the `-javaagent` command line argument to manipulate codes in runtime,
@@ -21,6 +21,8 @@ On a high level, there are three typical categories in all SkyWalking probes.
   span data. See
   [Receiver for Zipkin traces](../setup/backend/zipkin-trace.md) for more information.
 
+- **eBPF agent**. The eBPF agent collects metrics and profiling the target service powered by the eBPF technology of Linux kernel.
+
 You don't need to use **Language based native agent** and **Service Mesh probe** at the same time, since they both serve
 to collect metrics data. Otherwise, your system will suffer twice the payload, and the analytic numbers will be doubled.
 
@@ -31,6 +33,8 @@ There are several recommended ways on how to use these probes:
 1. Use **Service Mesh probe** only.
 1. Use **Service Mesh probe** with **Language based native agent** or **3rd-party instrument library** in tracing
    status. (Advanced usage)
+1. Use **eBPF agent** only.
+1. Use **eBPF agent** with **Language based native agent** collaboratively.
 
 What is the meaning of **in tracing status**?
 

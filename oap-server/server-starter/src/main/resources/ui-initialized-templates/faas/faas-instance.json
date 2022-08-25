@@ -22,22 +22,11 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 12,
           "w": 24,
           "h": 52,
           "i": "0",
           "type": "Tab",
-          "widget": {
-            "title": "Title"
-          },
-          "graph": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
@@ -50,7 +39,8 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Function Instance Latency (ms)"
+                    "title": "Function Instance Latency (ms)",
+                    "name": "Latency"
                   },
                   "graph": {
                     "type": "Line",
@@ -66,7 +56,16 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "0-0-0",
+                  "label": "0-0-0",
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -76,7 +75,8 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Function Instance Success Rate (%)"
+                    "title": "Function Instance Success Rate (%)",
+                    "name": "Success_Rate"
                   },
                   "graph": {
                     "type": "Line",
@@ -92,10 +92,19 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "percentage"
+                    }
+                  ],
+                  "value": "0-0-1",
+                  "label": "Success_Rate",
+                  "associate": [
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-3"
                     }
                   ]
                 },
@@ -108,7 +117,8 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Function Instance Load (calls / min)",
-                    "tips": "For HTTP 1/2, gRPC, RPC functions, this means Calls Per Minute (calls / min)"
+                    "tips": "For HTTP 1/2, gRPC, RPC functions, this means Calls Per Minute (calls / min)",
+                    "name": "Function_Instance_Load"
                   },
                   "graph": {
                     "type": "Line",
@@ -124,7 +134,16 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "0-0-3",
+                  "label": "Function_Instance_Load",
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    }
+                  ]
                 }
               ]
             },
@@ -137,23 +156,33 @@
                   "w": 24,
                   "h": 49,
                   "i": "0",
-                  "type": "Trace",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Trace"
+                }
+              ]
+            },
+            {
+              "name": "Pod Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 44,
+                  "i": "0",
+                  "type": "DemandLog"
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 12,
+          "i": "1",
+          "type": "Event",
+          "eventAssociate": true
         }
       ],
       "layer": "FAAS",

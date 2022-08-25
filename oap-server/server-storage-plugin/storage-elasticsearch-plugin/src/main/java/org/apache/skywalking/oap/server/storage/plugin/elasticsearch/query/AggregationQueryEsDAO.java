@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 
 public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO {
 
@@ -59,11 +60,9 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         final SearchBuilder search = Search.builder();
 
         final boolean asc = condition.getOrder().equals(Order.ASC);
-        final String tableName =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
 
         if (CollectionUtils.isEmpty(additionalConditions)
-            && IndexController.LogicIndicesRegister.isMetricTable(condition.getName())) {
+            && IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
             final BoolQueryBuilder boolQuery =
                 Query.bool()
                      .must(basicQuery)
@@ -75,7 +74,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         } else if (CollectionUtils.isEmpty(additionalConditions)) {
             search.query(basicQuery);
         } else if (CollectionUtils.isNotEmpty(additionalConditions)
-            && IndexController.LogicIndicesRegister.isMetricTable(condition.getName())) {
+            && IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
             final BoolQueryBuilder boolQuery =
                 Query.bool()
                      .must(Query.term(
@@ -110,7 +109,10 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                        .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                        .build());
 
-        final SearchResponse response = getClient().search(tableName, search.build());
+        final SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
+            IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()),
+            duration.getStartTimeBucketInSec(),
+            duration.getEndTimeBucketInSec()), search.build());
 
         final List<SelectedRecord> topNList = new ArrayList<>();
         final Map<String, Object> idTerms =

@@ -49,7 +49,7 @@ processors:
 ```
 
 Note: If you try the sample Istio Prometheus Kubernetes configuration, 
-you may experience [an issue](https://github.com/open-telemetry/opentelemetry-collector/issues/2163). 
+you may experience [an issue](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/4980). 
 Try to fix it using the solution described in the issue.
 
 #### OpenCensus exporter

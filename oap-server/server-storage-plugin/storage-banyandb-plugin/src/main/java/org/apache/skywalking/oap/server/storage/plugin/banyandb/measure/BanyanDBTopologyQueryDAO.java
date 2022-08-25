@@ -25,9 +25,13 @@ import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
@@ -106,19 +110,21 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         if (startTB > 0 && endTB > 0) {
             timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
+        final String modelName = detectPoint == DetectPoint.SERVER ? ServiceRelationServerSideMetrics.INDEX_NAME :
+                ServiceRelationClientSideMetrics.INDEX_NAME;
         final Map<String, Call.CallDetail> callMap = new HashMap<>();
         for (final QueryBuilder<MeasureQuery> q : queryBuilderList) {
-            MeasureQueryResponse resp = query(ServiceRelationClientSideMetrics.INDEX_NAME,
+            MeasureQueryResponse resp = query(modelName,
                     ImmutableSet.of(ServiceRelationClientSideMetrics.COMPONENT_ID,
                             ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
                             ServiceRelationClientSideMetrics.DEST_SERVICE_ID,
-                            ServiceRelationClientSideMetrics.ENTITY_ID),
+                            Metrics.ENTITY_ID),
                     Collections.emptySet(), timestampRange, q);
             if (resp.size() == 0) {
                 continue;
             }
             final Call.CallDetail call = new Call.CallDetail();
-            final String entityId = resp.getDataPoints().get(0).getTagValue(ServiceRelationClientSideMetrics.ENTITY_ID);
+            final String entityId = resp.getDataPoints().get(0).getTagValue(Metrics.ENTITY_ID);
             final int componentId = ((Number) resp.getDataPoints().get(0).getTagValue(ServiceRelationClientSideMetrics.COMPONENT_ID)).intValue();
             call.buildFromServiceRelation(entityId, componentId, detectPoint);
             callMap.putIfAbsent(entityId, call);
@@ -163,19 +169,21 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         if (startTB > 0 && endTB > 0) {
             timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
+        final String modelName = detectPoint == DetectPoint.SERVER ? ServiceInstanceRelationServerSideMetrics.INDEX_NAME :
+            ServiceInstanceRelationClientSideMetrics.INDEX_NAME;
         final Map<String, Call.CallDetail> callMap = new HashMap<>();
         for (final QueryBuilder<MeasureQuery> q : queryBuilderList) {
-            MeasureQueryResponse resp = query(ServiceInstanceRelationServerSideMetrics.INDEX_NAME,
+            MeasureQueryResponse resp = query(modelName,
                     ImmutableSet.of(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID,
                             ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
                             ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID,
-                            ServiceInstanceRelationServerSideMetrics.ENTITY_ID),
+                            Metrics.ENTITY_ID),
                     Collections.emptySet(), timestampRange, q);
             if (resp.size() == 0) {
                 continue;
             }
             final Call.CallDetail call = new Call.CallDetail();
-            final String entityId = resp.getDataPoints().get(0).getTagValue(ServiceInstanceRelationServerSideMetrics.ENTITY_ID);
+            final String entityId = resp.getDataPoints().get(0).getTagValue(Metrics.ENTITY_ID);
             final int componentId = ((Number) resp.getDataPoints().get(0).getTagValue(ServiceRelationClientSideMetrics.COMPONENT_ID)).intValue();
             call.buildFromInstanceRelation(entityId, componentId, detectPoint);
             callMap.putIfAbsent(entityId, call);
@@ -187,6 +195,16 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
     public List<Call.CallDetail> loadEndpointRelation(long startTB, long endTB, String destEndpointId) throws IOException {
         List<QueryBuilder<MeasureQuery>> queryBuilderList = buildEndpointRelationsQueries(destEndpointId);
         return queryEndpointRelation(startTB, endTB, queryBuilderList, DetectPoint.SERVER);
+    }
+
+    @Override
+    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
+        return queryProcessRelation(startTB, endTB, serviceInstanceId, DetectPoint.CLIENT);
+    }
+
+    @Override
+    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
+        return queryProcessRelation(startTB, endTB, serviceInstanceId, DetectPoint.SERVER);
     }
 
     private List<QueryBuilder<MeasureQuery>> buildEndpointRelationsQueries(String destEndpointId) {
@@ -217,16 +235,40 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
             MeasureQueryResponse resp = query(EndpointRelationServerSideMetrics.INDEX_NAME,
                     ImmutableSet.of(EndpointRelationServerSideMetrics.DEST_ENDPOINT,
                             EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
-                            EndpointRelationServerSideMetrics.ENTITY_ID),
+                            Metrics.ENTITY_ID),
                     Collections.emptySet(), timestampRange, q);
             if (resp.size() == 0) {
                 continue;
             }
             final Call.CallDetail call = new Call.CallDetail();
-            final String entityId = resp.getDataPoints().get(0).getTagValue(EndpointRelationServerSideMetrics.ENTITY_ID);
+            final String entityId = resp.getDataPoints().get(0).getTagValue(Metrics.ENTITY_ID);
             call.buildFromEndpointRelation(entityId, detectPoint);
             callMap.putIfAbsent(entityId, call);
         }
+        return new ArrayList<>(callMap.values());
+    }
+
+    List<Call.CallDetail> queryProcessRelation(long startTB, long endTB, String serviceInstanceId, DetectPoint detectPoint) throws IOException {
+        TimestampRange timestampRange = null;
+        if (startTB > 0 && endTB > 0) {
+            timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
+        }
+        final String modelName = detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME :
+            ProcessRelationClientSideMetrics.INDEX_NAME;
+        final Map<String, Call.CallDetail> callMap = new HashMap<>();
+        MeasureQueryResponse resp = query(modelName,
+            ImmutableSet.of(Metrics.ENTITY_ID, ProcessRelationClientSideMetrics.COMPONENT_ID),
+            Collections.emptySet(), timestampRange, new QueryBuilder<MeasureQuery>() {
+                @Override
+                protected void apply(MeasureQuery query) {
+                    query.and(eq(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID, serviceInstanceId));
+                }
+            });
+        final Call.CallDetail call = new Call.CallDetail();
+        final String entityId = resp.getDataPoints().get(0).getTagValue(Metrics.ENTITY_ID);
+        final int componentId = ((Number) resp.getDataPoints().get(0).getTagValue(ProcessRelationClientSideMetrics.COMPONENT_ID)).intValue();
+        call.buildProcessRelation(entityId, componentId, detectPoint);
+        callMap.putIfAbsent(entityId, call);
         return new ArrayList<>(callMap.values());
     }
 }

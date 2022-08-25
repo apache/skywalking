@@ -116,7 +116,22 @@ public enum Layer {
     /**
      * Kubernetes service
      */
-    K8S_SERVICE(17, true);
+    K8S_SERVICE(17, true),
+
+    /**
+     * MySQL Server, also known as mysqld, is a single multithreaded program that does most of the work in a MySQL installation. 
+     */
+    MYSQL(18, true),
+
+    /**
+     * Cache conjectured by client side plugin(eg. skywalking-java -> JedisPlugin LettucePlugin)
+     */
+    VIRTUAL_CACHE(19, false),
+
+    /**
+     * PostgreSQL is an advanced, enterprise-class, and open-source relational database system.
+     */
+    POSTGRESQL(20, true);
 
     private final int value;
     /**

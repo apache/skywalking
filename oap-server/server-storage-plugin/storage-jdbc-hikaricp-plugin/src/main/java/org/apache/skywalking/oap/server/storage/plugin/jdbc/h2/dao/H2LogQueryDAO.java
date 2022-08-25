@@ -105,9 +105,9 @@ public class H2LogQueryDAO implements ILogQueryDAO {
         sql.append(" where ");
         sql.append(" 1=1 ");
         if (startSecondTB != 0 && endSecondTB != 0) {
-            sql.append(" and ").append(AbstractLogRecord.TIME_BUCKET).append(" >= ?");
+            sql.append(" and ").append(LogRecord.INDEX_NAME).append(".").append(AbstractLogRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startSecondTB);
-            sql.append(" and ").append(AbstractLogRecord.TIME_BUCKET).append(" <= ?");
+            sql.append(" and ").append(LogRecord.INDEX_NAME).append(".").append(AbstractLogRecord.TIME_BUCKET).append(" <= ?");
             parameters.add(endSecondTB);
         }
 

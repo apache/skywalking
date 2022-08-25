@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -104,8 +105,10 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
     }
 
     public List<Process> listProcesses(final Duration duration, final String instanceId) throws IOException {
-        return getMetadataQueryDAO().listProcesses(null, instanceId, null, null,
-                duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        if (duration.getEndTimeBucket() < duration.getStartTimeBucket()) {
+            return Collections.emptyList();
+        }
+        return getMetadataQueryDAO().listProcesses(instanceId, duration.getStartTimeBucket(), duration.getEndTimeBucket());
     }
 
     public Process getProcess(String processId) throws IOException {
@@ -121,7 +124,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         }
         final long endTimestamp = System.currentTimeMillis();
         final long startTimestamp = endTimestamp - TimeUnit.MINUTES.toMillis(10);
-        final List<Process> processes = getMetadataQueryDAO().listProcesses(serviceId, null, null,
+        final List<Process> processes = getMetadataQueryDAO().listProcesses(serviceId,
                 ProfilingSupportStatus.SUPPORT_EBPF_PROFILING, TimeBucket.getTimeBucket(startTimestamp, DownSampling.Minute),
                 TimeBucket.getTimeBucket(endTimestamp, DownSampling.Minute));
         return CollectionUtils.isEmpty(processes) ?

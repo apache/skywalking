@@ -27,23 +27,25 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataDAO {
     private final int scrollingBatchSize;
 
     public EBPFProfilingDataEsDAO(ElasticSearchClient client, StorageModuleElasticsearchConfig config) {
         super(client);
-        this.scrollingBatchSize = config.getScrollingBatchSize();
+        this.scrollingBatchSize = config.getProfileDataQueryBatchSize();
     }
 
     @Override
@@ -51,6 +53,9 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
         final String index =
                 IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingDataRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(EBPFProfilingDataRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, EBPFProfilingDataRecord.INDEX_NAME));
+        }
         final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
         query.must(Query.terms(EBPFProfilingDataRecord.SCHEDULE_ID, scheduleIdList));
         query.must(Query.range(EBPFProfilingDataRecord.UPLOAD_TIME).gte(beginTime).lt(endTime));
@@ -59,9 +64,11 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
         final List<EBPFProfilingDataRecord> records = new ArrayList<>();
 
         SearchResponse results = getClient().search(index, search.build(), params);
-        while (true) {
-            final String scrollId = results.getScrollId();
-            try {
+        final Set<String> scrollIds = new HashSet<>();
+        try {
+            while (true) {
+                final String scrollId = results.getScrollId();
+                scrollIds.add(scrollId);
                 if (results.getHits().getTotal() == 0) {
                     break;
                 }
@@ -72,9 +79,9 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
                     break;
                 }
                 results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
-            } finally {
-                getClient().deleteScrollContextQuietly(scrollId);
             }
+        } finally {
+            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
         }
         return records;
     }
@@ -84,7 +91,7 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
         for (SearchHit hit : response.getHits()) {
             final Map<String, Object> sourceAsMap = hit.getSource();
             final EBPFProfilingDataRecord.Builder builder = new EBPFProfilingDataRecord.Builder();
-            records.add(builder.storage2Entity(new HashMapConverter.ToEntity(sourceAsMap)));
+            records.add(builder.storage2Entity(new ElasticSearchConverter.ToEntity(EBPFProfilingDataRecord.INDEX_NAME, sourceAsMap)));
         }
         return records;
     }

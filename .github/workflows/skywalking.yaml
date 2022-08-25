@@ -52,30 +52,62 @@ jobs:
         with:
           submodules: true
       - name: Check code style
-        run: ./mvnw clean checkstyle:check
+        run: ./mvnw -B -q clean checkstyle:check
+
+  dependency-license:
+    if: |
+      always() &&
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true')
+    name: Dependency licenses
+    needs: [ changes ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+          cache: 'maven'
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.16'
+      - name: Check Dependencies Licenses
+        run: |
+          go install github.com/apache/skywalking-eyes/cmd/license-eye@47febf5
+          license-eye dependency resolve --summary ./dist-material/release-docs/LICENSE.tpl || exit 1
+          if [ ! -z "$(git diff -U0 ./dist-material/release-docs/LICENSE)" ]; then
+            echo "LICENSE file is not updated correctly"
+            git diff -U0 ./dist-material/release-docs/LICENSE
+            exit 1
+          fi
 
   sanity-check:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    if: always() && (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Sanity check results
-    needs: [ license-header, code-style ]
+    needs: [ license-header, code-style, dependency-license ]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Check results
         run: |
-          [[ ${{ needs.license-header.result }} == 'success' ]] || exit -1;
-          [[ ${{ needs.code-style.result }} == 'success' ]] || exit -1;
+          [[ ${{ needs.license-header.result }} == 'success' ]] || exit 1;
+          [[ ${{ needs.code-style.result }} == 'success' ]] || exit 1;
+          [[ ${{ needs.dependency-license.result }} == 'success' ]] || [[ ${{ needs.dependency-license.result }} == 'skipped' ]] || exit 1;
 
   changes:
     # Check if anything related to Actual code / CI(functional testing) is changed
     # set outputs for other jobs to access for if conditions
     runs-on: ubuntu-latest
-    needs: [ sanity-check ]
     # To prevent error when there's no base branch
     if: github.event_name != 'schedule'
     timeout-minutes: 10
     outputs:
       oap: ${{ steps.filter.outputs.oap }}
+      pom: ${{ steps.filter.outputs.pom }}
     steps:
       - uses: actions/checkout@v3  # required for push event
       - name: Check for file changes
@@ -102,6 +134,8 @@ jobs:
               dist-material/release-docs/**,\
               component-libraries.yml\
               }"
+            pom:
+              - "**/pom.xml"
           list-files: json  # logs matched files
 
   dist-tar:
@@ -170,30 +204,6 @@ jobs:
         with:
           name: docker-images-${{ matrix.java-version }}
           path: docker-images-skywalking-*.tar
-
-  dependency-license:
-    if: |
-      always() &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: Dependency licenses
-    needs: [ dist-tar, changes ]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '8'
-          cache: 'maven'
-      - uses: actions/download-artifact@v3
-        with:
-          name: dist
-          path: dist
-      - name: Check Dependencies Licenses
-        run: tools/dependencies/check-LICENSE.sh
 
   unit-test:
     if: |
@@ -278,6 +288,10 @@ jobs:
             config: test/e2e-v2/cases/go/e2e.yaml
           - name: Agent NodeJS Frontend
             config: test/e2e-v2/cases/browser/e2e.yaml
+          - name: Agent NodeJS Frontend ES
+            config: test/e2e-v2/cases/browser/es/e2e.yaml
+          - name: Agent NodeJS Frontend ES Sharding
+            config: test/e2e-v2/cases/browser/es/es-sharding/e2e.yaml
           - name: Agent PHP
             config: test/e2e-v2/cases/php/e2e.yaml
           - name: Agent Python
@@ -285,6 +299,8 @@ jobs:
           - name: Agent Lua
             config: test/e2e-v2/cases/lua/e2e.yaml
 
+          - name: BanyanDB
+            config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
           - name: Storage H2
             config: test/e2e-v2/cases/storage/h2/e2e.yaml
           - name: Storage MySQL
@@ -320,11 +336,15 @@ jobs:
           - name: Storage OpenSearch 1.2.0
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.2.0
+          - name: Storage ES Sharding
+            config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
 
           - name: Alarm H2
             config: test/e2e-v2/cases/alarm/h2/e2e.yaml
           - name: Alarm ES
             config: test/e2e-v2/cases/alarm/es/e2e.yaml
+          - name: Alarm ES Sharding
+            config: test/e2e-v2/cases/alarm/es/es-sharding/e2e.yaml
           - name: Alarm MySQL
             config: test/e2e-v2/cases/alarm/mysql/e2e.yaml
           - name: Alarm PostgreSQL
@@ -344,6 +364,8 @@ jobs:
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
             env: ES_VERSION=8.0.0
 
+          - name: Event BanyanDB
+            config: test/e2e-v2/cases/event/banyandb/e2e.yaml
           - name: Event H2
             config: test/e2e-v2/cases/event/h2/e2e.yaml
           - name: Event ES
@@ -378,6 +400,9 @@ jobs:
           - name: Log ES 8.0.0
             config: test/e2e-v2/cases/log/es/e2e.yaml
             env: ES_VERSION=8.0.0
+          - name: Log ES 8.0.0 Shardng
+            config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
+            env: ES_VERSION=8.0.0
 
           - name: Log FluentBit ES 6.3.2
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
@@ -398,19 +423,55 @@ jobs:
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
             env: ES_VERSION=7.15.0
 
+          - name: Trace Profiling BanyanDB
+            config: test/e2e-v2/cases/profiling/trace/banyandb/e2e.yaml
           - name: Trace Profiling H2
             config: test/e2e-v2/cases/profiling/trace/h2/e2e.yaml
           - name: Trace Profiling ES
             config: test/e2e-v2/cases/profiling/trace/es/e2e.yaml
+          - name: Trace Profiling ES Sharding
+            config: test/e2e-v2/cases/profiling/trace/es/es-sharding/e2e.yaml
           - name: Trace Profiling MySQL
             config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
+          - name: Trace Profiling Postgres
+            config: test/e2e-v2/cases/profiling/trace/postgres/e2e.yaml
+          - name: Trace Profiling TiDB
+            config: test/e2e-v2/cases/profiling/trace/tidb/e2e.yaml
+          - name: Trace Profiling OpenSearch 1.1.0
+            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: Trace Profiling OpenSearch 1.2.0
+            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.2.0
 
-          - name: eBPF Profiling H2
-            config: test/e2e-v2/cases/profiling/ebpf/h2/e2e.yaml
-          - name: eBPF Profiling ES
-            config: test/e2e-v2/cases/profiling/ebpf/es/e2e.yaml
-          - name: eBPF Profiling MySQL
-            config: test/e2e-v2/cases/profiling/ebpf/mysql/e2e.yaml
+          - name: eBPF Profiling On CPU BanyanDB
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/banyandb/e2e.yaml
+          - name: eBPF Profiling On CPU H2
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/h2/e2e.yaml
+          - name: eBPF Profiling On CPU ES
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/e2e.yaml
+          - name: eBPF Profiling On CPU ES
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/es-sharding/e2e.yaml
+          - name: eBPF Profiling On CPU MySQL
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/mysql/e2e.yaml
+          - name: eBPF Profiling On CPU Postgres
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/postgres/e2e.yaml
+          - name: eBPF Profiling On CPU TiDB
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/tidb/e2e.yaml
+          - name: eBPF Profiling On CPU OpenSearch 1.1.0
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: eBPF Profiling On CPU OpenSearch 1.2.0
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.2.0
+          - name: eBPF Profiling Off CPU
+            config: test/e2e-v2/cases/profiling/ebpf/offcpu/e2e.yaml
+          - name: eBPF Profiling Network
+            config: test/e2e-v2/cases/profiling/ebpf/network/e2e.yaml
+            env: ISTIO_VERSION=1.13.1
+          - name: eBPF Profiling Network ES Sharding
+            config: test/e2e-v2/cases/profiling/ebpf/network/es-sharding/e2e.yaml
+            env: ISTIO_VERSION=1.13.1
 
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml
@@ -458,10 +519,29 @@ jobs:
             config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
           - name: So11y
             config: test/e2e-v2/cases/so11y/e2e.yaml
+          - name: MySQL Prometheus
+            config: test/e2e-v2/cases/mysql/prometheus-mysql-exporter/e2e.yaml
+          - name: PostgreSQL Prometheus
+            config: test/e2e-v2/cases/postgresql/postgres-exporter/e2e.yaml
 
           - name: Rover with Istio Process 1.13.1
             config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
             env: ISTIO_VERSION=1.13.1
+
+          - name: Zipkin ES
+            config: test/e2e-v2/cases/zipkin/es/e2e.yaml
+          - name: Zipkin ES Sharding
+            config: test/e2e-v2/cases/zipkin/es/es-sharding/e2e.yaml
+          - name: Zipkin MySQL
+            config: test/e2e-v2/cases/zipkin/mysql/e2e.yaml
+          - name: Zipkin Opensearch
+            config: test/e2e-v2/cases/zipkin/opensearch/e2e.yaml
+          - name: Zipkin H2
+            config: test/e2e-v2/cases/zipkin/h2/e2e.yaml
+          - name: Zipkin Postgres
+            config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
+          - name: Zipkin Kafka
+            config: test/e2e-v2/cases/zipkin/kafka/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:
@@ -484,9 +564,15 @@ jobs:
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@main
+        uses: apache/skywalking-infra-e2e@d71bbba95f95d6629db199e4bc0c0e097ae4f2dc
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        name: Upload Logs
+        with:
+          name: logs
+          path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
   e2e-test-istio:
     if: |
@@ -517,7 +603,7 @@ jobs:
         with:
           go-version: '1.16'
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@main
+        uses: apache/skywalking-infra-e2e@d71bbba95f95d6629db199e4bc0c0e097ae4f2dc
         env:
           ISTIO_VERSION: ${{ matrix.istio_version }}
           ALS_ANALYZER: ${{ matrix.analyzer }}
@@ -559,7 +645,7 @@ jobs:
         with:
           go-version: '1.16'
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@main
+        uses: apache/skywalking-infra-e2e@d71bbba95f95d6629db199e4bc0c0e097ae4f2dc
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:

@@ -28,10 +28,6 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private String host = "127.0.0.1";
     private int port = 17912;
     /**
-     * Group of the schema in BanyanDB
-     */
-    private String group = "default";
-    /**
      * The maximum size of write entities in a single batch write call.
      */
     private int maxBulkSize = 5000;
@@ -44,8 +40,20 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     private int concurrentWriteThreads = 2;
     /**
-     * Max size of {@link org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog} to be fetched
+     * Max size of {@link org.apache.skywalking.oap.server.core.query.type.ProfileTask} to be fetched
      * in a single request.
      */
-    private int fetchTaskLogMaxSize;
+    private int profileTaskQueryMaxSize;
+    /**
+     * Shards Number for measure/metrics.
+     */
+    private int metricsShardsNumber;
+    /**
+     * Shards Number for a normal record.
+     */
+    private int recordShardsNumber;
+    /**
+     * Shards Factor for a super dataset
+     */
+    private int superDatasetShardsFactor;
 }

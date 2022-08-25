@@ -22,16 +22,21 @@ import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
+import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingNetworkTaskRequest;
 import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingTaskFixedTimeCreationRequest;
+import org.apache.skywalking.oap.server.core.query.type.EBPFNetworkKeepProfilingResult;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskCreationResult;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -40,18 +45,23 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 public class EBPFProfilingMutationService implements Service {
     private static final Gson GSON = new Gson();
     public static final int FIXED_TIME_MIN_DURATION = (int) TimeUnit.SECONDS.toSeconds(60);
+    public static final int NETWORK_PROFILING_DURATION = (int) TimeUnit.MINUTES.toSeconds(10);
+    public static final int NETWORK_KEEP_ALIVE_THRESHOLD = (int) TimeUnit.SECONDS.toSeconds(60);
 
     private final ModuleManager moduleManager;
     private IEBPFProfilingTaskDAO processProfilingTaskDAO;
     private IServiceLabelDAO serviceLabelDAO;
+    private IMetadataQueryDAO metadataQueryDAO;
 
     private IEBPFProfilingTaskDAO getProcessProfilingTaskDAO() {
         if (processProfilingTaskDAO == null) {
@@ -69,6 +79,15 @@ public class EBPFProfilingMutationService implements Service {
                     .getService(IServiceLabelDAO.class);
         }
         return serviceLabelDAO;
+    }
+
+    private IMetadataQueryDAO getMetadataQueryDAO() {
+        if (metadataQueryDAO == null) {
+            this.metadataQueryDAO = moduleManager.find(StorageModule.NAME)
+                    .provider()
+                    .getService(IMetadataQueryDAO.class);
+        }
+        return metadataQueryDAO;
     }
 
     /**
@@ -101,13 +120,90 @@ public class EBPFProfilingMutationService implements Service {
         task.setCreateTime(current);
         task.setLastUpdateTime(current);
         task.setTimeBucket(TimeBucket.getMinuteTimeBucket(current));
+        task.generateLogicalId();
         NoneStreamProcessor.getInstance().in(task);
 
-        return EBPFProfilingTaskCreationResult.builder().status(true).id(task.id()).build();
+        return EBPFProfilingTaskCreationResult.builder().status(true).id(task.getLogicalId()).build();
+    }
+
+    public EBPFProfilingTaskCreationResult createTask(EBPFProfilingNetworkTaskRequest request) throws IOException {
+        final long current = System.currentTimeMillis();
+
+        // check request
+        final String error = checkCreateRequest(request);
+        if (StringUtil.isNotEmpty(error)) {
+            return buildError(error);
+        }
+
+        final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition =
+            IDManager.ServiceInstanceID.analysisId(request.getInstanceId());
+        // create task
+        final EBPFProfilingTaskRecord task = new EBPFProfilingTaskRecord();
+        task.setServiceId(instanceIDDefinition.getServiceId());
+        task.setProcessLabelsJson(Const.EMPTY_STRING);
+        task.setInstanceId(request.getInstanceId());
+        task.setStartTime(current);
+        task.setTriggerType(EBPFProfilingTriggerType.FIXED_TIME.value());
+        task.setFixedTriggerDuration(NETWORK_PROFILING_DURATION);
+        task.setTargetType(EBPFProfilingTargetType.NETWORK.value());
+        task.setCreateTime(current);
+        task.setLastUpdateTime(current);
+        task.setTimeBucket(TimeBucket.getMinuteTimeBucket(current));
+        task.generateLogicalId();
+        NoneStreamProcessor.getInstance().in(task);
+
+        return EBPFProfilingTaskCreationResult.builder().status(true).id(task.getLogicalId()).build();
+    }
+
+    public EBPFNetworkKeepProfilingResult keepEBPFNetworkProfiling(String taskId) throws IOException {
+        final EBPFProfilingTask task = getProcessProfilingTaskDAO().queryById(taskId);
+        // task not exists
+        if (task == null) {
+            return buildKeepProfilingError("profiling task not exists");
+        }
+        // target type not "NETWORK"
+        if (!Objects.equals(task.getTargetType(), EBPFProfilingTargetType.NETWORK)) {
+            return buildKeepProfilingError("current task is not a \"NETWORK\" task");
+        }
+        // task already finished
+        final Calendar taskTime = Calendar.getInstance();
+        taskTime.setTimeInMillis(task.getTaskStartTime());
+        taskTime.add(Calendar.SECOND, (int) task.getFixedTriggerDuration());
+        final Calendar now = Calendar.getInstance();
+        final long sec = TimeUnit.MILLISECONDS.toSeconds(taskTime.getTimeInMillis() - now.getTimeInMillis());
+        if (sec < 0) {
+            return buildKeepProfilingError("profiling task has been finished");
+        } else if (sec > NETWORK_KEEP_ALIVE_THRESHOLD) {
+            // if not archive the threshold, then ignore
+            return buildKeepProfilingSuccess();
+        }
+
+        // copy the task and extend the task time
+        final EBPFProfilingTaskRecord record = new EBPFProfilingTaskRecord();
+        record.setLogicalId(task.getTaskId());
+        record.setServiceId(task.getServiceId());
+        record.setProcessLabelsJson(Const.EMPTY_STRING);
+        record.setInstanceId(task.getServiceInstanceId());
+        record.setStartTime(task.getTaskStartTime());
+        record.setTriggerType(task.getTriggerType().value());
+        record.setFixedTriggerDuration(task.getFixedTriggerDuration() + NETWORK_PROFILING_DURATION);
+        record.setTargetType(EBPFProfilingTargetType.NETWORK.value());
+        record.setCreateTime(now.getTimeInMillis());
+        record.setLastUpdateTime(now.getTimeInMillis());
+        NoneStreamProcessor.getInstance().in(record);
+        return buildKeepProfilingSuccess();
     }
 
     private EBPFProfilingTaskCreationResult buildError(String msg) {
         return EBPFProfilingTaskCreationResult.builder().status(false).errorReason(msg).build();
+    }
+
+    private EBPFNetworkKeepProfilingResult buildKeepProfilingError(String msg) {
+        return EBPFNetworkKeepProfilingResult.builder().status(false).errorReason(msg).build();
+    }
+
+    private EBPFNetworkKeepProfilingResult buildKeepProfilingSuccess() {
+        return EBPFNetworkKeepProfilingResult.builder().status(true).build();
     }
 
     private String checkCreateRequest(EBPFProfilingTaskFixedTimeCreationRequest request) throws IOException {
@@ -150,8 +246,8 @@ public class EBPFProfilingMutationService implements Service {
         }
 
         // query exist processes
-        final List<EBPFProfilingTask> tasks = getProcessProfilingTaskDAO().queryTasks(
-                Arrays.asList(request.getServiceId()), request.getTargetType(), request.getStartTime(), 0);
+        final List<EBPFProfilingTask> tasks = getProcessProfilingTaskDAO().queryTasksByTargets(
+                request.getServiceId(), null, Arrays.asList(request.getTargetType()), request.getStartTime(), 0);
         if (CollectionUtils.isNotEmpty(tasks)) {
             final EBPFProfilingTask mostRecentTask = tasks.stream()
                     .min(Comparator.comparingLong(EBPFProfilingTask::getTaskStartTime)).get();
@@ -159,6 +255,22 @@ public class EBPFProfilingMutationService implements Service {
                 return "Task's time range overlaps with other tasks";
             }
         }
+        return null;
+    }
+
+    private String checkCreateRequest(EBPFProfilingNetworkTaskRequest request) throws IOException {
+        String err = null;
+        err = requiredNotEmpty(err, "instance", request.getInstanceId());
+        if (StringUtil.isNotEmpty(err)) {
+            return err;
+        }
+
+        // validate have processes under the instance
+        final long processesCount = getMetadataQueryDAO().getProcessCount(request.getInstanceId());
+        if (processesCount <= 0) {
+            return "The instance doesn't have processes.";
+        }
+
         return null;
     }
 

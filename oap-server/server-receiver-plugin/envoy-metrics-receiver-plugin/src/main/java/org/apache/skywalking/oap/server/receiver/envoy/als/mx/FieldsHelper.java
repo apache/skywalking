@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo.KeyValue;
 import org.yaml.snakeyaml.Yaml;
 
 import com.google.common.base.Splitter;
@@ -167,12 +168,24 @@ public enum FieldsHelper {
                         continue;
                     }
                     values[i] = value.getStringValue();
+                    break;
                 }
             }
             final String value = Strings.lenientFormat(serviceNameFormat.format, values);
             if (!Strings.isNullOrEmpty(value)) {
                 fieldSetterMapping.get(entry.getKey()).accept(serviceMetaInfo, value);
             }
+        }
+        final Map<String, Value> fieldsMap = metadata.getFieldsMap();
+        final List<KeyValue> tags = new ArrayList<>();
+        if (fieldsMap.containsKey("NAME")) {
+            tags.add(new KeyValue("pod", fieldsMap.get("NAME").getStringValue()));
+        }
+        if (fieldsMap.containsKey("NAMESPACE")) {
+            tags.add(new KeyValue("namespace", fieldsMap.get("NAMESPACE").getStringValue()));
+        }
+        if (!tags.isEmpty()) {
+            serviceMetaInfo.setTags(tags);
         }
     }
 

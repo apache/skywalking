@@ -71,6 +71,7 @@ tar czf ${PRODUCT_NAME}-src.tgz \
     --exclude .github \
     --exclude .gitignore \
     --exclude .gitmodules \
+    --exclude .mvn/wrapper/maven-wrapper.jar \
     ${PRODUCT_NAME}
 
 gpg --armor --detach-sig ${PRODUCT_NAME}-src.tgz

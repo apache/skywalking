@@ -127,12 +127,14 @@ catalog:
                 path: "/en/setup/backend/spring-sleuth-setup"
               - name: "Prometheus Metrics"
                 path: "/en/setup/backend/prometheus-metrics"
-              - name: "Alarm"
+              - name: "Alerting"
                 path: "/en/setup/backend/backend-alarm"
           - name: "Logging"
             catalog:
               - name: "Log Collecting And Analysis"
                 path: "/en/setup/backend/log-analyzer"
+              - name: "On Demand Pod Logs"
+                path: "/en/setup/backend/on-demand-pod-log"
           - name: "Extension"
             catalog:
               - name: "Metrics Exporter"
@@ -151,6 +153,8 @@ catalog:
                 path: "/en/setup/service-agent/server-agents"
               - name: "Compatibility"
                 path: "/en/setup/service-agent/agent-compatibility"
+              - name: "Virtual Database"
+                path: "/en/setup/service-agent/virtual-database"
           - name: "Service Mesh"
             catalog:
               - name: "Observe Service Mesh"
@@ -169,8 +173,10 @@ catalog:
             path: "/en/setup/service-agent/browser-agent"
           - name: "Database Monitoring"
             catalog:
-              - name: "Virtual Database"
-                path: "/en/setup/service-agent/virtual-database"
+              - name: "MySQL Monitoring"
+                path: "/en/setup/backend/backend-mysql-monitoring"
+              - name: "PostgreSQL Monitoring"
+                path: "/en/setup/backend/backend-postgresql-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP Telemetry"
@@ -205,6 +211,8 @@ catalog:
     catalog:
       - name: "Current Version"
         path: "/en/changes/changes"
+      - name: "9.1.0"
+        path: "/en/changes/changes-9.1.0"
       - name: "9.0.0"
         path: "/en/changes/changes-9.0.0"
       - name: "8.9.1"

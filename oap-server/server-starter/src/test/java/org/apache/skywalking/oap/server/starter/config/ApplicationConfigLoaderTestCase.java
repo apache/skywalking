@@ -22,7 +22,6 @@ import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -51,14 +50,6 @@ public class ApplicationConfigLoaderTestCase {
         assertThat(providerConfig.get("properties"), instanceOf(Properties.class));
         Properties properties = (Properties) providerConfig.get("properties");
         assertThat(properties.get("jdbcUrl"), is("jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true"));
-    }
-
-    @Test
-    public void testLoadListTypeConfig() {
-        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver-zipkin")
-                .getProviderConfiguration("default");
-        List<String> instanceNameRule = (List<String>) providerConfig.get("instanceNameRule");
-        assertEquals(2, instanceNameRule.size());
     }
 
     @Test

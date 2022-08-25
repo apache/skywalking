@@ -61,25 +61,41 @@ public interface IMetadataQueryDAO extends DAO {
     List<Endpoint> findEndpoint(final String keyword, final String serviceId, final int limit) throws IOException;
 
     /**
-     * @param serviceId the service of the processes.
-     * @param instanceId the service instance of the process.
-     * @param agentId the agent id which reports the process.
-     * @return list of processes matching the given conditions.
+     * @param serviceId the service id of the process.
+     * @param supportStatus the profiling status of the process.
+     * @param lastPingStartTimeBucket the start time bucket of last ping.
+     * @param lastPingEndTimeBucket the end time bucket of last ping.
      */
-    List<Process> listProcesses(final String serviceId, final String instanceId, final String agentId,
-                                final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
+    List<Process> listProcesses(final String serviceId, final ProfilingSupportStatus supportStatus,
+                                final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) throws IOException;
+
+    /**
+     * @param serviceInstanceId the instance id of the process.
+     * @param lastPingStartTimeBucket the start time bucket of last ping.
+     * @param lastPingEndTimeBucket the end time bucket of last ping.
+     */
+    List<Process> listProcesses(final String serviceInstanceId, final long lastPingStartTimeBucket,
                                 final long lastPingEndTimeBucket) throws IOException;
 
     /**
-     * get the count of processes
-     * @param serviceId the service of the processes.
-     * @param instanceId the service instance of the process.
-     * @param agentId the agent id which reports the process.
-     * @return the size of processes
+     * @param agentId the agent id of the process.
      */
-    long getProcessesCount(final String serviceId, final String instanceId, final String agentId,
-                           final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
-                           final long lastPingEndTimeBucket) throws IOException;
+    List<Process> listProcesses(final String agentId) throws IOException;
+
+    /**
+     * @param serviceId the service id of the process
+     * @param profilingSupportStatus the profiling status of the process.
+     * @param lastPingStartTimeBucket the start time bucket of last ping.
+     * @param lastPingEndTimeBucket the end time bucket of last ping.
+     */
+    long getProcessCount(final String serviceId,
+                         final ProfilingSupportStatus profilingSupportStatus, final long lastPingStartTimeBucket,
+                         final long lastPingEndTimeBucket) throws IOException;
+
+    /**
+     * @param instanceId the service instance id of the process
+     */
+    long getProcessCount(final String instanceId) throws IOException;
 
     /**
      * @param processId the id of the process.

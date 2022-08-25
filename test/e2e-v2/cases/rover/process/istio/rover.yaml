@@ -60,6 +60,7 @@ spec:
         - name: skywalking-rover
           # SkyWalking Rover image path
           image: ghcr.io/apache/skywalking-rover/skywalking-rover:$SW_ROVER_COMMIT
+          imagePullPolicy: Always
           securityContext:
             capabilities:
               add:

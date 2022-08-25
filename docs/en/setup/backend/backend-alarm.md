@@ -1,9 +1,12 @@
-# Alarm
-The alarm core is driven by a collection of rules defined in `config/alarm-settings.yml.`
-There are three parts to alarm rule definitions.
-1. [Alarm rules](#rules). They define how metrics alarm should be triggered and what conditions should be considered.
-1. [Webhooks](#webhook). The list of web service endpoints, which should be called after an alarm is triggered.
-1. [gRPCHook](#grpchook). The host and port of the remote gRPC method, which should be called after an alarm is triggered.
+# Alerting
+Alerting mechanism measures system performance according to the metrics of services/instances/endpoints from different layers.
+Alerting kernel is an in-memory, time-window based queue.
+
+The alerting core is driven by a collection of rules defined in `config/alarm-settings.yml.`
+There are three parts to alerting rule definitions.
+1. [alerting rules](#rules). They define how metrics alerting should be triggered and what conditions should be considered.
+1. [Webhooks](#webhook). The list of web service endpoints, which should be called after an alerting is triggered.
+1. [gRPCHook](#grpchook). The host and port of the remote gRPC method, which should be called after an alerting is triggered.
 
 ## Entity name
 Defines the relation between scope and entity name.
@@ -18,7 +21,7 @@ Defines the relation between scope and entity name.
 ## Rules
 **There are two types of rules: individual rules and composite rules. A composite rule is a combination of individual rules.**
 ### Individual rules
-An alarm rule is made up of the following elements:
+An alerting rule is made up of the following elements:
 - **Rule name**. A unique name shown in the alarm message. It must end with `_rule`.
 - **Metrics name**. This is also the metrics name in the OAL script. Only long, double, int types are supported. See the
 [list of all potential metrics name](#list-of-all-potential-metrics-name). Events can also be configured as the source
@@ -47,8 +50,19 @@ For example, in **percentile**, `value1` is the threshold of P50, and `-, -, val
 - **Silence period**. After the alarm is triggered at Time-N (TN), there will be silence during the **TN -> TN + period**.
 By default, it works in the same manner as **period**. The same Alarm (having the same ID in the same metrics name) may only be triggered once within a period. 
 
+Such as for a metric, there is a shifting window as following at T7.
+
+| T1     | T2     | T3     | T4     | T5     | T6     | T7     |
+|--------|--------|--------|--------|--------|--------|--------|
+| Value1 | Value2 | Value3 | Value4 | Value5 | Value6 | Value7 |
+
+* `Period`(Time point T1 ~ T7) are continuous data points for minutes. Notice, alerts are not supported above minute-by-minute periods as they would not be efficient.
+* Values(Value1 ~ Value7) are the values or labeled values for every time point.
+* `Count`'s value(N) represents there are N values in the window matched the operator and threshold.
+* In every minute, the window would shift automatically. At T8, Value8 would be cached, and T1/Value1 would be removed from the window. 
+
 ### Composite rules
-**NOTE**: Composite rules are only applicable to alarm rules targeting the same entity level, such as service-level alarm rules (`service_percent_rule && service_resp_time_percentile_rule`). Do not compose alarm rules of different entity levels, such as an alarm rule of the service metrics with another rule of the endpoint metrics.
+**NOTE**: Composite rules are only applicable to alerting rules targeting the same entity level, such as service-level alarm rules (`service_percent_rule && service_resp_time_percentile_rule`). Do not compose alarm rules of different entity levels, such as an alarm rule of the service metrics with another rule of the endpoint metrics.
 
 A composite rule is made up of the following elements:
 - **Rule name**. A unique name shown in the alarm message. Must end with `_rule`.
@@ -299,10 +313,59 @@ welinkHooks:
       robot_name: robot
 ```
 
+
+## PagerDuty Hook
+The PagerDuty hook is based on [Events API v2](https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTgw-events-api-v2-overview).
+
+Follow the [Getting Started](https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTgw-events-api-v2-overview#getting-started) section to create an **Events API v2** integration on your PagerDuty service and copy the integration key.
+
+Then configure as follows:
+```yml
+pagerDutyHooks:
+  textTemplate: "Apache SkyWalking Alarm: \n %s."
+  integrationKeys:
+    - 5c6d805c9dcf4e03d09dfa81e8789ba1
+```
+
+You can also configure multiple integration keys.
+
+## Discord Hook
+Follow the [Discord Webhooks guide](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) and create a new webhook.
+
+Then configure as follows:
+```yml
+discordHooks:
+  textTemplate: "Apache SkyWalking Alarm: \n %s."
+  webhooks:
+    - url: https://discordapp.com/api/webhooks/1008166889777414645/8e0Am4Zb-YGbBqqbiiq0jSHPTEEaHa4j1vIC-zSSm231T8ewGxgY0_XUYpY-k1nN4HBl
+      username: robot
+```
+
 ## Update the settings dynamically
-Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
+Since 6.5.0, the alerting settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
 which will override the settings in `alarm-settings.yml`.
 
-In order to determine whether an alarm rule is triggered or not, SkyWalking needs to cache the metrics of a time window for
-each alarm rule. If any attribute (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
+In order to determine whether an alerting rule is triggered or not, SkyWalking needs to cache the metrics of a time window for
+each alerting rule. If any attribute (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
 the sliding window will be destroyed and re-created, causing the Alarm of this specific rule to restart again.
+
+### Keys with data types of alerting rule configuration file
+
+| Alerting element     | Configuration property key | Type           | Description        |
+|----------------------|----------------------------|----------------|--------------------|
+| Include names        | include-names              | string array   |                    | 
+| Exclude names        | exclude-names              | string array   |                    | 
+| Include names regex  | include-names-regex        | string         | Java regex Pattern |
+| Exclude names regex  | exclude-names-regex        | string         | Java regex Pattern |
+| Include labels       | include-labels             | string array   |                    |
+| Exclude labels       | exclude-labels             | string array   |                    |
+| Include labels regex | include-labels-regex       | string         | Java regex Pattern |
+| Exclude labels regex | exclude-labels-regex       | string         | Java regex Pattern |
+| Tags                 | tags                       | key-value pair |                    |
+| Threshold            | threshold                  | number         |                    |
+| OP                   | op                         | operator       | example: `>`, `>=` |
+| Period               | Period                     | int            |                    |
+| Count                | count                      | int            |                    |
+| Only as condition    | only-as-condition          | boolean        |                    |
+| Silence period       | silence-period             | int            |                    |
+| Message              | message                    | string         |                    |

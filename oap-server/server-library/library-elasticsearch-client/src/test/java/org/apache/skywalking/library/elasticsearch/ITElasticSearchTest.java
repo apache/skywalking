@@ -19,14 +19,18 @@ package org.apache.skywalking.library.elasticsearch;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.library.elasticsearch.client.TemplateClient;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
+import org.apache.skywalking.library.elasticsearch.response.Document;
+import org.apache.skywalking.library.elasticsearch.response.Documents;
 import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
@@ -273,6 +277,17 @@ public class ITElasticSearchTest {
                                    .get("buckets")
                        ).size()
                    );
+
+                   //test mGet
+                   Map<String, List<String>> indexIdsGroup = new HashMap<>();
+                   indexIdsGroup.put("test-index", Arrays.asList("id1", "id2"));
+                   Optional<Documents> documents = client.documents().mGet(type, indexIdsGroup);
+                   Map<String, Map<String, Object>> result = new HashMap<>();
+                   for (final Document document : documents.get()) {
+                       result.put(document.getId(), document.getSource());
+                   }
+                   assertEquals(2, result.get("id1").size());
+                   assertEquals(2, result.get("id2").size());
                });
     }
 }

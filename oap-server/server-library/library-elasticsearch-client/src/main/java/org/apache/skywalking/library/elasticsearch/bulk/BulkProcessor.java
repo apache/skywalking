@@ -101,7 +101,7 @@ public final class BulkProcessor {
         }
     }
 
-    void flush() {
+    public void flush() {
         if (requests.isEmpty()) {
             return;
         }
