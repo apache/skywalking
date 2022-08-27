@@ -19,7 +19,7 @@ name: CI
 on:
   pull_request:
   schedule:
-    - cron: '0 18 * * *'  # TimeZone: UTC 0
+    - cron: "0 18 * * *" # TimeZone: UTC 0
 
 concurrency:
   group: skywalking-${{ github.event.pull_request.number || github.ref }}
@@ -59,7 +59,7 @@ jobs:
       always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true')
     name: Dependency licenses
-    needs: [ changes ]
+    needs: [changes]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -68,13 +68,13 @@ jobs:
           submodules: true
       - uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '8'
-          cache: 'maven'
+          distribution: "temurin"
+          java-version: "8"
+          cache: "maven"
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.16'
+          go-version: "1.16"
       - name: Check Dependencies Licenses
         run: |
           go install github.com/apache/skywalking-eyes/cmd/license-eye@47febf5
@@ -88,7 +88,7 @@ jobs:
   sanity-check:
     if: always() && (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Sanity check results
-    needs: [ license-header, code-style, dependency-license ]
+    needs: [license-header, code-style, dependency-license]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -109,7 +109,7 @@ jobs:
       oap: ${{ steps.filter.outputs.oap }}
       pom: ${{ steps.filter.outputs.pom }}
     steps:
-      - uses: actions/checkout@v3  # required for push event
+      - uses: actions/checkout@v3 # required for push event
       - name: Check for file changes
         uses: getsentry/paths-filter@v2
         id: filter
@@ -136,14 +136,14 @@ jobs:
               }"
             pom:
               - "**/pom.xml"
-          list-files: json  # logs matched files
+          list-files: json # logs matched files
 
   dist-tar:
     if: |
       always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Build dist tar
-    needs: [ sanity-check, changes ]
+    needs: [sanity-check, changes]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -152,9 +152,9 @@ jobs:
           submodules: true
       - uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '8'
-          cache: 'maven'
+          distribution: "temurin"
+          java-version: "8"
+          cache: "maven"
       - name: Build distribution tar
         run: |
           ./mvnw clean install -B -q \
@@ -172,12 +172,12 @@ jobs:
       always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Docker images
-    needs: [ dist-tar, changes ]
+    needs: [dist-tar, changes]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       matrix:
-        java-version: [ 8, 11, 17 ]
+        java-version: [8, 11, 17]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -210,13 +210,13 @@ jobs:
       always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Unit test
-    needs: [ sanity-check, changes ]
+    needs: [sanity-check, changes]
     runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
       matrix:
-        os: [ ubuntu, macos, windows ]
-        java-version: [ 8 ]
+        os: [ubuntu, macos, windows]
+        java-version: [8]
         include:
           - os: ubuntu
             java-version: 11
@@ -242,12 +242,12 @@ jobs:
       always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Integration test
-    needs: [ sanity-check, changes ]
+    needs: [sanity-check, changes]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
-        java-version: [ 8, 11 ]
+        java-version: [8, 11]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -272,7 +272,7 @@ jobs:
       always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
-    needs: [ docker ]
+    needs: [docker]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
@@ -484,22 +484,34 @@ jobs:
 
           - name: Istio Metrics Service 1.8.2
             config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: ISTIO_VERSION=1.8.2
+            env: |
+              ISTIO_VERSION=1.8.2
+              KUBERNETES_VERSION=19
           - name: Istio Metrics Service 1.9.1
             config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: ISTIO_VERSION=1.9.1
+            env: |
+              ISTIO_VERSION=1.9.1
+              KUBERNETES_VERSION=20
           - name: Istio Metrics Service 1.10.3
             config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: ISTIO_VERSION=1.10.3
+            env: |
+              ISTIO_VERSION=1.10.3
+              KUBERNETES_VERSION=20
           - name: Istio Metrics Service 1.11.4
             config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: ISTIO_VERSION=1.11.4
+            env: |
+              ISTIO_VERSION=1.11.4
+              KUBERNETES_VERSION=20
           - name: Istio Metrics Service 1.12.0
             config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: ISTIO_VERSION=1.12.0
+            env: |
+              ISTIO_VERSION=1.12.0
+              KUBERNETES_VERSION=20
           - name: Istio Metrics Service 1.13.1
             config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: ISTIO_VERSION=1.13.1
+            env: |
+              ISTIO_VERSION=1.13.1
+              KUBERNETES_VERSION=20
 
           - name: Satellite
             config: test/e2e-v2/cases/satellite/native-protocols/e2e.yaml
@@ -559,12 +571,12 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.16'
+          go-version: "1.16"
       - name: Set env var
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@d71bbba95f95d6629db199e4bc0c0e097ae4f2dc
+        uses: apache/skywalking-infra-e2e@afdf1cca0519d65bc480d8680b7a27f9b41fc421
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - uses: actions/upload-artifact@v2
@@ -579,14 +591,28 @@ jobs:
       always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
-    needs: [ docker ]
+    needs: [docker]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        analyzer: [ k8s-mesh, mx-mesh ]
-        istio_version: [ 1.7.1, 1.8.2, 1.9.1, 1.10.3, 1.11.4, 1.12.0, 1.13.1 ]
+        analyzer: [k8s-mesh, mx-mesh]
+        versions:
+          - istio: 1.7.1
+            kubernetes: 18
+          - istio: 1.8.2
+            kubernetes: 19
+          - istio: 1.9.1
+            kubernetes: 19
+          - istio: 1.10.3
+            kubernetes: 19
+          - istio: 1.11.4
+            kubernetes: 19
+          - istio: 1.12.0
+            kubernetes: 19
+          - istio: 1.13.1
+            kubernetes: 20
     steps:
       - uses: actions/checkout@v3
         with:
@@ -601,11 +627,12 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.16'
+          go-version: "1.16"
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@d71bbba95f95d6629db199e4bc0c0e097ae4f2dc
+        uses: apache/skywalking-infra-e2e@afdf1cca0519d65bc480d8680b7a27f9b41fc421
         env:
-          ISTIO_VERSION: ${{ matrix.istio_version }}
+          ISTIO_VERSION: ${{ matrix.versions.istio }}
+          KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
           ALS_ANALYZER: ${{ matrix.analyzer }}
         with:
           e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/istio/als/e2e.yaml
@@ -615,13 +642,13 @@ jobs:
       always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
-    needs: [ docker ]
+    needs: [docker]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        java-version: [ 8, 11, 17 ]
+        java-version: [8, 11, 17]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -643,9 +670,9 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.16'
+          go-version: "1.16"
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@d71bbba95f95d6629db199e4bc0c0e097ae4f2dc
+        uses: apache/skywalking-infra-e2e@afdf1cca0519d65bc480d8680b7a27f9b41fc421
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
