@@ -62,6 +62,9 @@
 * [Breaking Change] Fix JDBC TTL to delete additional tables data. 
   SQL Database requires removing `segment`,`segment_tag`, `logs`, `logs_tag`, `alarms`, `alarms_tag`, `zipkin_span`, `zipkin_query` before OAP starts.
 * SQL Database: add `@SQLDatabase.ExtraColumn4AdditionalEntity` to support add an extra column from parent to an additional table.
+* Add component ID(131) for Java Micronaut plugin
+* Add component ID(132) for Nats java client plugin
+
 
 #### UI
 
@@ -96,12 +99,12 @@
 * Add the MYSQL layer and update layer routers.
 * Fix query order for trace list.
 * Add a calculation to convert seconds to days.
-* Add component ID(131) for Java Micronaut plugin
-* Add Spring Sleuth dashboard to general service instance.
+q* Add Spring Sleuth dashboard to general service instance.
 * Support the process dashboard and create the time range text widget.
 * Fix picking calendar with a wrong time range and setting a unique value for dashboard grid key.
 * Add PostgreSQL to Database sub-menu.
 * Implement the network profiling widget.
+* Add Micronaut icon for Java plugin.
 * Add Nats icon for Java plugin.
 * Bump moment and @vue/cli-plugin-e2e-cypress.
 

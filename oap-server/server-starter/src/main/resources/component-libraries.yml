@@ -425,6 +425,9 @@ tls:
 Micronaut:
   id: 131
   languages: Java
+NATS:
+  id: 132
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
