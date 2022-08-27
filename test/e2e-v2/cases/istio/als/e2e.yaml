@@ -17,7 +17,7 @@
 
 setup:
   env: kind
-  file: ../kind.yaml
+  file: ../kind.k${KUBERNETES_VERSION}.yaml
   init-system-environment: ../../../script/env
   kind:
     import-images:

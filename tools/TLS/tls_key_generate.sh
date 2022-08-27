@@ -16,8 +16,8 @@
 #
 
 # Changes these CN's to match your hosts in your environment if needed.
-SERVER_CN=localhost
-CLIENT_CN=localhost # Used when doing mutual TLS
+SERVER_CN=${SERVER_CN:-localhost}
+CLIENT_CN=${CLIENT_CN:-localhost} # Used when doing mutual TLS
 
 echo Generate CA key:
 openssl genrsa -passout pass:1111 -des3 -out ca.key 4096
