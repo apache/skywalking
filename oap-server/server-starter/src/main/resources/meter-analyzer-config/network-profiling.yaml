@@ -73,11 +73,11 @@ metricsRules:
   - name: client_drop_cpm
     exp: rover_net_p_client_drop_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
   - name: client_write_rtt_time_percentile
-    exp: rover_net_p_client_write_rtt_histogram.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_client_write_rtt_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
   - name: client_write_exe_time_percentile
-    exp: rover_net_p_client_write_exe_time_histogram.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_client_write_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
   - name: client_read_exe_time_percentile
-    exp: rover_net_p_client_read_exe_time_histogram.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_client_read_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
 
   # server side
   - name: server_write_cpm
@@ -107,8 +107,8 @@ metricsRules:
   - name: server_drop_cpm
     exp: rover_net_p_server_drop_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
   - name: server_write_rtt_time_percentile
-    exp: rover_net_p_server_write_rtt_histogram.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_server_write_rtt_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
   - name: server_write_exe_time_percentile
-    exp: rover_net_p_server_write_exe_time_histogram.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_server_write_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
   - name: server_read_exe_time_percentile
-    exp: rover_net_p_server_read_exe_time_histogram.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_server_read_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)

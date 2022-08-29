@@ -23,6 +23,20 @@
                   "type": "DemandLog"
                 }
               ]
+            },
+            {
+              "name":"Network Profiling",
+              "children":[
+                {
+                  "x":0,
+                  "y":0,
+                  "w":24,
+                  "h":44,
+                  "i":"0",
+                  "type":"NetworkProfiling",
+                  "linkDashboard":"Kubernetes-Process-Relation-Metrics"
+                }
+              ]
             }
           ]
         }
