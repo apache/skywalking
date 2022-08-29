@@ -38,6 +38,8 @@ catalog:
             path: "/en/papers/stam"
           - name: "SDK Profiling to Fix the Blind Spot"
             path: "/en/concepts-and-designs/sdk-profiling"
+          - name: "eBPF CPU Profiling to pinpoint Service Mesh Critical Performance Impact"
+            path: "/en/concepts-and-designs/ebpf-cpu-profiling"
       - name: "Backend"
         catalog:
           - name: "Overview"

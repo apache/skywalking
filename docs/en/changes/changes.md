@@ -117,5 +117,6 @@ q* Add Spring Sleuth dashboard to general service instance.
 * Add more docs for widget details.
 * Update alarm doc introduce configuration property key
 * Fix dependency license's NOTICE and binary jar included issues in the source release.
+* Add eBPF CPU profiling doc.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/136?closed=1)
