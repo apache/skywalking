@@ -107,6 +107,7 @@ q* Add Spring Sleuth dashboard to general service instance.
 * Add Micronaut icon for Java plugin.
 * Add Nats icon for Java plugin.
 * Bump moment and @vue/cli-plugin-e2e-cypress.
+* Add Network Profiling for Service Mesh DP instance and K8s pod panels.
 
 #### Documentation
 
