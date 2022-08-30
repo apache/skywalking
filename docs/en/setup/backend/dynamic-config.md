@@ -21,7 +21,7 @@ configuration:
 ## Single Configuration
 Single Configuration is a config key that corresponds to a specific config value. The logic structure is:
 ```
-{configKey}:{configVaule}
+{configKey}:{configValue}
 ```
 For example:
 ```
@@ -67,5 +67,5 @@ Supported configurations are as follows:
 - [Etcd Implementation](./dynamic-config-etcd.md)
 - [Consul Implementation](./dynamic-config-consul.md)
 - [Apollo Implementation](./dynamic-config-apollo.md)
-- [Kuberbetes Configmap Implementation](./dynamic-config-configmap.md)
+- [Kubernetes Configmap Implementation](./dynamic-config-configmap.md)
 - [Nacos Implementation](./dynamic-config-nacos.md)
