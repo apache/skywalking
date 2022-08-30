@@ -10,7 +10,7 @@ The key of the configuration item is `core.default.log4j-xml`, and you can selec
 to store the content of `log4j.xml`. In the booting phase, once the core module gets started, `core.default.log4j-xml`
 would come into the OAP log4j context.
 
-If the configuration is changed after the OAP startup, you have to wait for a while for the changes to be applied. The default value is `60` seconds, which you could change through `configuration.<configuration implement>.peroid` in `application.yaml`.
+If the configuration is changed after the OAP startup, you have to wait for a while for the changes to be applied. The default value is `60` seconds, which you could change through `configuration.<configuration implement>.period` in `application.yaml`.
 
 If you remove `core.default.log4j-xml` from the configuration center or disable the configuration module, `log4j.xml` in the `config` directory would be affected.
 
