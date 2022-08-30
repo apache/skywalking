@@ -108,3 +108,7 @@ istioctl manifest install -y \
 # Metrics data
 
 Some Envoy statistics are [listed here](https://www.envoyproxy.io/docs/envoy/v1.17.0/configuration/upstream/cluster_manager/cluster_stats#config-cluster-manager-cluster-stats). Sample data that contain identifiers can be found [here](identify.json), while the metrics can be found [here](metrics.json).
+
+# Network Monitoring
+
+SkyWalking supports network monitoring of the data plane in the Service Mesh. [Read this documentation](../backend/backend-k8s-network-monitoring.md) for learn more.

@@ -75,7 +75,7 @@ public interface IMetadataQueryDAO extends DAO {
      * @param lastPingEndTimeBucket the end time bucket of last ping.
      */
     List<Process> listProcesses(final String serviceInstanceId, final long lastPingStartTimeBucket,
-                                final long lastPingEndTimeBucket) throws IOException;
+                                final long lastPingEndTimeBucket, boolean includeVirtual) throws IOException;
 
     /**
      * @param agentId the agent id of the process.

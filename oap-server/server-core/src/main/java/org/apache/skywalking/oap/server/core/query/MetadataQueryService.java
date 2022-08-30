@@ -108,7 +108,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         if (duration.getEndTimeBucket() < duration.getStartTimeBucket()) {
             return Collections.emptyList();
         }
-        return getMetadataQueryDAO().listProcesses(instanceId, duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        return getMetadataQueryDAO().listProcesses(instanceId, duration.getStartTimeBucket(), duration.getEndTimeBucket(), true);
     }
 
     public Process getProcess(String processId) throws IOException {
