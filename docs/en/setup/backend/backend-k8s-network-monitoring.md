@@ -1,13 +1,13 @@
 # Kubernetes Network monitoring
-SkyWalking leverages [SkyWalking Rover](https://github.com/apache/skywalking-rover) [network profiling feature](https://github.com/apache/skywalking-rover/blob/main/docs/en/setup/configuration/profiling.md#network) for collecting metrics data from the network. SkyWalking Rover converts data from socket data to metrics using eBPF technology.
+SkyWalking leverages [SkyWalking Rover](https://github.com/apache/skywalking-rover) [network profiling feature](https://skywalking.apache.org/docs/skywalking-rover/latest/en/setup/configuration/profiling/#network) for collecting metrics data from the network. SkyWalking Rover converts data from socket data to metrics using eBPF technology.
 
 ## Data flow
-1. SkyWalking OAP server saves which specific k8s pod needs to monitor network.
-2. SkyWalking Rover collects tasks from SkyWalking OAP server and executes them, and converts the network data into metrics send to the backend service.
-3. The SkyWalking OAP Server access to K8s's `API Server` gets meta info and parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
+1. SkyWalking OAP server observes which specific k8s pod needs to monitor the network.
+2. SkyWalking Rover receives tasks from SkyWalking OAP server and executes them, and converts the network data into metrics send to the backend service.
+3. The SkyWalking OAP Server accesses K8s's `API Server` to fetch meta info and parses the expression with [MAL](../../concepts-and-designs/mal.md) to aggregate.
 
 ## Setup
-1. Setup [SkyWalking Rover](https://github.com/apache/skywalking-rover/blob/main/docs/en/setup/overview.md).
+1. Setup [SkyWalking Rover](https://skywalking.apache.org/docs/skywalking-rover/latest/en/setup/overview/).
 2. Enable the network profiling MAL file in the OAP server.
 ```yaml
 agent-analyzer:
