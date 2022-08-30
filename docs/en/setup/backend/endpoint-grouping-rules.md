@@ -272,7 +272,7 @@ components:
 
 Here are some use cases:
 
-   | Incoming Endpiont | Incoming Service | x-sw-service-name | x-sw-endpoint-name-match-rule | x-sw-endpoint-name-format | Matched | Grouping Result |
+   | Incoming Endpoint | Incoming Service | x-sw-service-name | x-sw-endpoint-name-match-rule | x-sw-endpoint-name-format | Matched | Grouping Result |
    |-----|-----|-----|-----|-----|-----|-----|
    | `GET:/products` | serviceB | default | default | default | true | `GET:/products` |
    | `GET:/products/123` | serviceB | default | default | default |  true | `GET:/products{id}` |

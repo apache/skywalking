@@ -140,10 +140,10 @@ message SpanObject {
     SpanType spanType = 8;
     // Span layer represent the component tech stack, related to the network tech.
     SpanLayer spanLayer = 9;
-    // Component id is a predefinited number id in the SkyWalking.
+    // Component id is a predefined number id in the SkyWalking.
     // It represents the framework, tech stack used by this tracked span, such as Spring.
     // All IDs are defined in the https://github.com/apache/skywalking/blob/master/oap-server/server-bootstrap/src/main/resources/component-libraries.yml
-    // Send a pull request if you want to add languages, components or mapping defintions,
+    // Send a pull request if you want to add languages, components or mapping definitions,
     // all public components could be accepted.
     // Follow this doc for more details, https://github.com/apache/skywalking/blob/master/docs/en/guides/Component-library-settings.md
     int32 componentId = 10;

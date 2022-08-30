@@ -1,4 +1,4 @@
-# Dynamic Configuration Kuberbetes Configmap Implementation
+# Dynamic Configuration Kubernetes Configmap Implementation
 
 [configmap](https://kubernetes.io/docs/concepts/configuration/configmap/) is also supported as a Dynamic Configuration Center (DCC). To use it, please configure it as follows:
 
