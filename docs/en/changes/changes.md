@@ -5,8 +5,11 @@
 
 #### OAP Server
 
+Add 133 134 component ID for impala jdbc java plugin.
 
 #### UI
+
+Add impala icon for impala jdbc java plugin.
 
 
 #### Documentation
