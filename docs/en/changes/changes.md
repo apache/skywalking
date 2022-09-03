@@ -5,11 +5,11 @@
 
 #### OAP Server
 
-Add component ID(133) for impajdbcJDBCJava agent plugin and component ID(134) for impala server
+* Add component ID(133) for impala JDBC Java agent plugin and component ID(134) for impala server
 
 #### UI
 
-Add impala icon for impajdbcJDBCJava agent plugin.
+* Add impala icon for impala JDBC Java agent plugin.
 
 
 #### Documentation
