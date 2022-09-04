@@ -9,6 +9,7 @@
 
 #### UI
 
+* Fix: tab active incorrectly, when click tab space 
 * Add impala icon for impala JDBC Java agent plugin.
 
 
