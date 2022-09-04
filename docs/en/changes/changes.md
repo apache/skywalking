@@ -5,8 +5,12 @@
 
 #### OAP Server
 
+* Add component ID(133) for impala JDBC Java agent plugin and component ID(134) for impala server
 
 #### UI
+
+* Fix: tab active incorrectly, when click tab space 
+* Add impala icon for impala JDBC Java agent plugin.
 
 
 #### Documentation
