@@ -6,6 +6,7 @@
 #### OAP Server
 
 * Add component ID(133) for impala JDBC Java agent plugin and component ID(134) for impala server
+* Use prepareStatement in H2SQLExecutor#getByIDs.(No function change).
 
 #### UI
 
