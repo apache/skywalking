@@ -38,7 +38,6 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObje
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.ArrayParamBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
@@ -49,26 +48,32 @@ public class H2SQLExecutor {
                                                                  String modelName,
                                                                  String[] ids,
                                                                  StorageBuilder<T> storageBuilder) throws IOException {
-        /*
-         * Although H2 database or other database support createArrayOf and setArray operate,
-         * Mysql 5.1.44 driver doesn't.
-         */
-        String param = ArrayParamBuilder.build(ids);
 
-        try (Connection connection = h2Client.getConnection();
-             ResultSet rs = h2Client.executeQuery(
-                 connection, "SELECT * FROM " + modelName + " WHERE id in (" + param + ")")) {
-            List<StorageData> storageDataList = new ArrayList<>();
-            StorageData storageData;
-            do {
-                storageData = toStorageData(rs, modelName, storageBuilder);
-                if (storageData != null) {
-                    storageDataList.add(storageData);
+        try (Connection connection = h2Client.getConnection()) {
+            SQLBuilder sql = new SQLBuilder("SELECT * FROM " + modelName + " WHERE id in (");
+            List<Object> parameters = new ArrayList<>(ids.length);
+            for (int i = 0; i < ids.length; i++) {
+                if (i == 0) {
+                    sql.append("?");
+                } else {
+                    sql.append(",?");
                 }
+                parameters.add(ids[i]);
             }
-            while (storageData != null);
+            sql.append(")");
+            try (ResultSet rs = h2Client.executeQuery(connection, sql.toString(), parameters.toArray(new Object[0]))) {
+                StorageData storageData;
+                List<StorageData> storageDataList = new ArrayList<>();
+                do {
+                    storageData = toStorageData(rs, modelName, storageBuilder);
+                    if (storageData != null) {
+                        storageDataList.add(storageData);
+                    }
+                }
+                while (storageData != null);
 
-            return storageDataList;
+                return storageDataList;
+            }
         } catch (SQLException | JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
         }
@@ -148,14 +153,14 @@ public class H2SQLExecutor {
         param.add(metrics.id());
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
-                sqlBuilder.append("?");
+            sqlBuilder.append("?");
 
-                Object value = objectMap.get(column.getColumnName().getName());
-                if (value instanceof StorageDataComplexObject) {
-                    param.add(((StorageDataComplexObject) value).toStorageData());
-                } else {
-                    param.add(value);
-                }
+            Object value = objectMap.get(column.getColumnName().getName());
+            if (value instanceof StorageDataComplexObject) {
+                param.add(((StorageDataComplexObject) value).toStorageData());
+            } else {
+                param.add(value);
+            }
 
             if (i != columns.size() - 1) {
                 sqlBuilder.append(",");
