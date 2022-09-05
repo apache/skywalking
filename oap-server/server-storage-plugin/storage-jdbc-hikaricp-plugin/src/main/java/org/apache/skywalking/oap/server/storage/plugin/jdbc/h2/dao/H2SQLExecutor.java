@@ -51,7 +51,7 @@ public class H2SQLExecutor {
 
         try (Connection connection = h2Client.getConnection()) {
             SQLBuilder sql = new SQLBuilder("SELECT * FROM " + modelName + " WHERE id in (");
-            List<Object> parameters = new ArrayList<>();
+            List<Object> parameters = new ArrayList<>(ids.length);
             for (int i = 0; i < ids.length; i++) {
                 if (i == 0) {
                     sql.append("?");
@@ -61,7 +61,7 @@ public class H2SQLExecutor {
                 parameters.add(ids[i]);
             }
             sql.append(")");
-            try (ResultSet rs = h2Client.executeQuery(connection, sql.toString(), parameters)) {
+            try (ResultSet rs = h2Client.executeQuery(connection, sql.toString(), parameters.toArray(new Object[0]))) {
                 StorageData storageData;
                 List<StorageData> storageDataList = new ArrayList<>();
                 do {
