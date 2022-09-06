@@ -13,6 +13,7 @@
 
 * Fix: tab active incorrectly, when click tab space 
 * Add impala icon for impala JDBC Java agent plugin.
+* (Webapp)Bump up snakeyaml to 1.31 for fixing CVE-2022-25857
 
 
 #### Documentation

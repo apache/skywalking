@@ -38,7 +38,7 @@
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <logback-classic.version>1.2.11</logback-classic.version>
         <jackson-version>2.13.2.2</jackson-version>
-        <yaml.version>1.28</yaml.version>
+        <yaml.version>1.31</yaml.version>
         <netty.version>4.1.77.Final</netty.version>
 
         <ui.path>${project.parent.basedir}/skywalking-ui</ui.path>
