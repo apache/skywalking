@@ -57,7 +57,7 @@ jobs:
   dependency-license:
     if: |
       always() &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true' || needs.changes.outputs.ui == 'true')
     name: Dependency licenses
     needs: [changes]
     runs-on: ubuntu-latest
@@ -108,6 +108,7 @@ jobs:
     outputs:
       oap: ${{ steps.filter.outputs.oap }}
       pom: ${{ steps.filter.outputs.pom }}
+      ui: ${{ steps.filter.outputs.ui }}
     steps:
       - uses: actions/checkout@v3 # required for push event
       - name: Check for file changes
@@ -136,6 +137,8 @@ jobs:
               }"
             pom:
               - "**/pom.xml"
+            ui:
+              - "skywalking-ui"
           list-files: json # logs matched files
 
   dist-tar:
