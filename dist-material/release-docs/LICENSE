@@ -395,7 +395,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.springframework.security/spring-security-crypto/5.6.3 Apache-2.0
     https://mvnrepository.com/artifact/org.springframework.security/spring-security-rsa/1.0.10.RELEASE Apache-2.0
     https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java/1.1.7.3 Apache-2.0
-    https://mvnrepository.com/artifact/org.yaml/snakeyaml/1.28 Apache-2.0
+    https://mvnrepository.com/artifact/org.yaml/snakeyaml/1.31 Apache-2.0
     https://npmjs.com/package/typescript/v/4.4.4 4.4.4 Apache-2.0
 
 ========================================================================
@@ -543,7 +543,7 @@ MIT licenses
 The following components are provided under the MIT License. See project link for details.
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
-    https://npmjs.com/package/@babel/parser/v/7.18.13 7.18.13 MIT
+    https://npmjs.com/package/@babel/parser/v/7.19.0 7.19.0 MIT
     https://npmjs.com/package/@ctrl/tinycolor/v/3.4.0 3.4.0 MIT
     https://npmjs.com/package/@egjs/hammerjs/v/2.0.17 2.0.17 MIT
     https://npmjs.com/package/@element-plus/icons-vue/v/0.2.7 0.2.7 MIT
