@@ -240,6 +240,57 @@ metrics:
     exp: http_response_time.sum(['le', 'service', 'instance']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
 ```
 
+### SlowSql
+
+SlowSql aim to convert LogData to DatabaseSlowStatement. It extract data from `parsed` result and save them as DatabaseSlowStatement.
+
+- `serviceName`
+
+`serviceName` extracts the service name from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be persisted (if
+not dropped) and is used to associate with TopNDatabaseStatement and service.
+
+- `timeBucket`
+
+`timeBucket` extracts the time bucket from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be
+persisted (if not dropped) and is used to associate with TopNDatabaseStatement.
+
+- `statement`
+
+`statement` extracts the time bucket from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be
+persisted (if not dropped) and is used to associate with TopNDatabaseStatement.
+
+- `latency`
+
+`latency` extracts the latency from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be
+persisted (if not dropped) and is used to associate with TopNDatabaseStatement.
+
+- `id`
+
+`id` extracts the id from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be persisted (if not
+dropped) and is used to associate with TopNDatabaseStatement.
+
+- `layer`
+
+`layer` extracts the [layer](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java) from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be persisted (if
+not dropped) and is used to associate with service.
+
+Example :
+
+```groovy
+filter {
+        json{
+        }
+        slowSql {
+          serviceName parsed.service as String
+          id parsed.id as String
+          statement parsed.statement as String
+          latency parsed.query_time as Long
+          layer parsed.layer as String
+          timeBucket parsed.time as Long
+        }
+      }
+```
+
 ### Sink
 
 Sinks are the persistent layer of the LAL. By default, all the logs of each filter are persisted into the storage.
