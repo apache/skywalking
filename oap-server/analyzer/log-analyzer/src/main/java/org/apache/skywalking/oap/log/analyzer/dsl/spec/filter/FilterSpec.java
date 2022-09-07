@@ -86,8 +86,8 @@ public class FilterSpec extends AbstractSpec {
         };
 
         factories = Arrays.asList(
-                new RecordAnalysisListener.Factory(moduleManager(), moduleConfig()),
-                new TrafficAnalysisListener.Factory(moduleManager(), moduleConfig())
+            new RecordAnalysisListener.Factory(moduleManager(), moduleConfig()),
+            new TrafficAnalysisListener.Factory(moduleManager(), moduleConfig())
         );
 
         textParser = new TextParserSpec(moduleManager(), moduleConfig());
@@ -126,7 +126,7 @@ public class FilterSpec extends AbstractSpec {
         try {
 
             final Map<String, Object> parsed = jsonParser.create().readValue(
-                    logData.getBody().getJson().getJson(), parsedType
+                logData.getBody().getJson().getJson(), parsedType
             );
 
             BINDING.get().parsed(parsed);
@@ -174,13 +174,13 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
 
-        String isSlowSQL = BINDING.get().log().getTags().getDataList()
+        String isSlowSql = BINDING.get().log().getTags().getDataList()
                 .stream()
                 .filter(data -> Binding.KEY_IS_SLOW_SQL.equals(data.getKey()))
                 .map(KeyStringValuePair::getValue)
                 .collect(Collectors.toList()).get(0);
 
-        if(!Boolean.parseBoolean(isSlowSQL)){
+        if (!Boolean.parseBoolean(isSlowSql)) {
             return;
         }
 
@@ -224,17 +224,17 @@ public class FilterSpec extends AbstractSpec {
         final Optional<AtomicReference<Log>> container = BINDING.get().logContainer();
         if (container.isPresent()) {
             factories.stream()
-                    .map(LogAnalysisListenerFactory::create)
-                    .filter(it -> it instanceof RecordAnalysisListener)
-                    .map(it -> it.parse(logData, extraLog))
-                    .map(it -> (RecordAnalysisListener) it)
-                    .map(RecordAnalysisListener::getLog)
-                    .findFirst()
-                    .ifPresent(log -> container.get().set(log));
+                     .map(LogAnalysisListenerFactory::create)
+                     .filter(it -> it instanceof RecordAnalysisListener)
+                     .map(it -> it.parse(logData, extraLog))
+                     .map(it -> (RecordAnalysisListener) it)
+                     .map(RecordAnalysisListener::getLog)
+                     .findFirst()
+                     .ifPresent(log -> container.get().set(log));
         } else {
             factories.stream()
-                    .map(LogAnalysisListenerFactory::create)
-                    .forEach(it -> it.parse(logData, extraLog).build());
+                     .map(LogAnalysisListenerFactory::create)
+                     .forEach(it -> it.parse(logData, extraLog).build());
         }
     }
 
