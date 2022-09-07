@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
@@ -171,6 +173,17 @@ public class FilterSpec extends AbstractSpec {
         if (BINDING.get().shouldAbort()) {
             return;
         }
+
+        String isSlowSQL = BINDING.get().log().getTags().getDataList()
+                .stream()
+                .filter(data -> Binding.KEY_IS_SLOW_SQL.equals(data.getKey()))
+                .map(KeyStringValuePair::getValue)
+                .collect(Collectors.toList()).get(0);
+
+        if(!Boolean.parseBoolean(isSlowSQL)){
+            return;
+        }
+
         BINDING.get().databaseSlowStatement(new DatabaseSlowStatementBuilder(namingControl));
 
         cl.setDelegate(slowSql);

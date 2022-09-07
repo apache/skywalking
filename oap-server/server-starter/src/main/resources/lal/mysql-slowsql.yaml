@@ -14,7 +14,7 @@
 # limitations under the License.
 
 rules:
-  - name: default
+  - name: mysql-slowsql
     dsl: |
       filter {
         json{

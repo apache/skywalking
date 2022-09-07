@@ -242,7 +242,11 @@ metrics:
 
 ### SlowSql
 
-SlowSql aim to convert LogData to DatabaseSlowStatement. It extract data from `parsed` result and save them as DatabaseSlowStatement.
+SlowSql aims to convert LogData to DatabaseSlowStatement. It extracts data from `parsed` result and save them as DatabaseSlowStatement. SlowSql will not abort or edit logs, you can use other LAL for further processing.
+We need to set a log tag("isSlowSql") to enable it. If logs sent to OAP does not have this tag, slowSql processing will be skipped.The example to set the tag is following:
+``` json
+[{"tags":{"data":[{"key":"isSlowSql","value":"true"}]},"body":{"json":{"json":"{\"time\":\"20220906153959\",\"id\":\"cb92c1a5b-2691e-fb2f-457a-9c72a392d9ed\",\"service\":\"root[root]@[localhost]\",\"statement\":\"select sleep(2);\",\"layer\":\"MYSQL\",\"query_time\":2000}"}},"service":"root[root]@[localhost]"}]
+```
 
 - `serviceName`
 

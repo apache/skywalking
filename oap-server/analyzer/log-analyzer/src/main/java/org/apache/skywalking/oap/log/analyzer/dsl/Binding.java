@@ -53,6 +53,8 @@ public class Binding extends groovy.lang.Binding {
 
     public static final String KEY_DATABASE_SLOW_STATEMENT = "database_slow_statement";
 
+    public static final String KEY_IS_SLOW_SQL = "isSlowSql";
+
     public Binding() {
         setProperty(KEY_PARSED, new Parsed());
     }
