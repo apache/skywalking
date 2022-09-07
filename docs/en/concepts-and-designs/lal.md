@@ -299,17 +299,17 @@ Example :
 
 ```groovy
 filter {
-        json{
-        }
-        slowSql {
-          serviceName parsed.service as String
-          id parsed.id as String
-          statement parsed.statement as String
-          latency parsed.query_time as Long
-          layer parsed.layer as String
-          timeBucket parsed.time as Long
-        }
-      }
+    json{
+    }
+    slowSql {
+        serviceName parsed.service as String
+        id parsed.id as String
+        statement parsed.statement as String
+        latency parsed.query_time as Long
+        layer parsed.layer as String
+        timeBucket parsed.time as Long
+    }
+}
 ```
 
 ### Sink
