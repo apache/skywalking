@@ -10,7 +10,7 @@ activate specific LAL config files.
 
 ## Filter
 
-A filter is a group of [parser](#parser), [extractor](#extractor) and [sink](#sink). Users can use one or more filters
+A filter is a group of [parser](#parser), [extractor](#extractor), [SlowSql](#slowsql) and [sink](#sink). Users can use one or more filters
 to organize their processing logic. Every piece of log will be sent to all filters in an LAL rule. A piece of log
 sent to the filter is available as property `log` in the LAL, therefore you can access the log service name
 via `log.service`. For all available fields of `log`, please refer to [the protocol definition](https://github.com/apache/skywalking-data-collect-protocol/blob/master/logging/Logging.proto#L41).
@@ -299,16 +299,18 @@ Example :
 
 ```groovy
 filter {
-    json{
-    }
-    slowSql {
-        serviceName parsed.service as String
-        id parsed.id as String
-        statement parsed.statement as String
-        latency parsed.query_time as Long
-        layer parsed.layer as String
-        timeBucket parsed.time as Long
-    }
+        json{
+        }
+        if (log.tags.getDataList().find{tag1->tag1.getKey() == "isSlowSql"}.getValue() == "true") {
+           slowSql {
+                     serviceName parsed.service as String
+                     id parsed.id as String
+                     statement parsed.statement as String
+                     latency parsed.query_time as Long
+                     layer parsed.layer as String
+                     timeBucket parsed.time as Long
+                   }
+        }
 }
 ```
 

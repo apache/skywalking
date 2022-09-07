@@ -19,12 +19,14 @@ rules:
       filter {
         json{
         }
-        slowSql {
-          serviceName parsed.service as String
-          id parsed.id as String
-          statement parsed.statement as String
-          latency parsed.query_time as Long
-          layer parsed.layer as String
-          timeBucket parsed.time as Long
+        if (log.tags.getDataList().find{tag1->tag1.getKey() == "isSlowSql"}.getValue() == "true") {
+           slowSql {
+                     serviceName parsed.service as String
+                     id parsed.id as String
+                     statement parsed.statement as String
+                     latency parsed.query_time as Long
+                     layer parsed.layer as String
+                     timeBucket parsed.time as Long
+                   }
         }
       }

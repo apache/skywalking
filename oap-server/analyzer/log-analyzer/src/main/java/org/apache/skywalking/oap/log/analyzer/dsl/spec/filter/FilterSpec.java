@@ -174,22 +174,21 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
 
-        String isSlowSql = BINDING.get().log().getTags().getDataList()
-                .stream()
-                .filter(data -> Binding.KEY_IS_SLOW_SQL.equals(data.getKey()))
-                .map(KeyStringValuePair::getValue)
-                .collect(Collectors.toList()).get(0);
-
-        if (!Boolean.parseBoolean(isSlowSql)) {
-            return;
-        }
-
         BINDING.get().databaseSlowStatement(new DatabaseSlowStatementBuilder(namingControl));
 
         cl.setDelegate(slowSql);
         cl.call();
 
         DatabaseSlowStatementBuilder builder = BINDING.get().databaseSlowStatement();
+        if (builder.getLayer() == null
+                || builder.getServiceName() == null
+                || builder.getId() == null
+                || builder.getLatency() < 1
+                || builder.getTimeBucket() < 1
+                || builder.getStatement() == null) {
+            LOGGER.warn("SlowSql extracts failed, maybe has some invalid value.");
+            return;
+        }
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setName(namingControl.formatServiceName(builder.getServiceName()));
         serviceMeta.setLayer(builder.getLayer());
