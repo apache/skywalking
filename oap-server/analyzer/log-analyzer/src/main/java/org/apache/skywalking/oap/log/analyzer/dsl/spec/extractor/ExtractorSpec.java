@@ -22,11 +22,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.experimental.Delegate;
 import org.apache.commons.lang3.StringUtils;
@@ -253,7 +251,9 @@ public class ExtractorSpec extends AbstractSpec {
         }
         DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
         builder.setLayer(Layer.nameOf(log.getLayer()));
-        builder.setTimeBucket(log.getTimestamp());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String timeBucket = sdf.format(new Date(log.getTimestamp()));
+        builder.setTimeBucket(Long.parseLong(timeBucket));
         builder.setServiceName(log.getService());
 
         ServiceMeta serviceMeta = new ServiceMeta();

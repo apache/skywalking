@@ -25,10 +25,10 @@ rules:
           timestamp parsed.time as String
           if (tag("LOG_KIND") == "SLOW_SQL") {
              slowSql {
-                      id parsed.id as String
-                      statement parsed.statement as String
-                      latency parsed.query_time as Long
-                     }
+               id parsed.id as String
+               statement parsed.statement as String
+               latency parsed.query_time as Long
+             }
           }
         }
       }

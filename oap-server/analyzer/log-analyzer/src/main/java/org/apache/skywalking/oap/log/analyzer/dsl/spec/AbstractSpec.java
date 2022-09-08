@@ -59,6 +59,7 @@ public abstract class AbstractSpec {
                 .stream()
                 .filter(data -> key.equals(data.getKey()))
                 .map(KeyStringValuePair::getValue)
-                .collect(Collectors.toList()).get(0);
+                .findFirst()
+                .orElse("");
     }
 }

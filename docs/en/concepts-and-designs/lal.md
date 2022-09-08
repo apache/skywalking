@@ -301,7 +301,7 @@ An example of JSON sent to OAP is as following:
 
 - `statement`
 
-`statement` extracts the time bucket from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be
+`statement` extracts the SQL statement from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be
 persisted (if not dropped) and is used to associate with TopNDatabaseStatement.
 
 - `latency`
@@ -318,20 +318,20 @@ A Example of LAL to distinguish slow logs:
 
 ```groovy
 filter {
-        json{
-        }
-        extractor{
-          layer parsed.layer as String
-          service parsed.service as String
-          timestamp parsed.time as String
-          if (tag("LOG_KIND") == "SLOW_SQL") {
-             slowSql {
-                      id parsed.id as String
-                      statement parsed.statement as String
-                      latency parsed.query_time as Long
-                     }
-          }
-        }
+  json{
+  }
+  extractor{
+    layer parsed.layer as String
+    service parsed.service as String
+    timestamp parsed.time as String
+    if (tag("LOG_KIND") == "SLOW_SQL") {
+      slowSql {
+        id parsed.id as String
+        statement parsed.statement as String
+        latency parsed.query_time as Long
+      }
+    }
+  }
 }
 ```
 
