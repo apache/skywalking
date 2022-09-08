@@ -27,8 +27,6 @@ import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import java.util.stream.Collectors;
-
 @Getter
 @RequiredArgsConstructor
 @Accessors(fluent = true)
