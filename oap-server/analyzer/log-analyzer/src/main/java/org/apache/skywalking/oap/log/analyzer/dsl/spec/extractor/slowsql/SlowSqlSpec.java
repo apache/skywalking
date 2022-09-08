@@ -16,41 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.log.analyzer.dsl.spec.slowsql;
+package org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.slowsql;
 
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
-import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 
+import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.DatabaseSlowStatementBuilder;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import static java.util.Objects.nonNull;
 
 public class SlowSqlSpec extends AbstractSpec {
+
     public SlowSqlSpec(final ModuleManager moduleManager,
-                         final LogAnalyzerModuleConfig moduleConfig) {
+                       final LogAnalyzerModuleConfig moduleConfig) {
         super(moduleManager, moduleConfig);
-    }
-
-    public void serviceName(final String serviceName) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        if (nonNull(serviceName)) {
-            final DatabaseSlowStatementBuilder databaseSlowStatementBuilder = BINDING.get().databaseSlowStatement();
-            databaseSlowStatementBuilder.setServiceName(serviceName);
-        }
-    }
-
-    public void timeBucket(final Long timeBucket) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        if (nonNull(timeBucket)) {
-            final DatabaseSlowStatementBuilder databaseSlowStatementBuilder = BINDING.get().databaseSlowStatement();
-            databaseSlowStatementBuilder.setTimeBucket(timeBucket);
-        }
     }
 
     public void latency(final Long latency) {
@@ -80,16 +60,6 @@ public class SlowSqlSpec extends AbstractSpec {
         if (nonNull(id)) {
             final DatabaseSlowStatementBuilder databaseSlowStatementBuilder = BINDING.get().databaseSlowStatement();
             databaseSlowStatementBuilder.setId(id);
-        }
-    }
-
-    public void layer(final String layerName) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        if (nonNull(layerName)) {
-            final DatabaseSlowStatementBuilder databaseSlowStatementBuilder = BINDING.get().databaseSlowStatement();
-            databaseSlowStatementBuilder.setLayer(Layer.nameOf(layerName));
         }
     }
 }

@@ -22,9 +22,12 @@ import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+
+import java.util.stream.Collectors;
 
 @Getter
 @RequiredArgsConstructor
@@ -48,5 +51,14 @@ public abstract class AbstractSpec {
     @SuppressWarnings("unused")
     public Object propertyMissing(final String name) {
         return BINDING.get().getVariable(name);
+    }
+
+    @SuppressWarnings("unused")
+    public String tag(String key) {
+        return BINDING.get().log().getTags().getDataList()
+                .stream()
+                .filter(data -> key.equals(data.getKey()))
+                .map(KeyStringValuePair::getValue)
+                .collect(Collectors.toList()).get(0);
     }
 }

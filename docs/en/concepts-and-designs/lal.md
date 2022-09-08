@@ -10,7 +10,7 @@ activate specific LAL config files.
 
 ## Filter
 
-A filter is a group of [parser](#parser), [extractor](#extractor), [SlowSql](#slowsql) and [sink](#sink). Users can use one or more filters
+A filter is a group of [parser](#parser), [extractor](#extractor) and [sink](#sink). Users can use one or more filters
 to organize their processing logic. Every piece of log will be sent to all filters in an LAL rule. A piece of log
 sent to the filter is available as property `log` in the LAL, therefore you can access the log service name
 via `log.service`. For all available fields of `log`, please refer to [the protocol definition](https://github.com/apache/skywalking-data-collect-protocol/blob/master/logging/Logging.proto#L41).
@@ -39,6 +39,38 @@ filter {
 
 Note that when you put `regexp` in an `if` statement, you need to surround the expression with `()`
 like `regexp(<the expression>)`, instead of `regexp <the expression>`.
+
+- `tag`
+
+`tag` function provide a convenient way to get the data of tags.
+
+We can add tags like following:
+``` JSON
+[
+   {
+      "tags":{
+         "data":[
+            {
+               "key":"TEST_KEY",
+               "value":"TEST_VALUE"
+            }
+         ]
+      },
+      "body":{
+         ...
+      }
+      ...
+   }
+]
+``` 
+And we can use this method to get the data of tags.
+```groovy
+filter {
+    if (tag("TEST_KEY") == "TEST_VALUE") {
+         ...   
+    }
+}
+```
 
 ### Parser
 
@@ -240,18 +272,20 @@ metrics:
     exp: http_response_time.sum(['le', 'service', 'instance']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
 ```
 
-### SlowSql
+#### SlowSql
 
 SlowSql aims to convert LogData to DatabaseSlowStatement. It extracts data from `parsed` result and save them as DatabaseSlowStatement. SlowSql will not abort or edit logs, you can use other LAL for further processing.
-We need to set a log tag("isSlowSql") to enable it. If logs sent to OAP does not have this tag, slowSql processing will be skipped.The example to set the tag is following:
+SlowSql will reuse `service`, `layer` and `timestamp` of extractor, so it is necessary to use `SlowSQL` after setting these.
+We need to set a log tag `"LOG_KIND" = "SLOW_SQL"` so that OAP can distinguish slow sql logs.
+A example of JSON sent to OAP is following:
 ``` json
 [
    {
       "tags":{
          "data":[
             {
-               "key":"isSlowSql",
-               "value":"true"
+               "key":"LOG_KIND",
+               "value":"SLOW_SQL"
             }
          ]
       },
@@ -264,16 +298,6 @@ We need to set a log tag("isSlowSql") to enable it. If logs sent to OAP does not
    }
 ]
 ```
-
-- `serviceName`
-
-`serviceName` extracts the service name from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be persisted (if
-not dropped) and is used to associate with TopNDatabaseStatement and service.
-
-- `timeBucket`
-
-`timeBucket` extracts the time bucket from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be
-persisted (if not dropped) and is used to associate with TopNDatabaseStatement.
 
 - `statement`
 
@@ -290,26 +314,23 @@ persisted (if not dropped) and is used to associate with TopNDatabaseStatement.
 `id` extracts the id from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be persisted (if not
 dropped) and is used to associate with TopNDatabaseStatement.
 
-- `layer`
-
-`layer` extracts the [layer](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java) from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be persisted (if
-not dropped) and is used to associate with service.
-
-Example :
+A Example of LAL to distinguish slow logs:
 
 ```groovy
 filter {
         json{
         }
-        if (log.tags.getDataList().find{tag1->tag1.getKey() == "isSlowSql"}.getValue() == "true") {
-           slowSql {
-                     serviceName parsed.service as String
-                     id parsed.id as String
-                     statement parsed.statement as String
-                     latency parsed.query_time as Long
-                     layer parsed.layer as String
-                     timeBucket parsed.time as Long
-                   }
+        extractor{
+          layer parsed.layer as String
+          service parsed.service as String
+          timestamp parsed.time as String
+          if (tag("LOG_KIND") == "SLOW_SQL") {
+             slowSql {
+                      id parsed.id as String
+                      statement parsed.statement as String
+                      latency parsed.query_time as Long
+                     }
+          }
         }
 }
 ```

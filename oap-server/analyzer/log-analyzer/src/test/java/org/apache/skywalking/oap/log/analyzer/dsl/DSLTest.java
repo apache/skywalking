@@ -161,17 +161,21 @@ public class DSLTest {
                                 "}\n",
                 },
                 new String[] {
-                        "slowSql",
+                        "extractor-slowSql",
                         "filter {\n" +
                                 "        json{\n" +
                                 "        }\n" +
-                                "        slowSql {\n" +
-                                "          serviceName parsed.service as String\n" +
-                                "          id parsed.id as String\n" +
-                                "          statement parsed.statement as String\n" +
-                                "          latency parsed.query_time as Long\n" +
+                                "        extractor{\n" +
                                 "          layer parsed.layer as String\n" +
-                                "          timeBucket parsed.time as Long\n" +
+                                "          service parsed.service as String\n" +
+                                "          timestamp parsed.time as String\n" +
+                                "          if (tag(\"LOG_KIND\") == \"SLOW_SQL\") {\n" +
+                                "             slowSql {\n" +
+                                "                      id parsed.id as String\n" +
+                                "                      statement parsed.statement as String\n" +
+                                "                      latency parsed.query_time as Long\n" +
+                                "                     }\n" +
+                                "          }\n" +
                                 "        }\n" +
                                 "      }"
                 }
