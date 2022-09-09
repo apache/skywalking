@@ -18,7 +18,7 @@ rules:
   - name: default
     dsl: |
       filter {
-        if (tag("LOG_KIND") == "SLOW_SQL") {
+        if (log.layer != "GENERAL") {
           abort{}
         }
         sink {
