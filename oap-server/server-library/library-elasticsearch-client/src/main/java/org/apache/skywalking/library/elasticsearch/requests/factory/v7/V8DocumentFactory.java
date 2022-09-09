@@ -41,7 +41,7 @@ import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @RequiredArgsConstructor
-final class V7DocumentFactory implements DocumentFactory {
+final class V8DocumentFactory implements DocumentFactory {
     private final ElasticSearchVersion version;
 
     @Override
