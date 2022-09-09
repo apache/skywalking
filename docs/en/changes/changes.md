@@ -8,6 +8,7 @@
 * Add component ID(133) for impala JDBC Java agent plugin and component ID(134) for impala server
 * Use prepareStatement in H2SQLExecutor#getByIDs.(No function change).
 * Bump up snakeyaml to 1.31 for fixing CVE-2022-25857
+* Fix `DurationUtils.convertToTimeBucket` missed verify date format.
 
 #### UI
 
