@@ -33,17 +33,17 @@ public class Duration {
     private Step step;
 
     /**
-     * See {@link DurationUtils#convertToTimeBucket(String)}
+     * See {@link DurationUtils#convertToTimeBucket(Step, String)}
      */
     public long getStartTimeBucket() {
-        return DurationUtils.INSTANCE.convertToTimeBucket(start);
+        return DurationUtils.INSTANCE.convertToTimeBucket(step, start);
     }
 
     /**
-     * See {@link DurationUtils#convertToTimeBucket(String)}
+     * See {@link DurationUtils#convertToTimeBucket(Step, String)}
      */
     public long getEndTimeBucket() {
-        return DurationUtils.INSTANCE.convertToTimeBucket(end);
+        return DurationUtils.INSTANCE.convertToTimeBucket(step, end);
     }
 
     public long getStartTimestamp() {
