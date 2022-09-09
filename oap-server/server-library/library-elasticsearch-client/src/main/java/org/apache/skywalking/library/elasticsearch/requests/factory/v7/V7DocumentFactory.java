@@ -164,7 +164,7 @@ final class V7DocumentFactory implements DocumentFactory {
         }
         final byte[] content = version.codec().encode(ImmutableMap.of("doc", doc));
 
-        builder.post("/{index}/_doc/{id}/_update")
+        builder.post("/{index}/_update/{id}")
                .pathParam("index", index)
                .pathParam("id", id)
                .content(MediaType.JSON, content);
