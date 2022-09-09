@@ -45,7 +45,7 @@ public final class V78RequestFactory implements RequestFactory {
         template = new V78TemplateFactory(version);
         index = new V7IndexFactory(version);
         alias = new CommonAliasFactory(version);
-        document = new V7DocumentFactory(version);
+        document = new V8DocumentFactory(version);
         search = new CommonSearchFactory(version);
         bulk = new CommonBulkFactory(version);
     }
