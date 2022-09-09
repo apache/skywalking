@@ -80,36 +80,4 @@ public class DurationTest {
             Assert.assertTrue(true);
         }
     }
-
-    @Test
-    public void testStartTimeToTimestamp() {
-        Assert.assertEquals(1662566400000L, DurationUtils.INSTANCE.startTimeToTimestamp(Step.DAY, "2022-09-08"));
-        Assert.assertEquals(1662602400000L, DurationUtils.INSTANCE.startTimeToTimestamp(Step.HOUR, "2022-09-08 10"));
-        Assert.assertEquals(
-            1662603000000L, DurationUtils.INSTANCE.startTimeToTimestamp(Step.MINUTE, "2022-09-08 1010"));
-        Assert.assertEquals(
-            1662603010000L, DurationUtils.INSTANCE.startTimeToTimestamp(Step.SECOND, "2022-09-08 101010"));
-        try {
-            DurationUtils.INSTANCE.startTimeToTimestamp(Step.HOUR, "2022-09-08 30");
-            Assert.fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue(true);
-        }
-    }
-
-    @Test
-    public void testEndTimeToTimestamp() {
-        Assert.assertEquals(1662652800000L, DurationUtils.INSTANCE.endTimeToTimestamp(Step.DAY, "2022-09-08"));
-        Assert.assertEquals(1662606000000L, DurationUtils.INSTANCE.endTimeToTimestamp(Step.HOUR, "2022-09-08 10"));
-        Assert.assertEquals(1662603060000L, DurationUtils.INSTANCE.endTimeToTimestamp(Step.MINUTE, "2022-09-08 1010"));
-        Assert.assertEquals(
-            1662603011000L, DurationUtils.INSTANCE.endTimeToTimestamp(Step.SECOND, "2022-09-08 101010"));
-        try {
-            DurationUtils.INSTANCE.endTimeToTimestamp(Step.HOUR, "2022-09-08 30");
-            Assert.fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue(true);
-        }
-    }
-
 }
