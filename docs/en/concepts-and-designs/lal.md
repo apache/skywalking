@@ -7,6 +7,9 @@ segment ID and span ID) and metrics (by generating metrics from the logs and sen
 The LAL config files are in YAML format, and are located under directory `lal`. You can
 set `log-analyzer/default/lalFiles` in the `application.yml` file or set environment variable `SW_LOG_LAL_FILES` to
 activate specific LAL config files.
+## Layer
+Every LAL file is a list of LAL rule, and every LAL rule has a layer property.If a log sent to OAP has the same layer value, this rule will be enable.
+NOTICE: Every layer should only has one rule.
 
 ## Filter
 

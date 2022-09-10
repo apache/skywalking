@@ -16,6 +16,7 @@
 # The default LAL script to save all logs, behaving like the versions before 8.5.0.
 rules:
   - name: default
+    layer: UNDEFINED
     dsl: |
       filter {
         sink {

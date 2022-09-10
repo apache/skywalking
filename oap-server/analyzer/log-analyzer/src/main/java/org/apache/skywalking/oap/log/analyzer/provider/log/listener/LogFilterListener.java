@@ -19,55 +19,65 @@
 package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 
 import com.google.protobuf.Message;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
 import org.apache.skywalking.oap.log.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.log.analyzer.provider.LALConfig;
 import org.apache.skywalking.oap.log.analyzer.provider.LALConfigs;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 @RequiredArgsConstructor
 public class LogFilterListener implements LogAnalysisListener {
-    private final List<DSL> dsls;
+    private final Map<String, DSL> dsls;
+    private LogData.Builder logData;
 
     @Override
     public void build() {
-        dsls.forEach(dsl -> {
-            try {
-                dsl.evaluate();
-            } catch (final Exception e) {
-                log.warn("Failed to evaluate dsl: {}", dsl, e);
+        DSL dsl = dsls.get(logData.getLayer());
+        try {
+            if (dsl == null) {
+                if (StringUtil.isEmpty(logData.getLayer())) {
+                    log.debug("The layer is empty, will use default rules");
+                }
+                dsl = dsls.get(Layer.UNDEFINED.name());
             }
-        });
+            dsl.evaluate();
+        } catch (final Exception e) {
+            log.warn("Failed to evaluate dsl: {}", dsl, e);
+        }
     }
 
     @Override
     public LogAnalysisListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
-        dsls.forEach(dsl -> dsl.bind(new Binding().log(logData.build())
+        dsls.forEach((layer, dsl) -> dsl.bind(new Binding().log(logData.build())
                                                   .extraLog(extraLog)));
+        this.logData = logData;
         return this;
     }
 
     public static class Factory implements LogAnalysisListenerFactory {
-        private final List<DSL> dsls;
+        private final Map<String, DSL> dsls;
 
         public Factory(final ModuleManager moduleManager, final LogAnalyzerModuleConfig config) throws Exception {
-            dsls = new ArrayList<>();
+            dsls = new HashedMap<>();
 
             final List<LALConfig> configList = LALConfigs.load(config.getLalPath(), config.lalFiles())
                                                          .stream()
                                                          .flatMap(it -> it.getRules().stream())
                                                          .collect(Collectors.toList());
             for (final LALConfig c : configList) {
-                dsls.add(DSL.of(moduleManager, config, c.getDsl()));
+                dsls.put(c.getLayer(), DSL.of(moduleManager, config, c.getDsl()));
             }
         }
 

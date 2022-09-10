@@ -51,7 +51,7 @@ public class LogAnalyzerModuleConfig extends ModuleConfig {
     private List<Rule> meterConfigs;
 
     public List<String> lalFiles() {
-        return Splitter.on(",").omitEmptyStrings().splitToList(Strings.nullToEmpty(getLalFiles()));
+        return Splitter.on(",").omitEmptyStrings().trimResults().splitToList(Strings.nullToEmpty(getLalFiles()));
     }
 
     public List<Rule> malConfigs() throws ModuleStartException {
