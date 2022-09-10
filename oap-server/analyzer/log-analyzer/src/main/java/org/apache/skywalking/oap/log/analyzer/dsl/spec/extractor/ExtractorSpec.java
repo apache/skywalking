@@ -23,10 +23,11 @@ import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 
-import java.text.SimpleDateFormat;
-
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -72,6 +73,8 @@ public class ExtractorSpec extends AbstractSpec {
     private final NamingControl namingControl;
 
     private final SourceReceiver sourceReceiver;
+
+    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     public ExtractorSpec(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
@@ -258,8 +261,9 @@ public class ExtractorSpec extends AbstractSpec {
         }
         DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
         builder.setLayer(Layer.nameOf(log.getLayer()));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        String timeBucket = sdf.format(new Date(log.getTimestamp()));
+
+        LocalDateTime localDateTime = Instant.ofEpochMilli(log.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        String timeBucket = DTF.format(localDateTime);
         builder.setTimeBucket(Long.parseLong(timeBucket));
         builder.setServiceName(log.getService());
 
