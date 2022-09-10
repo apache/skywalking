@@ -46,48 +46,41 @@ public enum DurationUtils {
      * Convert date in `yyyy-MM-dd HHmmss` style to `yyyyMMddHHmmss` no matter the precision. Such as, in day precision,
      * this covert `yyyy-MM-dd` style to `yyyyMMdd`.
      */
-    public long convertToTimeBucket(String dateStr) {
+    public long convertToTimeBucket(Step step, String dateStr) {
+        verifyDateTimeString(step, dateStr);
         dateStr = dateStr.replaceAll(Const.LINE, Const.EMPTY_STRING);
         dateStr = dateStr.replaceAll(Const.SPACE, Const.EMPTY_STRING);
         return Long.parseLong(dateStr);
     }
 
     public long startTimeDurationToSecondTimeBucket(Step step, String dateStr) {
-        long secondTimeBucket = 0;
+        long secondTimeBucket = convertToTimeBucket(step, dateStr);
         switch (step) {
             case DAY:
-                secondTimeBucket = convertToTimeBucket(dateStr) * 100 * 100 * 100;
-                break;
+                return secondTimeBucket * 100 * 100 * 100;
             case HOUR:
-                secondTimeBucket = convertToTimeBucket(dateStr) * 100 * 100;
-                break;
+                return secondTimeBucket * 100 * 100;
             case MINUTE:
-                secondTimeBucket = convertToTimeBucket(dateStr) * 100;
-                break;
+                return secondTimeBucket * 100;
             case SECOND:
-                secondTimeBucket = convertToTimeBucket(dateStr);
-                break;
+                return secondTimeBucket;
         }
-        return secondTimeBucket;
+        throw new UnexpectedException("Unsupported step " + step.name());
     }
 
     public long endTimeDurationToSecondTimeBucket(Step step, String dateStr) {
-        long secondTimeBucket = 0;
+        long secondTimeBucket = convertToTimeBucket(step, dateStr);
         switch (step) {
             case DAY:
-                secondTimeBucket = ((convertToTimeBucket(dateStr) * 100 + 99) * 100 + 99) * 100 + 99;
-                break;
+                return ((secondTimeBucket * 100 + 23) * 100 + 59) * 100 + 59;
             case HOUR:
-                secondTimeBucket = (convertToTimeBucket(dateStr) * 100 + 99) * 100 + 99;
-                break;
+                return (secondTimeBucket * 100 + 59) * 100 + 59;
             case MINUTE:
-                secondTimeBucket = convertToTimeBucket(dateStr) * 100 + 99;
-                break;
+                return secondTimeBucket * 100 + 59;
             case SECOND:
-                secondTimeBucket = convertToTimeBucket(dateStr);
-                break;
+                return secondTimeBucket;
         }
-        return secondTimeBucket;
+        throw new UnexpectedException("Unsupported step " + step.name());
     }
 
     public List<PointOfTime> getDurationPoints(Step step, long startTimeBucket, long endTimeBucket) {
@@ -163,7 +156,7 @@ public enum DurationUtils {
         throw new UnexpectedException("Unsupported step " + step.name());
     }
 
-    private DateTime parseToDateTime(Step step, long time) {
+    public DateTime parseToDateTime(Step step, long time) {
         switch (step) {
             case DAY:
                 return YYYYMMDD.parseDateTime(String.valueOf(time));
@@ -176,4 +169,23 @@ public enum DurationUtils {
         }
         throw new UnexpectedException("Unexpected downsampling: " + step.name());
     }
+
+    public void verifyDateTimeString(Step step, String dateStr) {
+        switch (step) {
+            case DAY:
+                YYYY_MM_DD.parseDateTime(dateStr);
+                return;
+            case HOUR:
+                YYYY_MM_DD_HH.parseDateTime(dateStr);
+                return;
+            case MINUTE:
+                YYYY_MM_DD_HHMM.parseDateTime(dateStr);
+                return;
+            case SECOND:
+                YYYY_MM_DD_HHMMSS.parseDateTime(dateStr);
+                return;
+        }
+        throw new UnexpectedException("Unsupported step " + step.name());
+    }
+
 }
