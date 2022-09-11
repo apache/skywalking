@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.log.analyzer.provider.log;
 import com.google.protobuf.Message;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
@@ -81,6 +83,9 @@ public class LogAnalyzer {
 
     private void createListeners(Layer layer) {
         factoryManager.getLogAnalysisListenerFactories()
-                      .forEach(factory -> listeners.add(factory.create(layer)));
+                      .stream()
+                      .map(factory -> factory.create(layer))
+                      .filter(Objects::nonNull)
+                      .forEach(listeners::add);
     }
 }
