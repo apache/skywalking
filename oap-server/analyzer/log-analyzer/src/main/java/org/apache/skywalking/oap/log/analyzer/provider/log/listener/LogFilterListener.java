@@ -32,9 +32,10 @@ import org.apache.skywalking.oap.log.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.log.analyzer.provider.LALConfig;
 import org.apache.skywalking.oap.log.analyzer.provider.LALConfigs;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
+
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 @Slf4j
 @RequiredArgsConstructor
