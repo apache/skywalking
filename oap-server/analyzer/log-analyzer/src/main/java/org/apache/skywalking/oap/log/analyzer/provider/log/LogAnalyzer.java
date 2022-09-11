@@ -58,7 +58,7 @@ public class LogAnalyzer {
             try {
                 layer = Layer.nameOf(builder.getLayer());
             } catch (UnexpectedException e) {
-                log.warn("layer not found, will skip this process.");
+                log.warn("The Layer {} is not found, abandon the log.", builder.getLayer());
                 return;
             }
         }

@@ -69,13 +69,9 @@ public class LogFilterListener implements LogAnalysisListener {
                                                          .flatMap(it -> it.getRules().stream())
                                                          .collect(Collectors.toList());
             for (final LALConfig c : configList) {
-                try {
-                    Layer layer = Layer.nameOf(c.getLayer());
-                    if (dsls.put(layer, DSL.of(moduleManager, config, c.getDsl())) != null) {
-                        log.warn("layer {} has already set a rule {}, the old one will be ignored.", layer, c.getName());
-                    }
-                } catch (UnexpectedException e) {
-                    log.warn("layer {} not found, will ignore this rule.", c.getName(), e);
+                Layer layer = Layer.nameOf(c.getLayer());
+                if (dsls.put(layer, DSL.of(moduleManager, config, c.getDsl())) != null) {
+                    throw new UnexpectedException("Layer "+ layer.name() +" has already set a rule.");
                 }
             }
         }
