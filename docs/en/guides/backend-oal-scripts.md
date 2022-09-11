@@ -27,9 +27,8 @@ The value of `x-le` should be in JSON format. There are two options:
 {
   "logic-span": true
 }
-``` 
+```
 
 ### References
-1. [Java plugin API](https://skywalking.apache.org/docs/skywalking-java/latest/en/setup/service-agent/java-agent/java-plugin-development-guide/#extension-logic-endpoint-tag-key-x-le) guides users to write plugins with logic endpoint.
-2. Java agent's plugins include native included logic endpoints, also it provides ways to set the tag of logic span. The document could be found [here](https://skywalking.apache.org/docs/skywalking-java/latest/en/setup/service-agent/java-agent/logic-endpoint/).
-
+1. [Java plugin API](https://skywalking.apache.org/docs/skywalking-java/next/en/setup/service-agent/java-agent/java-plugin-development-guide/#extension-logic-endpoint-tag-key-x-le) guides users to write plugins with logic endpoint.
+2. Java agent's plugins include native included logic endpoints, also it provides ways to set the tag of logic span. The document could be found [here](https://skywalking.apache.org/docs/skywalking-java/next/en/setup/service-agent/java-agent/logic-endpoint/).

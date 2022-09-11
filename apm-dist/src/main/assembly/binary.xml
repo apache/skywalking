@@ -125,7 +125,12 @@
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.basedir}/../apm-webapp/src/main/assembly/webapp.yml</source>
+            <source>${project.basedir}/../apm-webapp/src/main/resources/application.yml</source>
+            <outputDirectory>webapp</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>${project.basedir}/../apm-webapp/src/main/assembly/log4j2.xml</source>
             <outputDirectory>webapp</outputDirectory>
             <fileMode>0644</fileMode>
         </file>

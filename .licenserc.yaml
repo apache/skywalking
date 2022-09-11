@@ -74,6 +74,7 @@ dependency:
     - skywalking-ui/package.json
   excludes:
     - name: org.openjdk.jmh:jmh-core # We don't distribute the dependencies, they are just for the build process
+      recursive: true
     - name: org.apache.skywalking:* # Exclude self dependencies
   licenses:
     - name: org.slf4j:slf4j-api
