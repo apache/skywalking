@@ -24,7 +24,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.map.HashedMap;
+
+import java.util.HashMap;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
 import org.apache.skywalking.oap.log.analyzer.dsl.DSL;
@@ -38,6 +39,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 @Slf4j
 @RequiredArgsConstructor
 public class LogFilterListener implements LogAnalysisListener {
+    @lombok.NonNull
     private final DSL dsl;
 
     @Override
@@ -67,18 +69,22 @@ public class LogFilterListener implements LogAnalysisListener {
         private final Map<Layer, DSL> dsls;
 
         public Factory(final ModuleManager moduleManager, final LogAnalyzerModuleConfig config) throws Exception {
-            dsls = new HashedMap<>();
+            dsls = new HashMap<>();
 
             final List<LALConfig> configList = LALConfigs.load(config.getLalPath(), config.lalFiles())
                                                          .stream()
                                                          .flatMap(it -> it.getRules().stream())
                                                          .collect(Collectors.toList());
             for (final LALConfig c : configList) {
+                Layer layer = null;
                 try {
-                    Layer layer = Layer.nameOf(c.getLayer());
+                    layer = Layer.nameOf(c.getLayer());
+                    if (dsls.containsKey(layer)) {
+                        log.warn("layer {} has set a rule, old one will be ignore.", c.getName());
+                    }
                     dsls.put(layer, DSL.of(moduleManager, config, c.getDsl()));
                 } catch (UnexpectedException e) {
-                    log.warn("layer not found, will ignore this rule:" + c.getName());
+                    log.warn("layer {} not found, will ignore this rule.", c.getName());
                 }
             }
         }
@@ -88,7 +94,11 @@ public class LogFilterListener implements LogAnalysisListener {
             if (layer == null) {
                 return null;
             }
-            return new LogFilterListener(dsls.get(layer));
+            final DSL dsl = dsls.get(layer);
+            if (dsl == null) {
+                return null;
+            }
+            return new LogFilterListener(dsl);
         }
     }
 }
