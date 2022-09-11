@@ -49,11 +49,16 @@ public class LogAnalyzer {
             return;
         }
         Layer layer;
-        try {
-            layer = Layer.nameOf(builder.getLayer());
-        } catch (UnexpectedException e) {
-            log.warn("layer not found, will skip this process.");
-            return;
+        if ("".equals(builder.getLayer())) {
+            layer = Layer.GENERAL;
+        }
+        else {
+            try {
+                layer = Layer.nameOf(builder.getLayer());
+            } catch (UnexpectedException e) {
+                log.warn("layer not found, will skip this process.");
+                return;
+            }
         }
 
         createListeners(layer);
