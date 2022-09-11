@@ -71,7 +71,7 @@ public class LogFilterListener implements LogAnalysisListener {
             for (final LALConfig c : configList) {
                 Layer layer = Layer.nameOf(c.getLayer());
                 if (dsls.put(layer, DSL.of(moduleManager, config, c.getDsl())) != null) {
-                    throw new UnexpectedException("Layer "+ layer.name() +" has already set a rule.");
+                    throw new ModuleStartException("Layer " + layer.name() + " has already set a rule.");
                 }
             }
         }
