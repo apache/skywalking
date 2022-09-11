@@ -13,9 +13,12 @@
 
 #### UI
 
-* Fix: tab active incorrectly, when click tab space 
+* Fix: tab active incorrectly, when click tab space
 * Add impala icon for impala JDBC Java agent plugin.
 * (Webapp)Bump up snakeyaml to 1.31 for fixing CVE-2022-25857
+* [Breaking Change]: migrate from Spring Web to Armeria, now you should use the environment variable name `SW_OAP_ADDRESS`
+  to change the OAP backend service addresses, like `SW_OAP_ADDRESS=localhost:12800,localhost:12801`, and use environment
+  variable `SW_SERVER_PORT` to change the port. Other Spring-related configurations don't take effect anymore.
 
 
 #### Documentation

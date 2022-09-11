@@ -40,7 +40,7 @@ jobs:
         with:
           submodules: true
       - name: Check license header
-        uses: apache/skywalking-eyes@985866ce7e324454f61e22eb2db2e998db09d6f3
+        uses: apache/skywalking-eyes@442d4621d10ae9e92a859d873e6e63664622a50d
 
   code-style:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -77,7 +77,7 @@ jobs:
           go-version: "1.16"
       - name: Check Dependencies Licenses
         run: |
-          go install github.com/apache/skywalking-eyes/cmd/license-eye@7a3e90b
+          go install github.com/apache/skywalking-eyes/cmd/license-eye@442d462
           license-eye dependency resolve --summary ./dist-material/release-docs/LICENSE.tpl || exit 1
           if [ ! -z "$(git diff -U0 ./dist-material/release-docs/LICENSE)" ]; then
             echo "LICENSE file is not updated correctly"
