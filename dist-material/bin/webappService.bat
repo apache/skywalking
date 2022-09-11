@@ -26,8 +26,6 @@ if not exist "%WEBAPP_LOG_DIR%" (
     mkdir "%WEBAPP_LOG_DIR%"
 )
 
-set LOG_FILE_LOCATION=%WEBAPP_LOG_DIR%\webapp.log
-
 if defined JAVA_HOME (
  set _EXECJAVA="%JAVA_HOME%\bin\java"
 )
@@ -37,5 +35,5 @@ if not defined JAVA_HOME (
  set _EXECJAVA=java
 )
 
-start "%WEBAPP_PROCESS_TITLE%" %_EXECJAVA%  -jar %JARPATH%/skywalking-webapp.jar --spring.config.location=%JARPATH%/webapp.yml --logging.file=%LOG_FILE_LOCATION%
+start "%WEBAPP_PROCESS_TITLE%" %_EXECJAVA% -Dwebapp.logDir=%WEBAPP_LOG_DIR% -cp %JARPATH%/skywalking-webapp.jar;%JARPATH% org.apache.skywalking.oap.server.webapp.ApplicationStartUp
 endlocal

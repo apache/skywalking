@@ -49,7 +49,7 @@
                   "content":"Provide MySQL Server monitoring through OpenTelemetry's Prometheus Receiver",
                   "fontSize":14,
                   "textAlign":"left",
-                  "url":"https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-mysql-monitoring/"
+                  "url":"https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-mysql-monitoring/"
                }
             }
          ],

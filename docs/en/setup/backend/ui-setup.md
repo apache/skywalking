@@ -1,5 +1,5 @@
 # UI
-SkyWalking UI distribution is already included in our Apache official release. 
+SkyWalking UI distribution is already included in our Apache official release.
 
 ## Startup
 Startup script is also in `/bin/webappService.sh`(.bat). UI runs as an OS Java process, powered-by Zuul.
@@ -11,25 +11,10 @@ The settings file of UI is  `webapp/webapp.yml` in the distribution package. It 
 1. Backend connect info.
 
 ```yaml
-server:
-  port: 8080
-spring:
-  cloud:
-    gateway:
-      routes:
-        - id: oap-route
-          uri: lb://oap-service
-          predicates:
-            - Path=/graphql/**
-    discovery:
-      client:
-        simple:
-          instances:
-            oap-service:
-              # Point to all backend's restHost:restPort, split by URI arrays.
-              - uri: http://127.0.0.1:12800
-              - uri: http://instance-2:12800
+serverPort: ${SW_SERVER_PORT:-8080}
 
+# Comma seperated list of OAP addresses, without http:// prefix.
+oapServices: ${SW_OAP_ADDRESS:-localhost:12800}
 ```
 
 ## Start with Docker Image
