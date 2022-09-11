@@ -23,7 +23,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.oap.log.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -52,8 +51,8 @@ public class LogAnalyzer {
         Layer layer;
         try {
             layer = Layer.nameOf(builder.getLayer());
-        } catch (UnexpectedException e){
-            log.warn("layer not found, will skip this process." );
+        } catch (UnexpectedException e) {
+            log.warn("layer not found, will skip this process.");
             return;
         }
 

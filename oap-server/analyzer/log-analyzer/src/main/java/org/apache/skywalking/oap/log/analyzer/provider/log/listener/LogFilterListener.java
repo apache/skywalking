@@ -77,7 +77,7 @@ public class LogFilterListener implements LogAnalysisListener {
                 try {
                     Layer layer = Layer.nameOf(c.getLayer());
                     dsls.put(layer, DSL.of(moduleManager, config, c.getDsl()));
-                } catch (UnexpectedException e){
+                } catch (UnexpectedException e) {
                     log.warn("layer not found, will ignore this rule:" + c.getName());
                 }
             }
