@@ -169,7 +169,7 @@ public class FilterSpec extends AbstractSpec {
         final Optional<AtomicReference<Log>> container = BINDING.get().logContainer();
         if (container.isPresent()) {
             factories.stream()
-                     .map(LogAnalysisListenerFactory::create)
+                     .map(it->it.create(null))
                      .filter(it -> it instanceof RecordAnalysisListener)
                      .map(it -> it.parse(logData, extraLog))
                      .map(it -> (RecordAnalysisListener) it)
@@ -178,7 +178,7 @@ public class FilterSpec extends AbstractSpec {
                      .ifPresent(log -> container.get().set(log));
         } else {
             factories.stream()
-                     .map(LogAnalysisListenerFactory::create)
+                     .map(it -> it.create(null))
                      .forEach(it -> it.parse(logData, extraLog).build());
         }
     }

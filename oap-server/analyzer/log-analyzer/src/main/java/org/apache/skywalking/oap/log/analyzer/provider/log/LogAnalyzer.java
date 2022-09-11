@@ -23,6 +23,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.log.analyzer.dsl.DSL;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListener;
@@ -46,7 +49,15 @@ public class LogAnalyzer {
             log.debug("The log is ignored because the Service name is empty");
             return;
         }
-        createListeners();
+        Layer layer;
+        try {
+            layer = Layer.nameOf(builder.getLayer());
+        } catch (UnexpectedException e){
+            log.warn("layer not found, will skip this process." );
+            return;
+        }
+
+        createListeners(layer);
         if (builder.getTimestamp() == 0) {
             // If no timestamp, OAP server would use the received timestamp as log's timestamp
             builder.setTimestamp(System.currentTimeMillis());
@@ -64,8 +75,8 @@ public class LogAnalyzer {
         listeners.forEach(LogAnalysisListener::build);
     }
 
-    private void createListeners() {
+    private void createListeners(Layer layer) {
         factoryManager.getLogAnalysisListenerFactories()
-                      .forEach(factory -> listeners.add(factory.create()));
+                      .forEach(factory -> listeners.add(factory.create(layer)));
     }
 }

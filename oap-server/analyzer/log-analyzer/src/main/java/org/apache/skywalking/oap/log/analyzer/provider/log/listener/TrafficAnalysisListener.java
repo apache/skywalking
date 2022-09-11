@@ -111,7 +111,7 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
         }
 
         @Override
-        public LogAnalysisListener create() {
+        public LogAnalysisListener create(Layer layer) {
             return new TrafficAnalysisListener(sourceReceiver, namingControl);
         }
     }

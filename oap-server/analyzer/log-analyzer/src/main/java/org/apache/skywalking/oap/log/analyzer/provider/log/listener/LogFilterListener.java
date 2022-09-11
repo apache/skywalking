@@ -31,25 +31,21 @@ import org.apache.skywalking.oap.log.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.log.analyzer.provider.LALConfig;
 import org.apache.skywalking.oap.log.analyzer.provider.LALConfigs;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 @RequiredArgsConstructor
 public class LogFilterListener implements LogAnalysisListener {
-    private final Map<String, DSL> dsls;
-    private LogData.Builder logData;
+    private final DSL dsl;
 
     @Override
     public void build() {
-        DSL dsl = dsls.get(logData.getLayer());
         try {
             if (dsl == null) {
-                if (StringUtil.isEmpty(logData.getLayer())) {
-                    log.debug("The layer is empty, will use default rules");
-                }
-                dsl = dsls.get(Layer.UNDEFINED.name());
+                log.warn("No rules match, the process will skip.");
+                return;
             }
             dsl.evaluate();
         } catch (final Exception e) {
@@ -60,14 +56,15 @@ public class LogFilterListener implements LogAnalysisListener {
     @Override
     public LogAnalysisListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
-        dsls.forEach((layer, dsl) -> dsl.bind(new Binding().log(logData.build())
-                                                  .extraLog(extraLog)));
-        this.logData = logData;
+        if (dsl == null) {
+            return null;
+        }
+        dsl.bind(new Binding().log(logData.build()).extraLog(extraLog));
         return this;
     }
 
     public static class Factory implements LogAnalysisListenerFactory {
-        private final Map<String, DSL> dsls;
+        private final Map<Layer, DSL> dsls;
 
         public Factory(final ModuleManager moduleManager, final LogAnalyzerModuleConfig config) throws Exception {
             dsls = new HashedMap<>();
@@ -77,13 +74,21 @@ public class LogFilterListener implements LogAnalysisListener {
                                                          .flatMap(it -> it.getRules().stream())
                                                          .collect(Collectors.toList());
             for (final LALConfig c : configList) {
-                dsls.put(c.getLayer(), DSL.of(moduleManager, config, c.getDsl()));
+                try {
+                    Layer layer = Layer.nameOf(c.getLayer());
+                    dsls.put(layer, DSL.of(moduleManager, config, c.getDsl()));
+                } catch (UnexpectedException e){
+                    log.warn("layer not found, will ignore this rule:" + c.getName());
+                }
             }
         }
 
         @Override
-        public LogAnalysisListener create() {
-            return new LogFilterListener(dsls);
+        public LogAnalysisListener create(Layer layer) {
+            if (layer == null) {
+                return null;
+            }
+            return new LogFilterListener(dsls.get(layer));
         }
     }
 }

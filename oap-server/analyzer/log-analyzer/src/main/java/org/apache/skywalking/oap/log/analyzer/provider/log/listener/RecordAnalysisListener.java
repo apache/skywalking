@@ -29,6 +29,7 @@ import lombok.SneakyThrows;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -161,7 +162,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
         }
 
         @Override
-        public LogAnalysisListener create() {
+        public LogAnalysisListener create(Layer layer) {
             return new RecordAnalysisListener(sourceReceiver, namingControl, searchableTagKeys);
         }
     }
