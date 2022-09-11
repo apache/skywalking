@@ -83,10 +83,10 @@ To make the orchestration process easier, we're using a [docker-compose](https:/
 Follow these steps:
 1. Decide what (and how many) containers will be needed. For example, for cluster testing, you'll need > 2 OAP nodes, coordinators (e.g. zookeeper), storage (e.g. ElasticSearch), and instrumented services;
 1. Define the containers in `docker-compose.yml`, and carefully specify the dependencies, starting orders, and most importantly, link them together, e.g. set the correct OAP address on the agent end, and set the correct coordinator address in OAP, etc.
-1. Define the e2e case [config](https://skywalking.apache.org/docs/skywalking-infra-e2e/latest/en/setup/configuration-file/) in `e2e.yaml`.
+1. Define the e2e case [config](https://skywalking.apache.org/docs/skywalking-infra-e2e/next/en/setup/configuration-file/) in `e2e.yaml`.
 1. Write the expected data(yml) for verify.
 
-- [Run e2e test](https://skywalking.apache.org/docs/skywalking-infra-e2e/latest/en/setup/run-e2e-tests/)
+- [Run e2e test](https://skywalking.apache.org/docs/skywalking-infra-e2e/next/en/setup/run-e2e-tests/)
 
 All e2e cases should under `skywalking/test/e2e-v2/cases`. You could execute e2e run command in `skywalking/` e.g.
 ```

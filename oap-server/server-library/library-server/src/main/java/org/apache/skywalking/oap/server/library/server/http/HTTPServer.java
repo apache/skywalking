@@ -18,16 +18,17 @@
 
 package org.apache.skywalking.oap.server.library.server.http;
 
+import com.google.common.collect.Sets;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.Route;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.docs.DocService;
+import com.linecorp.armeria.server.healthcheck.HealthCheckService;
 import com.linecorp.armeria.server.logging.LoggingService;
 import java.net.InetSocketAddress;
 import java.time.Duration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,8 @@ import static java.util.Objects.requireNonNull;
 public class HTTPServer implements Server {
     private final HTTPServerConfig config;
     private ServerBuilder sb;
-    private final Set<HttpMethod> allowedMethods = new HashSet<>();
+    // Health check service, supports HEAD, GET method.
+    private final Set<HttpMethod> allowedMethods = Sets.newHashSet(HttpMethod.HEAD);
 
     public HTTPServer(HTTPServerConfig config) {
         this.config = config;
@@ -52,6 +54,7 @@ public class HTTPServer implements Server {
         sb = com.linecorp.armeria.server.Server
             .builder()
             .serviceUnder(contextPath + "/docs", DocService.builder().build())
+            .service("/internal/l7check", HealthCheckService.of())
             .workerGroup(config.getMaxThreads())
             .http(new InetSocketAddress(
                 config.getHost(),

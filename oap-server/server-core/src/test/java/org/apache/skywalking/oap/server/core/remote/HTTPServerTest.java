@@ -100,11 +100,6 @@ public class HTTPServerTest {
             WebClient.of().options(testHandlerURI).aggregate().get().status().code(),
             405
         );
-
-        Assert.assertEquals(
-            WebClient.of().head(testHandlerURI).aggregate().get().status().code(),
-            405
-        );
     }
 
     static class TestPostHandler {

@@ -6,13 +6,13 @@ format and maximize the analysis capabilities of the SkyWalking OAP server.
 
 ## Installing language agents in services
 
-- [Java agent](https://skywalking.apache.org/docs/skywalking-java/latest/en/setup/service-agent/java-agent/readme/). Learn how to install the Java agent in your service without affecting your code.
+- [Java agent](https://skywalking.apache.org/docs/skywalking-java/next/en/setup/service-agent/java-agent/readme/). Learn how to install the Java agent in your service without affecting your code.
 
 - [LUA agent](https://github.com/apache/skywalking-nginx-lua). Learn how to install the Lua agent in Nginx + LUA module or OpenResty.
 
 - [Kong agent](https://github.com/apache/skywalking-kong). Learn how to install the Lua agent in Kong.
 
-- [Python Agent](https://skywalking.apache.org/docs/skywalking-python/latest/en/setup/cli/). Learn how to install the Python Agent in a Python service without affecting your code.
+- [Python Agent](https://skywalking.apache.org/docs/skywalking-python/next/en/setup/cli/). Learn how to install the Python Agent in a Python service without affecting your code.
 
 - [Node.js agent](https://github.com/apache/skywalking-nodejs). Learn how to install the NodeJS Agent in a NodeJS service.
 
