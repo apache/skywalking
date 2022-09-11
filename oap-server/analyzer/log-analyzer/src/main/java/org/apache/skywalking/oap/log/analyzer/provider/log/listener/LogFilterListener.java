@@ -45,10 +45,6 @@ public class LogFilterListener implements LogAnalysisListener {
     @Override
     public void build() {
         try {
-            if (dsl == null) {
-                log.warn("No rules match, the process will skip.");
-                return;
-            }
             dsl.evaluate();
         } catch (final Exception e) {
             log.warn("Failed to evaluate dsl: {}", dsl, e);
@@ -58,9 +54,6 @@ public class LogFilterListener implements LogAnalysisListener {
     @Override
     public LogAnalysisListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
-        if (dsl == null) {
-            return null;
-        }
         dsl.bind(new Binding().log(logData.build()).extraLog(extraLog));
         return this;
     }
@@ -76,15 +69,13 @@ public class LogFilterListener implements LogAnalysisListener {
                                                          .flatMap(it -> it.getRules().stream())
                                                          .collect(Collectors.toList());
             for (final LALConfig c : configList) {
-                Layer layer = null;
                 try {
-                    layer = Layer.nameOf(c.getLayer());
-                    if (dsls.containsKey(layer)) {
-                        log.warn("layer {} has set a rule, old one will be ignore.", c.getName());
+                    Layer layer = Layer.nameOf(c.getLayer());
+                    if (dsls.put(layer, DSL.of(moduleManager, config, c.getDsl())) != null) {
+                        log.warn("layer {} has already set a rule {}, the old one will be ignored.", layer, c.getName());
                     }
-                    dsls.put(layer, DSL.of(moduleManager, config, c.getDsl()));
                 } catch (UnexpectedException e) {
-                    log.warn("layer {} not found, will ignore this rule.", c.getName());
+                    log.warn("layer {} not found, will ignore this rule.", c.getName(), e);
                 }
             }
         }
