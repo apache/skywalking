@@ -16,6 +16,7 @@
 rules:
   - name: example
     dsl: |
+    layer: GENERAL
       filter {
         text {
           abortOnFailure false // for test purpose, we want to persist all logs
