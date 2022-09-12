@@ -18,9 +18,6 @@ rules:
     layer: MESH
     dsl: |
       filter {
-        if (log.layer != "MESH") {
-          abort{}
-        }
         // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)
         if (parsed?.response?.responseCode?.value as Integer < 400 && !parsed?.commonProperties?.responseFlags?.toString()?.trim()) {
           abort {}

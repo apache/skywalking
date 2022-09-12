@@ -15,11 +15,9 @@
 
 rules:
   - name: mysql-slowsql
+    layer: MYSQL
     dsl: |
       filter {
-        if (log.layer != "MYSQL") {
-          abort{}
-        }
         json{
         }
         extractor{

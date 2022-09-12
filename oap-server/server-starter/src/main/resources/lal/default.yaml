@@ -19,9 +19,6 @@ rules:
     layer: GENERAL
     dsl: |
       filter {
-        if (log.layer != "GENERAL") {
-          abort{}
-        }
         sink {
         }
       }
