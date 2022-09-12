@@ -53,8 +53,7 @@ public class LogAnalyzer {
         Layer layer;
         if ("".equals(builder.getLayer())) {
             layer = Layer.GENERAL;
-        }
-        else {
+        } else {
             try {
                 layer = Layer.nameOf(builder.getLayer());
             } catch (UnexpectedException e) {
