@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,19 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.log.analyzer.provider.log;
+package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 
-import java.util.List;
-import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListenerFactory;
-import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogSinkListenerFactory;
-
-public interface ILogAnalysisListenerManager {
-
-    void addListenerFactory(LogAnalysisListenerFactory factory);
-
-    List<LogAnalysisListenerFactory> getLogAnalysisListenerFactories();
-
-    void addSinkListenerFactory(LogSinkListenerFactory factory);
-
-    List<LogSinkListenerFactory> getSinkListenerFactory();
+/**
+ * LogSinkListenerFactory implementation creates the listener instance when required.
+ * Every LogSinkListener could have its own creation factory.
+ */
+public interface LogSinkListenerFactory {
+    LogSinkListener create();
 }

@@ -62,25 +62,25 @@ public class LogAnalyzer {
             }
         }
 
-        createListeners(layer);
+        createAnalysisListeners(layer);
         if (builder.getTimestamp() == 0) {
             // If no timestamp, OAP server would use the received timestamp as log's timestamp
             builder.setTimestamp(System.currentTimeMillis());
         }
 
-        notifyListener(builder, extraLog);
-        notifyListenerToBuild();
+        notifyAnalysisListener(builder, extraLog);
+        notifyAnalysisListenerToBuild();
     }
 
-    private void notifyListener(LogData.Builder builder, final Message extraLog) {
+    private void notifyAnalysisListener(LogData.Builder builder, final Message extraLog) {
         listeners.forEach(listener -> listener.parse(builder, extraLog));
     }
 
-    private void notifyListenerToBuild() {
+    private void notifyAnalysisListenerToBuild() {
         listeners.forEach(LogAnalysisListener::build);
     }
 
-    private void createListeners(Layer layer) {
+    private void createAnalysisListeners(Layer layer) {
         factoryManager.getLogAnalysisListenerFactories()
                       .stream()
                       .map(factory -> factory.create(layer))
