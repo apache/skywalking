@@ -24,8 +24,8 @@ Please read SkyWalking language agents documentation to see whether it is suppor
 SkyWalking has a native metrics format, and supports widely used metric formats, such as Prometheus, OpenCensus, OpenTelemetry, and Zabbix.
 
 The native metrics format definition could be found [here](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Meter.proto).
-Typically, the agent meter plugin (e.g. [Java Meter Plugin](https://skywalking.apache.org/docs/skywalking-java/latest/en/setup/service-agent/java-agent/java-plugin-development-guide/#meter-plugin)) and
-Satellite [Prometheus fetcher](https://skywalking.apache.org/docs/skywalking-satellite/latest/en/setup/plugins/fetcher_prometheus-metrics-fetcher/)
+Typically, the agent meter plugin (e.g. [Java Meter Plugin](https://skywalking.apache.org/docs/skywalking-java/next/en/setup/service-agent/java-agent/java-plugin-development-guide/#meter-plugin)) and
+Satellite [Prometheus fetcher](https://skywalking.apache.org/docs/skywalking-satellite/next/en/setup/plugins/fetcher_prometheus-metrics-fetcher/)
 would convert metrics into native format and forward them to SkyWalking OAP server.
 
 To learn more about receiving 3rd party formats metrics, see [Meter receiver](../setup/backend/backend-meter.md) and [OpenTelemetry receiver](../setup/backend/opentelemetry-receiver.md).

@@ -15,6 +15,7 @@
 
 rules:
   - name: envoy-als
+    layer: MESH
     dsl: |
       filter {
         if (log.layer != "MESH") {

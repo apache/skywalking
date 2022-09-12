@@ -15,19 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.webapp;
+package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import com.google.protobuf.Message;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
 
-@SpringBootTest
-@RunWith(SpringRunner.class)
-public class ApplicationContextTest {
+public interface LogSinkListener {
+    /**
+     * The last step of the sink process. Typically, the implementations forward the results to the source
+     * receiver.
+     */
+    void build();
 
-    @Test
-    public void contextShouldLoad() {
-    }
-
+    /**
+     * Parse the raw data from the probe.
+     * @return {@code this} for chaining.
+     */
+    LogSinkListener parse(LogData.Builder logData, final Message extraLog);
 }

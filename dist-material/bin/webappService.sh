@@ -20,7 +20,7 @@ PRGDIR=$(dirname "$PRG")
 [ -z "$WEBAPP_HOME" ] && WEBAPP_HOME=$(cd "$PRGDIR/.." > /dev/null || exit 1; pwd)
 
 WEBAPP_LOG_DIR="${WEBAPP_LOG_DIR:-${WEBAPP_HOME}/logs}"
-JAVA_OPTS="${JAVA_OPTS:-  -Xms256M -Xmx512M}"
+JAVA_OPTS="${JAVA_OPTS:-  -Xms256M -Xmx512M} -Dwebapp.logDir=${WEBAPP_LOG_DIR}"
 JAR_PATH="${WEBAPP_HOME}/webapp"
 
 if [ ! -d "${WEBAPP_LOG_DIR}" ]; then
@@ -32,9 +32,8 @@ LOG_FILE_LOCATION=${WEBAPP_LOG_DIR}/webapp.log
 _RUNJAVA=${JAVA_HOME}/bin/java
 [ -z "$JAVA_HOME" ] && _RUNJAVA=java
 
-eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -jar ${JAR_PATH}/skywalking-webapp.jar \
-         --spring.config.location=${JAR_PATH}/webapp.yml \
-         --logging.file=${LOG_FILE_LOCATION} \
+eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -cp ${JAR_PATH}/skywalking-webapp.jar:$JAR_PATH \
+         org.apache.skywalking.oap.server.webapp.ApplicationStartUp \
         2>${WEBAPP_LOG_DIR}/webapp-console.log 1> /dev/null &"
 
 if [ $? -eq 0 ]; then

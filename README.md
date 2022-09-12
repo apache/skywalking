@@ -19,7 +19,7 @@ in Cloud Native architecture.
 The core features are following.
 
 - Service, service instance, endpoint(URI) metrics analysis
-- Root cause analysis. 
+- Root cause analysis.
   - Profile the code on the runtime powered by in-process agent and ebpf profiler.
   - Network profiler for TCP, TCP/TLS, HTTP(s) traffic
 - Service topology map analysis
@@ -41,7 +41,7 @@ and multiple formats,
 including
 1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
 2. Go, C++, and Rust SDKs.
-3. [Agent profiling](https://skywalking.apache.org/docs/main/latest/en/concepts-and-designs/sdk-profiling/) for Java and Python.
+3. [Agent profiling](https://skywalking.apache.org/docs/main/next/en/concepts-and-designs/sdk-profiling/) for Java and Python.
 4. [ebpf](https://github.com/apache/skywalking-rover) network profling and ON/OFF CPU profiling.
 5. LUA agent especially for Nginx, OpenResty and Apache APISIX.
 6. Browser agent.
@@ -50,7 +50,7 @@ including
 9. Logs.
 10. Zipkin v1/v2 trace.(No Analysis)
 
-SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario 
+SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario
 for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
 
 # Documentation
@@ -70,7 +70,7 @@ Please follow the [REPORTING GUIDELINES](https://www.apache.org/foundation/polic
 
 # Live Demo
 - Find the [live demo](https://skywalking.apache.org/#demo) and [screenshots](https://skywalking.apache.org/#arch) on our website.
-- Follow the [showcase](https://skywalking.apache.org/docs/skywalking-showcase/latest/readme/) to set up preview deployment quickly.
+- Follow the [showcase](https://skywalking.apache.org/docs/skywalking-showcase/next/readme/) to set up preview deployment quickly.
 
 # Contact Us
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.

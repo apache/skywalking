@@ -40,7 +40,7 @@ import static java.util.Objects.nonNull;
  * Generate service, service instance and endpoint traffic by log data.
  */
 @RequiredArgsConstructor
-public class TrafficAnalysisListener implements LogAnalysisListener {
+public class TrafficSinkListener implements LogSinkListener {
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingControl;
 
@@ -62,7 +62,7 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
     }
 
     @Override
-    public LogAnalysisListener parse(final LogData.Builder logData,
+    public LogSinkListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
         Layer layer;
         if (StringUtil.isNotEmpty(logData.getLayer())) {
@@ -97,7 +97,7 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
         return this;
     }
 
-    public static class Factory implements LogAnalysisListenerFactory {
+    public static class Factory implements LogSinkListenerFactory {
         private final SourceReceiver sourceReceiver;
         private final NamingControl namingControl;
 
@@ -111,8 +111,8 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
         }
 
         @Override
-        public LogAnalysisListener create() {
-            return new TrafficAnalysisListener(sourceReceiver, namingControl);
+        public LogSinkListener create() {
+            return new TrafficSinkListener(sourceReceiver, namingControl);
         }
     }
 }
