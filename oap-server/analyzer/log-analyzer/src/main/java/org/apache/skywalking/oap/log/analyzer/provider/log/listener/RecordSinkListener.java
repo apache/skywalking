@@ -29,6 +29,7 @@ import lombok.SneakyThrows;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
+
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -48,10 +49,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.toJSON;
 
 /**
- * RecordAnalysisListener forwards the log data to the persistence layer with the query required conditions.
+ * RecordSinkListener forwards the log data to the persistence layer with the query required conditions.
  */
 @RequiredArgsConstructor
-public class RecordAnalysisListener implements LogAnalysisListener {
+public class RecordSinkListener implements LogSinkListener {
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingControl;
     private final List<String> searchableTagKeys;
@@ -66,7 +67,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
 
     @Override
     @SneakyThrows
-    public LogAnalysisListener parse(final LogData.Builder logData,
+    public LogSinkListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
         LogDataBody body = logData.getBody();
         log.setUniqueId(UUID.randomUUID().toString().replace("-", ""));
@@ -142,7 +143,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
         });
     }
 
-    public static class Factory implements LogAnalysisListenerFactory {
+    public static class Factory implements LogSinkListenerFactory {
         private final SourceReceiver sourceReceiver;
         private final NamingControl namingControl;
         private final List<String> searchableTagKeys;
@@ -161,8 +162,8 @@ public class RecordAnalysisListener implements LogAnalysisListener {
         }
 
         @Override
-        public LogAnalysisListener create() {
-            return new RecordAnalysisListener(sourceReceiver, namingControl, searchableTagKeys);
+        public RecordSinkListener create() {
+            return new RecordSinkListener(sourceReceiver, namingControl, searchableTagKeys);
         }
     }
 }

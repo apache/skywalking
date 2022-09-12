@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,19 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.log.analyzer.provider.log;
+package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 
-import java.util.List;
-import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListenerFactory;
-import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogSinkListenerFactory;
+import com.google.protobuf.Message;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
 
-public interface ILogAnalysisListenerManager {
+public interface LogSinkListener {
+    /**
+     * The last step of the sink process. Typically, the implementations forward the results to the source
+     * receiver.
+     */
+    void build();
 
-    void addListenerFactory(LogAnalysisListenerFactory factory);
-
-    List<LogAnalysisListenerFactory> getLogAnalysisListenerFactories();
-
-    void addSinkListenerFactory(LogSinkListenerFactory factory);
-
-    List<LogSinkListenerFactory> getSinkListenerFactory();
+    /**
+     * Parse the raw data from the probe.
+     * @return {@code this} for chaining.
+     */
+    LogSinkListener parse(LogData.Builder logData, final Message extraLog);
 }

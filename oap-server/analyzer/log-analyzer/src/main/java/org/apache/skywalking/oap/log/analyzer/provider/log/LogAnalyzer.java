@@ -20,9 +20,13 @@ package org.apache.skywalking.oap.log.analyzer.provider.log;
 import com.google.protobuf.Message;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListener;
@@ -46,26 +50,41 @@ public class LogAnalyzer {
             log.debug("The log is ignored because the Service name is empty");
             return;
         }
-        createListeners();
+        Layer layer;
+        if ("".equals(builder.getLayer())) {
+            layer = Layer.GENERAL;
+        } else {
+            try {
+                layer = Layer.nameOf(builder.getLayer());
+            } catch (UnexpectedException e) {
+                log.warn("The Layer {} is not found, abandon the log.", builder.getLayer());
+                return;
+            }
+        }
+
+        createAnalysisListeners(layer);
         if (builder.getTimestamp() == 0) {
             // If no timestamp, OAP server would use the received timestamp as log's timestamp
             builder.setTimestamp(System.currentTimeMillis());
         }
 
-        notifyListener(builder, extraLog);
-        notifyListenerToBuild();
+        notifyAnalysisListener(builder, extraLog);
+        notifyAnalysisListenerToBuild();
     }
 
-    private void notifyListener(LogData.Builder builder, final Message extraLog) {
+    private void notifyAnalysisListener(LogData.Builder builder, final Message extraLog) {
         listeners.forEach(listener -> listener.parse(builder, extraLog));
     }
 
-    private void notifyListenerToBuild() {
+    private void notifyAnalysisListenerToBuild() {
         listeners.forEach(LogAnalysisListener::build);
     }
 
-    private void createListeners() {
+    private void createAnalysisListeners(Layer layer) {
         factoryManager.getLogAnalysisListenerFactories()
-                      .forEach(factory -> listeners.add(factory.create()));
+                      .stream()
+                      .map(factory -> factory.create(layer))
+                      .filter(Objects::nonNull)
+                      .forEach(listeners::add);
     }
 }

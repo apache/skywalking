@@ -8,6 +8,9 @@ The LAL config files are in YAML format, and are located under directory `lal`. 
 set `log-analyzer/default/lalFiles` in the `application.yml` file or set environment variable `SW_LOG_LAL_FILES` to
 activate specific LAL config files.
 
+## Layer
+Layer should be declared in the LAL script to represent the analysis scope of the logs.
+
 ## Filter
 
 A filter is a group of [parser](#parser), [extractor](#extractor) and [sink](#sink). Users can use one or more filters

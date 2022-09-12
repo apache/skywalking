@@ -15,6 +15,7 @@
 
 rules:
   - name: envoy-als
+    layer: MESH
     dsl: |
       filter {
         // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)
