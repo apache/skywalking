@@ -20,8 +20,8 @@ logs:
   serviceid: {{ b64enc "e2e-service-provider" }}.1
   serviceinstancename: provider1
   serviceinstanceid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
-  endpointname: POST:/users
-  endpointid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
+  endpointname: GET:/logs/trigger
+  endpointid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "GET:/logs/trigger" }}
   traceid: {{ .traceid }}
   timestamp: {{ gt .timestamp 0 }}
   contenttype: TEXT
