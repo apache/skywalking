@@ -26,6 +26,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.library.elasticsearch.client.TemplateClient;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
+import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
@@ -84,6 +85,15 @@ public class ITElasticSearchTest {
                                    .withTag("7.15.0")
                                    .asCompatibleSubstituteFor(
                                        "docker.elastic.co/elasticsearch/elasticsearch-oss"))
+            },
+            {
+                "ElasticSearch 8.1.0",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch")
+                        .withTag("8.1.0")
+                        .asCompatibleSubstituteFor(
+                            "docker.elastic.co/elasticsearch/elasticsearch-oss"))
+                                .withEnv("xpack.security.enabled", "false")
             },
             {
                 "OpenSearch 1.0.0",
@@ -188,6 +198,40 @@ public class ITElasticSearchTest {
         assertTrue(client.documents().get(index, type, idWithSpace).isPresent());
         assertEquals(client.documents().get(index, type, idWithSpace).get().getId(), idWithSpace);
         assertEquals(client.documents().get(index, type, idWithSpace).get().getSource(), doc);
+    }
+
+    @Test
+    public void testDocUpdate() {
+        final String index = "test-index-update";
+        assertTrue(client.index().create(index, null, null));
+
+        final ImmutableMap<String, Object> doc = ImmutableMap.of("key", "val");
+        final String idWithSpace = "an id"; // UI management templates' IDs contains spaces
+        final String type = "type";
+
+        client.documents().index(
+            IndexRequest.builder()
+                        .index(index)
+                        .type(type)
+                        .id(idWithSpace)
+                        .doc(doc)
+                        .build(), null);
+
+        assertTrue(client.documents().get(index, type, idWithSpace).isPresent());
+        assertEquals(client.documents().get(index, type, idWithSpace).get().getId(), idWithSpace);
+        assertEquals(client.documents().get(index, type, idWithSpace).get().getSource(), doc);
+
+        final Map<String, Object> updatedDoc = ImmutableMap.of("key", "new-val");
+        client.documents().update(
+            UpdateRequest
+                .builder()
+                .index(index)
+                .type(type)
+                .id(idWithSpace)
+                .doc(updatedDoc)
+                .build(),
+            null);
+        assertEquals(client.documents().get(index, type, idWithSpace).get().getSource(), updatedDoc);
     }
 
     @SuppressWarnings("unchecked")

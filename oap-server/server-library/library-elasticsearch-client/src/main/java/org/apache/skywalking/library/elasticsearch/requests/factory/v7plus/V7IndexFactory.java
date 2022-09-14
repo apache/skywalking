@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.library.elasticsearch.requests.factory.v7;
+package org.apache.skywalking.library.elasticsearch.requests.factory.v7plus;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
