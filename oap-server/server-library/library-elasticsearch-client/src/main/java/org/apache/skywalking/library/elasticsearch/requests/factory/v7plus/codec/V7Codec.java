@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.library.elasticsearch.requests.factory.v7.codec;
+package org.apache.skywalking.library.elasticsearch.requests.factory.v7plus.codec;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,8 +29,8 @@ import org.apache.skywalking.library.elasticsearch.requests.factory.Codec;
 import org.apache.skywalking.library.elasticsearch.response.IndexTemplates;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 
-public final class V78Codec implements Codec {
-    public static final Codec INSTANCE = new V78Codec();
+public final class V7Codec implements Codec {
+    public static final Codec INSTANCE = new V7Codec();
 
     private static final ObjectMapper MAPPER = new ObjectMapper()
         .setSerializationInclusion(JsonInclude.Include.NON_NULL)
@@ -58,7 +58,7 @@ public final class V78Codec implements Codec {
                 )
                 .addDeserializer(
                     IndexTemplates.class,
-                    new V78IndexTemplatesDeserializer()
+                    new V7IndexTemplatesDeserializer()
                 )
         )
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
