@@ -323,12 +323,6 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
-                  ],
                   "value": "4-0-11",
                   "label": "Function_Instances_Load"
                 },
@@ -351,12 +345,6 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
                   ],
                   "value": "4-0-12",
                   "label": "4-0-12"

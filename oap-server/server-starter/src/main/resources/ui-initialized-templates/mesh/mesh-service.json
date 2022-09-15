@@ -452,12 +452,6 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
-                  ],
                   "value": "0-0-11",
                   "label": "0-0-11"
                 },
@@ -480,12 +474,6 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
                   ],
                   "value": "0-0-12",
                   "label": "0-0-12"
