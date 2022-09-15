@@ -20,6 +20,7 @@
 * [Breaking Change]: migrate from Spring Web to Armeria, now you should use the environment variable name `SW_OAP_ADDRESS`
   to change the OAP backend service addresses, like `SW_OAP_ADDRESS=localhost:12800,localhost:12801`, and use environment
   variable `SW_SERVER_PORT` to change the port. Other Spring-related configurations don't take effect anymore.
+* UI-template: Fix metrics calculation in `general-service/mesh-service/faas-function` top-list dashboard.
 
 
 #### Documentation
