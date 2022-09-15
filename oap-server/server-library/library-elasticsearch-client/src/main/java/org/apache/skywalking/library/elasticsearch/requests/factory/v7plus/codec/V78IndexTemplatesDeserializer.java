@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.library.elasticsearch.requests.factory.v7.codec;
+package org.apache.skywalking.library.elasticsearch.requests.factory.v7plus.codec;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;

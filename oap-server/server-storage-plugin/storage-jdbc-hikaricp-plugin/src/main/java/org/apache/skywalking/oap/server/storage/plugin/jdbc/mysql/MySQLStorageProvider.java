@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
@@ -157,10 +156,6 @@ public class MySQLStorageProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        final ConfigService configService = getManager().find(CoreModule.NAME)
-                                                        .provider()
-                                                        .getService(ConfigService.class);
-
         try {
             mysqlClient.connect();
 

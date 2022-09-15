@@ -54,7 +54,6 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
     @Getter
     private List<TopNWorker> persistentWorkers = new ArrayList<>();
     private Map<Class<? extends Record>, TopNWorker> workers = new HashMap<>();
-    @Setter
     @Getter
     private int topNWorkerReportCycle = 10;
     @Setter
@@ -63,6 +62,13 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
 
     public static TopNStreamProcessor getInstance() {
         return PROCESSOR;
+    }
+
+    public void setTopNWorkerReportCycle(final int topNWorkerReportCycle) {
+        if (topNWorkerReportCycle < 1) {
+            return;
+        }
+        this.topNWorkerReportCycle = topNWorkerReportCycle;
     }
 
     @Override
@@ -79,7 +85,8 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
         IRecordDAO recordDAO;
         try {
             recordDAO = storageDAO.newRecordDao(builder.getDeclaredConstructor().newInstance());
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                 InvocationTargetException e) {
             throw new UnexpectedException(
                 "Create " + stream.builder().getSimpleName() + " top n record DAO failure.", e);
         }

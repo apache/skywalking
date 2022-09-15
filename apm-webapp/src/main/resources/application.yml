@@ -17,4 +17,4 @@
 serverPort: ${SW_SERVER_PORT:-8080}
 
 # Comma seperated list of OAP addresses.
-oapServices: ${SW_OAP_ADDRESS:-localhost:12800}
+oapServices: ${SW_OAP_ADDRESS:-http://localhost:12800}

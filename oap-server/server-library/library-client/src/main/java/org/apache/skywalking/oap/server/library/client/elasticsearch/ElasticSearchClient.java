@@ -303,7 +303,6 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return es.get().documents().exists(indexName, TYPE, id);
     }
 
-
     /**
      * Provide to get documents from multi indices by IDs.
      * @param indexIds key: indexName, value: ids list
@@ -319,7 +318,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     }
 
     /**
-     * Search by ids with index alias, when can not locate the physical index. 
+     * Search by ids with index alias, when can not locate the physical index.
      * Otherwise, recommend use method {@link #ids}
      * @param indexName Index alias name or physical name
      * @param ids ID list
