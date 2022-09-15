@@ -678,7 +678,7 @@ jobs:
         with:
           go-version: "1.16"
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@afdf1cca0519d65bc480d8680b7a27f9b41fc421
+        uses: apache/skywalking-infra-e2e@81fab7dbf5bfb201166d7d8e0089f99d2dc761f3
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
