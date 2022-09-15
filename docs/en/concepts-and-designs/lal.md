@@ -275,9 +275,9 @@ metrics:
     exp: http_response_time.sum(['le', 'service', 'instance']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
 ```
 
-- SlowSql
+- `slowSql`
 
-SlowSql aims to convert LogData to DatabaseSlowStatement. It extracts data from `parsed` result and save them as DatabaseSlowStatement. SlowSql will not abort or edit logs, you can use other LAL for further processing.
+`slowSql` aims to convert LogData to DatabaseSlowStatement. It extracts data from `parsed` result and save them as DatabaseSlowStatement. SlowSql will not abort or edit logs, you can use other LAL for further processing.
 SlowSql will reuse `service`, `layer` and `timestamp` of extractor, so it is necessary to use `SlowSQL` after setting these.
 We require a log tag `"LOG_KIND" = "SLOW_SQL"` to make OAP distinguish slow SQL logs from other log reports.
 An example of JSON sent to OAP is as following:
