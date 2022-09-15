@@ -45,7 +45,7 @@ like `regexp(<the expression>)`, instead of `regexp <the expression>`.
 
 - `tag`
 
-`tag` function provide a convenient way to get the data of tags.
+`tag` function provide a convenient way to get the value of a tag key.
 
 We can add tags like following:
 ``` JSON
@@ -66,7 +66,7 @@ We can add tags like following:
    }
 ]
 ``` 
-And we can use this method to get the data of tags.
+And we can use this method to get the value of the tag key `TEST_KEY`.
 ```groovy
 filter {
     if (tag("TEST_KEY") == "TEST_VALUE") {
