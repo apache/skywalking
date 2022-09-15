@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.library.elasticsearch.requests.factory.v7;
+package org.apache.skywalking.library.elasticsearch.requests.factory.v7plus;
 
 import com.google.common.collect.ImmutableMap;
 import com.linecorp.armeria.common.HttpRequest;
@@ -29,13 +29,13 @@ import org.apache.skywalking.library.elasticsearch.requests.factory.TemplateFact
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 
 @RequiredArgsConstructor
-final class V78TemplateFactory implements TemplateFactory {
+final class V7TemplateFactory implements TemplateFactory {
     private final ElasticSearchVersion version;
 
     @Override
     public HttpRequest exists(String name) {
         return HttpRequest.builder()
-                          .get("/_index_template/{name}")
+                          .get("/_template/{name}")
                           .pathParam("name", name)
                           .build();
     }
@@ -43,7 +43,7 @@ final class V78TemplateFactory implements TemplateFactory {
     @Override
     public HttpRequest get(final String name) {
         return HttpRequest.builder()
-                          .get("/_index_template/{name}")
+                          .get("/_template/{name}")
                           .pathParam("name", name)
                           .build();
     }
@@ -51,7 +51,7 @@ final class V78TemplateFactory implements TemplateFactory {
     @Override
     public HttpRequest delete(final String name) {
         return HttpRequest.builder()
-                          .delete("/_index_template/{name}")
+                          .delete("/_template/{name}")
                           .pathParam("name", name)
                           .build();
     }
@@ -65,20 +65,15 @@ final class V78TemplateFactory implements TemplateFactory {
         final Map<String, Object> template =
             ImmutableMap.<String, Object>builder()
                         .put("index_patterns", patterns)
-                        .put(
-                            "template",
-                            ImmutableMap.builder()
-                                        .put("aliases", aliases)
-                                        .put("settings", settings)
-                                        .put("mappings", mappings)
-                                        .build()
-                        )
+                        .put("aliases", aliases)
+                        .put("settings", settings)
+                        .put("mappings", mappings)
                         .build();
 
         final byte[] content = version.codec().encode(template);
 
         return HttpRequest.builder()
-                          .put("/_index_template/{name}")
+                          .put("/_template/{name}")
                           .pathParam("name", name)
                           .content(MediaType.JSON, content)
                           .build();
