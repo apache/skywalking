@@ -534,8 +534,8 @@ jobs:
             config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
           - name: So11y
             config: test/e2e-v2/cases/so11y/e2e.yaml
-          - name: MySQL Prometheus
-            config: test/e2e-v2/cases/mysql/prometheus-mysql-exporter/e2e.yaml
+          - name: MySQL Prometheus and slowsql
+            config: test/e2e-v2/cases/mysql/mysql-slowsql/e2e.yaml
           - name: PostgreSQL Prometheus
             config: test/e2e-v2/cases/postgresql/postgres-exporter/e2e.yaml
 
@@ -557,9 +557,6 @@ jobs:
             config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
           - name: Zipkin Kafka
             config: test/e2e-v2/cases/zipkin/kafka/e2e.yaml
-            
-          - nameL: MySQL-slowsql
-            config: test/e2e-v2/cases/slowsql/mysql/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

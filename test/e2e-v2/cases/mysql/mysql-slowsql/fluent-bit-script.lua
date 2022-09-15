@@ -42,6 +42,7 @@ function rewrite_body(tag, timestamp, record)
     service = string.sub(arr[2],14,id1-1)
     service = string.gsub(service," ","");
     service = string.sub(service,1,10)
+    service = "mysql::"..service
     record["service"]=service
     re1["service"]= service
 
