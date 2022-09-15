@@ -1,0 +1,128 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.skywalking.oap.server.receiver.telegraf.provider.handler;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import com.linecorp.armeria.server.annotation.Post;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.receiver.telegraf.provider.config.TelegrafConfig;
+import org.apache.skywalking.oap.server.receiver.telegraf.provider.handler.pojo.TelegrafData;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Slf4j
+public class TelegrafServiceHandler {
+
+    private final HistogramMetrics histogram;
+    private final CounterMetrics errorCounter;
+    private List<MetricConvert> metricConvert;
+
+    public TelegrafServiceHandler(ModuleManager moduleManager, MeterSystem meterSystem, List<TelegrafConfig> rules) {
+
+        this.metricConvert = rules.stream().map(r -> new MetricConvert(r, meterSystem)).collect(Collectors.toList());
+
+        final MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                           .provider()
+                                                           .getService(MetricsCreator.class);
+
+        histogram = metricsCreator.createHistogramMetric(
+                "telegraf_in_latency", "The process latency of telegraf data",
+                new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
+        );
+
+        errorCounter = metricsCreator.createCounter(
+                "telegraf_error_count", "The error number of telegraf analysis",
+                new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
+        );
+    }
+
+    /**
+    * Convert the TelegrafData object to meter {@link Sample}
+    **/
+    public List<Sample> convertTelegraf(TelegrafData telegrafData) {
+
+        List<Sample> sampleList = new ArrayList<>(Collections.emptyList());
+
+        Map<String, Object> fields = telegrafData.getFields();
+        String name = telegrafData.getName();
+        Map<String, String> tags = telegrafData.getTags();
+        ImmutableMap<String, String> immutableTags = ImmutableMap.copyOf(tags);
+        long timestamp = telegrafData.getTimestamp();
+
+        fields.forEach((key, value) -> {
+            Sample.SampleBuilder builder = Sample.builder();
+            if (value instanceof String) return;
+            Sample sample = builder.name(name + "_" + key)
+                    .timestamp(timestamp * 1000L)
+                    .value(((Number) value).doubleValue())
+                    .labels(immutableTags).build();
+
+            sampleList.add(sample);
+        });
+        return sampleList;
+
+    }
+
+    @Post("/telegraf")
+    public Commands collectData(String jsonInfo) {
+        TelegrafData telegrafData;
+        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+            List<Sample> allSamples = new ArrayList<>();
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(jsonInfo);
+
+            // Read each metrics json and convert it to Sample
+            JsonNode metrics = node.get("metrics");
+            for (JsonNode m : metrics) {
+                telegrafData = mapper.convertValue(m, TelegrafData.class);
+                List<Sample> samples = convertTelegraf(telegrafData);
+                allSamples.addAll(samples);
+            }
+
+            // Grouping all samples by their name, then build sampleFamily
+            Map<String, List<Sample>> sampleFamilyCollection = allSamples.stream()
+                    .collect(Collectors.groupingBy(Sample::getName));
+            ImmutableMap.Builder<String, SampleFamily> builder = ImmutableMap.builder();
+            sampleFamilyCollection.forEach((k, v) -> builder.put(k, SampleFamilyBuilder.newBuilder(v.toArray(new Sample[0])).build()));
+            metricConvert.forEach(m -> m.toMeter(builder.build()));
+        } catch (Exception e) {
+            errorCounter.inc();
+            log.error(e.getMessage(), e);
+        }
+        return Commands.newBuilder().build();
+    }
+}
