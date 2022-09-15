@@ -262,7 +262,7 @@ public class ExtractorSpec extends AbstractSpec {
         DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
         builder.setLayer(Layer.nameOf(log.getLayer()));
 
-        LocalDateTime localDateTime = Instant.ofEpochMilli(log.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime localDateTime = Instant.ofEpochSecond(log.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDateTime();
         String timeBucket = DTF.format(localDateTime);
         builder.setTimeBucket(Long.parseLong(timeBucket));
         builder.setServiceName(log.getService());
