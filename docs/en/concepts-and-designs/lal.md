@@ -295,7 +295,7 @@ An example of JSON sent to OAP is as following:
       "layer":"MYSQL",
       "body":{
          "json":{
-            "json":"{\"time\":\"1662478799.208541\",\"id\":\"cb92c1a5b-2691e-fb2f-457a-9c72a392d9ed\",\"service\":\"root[root]@[localhost]\",\"statement\":\"select sleep(2);\",\"layer\":\"MYSQL\",\"query_time\":2000}"
+            "json":"{\"time\":\"1663063011\",\"id\":\"cb92c1a5b-2691e-fb2f-457a-9c72a392d9ed\",\"service\":\"root[root]@[localhost]\",\"statement\":\"select sleep(2);\",\"layer\":\"MYSQL\",\"query_time\":2000}"
          }
       },
       "service":"root[root]@[localhost]"

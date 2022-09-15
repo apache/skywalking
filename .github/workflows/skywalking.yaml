@@ -557,6 +557,9 @@ jobs:
             config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
           - name: Zipkin Kafka
             config: test/e2e-v2/cases/zipkin/kafka/e2e.yaml
+            
+          - nameL: MySQL-slowsql
+            config: test/e2e-v2/cases/slowsql/mysql/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:
