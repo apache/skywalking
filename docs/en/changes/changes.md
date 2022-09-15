@@ -24,6 +24,7 @@
 * Fix styles for an adaptive height.
 * Fix setting up a new time range after clicking the refresh button.
 * Enhance the process topology graph to support dragging nodes.
+* UI-template: Fix metrics calculation in `general-service/mesh-service/faas-function` top-list dashboard.
 
 #### Documentation
 
