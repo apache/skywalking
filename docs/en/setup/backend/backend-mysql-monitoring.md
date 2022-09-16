@@ -14,8 +14,7 @@ SkyWalking leverages prometheus/mysqld_exporter for collecting metrics data. It 
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ### MySQL Monitoring
-MySQL monitoring provides monitoring of the status and resources of the MySQL server. MySQL server as a `Service` in OAP, and land on the `Layer: MYSQL`.
-
+MySQL monitoring provides monitoring of the status and resources of the MySQL server. MySQL server is cataloged as a `Layer: MYSQL` `Service` in OAP.
 #### Supported Metrics 
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|
@@ -37,11 +36,11 @@ The metrics definition and expression rules are found in `/config/otel-rules/mys
 The MySQL dashboard panel configurations are found in `/config/ui-initialized-templates/mysql`.
 
 ## Collect sampled slow SQLs
-SkyWalking leverages fluentbit(or other log collector) for collecting slow sql statements from MySQL.
+SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for collecting slow SQL statements from MySQL.
 
 ### Data flow
-1. fluentbit collect slow sql logs from MySQL.
-2. fluentbit send data to SkyWalking OAP Server via http.
+1. fluentbit agent collects slow sql logs from MySQL.
+2. fluentbit agent sends data to SkyWalking OAP Server using native meter APIs via HTTP.
 3. The SkyWalking OAP Server parses the expression with [LAL](../../concepts-and-designs/lal.md) to parse/extract and store the results.
 
 ### Set up
@@ -50,12 +49,12 @@ SkyWalking leverages fluentbit(or other log collector) for collecting slow sql s
 3. Config MySQL to enable slow log.[example](../../../../test/e2e-v2/cases/mysql/mysql-slowsql/my.cnf).
 
 ### Slow SQL Monitoring
-Slow SQL monitoring provides monitoring of the slow sql statements of the MySQL server. MySQL server as a `Service` in OAP, and land on the `Layer: MYSQL`.
+Slow SQL monitoring provides monitoring of the slow SQL statements of the MySQL server. MySQL server is cataloged as a `Layer: MYSQL` `Service` in OAP.
 
 #### Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|
-|Slow Statements |   ms   | top_n_database_statement | The latency and statement of MySQL slow sql | fluentbit|
+|Slow Statements |   ms   | top_n_database_statement | The latency and statement of MySQL slow SQLs | fluentbit|
 
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
