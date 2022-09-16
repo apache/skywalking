@@ -12,6 +12,7 @@
 * Enhance LAL to support converting LogData to DatabaseSlowStatement.
 * [**Breaking Change**] Change the LAL script format(Add layer property).
 * Adapt ElasticSearch 8.1+, migrate from removed APIs to recommended APIs.
+* Support monitoring MySQL slow sql.
 
 #### UI
 
