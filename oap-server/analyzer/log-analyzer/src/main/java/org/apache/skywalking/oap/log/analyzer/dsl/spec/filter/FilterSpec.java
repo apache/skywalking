@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
@@ -41,6 +42,7 @@ import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogSinkListe
 import org.apache.skywalking.oap.log.analyzer.provider.log.listener.RecordSinkListener;
 import org.apache.skywalking.oap.log.analyzer.provider.log.listener.TrafficSinkListener;
 import org.apache.skywalking.oap.server.core.source.Log;
+
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.slf4j.Logger;
@@ -127,7 +129,7 @@ public class FilterSpec extends AbstractSpec {
         final LogData.Builder logData = BINDING.get().log();
         try {
             final Map<String, Object> parsed = yamlParser.create().load(
-                logData.getBody().getYaml().getYaml()
+                    logData.getBody().getYaml().getYaml()
             );
 
             BINDING.get().parsed(parsed);

@@ -9,6 +9,7 @@
 * Use prepareStatement in H2SQLExecutor#getByIDs.(No function change).
 * Bump up snakeyaml to 1.31 for fixing CVE-2022-25857.
 * Fix `DurationUtils.convertToTimeBucket` missed verify date format.
+* Enhance LAL to support converting LogData to DatabaseSlowStatement.
 * [**Breaking Change**] Change the LAL script format(Add layer property).
 * Adapt ElasticSearch 8.1+, migrate from removed APIs to recommended APIs.
 

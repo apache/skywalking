@@ -550,8 +550,8 @@ jobs:
             config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
           - name: So11y
             config: test/e2e-v2/cases/so11y/e2e.yaml
-          - name: MySQL Prometheus
-            config: test/e2e-v2/cases/mysql/prometheus-mysql-exporter/e2e.yaml
+          - name: MySQL Prometheus and slowsql
+            config: test/e2e-v2/cases/mysql/mysql-slowsql/e2e.yaml
           - name: PostgreSQL Prometheus
             config: test/e2e-v2/cases/postgresql/postgres-exporter/e2e.yaml
 
@@ -595,7 +595,7 @@ jobs:
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@afdf1cca0519d65bc480d8680b7a27f9b41fc421
+        uses: apache/skywalking-infra-e2e@81fab7dbf5bfb201166d7d8e0089f99d2dc761f3
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - uses: actions/upload-artifact@v2
@@ -653,7 +653,7 @@ jobs:
         with:
           go-version: "1.16"
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@afdf1cca0519d65bc480d8680b7a27f9b41fc421
+        uses: apache/skywalking-infra-e2e@81fab7dbf5bfb201166d7d8e0089f99d2dc761f3
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -696,7 +696,7 @@ jobs:
         with:
           go-version: "1.16"
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@afdf1cca0519d65bc480d8680b7a27f9b41fc421
+        uses: apache/skywalking-infra-e2e@81fab7dbf5bfb201166d7d8e0089f99d2dc761f3
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:

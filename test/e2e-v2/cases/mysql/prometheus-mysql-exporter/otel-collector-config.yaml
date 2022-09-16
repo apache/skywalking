@@ -22,7 +22,7 @@ receivers:
          static_configs:
            - targets: ['mysql-service:9104']
              labels:
-               host_name: showcase
+               host_name: root[root]
 processors:
   batch:
 

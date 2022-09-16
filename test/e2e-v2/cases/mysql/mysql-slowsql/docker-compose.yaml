@@ -20,34 +20,66 @@ services:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
-    environment:
-      SW_OTEL_RECEIVER: default
-      SW_OTEL_RECEIVER_ENABLED_OTEL_RULES: mysql
     ports:
       - 12800
-  mysql:
-    image: mysql:8.0.30
+    entrypoint: ['sh', '-c', '/download-mysql.sh && chmod 777 /skywalking/docker-entrypoint.sh && /skywalking/docker-entrypoint.sh']
     networks:
       - e2e
-    ports:
-      - 3306
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=test2
-
-  mysql-load:
-    image: mysql:8.0.30
+      - TZ=Asia/Shanghai
+      - SW_STORAGE=mysql
+      - SW_DATA_SOURCE_USER=root
+      - SW_DATA_SOURCE_PASSWORD=password
+      - SW_JDBC_URL=jdbc:mysql://mysql:3306/swtest
+      - SW_CORE_TOPN_REPORT_PERIOD=2
+      - SW_OTEL_RECEIVER=default
+      - SW_OTEL_RECEIVER_ENABLED_OTEL_RULES=mysql
     depends_on:
-      - otel-collector
+      mysql:
+        condition: service_healthy
+  mysql:
+    image: mysql:8.0.13
+    networks:
+      - e2e
+    volumes:
+      - ../mysql-slowsql/log:/var/lib/mysql
+      - ../mysql-slowsql/my.cnf:/etc/my.cnf
+    environment:
+      - "MYSQL_ROOT_PASSWORD=password"
+      - "MYSQL_DATABASE=swtest"
+    ports:
+      - 3306:3306
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+  mysql-load:
+    image: mysql:8.0.13
+    depends_on:
+      oap:
+        condition: service_healthy
     networks:
       - e2e
     entrypoint: bash
     volumes:
-     - ../prometheus-mysql-exporter:/docker
+     - ./mock.sql:/docker/mock.sql
     command:
       - -c
       - "mysql -h mysql -uroot -ppassword < /docker/mock.sql"
-
+  fluentbit:
+    image: fluent/fluent-bit:1.9
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ../mysql-slowsql/log:/tmp/skywalking-logs
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./fluent-bit-parser.conf:/fluent-bit/etc/fluent-bit-parser.conf
+      - ./fluent-bit-script.lua:/fluent-bit/etc/fluent-bit-script.lua
+    networks:
+      - e2e
+    depends_on:
+      - mysql
   mysql-service:
     image: prom/mysqld-exporter:v0.14.0
     ports:
@@ -58,20 +90,17 @@ services:
       - e2e
     depends_on:
       - mysql
-
-
   otel-collector:
     image: otel/opentelemetry-collector:0.50.0
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]
     volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ../prometheus-mysql-exporter/otel-collector-config.yaml:/etc/otel-collector-config.yaml
     expose:
       - 55678
     depends_on:
       oap:
         condition: service_healthy
-
 networks:
   e2e:
