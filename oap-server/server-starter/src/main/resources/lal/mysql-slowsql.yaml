@@ -13,12 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "mysql::root[root]" }}.1
-  name: mysql::root[root]
-  shortname: root[root]
-  normal: true
-  group: "mysql"
-  layers:
-    - MYSQL
-{{- end }}
+rules:
+  - name: mysql-slowsql
+    layer: MYSQL
+    dsl: |
+      filter {
+        json{
+        }
+        extractor{
+          layer parsed.layer as String
+          service parsed.service as String
+          timestamp parsed.time as String
+          if (tag("LOG_KIND") == "SLOW_SQL") {
+             slowSql {
+               id parsed.id as String
+               statement parsed.statement as String
+               latency parsed.query_time as Long
+             }
+          }
+        }
+      }

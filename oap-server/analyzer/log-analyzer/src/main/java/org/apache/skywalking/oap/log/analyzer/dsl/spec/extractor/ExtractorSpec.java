@@ -22,35 +22,59 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.List;
+
 import lombok.experimental.Delegate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
+import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.slowsql.SlowSqlSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.DatabaseSlowStatementBuilder;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
+import org.apache.skywalking.oap.server.core.source.ServiceMeta;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 
 public class ExtractorSpec extends AbstractSpec {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SlowSqlSpec.class);
 
     private final List<MetricConvert> metricConverts;
+
+    private final SlowSqlSpec slowSql;
+
+    private final NamingControl namingControl;
+
+    private final SourceReceiver sourceReceiver;
+
+    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     public ExtractorSpec(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
@@ -63,6 +87,14 @@ public class ExtractorSpec extends AbstractSpec {
                                      .stream()
                                      .map(it -> new MetricConvert(it, meterSystem))
                                      .collect(Collectors.toList());
+
+        slowSql = new SlowSqlSpec(moduleManager(), moduleConfig());
+
+        namingControl = moduleManager.find(CoreModule.NAME)
+                .provider()
+                .getService(NamingControl.class);
+
+        sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
     }
 
     @SuppressWarnings("unused")
@@ -213,6 +245,51 @@ public class ExtractorSpec extends AbstractSpec {
                             .build()
             ));
         }
+    }
+
+    @SuppressWarnings("unused")
+    public void slowSql(@DelegatesTo(SlowSqlSpec.class) final Closure<?> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        LogData.Builder log = BINDING.get().log();
+        if (log.getLayer() == null
+                || log.getService() == null
+                || log.getTimestamp() < 1) {
+            LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
+            return;
+        }
+        DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
+        builder.setLayer(Layer.nameOf(log.getLayer()));
+
+        LocalDateTime localDateTime = Instant.ofEpochSecond(log.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        String timeBucket = DTF.format(localDateTime);
+        builder.setTimeBucket(Long.parseLong(timeBucket));
+        builder.setServiceName(log.getService());
+
+        ServiceMeta serviceMeta = new ServiceMeta();
+        serviceMeta.setName(namingControl.formatServiceName(log.getService()));
+        serviceMeta.setLayer(builder.getLayer());
+        serviceMeta.setTimeBucket(builder.getTimeBucket());
+        BINDING.get().databaseSlowStatement(builder);
+
+        cl.setDelegate(slowSql);
+        cl.call();
+
+        if (builder.getId() == null
+                || builder.getLatency() < 1
+                || builder.getStatement() == null) {
+            LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
+            return;
+        }
+
+        String entityId = serviceMeta.getEntityId();
+        builder.prepare();
+        DatabaseSlowStatement databaseSlowStatement = builder.toDatabaseSlowStatement();
+        databaseSlowStatement.setDatabaseServiceId(entityId);
+
+        sourceReceiver.receive(databaseSlowStatement);
+        sourceReceiver.receive(serviceMeta);
     }
 
     public static class SampleBuilder {

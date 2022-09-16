@@ -14,11 +14,10 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "mysql::root[root]" }}.1
-  name: mysql::root[root]
-  shortname: root[root]
-  normal: true
-  group: "mysql"
-  layers:
-    - MYSQL
+- key: 0
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ notEmpty .value }}
+  {{- end }}
 {{- end }}

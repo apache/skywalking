@@ -13,25 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-CREATE DATABASE IF NOT EXISTS test;
-USE test;
-CREATE TABLE IF NOT EXISTS `t1`(
-   `te1` VARCHAR(100) NOT NULL
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
-SET GLOBAL event_scheduler = 1;
+# This file is used to show how to write configuration files and can be used to test.
 
-CREATE EVENT `event_1` 
-ON SCHEDULE EVERY 1 SECOND 
-DO INSERT INTO t1 values('test');
+setup:
+  env: compose
+  file: docker-compose.yaml
+  timeout: 20m
+  init-system-environment: ../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
 
-CREATE EVENT `event_2` 
-ON SCHEDULE EVERY 1 SECOND 
-DO UPDATE t1 SET `te1` = 1;
-
-CREATE EVENT `event_3` 
-ON SCHEDULE EVERY 1 SECOND 
-DO DELETE FROM t1;
-
-CREATE EVENT `event_4` 
-ON SCHEDULE EVERY 1 SECOND 
-DO COMMIT;
+verify:
+  retry:
+    count: 60
+    interval: 3s
+  cases:
+    - includes:
+        - ../mysql-cases.yaml
+ 

@@ -239,7 +239,7 @@ agent-analyzer:
 log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:
-    lalFiles: ${SW_LOG_LAL_FILES:default}
+    lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mysql-slowsql,default}
     malFiles: ${SW_LOG_MAL_FILES:""}
 
 event-analyzer:
