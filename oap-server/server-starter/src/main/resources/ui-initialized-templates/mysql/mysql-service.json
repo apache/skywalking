@@ -344,7 +344,12 @@
                            },
                            "widget":{
                               "title":"Slow Statements (ms)"
-                           }
+                           },
+                           "metricConfig":[
+                              {
+                                 "topN":"50"
+                              }
+                           ]
                         }
                      ]
                   }
