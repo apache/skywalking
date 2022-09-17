@@ -12,6 +12,7 @@
 * Enhance LAL to support converting LogData to DatabaseSlowStatement.
 * [**Breaking Change**] Change the LAL script format(Add layer property).
 * Adapt ElasticSearch 8.1+, migrate from removed APIs to recommended APIs.
+* Support monitoring MySQL slow SQLs.
 
 #### UI
 
@@ -26,6 +27,7 @@
 * Fix setting up a new time range after clicking the refresh button.
 * Enhance the process topology graph to support dragging nodes.
 * UI-template: Fix metrics calculation in `general-service/mesh-service/faas-function` top-list dashboard.
+* Update MySQL dashboard to visualize collected slow SQLs.
 
 #### Documentation
 
