@@ -37,6 +37,14 @@ public class SpanTags {
 
     public static final String DB_TYPE = "db.type";
 
+    public static final String CACHE_TYPE = "cache.type";
+
+    public static final String CACHE_OP = "cache.op";
+
+    public static final String CACHE_CMD = "cache.cmd";
+
+    public static final String CACHE_KEY = "cache.key";
+
     /**
      * Tag, x-le(extension logic endpoint) series tag. Value is JSON format.
      * <pre>

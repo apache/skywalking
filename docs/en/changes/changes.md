@@ -13,6 +13,7 @@
 * [**Breaking Change**] Change the LAL script format(Add layer property).
 * Adapt ElasticSearch 8.1+, migrate from removed APIs to recommended APIs.
 * Support monitoring MySQL slow SQLs.
+* Support analyzing cache related spans to provide metrics and slow commands for cache services from client side
 
 #### UI
 

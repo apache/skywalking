@@ -16,9 +16,8 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.database;
+package org.apache.skywalking.oap.server.core.analysis.manual.cache;
 
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -30,19 +29,21 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
+import java.util.Objects;
+
 /**
  * Database TopN statement, including Database SQL statement, mongoDB and Redis commands.
  */
-@Stream(name = TopNDatabaseStatement.INDEX_NAME, scopeId = DefaultScopeDefine.DATABASE_SLOW_STATEMENT, builder = TopNDatabaseStatement.Builder.class, processor = TopNStreamProcessor.class)
-public class TopNDatabaseStatement extends TopN {
-    public static final String INDEX_NAME = "top_n_database_statement";
+@Stream(name = TopNCacheWriteCommand.INDEX_NAME, scopeId = DefaultScopeDefine.CACHE_SLOW_ACCESS, builder = TopNCacheWriteCommand.Builder.class, processor = TopNStreamProcessor.class)
+public class TopNCacheWriteCommand extends TopN {
+    public static final String INDEX_NAME = "top_n_cache_write_command";
 
     @Setter
     private String id;
     @Getter
     @Setter
     @Column(columnName = STATEMENT, length = 2000, lengthEnvVariable = "SW_SLOW_DB_THRESHOLD", storageOnly = true)
-    private String statement;
+    private String command;
 
     @Override
     public String id() {
@@ -55,7 +56,7 @@ public class TopNDatabaseStatement extends TopN {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        TopNDatabaseStatement statement = (TopNDatabaseStatement) o;
+        TopNCacheWriteCommand statement = (TopNCacheWriteCommand) o;
         return Objects.equals(getServiceId(), statement.getServiceId());
     }
 
@@ -64,11 +65,11 @@ public class TopNDatabaseStatement extends TopN {
         return Objects.hash(getServiceId());
     }
 
-    public static class Builder implements StorageBuilder<TopNDatabaseStatement> {
+    public static class Builder implements StorageBuilder<TopNCacheWriteCommand> {
         @Override
-        public TopNDatabaseStatement storage2Entity(final Convert2Entity converter) {
-            TopNDatabaseStatement statement = new TopNDatabaseStatement();
-            statement.setStatement((String) converter.get(STATEMENT));
+        public TopNCacheWriteCommand storage2Entity(final Convert2Entity converter) {
+            TopNCacheWriteCommand statement = new TopNCacheWriteCommand();
+            statement.setCommand((String) converter.get(STATEMENT));
             statement.setTraceId((String) converter.get(TRACE_ID));
             statement.setLatency(((Number) converter.get(LATENCY)).longValue());
             statement.setServiceId((String) converter.get(SERVICE_ID));
@@ -77,8 +78,8 @@ public class TopNDatabaseStatement extends TopN {
         }
 
         @Override
-        public void entity2Storage(final TopNDatabaseStatement storageData, final Convert2Storage converter) {
-            converter.accept(STATEMENT, storageData.getStatement());
+        public void entity2Storage(final TopNCacheWriteCommand storageData, final Convert2Storage converter) {
+            converter.accept(STATEMENT, storageData.getCommand());
             converter.accept(TRACE_ID, storageData.getTraceId());
             converter.accept(LATENCY, storageData.getLatency());
             converter.accept(SERVICE_ID, storageData.getServiceId());

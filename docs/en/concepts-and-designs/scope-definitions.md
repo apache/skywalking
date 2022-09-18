@@ -286,3 +286,54 @@ This calculates the metrics data from [events](event.md).
 | type | The type of the event, `Normal` or `Error`. | | string|
 | message | The message of the event. | | string |
 | parameters | The parameters in the `message`, see [parameters](event.md#parameters). | | string |
+
+
+### SCOPE `DatabaseAccess`
+
+This calculates the metrics data from each request of cache system.
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name | The service name of virtual database service. |  | string |
+| databaseTypeId | The ID of the component used in this call. | | int |
+| latency | The time taken by each request. | | int(in ms)|
+| status | Indicates the success or failure of the request.| | boolean |
+
+### SCOPE `DatabaseSlowStatement`
+
+This calculates the metrics data from slow request of cache system , which is used for `write` or `read` operation.
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| databaseServiceId | The service id of virtual cache service. |  | string |
+| statement | The sql statement . | | string |
+| latency | The time taken by each request. | | int(in ms)|
+| traceId | The traceId of this slow statement| | string|
+
+
+### SCOPE `CacheAccess`
+
+This calculates the metrics data from each request of cache system.
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name | The service name of virtual cache service. |  | string |
+| cacheTypeId | The ID of the component used in this call. | | int |
+| latency | The time taken by each request. | | int(in ms)|
+| status | Indicates the success or failure of the request.| | boolean |
+| op | Indicates this access is used for `write` or `read` | | string |
+
+
+### SCOPE `CacheSlowAccess`
+
+This calculates the metrics data from slow request of cache system , which is used for `write` or `read` operation.
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| cacheServiceId | The service id of virtual cache service. |  | string |
+| command | The cache command . | | string |
+| key | The cache command key. | | string|
+| latency | The time taken by each request. | | int(in ms)|
+| traceId | The traceId of this slow access| | string|
+| status | Indicates the success or failure of the request.| | boolean |
+| op | Indicates this access is used for `write` or `read` | | string |
