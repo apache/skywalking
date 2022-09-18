@@ -63,7 +63,7 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
         }
         String cacheType = tags.get(SpanTags.CACHE_TYPE).toLowerCase();
         String peer = span.getPeer();
-        // peer is blank if it's a local span
+        // peer is blank if it's a local span.
         if (StringUtil.isBlank(peer)) {
             peer = tags.get(SpanTags.CACHE_TYPE) + "-local";
         }
