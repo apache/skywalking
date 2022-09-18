@@ -47,7 +47,7 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
     expected: expected/traces-list.yml
   # negative tags search: relationship should be logical AND instead of logical OR
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=POST,http.status_code=200,iserror=true
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=POST,http.status_code=201
     expected: expected/empty-traces-list.yml
   # trace detail
   - query: |

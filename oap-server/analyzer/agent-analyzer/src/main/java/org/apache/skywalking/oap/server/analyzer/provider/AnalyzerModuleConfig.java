@@ -65,7 +65,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
 
     @Setter
     @Getter
-    private String slowCacheWriteThreshold = "default:20";
+    private String slowCacheWriteThreshold = "default:20,redis:10";
 
     @Setter
     @Getter
@@ -73,7 +73,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
 
     @Setter
     @Getter
-    private String slowCacheReadThreshold = "default:20";
+    private String slowCacheReadThreshold = "default:20,redis:10";
 
     @Setter
     @Getter
