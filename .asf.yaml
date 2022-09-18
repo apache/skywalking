@@ -33,6 +33,7 @@ github:
     - open-telemetry
     - zabbix
     - ebpf
+    - hacktoberfest
   enabled_merge_buttons:
     squash:  true
     merge:   false
