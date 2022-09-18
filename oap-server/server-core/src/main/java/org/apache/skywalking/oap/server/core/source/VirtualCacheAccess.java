@@ -54,5 +54,5 @@ public class VirtualCacheAccess extends Source {
     private boolean status;
     @Getter
     @Setter
-    private String op; // operation
+    private VirtualCacheOperation operation;
 }

@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
+
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.CACHE_SLOW_ACCESS;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
 
@@ -51,7 +52,7 @@ public class VirtualCacheSlowAccess extends Source {
 
     @Getter
     @Setter
-    private String op;
+    private VirtualCacheOperation operation;
 
     @Override
     public int scope() {

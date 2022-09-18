@@ -18,6 +18,11 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.vservice;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
@@ -33,13 +38,9 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.source.VirtualCacheAccess;
+import org.apache.skywalking.oap.server.core.source.VirtualCacheOperation;
 import org.apache.skywalking.oap.server.core.source.VirtualCacheSlowAccess;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -57,11 +58,14 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
             return;
         }
         Map<String, String> tags = span.getTagsList().stream()
-                .collect(Collectors.toMap(KeyStringValuePair::getKey, KeyStringValuePair::getValue));
-        if (!(tags.containsKey(SpanTags.CACHE_KEY) && tags.containsKey(SpanTags.CACHE_OP) && tags.containsKey(SpanTags.CACHE_CMD) && tags.containsKey(SpanTags.CACHE_TYPE))) {
+                                       .collect(
+                                           Collectors.toMap(KeyStringValuePair::getKey, KeyStringValuePair::getValue));
+
+        String cacheType = tags.get(SpanTags.CACHE_TYPE);
+        if (StringUtil.isBlank(cacheType)) {
             return;
         }
-        String cacheType = tags.get(SpanTags.CACHE_TYPE).toLowerCase();
+        cacheType = cacheType.toLowerCase();
         String peer = span.getPeer();
         // peer is blank if it's a local span.
         if (StringUtil.isBlank(peer)) {
@@ -71,9 +75,11 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
         String serviceName = namingControl.formatServiceName(peer);
         int latency = (int) (span.getEndTime() - span.getStartTime());
         sourceList.add(parseServiceMeta(serviceName, timeBucket));
-        String op = tags.get(SpanTags.CACHE_OP);
-        if (("write".equals(op) && latency > config.getCacheWriteLatencyThresholdsAndWatcher().getThreshold(cacheType))
-                || ("read".equals(op) && latency > config.getCacheReadLatencyThresholdsAndWatcher().getThreshold(cacheType))) {
+        VirtualCacheOperation op = parseOperation(tags.get(SpanTags.CACHE_OP));
+        if ((op == VirtualCacheOperation.Write && latency > config.getCacheWriteLatencyThresholdsAndWatcher()
+                                                                  .getThreshold(cacheType))
+            || (op == VirtualCacheOperation.Read && latency > config.getCacheReadLatencyThresholdsAndWatcher()
+                                                                    .getThreshold(cacheType))) {
             VirtualCacheSlowAccess slowAccess = new VirtualCacheSlowAccess();
             slowAccess.setCacheServiceId(IDManager.ServiceID.buildId(serviceName, false));
             slowAccess.setLatency(latency);
@@ -83,7 +89,7 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
             slowAccess.setCommand(tags.get(SpanTags.CACHE_CMD));
             slowAccess.setKey(tags.get(SpanTags.CACHE_KEY));
             slowAccess.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
-            slowAccess.setOp(op);
+            slowAccess.setOperation(op);
             sourceList.add(slowAccess);
         }
         VirtualCacheAccess access = new VirtualCacheAccess();
@@ -92,7 +98,7 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
         access.setName(serviceName);
         access.setStatus(!span.getIsError());
         access.setTimeBucket(timeBucket);
-        access.setOp(op);
+        access.setOperation(op);
         sourceList.add(access);
     }
 
@@ -102,6 +108,16 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
         service.setLayer(Layer.VIRTUAL_CACHE);
         service.setTimeBucket(timeBucket);
         return service;
+    }
+
+    private VirtualCacheOperation parseOperation(String op) {
+        if ("write".equals(op)) {
+            return VirtualCacheOperation.Write;
+        }
+        if ("read".equals(op)) {
+            return VirtualCacheOperation.Read;
+        }
+        return VirtualCacheOperation.Others;
     }
 
     @Override

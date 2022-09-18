@@ -20,13 +20,15 @@ package org.apache.skywalking.oap.server.core.analysis.manual.cache;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
+import org.apache.skywalking.oap.server.core.source.VirtualCacheOperation;
 import org.apache.skywalking.oap.server.core.source.VirtualCacheSlowAccess;
 
 public class CacheSlowAccessDispatcher implements SourceDispatcher<VirtualCacheSlowAccess> {
 
     @Override
     public void dispatch(VirtualCacheSlowAccess source) {
-        if (source.getOp().equals("read")) {
+        // There are only two kinds of Operation : write or read .Refer VirtualCacheProcessor#prepareVSIfNecessary
+        if (source.getOperation() == VirtualCacheOperation.Read) {
             TopNCacheReadCommand readCommand = new TopNCacheReadCommand();
             readCommand.setId(source.getId());
             readCommand.setCommand(source.getCommand() + " " + source.getKey());
@@ -35,7 +37,7 @@ public class CacheSlowAccessDispatcher implements SourceDispatcher<VirtualCacheS
             readCommand.setServiceId(source.getCacheServiceId());
             readCommand.setTimeBucket(source.getTimeBucket());
             TopNStreamProcessor.getInstance().in(readCommand);
-        } else {
+        } else if (source.getOperation() == VirtualCacheOperation.Write) {
             TopNCacheWriteCommand writeCommand = new TopNCacheWriteCommand();
             writeCommand.setId(source.getId());
             writeCommand.setCommand(source.getCommand() + " " + source.getKey());
