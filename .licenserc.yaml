@@ -99,13 +99,13 @@ dependency:
       version: 2.3.0,2.5.0
       license: Apache-2.0
     - name: com.fasterxml.jackson.module:jackson-module-kotlin
-      version: 2.13.1
+      version: 2.13.4
       license: Apache-2.0
     - name: com.fasterxml.jackson.datatype:jackson-datatype-jsr310
       version: 2.13.2
       license: Apache-2.0
     - name: com.graphql-java:graphql-java-extended-scalars
-      version: 17.0
+      version: 18.1
       license: MIT
     - name: com.github.luben:zstd-jni
       version: 1.4.3-1
