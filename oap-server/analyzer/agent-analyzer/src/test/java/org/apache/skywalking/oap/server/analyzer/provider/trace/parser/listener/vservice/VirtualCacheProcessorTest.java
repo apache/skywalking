@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.source.VirtualCacheAccess;
+import org.apache.skywalking.oap.server.core.source.VirtualCacheOperation;
 import org.apache.skywalking.oap.server.core.source.VirtualCacheSlowAccess;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -84,7 +85,7 @@ public class VirtualCacheProcessorTest {
         Assert.assertEquals("MTI3LjAuMC4xOjYzNzk=.0", slowAccess.getCacheServiceId());
         Assert.assertEquals(1000, slowAccess.getLatency());
         Assert.assertEquals(20220912141312L, slowAccess.getTimeBucket());
-        Assert.assertEquals("read", slowAccess.getOp());
+        Assert.assertEquals(VirtualCacheOperation.Read, slowAccess.getOperation());
         Assert.assertNotNull(slowAccess.getTraceId());
         Assert.assertNotNull(slowAccess.getCommand());
         Assert.assertNotNull(slowAccess.getKey());
@@ -93,7 +94,7 @@ public class VirtualCacheProcessorTest {
         Assert.assertEquals("127.0.0.1:6379", cacheAccess.getName());
         Assert.assertEquals(1000, cacheAccess.getLatency());
         Assert.assertEquals(202209121413L, cacheAccess.getTimeBucket());
-        Assert.assertNotNull(cacheAccess.getOp());
+        Assert.assertNotNull(cacheAccess.getOperation());
     }
 
     @Test
@@ -124,7 +125,7 @@ public class VirtualCacheProcessorTest {
         Assert.assertEquals("127.0.0.1:6379", cacheAccess.getName());
         Assert.assertEquals(3, cacheAccess.getLatency());
         Assert.assertEquals(202209121413L, cacheAccess.getTimeBucket());
-        Assert.assertNotNull(cacheAccess.getOp());
+        Assert.assertNotNull(cacheAccess.getOperation());
     }
 
     @Test
@@ -153,7 +154,7 @@ public class VirtualCacheProcessorTest {
         Assert.assertEquals("cmVkaXMtbG9jYWw=.0", slowAccess.getCacheServiceId());
         Assert.assertEquals(1000, slowAccess.getLatency());
         Assert.assertEquals(20220912141312L, slowAccess.getTimeBucket());
-        Assert.assertEquals("read", slowAccess.getOp());
+        Assert.assertEquals(VirtualCacheOperation.Read, slowAccess.getOperation());
         Assert.assertNotNull(slowAccess.getTraceId());
         Assert.assertNotNull(slowAccess.getCommand());
         Assert.assertNotNull(slowAccess.getKey());
@@ -162,7 +163,7 @@ public class VirtualCacheProcessorTest {
         Assert.assertEquals("redis-local", cacheAccess.getName());
         Assert.assertEquals(1000, cacheAccess.getLatency());
         Assert.assertEquals(202209121413L, cacheAccess.getTimeBucket());
-        Assert.assertNotNull(cacheAccess.getOp());
+        Assert.assertNotNull(cacheAccess.getOperation());
     }
 
     private long getTimeInMillis(String s) {
