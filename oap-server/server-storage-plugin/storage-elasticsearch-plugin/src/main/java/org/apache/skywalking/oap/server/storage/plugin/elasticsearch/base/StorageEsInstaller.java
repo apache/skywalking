@@ -44,7 +44,6 @@ public class StorageEsInstaller extends ModelInstaller {
     private final StorageModuleElasticsearchConfig config;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
 
-
     /**
      * The mappings of the template .
      */
@@ -79,16 +78,16 @@ public class StorageEsInstaller extends ModelInstaller {
             }
             return exist;
         }
+
         boolean templateExists = esClient.isExistsTemplate(tableName);
         final Optional<IndexTemplate> template = esClient.getTemplate(tableName);
-        boolean lastIndexExists = esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
 
         if ((templateExists && !template.isPresent()) || (!templateExists && template.isPresent())) {
             throw new Error("[Bug warning] ElasticSearch client query template result is not consistent. " +
                                 "Please file an issue to Apache SkyWalking.(https://github.com/apache/skywalking/issues)");
         }
 
-        boolean exist = templateExists && lastIndexExists;
+        boolean exist = templateExists;
 
         if (exist) {
             structures.putStructure(
@@ -158,13 +157,13 @@ public class StorageEsInstaller extends ModelInstaller {
 
             if (esClient.isExistsIndex(indexName)) {
                 Mappings historyMapping = esClient.getIndex(indexName)
-                        .map(Index::getMappings)
-                        .orElseGet(Mappings::new);
+                                                  .map(Index::getMappings)
+                                                  .orElseGet(Mappings::new);
                 Mappings appendMapping = structures.diffStructure(tableName, historyMapping);
                 if (appendMapping.getProperties() != null && !appendMapping.getProperties().isEmpty()) {
                     boolean isAcknowledged = esClient.updateIndexMapping(indexName, appendMapping);
                     log.info("update {} index finished, isAcknowledged: {}, append mappings: {}", indexName,
-                            isAcknowledged, appendMapping
+                             isAcknowledged, appendMapping
                     );
                     if (!isAcknowledged) {
                         throw new StorageException("update " + indexName + " time series index failure");

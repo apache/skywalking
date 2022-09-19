@@ -2,7 +2,6 @@
 
 #### Project
 
-
 #### OAP Server
 
 * Add component ID(133) for impala JDBC Java agent plugin and component ID(134) for impala server.
@@ -13,14 +12,19 @@
 * [**Breaking Change**] Change the LAL script format(Add layer property).
 * Adapt ElasticSearch 8.1+, migrate from removed APIs to recommended APIs.
 * Support monitoring MySQL slow SQLs.
+* Remove physical index existing check and keep template existing check only to avoid meaningless `retry wait`
+  in `no-init` mode.
+* Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
 
 #### UI
 
 * Fix: tab active incorrectly, when click tab space
 * Add impala icon for impala JDBC Java agent plugin.
 * (Webapp)Bump up snakeyaml to 1.31 for fixing CVE-2022-25857
-* [Breaking Change]: migrate from Spring Web to Armeria, now you should use the environment variable name `SW_OAP_ADDRESS`
-  to change the OAP backend service addresses, like `SW_OAP_ADDRESS=localhost:12800,localhost:12801`, and use environment
+* [Breaking Change]: migrate from Spring Web to Armeria, now you should use the environment variable
+  name `SW_OAP_ADDRESS`
+  to change the OAP backend service addresses, like `SW_OAP_ADDRESS=localhost:12800,localhost:12801`, and use
+  environment
   variable `SW_SERVER_PORT` to change the port. Other Spring-related configurations don't take effect anymore.
 * Polish the endpoint list graph.
 * Fix styles for an adaptive height.
@@ -30,6 +34,5 @@
 * Update MySQL dashboard to visualize collected slow SQLs.
 
 #### Documentation
-
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)
