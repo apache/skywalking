@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.response.Index;
+import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -76,7 +78,24 @@ public class StorageEsInstaller extends ModelInstaller {
             }
             return exist;
         }
-        return esClient.isExistsTemplate(tableName);
+
+        boolean templateExists = esClient.isExistsTemplate(tableName);
+        final Optional<IndexTemplate> template = esClient.getTemplate(tableName);
+
+        if ((templateExists && !template.isPresent()) || (!templateExists && template.isPresent())) {
+            throw new Error("[Bug warning] ElasticSearch client query template result is not consistent. " +
+                                "Please file an issue to Apache SkyWalking.(https://github.com/apache/skywalking/issues)");
+        }
+
+        boolean exist = templateExists;
+
+        if (exist) {
+            structures.putStructure(
+                tableName, template.get().getMappings()
+            );
+            exist = structures.containsStructure(tableName, createMapping(model));
+        }
+        return exist;
     }
 
     @Override
