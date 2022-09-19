@@ -200,6 +200,10 @@
             "sourceId": "4"
           }
         },
+
+
+
+
         {
           "x": 0,
           "y": 13,
@@ -297,6 +301,98 @@
           "y": 13,
           "w": 6,
           "h": 13,
+          "i": "9",
+          "type": "Widget",
+          "widget": {
+            "title": "Write Avg Response Time (ms)",
+            "name": "Write_Avg_Response"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_write_resp_time"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "value": "6",
+          "label": "Read_Avg_Response",
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          },
+          "associate": [
+            {
+              "widgetId": "10"
+            },
+            {
+              "widgetId": "11"
+            },
+            {
+              "widgetId": "12"
+            }
+          ]
+        },
+
+        {
+          "x": 18,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "10",
+          "type": "Widget",
+          "widget": {
+            "title": "Write Successful Rate (%)",
+            "name": "Write_Successful_Rate"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_write_sla"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "percentage"
+            }
+          ],
+          "value": "3",
+          "label": "Successful_Rate",
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          },
+          "associate": [
+            {
+              "widgetId": "9"
+            },
+            {
+              "widgetId": "11"
+            },
+            {
+              "widgetId": "12"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 26,
+          "w": 6,
+          "h": 13,
           "i": "7",
           "type": "Widget",
           "widget": {
@@ -332,8 +428,8 @@
           ]
         },
         {
-          "x": 18,
-          "y": 13,
+          "x": 6,
+          "y": 26,
           "w": 6,
           "h": 13,
           "i": "8",
@@ -380,98 +476,7 @@
             "sourceId": "4"
           }
         },
-        {
-          "x": 0,
-          "y": 26,
-          "w": 6,
-          "h": 13,
-          "i": "9",
-          "type": "Widget",
-          "widget": {
-            "title": "Write Avg Response Time (ms)",
-            "name": "Write_Avg_Response"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "cache_write_resp_time"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "value": "6",
-          "label": "Read_Avg_Response",
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          },
-          "associate": [
-            {
-              "widgetId": "10"
-            },
-            {
-              "widgetId": "11"
-            },
-            {
-              "widgetId": "12"
-            }
-          ]
-        },
 
-        {
-          "x": 6,
-          "y": 26,
-          "w": 6,
-          "h": 13,
-          "i": "10",
-          "type": "Widget",
-          "widget": {
-            "title": "Write Successful Rate (%)",
-            "name": "Write_Successful_Rate"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "cache_write_sla"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "calculation": "percentage"
-            }
-          ],
-          "value": "3",
-          "label": "Successful_Rate",
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          },
-          "associate": [
-            {
-              "widgetId": "9"
-            },
-            {
-              "widgetId": "11"
-            },
-            {
-              "widgetId": "12"
-            }
-          ]
-        },
         {
           "x": 12,
           "y": 26,
