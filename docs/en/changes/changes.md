@@ -29,6 +29,7 @@
 * Enhance the process topology graph to support dragging nodes.
 * UI-template: Fix metrics calculation in `general-service/mesh-service/faas-function` top-list dashboard.
 * Update MySQL dashboard to visualize collected slow SQLs.
+* Add virtual cache dashboard
 
 #### Documentation
 
