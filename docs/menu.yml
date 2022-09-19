@@ -52,8 +52,6 @@ catalog:
             path: "/en/concepts-and-designs/lal"
           - name: "Query in OAP"
             path: "/en/protocols/readme#query-protocol"
-      - name: "CLI"
-        path: "https://github.com/apache/skywalking-cli"
       - name: "Event"
         path: "/en/concepts-and-designs/event/"
 
