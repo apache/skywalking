@@ -22,6 +22,7 @@ import com.google.common.base.Splitter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
@@ -57,7 +58,7 @@ public class CacheWriteLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
         if (thresholds.get().containsKey(type)) {
             return thresholds.get().get(type);
         } else {
-            return thresholds.get().get("default");
+            return Optional.ofNullable(thresholds.get().get("default")).orElse(Integer.MAX_VALUE);
         }
     }
 
