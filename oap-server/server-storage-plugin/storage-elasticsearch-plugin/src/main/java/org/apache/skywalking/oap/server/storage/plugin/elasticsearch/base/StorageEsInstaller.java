@@ -23,10 +23,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.response.Index;
-import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -43,7 +41,6 @@ public class StorageEsInstaller extends ModelInstaller {
     private final Gson gson = new Gson();
     private final StorageModuleElasticsearchConfig config;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
-
 
     /**
      * The mappings of the template .
@@ -141,13 +138,13 @@ public class StorageEsInstaller extends ModelInstaller {
 
             if (esClient.isExistsIndex(indexName)) {
                 Mappings historyMapping = esClient.getIndex(indexName)
-                        .map(Index::getMappings)
-                        .orElseGet(Mappings::new);
+                                                  .map(Index::getMappings)
+                                                  .orElseGet(Mappings::new);
                 Mappings appendMapping = structures.diffStructure(tableName, historyMapping);
                 if (appendMapping.getProperties() != null && !appendMapping.getProperties().isEmpty()) {
                     boolean isAcknowledged = esClient.updateIndexMapping(indexName, appendMapping);
                     log.info("update {} index finished, isAcknowledged: {}, append mappings: {}", indexName,
-                            isAcknowledged, appendMapping
+                             isAcknowledged, appendMapping
                     );
                     if (!isAcknowledged) {
                         throw new StorageException("update " + indexName + " time series index failure");
