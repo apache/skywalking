@@ -79,24 +79,7 @@ public class StorageEsInstaller extends ModelInstaller {
             }
             return exist;
         }
-        boolean templateExists = esClient.isExistsTemplate(tableName);
-        final Optional<IndexTemplate> template = esClient.getTemplate(tableName);
-        boolean lastIndexExists = esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
-
-        if ((templateExists && !template.isPresent()) || (!templateExists && template.isPresent())) {
-            throw new Error("[Bug warning] ElasticSearch client query template result is not consistent. " +
-                                "Please file an issue to Apache SkyWalking.(https://github.com/apache/skywalking/issues)");
-        }
-
-        boolean exist = templateExists && lastIndexExists;
-
-        if (exist) {
-            structures.putStructure(
-                tableName, template.get().getMappings()
-            );
-            exist = structures.containsStructure(tableName, createMapping(model));
-        }
-        return exist;
+        return esClient.isExistsTemplate(tableName);
     }
 
     @Override
