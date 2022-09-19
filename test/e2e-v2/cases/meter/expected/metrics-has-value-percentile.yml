@@ -14,27 +14,34 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1
-  name: e2e-service-provider
-  group: ""
-  shortname: e2e-service-provider
-  normal: true
-  layers:
-    - GENERAL
-
-- id: {{ b64enc "localhost:-1" }}.0
-  name: localhost:-1
-  group: ""
-  shortname: localhost:-1
-  normal: false
-  layers:
-    - VIRTUAL_DATABASE
-
-- id: {{ b64enc "GuavaCache-local" }}.0
-  name: GuavaCache-local
-  group: ""
-  shortname: GuavaCache-local
-  normal: false
-  layers:
-    - VIRTUAL_CACHE
+- key: 0
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 0 }}
+  {{- end }}
+- key: 1
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 0 }}
+  {{- end }}
+- key: 2
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 0 }}
+  {{- end }}
+- key: 3
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 0 }}
+  {{- end }}
+- key: 4
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 0 }}
+  {{- end }}
 {{- end }}

@@ -22,13 +22,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
-import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
-import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
@@ -203,34 +200,5 @@ class RPCTrafficSourceBuilder extends EndpointSourceBuilder {
         endpointRelation.setDetectPoint(detectPoint);
         endpointRelation.setTimeBucket(timeBucket);
         return endpointRelation;
-    }
-
-    /**
-     * Service meta is only for building the service list, but wouldn't be same as {@link #toService()}, which could
-     * generate traffic and metrics both.
-     */
-    ServiceMeta toServiceMeta() {
-        ServiceMeta service = new ServiceMeta();
-        service.setName(destServiceName);
-        service.setLayer(destLayer);
-        service.setLayer(destLayer);
-        service.setTimeBucket(timeBucket);
-        return service;
-    }
-
-    /**
-     * Database traffic metrics source. The metrics base on the OAL scripts.
-     */
-    DatabaseAccess toDatabaseAccess() {
-        if (!RequestType.DATABASE.equals(type)) {
-            return null;
-        }
-        DatabaseAccess databaseAccess = new DatabaseAccess();
-        databaseAccess.setDatabaseTypeId(componentId);
-        databaseAccess.setLatency(latency);
-        databaseAccess.setName(destServiceName);
-        databaseAccess.setStatus(status);
-        databaseAccess.setTimeBucket(timeBucket);
-        return databaseAccess;
     }
 }

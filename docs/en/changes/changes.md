@@ -12,6 +12,8 @@
 * [**Breaking Change**] Change the LAL script format(Add layer property).
 * Adapt ElasticSearch 8.1+, migrate from removed APIs to recommended APIs.
 * Support monitoring MySQL slow SQLs.
+* Support analyzing cache related spans to provide metrics and slow commands for cache services from client side
+* Optimize virtual database, fix dynamic config watcher NPE when default value is null 
 * Remove physical index existing check and keep template existing check only to avoid meaningless `retry wait`
   in `no-init` mode.
 * Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
@@ -32,6 +34,7 @@
 * Enhance the process topology graph to support dragging nodes.
 * UI-template: Fix metrics calculation in `general-service/mesh-service/faas-function` top-list dashboard.
 * Update MySQL dashboard to visualize collected slow SQLs.
+* Add virtual cache dashboard
 
 #### Documentation
 
