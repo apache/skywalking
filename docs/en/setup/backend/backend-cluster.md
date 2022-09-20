@@ -85,23 +85,21 @@ cluster:
   selector: ${SW_CLUSTER:kubernetes}
   # other configurations
 ```
-
-Meanwhile, OAP cluster requires `metadata.uid` as the value of the system environment variable **SKYWALKING_COLLECTOR_UID**
+Meanwhile, the OAP cluster requires the pod's UID which is laid at `metadata.uid` as the value of the system environment variable **SKYWALKING_COLLECTOR_UID**
 
 ```yaml
-   # Add 
-   containers:
-     # Original configurations of OAP container
-     - name: {{ .Values.oap.name }}
-       image: {{ .Values.oap.image.repository }}:{{ required "oap.image.tag is required" .Values.oap.image.tag }}
-       # ...
-       # ...
-       env:
-       # Add metadata.uid as the system environment variable, SKYWALKING_COLLECTOR_UID 
-       - name: SKYWALKING_COLLECTOR_UID
-         valueFrom:
-           fieldRef:
-             fieldPath: metadata.uid
+containers:
+  # Original configurations of OAP container
+  - name: {{ .Values.oap.name }}
+    image: {{ .Values.oap.image.repository }}:{{ required "oap.image.tag is required" .Values.oap.image.tag }}
+    # ...
+    # ...
+    env:
+    # Add metadata.uid as the system environment variable, SKYWALKING_COLLECTOR_UID 
+    - name: SKYWALKING_COLLECTOR_UID
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.uid
 ```
 
 Read [the complete helm](https://github.com/apache/skywalking-kubernetes/blob/476afd51d44589c77a4cbaac950272cd5d064ea9/chart/skywalking/templates/oap-deployment.yaml#L125) for more details.
