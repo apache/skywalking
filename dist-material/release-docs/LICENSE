@@ -381,7 +381,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.slf4j/log4j-over-slf4j/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/slf4j-api/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java/1.1.7.3 Apache-2.0
-    https://mvnrepository.com/artifact/org.yaml/snakeyaml/1.31 Apache-2.0
+    https://mvnrepository.com/artifact/org.yaml/snakeyaml/1.32 Apache-2.0
     https://npmjs.com/package/typescript/v/4.4.4 4.4.4 Apache-2.0
 
 ========================================================================
