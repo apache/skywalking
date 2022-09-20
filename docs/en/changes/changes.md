@@ -39,4 +39,6 @@
 
 #### Documentation
 
+* Add `metadata-uid` setup doc about Kubernetes coordinator in the cluster management.
+
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)
