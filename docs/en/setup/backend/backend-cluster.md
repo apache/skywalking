@@ -92,8 +92,8 @@ Meanwhile, OAP cluster requires `metadata.uid` as the value of the system enviro
    # Add 
    containers:
      # Original configurations of OAP container
-     - name: { { .Values.oap.name } }
-       image: { { .Values.oap.image.repository } }:{{ required "oap.image.tag is required" .Values.oap.image.tag }}
+     - name: {{ .Values.oap.name }}
+       image: {{ .Values.oap.image.repository }}:{{ required "oap.image.tag is required" .Values.oap.image.tag }}
        # ...
        # ...
        env:
