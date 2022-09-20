@@ -85,8 +85,7 @@ cluster:
   selector: ${SW_CLUSTER:kubernetes}
   # other configurations
 ```
-
-Meanwhile, OAP cluster requires `metadata.uid` as the value of the system environment variable **SKYWALKING_COLLECTOR_UID**
+Meanwhile, the OAP cluster requires the pod's UID which is laid at `metadata.uid` as the value of the system environment variable **SKYWALKING_COLLECTOR_UID**
 
 ```yaml
    # Add 
