@@ -38,9 +38,12 @@
 * Update MySQL dashboard to visualize collected slow SQLs.
 * Add virtual cache dashboard
 * Remove `responseCode` fields of all OAL sources, as well as examples to avoid user's confusion.
+* Remove All from the endpoints selector.
+* Enhance menu configurations to make it easier to change.
 
 #### Documentation
 
 * Add `metadata-uid` setup doc about Kubernetes coordinator in the cluster management.
+* Add a doc for adding menus to booster UI.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)

@@ -113,6 +113,7 @@ storage implementor in addition to the official one.
 - [Source and scope extension for new metrics](source-extension.md). For analysis of a new metric which SkyWalking
 hasn't yet provided, add a new receiver.
 You would most likely have to add a new source and scope. To learn how to do this, read the document.
+- If you would like to add a new root menu or sub-menu to booster UI, read the [UI menu control document](How-to-add-menu.md).
 
 ### OAP backend dependency management
 > This section is only applicable to dependencies of the backend module.
