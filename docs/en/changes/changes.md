@@ -36,6 +36,7 @@
 * Update MySQL dashboard to visualize collected slow SQLs.
 * Add virtual cache dashboard
 * Remove `responseCode` fields of all OAL sources, as well as examples to avoid user's confusion.
+* Remove All from the endpoints selector.
 * Enhance menu configurations to make it easier to change.
 
 #### Documentation
