@@ -2,6 +2,8 @@
 
 #### Project
 
+* Bump up the embedded `swctl` version in OAP Docker image.
+
 #### OAP Server
 
 * Add component ID(133) for impala JDBC Java agent plugin and component ID(134) for impala server.
@@ -13,7 +15,7 @@
 * Adapt ElasticSearch 8.1+, migrate from removed APIs to recommended APIs.
 * Support monitoring MySQL slow SQLs.
 * Support analyzing cache related spans to provide metrics and slow commands for cache services from client side
-* Optimize virtual database, fix dynamic config watcher NPE when default value is null 
+* Optimize virtual database, fix dynamic config watcher NPE when default value is null
 * Remove physical index existing check and keep template existing check only to avoid meaningless `retry wait`
   in `no-init` mode.
 * Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
