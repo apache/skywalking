@@ -21,12 +21,12 @@ package org.apache.skywalking.oap.server.core.analysis.manual.cache;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.VirtualCacheOperation;
-import org.apache.skywalking.oap.server.core.source.VirtualCacheSlowAccess;
+import org.apache.skywalking.oap.server.core.source.CacheSlowAccess;
 
-public class CacheSlowAccessDispatcher implements SourceDispatcher<VirtualCacheSlowAccess> {
+public class CacheSlowAccessDispatcher implements SourceDispatcher<CacheSlowAccess> {
 
     @Override
-    public void dispatch(VirtualCacheSlowAccess source) {
+    public void dispatch(CacheSlowAccess source) {
         // There are only two kinds of Operation : write or read .Refer VirtualCacheProcessor#prepareVSIfNecessary
         if (source.getOperation() == VirtualCacheOperation.Read) {
             TopNCacheReadCommand readCommand = new TopNCacheReadCommand();

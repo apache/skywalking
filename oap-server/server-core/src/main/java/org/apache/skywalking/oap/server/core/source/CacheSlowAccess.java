@@ -20,39 +20,48 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.Const;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.CACHE_ACCESS;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.CACHE_SLOW_ACCESS;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
 
-@ScopeDeclaration(id = CACHE_ACCESS, name = "VirtualCacheAccess", catalog = SERVICE_CATALOG_NAME)
-@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
-public class VirtualCacheAccess extends Source {
+@ScopeDeclaration(id = CACHE_SLOW_ACCESS, name = "VirtualCacheSlowAccess", catalog = SERVICE_CATALOG_NAME)
+public class CacheSlowAccess extends Source {
+    @Getter
+    @Setter
+    private String id;
+    @Getter
+    @Setter
+    private String cacheServiceId;
+    @Getter
+    @Setter
+    private String command;
+    @Getter
+    @Setter
+    private String key;
+    @Getter
+    @Setter
+    private long latency;
+    @Getter
+    @Setter
+    private String traceId;
+
+    @Getter
+    @Setter
+    private boolean status;
+
+    @Getter
+    @Setter
+    private VirtualCacheOperation operation;
 
     @Override
     public int scope() {
-        return CACHE_ACCESS;
+        return DefaultScopeDefine.CACHE_SLOW_ACCESS;
     }
 
     @Override
     public String getEntityId() {
-        return IDManager.ServiceID.buildId(name, false);
+        return Const.EMPTY_STRING;
     }
 
-    @Getter
-    @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
-    private String name;
-    @Getter
-    @Setter
-    private int cacheTypeId;
-    @Getter
-    @Setter
-    private int latency;
-    @Getter
-    @Setter
-    private boolean status;
-    @Getter
-    @Setter
-    private VirtualCacheOperation operation;
 }
