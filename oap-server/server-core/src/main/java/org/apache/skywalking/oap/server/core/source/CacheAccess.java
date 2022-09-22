@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.CACHE_ACCESS;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
 
-@ScopeDeclaration(id = CACHE_ACCESS, name = "VirtualCacheAccess", catalog = SERVICE_CATALOG_NAME)
+@ScopeDeclaration(id = CACHE_ACCESS, name = "CacheAccess", catalog = SERVICE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class CacheAccess extends Source {
 
