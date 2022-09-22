@@ -52,8 +52,6 @@ catalog:
             path: "/en/concepts-and-designs/lal"
           - name: "Query in OAP"
             path: "/en/protocols/readme#query-protocol"
-      - name: "CLI"
-        path: "https://github.com/apache/skywalking-cli"
       - name: "Event"
         path: "/en/concepts-and-designs/event/"
 
@@ -111,6 +109,8 @@ catalog:
                 path: "/en/setup/backend/trace-sampling"
               - name: "Detect Slow Database Statement"
                 path: "/en/setup/backend/slow-db-statement"
+              - name: "Detect Slow Cache Command"
+                path: "/en/setup/backend/slow-cache-command"
               - name: "Message Queue Performance"
                 path: "/en/setup/backend/mq"
               - name: "Uninstrumented Gateways"
@@ -161,6 +161,8 @@ catalog:
                 path: "/en/setup/service-agent/agent-compatibility"
               - name: "Virtual Database"
                 path: "/en/setup/service-agent/virtual-database"
+              - name: "Virtual Cache"
+                path: "/en/setup/service-agent/virtual-cache"
           - name: "Service Mesh"
             catalog:
               - name: "Observe Service Mesh"
