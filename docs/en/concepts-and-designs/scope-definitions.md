@@ -315,7 +315,7 @@ This calculates the metrics data from each request of cache system.
 | cacheTypeId | The ID of the component used in this call. | | int |
 | latency | The time taken by each request. | | int(in ms)|
 | status | Indicates the success or failure of the request.| | boolean |
-| op | Indicates this access is used for `write` or `read` | | string |
+| operation | Indicates this access is used for `write` or `read` | | string |
 
 
 ### SCOPE `CacheSlowAccess`
@@ -330,4 +330,4 @@ This calculates the metrics data from slow request of cache system , which is us
 | latency | The time taken by each request. | | int(in ms)|
 | traceId | The traceId of this slow access| | string|
 | status | Indicates the success or failure of the request.| | boolean |
-| op | Indicates this access is used for `write` or `read` | | string |
+| operation | Indicates this access is used for `write` or `read` | | string |
