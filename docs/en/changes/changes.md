@@ -19,6 +19,7 @@
 * Remove physical index existing check and keep template existing check only to avoid meaningless `retry wait`
   in `no-init` mode.
 * Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
+* Support monitoring PostgreSQL slow SQLs.
 
 #### UI
 
