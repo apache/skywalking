@@ -41,6 +41,7 @@
 * Remove `responseCode` fields of all OAL sources, as well as examples to avoid user's confusion.
 * Remove All from the endpoints selector.
 * Enhance menu configurations to make it easier to change.
+* Update PostgreSQL dashboard to visualize collected slow SQLs.
 
 #### Documentation
 
