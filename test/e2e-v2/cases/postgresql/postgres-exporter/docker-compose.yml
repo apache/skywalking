@@ -20,7 +20,6 @@ services:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
-    entrypoint: ['sh', '-c', '/download-mysql.sh && chmod 777 /skywalking/docker-entrypoint.sh && /skywalking/docker-entrypoint.sh']
     environment:
       - TZ=Asia/Shanghai
       - SW_STORAGE=postgresql

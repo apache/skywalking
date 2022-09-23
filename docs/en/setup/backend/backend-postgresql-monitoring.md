@@ -55,13 +55,13 @@ SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for 
 
 ### Data flow
 1. fluentbit agent collects slow sql logs from PostgreSQL.
-2. fluentbit agent sends data to SkyWalking OAP Server using native meter APIs via HTTP.
+2. fluentbit agent sends data to SkyWalking OAP Server using native log APIs via HTTP.
 3. The SkyWalking OAP Server parses the expression with [LAL](../../concepts-and-designs/lal.md) to parse/extract and store the results.
 
 ### Set up
 1. Set up [fluentbit](https://docs.fluentbit.io/manual/installation/docker).
 2. Config [fluentbit](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/fluent-bit.conf)
-3. Config PostgreSQL to enable slow log.[example](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/postgresql.conf).
+3. Config PostgreSQL to enable slow log. [Example](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/postgresql.conf).
 
 ### Slow SQL Monitoring
 Slow SQL monitoring provides monitoring of the slow SQL statements of the PostgreSQL server. PostgreSQL server is cataloged as a `Layer: POSTGRESQL` `Service` in OAP.
