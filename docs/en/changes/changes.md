@@ -19,6 +19,7 @@
 * Remove physical index existing check and keep template existing check only to avoid meaningless `retry wait`
   in `no-init` mode.
 * Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
+* Support monitoring PostgreSQL slow SQLs.
 
 #### UI
 
@@ -40,6 +41,7 @@
 * Remove `responseCode` fields of all OAL sources, as well as examples to avoid user's confusion.
 * Remove All from the endpoints selector.
 * Enhance menu configurations to make it easier to change.
+* Update PostgreSQL dashboard to visualize collected slow SQLs.
 
 #### Documentation
 
