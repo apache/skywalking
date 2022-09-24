@@ -19,34 +19,19 @@
 package org.apache.skywalking.oap.server.receiver.telegraf.provider.handler.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.linecorp.armeria.common.AggregatedHttpRequest;
-import com.linecorp.armeria.common.annotation.Nullable;
-import com.linecorp.armeria.server.ServiceRequestContext;
-import com.linecorp.armeria.server.annotation.RequestConverterFunction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.lang.reflect.ParameterizedType;
-import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TelegrafData implements RequestConverterFunction {
-    private List<TelegrafDatum> metrics;
-    private static final ObjectMapper mapper = new ObjectMapper();
-
-    @Override
-    public @Nullable Object convertRequest(ServiceRequestContext ctx, AggregatedHttpRequest request, Class<?> expectedResultType,
-                                           @Nullable ParameterizedType expectedParameterizedResultType) throws Exception {
-
-        if (expectedResultType == TelegrafData.class) {
-            // Convert the request to a TelegrafData object
-            return mapper.readValue(request.contentUtf8(), TelegrafData.class);
-        }
-        return RequestConverterFunction.fallthrough();
-    }
+public class TelegrafDatum {
+    private Map<String, Object> fields;
+    private String name;
+    private Map<String, String> tags;
+    private long timestamp;
 }

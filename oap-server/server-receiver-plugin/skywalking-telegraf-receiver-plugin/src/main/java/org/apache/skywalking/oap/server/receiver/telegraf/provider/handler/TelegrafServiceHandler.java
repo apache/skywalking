@@ -18,10 +18,9 @@
 
 package org.apache.skywalking.oap.server.receiver.telegraf.provider.handler;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.linecorp.armeria.server.annotation.Post;
+import com.linecorp.armeria.server.annotation.RequestConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
@@ -32,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.telegraf.provider.config.TelegrafConfig;
 import org.apache.skywalking.oap.server.receiver.telegraf.provider.handler.pojo.TelegrafData;
+import org.apache.skywalking.oap.server.receiver.telegraf.provider.handler.pojo.TelegrafDatum;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
@@ -39,7 +39,6 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,9 +72,9 @@ public class TelegrafServiceHandler {
     /**
     * Convert the TelegrafData object to meter {@link Sample}
     **/
-    public List<Sample> convertTelegraf(TelegrafData telegrafData) {
+    public List<Sample> convertTelegraf(TelegrafDatum telegrafData) {
 
-        List<Sample> sampleList = new ArrayList<>(Collections.emptyList());
+        List<Sample> sampleList = new ArrayList<>();
 
         Map<String, Object> fields = telegrafData.getFields();
         String name = telegrafData.getName();
@@ -85,7 +84,6 @@ public class TelegrafServiceHandler {
 
         fields.forEach((key, value) -> {
             Sample.SampleBuilder builder = Sample.builder();
-            if (value instanceof String) return;
             Sample sample = builder.name(name + "_" + key)
                     .timestamp(timestamp * 1000L)
                     .value(((Number) value).doubleValue())
@@ -98,18 +96,14 @@ public class TelegrafServiceHandler {
     }
 
     @Post("/telegraf")
-    public Commands collectData(String jsonInfo) {
-        TelegrafData telegrafData;
+    @RequestConverter(TelegrafData.class)
+    public Commands collectData(TelegrafData telegrafData) {
         try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
             List<Sample> allSamples = new ArrayList<>();
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode node = mapper.readTree(jsonInfo);
 
-            // Read each metrics json and convert it to Sample
-            JsonNode metrics = node.get("metrics");
-            for (JsonNode m : metrics) {
-                telegrafData = mapper.convertValue(m, TelegrafData.class);
-                List<Sample> samples = convertTelegraf(telegrafData);
+            List<TelegrafDatum> metrics = telegrafData.getMetrics();
+            for(TelegrafDatum m : metrics) {
+                List<Sample> samples = convertTelegraf(m);
                 allSamples.addAll(samples);
             }
 

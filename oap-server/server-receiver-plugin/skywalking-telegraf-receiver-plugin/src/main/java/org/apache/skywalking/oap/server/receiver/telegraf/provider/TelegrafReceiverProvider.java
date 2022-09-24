@@ -43,6 +43,10 @@ public class TelegrafReceiverProvider extends ModuleProvider {
     private List<TelegrafConfig> configs;
     private TelegrafModuleConfig moduleConfig;
 
+    public TelegrafReceiverProvider() {
+        this.moduleConfig = new TelegrafModuleConfig();
+    }
+
     @Override
     public String name() {
         return "default";
@@ -55,7 +59,6 @@ public class TelegrafReceiverProvider extends ModuleProvider {
 
     @Override
     public ModuleConfig createConfigBeanIfAbsent() {
-        moduleConfig = new TelegrafModuleConfig();
         return moduleConfig;
     }
 
