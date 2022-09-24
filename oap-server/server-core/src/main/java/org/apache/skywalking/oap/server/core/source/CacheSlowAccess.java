@@ -26,7 +26,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.CA
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
 
 @ScopeDeclaration(id = CACHE_SLOW_ACCESS, name = "VirtualCacheSlowAccess", catalog = SERVICE_CATALOG_NAME)
-public class VirtualCacheSlowAccess extends Source {
+public class CacheSlowAccess extends Source {
     @Getter
     @Setter
     private String id;

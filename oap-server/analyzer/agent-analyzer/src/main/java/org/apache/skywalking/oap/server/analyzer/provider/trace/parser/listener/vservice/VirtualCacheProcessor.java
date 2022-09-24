@@ -37,9 +37,9 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
-import org.apache.skywalking.oap.server.core.source.VirtualCacheAccess;
+import org.apache.skywalking.oap.server.core.source.CacheAccess;
 import org.apache.skywalking.oap.server.core.source.VirtualCacheOperation;
-import org.apache.skywalking.oap.server.core.source.VirtualCacheSlowAccess;
+import org.apache.skywalking.oap.server.core.source.CacheSlowAccess;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
@@ -80,7 +80,7 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
                                                                   .getThreshold(cacheType))
             || (op == VirtualCacheOperation.Read && latency > config.getCacheReadLatencyThresholdsAndWatcher()
                                                                     .getThreshold(cacheType))) {
-            VirtualCacheSlowAccess slowAccess = new VirtualCacheSlowAccess();
+            CacheSlowAccess slowAccess = new CacheSlowAccess();
             slowAccess.setCacheServiceId(IDManager.ServiceID.buildId(serviceName, false));
             slowAccess.setLatency(latency);
             slowAccess.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
@@ -92,7 +92,7 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
             slowAccess.setOperation(op);
             sourceList.add(slowAccess);
         }
-        VirtualCacheAccess access = new VirtualCacheAccess();
+        CacheAccess access = new CacheAccess();
         access.setCacheTypeId(span.getComponentId());
         access.setLatency(latency);
         access.setName(serviceName);
