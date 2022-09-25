@@ -76,9 +76,9 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
         int latency = (int) (span.getEndTime() - span.getStartTime());
         sourceList.add(parseServiceMeta(serviceName, timeBucket));
         VirtualCacheOperation op = parseOperation(tags.get(SpanTags.CACHE_OP));
-        if ((op == VirtualCacheOperation.Write && latency > config.getCacheWriteLatencyThresholdsAndWatcher()
+        if ((op == VirtualCacheOperation.Write && latency > config.getSlowCacheWriteThreshold()
                                                                   .getThreshold(cacheType))
-            || (op == VirtualCacheOperation.Read && latency > config.getCacheReadLatencyThresholdsAndWatcher()
+            || (op == VirtualCacheOperation.Read && latency > config.getSlowCacheReadThreshold()
                                                                     .getThreshold(cacheType))) {
             CacheSlowAccess slowAccess = new CacheSlowAccess();
             slowAccess.setCacheServiceId(IDManager.ServiceID.buildId(serviceName, false));

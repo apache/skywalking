@@ -16,20 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.analyzer.provider.trace;
+package org.apache.skywalking.oap.server.configuration.api;
 
-import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleProvider;
-import org.junit.Assert;
-import org.junit.Test;
-import org.powermock.reflect.Whitebox;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Field;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-public class UninstrumentedGatewaysConfigTest {
-    @Test
-    public void testParseGatewayYAML() throws Exception {
-        final UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig
-            = new UninstrumentedGatewaysConfig("parseGatewaysFromFile", "gateways.yml", new AnalyzerModuleProvider());
-        UninstrumentedGatewaysConfig.GatewayInfos gatewayInfos
-            = Whitebox.invokeMethod(uninstrumentedGatewaysConfig, "parseGatewaysFromFile", "gateways.yml");
-        Assert.assertEquals(1, gatewayInfos.getGateways().size());
-    }
+/**
+ * The field which is marked with this annotation would be mutated to ConfigChangeWatcher
+ *
+ * @see ConfigWatcherMutator#mutate(ModuleDefine, Field, String, Object)
+ */
+@Retention(RetentionPolicy.RUNTIME)
+public @interface AsWatcher {
+    /**
+     * The value of ConfigChangeWatcher#itemName
+     * if the value is null/blank , it would be same with config property key
+     */
+    String itermName() default "";
 }

@@ -17,19 +17,17 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
+import java.io.StringReader;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicy;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicySettings;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicySettingsReader;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-
-import java.io.StringReader;
-import java.util.concurrent.atomic.AtomicReference;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static java.util.Objects.isNull;
 
@@ -40,9 +38,9 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
     private final AtomicReference<SamplingPolicySettings> samplingPolicySettings = new AtomicReference<>(null);
     private final SamplingPolicySettings defaultSamplingPolicySettings;
 
-    public TraceSamplingPolicyWatcher(AnalyzerModuleConfig moduleConfig, ModuleProvider provider) {
-        super(AnalyzerModule.NAME, provider, "traceSamplingPolicy");
-        this.defaultSamplingPolicySettings = parseFromFile(moduleConfig.getTraceSamplingPolicySettingsFile());
+    public TraceSamplingPolicyWatcher(String itermName, String config, ModuleProvider provider) {
+        super(AnalyzerModule.NAME, provider, itermName);
+        this.defaultSamplingPolicySettings = parseFromFile(config);
         loadDefaultPolicySettings();
     }
 

@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
@@ -45,9 +47,6 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
 
@@ -100,7 +99,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
 
                 final String networkAddressUsedAtPeer = reference.getNetworkAddressUsedAtPeer();
                 boolean isMQ = span.getSpanLayer().equals(SpanLayer.MQ);
-                if (isMQ || config.getUninstrumentedGatewaysConfig()
+                if (isMQ || config.getUninstrumentedGatewaysSettings()
                                   .isAddressConfiguredAsGateway(networkAddressUsedAtPeer)) {
                     sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
                     sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());
@@ -337,7 +336,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             case RPCFramework:
                 return Layer.GENERAL;
             case Http:
-                if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(peer)) {
+                if (config.getUninstrumentedGatewaysSettings().isAddressConfiguredAsGateway(peer)) {
                     return Layer.VIRTUAL_GATEWAY;
                 }
                 return Layer.GENERAL;

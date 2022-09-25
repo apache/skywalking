@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
-import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleProvider;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicy;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicySettings;
@@ -33,26 +35,20 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.powermock.reflect.Whitebox;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-
 @RunWith(MockitoJUnitRunner.class)
 public class TraceSamplingPolicyWatcherTest {
 
     private AnalyzerModuleProvider provider;
-    private AnalyzerModuleConfig moduleConfig;
 
     @Before
     public void init() {
         provider = new AnalyzerModuleProvider();
-        moduleConfig = new AnalyzerModuleConfig();
-        moduleConfig.setTraceSamplingPolicySettingsFile("trace-sampling-policy-settings.yml");
     }
 
     @Test
     public void testStaticConfigInit() {
-        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(
+            "traceSamplingPolicy", "trace-sampling-policy-settings.yml", provider);
         // default sample = 10000
         globalDefaultSamplingRateEquals(watcher, 9999);
     }
@@ -61,7 +57,8 @@ public class TraceSamplingPolicyWatcherTest {
     public void testTraceLatencyThresholdDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new TraceLatencyThresholdMockConfigWatcherRegister(3);
 
-        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(
+            "traceSamplingPolicy", "trace-sampling-policy-settings.yml", provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
         // Default duration is -1, so 3000 must not be sampled,until updating to 3000
@@ -73,7 +70,8 @@ public class TraceSamplingPolicyWatcherTest {
 
     @Test
     public void testTraceLatencyThresholdNotify() {
-        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(
+            "traceSamplingPolicy", "trace-sampling-policy-settings.yml", provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
             "default:\n" +
                 "  duration: 8000", ConfigChangeWatcher.EventType.MODIFY);
@@ -143,7 +141,8 @@ public class TraceSamplingPolicyWatcherTest {
     public void testDefaultSampleRateDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new DefaultSampleRateMockConfigWatcherRegister(3);
 
-        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(
+            "traceSamplingPolicy", "trace-sampling-policy-settings.yml", provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
         // Default is 10000, so 9000 must be sampled,until updating to 9000
@@ -155,7 +154,8 @@ public class TraceSamplingPolicyWatcherTest {
 
     @Test
     public void testDefaultSampleRateNotify() {
-        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(
+            "traceSamplingPolicy", "trace-sampling-policy-settings.yml", provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
             "default:\n" +
                 "  rate: 8000", ConfigChangeWatcher.EventType.MODIFY);
@@ -226,8 +226,8 @@ public class TraceSamplingPolicyWatcherTest {
     public void testServiceSampleRateDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new ServiceMockConfigWatcherRegister(3);
 
-        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
-        provider.getModuleConfig().setTraceSamplingPolicyWatcher(watcher);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(
+            "traceSamplingPolicy", "trace-sampling-policy-settings.yml", provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
 
@@ -238,14 +238,15 @@ public class TraceSamplingPolicyWatcherTest {
         SamplingPolicy samplingPolicy = getSamplingPolicy("serverName1", watcher);
         Assert.assertEquals(samplingPolicy.getRate().intValue(), 2000);
         Assert.assertEquals(samplingPolicy.getDuration().intValue(), 30000);
-        Assert.assertEquals(getSamplingPolicy("serverName1", provider.getModuleConfig().getTraceSamplingPolicyWatcher())
+        Assert.assertEquals(getSamplingPolicy("serverName1", watcher)
                                 .getRate()
                                 .intValue(), 2000);
     }
 
     @Test
     public void testServiceSampleRateNotify() {
-        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
+        TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(
+            "traceSamplingPolicy", "trace-sampling-policy-settings.yml", provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
             "services:\n" +
                 "  - name: serverName1\n" +

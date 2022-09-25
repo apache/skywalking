@@ -207,7 +207,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                                                              .provider()
                                                              .getService(ConfigService.class);
             this.searchTagKeys = Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA));
-            this.sampler = new TraceSegmentSampler(config.getTraceSamplingPolicyWatcher());
+            this.sampler = new TraceSegmentSampler(config.getTraceSamplingPolicySettingsFile());
             this.forceSampleErrorSegment = config.isForceSampleErrorSegment();
             this.namingControl = moduleManager.find(CoreModule.NAME)
                                               .provider()

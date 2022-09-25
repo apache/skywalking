@@ -60,7 +60,7 @@ public class NetworkAddressAliasMappingListener implements EntryAnalysisListener
                 if (RefType.CrossProcess.equals(segmentReference.getRefType())) {
                     final String networkAddressUsedAtPeer = namingControl.formatServiceName(
                         segmentReference.getNetworkAddressUsedAtPeer());
-                    if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(
+                    if (config.getUninstrumentedGatewaysSettings().isAddressConfiguredAsGateway(
                         networkAddressUsedAtPeer)) {
                         /*
                          * If this network address has been set as an uninstrumented gateway, no alias should be set.

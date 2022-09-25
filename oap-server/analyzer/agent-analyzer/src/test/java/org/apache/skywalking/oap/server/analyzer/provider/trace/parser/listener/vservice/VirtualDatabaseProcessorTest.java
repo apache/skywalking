@@ -19,13 +19,17 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.vservice;
 
 import com.google.protobuf.ByteString;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.ThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -38,11 +42,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class VirtualDatabaseProcessorTest {
 
@@ -60,17 +59,18 @@ public class VirtualDatabaseProcessorTest {
     @Test
     public void testExitSpan() {
         SpanObject spanObject = SpanObject.newBuilder()
-                .setSpanLayer(SpanLayer.Database)
-                .setSpanId(0)
-                .addAllTags(buildTags())
-                .setSpanType(SpanType.Exit)
-                .setPeerBytes(ByteString.copyFrom("127.0.0.1:3306".getBytes(StandardCharsets.UTF_8)))
-                .setStartTime(getTimeInMillis("2022-09-12 14:13:12.790"))
-                .setEndTime(getTimeInMillis("2022-09-12 14:13:13.790"))
-                .build();
+                                          .setSpanLayer(SpanLayer.Database)
+                                          .setSpanId(0)
+                                          .addAllTags(buildTags())
+                                          .setSpanType(SpanType.Exit)
+                                          .setPeerBytes(
+                                              ByteString.copyFrom("127.0.0.1:3306".getBytes(StandardCharsets.UTF_8)))
+                                          .setStartTime(getTimeInMillis("2022-09-12 14:13:12.790"))
+                                          .setEndTime(getTimeInMillis("2022-09-12 14:13:13.790"))
+                                          .build();
         SegmentObject segmentObject = SegmentObject.newBuilder()
-                .setTraceId("trace-id-1")
-                .build();
+                                                   .setTraceId("trace-id-1")
+                                                   .build();
         VirtualDatabaseProcessor processor = buildVirtualServiceProcessor();
         processor.prepareVSIfNecessary(spanObject, segmentObject);
         ArrayList<Source> sources = new ArrayList<>();
@@ -97,14 +97,15 @@ public class VirtualDatabaseProcessorTest {
     @Test
     public void testExitSpanLessThreshold() {
         SpanObject spanObject = SpanObject.newBuilder()
-                .setSpanLayer(SpanLayer.Database)
-                .setSpanId(0)
-                .addAllTags(buildTags())
-                .setSpanType(SpanType.Exit)
-                .setPeerBytes(ByteString.copyFrom("127.0.0.1:3306".getBytes(StandardCharsets.UTF_8)))
-                .setStartTime(getTimeInMillis("2022-09-12 14:13:12.790"))
-                .setEndTime(getTimeInMillis("2022-09-12 14:13:12.793"))
-                .build();
+                                          .setSpanLayer(SpanLayer.Database)
+                                          .setSpanId(0)
+                                          .addAllTags(buildTags())
+                                          .setSpanType(SpanType.Exit)
+                                          .setPeerBytes(
+                                              ByteString.copyFrom("127.0.0.1:3306".getBytes(StandardCharsets.UTF_8)))
+                                          .setStartTime(getTimeInMillis("2022-09-12 14:13:12.790"))
+                                          .setEndTime(getTimeInMillis("2022-09-12 14:13:12.793"))
+                                          .build();
         SegmentObject segmentObject = SegmentObject.newBuilder().build();
         VirtualDatabaseProcessor processor = buildVirtualServiceProcessor();
         processor.prepareVSIfNecessary(spanObject, segmentObject);
@@ -130,15 +131,15 @@ public class VirtualDatabaseProcessorTest {
 
     private List<KeyStringValuePair> buildTags() {
         return Arrays.asList(
-                KeyStringValuePair.newBuilder().setKey(SpanTags.DB_STATEMENT).setValue("select * from dual").build(),
-                KeyStringValuePair.newBuilder().setKey(SpanTags.DB_TYPE).setValue("Mysql").build()
+            KeyStringValuePair.newBuilder().setKey(SpanTags.DB_STATEMENT).setValue("select * from dual").build(),
+            KeyStringValuePair.newBuilder().setKey(SpanTags.DB_TYPE).setValue("Mysql").build()
         );
     }
 
     private VirtualDatabaseProcessor buildVirtualServiceProcessor() {
         NamingControl namingControl = new NamingControl(512, 512, 512, new EndpointNameGrouping());
         AnalyzerModuleConfig config = new AnalyzerModuleConfig();
-        config.setDbLatencyThresholdsAndWatcher(new DBLatencyThresholdsAndWatcher("default:10", null));
+        config.setSlowDBAccessThreshold(new ThresholdsAndWatcher("slowDBAccessThreshold", "default:10", null));
         return new VirtualDatabaseProcessor(namingControl, config);
     }
 

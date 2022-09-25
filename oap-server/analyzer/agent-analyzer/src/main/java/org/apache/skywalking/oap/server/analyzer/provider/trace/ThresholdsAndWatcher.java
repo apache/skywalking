@@ -18,9 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
-import com.google.common.base.Splitter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,13 +26,13 @@ import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
-public class CacheWriteLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
+public class ThresholdsAndWatcher extends ConfigChangeWatcher {
     private AtomicReference<Map<String, Integer>> thresholds;
     private final String initialSettingsString;
     private volatile String dynamicSettingsString;
 
-    public CacheWriteLatencyThresholdsAndWatcher(String config, ModuleProvider provider) {
-        super(AnalyzerModule.NAME, provider, "slowCacheWriteThreshold");
+    public ThresholdsAndWatcher(String itermName , String config, ModuleProvider provider) {
+        super(AnalyzerModule.NAME, provider, itermName);
         thresholds = new AtomicReference<>(new HashMap<>());
         initialSettingsString = config;
 
@@ -43,13 +41,14 @@ public class CacheWriteLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
 
     private void activeSetting(String config) {
         Map<String, Integer> newThresholds = new HashMap<>();
-        List<String> settings = Splitter.on(',').splitToList(config);
+        String[] settings = config.split(",");
         for (String setting : settings) {
-            List<String> typeValue = Splitter.on(":").splitToList(setting);
-            if (typeValue.size() == 2) {
-                newThresholds.put(typeValue.get(0).trim().toLowerCase(), Integer.parseInt(typeValue.get(1).trim()));
+            String[] typeValue = setting.split(":");
+            if (typeValue.length == 2) {
+                newThresholds.put(typeValue[0].trim().toLowerCase(), Integer.parseInt(typeValue[1].trim()));
             }
         }
+
         thresholds.set(newThresholds);
     }
 

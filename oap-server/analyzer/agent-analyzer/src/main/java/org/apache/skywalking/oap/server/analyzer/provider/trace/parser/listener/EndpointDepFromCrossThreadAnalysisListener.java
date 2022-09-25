@@ -83,7 +83,7 @@ public class EndpointDepFromCrossThreadAnalysisListener extends CommonAnalysisLi
 
                 final String networkAddressUsedAtPeer = reference.getNetworkAddressUsedAtPeer();
                 boolean isMQ = span.getSpanLayer().equals(SpanLayer.MQ);
-                if (isMQ || config.getUninstrumentedGatewaysConfig()
+                if (isMQ || config.getUninstrumentedGatewaysSettings()
                                   .isAddressConfiguredAsGateway(networkAddressUsedAtPeer)) {
                     sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
                     sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());

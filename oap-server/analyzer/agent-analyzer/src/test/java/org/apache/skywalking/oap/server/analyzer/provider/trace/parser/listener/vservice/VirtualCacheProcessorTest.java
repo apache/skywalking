@@ -29,16 +29,16 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.CacheReadLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.ThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
+import org.apache.skywalking.oap.server.core.source.CacheAccess;
+import org.apache.skywalking.oap.server.core.source.CacheSlowAccess;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
-import org.apache.skywalking.oap.server.core.source.CacheAccess;
 import org.apache.skywalking.oap.server.core.source.VirtualCacheOperation;
-import org.apache.skywalking.oap.server.core.source.CacheSlowAccess;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
@@ -183,7 +183,7 @@ public class VirtualCacheProcessorTest {
     private VirtualCacheProcessor buildCacheVirtualServiceProcessor() {
         NamingControl namingControl = new NamingControl(512, 512, 512, new EndpointNameGrouping());
         AnalyzerModuleConfig config = new AnalyzerModuleConfig();
-        config.setCacheReadLatencyThresholdsAndWatcher(new CacheReadLatencyThresholdsAndWatcher("default:10", null));
+        config.setSlowCacheReadThreshold(new ThresholdsAndWatcher("aaa", "default:10", null));
         return new VirtualCacheProcessor(namingControl, config);
     }
 

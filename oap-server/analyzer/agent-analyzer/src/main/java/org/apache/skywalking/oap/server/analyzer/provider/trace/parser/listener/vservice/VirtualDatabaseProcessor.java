@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.ThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -84,7 +84,7 @@ public class VirtualDatabaseProcessor implements VirtualServiceProcessor {
                 statement = StringUtil.cut(tag.getValue(), config.getMaxSlowSQLLength());
             } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
                 String dbType = tag.getValue();
-                DBLatencyThresholdsAndWatcher thresholds = config.getDbLatencyThresholdsAndWatcher();
+                ThresholdsAndWatcher thresholds = config.getSlowDBAccessThreshold();
                 int threshold = thresholds.getThreshold(dbType);
                 if (latency > threshold) {
                     isSlowDBAccess = true;
