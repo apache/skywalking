@@ -19,34 +19,28 @@
 package org.apache.skywalking.oap.server.analyzer.provider;
 
 import com.google.common.base.Splitter;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.CacheReadLatencyThresholdsAndWatcher;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.CacheWriteLatencyThresholdsAndWatcher;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.ThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSamplingPolicyWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
+import org.apache.skywalking.oap.server.configuration.api.GenericWatcherAutomaticInitializer;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy.FROM_SPAN_STATUS;
 
 @Slf4j
-public class AnalyzerModuleConfig extends ModuleConfig {
+public class AnalyzerModuleConfig extends ModuleConfig implements GenericWatcherAutomaticInitializer {
+
     /**
-     * The sample policy setting file
-     */
-    @Setter
-    @Getter
-    private String traceSamplingPolicySettingsFile;
-    /**
-     * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
+     * Some of the agent can not have the upstream real network address, such as
+     * https://github.com/apache/skywalking-nginx-lua.
      * service instance mapping and service instance client side relation are ignored.
      *
      * Read component-libraries.yml for more details.
@@ -56,34 +50,39 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     /**
      * The threshold used to check the slow database access. Unit, millisecond.
      */
+    //    @Setter
+    //    @Getter
+    //    private String slowDBAccessThreshold = "default:200";
     @Setter
     @Getter
-    private String slowDBAccessThreshold = "default:200";
-    @Setter
-    @Getter
-    private DBLatencyThresholdsAndWatcher dbLatencyThresholdsAndWatcher;
+    @GenericWatcherAutomaticInitializer.WatcherAutomationInject
+    private ThresholdsAndWatcher slowDBAccessThreshold;
+//
+//    @Setter
+//    @Getter
+//    private String slowCacheWriteThreshold = "default:20,redis:10";
 
     @Setter
     @Getter
-    private String slowCacheWriteThreshold = "default:20,redis:10";
+    @GenericWatcherAutomaticInitializer.WatcherAutomationInject
+    private ThresholdsAndWatcher slowCacheWriteThreshold;
+//
+//    @Setter
+//    @Getter
+//    private String slowCacheReadThreshold = "default:20,redis:10";
 
     @Setter
     @Getter
-    private CacheWriteLatencyThresholdsAndWatcher cacheWriteLatencyThresholdsAndWatcher;
+    @GenericWatcherAutomaticInitializer.WatcherAutomationInject
+    private ThresholdsAndWatcher slowCacheReadThreshold;
 
     @Setter
     @Getter
-    private String slowCacheReadThreshold = "default:20,redis:10";
-
-    @Setter
-    @Getter
-    private CacheReadLatencyThresholdsAndWatcher cacheReadLatencyThresholdsAndWatcher;
-
-    @Setter
-    @Getter
+    @GenericWatcherAutomaticInitializer.WatcherAutomationInject(watcherKey = "uninstrumentedGateways")
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
     @Setter
     @Getter
+    @WatcherAutomationInject(watcherKey = "traceSamplingPolicy")
     private TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
     /**
      * Analysis trace status.

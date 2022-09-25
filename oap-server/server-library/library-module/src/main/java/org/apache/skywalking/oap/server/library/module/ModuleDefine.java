@@ -42,7 +42,6 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
 
     /**
      * @return the module name
-     *
      */
     public final String name() {
         return name;
@@ -61,7 +60,7 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
      * @throws ProviderNotFoundException when even don't find a single one providers.
      */
     void prepare(ModuleManager moduleManager, ApplicationConfiguration.ModuleConfiguration configuration,
-        ServiceLoader<ModuleProvider> moduleProviderLoader) throws ProviderNotFoundException, ServiceNotProvidedException, ModuleConfigException, ModuleStartException {
+                 ServiceLoader<ModuleProvider> moduleProviderLoader) throws ProviderNotFoundException, ServiceNotProvidedException, ModuleConfigException, ModuleStartException {
         for (ModuleProvider provider : moduleProviderLoader) {
             if (!configuration.has(provider.name())) {
                 continue;
@@ -73,10 +72,11 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
                     loadedProvider.setManager(moduleManager);
                     loadedProvider.setModuleDefine(this);
                 } else {
-                    throw new DuplicateProviderException(this.name() + " module has one " + loadedProvider.name() + "[" + loadedProvider
-                        .getClass()
-                        .getName() + "] provider already, " + provider.name() + "[" + provider.getClass()
-                                                                                              .getName() + "] is defined as 2nd provider.");
+                    throw new DuplicateProviderException(
+                        this.name() + " module has one " + loadedProvider.name() + "[" + loadedProvider
+                            .getClass()
+                            .getName() + "] provider already, " + provider.name() + "[" + provider.getClass()
+                                                                                                  .getName() + "] is defined as 2nd provider.");
                 }
             }
 
@@ -88,8 +88,11 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
 
         LOGGER.info("Prepare the {} provider in {} module.", loadedProvider.name(), this.name());
         try {
-            copyProperties(loadedProvider.createConfigBeanIfAbsent(), configuration.getProviderConfiguration(loadedProvider
-                .name()), this.name(), loadedProvider.name());
+            copyProperties(
+                loadedProvider.createConfigBeanIfAbsent(), configuration.getProviderConfiguration(loadedProvider
+                                                                                                      .name()),
+                this.name(), loadedProvider.name()
+            );
         } catch (IllegalAccessException e) {
             throw new ModuleConfigException(this.name() + " module config transport to config bean failure.", e);
         }
@@ -97,7 +100,7 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
     }
 
     private void copyProperties(ModuleConfig dest, Properties src, String moduleName,
-        String providerName) throws IllegalAccessException {
+                                String providerName) throws IllegalAccessException {
         if (dest == null) {
             return;
         }
@@ -106,11 +109,19 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
             String propertyName = (String) propertyNames.nextElement();
             Class<? extends ModuleConfig> destClass = dest.getClass();
             try {
+                Object value = src.get(propertyName);
                 Field field = getDeclaredField(destClass, propertyName);
                 field.setAccessible(true);
-                field.set(dest, src.get(propertyName));
+                if (dest instanceof ModuleConfigInitiator) {
+                    Object init = ((ModuleConfigInitiator) dest).init(this, field, propertyName, value);
+                    if (init != null) {
+                        value = init;
+                    }
+                }
+                field.set(dest, value);
             } catch (NoSuchFieldException e) {
-                LOGGER.warn(propertyName + " setting is not supported in " + providerName + " provider of " + moduleName + " module");
+                LOGGER.warn(
+                    propertyName + " setting is not supported in " + providerName + " provider of " + moduleName + " module");
             }
         }
     }

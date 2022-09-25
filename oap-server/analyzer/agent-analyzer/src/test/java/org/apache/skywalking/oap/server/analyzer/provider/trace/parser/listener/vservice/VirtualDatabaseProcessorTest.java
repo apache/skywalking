@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.ThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -138,7 +138,7 @@ public class VirtualDatabaseProcessorTest {
     private VirtualDatabaseProcessor buildVirtualServiceProcessor() {
         NamingControl namingControl = new NamingControl(512, 512, 512, new EndpointNameGrouping());
         AnalyzerModuleConfig config = new AnalyzerModuleConfig();
-        config.setDbLatencyThresholdsAndWatcher(new DBLatencyThresholdsAndWatcher("default:10", null));
+        config.setDbLatencyThresholdsAndWatcher(new ThresholdsAndWatcher("default:10", null));
         return new VirtualDatabaseProcessor(namingControl, config);
     }
 

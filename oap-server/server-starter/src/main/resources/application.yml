@@ -227,7 +227,7 @@ agent-analyzer:
   selector: ${SW_AGENT_ANALYZER:default}
   default:
     # The default sampling rate and the default trace latency time configured by the 'traceSamplingPolicySettingsFile' file.
-    traceSamplingPolicySettingsFile: ${SW_TRACE_SAMPLING_POLICY_SETTINGS_FILE:trace-sampling-policy-settings.yml}
+    traceSamplingPolicyWatcher: ${SW_TRACE_SAMPLING_POLICY_SETTINGS_FILE:trace-sampling-policy-settings.yml}
     slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
     forceSampleErrorSegment: ${SW_FORCE_SAMPLE_ERROR_SEGMENT:true} # When sampling mechanism active, this config can open(true) force save some error segment. true is default.
     segmentStatusAnalysisStrategy: ${SW_SEGMENT_STATUS_ANALYSIS_STRATEGY:FROM_SPAN_STATUS} # Determine the final segment status from the status of spans. Available values are `FROM_SPAN_STATUS` , `FROM_ENTRY_SPAN` and `FROM_FIRST_SPAN`. `FROM_SPAN_STATUS` represents the segment status would be error if any span is in error status. `FROM_ENTRY_SPAN` means the segment status would be determined by the status of entry spans only. `FROM_FIRST_SPAN` means the segment status would be determined by the status of the first span only.
@@ -237,7 +237,7 @@ agent-analyzer:
     meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite} # Which files could be meter analyzed, files split by ","
     slowCacheReadThreshold: ${SW_SLOW_CACHE_SLOW_READ_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
     slowCacheWriteThreshold: ${SW_SLOW_CACHE_SLOW_WRITE_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
-
+    uninstrumentedGatewaysConfig: gateways.yml
 log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:

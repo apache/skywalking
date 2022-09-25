@@ -49,10 +49,10 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
 
     private volatile Map<String, GatewayInstanceInfo> gatewayInstanceKeyedByAddress = Collections.emptyMap();
 
-    public UninstrumentedGatewaysConfig(ModuleProvider provider) {
-        super(AnalyzerModule.NAME, provider, "uninstrumentedGateways");
+    public UninstrumentedGatewaysConfig(String itermName, String config, ModuleProvider provider) {
+        super(AnalyzerModule.NAME, provider, itermName);
         this.settingsString = new AtomicReference<>(null);
-        final GatewayInfos defaultGateways = parseGatewaysFromFile("gateways.yml");
+        final GatewayInfos defaultGateways = parseGatewaysFromFile(config);
         log.info("Default configured gateways: {}", defaultGateways);
         onGatewaysUpdated(defaultGateways);
     }
