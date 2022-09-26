@@ -226,16 +226,24 @@ public class H2SQLExecutor {
         Map<String, Object> objectMap = toStorage.obtain();
 
         SQLBuilder sqlBuilder = new SQLBuilder("UPDATE " + modelName + " SET ");
-        List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
+        Model model = TableMetaInfo.get(modelName);
+        List<ModelColumn> columns = model.getColumns();
         List<Object> param = new ArrayList<>();
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
+            String columnName = column.getColumnName().getName();
+            if (model.getSqlDBModelExtension().isShardingTable()) {
+                SQLDatabaseModelExtension.Sharding sharding = model.getSqlDBModelExtension().getSharding();
+                if (columnName.equals(sharding.getDsShardingColumn()) || columnName.equals(sharding.getTableShardingColumn())) {
+                    continue;
+                }
+            }
             sqlBuilder.append(column.getColumnName().getStorageName() + "= ?");
             if (i != columns.size() - 1) {
                 sqlBuilder.append(",");
             }
 
-            Object value = objectMap.get(column.getColumnName().getName());
+            Object value = objectMap.get(columnName);
             if (value instanceof StorageDataComplexObject) {
                 param.add(((StorageDataComplexObject) value).toStorageData());
             } else {

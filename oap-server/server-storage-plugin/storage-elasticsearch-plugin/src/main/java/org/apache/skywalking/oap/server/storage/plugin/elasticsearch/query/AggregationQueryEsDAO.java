@@ -56,7 +56,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                                             final List<KeyValue> additionalConditions) {
         final RangeQueryBuilder basicQuery = Query.range(Metrics.TIME_BUCKET)
                                                   .lte(duration.getEndTimeBucket())
-                                                  .gte(duration.getStartTimeBucket());
+                                                  .gte(duration.getStartTimeBucket(false));
         final SearchBuilder search = Search.builder();
 
         final boolean asc = condition.getOrder().equals(Order.ASC);
@@ -111,7 +111,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
         final SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()),
-            duration.getStartTimeBucketInSec(),
+            duration.getStartTimeBucketInSec(false),
             duration.getEndTimeBucketInSec()), search.build());
 
         final List<SelectedRecord> topNList = new ArrayList<>();

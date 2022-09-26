@@ -31,11 +31,16 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+
+import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ENTITY_ID;
+import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ID;
 
 /**
  * Histogram includes data range buckets and the amount matched/grouped in the buckets. This is for original histogram
@@ -44,6 +49,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @MeterFunction(functionName = "sumHistogram")
 @Slf4j
 @ToString
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_RELATIVE_ID_SHARDING_ALGORITHM, tableShardingColumn = ID, dsShardingColumn = ENTITY_ID)
 public abstract class HistogramFunction extends Meter implements AcceptableValue<BucketedValues> {
     public static final String DATASET = "dataset";
 

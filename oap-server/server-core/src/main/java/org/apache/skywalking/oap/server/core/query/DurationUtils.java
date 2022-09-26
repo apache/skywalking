@@ -20,8 +20,10 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.util.LinkedList;
 import java.util.List;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -42,6 +44,9 @@ public enum DurationUtils {
     private static final DateTimeFormatter YYYYMMDDHHMM = DateTimeFormat.forPattern("yyyyMMddHHmm");
     private static final DateTimeFormatter YYYYMMDDHHMMSS = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
+    @Setter
+    private ConfigService configService;
+
     /**
      * Convert date in `yyyy-MM-dd HHmmss` style to `yyyyMMddHHmmss` no matter the precision. Such as, in day precision,
      * this covert `yyyy-MM-dd` style to `yyyyMMdd`.
@@ -53,32 +58,30 @@ public enum DurationUtils {
         return Long.parseLong(dateStr);
     }
 
-    public long startTimeDurationToSecondTimeBucket(Step step, String dateStr) {
-        long secondTimeBucket = convertToTimeBucket(step, dateStr);
+    public long startTimeDurationToSecondTimeBucket(Step step, long startTimeBucket) {
         switch (step) {
             case DAY:
-                return secondTimeBucket * 100 * 100 * 100;
+                return startTimeBucket * 100 * 100 * 100;
             case HOUR:
-                return secondTimeBucket * 100 * 100;
+                return startTimeBucket * 100 * 100;
             case MINUTE:
-                return secondTimeBucket * 100;
+                return startTimeBucket * 100;
             case SECOND:
-                return secondTimeBucket;
+                return startTimeBucket;
         }
         throw new UnexpectedException("Unsupported step " + step.name());
     }
 
-    public long endTimeDurationToSecondTimeBucket(Step step, String dateStr) {
-        long secondTimeBucket = convertToTimeBucket(step, dateStr);
+    public long endTimeDurationToSecondTimeBucket(Step step, long endTimeBucket) {
         switch (step) {
             case DAY:
-                return ((secondTimeBucket * 100 + 23) * 100 + 59) * 100 + 59;
+                return ((endTimeBucket * 100 + 23) * 100 + 59) * 100 + 59;
             case HOUR:
-                return (secondTimeBucket * 100 + 59) * 100 + 59;
+                return (endTimeBucket * 100 + 59) * 100 + 59;
             case MINUTE:
-                return secondTimeBucket * 100 + 59;
+                return endTimeBucket * 100 + 59;
             case SECOND:
-                return secondTimeBucket;
+                return endTimeBucket;
         }
         throw new UnexpectedException("Unsupported step " + step.name());
     }
@@ -128,30 +131,30 @@ public enum DurationUtils {
         return durations;
     }
 
-    public long startTimeToTimestamp(Step step, String dateStr) {
+    public long startTimeToTimestamp(Step step, long time) {
         switch (step) {
             case DAY:
-                return YYYY_MM_DD.parseMillis(dateStr);
+                return YYYYMMDD.parseMillis(String.valueOf(time));
             case HOUR:
-                return YYYY_MM_DD_HH.parseMillis(dateStr);
+                return YYYYMMDDHH.parseMillis(String.valueOf(time));
             case MINUTE:
-                return YYYY_MM_DD_HHMM.parseMillis(dateStr);
+                return YYYYMMDDHHMM.parseMillis(String.valueOf(time));
             case SECOND:
-                return YYYY_MM_DD_HHMMSS.parseMillis(dateStr);
+                return YYYYMMDDHHMMSS.parseMillis(String.valueOf(time));
         }
         throw new UnexpectedException("Unsupported step " + step.name());
     }
 
-    public long endTimeToTimestamp(Step step, String dateStr) {
+    public long endTimeToTimestamp(Step step, long time) {
         switch (step) {
             case DAY:
-                return YYYY_MM_DD.parseDateTime(dateStr).plusDays(1).getMillis();
+                return YYYYMMDD.parseDateTime(String.valueOf(time)).plusDays(1).getMillis() - 1;
             case HOUR:
-                return YYYY_MM_DD_HH.parseDateTime(dateStr).plusHours(1).getMillis();
+                return YYYYMMDDHH.parseDateTime(String.valueOf(time)).plusHours(1).getMillis() - 1;
             case MINUTE:
-                return YYYY_MM_DD_HHMM.parseDateTime(dateStr).plusMinutes(1).getMillis();
+                return YYYYMMDDHHMM.parseDateTime(String.valueOf(time)).plusMinutes(1).getMillis() - 1;
             case SECOND:
-                return YYYY_MM_DD_HHMMSS.parseDateTime(dateStr).plusSeconds(1).getMillis();
+                return YYYYMMDDHHMMSS.parseDateTime(String.valueOf(time)).plusSeconds(1).getMillis() - 1;
         }
         throw new UnexpectedException("Unsupported step " + step.name());
     }
@@ -188,4 +191,49 @@ public enum DurationUtils {
         throw new UnexpectedException("Unsupported step " + step.name());
     }
 
+    // Trim the startStr according to the TTL, for query
+    public long trimToStartTimeBucket(Step step, String startStr, boolean isRecord) {
+        if (configService == null) {
+            throw new UnexpectedException("ConfigService can not be null, should set ConfigService first.");
+        }
+        int ttl = isRecord ? configService.getRecordDataTTL() : configService.getMetricsDataTTL();
+        long startDate = convertToTimeBucket(step, startStr);
+        long timeFloor = Long.parseLong(new DateTime().plusDays(1 - ttl).toString("yyyyMMdd"));
+        switch (step) {
+            case DAY:
+                break;
+            case HOUR:
+                timeFloor = timeFloor * 100;
+                break;
+            case MINUTE:
+                timeFloor = timeFloor * 100 * 100;
+                break;
+            case SECOND:
+                timeFloor = timeFloor * 100 * 100 * 100;
+                break;
+        }
+
+        return Math.max(timeFloor, startDate);
+    }
+
+    // Trim the endStr according to the real date, for query
+    public long trimToEndTimeBucket(Step step, String endStr) {
+        long endDate = convertToTimeBucket(step, endStr);
+        long timeCeiling = Long.parseLong(new DateTime().toString("yyyyMMdd"));
+        switch (step) {
+            case DAY:
+                break;
+            case HOUR:
+                timeCeiling = (timeCeiling * 100) + 23;
+                break;
+            case MINUTE:
+                timeCeiling = ((timeCeiling * 100) + 23) * 100 + 59;
+                break;
+            case SECOND:
+                timeCeiling = (((timeCeiling * 100) + 23) * 100 + 59) * 100 + 59;
+                break;
+        }
+
+        return Math.min(endDate, timeCeiling);
+    }
 }

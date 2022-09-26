@@ -48,7 +48,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
     }
 
     public Topology getGlobalTopology(final Duration duration) throws IOException {
-        return getQueryService().getGlobalTopology(duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        return getQueryService().getGlobalTopology(duration.getStartTimeBucket(false), duration.getEndTimeBucket());
     }
 
     public Topology getServiceTopology(final String serviceId, final Duration duration) throws IOException {
@@ -59,7 +59,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
 
     public Topology getServicesTopology(final List<String> serviceIds, final Duration duration) throws IOException {
         return getQueryService().getServiceTopology(
-            duration.getStartTimeBucket(), duration.getEndTimeBucket(), serviceIds);
+            duration.getStartTimeBucket(false), duration.getEndTimeBucket(), serviceIds);
     }
 
     public ServiceInstanceTopology getServiceInstanceTopology(final String clientServiceId,
@@ -67,7 +67,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
                                                               final Duration duration) throws IOException {
         return getQueryService().getServiceInstanceTopology(
             clientServiceId, serverServiceId,
-            duration.getStartTimeBucket(), duration.getEndTimeBucket()
+            duration.getStartTimeBucket(false), duration.getEndTimeBucket()
         );
     }
 
@@ -77,16 +77,16 @@ public class TopologyQuery implements GraphQLQueryResolver {
     @Deprecated
     public Topology getEndpointTopology(final String endpointId, final Duration duration) throws IOException {
         return getQueryService().getEndpointTopology(
-            duration.getStartTimeBucket(), duration.getEndTimeBucket(), endpointId);
+            duration.getStartTimeBucket(false), duration.getEndTimeBucket(), endpointId);
     }
 
     public EndpointTopology getEndpointDependencies(final String endpointId,
                                                     final Duration duration) throws IOException {
         return getQueryService().getEndpointDependencies(
-            duration.getStartTimeBucket(), duration.getEndTimeBucket(), endpointId);
+            duration.getStartTimeBucket(false), duration.getEndTimeBucket(), endpointId);
     }
 
     public ProcessTopology getProcessTopology(final String instanceId, final Duration duration) throws IOException {
-        return getQueryService().getProcessTopology(instanceId, duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        return getQueryService().getProcessTopology(instanceId, duration.getStartTimeBucket(false), duration.getEndTimeBucket());
     }
 }

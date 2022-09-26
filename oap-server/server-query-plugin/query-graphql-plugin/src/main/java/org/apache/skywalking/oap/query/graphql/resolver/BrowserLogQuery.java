@@ -45,7 +45,7 @@ public class BrowserLogQuery implements GraphQLQueryResolver {
         long startSecondTB = 0, endSecondTB = 0;
         if (nonNull(condition.getQueryDuration())) {
             startSecondTB = condition.getQueryDuration()
-                                     .getStartTimeBucketInSec();
+                                     .getStartTimeBucketInSec(true);
             endSecondTB = condition.getQueryDuration()
                                    .getEndTimeBucketInSec();
         }

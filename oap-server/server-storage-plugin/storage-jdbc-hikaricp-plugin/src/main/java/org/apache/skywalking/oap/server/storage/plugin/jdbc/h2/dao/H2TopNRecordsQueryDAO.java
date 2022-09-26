@@ -55,7 +55,7 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         }
 
         sql.append(" ").append(TopN.TIME_BUCKET).append(" >= ?");
-        parameters.add(duration.getStartTimeBucketInSec());
+        parameters.add(duration.getStartTimeBucketInSec(true));
         sql.append(" and ").append(TopN.TIME_BUCKET).append(" <= ?");
         parameters.add(duration.getEndTimeBucketInSec());
 

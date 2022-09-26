@@ -37,6 +37,7 @@ public abstract class Metrics extends StreamData implements StorageData {
 
     public static final String TIME_BUCKET = "time_bucket";
     public static final String ENTITY_ID = "entity_id";
+    public static final String ID = "id";
 
     /**
      * Time attribute

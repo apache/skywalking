@@ -26,6 +26,8 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 
 /**
  * @since 9.1.0
@@ -36,6 +38,12 @@ public class SQLDatabaseModelExtension {
     private final Map<String, AdditionalTable> additionalTables = new HashMap<>(5);
     //exclude the columns from the main table
     private final List<ModelColumn> excludeColumns = new ArrayList<>(5);
+
+    @Setter
+    private boolean isShardingTable = false;
+    @Setter
+    @Getter
+    private Sharding sharding;
 
     public void appendAdditionalTable(String tableName, ModelColumn column) {
         additionalTables.computeIfAbsent(tableName, AdditionalTable::new)
@@ -62,5 +70,13 @@ public class SQLDatabaseModelExtension {
             }
             columns.add(column);
         }
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class Sharding {
+        private final ShardingAlgorithm shardingAlgorithm;
+        private final String dsShardingColumn;
+        private final String tableShardingColumn;
     }
 }

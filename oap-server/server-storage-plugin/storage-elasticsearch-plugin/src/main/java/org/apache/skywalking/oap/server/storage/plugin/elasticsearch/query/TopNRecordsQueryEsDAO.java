@@ -53,7 +53,7 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
         final BoolQueryBuilder query =
             Query.bool()
                  .must(Query.range(TopN.TIME_BUCKET)
-                            .gte(duration.getStartTimeBucketInSec())
+                            .gte(duration.getStartTimeBucketInSec(true))
                             .lte(duration.getEndTimeBucketInSec()));
         if (IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, condition.getName()));

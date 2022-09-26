@@ -27,45 +27,50 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 
 @Getter
 @Setter
+/**
+ * To optimize the query, the range of start and end times will be trimmed to [TTL_deadLine < time <= CurrentTime].
+ */
 public class Duration {
     private String start;
     private String end;
     private Step step;
 
     /**
-     * See {@link DurationUtils#convertToTimeBucket(Step, String)}
+     * See {@link DurationUtils#trimToStartTimeBucket(Step, String, boolean)}
      */
-    public long getStartTimeBucket() {
-        return DurationUtils.INSTANCE.convertToTimeBucket(step, start);
+    public long getStartTimeBucket(boolean isRecord) {
+        return DurationUtils.INSTANCE.trimToStartTimeBucket(step, start, isRecord);
     }
 
     /**
-     * See {@link DurationUtils#convertToTimeBucket(Step, String)}
+     * See {@link DurationUtils#trimToEndTimeBucket(Step, String)}
      */
     public long getEndTimeBucket() {
-        return DurationUtils.INSTANCE.convertToTimeBucket(step, end);
+        return DurationUtils.INSTANCE.trimToEndTimeBucket(step, end);
     }
 
-    public long getStartTimestamp() {
-        return DurationUtils.INSTANCE.startTimeToTimestamp(step, start);
+    public long getStartTimestamp(boolean isRecord) {
+        return DurationUtils.INSTANCE.startTimeToTimestamp(step, DurationUtils.INSTANCE.trimToStartTimeBucket(step, start, isRecord));
     }
 
     public long getEndTimestamp() {
-        return DurationUtils.INSTANCE.endTimeToTimestamp(step, end);
+        return DurationUtils.INSTANCE.endTimeToTimestamp(step, DurationUtils.INSTANCE.trimToEndTimeBucket(step, end));
     }
 
-    public long getStartTimeBucketInSec() {
-        return DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(step, start);
+    public long getStartTimeBucketInSec(boolean isRecord) {
+        return DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(
+            step, DurationUtils.INSTANCE.trimToStartTimeBucket(step, start, isRecord));
     }
 
     public long getEndTimeBucketInSec() {
-        return DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(step, end);
+        return DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(
+            step, DurationUtils.INSTANCE.trimToEndTimeBucket(step, end));
     }
 
     /**
      * Assemble time point based on {@link #step} and {@link #start} / {@link #end}
      */
-    public List<PointOfTime> assembleDurationPoints() {
-        return DurationUtils.INSTANCE.getDurationPoints(step, getStartTimeBucket(), getEndTimeBucket());
+    public List<PointOfTime> assembleDurationPoints(boolean isRecord) {
+        return DurationUtils.INSTANCE.getDurationPoints(step, getStartTimeBucket(isRecord), getEndTimeBucket());
     }
 }

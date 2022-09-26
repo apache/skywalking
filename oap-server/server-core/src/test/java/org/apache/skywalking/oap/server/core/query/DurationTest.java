@@ -18,11 +18,30 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.joda.time.DateTime;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.powermock.api.mockito.PowerMockito;
+
+import static org.powermock.api.mockito.PowerMockito.when;
 
 public class DurationTest {
+    private final int recordDataTTL = 3;
+    private final int metricsDataTTL = 7;
+
+    @Before
+    public void init() {
+        ConfigService configService = PowerMockito.mock(ConfigService.class);
+        when(configService.getMetricsDataTTL()).thenReturn(metricsDataTTL);
+        when(configService.getRecordDataTTL()).thenReturn(recordDataTTL);
+        DurationUtils.INSTANCE.setConfigService(configService);
+    }
 
     @Test
     public void testConvertToTimeBucket() {
@@ -41,20 +60,66 @@ public class DurationTest {
 
     @Test
     public void testStartTimeDurationToSecondTimeBucket() {
+        long expectedDay = Long.parseLong(new DateTime().toString("yyyyMMdd")) * 1000000;
+        String inputDay = new DateTime().toString("yyyy-MM-dd");
         Assert.assertEquals(
-            20220908000000L, DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.DAY, "2022-09-08"));
+            expectedDay, DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.DAY,
+                                                                                        DurationUtils.INSTANCE.trimToStartTimeBucket(
+                                                                                            Step.DAY, inputDay,
+                                                                                            true)
+            ));
+        long expectedDayOutTTL = Long.parseLong(new DateTime().plusDays(1 - recordDataTTL).toString("yyyyMMdd")) * 1000000;
+        String inputDayOutTTL = new DateTime().plusDays(-recordDataTTL).toString("yyyy-MM-dd");
         Assert.assertEquals(
-            20220908100000L, DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.HOUR, "2022-09-08 10"));
+            expectedDayOutTTL, DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.DAY,
+                                                                                    DurationUtils.INSTANCE.trimToStartTimeBucket(
+                                                                                        Step.DAY, inputDayOutTTL,
+                                                                                        true)
+            ));
+        long expectedHour = Long.parseLong(new DateTime().toString("yyyyMMddHH")) * 10000;
+        String inputHour = new DateTime().toString("yyyy-MM-dd HH");
         Assert.assertEquals(
-            20220908101000L,
-            DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.MINUTE, "2022-09-08 1010")
+            expectedHour, DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.HOUR,
+                                                                                        DurationUtils.INSTANCE.trimToStartTimeBucket(
+                                                                                            Step.HOUR, inputHour,
+                                                                                            true)
+            ));
+        String inputHourOutTTL = new DateTime().plusDays(-recordDataTTL).toString("yyyy-MM-dd HH");
+        Assert.assertEquals(
+            expectedDayOutTTL, DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.HOUR,
+                                                                                     DurationUtils.INSTANCE.trimToStartTimeBucket(
+                                                                                         Step.HOUR, inputHourOutTTL,
+                                                                                         true)
+            ));
+        long expectedMin = Long.parseLong(new DateTime().toString("yyyyMMddHHmm")) * 100;
+        String inputMin = new DateTime().toString("yyyy-MM-dd HHmm");
+        Assert.assertEquals(
+            expectedMin,
+            DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(
+                Step.MINUTE, DurationUtils.INSTANCE.trimToStartTimeBucket(Step.MINUTE, inputMin, true))
         );
+        String inputMinOutTTL = new DateTime().plusDays(-recordDataTTL).toString("yyyy-MM-dd HHmm");
         Assert.assertEquals(
-            20220908101010L,
-            DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.SECOND, "2022-09-08 101010")
+            expectedDayOutTTL,
+            DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(
+                Step.MINUTE, DurationUtils.INSTANCE.trimToStartTimeBucket(Step.MINUTE, inputMinOutTTL, true))
+        );
+        String inputSec = new DateTime().toString("yyyy-MM-dd HHmmss");
+        long expectedSec = Long.parseLong(new DateTime().toString("yyyyMMddHHmmss")) ;
+        Assert.assertEquals(
+            expectedSec,
+            DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(
+                Step.SECOND, DurationUtils.INSTANCE.trimToStartTimeBucket(Step.SECOND, inputSec, true))
+        );
+        String inputSecOutTTL = new DateTime().plusDays(-recordDataTTL).toString("yyyy-MM-dd HHmmss");
+        Assert.assertEquals(
+            expectedDayOutTTL,
+            DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(
+                Step.SECOND, DurationUtils.INSTANCE.trimToStartTimeBucket(Step.SECOND, inputSecOutTTL, true))
         );
         try {
-            DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.HOUR, "2022-09-08 30");
+            DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(
+                Step.HOUR, DurationUtils.INSTANCE.trimToStartTimeBucket(Step.HOUR, "2022-09-08 30", true));
             Assert.fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(true);
@@ -64,20 +129,39 @@ public class DurationTest {
     @Test
     public void testEndTimeDurationToSecondTimeBucket() {
         Assert.assertEquals(
-            20220908235959L, DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.DAY, "2022-09-08"));
+            20220908235959L, DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.DAY,
+                                                                                      DurationUtils.INSTANCE.trimToEndTimeBucket(
+                                                                                          Step.DAY, "2022-09-08")
+            ));
         Assert.assertEquals(
-            20220908105959L, DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.HOUR, "2022-09-08 10"));
+            20220908105959L, DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.HOUR,
+                                                                                      DurationUtils.INSTANCE.trimToEndTimeBucket(
+                                                                                          Step.HOUR, "2022-09-08 10")
+            ));
         Assert.assertEquals(
-            20220908101059L, DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.MINUTE, "2022-09-08 1010"));
+            20220908101059L, DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.MINUTE,
+                                                                                      DurationUtils.INSTANCE.trimToEndTimeBucket(
+                                                                                          Step.MINUTE,
+                                                                                          "2022-09-08 1010")
+            ));
         Assert.assertEquals(
             20220908101010L,
-            DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.SECOND, "2022-09-08 101010")
+            DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(
+                Step.SECOND, DurationUtils.INSTANCE.trimToEndTimeBucket(Step.SECOND, "2022-09-08 101010"))
         );
         try {
-            DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.HOUR, "2022-09-08 30");
+            DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(
+                Step.HOUR, DurationUtils.INSTANCE.trimToEndTimeBucket(Step.HOUR, "2022-09-08 30"));
             Assert.fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(true);
         }
+    }
+
+    @Test
+    public void testGetDurationPoints() {
+        List<PointOfTime> pointOfTimes = DurationUtils.INSTANCE.getDurationPoints(Step.DAY, 20220910, 20220912);
+        Assert.assertTrue(Arrays.asList(20220910L, 20220911L, 20220912L)
+                                .equals(pointOfTimes.stream().map(PointOfTime::getPoint).collect(Collectors.toList())));
     }
 }

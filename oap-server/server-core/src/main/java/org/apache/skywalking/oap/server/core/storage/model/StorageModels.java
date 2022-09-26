@@ -250,6 +250,14 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             }
         }
 
+        if (clazz.isAnnotationPresent(SQLDatabase.Sharding.class)) {
+            SQLDatabase.Sharding sharding = clazz.getAnnotation(SQLDatabase.Sharding.class);
+            sqlDBModelExtension.setShardingTable(true);
+            sqlDBModelExtension.setSharding(
+                new SQLDatabaseModelExtension.Sharding(sharding.shardingAlgorithm(), sharding.dsShardingColumn(),
+                                                       sharding.tableShardingColumn()));
+        }
+
         if (Objects.nonNull(clazz.getSuperclass())) {
             retrieval(clazz.getSuperclass(), modelName, modelColumns, scopeId, checker, sqlDBModelExtension, record);
         }

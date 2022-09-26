@@ -108,8 +108,8 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
 
         final Duration startTime = condition.getTime();
         if (startTime != null) {
-            if (startTime.getStartTimestamp() > 0) {
-                query.must(Query.range(Event.START_TIME).gt(startTime.getStartTimestamp()));
+            if (startTime.getStartTimestamp(false) > 0) {
+                query.must(Query.range(Event.START_TIME).gt(startTime.getStartTimestamp(false)));
             }
             if (startTime.getEndTimestamp() > 0) {
                 query.must(Query.range(Event.END_TIME).lt(startTime.getEndTimestamp()));

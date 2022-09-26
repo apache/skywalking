@@ -43,15 +43,19 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
+import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ENTITY_ID;
+import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ID;
 
 /**
  * AvgPercentile intends to calculate percentile based on the average of raw values over the interval(minute, hour or day).
@@ -66,6 +70,7 @@ import static java.util.stream.Collectors.mapping;
  */
 @MeterFunction(functionName = "avgHistogramPercentile")
 @Slf4j
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_RELATIVE_ID_SHARDING_ALGORITHM, tableShardingColumn = ID, dsShardingColumn = ENTITY_ID)
 public abstract class AvgHistogramPercentileFunction extends Meter implements AcceptableValue<PercentileArgument>, MultiIntValuesHolder {
     private static final String DEFAULT_GROUP = "pD";
     public static final String DATASET = "dataset";

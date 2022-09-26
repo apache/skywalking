@@ -32,5 +32,6 @@
         <module>storage-elasticsearch-plugin</module>
         <module>storage-tidb-plugin</module>
         <module>storage-banyandb-plugin</module>
+        <module>storage-shardingsphere-plugin</module>
     </modules>
 </project>

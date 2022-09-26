@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -37,11 +38,14 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.TRACE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
 
 @SuperDataset
 @Stream(name = ZipkinSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ZIPKIN_SPAN, builder = ZipkinSpanRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE, parentColumn = TIME_BUCKET)
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_RANGE_SHARDING_ALGORITHM, dsShardingColumn = TRACE_ID, tableShardingColumn = TIME_BUCKET)
 public class ZipkinSpanRecord extends Record {
     private static final Gson GSON = new Gson();
     public static final String INDEX_NAME = "zipkin_span";
@@ -71,6 +75,7 @@ public class ZipkinSpanRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = TRACE_ID)
+    @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_QUERY_TABLE}, reserveOriginalColumns = true)
     private String traceId;
     @Setter
     @Getter
@@ -210,6 +215,7 @@ public class ZipkinSpanRecord extends Record {
             converter.accept(KIND, storageData.getKind());
             converter.accept(TIMESTAMP, storageData.getTimestamp());
             converter.accept(TIMESTAMP_MILLIS, storageData.getTimestampMillis());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(DURATION, storageData.getDuration());
             converter.accept(LOCAL_ENDPOINT_SERVICE_NAME, storageData.getLocalEndpointServiceName());
             converter.accept(LOCAL_ENDPOINT_IPV4, storageData.getLocalEndpointIPV4());

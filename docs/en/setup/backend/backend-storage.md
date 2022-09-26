@@ -211,6 +211,34 @@ All connection-related settings, including URL link, username, and password, are
 Only part of the settings is listed here. See the [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
 To understand the function of the parameter `rewriteBatchedStatements=true` in MySQL, see the [MySQL official document](https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-performance-extensions.html#cj-conn-prop_rewriteBatchedStatements).
 
+## MySQL-Sharding
+MySQL-Sharding plugin provides the MySQL database sharding and table sharding, this feature
+leverage [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy)
+to manage the JDBC between OAP and multi-database instances, and according to the sharding rules do routing to the database and table sharding.
+
+Tested Shardingsphere-Proxy 5.1.2 version, and MySQL Client driver 8.0.13 version is currently available.
+Activate MySQL and Shardingsphere-Proxy as storage, and set storage provider to **mysql-sharding**.
+
+**NOTE:** MySQL driver is NOT allowed in Apache official distribution and source codes.
+Please download the MySQL driver on your own. Copy the connection driver jar to `oap-libs`.
+
+```yaml
+storage:
+  selector: ${SW_STORAGE:mysql-sharding}
+  mysql-sharding:
+    properties:
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:13307/swtest?rewriteBatchedStatements=true"}
+      dataSource.user: ${SW_DATA_SOURCE_USER:root}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root}
+    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+    maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
+    asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
+    # The dataSources are configured in ShardingSphere-Proxy config-sharding.yaml
+    # The dataSource name should include the prefix "ds_" and separated by ","
+    dataSources: ${SW_JDBC_SHARDING_DATA_SOURCES:ds_0,ds_1}
+
+```
+
 ## TiDB
 Tested TiDB Server 4.0.8 version, and MySQL Client driver 8.0.13 version is currently available.
 Activate TiDB as storage, and set storage provider to **tidb**.

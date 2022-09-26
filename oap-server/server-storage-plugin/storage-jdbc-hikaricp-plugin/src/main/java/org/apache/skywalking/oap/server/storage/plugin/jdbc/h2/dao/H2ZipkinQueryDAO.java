@@ -143,7 +143,7 @@ public class H2ZipkinQueryDAO implements IZipkinQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         List<Map.Entry<String, String>> annotations = new ArrayList<>(request.annotationQuery().entrySet());
-        sql.append("select ").append(ZipkinSpanRecord.TRACE_ID).append(", ")
+        sql.append("select ").append(ZipkinSpanRecord.INDEX_NAME).append(".").append(ZipkinSpanRecord.TRACE_ID).append(", ")
             .append("max(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(")").append(" from ");
         sql.append(ZipkinSpanRecord.INDEX_NAME);
         /**
@@ -167,6 +167,7 @@ public class H2ZipkinQueryDAO implements IZipkinQueryDAO {
             sql.append(" and ");
             sql.append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" <= ?");
             condition.add(endTimeMillis);
+            buildShardingCondition(sql, condition, startTimeMillis, endTimeMillis);
         }
         if (request.minDuration() != null) {
             sql.append(" and ");
@@ -317,5 +318,8 @@ public class H2ZipkinQueryDAO implements IZipkinQueryDAO {
             }
         }
         return span.build();
+    }
+
+    protected void buildShardingCondition(StringBuilder sql, List<Object> parameters, long startTimeMillis, long endTimeMillis) {
     }
 }

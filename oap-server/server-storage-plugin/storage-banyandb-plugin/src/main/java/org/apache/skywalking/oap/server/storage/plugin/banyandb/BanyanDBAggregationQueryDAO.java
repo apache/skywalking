@@ -50,14 +50,14 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
     @Override
     public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration, List<KeyValue> additionalConditions) throws IOException {
         final String modelName = condition.getName();
-        final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
+        final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(false), duration.getEndTimestamp());
         MeasureQueryResponse resp = query(modelName, TAGS, Collections.singleton(valueColumnName),
                 timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         query.meanBy(valueColumnName, ImmutableSet.of(Metrics.ENTITY_ID));
                         query.and(lte(Metrics.TIME_BUCKET, duration.getEndTimeBucket()));
-                        query.and(gte(Metrics.TIME_BUCKET, duration.getStartTimeBucket()));
+                        query.and(gte(Metrics.TIME_BUCKET, duration.getStartTimeBucket(false)));
                         if (condition.getOrder() == Order.DES) {
                             query.topN(condition.getTopN(), valueColumnName);
                         } else {

@@ -52,7 +52,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         List<Object> conditions = new ArrayList<>(10);
         StringBuilder sql = buildMetricsValueSql(valueColumnName, metrics.getName());
         sql.append(Metrics.TIME_BUCKET).append(" >= ? and ").append(Metrics.TIME_BUCKET).append(" <= ?");
-        conditions.add(duration.getStartTimeBucket());
+        conditions.add(duration.getStartTimeBucket(false));
         conditions.add(duration.getEndTimeBucket());
         if (additionalConditions != null) {
             additionalConditions.forEach(condition -> {
@@ -83,13 +83,15 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
 
     protected StringBuilder buildMetricsValueSql(String valueColumnName, String metricsName) {
         StringBuilder sql = new StringBuilder();
-        sql.append("select * from (select avg(")
-                .append(valueColumnName)
-                .append(") result,")
-                .append(Metrics.ENTITY_ID)
-                .append(" from ")
-                .append(metricsName)
-                .append(" where ");
+        sql.append("select result,")
+           .append(Metrics.ENTITY_ID)
+           .append(" from (select avg(")
+           .append(valueColumnName)
+           .append(") result,")
+           .append(Metrics.ENTITY_ID)
+           .append(" from ")
+           .append(metricsName)
+           .append(" where ");
         return sql;
     }
 }

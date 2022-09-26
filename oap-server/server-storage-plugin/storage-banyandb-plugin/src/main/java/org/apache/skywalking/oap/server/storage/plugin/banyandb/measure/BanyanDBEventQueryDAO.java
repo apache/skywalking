@@ -85,8 +85,8 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
 
                         final Duration startTime = condition.getTime();
                         if (startTime != null) {
-                            if (startTime.getStartTimestamp() > 0) {
-                                query.and(gte(Event.START_TIME, startTime.getStartTimestamp()));
+                            if (startTime.getStartTimestamp(false) > 0) {
+                                query.and(gte(Event.START_TIME, startTime.getStartTimestamp(false)));
                             }
                             if (startTime.getEndTimestamp() > 0) {
                                 query.and(lte(Event.END_TIME, startTime.getEndTimestamp()));
