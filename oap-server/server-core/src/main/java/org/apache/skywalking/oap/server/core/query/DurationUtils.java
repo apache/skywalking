@@ -198,7 +198,7 @@ public enum DurationUtils {
         }
         int ttl = isRecord ? configService.getRecordDataTTL() : configService.getMetricsDataTTL();
         long startDate = convertToTimeBucket(step, startStr);
-        long timeFloor = Long.parseLong(new DateTime().plusDays(1 - ttl).toString("yyyyMMdd"));
+        long timeFloor = Long.parseLong(DateTime.now().plusDays(1 - ttl).toString("yyyyMMdd"));
         switch (step) {
             case DAY:
                 break;
@@ -219,7 +219,7 @@ public enum DurationUtils {
     // Trim the endStr according to the real date, for query
     public long trimToEndTimeBucket(Step step, String endStr) {
         long endDate = convertToTimeBucket(step, endStr);
-        long timeCeiling = Long.parseLong(new DateTime().toString("yyyyMMdd"));
+        long timeCeiling = Long.parseLong(DateTime.now().toString("yyyyMMdd"));
         switch (step) {
             case DAY:
                 break;

@@ -64,7 +64,7 @@ public class MySQLShardingHistoryDeleteDAO extends H2HistoryDeleteDAO {
             }
         }
 
-        long deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
+        long deadline = Long.parseLong(DateTime.now().plusDays(-ttl).toString("yyyyMMdd"));
         //If it's a sharding table drop expired tables
         if (model.getSqlDBModelExtension().isShardingTable()) {
             boolean isRuleExecuted = false;

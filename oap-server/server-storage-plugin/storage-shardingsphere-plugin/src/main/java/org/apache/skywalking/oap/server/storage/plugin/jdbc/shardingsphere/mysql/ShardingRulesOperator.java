@@ -83,7 +83,7 @@ public enum ShardingRulesOperator {
                                sharding.getTableShardingColumn(),
                                sharding.getDsShardingColumn(),
                                ttl,
-                               new DateTime()
+                               DateTime.now()
             ),
             client,
             tableName
@@ -95,7 +95,7 @@ public enum ShardingRulesOperator {
             isExecuted = executeShardingRule(
                 buildShardingRule(additionalBuilder, additionalTable, dataSources, sharding.getShardingAlgorithm(),
                                    sharding.getTableShardingColumn(),
-                                   sharding.getDsShardingColumn(), ttl, new DateTime()
+                                   sharding.getDsShardingColumn(), ttl, DateTime.now()
                 ), client, additionalTable
             );
         }
