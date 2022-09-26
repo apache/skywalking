@@ -12,6 +12,7 @@ Natively supported storage:
 - OpenSearch
 - ElasticSearch 6, 7, 8
 - MySQL
+- MySQL-Sharding(Shardingsphere-Proxy 5.1.2)
 - TiDB
 - PostgreSQL
 - BanyanDB

@@ -25,11 +25,11 @@ import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 
+/**
+ * @since 9.3.0 To optimize the query, the range of start and end times will be trimmed to [TTL_deadLine < time <= CurrentTime].
+ */
 @Getter
 @Setter
-/**
- * To optimize the query, the range of start and end times will be trimmed to [TTL_deadLine < time <= CurrentTime].
- */
 public class Duration {
     private String start;
     private String end;
