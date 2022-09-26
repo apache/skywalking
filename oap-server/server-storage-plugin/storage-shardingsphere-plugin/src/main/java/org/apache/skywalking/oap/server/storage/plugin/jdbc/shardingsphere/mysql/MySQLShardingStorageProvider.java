@@ -159,10 +159,6 @@ public class MySQLShardingStorageProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        final ConfigService configService = getManager().find(CoreModule.NAME)
-                                                        .provider()
-                                                        .getService(ConfigService.class);
-
         try {
             mysqlClient.connect();
             MySQLShardingTableInstaller installer = new MySQLShardingTableInstaller(mysqlClient, getManager(), config);
