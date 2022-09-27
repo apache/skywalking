@@ -183,7 +183,11 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                 );
             }
         }
-        return Util.composeLabelValue(condition, labels, ids, idMap);
+        return Util.sortValues(
+            Util.composeLabelValue(condition, labels, ids, idMap),
+            ids,
+            ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+        );
     }
 
     @Override

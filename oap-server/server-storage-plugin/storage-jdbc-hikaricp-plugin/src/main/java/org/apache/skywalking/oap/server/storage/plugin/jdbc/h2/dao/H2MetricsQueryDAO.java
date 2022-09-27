@@ -205,7 +205,11 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         } catch (SQLException e) {
             throw new IOException(e);
         }
-        return Util.composeLabelValue(condition, labels, ids, idMap);
+        return Util.sortValues(
+            Util.composeLabelValue(condition, labels, ids, idMap),
+            ids,
+            ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+        );
     }
 
     @Override

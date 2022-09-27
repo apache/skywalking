@@ -19,6 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
 import com.google.common.collect.ImmutableSet;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
@@ -40,14 +47,6 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMetricsQueryDAO {
     public BanyanDBMetricsQueryDAO(BanyanDBStorageClient client) {
@@ -168,7 +167,11 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
             );
         }
 
-        return Util.composeLabelValue(condition, labels, ids, dataTableMap);
+        return Util.sortValues(
+            Util.composeLabelValue(condition, labels, ids, dataTableMap),
+            ids,
+            ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+        );
     }
 
     @Override
