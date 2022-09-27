@@ -265,10 +265,10 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
         AvgHistogramPercentileFunction metrics = (AvgHistogramPercentileFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
-        metrics.setSummation(getSummation());
-        metrics.setCount(getCount());
-        metrics.setRanks(getRanks());
-        metrics.setPercentileValues(getPercentileValues());
+        metrics.getSummation().copyFrom(getSummation());
+        metrics.getCount().copyFrom(getCount());
+        metrics.getRanks().copyFrom(getRanks());
+        metrics.getPercentileValues().copyFrom(getPercentileValues());
         return metrics;
     }
 
@@ -277,10 +277,10 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
         AvgHistogramPercentileFunction metrics = (AvgHistogramPercentileFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
-        metrics.setSummation(getSummation());
-        metrics.setCount(getCount());
-        metrics.setRanks(getRanks());
-        metrics.setPercentileValues(getPercentileValues());
+        metrics.getSummation().copyFrom(getSummation());
+        metrics.getCount().copyFrom(getCount());
+        metrics.getRanks().copyFrom(getRanks());
+        metrics.getPercentileValues().copyFrom(getPercentileValues());
         return metrics;
     }
 
