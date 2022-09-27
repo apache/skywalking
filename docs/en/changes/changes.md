@@ -23,9 +23,9 @@
 * [**Breaking Change**] Support sharding MySQL database instances and tables by [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy).
   SQL-Database requires removing tables `log_tag/segment_tag/zipkin_query` before OAP starts, if bump up from previous releases.
 * Fix meter functions `avgHistogram`, `avgHistogramPercentile`, `avgLabeled`, `sumHistogram` having data conflict when
-  dowmsampling.
+  downsampling.
 * Do sorting `readLabeledMetricsValues` result forcedly in case the storage(database) doesn't return data consistent
-  with parameter list.
+  with the parameter list.
 
 #### UI
 
