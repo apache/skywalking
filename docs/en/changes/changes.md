@@ -20,6 +20,10 @@
   in `no-init` mode.
 * Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
 * Support monitoring PostgreSQL slow SQLs.
+* Fix meter functions `avgHistogram`, `avgHistogramPercentile`, `avgLabeled`, `sumHistogram` having data conflict when
+  dowmsampling.
+* Do sorting `readLabeledMetricsValues` result forcedly in case the storage(database) doesn't return data consistent
+  with parameter list.
 
 #### UI
 

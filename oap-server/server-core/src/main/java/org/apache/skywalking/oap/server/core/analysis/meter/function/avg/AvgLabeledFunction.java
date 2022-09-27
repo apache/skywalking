@@ -112,8 +112,8 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
         metrics.setServiceId(getServiceId());
-        metrics.setSummation(getSummation());
-        metrics.setCount(getCount());
+        metrics.getSummation().copyFrom(getSummation());
+        metrics.getCount().copyFrom(getCount());
         return metrics;
     }
 
@@ -123,8 +123,8 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
         metrics.setServiceId(getServiceId());
-        metrics.setSummation(getSummation());
-        metrics.setCount(getCount());
+        metrics.getSummation().copyFrom(getSummation());
+        metrics.getCount().copyFrom(getCount());
         return metrics;
     }
 
