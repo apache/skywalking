@@ -25,15 +25,9 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
-import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
-
-import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ENTITY_ID;
-import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ID;
 
 @MetricsFunction(functionName = "longAvg")
-@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_RELATIVE_ID_SHARDING_ALGORITHM, tableShardingColumn = ID, dsShardingColumn = ENTITY_ID)
 public abstract class LongAvgMetrics extends Metrics implements LongValueHolder {
 
     protected static final String SUMMATION = "summation";

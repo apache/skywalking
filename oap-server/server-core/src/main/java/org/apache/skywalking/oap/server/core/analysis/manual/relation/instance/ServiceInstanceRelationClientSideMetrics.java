@@ -42,7 +42,7 @@ import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.TIM
 @EqualsAndHashCode(of = {
     "entityId"
 }, callSuper = true)
-@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_BUCKET_SHARDING_ALGORITHM, tableShardingColumn = TIME_BUCKET, dsShardingColumn = ENTITY_ID)
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_BUCKET_SHARDING_ALGORITHM, tableShardingColumn = TIME_BUCKET, dataSourceShardingColumn = ENTITY_ID)
 public class ServiceInstanceRelationClientSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "service_instance_relation_client_side";

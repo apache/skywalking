@@ -27,13 +27,8 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
-import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
-import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
-
-import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ENTITY_ID;
-import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ID;
 
 /**
  * Percentile is a better implementation than deprecated PxxMetrics in older releases.
@@ -42,7 +37,6 @@ import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ID;
  * @since 7.0.0
  */
 @MetricsFunction(functionName = "percentile")
-@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_RELATIVE_ID_SHARDING_ALGORITHM, tableShardingColumn = ID, dsShardingColumn = ENTITY_ID)
 public abstract class PercentileMetrics extends Metrics implements MultiIntValuesHolder {
     protected static final String DATASET = "dataset";
     protected static final String VALUE = "value";

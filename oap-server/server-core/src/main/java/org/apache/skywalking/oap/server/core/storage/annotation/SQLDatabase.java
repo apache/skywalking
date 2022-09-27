@@ -137,11 +137,15 @@ public @interface SQLDatabase {
         ExtraColumn4AdditionalEntity[] value();
     }
 
+    /**
+     * Support add sharding policy for a table model. Can be declared on the superclass and overridden by subclass..
+     * @since 9.3.0
+     */
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
     @interface Sharding {
         ShardingAlgorithm shardingAlgorithm();
-        String dsShardingColumn();
-        String tableShardingColumn();
+        String dataSourceShardingColumn() default "";
+        String tableShardingColumn() default "";
     }
 }

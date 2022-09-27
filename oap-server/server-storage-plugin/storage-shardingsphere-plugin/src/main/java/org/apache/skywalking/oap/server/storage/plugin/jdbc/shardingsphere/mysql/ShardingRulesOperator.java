@@ -52,13 +52,21 @@ public enum ShardingRulesOperator {
         "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);}\n" +
         "}";
 
-    private static final String TIME_RANGE_SHARDING_EXPRESSION =
+    private static final String TIME_SEC_RANGE_SHARDING_EXPRESSION =
         "\"datetime-pattern\"=\"yyyyMMddHHmmss\"," +
         "\"datetime-interval-unit\"=\"days\"," +
         "\"datetime-interval-amount\"=\"1\"," +
         "\"sharding-suffix-pattern\"=\"yyyyMMdd\"," +
         "\"datetime-lower\"=\"20220101000000\"," +
         "\"datetime-upper\"=\"20991201000000\"";
+
+    private static final String TIME_MIN_RANGE_SHARDING_EXPRESSION =
+        "\"datetime-pattern\"=\"yyyyMMddHHmm\"," +
+            "\"datetime-interval-unit\"=\"days\"," +
+            "\"datetime-interval-amount\"=\"1\"," +
+            "\"sharding-suffix-pattern\"=\"yyyyMMdd\"," +
+            "\"datetime-lower\"=\"202201010000\"," +
+            "\"datetime-upper\"=\"209912010000\"";
 
     private static final String TIME_BUCKET_SHARDING_EXPRESSION =
         "${\n" +
@@ -77,7 +85,8 @@ public enum ShardingRulesOperator {
         ShardingRule.ShardingRuleBuilder builder = ShardingRule.builder();
         builder.table(model.getName());
         String tableName = model.getName();
-        SQLDatabaseModelExtension.Sharding sharding = model.getSqlDBModelExtension().getSharding();
+        SQLDatabaseModelExtension.Sharding sharding = model.getSqlDBModelExtension().getSharding().orElseThrow(
+            () -> new UnexpectedException("Sharding should not be empty."));
         isExecuted = executeShardingRule(
             buildShardingRule(builder, tableName, dataSources, sharding.getShardingAlgorithm(),
                                sharding.getTableShardingColumn(),
@@ -150,8 +159,11 @@ public enum ShardingRulesOperator {
         buildDatabaseStrategy(builder, dsShardingColumn, dataSources.size());
 
         switch (shardingAlgorithm) {
-            case TIME_RANGE_SHARDING_ALGORITHM:
-                buildTimeRangeTableStrategy(builder, tableShardingColumn);
+            case TIME_SEC_RANGE_SHARDING_ALGORITHM:
+                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_SEC_RANGE_SHARDING_EXPRESSION);
+                break;
+            case TIME_MIN_RANGE_SHARDING_ALGORITHM:
+                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_MIN_RANGE_SHARDING_EXPRESSION);
                 break;
             case TIME_RELATIVE_ID_SHARDING_ALGORITHM:
                 buildExpressionTableStrategy(builder, tableName, tableShardingColumn,
@@ -212,11 +224,11 @@ public enum ShardingRulesOperator {
     }
 
     private void buildTimeRangeTableStrategy(ShardingRule.ShardingRuleBuilder builder,
-                                             String tableShardingColumn) {
+                                             String tableShardingColumn, String algorithmExpression) {
         builder.tableStrategyType("\"standard\"")
                .tableShardingColumn(tableShardingColumn)
                .tableShardingAlgorithmType("\"interval\"")
-               .tableShardingAlgorithmProps(TIME_RANGE_SHARDING_EXPRESSION);
+               .tableShardingAlgorithmProps(algorithmExpression);
     }
 
     private void buildExpressionTableStrategy(ShardingRule.ShardingRuleBuilder builder,

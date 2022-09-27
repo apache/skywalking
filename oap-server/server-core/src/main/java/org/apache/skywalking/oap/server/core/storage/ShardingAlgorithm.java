@@ -19,7 +19,9 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 public enum ShardingAlgorithm {
+    NO_SHARDING,
     TIME_RELATIVE_ID_SHARDING_ALGORITHM,
-    TIME_RANGE_SHARDING_ALGORITHM,
+    TIME_SEC_RANGE_SHARDING_ALGORITHM,
+    TIME_MIN_RANGE_SHARDING_ALGORITHM,
     TIME_BUCKET_SHARDING_ALGORITHM
 }

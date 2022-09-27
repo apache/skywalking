@@ -47,7 +47,7 @@ public class ShardingRulesTest {
                                             builder,
                                             "Test_table",
                                             new HashSet<>(Arrays.asList("ds_0", "ds_1")),
-                                            ShardingAlgorithm.TIME_RANGE_SHARDING_ALGORITHM,
+                                            ShardingAlgorithm.TIME_SEC_RANGE_SHARDING_ALGORITHM,
                                             "time_bucket",
                                             "service_id",
                                             3,
@@ -96,7 +96,7 @@ public class ShardingRulesTest {
             "if (1000000000L < time_bucket && time_bucket < 9999999999L) {return time_bucket.intdiv(100);}\n" +
             "if (100000000000L < time_bucket && time_bucket < 999999999999L) {return time_bucket.intdiv(100*100);}\n" +
             "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);}\n" +
-            "})))))";
+            "}\")))))";
         Assert.assertEquals(expectedRule, rule);
     }
 }

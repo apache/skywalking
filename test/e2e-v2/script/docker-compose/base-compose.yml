@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   oap:
-    image: skywalking/oap:latest
+    image: gcr.io/skywalking-live-demo/oap:latest
     expose:
       - 11800
       - 12800
@@ -110,22 +110,6 @@ services:
       SW_AGENT_COLLECTOR_GET_AGENT_DYNAMIC_CONFIG_INTERVAL: 1
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9092"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
-
-  sharding-proxy:
-    image: apache/shardingsphere-proxy:5.1.2
-    volumes:
-      - ./../prepare/setup-ss-proxy/download-mysql.sh:/opt/shardingsphere-proxy/download-mysql.sh
-      - ./../prepare/setup-ss-proxy/conf:/opt/shardingsphere-proxy/conf
-    networks:
-      - e2e
-    expose:
-      - 3307
-    entrypoint: ['sh', '-c', '/opt/shardingsphere-proxy/download-mysql.sh && /opt/shardingsphere-proxy/bin/start.sh 3307 && tail -f /opt/shardingsphere-proxy/logs/stdout.log']
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3307"]
       interval: 5s
       timeout: 60s
       retries: 120

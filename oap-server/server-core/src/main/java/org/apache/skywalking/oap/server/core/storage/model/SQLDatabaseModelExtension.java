@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -40,10 +41,7 @@ public class SQLDatabaseModelExtension {
     private final List<ModelColumn> excludeColumns = new ArrayList<>(5);
 
     @Setter
-    private boolean isShardingTable = false;
-    @Setter
-    @Getter
-    private Sharding sharding;
+    private Optional<Sharding> sharding = Optional.empty();
 
     public void appendAdditionalTable(String tableName, ModelColumn column) {
         additionalTables.computeIfAbsent(tableName, AdditionalTable::new)
@@ -52,6 +50,10 @@ public class SQLDatabaseModelExtension {
 
     public void appendExcludeColumns(ModelColumn column) {
         excludeColumns.add(column);
+    }
+
+    public boolean isShardingTable() {
+        return this.sharding.isPresent() && !this.sharding.get().getShardingAlgorithm().equals(ShardingAlgorithm.NO_SHARDING);
     }
 
     @Getter

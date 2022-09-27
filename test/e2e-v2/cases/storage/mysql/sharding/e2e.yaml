@@ -38,9 +38,6 @@ trigger:
   headers:
     "Content-Type": "application/json"
 
-cleanup:
-  on: never
-
 verify:
   # verify with retry strategy
   retry:
