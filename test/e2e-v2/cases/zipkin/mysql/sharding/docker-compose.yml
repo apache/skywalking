@@ -22,7 +22,7 @@ services:
       service: sharding-proxy
     networks:
       - e2e
-    ports:
+    expose:
       - 3307
     depends_on:
       mysql-1:
@@ -30,11 +30,11 @@ services:
       mysql-2:
         condition: service_healthy
 
-  mysql-1:
+  mysql-1: &mysql
     image: mysql/mysql-server:8.0.13
     networks:
       - e2e
-    ports:
+    expose:
       - 3306
     environment:
       MYSQL_ROOT_PASSWORD: "root@1234"
@@ -47,20 +47,7 @@ services:
       retries: 120
 
   mysql-2:
-    image: mysql/mysql-server:8.0.13
-    networks:
-      - e2e
-    ports:
-      - 3306
-    environment:
-      MYSQL_ROOT_PASSWORD: "root@1234"
-      MYSQL_DATABASE: "swtest"
-      MYSQL_ROOT_HOST: "%"
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+    <<: *mysql
 
   oap:
     extends:
