@@ -52,7 +52,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     public long readMetricsValue(final MetricsCondition condition,
                                 String valueColumnName,
                                 final Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         final String entityId = condition.getEntity().buildId();
         pointOfTimes.forEach(pointOfTime -> {
@@ -114,7 +114,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     public MetricsValues readMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
                                            final Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         final String entityId = condition.getEntity().buildId();
         pointOfTimes.forEach(pointOfTime -> {
@@ -166,7 +166,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                                                         final String valueColumnName,
                                                         final List<String> labels,
                                                         final Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         final String entityId = condition.getEntity().buildId();
         pointOfTimes.forEach(pointOfTime -> {
@@ -212,7 +212,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     public HeatMap readHeatMap(final MetricsCondition condition,
                                final String valueColumnName,
                                final Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         final String entityId = condition.getEntity().buildId();
         pointOfTimes.forEach(pointOfTime -> {

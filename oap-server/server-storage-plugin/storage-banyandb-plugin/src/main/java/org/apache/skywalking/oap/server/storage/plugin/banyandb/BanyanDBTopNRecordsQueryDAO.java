@@ -51,7 +51,7 @@ public class BanyanDBTopNRecordsQueryDAO extends AbstractBanyanDBDAO implements 
     @Override
     public List<SelectedRecord> readSampledRecords(TopNCondition condition, String valueColumnName, Duration duration) throws IOException {
         final String modelName = condition.getName();
-        final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(false), duration.getEndTimestamp());
+        final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
         MeasureQueryResponse resp = query(modelName, TAGS,
                 Collections.singleton(valueColumnName), timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
@@ -66,7 +66,7 @@ public class BanyanDBTopNRecordsQueryDAO extends AbstractBanyanDBDAO implements 
                         } else {
                             query.bottomN(condition.getTopN(), valueColumnName);
                         }
-                        query.and(gte(TopN.TIME_BUCKET, duration.getStartTimeBucketInSec(true)));
+                        query.and(gte(TopN.TIME_BUCKET, duration.getStartTimeBucketInSec()));
                         query.and(lte(TopN.TIME_BUCKET, duration.getEndTimeBucketInSec()));
                     }
                 });

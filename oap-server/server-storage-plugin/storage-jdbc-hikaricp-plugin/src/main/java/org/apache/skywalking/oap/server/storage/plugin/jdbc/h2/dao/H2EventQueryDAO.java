@@ -176,9 +176,9 @@ public class H2EventQueryDAO implements IEventQueryDAO {
 
         final Duration time = condition.getTime();
         if (time != null) {
-            if (time.getStartTimestamp(false) > 0) {
+            if (time.getStartTimestamp() > 0) {
                 conditions.add(Event.START_TIME + ">?");
-                parameters.add(time.getStartTimestamp(false));
+                parameters.add(time.getStartTimestamp());
             }
             if (time.getEndTimestamp() > 0) {
                 conditions.add(Event.END_TIME + "<?");

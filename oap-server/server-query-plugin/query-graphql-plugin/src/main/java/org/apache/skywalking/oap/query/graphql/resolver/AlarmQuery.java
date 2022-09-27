@@ -92,7 +92,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
             EventQueryCondition.builder()
                                .paging(new Pagination(1, IEventQueryDAO.MAX_SIZE));
         if (nonNull(duration)) {
-            startSecondTB = duration.getStartTimeBucketInSec(true);
+            startSecondTB = duration.getStartTimeBucketInSec();
             endSecondTB = duration.getEndTimeBucketInSec();
             conditionPrototype.time(duration);
         }

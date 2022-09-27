@@ -164,7 +164,7 @@ public class OndemandLogQuery implements GraphQLQueryResolver {
             duration.setStart(condition.getDuration().getStart());
             duration.setEnd(condition.getDuration().getEnd());
             duration.setStep(condition.getDuration().getStep());
-            final long since = duration.getStartTimestamp(true) / 1000;
+            final long since = duration.getStartTimestamp() / 1000;
             final String container = condition.getContainer();
 
             final String podLog = kApi().readNamespacedPodLog(
@@ -212,7 +212,7 @@ public class OndemandLogQuery implements GraphQLQueryResolver {
         duration.setStart(request.getDuration().getStart());
         duration.setEnd(request.getDuration().getEnd());
         duration.setStep(request.getDuration().getStep());
-        final long since = duration.getStartTimestamp(true) / 1000;
+        final long since = duration.getStartTimestamp() / 1000;
         final long to = duration.getEndTimestamp() / 1000;
 
         final List<String> inclusions = request.getKeywordsOfContent();

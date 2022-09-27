@@ -64,7 +64,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         }
 
         final String modelName = condition.getName();
-        TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(false), duration.getEndTimestamp());
+        TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
         final MeasureQueryResponse resp = query(modelName,
                 ImmutableSet.of(Metrics.ENTITY_ID),
                 ImmutableSet.of(valueColumnName),
@@ -104,7 +104,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         if (schema == null) {
             throw new IOException("schema is not registered");
         }
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         final List<String> ids = pointOfTimes.stream().map(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
             return id;
@@ -151,7 +151,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
 
     @Override
     public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition, String valueColumnName, List<String> labels, Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         String modelName = condition.getName();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> {
@@ -173,7 +173,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
 
     @Override
     public HeatMap readHeatMap(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         String modelName = condition.getName();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> {

@@ -125,7 +125,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      */
     public MetricsValues readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
         if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName())) || !condition.getEntity().isValid()) {
-            final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+            final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
             MetricsValues values = new MetricsValues();
             pointOfTimes.forEach(pointOfTime -> {
                 String id = pointOfTime.id(
@@ -160,7 +160,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
                                                         List<String> labels,
                                                         Duration duration) throws IOException {
         if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName())) || !condition.getEntity().isValid()) {
-            final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+            final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
 
             List<MetricsValues> labeledValues = new ArrayList<>(labels.size());
             labels.forEach(label -> {
@@ -200,7 +200,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
             emptyData.put("0", 0L);
             final String rawdata = emptyData.toStorageData();
             final HeatMap heatMap = new HeatMap();
-            final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+            final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
             pointOfTimes.forEach(pointOfTime -> {
                 String id = pointOfTime.id(
                     condition.getEntity().isValid() ? condition.getEntity().buildId() : "ILLEGAL_ENTITY"

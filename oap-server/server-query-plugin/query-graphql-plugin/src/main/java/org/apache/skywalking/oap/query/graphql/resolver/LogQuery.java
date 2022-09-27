@@ -71,7 +71,7 @@ public class LogQuery implements GraphQLQueryResolver {
         long startSecondTB = 0;
         long endSecondTB = 0;
         if (nonNull(condition.getQueryDuration())) {
-            startSecondTB = condition.getQueryDuration().getStartTimeBucketInSec(true);
+            startSecondTB = condition.getQueryDuration().getStartTimeBucketInSec();
             endSecondTB = condition.getQueryDuration().getEndTimeBucketInSec();
         }
         Order queryOrder = isNull(condition.getQueryOrder()) ? Order.DES : condition.getQueryOrder();
@@ -102,10 +102,10 @@ public class LogQuery implements GraphQLQueryResolver {
     }
 
     public Set<String> queryLogTagAutocompleteKeys(final Duration queryDuration) throws IOException {
-        return getTagQueryService().queryTagAutocompleteKeys(TagType.LOG, queryDuration.getStartTimeBucketInSec(false), queryDuration.getEndTimeBucketInSec());
+        return getTagQueryService().queryTagAutocompleteKeys(TagType.LOG, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
     }
 
     public Set<String> queryLogTagAutocompleteValues(final String tagKey, final Duration queryDuration) throws IOException {
-        return getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, queryDuration.getStartTimeBucketInSec(false), queryDuration.getEndTimeBucketInSec());
+        return getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
     }
 }

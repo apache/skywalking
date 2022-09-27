@@ -84,7 +84,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         final SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()),
-            duration.getStartTimeBucketInSec(false),
+            duration.getStartTimeBucketInSec(),
             duration.getEndTimeBucketInSec()), sourceBuilder.build());
 
         final Map<String, Object> idTerms =
@@ -106,7 +106,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
         String tableName =
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         Map<String, List<String>> indexIdsGroup = new HashMap<>();
 
         final List<String> ids = pointOfTimes.stream().map(pointOfTime -> {
@@ -154,7 +154,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                                         final List<String> labels,
                                                         final Duration duration) {
         final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         String tableName =
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
         Map<String, List<String>> indexIdsGroup = new HashMap<>();
@@ -191,7 +191,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                final String valueColumnName,
                                final Duration duration) {
         final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints(false);
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         String tableName =
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
         Map<String, List<String>> indexIdsGroup = new HashMap<>();
@@ -252,7 +252,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         final RangeQueryBuilder rangeQueryBuilder =
             Query.range(Metrics.TIME_BUCKET)
-                 .gte(duration.getStartTimeBucket(false))
+                 .gte(duration.getStartTimeBucket())
                  .lte(duration.getEndTimeBucket());
 
         final String entityId = condition.getEntity().buildId();

@@ -58,7 +58,6 @@ import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskMutation
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.BrowserLogQueryService;
-import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.EventQueryService;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
@@ -364,9 +363,6 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.isEnableEndpointNameGroupingByOpenapi()) {
             dynamicConfigurationService.registerConfigChangeWatcher(endpointNameGroupingRule4OpenapiWatcher);
         }
-        DurationUtils.INSTANCE.setConfigService(getManager().find(CoreModule.NAME)
-                                                            .provider()
-                                                            .getService(ConfigService.class));
     }
 
     @Override

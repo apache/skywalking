@@ -71,7 +71,7 @@ public class TraceQuery implements GraphQLQueryResolver {
         if (!Strings.isNullOrEmpty(condition.getTraceId())) {
             traceId = condition.getTraceId();
         } else if (nonNull(condition.getQueryDuration())) {
-            startSecondTB = condition.getQueryDuration().getStartTimeBucketInSec(true);
+            startSecondTB = condition.getQueryDuration().getStartTimeBucketInSec();
             endSecondTB = condition.getQueryDuration().getEndTimeBucketInSec();
         } else {
             throw new UnexpectedException("The condition must contains either queryDuration or traceId.");
@@ -95,10 +95,10 @@ public class TraceQuery implements GraphQLQueryResolver {
     }
 
     public Set<String> queryTraceTagAutocompleteKeys(final Duration queryDuration) throws IOException {
-        return getTagQueryService().queryTagAutocompleteKeys(TagType.TRACE, queryDuration.getStartTimeBucketInSec(true), queryDuration.getEndTimeBucketInSec());
+        return getTagQueryService().queryTagAutocompleteKeys(TagType.TRACE, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
     }
 
     public Set<String> queryTraceTagAutocompleteValues(final String tagKey, final Duration queryDuration) throws IOException {
-        return getTagQueryService().queryTagAutocompleteValues(TagType.TRACE, tagKey, queryDuration.getStartTimeBucketInSec(true), queryDuration.getEndTimeBucketInSec());
+        return getTagQueryService().queryTagAutocompleteValues(TagType.TRACE, tagKey, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
     }
 }
