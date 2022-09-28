@@ -30,7 +30,6 @@ import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -53,11 +52,13 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
     public Set<String> queryTagAutocompleteKeys(final TagType tagType,
                                                 final int limit,
                                                 final Duration duration) throws IOException {
-        long startTB = 0;
-        long endTB = 0;
+        // Tags combine records by day and es rolling index by day, need search the whole day
+        // just use the time to locate the physical indexes and ignore time conditions.
+        long startSecondTB = 0;
+        long endSecondTB = 0;
         if (nonNull(duration)) {
-            startTB = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-            endTB = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
         }
         BoolQueryBuilder query = Query.bool();
         query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
@@ -72,7 +73,7 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
         final SearchResponse response = getClient().search(
             new TimeRangeIndexNameGenerator(
                 IndexController.LogicIndicesRegister.getPhysicalTableName(TagAutocompleteData.INDEX_NAME),
-                duration.getStartTimeBucketInSec(), duration.getEndTimeBucketInSec()
+                startSecondTB, endSecondTB
             ),
             search.build()
         );
@@ -94,11 +95,11 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
     public Set<String> queryTagAutocompleteValues(final TagType tagType, final String tagKey,
                                                   final int limit,
                                                   final Duration duration) throws IOException {
-        long startTB = 0;
-        long endTB = 0;
+        long startSecondTB = 0;
+        long endSecondTB = 0;
         if (nonNull(duration)) {
-            startTB = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-            endTB = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
         }
         BoolQueryBuilder query = Query.bool().must(Query.term(TagAutocompleteData.TAG_KEY, tagKey));
         query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
@@ -110,7 +111,7 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
         final SearchResponse response = getClient().search(
             new TimeRangeIndexNameGenerator(
                 IndexController.LogicIndicesRegister.getPhysicalTableName(TagAutocompleteData.INDEX_NAME),
-                duration.getStartTimeBucketInSec(), duration.getEndTimeBucketInSec()
+                startSecondTB, endSecondTB
             ),
             search.build()
         );

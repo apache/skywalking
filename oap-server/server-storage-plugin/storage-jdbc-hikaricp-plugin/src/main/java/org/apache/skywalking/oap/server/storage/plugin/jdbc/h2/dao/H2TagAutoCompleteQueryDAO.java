@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -93,12 +92,15 @@ public class H2TagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
                                                 final Duration duration,
                                                 final StringBuilder sql,
                                                 final List<Object> condition) {
-        long startTB = 0;
-        long endTB = 0;
+        long startSecondTB = 0;
+        long endSecondTB = 0;
         if (nonNull(duration)) {
-            startTB = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-            endTB = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
         }
+
+        long startTB = startSecondTB / 1000000 * 10000;
+        long endTB = endSecondTB / 1000000 * 10000 + 2359;
 
         sql.append(" and ");
         sql.append(TagAutocompleteData.TAG_TYPE).append(" = ?");

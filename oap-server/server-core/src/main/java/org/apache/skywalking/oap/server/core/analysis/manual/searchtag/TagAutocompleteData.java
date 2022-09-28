@@ -82,7 +82,7 @@ public class TagAutocompleteData extends Metrics {
 
     @Override
     protected String id0() {
-        return getTimeBucket() + "-" + tagType + "-" + tagKey + "=" + tagValue;
+        return toTimeBucketInDay() + "-" + tagType + "-" + tagKey + "=" + tagValue;
     }
 
     @Override

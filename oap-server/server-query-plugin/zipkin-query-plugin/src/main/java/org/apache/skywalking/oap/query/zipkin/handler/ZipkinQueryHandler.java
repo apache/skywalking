@@ -209,11 +209,11 @@ public class ZipkinQueryHandler {
     @Blocking
     public AggregatedHttpResponse getAutocompleteKeys() throws IOException {
         Duration duration = new Duration();
-        duration.setStep(Step.MINUTE);
+        duration.setStep(Step.SECOND);
         DateTime endTime = DateTime.now();
         DateTime startTime = endTime.minus(org.joda.time.Duration.millis(defaultLookback));
-        duration.setStart(startTime.toString("yyyy-MM-dd HHmm"));
-        duration.setEnd(endTime.toString("yyyy-MM-dd HHmm"));
+        duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
+        duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
         Set<String> autocompleteKeys = getTagQueryService().queryTagAutocompleteKeys(TagType.ZIPKIN, duration);
         return cachedResponse(true, new ArrayList<>(autocompleteKeys));
     }
@@ -222,11 +222,11 @@ public class ZipkinQueryHandler {
     @Blocking
     public AggregatedHttpResponse getAutocompleteValues(@Param("key") String key) throws IOException {
         Duration duration = new Duration();
-        duration.setStep(Step.MINUTE);
+        duration.setStep(Step.SECOND);
         DateTime endTime = DateTime.now();
         DateTime startTime = endTime.minus(org.joda.time.Duration.millis(defaultLookback));
-        duration.setStart(startTime.toString("yyyy-MM-dd HHmm"));
-        duration.setEnd(endTime.toString("yyyy-MM-dd HHmm"));
+        duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
+        duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
         Set<String> autocompleteValues = getTagQueryService().queryTagAutocompleteValues(TagType.ZIPKIN, key, duration);
         return cachedResponse(autocompleteValues.size() > 3, new ArrayList<>(autocompleteValues));
     }
