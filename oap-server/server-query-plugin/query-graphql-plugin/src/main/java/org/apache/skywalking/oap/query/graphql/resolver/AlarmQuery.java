@@ -86,18 +86,14 @@ public class AlarmQuery implements GraphQLQueryResolver {
         if (scope != null) {
             scopeId = scope.getScopeId();
         }
-        long startSecondTB = 0;
-        long endSecondTB = 0;
         final EventQueryCondition.EventQueryConditionBuilder conditionPrototype =
             EventQueryCondition.builder()
                                .paging(new Pagination(1, IEventQueryDAO.MAX_SIZE));
         if (nonNull(duration)) {
-            startSecondTB = duration.getStartTimeBucketInSec();
-            endSecondTB = duration.getEndTimeBucketInSec();
             conditionPrototype.time(duration);
         }
         Alarms alarms = getQueryService().getAlarm(
-            scopeId, keyword, paging, startSecondTB, endSecondTB, tags);
+            scopeId, keyword, paging, duration, tags);
 
         final boolean selectEvents = env.getSelectionSet().contains("**/events/**");
 

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import zipkin2.Span;
@@ -55,7 +56,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     }
 
     @Override
-    public List<List<Span>> getTraces(final QueryRequest request) throws IOException {
+    public List<List<Span>> getTraces(final QueryRequest request, Duration duration) throws IOException {
         return new ArrayList<>();
     }
 

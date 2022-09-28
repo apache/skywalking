@@ -21,17 +21,16 @@ package org.apache.skywalking.oap.server.core.storage.query;
 import java.io.IOException;
 import java.util.Set;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface ITagAutoCompleteQueryDAO extends Service {
     Set<String> queryTagAutocompleteKeys(final TagType tagType,
                                          final int limit,
-                                         final long startSecondTB,
-                                         final long endSecondTB) throws IOException;
+                                         final Duration duration) throws IOException;
 
     Set<String> queryTagAutocompleteValues(final TagType tagType,
                                            final String tagKey,
                                            final int limit,
-                                           final long startSecondTB,
-                                           final long endSecondTB) throws IOException;
+                                           final Duration duration) throws IOException;
 }

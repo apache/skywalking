@@ -42,16 +42,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.query.zipkin.ZipkinQueryConfig;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.joda.time.DateTime;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.storage.QueryRequest;
@@ -175,7 +176,13 @@ public class ZipkinQueryHandler {
                         .lookback(lookback.orElse(defaultLookback))
                         .limit(limit)
                         .build();
-        List<List<Span>> traces = getZipkinQueryDAO().getTraces(queryRequest);
+        Duration duration = new Duration();
+        duration.setStep(Step.SECOND);
+        DateTime endTime = new DateTime(queryRequest.endTs());
+        DateTime startTime = endTime.minus(queryRequest.lookback());
+        duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
+        duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
+        List<List<Span>> traces = getZipkinQueryDAO().getTraces(queryRequest, duration);
         return response(encodeTraces(traces));
     }
 
@@ -201,26 +208,26 @@ public class ZipkinQueryHandler {
     @Get("/api/v2/autocompleteKeys")
     @Blocking
     public AggregatedHttpResponse getAutocompleteKeys() throws IOException {
-        long endTimeMillis = System.currentTimeMillis();
-        long startTimeMillis = endTimeMillis - defaultLookback;
-        Set<String> autocompleteKeys =
-            getTagQueryService().queryTagAutocompleteKeys(
-                TagType.ZIPKIN, TimeBucket.getTimeBucket(startTimeMillis, DownSampling.Second),
-                TimeBucket.getTimeBucket(endTimeMillis, DownSampling.Second)
-            );
+        Duration duration = new Duration();
+        duration.setStep(Step.MINUTE);
+        DateTime endTime = DateTime.now();
+        DateTime startTime = endTime.minus(defaultLookback);
+        duration.setStart(startTime.toString("yyyy-MM-dd HHmm"));
+        duration.setEnd(endTime.toString("yyyy-MM-dd HHmm"));
+        Set<String> autocompleteKeys = getTagQueryService().queryTagAutocompleteKeys(TagType.ZIPKIN, duration);
         return cachedResponse(true, new ArrayList<>(autocompleteKeys));
     }
 
     @Get("/api/v2/autocompleteValues")
     @Blocking
     public AggregatedHttpResponse getAutocompleteValues(@Param("key") String key) throws IOException {
-        long endTimeMillis = System.currentTimeMillis();
-        long startTimeMillis = endTimeMillis - defaultLookback;
-        Set<String> autocompleteValues =
-            getTagQueryService().queryTagAutocompleteValues(
-                TagType.ZIPKIN, key, TimeBucket.getTimeBucket(startTimeMillis, DownSampling.Second),
-                TimeBucket.getTimeBucket(endTimeMillis, DownSampling.Second)
-            );
+        Duration duration = new Duration();
+        duration.setStep(Step.MINUTE);
+        DateTime endTime = DateTime.now();
+        DateTime startTime = endTime.minus(defaultLookback);
+        duration.setStart(startTime.toString("yyyy-MM-dd HHmm"));
+        duration.setEnd(endTime.toString("yyyy-MM-dd HHmm"));
+        Set<String> autocompleteValues = getTagQueryService().queryTagAutocompleteValues(TagType.ZIPKIN, key, duration);
         return cachedResponse(autocompleteValues.size() > 3, new ArrayList<>(autocompleteValues));
     }
 
