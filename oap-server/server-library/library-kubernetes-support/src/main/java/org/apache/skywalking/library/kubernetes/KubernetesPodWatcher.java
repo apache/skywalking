@@ -93,7 +93,7 @@ public enum KubernetesPodWatcher implements ResourceEventHandler<V1Pod> {
                 null,
                 null,
                 null,
-                params.resourceVersion,
+                null,
                 null,
                 params.timeoutSeconds,
                 params.watch,

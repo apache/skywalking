@@ -93,7 +93,7 @@ public enum KubernetesServiceWatcher implements ResourceEventHandler<V1Service> 
                 null,
                 null,
                 null,
-                params.resourceVersion,
+                null,
                 null,
                 params.timeoutSeconds,
                 params.watch,

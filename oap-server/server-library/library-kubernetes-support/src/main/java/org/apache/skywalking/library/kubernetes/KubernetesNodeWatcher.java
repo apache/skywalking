@@ -93,7 +93,7 @@ public enum KubernetesNodeWatcher implements ResourceEventHandler<V1Node> {
                 null,
                 null,
                 null,
-                params.resourceVersion,
+                null,
                 null,
                 params.timeoutSeconds,
                 params.watch,
