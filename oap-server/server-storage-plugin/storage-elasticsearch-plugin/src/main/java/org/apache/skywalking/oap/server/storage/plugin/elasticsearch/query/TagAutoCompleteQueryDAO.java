@@ -72,7 +72,7 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
         final SearchResponse response = getClient().search(
             new TimeRangeIndexNameGenerator(
                 IndexController.LogicIndicesRegister.getPhysicalTableName(TagAutocompleteData.INDEX_NAME),
-                startTB, endTB
+                duration.getStartTimeBucketInSec(), duration.getEndTimeBucketInSec()
             ),
             search.build()
         );
@@ -110,7 +110,7 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
         final SearchResponse response = getClient().search(
             new TimeRangeIndexNameGenerator(
                 IndexController.LogicIndicesRegister.getPhysicalTableName(TagAutocompleteData.INDEX_NAME),
-                startTB, endTB
+                duration.getStartTimeBucketInSec(), duration.getEndTimeBucketInSec()
             ),
             search.build()
         );

@@ -179,7 +179,7 @@ public class ZipkinQueryHandler {
         Duration duration = new Duration();
         duration.setStep(Step.SECOND);
         DateTime endTime = new DateTime(queryRequest.endTs());
-        DateTime startTime = endTime.minus(queryRequest.lookback());
+        DateTime startTime = endTime.minus(org.joda.time.Duration.millis(queryRequest.lookback()));
         duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
         duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
         List<List<Span>> traces = getZipkinQueryDAO().getTraces(queryRequest, duration);
@@ -211,7 +211,7 @@ public class ZipkinQueryHandler {
         Duration duration = new Duration();
         duration.setStep(Step.MINUTE);
         DateTime endTime = DateTime.now();
-        DateTime startTime = endTime.minus(defaultLookback);
+        DateTime startTime = endTime.minus(org.joda.time.Duration.millis(defaultLookback));
         duration.setStart(startTime.toString("yyyy-MM-dd HHmm"));
         duration.setEnd(endTime.toString("yyyy-MM-dd HHmm"));
         Set<String> autocompleteKeys = getTagQueryService().queryTagAutocompleteKeys(TagType.ZIPKIN, duration);
@@ -224,7 +224,7 @@ public class ZipkinQueryHandler {
         Duration duration = new Duration();
         duration.setStep(Step.MINUTE);
         DateTime endTime = DateTime.now();
-        DateTime startTime = endTime.minus(defaultLookback);
+        DateTime startTime = endTime.minus(org.joda.time.Duration.millis(defaultLookback));
         duration.setStart(startTime.toString("yyyy-MM-dd HHmm"));
         duration.setEnd(endTime.toString("yyyy-MM-dd HHmm"));
         Set<String> autocompleteValues = getTagQueryService().queryTagAutocompleteValues(TagType.ZIPKIN, key, duration);
