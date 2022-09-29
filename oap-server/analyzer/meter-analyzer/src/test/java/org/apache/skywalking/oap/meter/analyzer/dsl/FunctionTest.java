@@ -93,16 +93,14 @@ public class FunctionTest {
                 "histogram",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("le", "0.025")).value(100).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "1.25")).value(300).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "0.75")).value(122).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).name("http_success_request").build()).build()
+                    Sample.builder().labels(of("le", "0.75")).value(12).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1.25")).value(36).name("http_success_request").build()).build()
                 ),
                 "http_success_request.histogram()",
                 Result.success(SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("le", "0")).value(100).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "25")).value(22).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "750")).value(178).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "1250")).value(110).name("http_success_request").build()).build()
+                    Sample.builder().labels(of("le", "25")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "750")).value(12).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1250")).value(36).name("http_success_request").build()).build()
                 ),
                 false,
             },
@@ -110,16 +108,14 @@ public class FunctionTest {
                 "histogram_percentile",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("le", "0.025")).value(100).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "1.25")).value(300).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "0.75")).value(122).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).name("http_success_request").build()).build()
+                    Sample.builder().labels(of("le", "0.75")).value(22).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1.25")).value(30).name("http_success_request").build()).build()
                 ),
                 "http_success_request.histogram().histogram_percentile([75,99])",
                 Result.success(SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("le", "0")).value(100).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "25")).value(22).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "750")).value(178).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "1250")).value(110).name("http_success_request").build()).build()
+                    Sample.builder().labels(of("le", "25")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "750")).value(22).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1250")).value(30).name("http_success_request").build()).build()
                 ),
                 false,
             },

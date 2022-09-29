@@ -28,6 +28,14 @@
   we should use `Get State and Start at Most Recent` semantic instead of `Start at Exact`
   because we don't need the changing history events, see https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch.
 * Unify query services and DAOs codes time range condition to `Duration`.
+* [**Breaking Change**]: Remove prometheus-fetcher plugin, please use OpenTelemetry to scrape Prometheus metrics and
+  set up SkyWalking OpenTelemetry receiver instead.
+* BugFix: histogram metrics sent to MAL should be treated as OpenTelemetry style, not Prometheus style:
+  ```
+  (-infinity, explicit_bounds[i]] for i == 0
+  (explicit_bounds[i-1], explicit_bounds[i]] for 0 < i < size(explicit_bounds)
+  (explicit_bounds[i-1], +infinity) for i == size(explicit_bounds)
+  ```
 
 #### UI
 
