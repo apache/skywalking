@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraf
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.enumeration.Language;
 import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.Process;
@@ -112,9 +113,9 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp,
+    public List<ServiceInstance> listInstances(Duration duration,
                                                String serviceId) throws IOException {
-        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
+        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
 
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
@@ -204,7 +205,9 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceInstanceId, long lastPingStartTimeBucket, long lastPingEndTimeBucket, boolean includeVirtual) throws IOException {
+    public List<Process> listProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual) throws IOException {
+        long lastPingStartTimeBucket = duration.getStartTimeBucket();
+        long lastPingEndTimeBucket = duration.getEndTimeBucket();
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>();
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);

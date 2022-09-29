@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogReco
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
@@ -46,6 +47,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.nonNull;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord} is a stream
@@ -70,8 +73,14 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
     @Override
     public Logs queryLogs(String serviceId, String serviceInstanceId, String endpointId,
                           TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit,
-                          long startTB, long endTB, List<Tag> tags, List<String> keywordsOfContent,
+                          Duration duration, List<Tag> tags, List<String> keywordsOfContent,
                           List<String> excludingKeywordsOfContent) throws IOException {
+        long startTB = 0;
+        long endTB = 0;
+        if (nonNull(duration)) {
+            startTB = duration.getStartTimeBucketInSec();
+            endTB = duration.getEndTimeBucketInSec();
+        }
         final QueryBuilder<StreamQuery> query = new QueryBuilder<StreamQuery>() {
             @Override
             public void apply(StreamQuery query) {
