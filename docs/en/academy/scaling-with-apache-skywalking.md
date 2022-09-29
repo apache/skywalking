@@ -42,7 +42,7 @@ The synchronization policy requires that the proxy send the message to the upstr
 
 As shown below, after the client sends the request to the Proxy, the proxy would send the message to the server synchronously. When the proxy receives the result, it returns to the client.
 
-![](./transmission-policy-synchronous.png)
+![](https://skywalking.apache.org/blog/2022-01-24-scaling-with-apache-skywalking/transmission-policy-synchronous.png)
 
 The asynchronous batch policy means that the data is sent to the upstream server in batches asynchronously. This policy is more common because most protocols in SkyWalking are primarily based on data reporting. We think using the queue as a buffer could have a good effect. The asynchronous batch policy is executed according to the following steps:
 
@@ -58,7 +58,7 @@ The advantage of using queues is:
 
 As shown below, after the proxy receives the message, the proxy would wrap the message as an event and push it to the queue. The message sender would take batch events from the queue and send them to the upstream OAP.
 
-![](https://skywalking.apache.org/blog/2022-01-24-scaling-with-apache-skywalking//transmission-policy-asynchronous.png)
+![](https://skywalking.apache.org/blog/2022-01-24-scaling-with-apache-skywalking/transmission-policy-asynchronous.png)
 
 ### Routing
 
@@ -123,7 +123,7 @@ After the system is deployed, the Satellite would accept the traffic from the Cl
 
 As shown below, a single client still maintains a connection with a single Satellite, Satellite would establish the connection with each OAP, and load balance message to the OAP node.
 
-![](https://skywalking.apache.org/blog/2022-01-24-scaling-with-apache-skywalking//skywalking-satellites.png)
+![](https://skywalking.apache.org/blog/2022-01-24-scaling-with-apache-skywalking/skywalking-satellites.png)
 
 When scaling Satellite, we need to deploy the [SWCK](https://github.com/apache/skywalking-swck) adapter and configure the HPA in Kubernetes. SWCK is a platform for the SkyWalking users, provisions, upgrades, maintains SkyWalking relevant components, and makes them work natively on Kubernetes.
 
@@ -134,7 +134,7 @@ After deployment is finished, the following steps would be performed:
 
 As shown below, use the dotted line to divide the two parts. HPA uses SWCK Adapter to read the metrics in the OAP. When the threshold is met, HPA would scale the Satellite deployment.
 
-![](swck-hpa.png)
+![](https://skywalking.apache.org/blog/2022-01-24-scaling-with-apache-skywalking/swck-hpa.png)
 
 ## Example
 
@@ -228,7 +228,7 @@ kubectl port-forward -n skywalking-system  service/skywalking-system-ui 8080:80
 
 Next, please open your browser and visit `http://localhost:8080/` and create a new item on the dashboard. The SkyWalking Web UI pictured below shows how the data content is applied.
 
-![](https://skywalking.apache.org/blog/2022-01-24-scaling-with-apache-skywalking//mesh-count-conf.png)
+![](https://skywalking.apache.org/blog/2022-01-24-scaling-with-apache-skywalking/mesh-count-conf.png)
 
 #### Scaling OAP
 
@@ -242,7 +242,7 @@ kubectl scale --replicas=3 -n skywalking-system deployment/skywalking-system-oap
 
 After a period of time, you will see that the number of OAPs becomes 3, and the ALS traffic is balanced to each OAP.
 
-![](https://skywalking.apache.org/blog/2022-01-24-scaling-with-apache-skywalking//mesh-count-list.png)
+![](https://skywalking.apache.org/blog/2022-01-24-scaling-with-apache-skywalking/mesh-count-list.png)
 
 ### Satellite Scaling
 
