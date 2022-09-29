@@ -21,7 +21,7 @@ metricsRules:
   - name: instance_golang_stack
     exp: instance_golang_stack
   - name: instance_golang_gc_time
-    exp: instance_golang_gc_time
+    exp: instance_golang_gc_time.downsampling(SUM)
   - name: instance_golang_gc_count
     exp: instance_golang_gc_count.increase('PT1M')
   - name: instance_golang_thread_num
