@@ -1104,7 +1104,7 @@
                   ],
                   "metricConfig": [
                     {
-                      "calculation": "nanoToMill"
+                      "calculation": "nanosecondToMillisecond"
                     }
                   ],
                   "moved": false
