@@ -19,13 +19,13 @@ services:
   sharding-proxy:
     image: apache/shardingsphere-proxy:5.1.2
     volumes:
-      - ./download-mysql.sh:/opt/shardingsphere-proxy/download-mysql.sh
+      - ./../prepare/setup-oap/download-mysql.sh:/opt/shardingsphere-proxy/download-mysql.sh
       - ./conf:/opt/shardingsphere-proxy/conf
     networks:
       - e2e
     expose:
       - 3307
-    entrypoint: ['sh', '-c', '/opt/shardingsphere-proxy/download-mysql.sh && /opt/shardingsphere-proxy/bin/start.sh 3307 && tail -f /opt/shardingsphere-proxy/logs/stdout.log']
+    entrypoint: ['sh', '-c', '/opt/shardingsphere-proxy/download-mysql.sh /opt/shardingsphere-proxy/ext-lib && /opt/shardingsphere-proxy/bin/start.sh 3307 && tail -f /opt/shardingsphere-proxy/logs/stdout.log']
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3307"]
       interval: 5s

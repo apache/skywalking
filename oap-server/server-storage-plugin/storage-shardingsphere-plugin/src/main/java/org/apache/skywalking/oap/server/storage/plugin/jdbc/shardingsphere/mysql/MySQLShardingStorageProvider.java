@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
@@ -71,15 +72,16 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileThre
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopNRecordsQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2UITemplateManagementDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLAggregationQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLAlarmQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLLogQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLTraceQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MysqlBrowserLogQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.mysql.dao.MySQLMetricsQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.mysql.dao.MySQLZipkinQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingAggregationQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingMetricsQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingTopologyQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingZipkinQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.mysql.dao.MySQLShardingLogQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.mysql.dao.MySQLShardingTraceQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.mysql.dao.MysqlShardingBrowserLogQueryDAO;
 
 @Slf4j
 public class MySQLShardingStorageProvider extends ModuleProvider {
@@ -119,23 +121,23 @@ public class MySQLShardingStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(mysqlClient));
 
-        this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(mysqlClient));
-        this.registerServiceImplementation(IMetricsQueryDAO.class, new MySQLMetricsQueryDAO(mysqlClient));
+        this.registerServiceImplementation(ITopologyQueryDAO.class, new ShardingTopologyQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IMetricsQueryDAO.class, new ShardingMetricsQueryDAO(mysqlClient));
         this.registerServiceImplementation(
             ITraceQueryDAO.class,
-            new MySQLTraceQueryDAO(getManager(), mysqlClient)
+            new MySQLShardingTraceQueryDAO(getManager(), mysqlClient)
         );
-        this.registerServiceImplementation(IBrowserLogQueryDAO.class, new MysqlBrowserLogQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IBrowserLogQueryDAO.class, new MysqlShardingBrowserLogQueryDAO(mysqlClient));
         this.registerServiceImplementation(
             IMetadataQueryDAO.class, new H2MetadataQueryDAO(mysqlClient, config.getMetadataQueryMaxSize()));
-        this.registerServiceImplementation(IAggregationQueryDAO.class, new MySQLAggregationQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IAggregationQueryDAO.class, new ShardingAggregationQueryDAO(mysqlClient));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new MySQLAlarmQueryDAO(mysqlClient, getManager()));
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(mysqlClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(mysqlClient));
         this.registerServiceImplementation(
             ILogQueryDAO.class,
-            new MySQLLogQueryDAO(mysqlClient, getManager()));
+            new MySQLShardingLogQueryDAO(mysqlClient, getManager()));
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(mysqlClient));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(mysqlClient));
@@ -153,7 +155,7 @@ public class MySQLShardingStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new H2EBPFProfilingDataDAO(mysqlClient));
         this.registerServiceImplementation(IServiceLabelDAO.class, new H2ServiceLabelQueryDAO(mysqlClient));
         this.registerServiceImplementation(ITagAutoCompleteQueryDAO.class, new H2TagAutoCompleteQueryDAO(mysqlClient));
-        this.registerServiceImplementation(IZipkinQueryDAO.class, new MySQLZipkinQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IZipkinQueryDAO.class, new ShardingZipkinQueryDAO(mysqlClient));
     }
 
     @Override
@@ -163,6 +165,9 @@ public class MySQLShardingStorageProvider extends ModuleProvider {
             MySQLShardingTableInstaller installer = new MySQLShardingTableInstaller(mysqlClient, getManager(), config);
             ShardingRulesOperator.INSTANCE.start(mysqlClient);
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
+            DurationWithinTTL.INSTANCE.setConfigService(getManager().find(CoreModule.NAME)
+                                                                    .provider()
+                                                                    .getService(ConfigService.class));
         } catch (StorageException | SQLException | IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

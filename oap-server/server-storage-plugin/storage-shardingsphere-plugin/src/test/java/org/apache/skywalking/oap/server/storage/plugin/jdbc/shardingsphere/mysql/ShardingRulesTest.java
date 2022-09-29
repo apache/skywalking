@@ -53,15 +53,15 @@ public class ShardingRulesTest {
                                             3,
                                             currentDate);
         String rule = builder.build().toShardingRuleSQL();
-        String expectedRule = "CREATE SHARDING TABLE RULE Test_table(\n" +
-            "DATANODES(\"ds_1.Test_table_20220917\",\"ds_1.Test_table_20220918\",\"ds_1.Test_table_20220919\",\"ds_1.Test_table_20220920\",\"ds_0.Test_table_20220917\",\"ds_0.Test_table_20220918\",\"ds_0.Test_table_20220919\",\"ds_0.Test_table_20220920\"),\n" +
-            "DATABASE_STRATEGY(TYPE=\"standard\",\n" +
-            "SHARDING_COLUMN=service_id,\n" +
-            "SHARDING_ALGORITHM(TYPE(NAME=\"inline\",\n" +
-            "PROPERTIES(\"algorithm-expression\"=\"ds_${service_id.hashCode()&Integer.MAX_VALUE%2}\")))),\n" +
-            "TABLE_STRATEGY(TYPE=\"standard\",\n" +
-            "SHARDING_COLUMN=time_bucket,\n" +
-            "SHARDING_ALGORITHM(TYPE(NAME=\"interval\",\n" +
+        String expectedRule = "CREATE SHARDING TABLE RULE Test_table(" + System.lineSeparator() +
+            "DATANODES(\"ds_1.Test_table_20220917\",\"ds_1.Test_table_20220918\",\"ds_1.Test_table_20220919\",\"ds_1.Test_table_20220920\",\"ds_0.Test_table_20220917\",\"ds_0.Test_table_20220918\",\"ds_0.Test_table_20220919\",\"ds_0.Test_table_20220920\")," + System.lineSeparator() +
+            "DATABASE_STRATEGY(TYPE=\"standard\"," + System.lineSeparator() +
+            "SHARDING_COLUMN=service_id," + System.lineSeparator() +
+            "SHARDING_ALGORITHM(TYPE(NAME=\"inline\"," + System.lineSeparator() +
+            "PROPERTIES(\"algorithm-expression\"=\"ds_${service_id.hashCode()&Integer.MAX_VALUE%2}\"))))," + System.lineSeparator() +
+            "TABLE_STRATEGY(TYPE=\"standard\"," + System.lineSeparator() +
+            "SHARDING_COLUMN=time_bucket," + System.lineSeparator() +
+            "SHARDING_ALGORITHM(TYPE(NAME=\"interval\"," + System.lineSeparator() +
             "PROPERTIES(\"datetime-pattern\"=\"yyyyMMddHHmmss\",\"datetime-interval-unit\"=\"days\",\"datetime-interval-amount\"=\"1\",\"sharding-suffix-pattern\"=\"yyyyMMdd\",\"datetime-lower\"=\"20220101000000\",\"datetime-upper\"=\"20991201000000\")))))";
         Assert.assertEquals(expectedRule, rule);
     }
@@ -82,20 +82,20 @@ public class ShardingRulesTest {
                                             3,
                                             currentDate);
         String rule = builder.build().toShardingRuleSQL();
-        String expectedRule = "CREATE SHARDING TABLE RULE Test_table(\n" +
-            "DATANODES(\"ds_1.Test_table_20220917\",\"ds_1.Test_table_20220918\",\"ds_1.Test_table_20220919\",\"ds_1.Test_table_20220920\",\"ds_0.Test_table_20220917\",\"ds_0.Test_table_20220918\",\"ds_0.Test_table_20220919\",\"ds_0.Test_table_20220920\"),\n" +
-            "DATABASE_STRATEGY(TYPE=\"standard\",\n" +
-            "SHARDING_COLUMN=entity_id,\n" +
-            "SHARDING_ALGORITHM(TYPE(NAME=\"inline\",\n" +
-            "PROPERTIES(\"algorithm-expression\"=\"ds_${entity_id.hashCode()&Integer.MAX_VALUE%2}\")))),\n" +
-            "TABLE_STRATEGY(TYPE=\"standard\",\n" +
-            "SHARDING_COLUMN=id,\n" +
-            "SHARDING_ALGORITHM(TYPE(NAME=\"inline\",\n" +
-            "PROPERTIES(\"allow-range-query-with-inline-sharding\"=\"true\",\"algorithm-expression\"=\"Test_table_${long time_bucket = Long.parseLong(id.substring(0,id.indexOf('_')));\n" +
-            "if (10000000L < time_bucket && time_bucket < 99999999L) {return time_bucket;}\n" +
-            "if (1000000000L < time_bucket && time_bucket < 9999999999L) {return time_bucket.intdiv(100);}\n" +
-            "if (100000000000L < time_bucket && time_bucket < 999999999999L) {return time_bucket.intdiv(100*100);}\n" +
-            "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);}\n" +
+        String expectedRule = "CREATE SHARDING TABLE RULE Test_table(" + System.lineSeparator() +
+            "DATANODES(\"ds_1.Test_table_20220917\",\"ds_1.Test_table_20220918\",\"ds_1.Test_table_20220919\",\"ds_1.Test_table_20220920\",\"ds_0.Test_table_20220917\",\"ds_0.Test_table_20220918\",\"ds_0.Test_table_20220919\",\"ds_0.Test_table_20220920\")," + System.lineSeparator() +
+            "DATABASE_STRATEGY(TYPE=\"standard\"," + System.lineSeparator() +
+            "SHARDING_COLUMN=entity_id," + System.lineSeparator() +
+            "SHARDING_ALGORITHM(TYPE(NAME=\"inline\"," + System.lineSeparator() +
+            "PROPERTIES(\"algorithm-expression\"=\"ds_${entity_id.hashCode()&Integer.MAX_VALUE%2}\"))))," + System.lineSeparator() +
+            "TABLE_STRATEGY(TYPE=\"standard\"," + System.lineSeparator() +
+            "SHARDING_COLUMN=id," + System.lineSeparator() +
+            "SHARDING_ALGORITHM(TYPE(NAME=\"inline\"," + System.lineSeparator() +
+            "PROPERTIES(\"allow-range-query-with-inline-sharding\"=\"true\",\"algorithm-expression\"=\"Test_table_${long time_bucket = Long.parseLong(id.substring(0,id.indexOf('_')));" + System.lineSeparator() +
+            "if (10000000L < time_bucket && time_bucket < 99999999L) {return time_bucket;}" + System.lineSeparator() +
+            "if (1000000000L < time_bucket && time_bucket < 9999999999L) {return time_bucket.intdiv(100);}" + System.lineSeparator() +
+            "if (100000000000L < time_bucket && time_bucket < 999999999999L) {return time_bucket.intdiv(100*100);}" + System.lineSeparator() +
+            "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);}" + System.lineSeparator() +
             "}\")))))";
         Assert.assertEquals(expectedRule, rule);
     }

@@ -22,7 +22,7 @@ services:
       service: oap
     ports:
       - 12800
-    entrypoint: ['sh', '-c', '/download-mysql.sh && chmod 777 /skywalking/docker-entrypoint.sh && /skywalking/docker-entrypoint.sh']
+    entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && chmod 777 /skywalking/docker-entrypoint.sh && /skywalking/docker-entrypoint.sh']
     networks:
       - e2e
     environment:

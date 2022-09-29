@@ -18,21 +18,18 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.mysql.dao;
 
-import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetricsQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingLogQueryDAO;
 
-public class MySQLMetricsQueryDAO extends H2MetricsQueryDAO {
+public class MySQLShardingLogQueryDAO extends ShardingLogQueryDAO {
 
-    public MySQLMetricsQueryDAO(JDBCHikariCPClient h2Client) {
-        super(h2Client);
+    public MySQLShardingLogQueryDAO(final JDBCHikariCPClient h2Client, final ModuleManager manager) {
+        super(h2Client, manager);
     }
 
     @Override
-    protected void buildShardingCondition(StringBuilder sql, List<Object> parameters, String entityId) {
-        sql.append(" and ");
-        sql.append(Metrics.ENTITY_ID + " = ?");
-        parameters.add(entityId);
+    protected void buildLimit(StringBuilder sql, int from, int limit) {
+        sql.append(" LIMIT ").append(from).append(", ").append(limit);
     }
 }
