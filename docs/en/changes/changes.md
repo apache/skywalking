@@ -26,6 +26,10 @@
   downsampling.
 * Do sorting `readLabeledMetricsValues` result forcedly in case the storage(database) doesn't return data consistent
   with the parameter list.
+* Fix the wrong watch semantics in Kubernetes watchers, which causes heavy traffic to API server in some Kubernetes clusters,
+  we should use `Get State and Start at Most Recent` semantic instead of `Start at Exact`
+  because we don't need the changing history events, see https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch.
+* Unify query services and DAOs codes time range condition to `Duration`.
 
 #### UI
 

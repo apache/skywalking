@@ -35,7 +35,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 public class LogQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
@@ -68,12 +67,7 @@ public class LogQuery implements GraphQLQueryResolver {
         if (isNull(condition.getQueryDuration()) && isNull(condition.getRelatedTrace())) {
             throw new UnexpectedException("The condition must contains either queryDuration or relatedTrace.");
         }
-        long startSecondTB = 0;
-        long endSecondTB = 0;
-        if (nonNull(condition.getQueryDuration())) {
-            startSecondTB = condition.getQueryDuration().getStartTimeBucketInSec();
-            endSecondTB = condition.getQueryDuration().getEndTimeBucketInSec();
-        }
+
         Order queryOrder = isNull(condition.getQueryOrder()) ? Order.DES : condition.getQueryOrder();
         if (CollectionUtils.isNotEmpty(condition.getTags())) {
             condition.getTags().forEach(tag -> {
@@ -94,7 +88,7 @@ public class LogQuery implements GraphQLQueryResolver {
             condition.getRelatedTrace(),
             condition.getPaging(),
             queryOrder,
-            startSecondTB, endSecondTB,
+            condition.getQueryDuration(),
             condition.getTags(),
             condition.getKeywordsOfContent(),
             condition.getExcludingKeywordsOfContent()
@@ -102,10 +96,10 @@ public class LogQuery implements GraphQLQueryResolver {
     }
 
     public Set<String> queryLogTagAutocompleteKeys(final Duration queryDuration) throws IOException {
-        return getTagQueryService().queryTagAutocompleteKeys(TagType.LOG, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
+        return getTagQueryService().queryTagAutocompleteKeys(TagType.LOG, queryDuration);
     }
 
     public Set<String> queryLogTagAutocompleteValues(final String tagKey, final Duration queryDuration) throws IOException {
-        return getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, queryDuration.getStartTimeBucketInSec(), queryDuration.getEndTimeBucketInSec());
+        return getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, queryDuration);
     }
 }

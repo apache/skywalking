@@ -94,7 +94,7 @@ public enum KubernetesEndpointWatcher implements ResourceEventHandler<V1Endpoint
                 null,
                 null,
                 null,
-                params.resourceVersion,
+                null,
                 null,
                 params.timeoutSeconds,
                 params.watch,

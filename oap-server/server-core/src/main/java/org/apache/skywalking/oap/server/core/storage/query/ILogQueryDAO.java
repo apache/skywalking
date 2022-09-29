@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
@@ -43,8 +44,7 @@ public interface ILogQueryDAO extends Service {
                    Order queryOrder,
                    int from,
                    int limit,
-                   final long startTB,
-                   final long endTB,
+                   final Duration duration,
                    final List<Tag> tags,
                    final List<String> keywordsOfContent,
                    final List<String> excludingKeywordsOfContent) throws IOException;

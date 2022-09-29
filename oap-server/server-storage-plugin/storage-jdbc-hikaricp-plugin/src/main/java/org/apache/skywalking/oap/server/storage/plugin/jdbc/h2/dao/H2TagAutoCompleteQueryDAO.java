@@ -29,8 +29,11 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+
+import static java.util.Objects.nonNull;
 
 @RequiredArgsConstructor
 public class H2TagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
@@ -39,15 +42,14 @@ public class H2TagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
     @Override
     public Set<String> queryTagAutocompleteKeys(final TagType tagType,
                                                 final int limit,
-                                                final long startSecondTB,
-                                                final long endSecondTB) throws IOException {
+                                                final Duration duration) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(2);
 
         sql.append("select distinct ").append(TagAutocompleteData.TAG_KEY).append(" from ")
            .append(TagAutocompleteData.INDEX_NAME).append(" where ");
         sql.append(" 1=1 ");
-        appendTagAutocompleteCondition(tagType, startSecondTB, endSecondTB, sql, condition);
+        appendTagAutocompleteCondition(tagType, duration, sql, condition);
         sql.append(" limit ").append(limit);
         try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
@@ -65,14 +67,13 @@ public class H2TagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
     public Set<String> queryTagAutocompleteValues(final TagType tagType,
                                                   final String tagKey,
                                                   final int limit,
-                                                  final long startSecondTB,
-                                                  final long endSecondTB) throws IOException {
+                                                  final Duration duration) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
         sql.append("select * from ").append(TagAutocompleteData.INDEX_NAME).append(" where ");
         sql.append(TagAutocompleteData.TAG_KEY).append(" = ?");
         condition.add(tagKey);
-        appendTagAutocompleteCondition(tagType, startSecondTB, endSecondTB, sql, condition);
+        appendTagAutocompleteCondition(tagType, duration, sql, condition);
         sql.append(" limit ").append(limit);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -88,16 +89,23 @@ public class H2TagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
     }
 
     private void appendTagAutocompleteCondition(final TagType tagType,
-                                                final long startSecondTB,
-                                                final long endSecondTB,
+                                                final Duration duration,
                                                 final StringBuilder sql,
                                                 final List<Object> condition) {
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
+
+        long startTB = startSecondTB / 1000000 * 10000;
+        long endTB = endSecondTB / 1000000 * 10000 + 2359;
+
         sql.append(" and ");
         sql.append(TagAutocompleteData.TAG_TYPE).append(" = ?");
         condition.add(tagType.name());
 
-        long startTB = startSecondTB / 1000000 * 10000;
-        long endTB = endSecondTB / 1000000 * 10000 + 9999;
         if (startTB > 0) {
             sql.append(" and ");
             sql.append(TagAutocompleteData.TIME_BUCKET).append(">=?");

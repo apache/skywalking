@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceSpanTraffic;
@@ -137,9 +138,9 @@ public class H2ZipkinQueryDAO implements IZipkinQueryDAO {
     }
 
     @Override
-    public List<List<Span>> getTraces(final QueryRequest request) throws IOException {
-        final long startTimeMillis = request.endTs() - request.lookback();
-        final long endTimeMillis = request.endTs();
+    public List<List<Span>> getTraces(final QueryRequest request, Duration duration) throws IOException {
+        final long startTimeMillis = duration.getStartTimestamp();
+        final long endTimeMillis = duration.getEndTimestamp();
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         List<Map.Entry<String, String>> annotations = new ArrayList<>(request.annotationQuery().entrySet());

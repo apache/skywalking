@@ -37,6 +37,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.T
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceSpanTraffic;
@@ -166,9 +167,9 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
     }
 
     @Override
-    public List<List<Span>> getTraces(final QueryRequest request) {
-        final long startTimeMillis = request.endTs() - request.lookback();
-        final long endTimeMillis = request.endTs();
+    public List<List<Span>> getTraces(final QueryRequest request, Duration duration) {
+        final long startTimeMillis = duration.getStartTimestamp();
+        final long endTimeMillis = duration.getEndTimestamp();
         BoolQueryBuilder query = Query.bool();
         if (startTimeMillis > 0 && endTimeMillis > 0) {
             query.must(Query.range(ZipkinSpanRecord.TIMESTAMP_MILLIS)

@@ -33,12 +33,15 @@ import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+
+import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller.ID_COLUMN;
 
 public class H2AlarmQueryDAO implements IAlarmQueryDAO {
@@ -56,8 +59,14 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
     }
 
     @Override
-    public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB,
-        long endTB, final List<Tag> tags) throws IOException {
+    public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from,
+                           Duration duration, final List<Tag> tags) throws IOException {
+        long startTB = 0;
+        long endTB = 0;
+        if (nonNull(duration)) {
+            startTB = duration.getStartTimeBucketInSec();
+            endTB = duration.getEndTimeBucketInSec();
+        }
         if (searchableTagKeys == null) {
             final ConfigService configService = manager.find(CoreModule.NAME)
                     .provider()

@@ -27,6 +27,7 @@ import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
@@ -51,7 +52,11 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
     }
 
     @Override
-    public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId, BrowserErrorCategory category, long startSecondTB, long endSecondTB, int limit, int from) throws IOException {
+    public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId,
+                                                  BrowserErrorCategory category, Duration duration,
+                                                  int limit, int from) throws IOException {
+        long startSecondTB = duration.getStartTimeBucketInSec();
+        long endSecondTB = duration.getEndTimeBucketInSec();
         TimestampRange tsRange = null;
         if (startSecondTB > 0 && endSecondTB > 0) {
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
