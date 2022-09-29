@@ -44,14 +44,14 @@ public class ShardingRulesTest {
         builder.table("Test_table");
         builder.operation("CREATE");
         Whitebox.invokeMethod(rulesOperator, "buildShardingRule",
-                                            builder,
-                                            "Test_table",
-                                            new HashSet<>(Arrays.asList("ds_0", "ds_1")),
-                                            ShardingAlgorithm.TIME_SEC_RANGE_SHARDING_ALGORITHM,
-                                            "time_bucket",
-                                            "service_id",
-                                            3,
-                                            currentDate);
+                              builder,
+                              "Test_table",
+                              new HashSet<>(Arrays.asList("ds_0", "ds_1")),
+                              ShardingAlgorithm.TIME_SEC_RANGE_SHARDING_ALGORITHM,
+                              "time_bucket",
+                              "service_id",
+                              3,
+                              currentDate);
         String rule = builder.build().toShardingRuleSQL();
         String expectedRule = "CREATE SHARDING TABLE RULE Test_table(" + System.lineSeparator() +
             "DATANODES(\"ds_1.Test_table_20220917\",\"ds_1.Test_table_20220918\",\"ds_1.Test_table_20220919\",\"ds_1.Test_table_20220920\",\"ds_0.Test_table_20220917\",\"ds_0.Test_table_20220918\",\"ds_0.Test_table_20220919\",\"ds_0.Test_table_20220920\")," + System.lineSeparator() +
@@ -73,14 +73,14 @@ public class ShardingRulesTest {
         builder.table("Test_table");
         builder.operation("CREATE");
         Whitebox.invokeMethod(rulesOperator, "buildShardingRule",
-                                            builder,
-                                            "Test_table",
-                                            new HashSet<>(Arrays.asList("ds_0", "ds_1")),
-                                            ShardingAlgorithm.TIME_RELATIVE_ID_SHARDING_ALGORITHM,
-                                            "id",
-                                            "entity_id",
-                                            3,
-                                            currentDate);
+                              builder,
+                              "Test_table",
+                              new HashSet<>(Arrays.asList("ds_0", "ds_1")),
+                              ShardingAlgorithm.TIME_RELATIVE_ID_SHARDING_ALGORITHM,
+                              "id",
+                              "entity_id",
+                              3,
+                              currentDate);
         String rule = builder.build().toShardingRuleSQL();
         String expectedRule = "CREATE SHARDING TABLE RULE Test_table(" + System.lineSeparator() +
             "DATANODES(\"ds_1.Test_table_20220917\",\"ds_1.Test_table_20220918\",\"ds_1.Test_table_20220919\",\"ds_1.Test_table_20220920\",\"ds_0.Test_table_20220917\",\"ds_0.Test_table_20220918\",\"ds_0.Test_table_20220919\",\"ds_0.Test_table_20220920\")," + System.lineSeparator() +
@@ -91,11 +91,11 @@ public class ShardingRulesTest {
             "TABLE_STRATEGY(TYPE=\"standard\"," + System.lineSeparator() +
             "SHARDING_COLUMN=id," + System.lineSeparator() +
             "SHARDING_ALGORITHM(TYPE(NAME=\"inline\"," + System.lineSeparator() +
-            "PROPERTIES(\"allow-range-query-with-inline-sharding\"=\"true\",\"algorithm-expression\"=\"Test_table_${long time_bucket = Long.parseLong(id.substring(0,id.indexOf('_')));" + System.lineSeparator() +
-            "if (10000000L < time_bucket && time_bucket < 99999999L) {return time_bucket;}" + System.lineSeparator() +
-            "if (1000000000L < time_bucket && time_bucket < 9999999999L) {return time_bucket.intdiv(100);}" + System.lineSeparator() +
-            "if (100000000000L < time_bucket && time_bucket < 999999999999L) {return time_bucket.intdiv(100*100);}" + System.lineSeparator() +
-            "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);}" + System.lineSeparator() +
+            "PROPERTIES(\"allow-range-query-with-inline-sharding\"=\"true\",\"algorithm-expression\"=\"Test_table_${long time_bucket = Long.parseLong(id.substring(0,id.indexOf('_')));" +
+            "if (10000000L < time_bucket && time_bucket < 99999999L) {return time_bucket;};" +
+            "if (1000000000L < time_bucket && time_bucket < 9999999999L) {return time_bucket.intdiv(100);};" +
+            "if (100000000000L < time_bucket && time_bucket < 999999999999L) {return time_bucket.intdiv(100*100);};" +
+            "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);};" +
             "}\")))))";
         Assert.assertEquals(expectedRule, rule);
     }

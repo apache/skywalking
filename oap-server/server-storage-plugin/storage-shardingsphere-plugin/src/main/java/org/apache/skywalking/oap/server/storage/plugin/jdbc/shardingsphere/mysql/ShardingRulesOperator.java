@@ -45,11 +45,11 @@ public enum ShardingRulesOperator {
     private final Map<String, ShardingRule> modelShardingRules = new HashMap<>();
 
     private static final String TIME_RELATIVE_ID_SHARDING_EXPRESSION =
-        "${long time_bucket = Long.parseLong(id.substring(0,id.indexOf('_')));\n" +
-        "if (10000000L < time_bucket && time_bucket < 99999999L) {return time_bucket;}\n" +
-        "if (1000000000L < time_bucket && time_bucket < 9999999999L) {return time_bucket.intdiv(100);}\n" +
-        "if (100000000000L < time_bucket && time_bucket < 999999999999L) {return time_bucket.intdiv(100*100);}\n" +
-        "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);}\n" +
+        "${long time_bucket = Long.parseLong(id.substring(0,id.indexOf('_')));" +
+        "if (10000000L < time_bucket && time_bucket < 99999999L) {return time_bucket;};" +
+        "if (1000000000L < time_bucket && time_bucket < 9999999999L) {return time_bucket.intdiv(100);};" +
+        "if (100000000000L < time_bucket && time_bucket < 999999999999L) {return time_bucket.intdiv(100*100);};" +
+        "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);};" +
         "}";
 
     private static final String TIME_SEC_RANGE_SHARDING_EXPRESSION =
@@ -62,18 +62,18 @@ public enum ShardingRulesOperator {
 
     private static final String TIME_MIN_RANGE_SHARDING_EXPRESSION =
         "\"datetime-pattern\"=\"yyyyMMddHHmm\"," +
-            "\"datetime-interval-unit\"=\"days\"," +
-            "\"datetime-interval-amount\"=\"1\"," +
-            "\"sharding-suffix-pattern\"=\"yyyyMMdd\"," +
-            "\"datetime-lower\"=\"202201010000\"," +
-            "\"datetime-upper\"=\"209912010000\"";
+        "\"datetime-interval-unit\"=\"days\"," +
+        "\"datetime-interval-amount\"=\"1\"," +
+        "\"sharding-suffix-pattern\"=\"yyyyMMdd\"," +
+        "\"datetime-lower\"=\"202201010000\"," +
+        "\"datetime-upper\"=\"209912010000\"";
 
     private static final String TIME_BUCKET_SHARDING_EXPRESSION =
-        "${\n" +
-        "if (10000000L < time_bucket && time_bucket < 99999999L) {return time_bucket;}\n" +
-        "if (1000000000L < time_bucket && time_bucket < 9999999999L) {return time_bucket.intdiv(100);}\n" +
-        "if (100000000000L < time_bucket && time_bucket < 999999999999L) {return time_bucket.intdiv(100*100);}\n" +
-        "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);}\n" +
+        "${" +
+        "if (10000000L < time_bucket && time_bucket < 99999999L) {return time_bucket;};" +
+        "if (1000000000L < time_bucket && time_bucket < 9999999999L) {return time_bucket.intdiv(100);};" +
+        "if (100000000000L < time_bucket && time_bucket < 999999999999L) {return time_bucket.intdiv(100*100);};" +
+        "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);};" +
         "}";
 
     public void start(JDBCHikariCPClient client) throws IOException, SQLException, StorageException {
