@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQue
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 
 public class ShardingTopologyQueryDAO extends H2TopologyQueryDAO {
-    private JDBCHikariCPClient h2Client;
 
     public ShardingTopologyQueryDAO(JDBCHikariCPClient h2Client) {
         super(h2Client);

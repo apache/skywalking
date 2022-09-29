@@ -236,7 +236,7 @@ public class H2SQLExecutor {
             if (model.getSqlDBModelExtension().isShardingTable()) {
                 SQLDatabaseModelExtension.Sharding sharding = model.getSqlDBModelExtension().getSharding().orElseThrow(
                     () -> new UnexpectedException("Sharding should not be empty."));
-                if (columnName.equals(sharding.getDsShardingColumn()) || columnName.equals(sharding.getTableShardingColumn())) {
+                if (columnName.equals(sharding.getDataSourceShardingColumn()) || columnName.equals(sharding.getTableShardingColumn())) {
                     continue;
                 }
             }

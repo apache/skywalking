@@ -78,7 +78,7 @@ public class SQLDatabaseModelExtension {
     @RequiredArgsConstructor
     public static class Sharding {
         private final ShardingAlgorithm shardingAlgorithm;
-        private final String dsShardingColumn;
+        private final String dataSourceShardingColumn;
         private final String tableShardingColumn;
     }
 }
