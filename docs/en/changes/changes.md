@@ -57,5 +57,8 @@
 
 * Add `metadata-uid` setup doc about Kubernetes coordinator in the cluster management.
 * Add a doc for adding menus to booster UI.
+* Move general good read blogs from `Agent Introduction` to `Academy`.
+* Add re-post for blog `Scaling with Apache SkyWalking` in the academy list.
+* Add re-post for blog `Diagnose Service Mesh Network Performance with eBPF` in the academy list.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)
