@@ -28,7 +28,7 @@
   we should use `Get State and Start at Most Recent` semantic instead of `Start at Exact`
   because we don't need the changing history events, see https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch.
 * Unify query services and DAOs codes time range condition to `Duration`.
-* Support Golang VM metrics analysis.
+* Support Golang runtime metrics analysis.
 
 #### UI
 
