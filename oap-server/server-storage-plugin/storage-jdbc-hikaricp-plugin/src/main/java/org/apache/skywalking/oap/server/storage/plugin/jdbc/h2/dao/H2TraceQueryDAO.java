@@ -121,7 +121,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             parameters.add(maxDuration);
         }
         if (StringUtil.isNotEmpty(serviceId)) {
-            sql.append(" and ").append(SegmentRecord.SERVICE_ID).append(" = ?");
+            sql.append(" and ").append(SegmentRecord.INDEX_NAME).append(".").append(SegmentRecord.SERVICE_ID).append(" = ?");
             parameters.add(serviceId);
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {

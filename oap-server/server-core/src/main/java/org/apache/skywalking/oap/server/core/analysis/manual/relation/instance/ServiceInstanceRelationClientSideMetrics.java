@@ -27,16 +27,22 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+
+import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ENTITY_ID;
+import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.TIME_BUCKET;
 
 @Stream(name = ServiceInstanceRelationClientSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INSTANCE_RELATION,
     builder = ServiceInstanceRelationClientSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 @EqualsAndHashCode(of = {
     "entityId"
 }, callSuper = true)
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_BUCKET_SHARDING_ALGORITHM, tableShardingColumn = TIME_BUCKET, dataSourceShardingColumn = ENTITY_ID)
 public class ServiceInstanceRelationClientSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "service_instance_relation_client_side";

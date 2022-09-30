@@ -25,9 +25,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Metrics
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-/**
- *
- **/
 @MetricsFunction(functionName = "max")
 public abstract class MaxLongMetrics extends Metrics implements LongValueHolder {
 

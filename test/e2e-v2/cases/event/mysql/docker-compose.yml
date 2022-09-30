@@ -41,7 +41,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
+    entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh']
     ports:
     - 11800
     - 12800

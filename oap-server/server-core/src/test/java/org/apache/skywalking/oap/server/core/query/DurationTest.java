@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.junit.Assert;
 import org.junit.Test;
@@ -79,5 +82,12 @@ public class DurationTest {
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(true);
         }
+    }
+
+    @Test
+    public void testGetDurationPoints() {
+        List<PointOfTime> pointOfTimes = DurationUtils.INSTANCE.getDurationPoints(Step.DAY, 20220910, 20220912);
+        Assert.assertTrue(Arrays.asList(20220910L, 20220911L, 20220912L)
+                                .equals(pointOfTimes.stream().map(PointOfTime::getPoint).collect(Collectors.toList())));
     }
 }
