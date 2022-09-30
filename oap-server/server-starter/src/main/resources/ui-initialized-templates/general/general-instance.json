@@ -1021,10 +1021,10 @@
                   "y": 0,
                   "w": 8,
                   "h": 13,
-                  "i": "15",
+                  "i": "24",
                   "type": "Widget",
                   "widget": {
-                    "title": "Heap Memory (MB)"
+                    "title": "Heap Alloc (MB)"
                   },
                   "graph": {
                     "type": "Line",
@@ -1035,7 +1035,7 @@
                     "showYAxis": true
                   },
                   "metrics": [
-                    "meter_instance_golang_heap"
+                    "meter_instance_golang_heap_alloc"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
@@ -1055,7 +1055,7 @@
                   "i": "16",
                   "type": "Widget",
                   "widget": {
-                    "title": "Stack Memory (MB)"
+                    "title": "Stack Used (MB)"
                   },
                   "graph": {
                     "type": "Line",
@@ -1066,7 +1066,7 @@
                     "showYAxis": true
                   },
                   "metrics": [
-                    "meter_instance_golang_stack"
+                    "meter_instance_golang_stack_used"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
@@ -1086,18 +1086,14 @@
                   "i": "17",
                   "type": "Widget",
                   "widget": {
-                    "title": "Golang GC Time (ms)"
+                    "title": "Golang GC Pause Time Per Minute (ms)"
                   },
                   "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": false,
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metrics": [
-                    "meter_instance_golang_gc_time"
+                    "meter_instance_golang_gc_pause_time"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
@@ -1139,7 +1135,7 @@
                   "i": "19",
                   "type": "Widget",
                   "widget": {
-                    "title": "Goroutine Nums"
+                    "title": "Live Goroutines Count"
                   },
                   "graph": {
                     "type": "Line",
@@ -1150,7 +1146,7 @@
                     "showYAxis": true
                   },
                   "metrics": [
-                    "meter_instance_golang_goroutine_num"
+                    "meter_instance_golang_live_goroutines_count"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
@@ -1165,7 +1161,7 @@
                   "i": "20",
                   "type": "Widget",
                   "widget": {
-                    "title": "Thread Nums"
+                    "title": "Golang OS Threads Count"
                   },
                   "graph": {
                     "type": "Line",
@@ -1176,7 +1172,7 @@
                     "showYAxis": true
                   },
                   "metrics": [
-                    "meter_instance_golang_thread_num"
+                    "meter_instance_golang_os_threads_count"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
@@ -1191,7 +1187,7 @@
                   "i": "21",
                   "type": "Widget",
                   "widget": {
-                    "title": "Host CPU used rate(%)"
+                    "title": "Host CPU Used Rate (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -1202,7 +1198,7 @@
                     "showYAxis": true
                   },
                   "metrics": [
-                    "meter_instance_cpu_used_rate"
+                    "meter_instance_host_cpu_used_rate"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
@@ -1217,7 +1213,7 @@
                   "i": "22",
                   "type": "Widget",
                   "widget": {
-                    "title": "Host Memory used rate(%)"
+                    "title": "Host Memory Used Rate (%)"
                   },
                   "graph": {
                     "type": "Line",
@@ -1228,7 +1224,7 @@
                     "showYAxis": true
                   },
                   "metrics": [
-                    "meter_instance_mem_used_rate"
+                    "meter_instance_host_mem_used_rate"
                   ],
                   "metricTypes": [
                     "readMetricsValues"

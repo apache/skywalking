@@ -16,19 +16,19 @@
 expSuffix: instance(['service'], ['instance'], Layer.GENERAL)
 metricPrefix: meter
 metricsRules:
-  - name: instance_golang_heap
-    exp: instance_golang_heap
-  - name: instance_golang_stack
-    exp: instance_golang_stack
-  - name: instance_golang_gc_time
-    exp: instance_golang_gc_time.increase('PT1M')
+  - name: instance_golang_heap_alloc
+    exp: instance_golang_heap_alloc
+  - name: instance_golang_stack_used
+    exp: instance_golang_stack_used
+  - name: instance_golang_gc_pause_time
+    exp: instance_golang_gc_pause_time.increase('PT1M')
   - name: instance_golang_gc_count
     exp: instance_golang_gc_count.increase('PT1M')
-  - name: instance_golang_thread_num
-    exp: instance_golang_thread_num
-  - name: instance_golang_goroutine_num
-    exp: instance_golang_goroutine_num
-  - name: instance_cpu_used_rate
-    exp: instance_cpu_used_rate
-  - name: instance_mem_used_rate
-    exp: instance_mem_used_rate
+  - name: instance_golang_os_threads_count
+    exp: instance_golang_os_threads_count
+  - name: instance_golang_live_goroutines_count
+    exp: instance_golang_live_goroutines_count
+  - name: instance_host_cpu_used_rate
+    exp: instance_host_cpu_used_rate
+  - name: instance_host_mem_used_rate
+    exp: instance_host_mem_used_rate
