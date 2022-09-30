@@ -1117,7 +1117,7 @@
                   "i": "18",
                   "type": "Widget",
                   "widget": {
-                    "title": "Golang GC Count"
+                    "title": "Golang GC Count Per Minute"
                   },
                   "graph": {
                     "type": "Bar",
