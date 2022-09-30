@@ -36,11 +36,6 @@ public class SampleFamilyBuilder {
         return new SampleFamilyBuilder(samples, SampleFamily.RunningContext.instance());
     }
 
-    public SampleFamilyBuilder histogramType(HistogramType type) {
-        this.context.setHistogramType(type);
-        return this;
-    }
-
     public SampleFamilyBuilder defaultHistogramBucketUnit(TimeUnit unit) {
         this.context.setDefaultHistogramBucketUnit(unit);
         return this;

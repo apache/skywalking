@@ -123,8 +123,6 @@ catalog:
             path: "/en/setup/backend/apdex-threshold"
           - name: "Spring Sleuth Metrics Analysis"
             path: "/en/setup/backend/spring-sleuth-setup"
-          - name: "Prometheus Metrics"
-            path: "/en/setup/backend/prometheus-metrics"
           - name: "Alerting"
             path: "/en/setup/backend/backend-alarm"
       - name: "Logging"
