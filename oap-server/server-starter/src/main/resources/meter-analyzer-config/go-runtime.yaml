@@ -21,14 +21,14 @@ metricsRules:
   - name: instance_golang_stack
     exp: instance_golang_stack
   - name: instance_golang_gc_time
-    exp: instance_golang_gc_time.downsampling(SUM)
+    exp: instance_golang_gc_time.increase('PT1M')
   - name: instance_golang_gc_count
     exp: instance_golang_gc_count.increase('PT1M')
   - name: instance_golang_thread_num
     exp: instance_golang_thread_num
   - name: instance_golang_goroutine_num
     exp: instance_golang_goroutine_num
-  - name: instance_golang_cpu_used_rate
-    exp: instance_golang_cpu_used_rate
-  - name: instance_golang_mem_used_rate
-    exp: instance_golang_mem_used_rate
+  - name: instance_cpu_used_rate
+    exp: instance_cpu_used_rate
+  - name: instance_mem_used_rate
+    exp: instance_mem_used_rate

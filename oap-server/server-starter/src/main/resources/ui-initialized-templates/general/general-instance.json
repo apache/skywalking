@@ -1202,7 +1202,7 @@
                     "showYAxis": true
                   },
                   "metrics": [
-                    "meter_instance_golang_cpu_used_rate"
+                    "meter_instance_cpu_used_rate"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
@@ -1228,7 +1228,7 @@
                     "showYAxis": true
                   },
                   "metrics": [
-                    "meter_instance_golang_mem_used_rate"
+                    "meter_instance_mem_used_rate"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
