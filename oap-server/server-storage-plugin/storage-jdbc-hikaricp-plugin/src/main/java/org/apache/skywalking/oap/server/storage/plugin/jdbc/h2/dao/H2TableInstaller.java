@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -46,7 +47,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
  */
 @Slf4j
 public class H2TableInstaller extends ModelInstaller {
-    public static final String ID_COLUMN = "id";
+    public static final String ID_COLUMN = Metrics.ID;
 
     public H2TableInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
@@ -128,7 +129,7 @@ public class H2TableInstaller extends ModelInstaller {
         }
     }
 
-    private void createTable(JDBCHikariCPClient client,
+    protected void createTable(JDBCHikariCPClient client,
                              Connection connection,
                              String tableName, List<ModelColumn> columns, boolean additionalTable) throws JDBCClientException {
         SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + tableName + " (");

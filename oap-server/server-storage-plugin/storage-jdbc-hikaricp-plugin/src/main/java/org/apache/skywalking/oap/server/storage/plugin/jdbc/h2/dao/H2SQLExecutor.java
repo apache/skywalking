@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -225,23 +226,30 @@ public class H2SQLExecutor {
         storageBuilder.entity2Storage(metrics, toStorage);
         Map<String, Object> objectMap = toStorage.obtain();
 
-        SQLBuilder sqlBuilder = new SQLBuilder("UPDATE " + modelName + " SET ");
-        List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
+        StringBuilder sqlBuilder = new StringBuilder("UPDATE " + modelName + " SET ");
+        Model model = TableMetaInfo.get(modelName);
+        List<ModelColumn> columns = model.getColumns();
         List<Object> param = new ArrayList<>();
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
-            sqlBuilder.append(column.getColumnName().getStorageName() + "= ?");
-            if (i != columns.size() - 1) {
-                sqlBuilder.append(",");
+            String columnName = column.getColumnName().getName();
+            if (model.getSqlDBModelExtension().isShardingTable()) {
+                SQLDatabaseModelExtension.Sharding sharding = model.getSqlDBModelExtension().getSharding().orElseThrow(
+                    () -> new UnexpectedException("Sharding should not be empty."));
+                if (columnName.equals(sharding.getDataSourceShardingColumn()) || columnName.equals(sharding.getTableShardingColumn())) {
+                    continue;
+                }
             }
+            sqlBuilder.append(column.getColumnName().getStorageName()).append("= ?,");
 
-            Object value = objectMap.get(column.getColumnName().getName());
+            Object value = objectMap.get(columnName);
             if (value instanceof StorageDataComplexObject) {
                 param.add(((StorageDataComplexObject) value).toStorageData());
             } else {
                 param.add(value);
             }
         }
+        sqlBuilder.replace(sqlBuilder.length() - 1, sqlBuilder.length(), "");
         sqlBuilder.append(" WHERE id = ?");
         param.add(metrics.id());
 

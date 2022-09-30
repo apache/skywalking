@@ -50,6 +50,7 @@ public abstract class AbstractLogRecord extends Record {
     @Getter
     @Column(columnName = SERVICE_ID)
     @BanyanDB.ShardingKey(index = 0)
+    @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE}, reserveOriginalColumns = true)
     private String serviceId;
     @Setter
     @Getter
