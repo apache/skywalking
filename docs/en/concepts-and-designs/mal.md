@@ -255,7 +255,7 @@ They extract level relevant labels from metric labels, then informs the meter-sy
 ## Configuration file
 
 The OAP can load the configuration at bootstrap. If the new configuration is not well-formed, the OAP fails to start up. The files
-are located at `$CLASSPATH/otel-rules`.
+are located at `$CLASSPATH/otel-rules`, `$CLASSPATH/meter-analyzer-config`, `$CLASSPATH/envoy-metrics-rules` and `$CLASSPATH/zabbix-rules`.
 
 The file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
 
