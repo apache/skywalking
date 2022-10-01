@@ -24,10 +24,10 @@ metricsRules:
     exp: instance_golang_gc_pause_time.increase('PT1M')
   - name: instance_golang_gc_count
     exp: instance_golang_gc_count.increase('PT1M')
-  - name: instance_golang_os_threads_count
-    exp: instance_golang_os_threads_count
-  - name: instance_golang_live_goroutines_count
-    exp: instance_golang_live_goroutines_count
+  - name: instance_golang_os_threads_num
+    exp: instance_golang_os_threads_num
+  - name: instance_golang_live_goroutines_num
+    exp: instance_golang_live_goroutines_num
   - name: instance_host_cpu_used_rate
     exp: instance_host_cpu_used_rate
   - name: instance_host_mem_used_rate

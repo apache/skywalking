@@ -20,6 +20,8 @@
   in `no-init` mode.
 * Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
 * Support monitoring PostgreSQL slow SQLs.
+* [**Breaking Change**] Support sharding MySQL database instances and tables by [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy).
+  SQL-Database requires removing tables `log_tag/segment_tag/zipkin_query` before OAP starts, if bump up from previous releases.
 * Fix meter functions `avgHistogram`, `avgHistogramPercentile`, `avgLabeled`, `sumHistogram` having data conflict when
   downsampling.
 * Do sorting `readLabeledMetricsValues` result forcedly in case the storage(database) doesn't return data consistent
@@ -28,6 +30,14 @@
   we should use `Get State and Start at Most Recent` semantic instead of `Start at Exact`
   because we don't need the changing history events, see https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch.
 * Unify query services and DAOs codes time range condition to `Duration`.
+* [**Breaking Change**]: Remove prometheus-fetcher plugin, please use OpenTelemetry to scrape Prometheus metrics and
+  set up SkyWalking OpenTelemetry receiver instead.
+* BugFix: histogram metrics sent to MAL should be treated as OpenTelemetry style, not Prometheus style:
+  ```
+  (-infinity, explicit_bounds[i]] for i == 0
+  (explicit_bounds[i-1], explicit_bounds[i]] for 0 < i < size(explicit_bounds)
+  (explicit_bounds[i-1], +infinity) for i == size(explicit_bounds)
+  ```
 * Support Golang runtime metrics analysis.
 
 #### UI

@@ -47,7 +47,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -56,7 +55,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.AtomicDouble;
 import groovy.lang.Closure;
 import io.vavr.Function2;
 import io.vavr.Function3;
@@ -385,8 +383,6 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        AtomicDouble pre = new AtomicDouble();
-        AtomicReference<String> preLe = new AtomicReference<>("0");
         return SampleFamily.build(
             this.context,
             Stream.concat(
@@ -395,21 +391,16 @@ public class SampleFamily {
                       .filter(s -> s.labels.containsKey(le))
                       .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
                       .map(s -> {
-                          double r = this.context.histogramType == HistogramType.ORDINARY ? s.value : s.value - pre.get();
-                          pre.set(s.value);
+                          double r = s.value;
                           ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
                                                                         .putAll(Maps.filterKeys(s.labels,
                                                                                                 key -> !Objects.equals(
                                                                                                     key, le)
                                                                         ))
                                                                         .put(
-                                                                            "le", String.valueOf(
-                                                                                (long) ((Double.parseDouble(
-                                                                                    this.context.histogramType == HistogramType.ORDINARY ? s.labels
-                                                                                        .get(
-                                                                                            le) : preLe.get())) * scale)))
+                                                                            "le",
+                                                                            String.valueOf((long) ((Double.parseDouble(s.labels.get(le))) * scale)))
                                                                         .build();
-                          preLe.set(s.labels.get(le));
                           return InternalOps.newSample(s.name, ll, s.timestamp, r);
                       })
             ).toArray(Sample[]::new)
@@ -619,14 +610,11 @@ public class SampleFamily {
 
         static RunningContext instance() {
             return RunningContext.builder()
-                                 .histogramType(HistogramType.CUMULATIVE)
                                  .defaultHistogramBucketUnit(TimeUnit.SECONDS)
                                  .build();
         }
 
         private Map<MeterEntity, Sample[]> meterSamples = new HashMap<>();
-
-        private HistogramType histogramType;
 
         private TimeUnit defaultHistogramBucketUnit;
     }

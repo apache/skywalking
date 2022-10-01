@@ -45,4 +45,3 @@ verify:
   cases:
     - includes:
         - ../../simple/simple-cases.yaml
-        - ../../so11y/so11y-cases.yaml

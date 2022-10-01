@@ -1135,7 +1135,7 @@
                   "i": "19",
                   "type": "Widget",
                   "widget": {
-                    "title": "Live Goroutines Count"
+                    "title": "Live Goroutines Num"
                   },
                   "graph": {
                     "type": "Line",
@@ -1146,7 +1146,7 @@
                     "showYAxis": true
                   },
                   "metrics": [
-                    "meter_instance_golang_live_goroutines_count"
+                    "meter_instance_golang_live_goroutines_num"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
@@ -1161,7 +1161,7 @@
                   "i": "20",
                   "type": "Widget",
                   "widget": {
-                    "title": "Golang OS Threads Count"
+                    "title": "Golang OS Threads Num"
                   },
                   "graph": {
                     "type": "Line",
@@ -1172,7 +1172,7 @@
                     "showYAxis": true
                   },
                   "metrics": [
-                    "meter_instance_golang_os_threads_count"
+                    "meter_instance_golang_os_threads_num"
                   ],
                   "metricTypes": [
                     "readMetricsValues"

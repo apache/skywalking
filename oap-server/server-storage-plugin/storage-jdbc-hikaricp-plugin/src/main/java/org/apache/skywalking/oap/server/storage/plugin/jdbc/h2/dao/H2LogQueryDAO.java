@@ -118,7 +118,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
         }
 
         if (StringUtil.isNotEmpty(serviceId)) {
-            sql.append(" and ").append(SERVICE_ID).append(" = ?");
+            sql.append(" and ").append(LogRecord.INDEX_NAME).append(".").append(SERVICE_ID).append(" = ?");
             parameters.add(serviceId);
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
