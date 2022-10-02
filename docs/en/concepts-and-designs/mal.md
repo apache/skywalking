@@ -164,7 +164,7 @@ These operations can be used to aggregate overall label dimensions or preserve d
 Example expression:
 
 ```
-instance_trace_count.sum(by: ['az'])
+instance_trace_count.sum(['az'])
 ```
 
 will output the following result:

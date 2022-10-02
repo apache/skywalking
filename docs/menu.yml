@@ -179,6 +179,8 @@ catalog:
                 path: "/en/setup/backend/backend-mysql-monitoring"
               - name: "PostgreSQL Monitoring"
                 path: "/en/setup/backend/backend-postgresql-monitoring"
+              - name: "APISIX Monitoring"
+                path: "/en/setup/backend/backend-apisix-monitoring"                
           - name: "Self Observability"
             catalog:
               - name: "OAP self telemetry"

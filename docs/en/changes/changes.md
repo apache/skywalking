@@ -38,6 +38,7 @@
   (explicit_bounds[i-1], explicit_bounds[i]] for 0 < i < size(explicit_bounds)
   (explicit_bounds[i-1], +infinity) for i == size(explicit_bounds)
   ```
+* Add APISIX metrics monitoring
 
 #### UI
 
@@ -60,6 +61,9 @@
 * Remove All from the endpoints selector.
 * Enhance menu configurations to make it easier to change.
 * Update PostgreSQL dashboard to visualize collected slow SQLs.
+* Add gateway apisix menu
+* Query logs with the specific service ID
+* Bump d3-color from 3.0.1 to 3.1.0
 
 #### Documentation
 
