@@ -43,9 +43,9 @@ metricsRules:
   - name: sv_etcd_indexes
     exp: apisix_etcd_modify_indexes.sum(['key','host_name']).service(['host_name'] , Layer.APISIX)
   - name: sv_bandwidth
-    exp: apisix_bandwidth.tagEqual('route','').tagEqual('service','').tagEqual('consumer','').tagEqual('node','').sum(['type','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
+    exp: apisix_bandwidth.tagEqual('route','').tagEqual('service','').tagEqual('node','').sum(['type','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
   - name: sv_http_status
-    exp: apisix_http_status.tagEqual('route','').tagEqual('matched_uri','').tagEqual('matched_host','').tagEqual('service','').tagEqual('consumer','').tagEqual('node','').sum(['code','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
+    exp: apisix_http_status.tagEqual('route','').tagEqual('matched_uri','').tagEqual('matched_host','').tagEqual('service','').tagEqual('node','').sum(['code','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
   - name: sv_http_latency
     exp:  apisix_http_latency.tagEqual('node','').tagEqual('route','').sum(['type','le','host_name']).histogram().histogram_percentile([50,70,90,99]).service(['host_name'] , Layer.APISIX)
   - name: http_requests_total
