@@ -9,7 +9,7 @@ SkyWalking leverages OpenTelemetry Collector to transfer the metrics to
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 ### Set up
-1. Enable APISIX [APXSIX prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) .
+1. Enable APISIX [APXSIX Prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) .
 2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on Prometheus Receiver in OpenTelemetry Collector, refer to [here](../../../../test/e2e-v2/cases/apisix/otel-collector/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
