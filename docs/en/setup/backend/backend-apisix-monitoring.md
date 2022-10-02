@@ -15,7 +15,8 @@ SkyWalking leverages OpenTelemetry Collector to transfer the metrics to
 
 ### MySQL Monitoring
 [APXSIX prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) provide multiple dimensions metrics for APISIX server , node , route , etc. 
-Accordingly , Skywalking APISIX monitoring monitor status, resources through APISIX server , node, route aspects . APISIX server is cataloged as a `Layer: APISIX` `Service` in OAP, APISIX node as a `Layer: APISIX` `Instance `, and APISIX route as a `Layer: APISIX` `Endpoint`,  
+Accordingly, Skywalking observes the status, payload, and latency of the APISIX server, which is cataloged as a `LAYER: APISIX` `Service` in the OAP. Meanwhile, the server node would be recognized as `instance, and the route rule would be recognized as `endpoint`.
+
 #### Supported Metrics 
 | Monitoring Panel | Unit | Metric Name |Catalog | Description | Data Source |
 |-----|------|-----|-----|-----|-----|
