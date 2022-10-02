@@ -44,7 +44,7 @@ metricsRules:
     exp: apisix_etcd_modify_indexes.sum(['key','host_name']).service(['host_name'] , Layer.APISIX)
   - name: http_requests_total
     exp: apisix_http_requests_total.service(['host_name'] , Layer.APISIX)
-    # The metrics which has empty node,route labels represents it faces to global rather than specific node/route
+    # The metrics with empty node and route labels represent global metrics rather than for a specific node/route.
     # Refer to  https://apisix.apache.org/docs/apisix/plugins/prometheus/
   - name: sv_bandwidth
     exp: apisix_bandwidth.tagEqual('route','').tagEqual('node','').sum(['type','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
