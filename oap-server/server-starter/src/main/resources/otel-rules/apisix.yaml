@@ -43,15 +43,23 @@ metricsRules:
   - name: sv_etcd_indexes
     exp: apisix_etcd_modify_indexes.sum(['key','host_name']).service(['host_name'] , Layer.APISIX)
   - name: http_requests_total
-    exp: apisix_http_requests_total.service(['host_name'] , Layer.APISIX)
-    # The metrics with empty node and route labels represent global metrics rather than for a specific node/route.
+    exp: apisix_http_requests_total.downsampling(LATEST).service(['host_name'] , Layer.APISIX)
+    # Not match any route
     # Refer to  https://apisix.apache.org/docs/apisix/plugins/prometheus/
-  - name: sv_bandwidth
+  - name: sv_bandwidth_unmatched
     exp: apisix_bandwidth.tagEqual('route','').tagEqual('node','').sum(['type','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
-  - name: sv_http_status
+  - name: sv_http_status_unmatched
     exp: apisix_http_status.tagEqual('route','').tagEqual('node','').sum(['code','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
-  - name: sv_http_latency
+  - name: sv_http_latency_unmatched
     exp:  apisix_http_latency.tagEqual('route','').tagEqual('node','').sum(['type','le','host_name']).histogram().histogram_percentile([50,70,90,99]).service(['host_name'] , Layer.APISIX)
+
+   # Could match a route
+  - name: sv_bandwidth_matched
+    exp: apisix_bandwidth.tagNotEqual('route','').tagNotEqual('node','').sum(['type','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
+  - name: sv_http_status_matched
+    exp: apisix_http_status.tagNotEqual('route','').tagNotEqual('node','').sum(['code','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
+  - name: sv_http_latency_matched
+    exp:  apisix_http_latency.tagNotEqual('route','').tagNotEqual('node','').sum(['type','le','host_name']).histogram().histogram_percentile([50,70,90,99]).service(['host_name'] , Layer.APISIX)
 
   # Instance
   # Reorganization metrics which has `node` label to instance level (node as instance name)
