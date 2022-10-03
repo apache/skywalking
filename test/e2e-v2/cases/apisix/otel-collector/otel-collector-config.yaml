@@ -39,4 +39,6 @@ service:
         - prometheus
       processors:
         - batch
+      exporters:
         - logging
+        - otlp
