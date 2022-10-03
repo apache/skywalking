@@ -14,6 +14,6 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: YXBpc2l4OjphcGlzaXgtc2VyZXI6OTA5MQ==.1_cm91dGVzIzE=
+- id: {{ b64enc "apisix::apisix-serer:9091" }}.1_{{ b64enc "routes#1" }}
   name: routes#1
   {{- end }}
