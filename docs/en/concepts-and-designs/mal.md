@@ -158,7 +158,7 @@ resulting in a new sample family having fewer samples (sometimes having just a s
 These operations can be used to aggregate overall label dimensions or preserve distinct dimensions by inputting `by` parameter( the keyword `by` could be omitted)
 
 ```
-<aggr-op>(by=<tag1, tag2, ...>)
+<aggr-op>(by=[<tag1>, <tag2>, ...])
 ```
 
 Example expression:
