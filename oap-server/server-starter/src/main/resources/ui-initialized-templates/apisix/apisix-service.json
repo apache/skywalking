@@ -28,7 +28,7 @@
           "i": "1",
           "type": "Widget",
           "widget": {
-            "title": "HTTP status"
+            "title": "HTTP Status Trend (per second)"
           },
           "graph": {
             "type": "Line",
@@ -39,7 +39,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_status"
+            "meter_apisix_sv_http_status_matched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -87,7 +87,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_latency"
+            "meter_apisix_sv_http_latency_matched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -136,7 +136,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_bandwidth"
+            "meter_apisix_sv_bandwidth_matched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -218,12 +218,163 @@
             }
           ]
         },
+
         {
           "x": 0,
           "y": 13,
           "w": 6,
           "h": 13,
           "i": "5",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Status Trend (Not matched route , per second)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "meter_apisix_sv_http_status_unmatched"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+        {
+          "x": 6,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Latency( Not matched route ,ms)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "meter_apisix_sv_http_latency_unmatched"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+
+        {
+          "x": 12,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "7",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Bandwidth(Not matched route , KB)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "meter_apisix_sv_bandwidth_unmatched"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ],
+          "metricConfig": [
+            {
+              "calculation": "byteToKB"
+            }
+          ]
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "8",
           "type": "Widget",
           "widget": {
             "title": "HTTP Total Request"
@@ -242,11 +393,11 @@
           ]
         },
         {
-          "x": 6,
-          "y": 13,
+          "x": 0,
+          "y": 26,
           "w": 6,
           "h": 13,
-          "i": "6",
+          "i": "9",
           "type": "Widget",
           "widget": {
             "title": "Shard Dict Capacity(MB)"
@@ -296,11 +447,11 @@
         },
 
         {
-          "x": 12,
-          "y": 13,
+          "x": 6,
+          "y": 26,
           "w": 6,
           "h": 13,
-          "i": "7",
+          "i": "10",
           "type": "Widget",
           "widget": {
             "title": "Shared Dict Free Space(MB)"
@@ -349,11 +500,11 @@
           ]
         },
         {
-          "x": 18,
-          "y": 13,
+          "x": 12,
+          "y": 26,
           "w": 6,
           "h": 13,
-          "i": "8",
+          "i": "11",
           "type": "Widget",
           "widget": {
             "title": "Etcd indexes"
@@ -398,10 +549,10 @@
         },
         {
           "x": 0,
-          "y": 26,
+          "y": 39,
           "w": 12,
           "h": 26,
-          "i": "9",
+          "i": "12",
           "type": "Widget",
           "widget": {
             "title": "Nodes"
@@ -417,10 +568,10 @@
         },
         {
           "x": 12,
-          "y": 26,
+          "y": 39,
           "w": 12,
           "h": 26,
-          "i": "10",
+          "i": "13",
           "type": "Widget",
           "widget": {
             "title": "Routes"

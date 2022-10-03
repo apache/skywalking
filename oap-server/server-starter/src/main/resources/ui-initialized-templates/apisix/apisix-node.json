@@ -28,7 +28,7 @@
           "i": "1",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Status"
+            "title": "HTTP Status Trend (per second)"
           },
           "graph": {
             "type": "Line",
