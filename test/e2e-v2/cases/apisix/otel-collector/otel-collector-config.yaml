@@ -26,6 +26,8 @@ processors:
   batch:
 
 exporters:
+  logging:
+    loglevel: debug
   otlp:
     endpoint: oap:11800
     tls:
@@ -37,5 +39,4 @@ service:
         - prometheus
       processors:
         - batch
-      exporters:
-        - otlp
+        - logging
