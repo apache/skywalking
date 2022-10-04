@@ -27,7 +27,7 @@ Accordingly, Skywalking observes the status, payload, and latency of the APISIX 
 |HTTP latency non-matched requests |  | meter_apisix_sv_http_latency |Service | The increment rate of the latency of HTTP requests, which don't match any route| APISIX Prometheus plugin|
 |HTTP bandwidth non-matched requests  | KB | meter_apisix_sv_bandwidth |Service | The increment rate of the bandwidth of HTTP requests ,which don't match any route| APISIX Prometheus plugin|
 |HTTP connection |  | meter_apisix_sv_http_connections |Service | The avg number of the connections | APISIX Prometheus plugin|
-|HTTP Requests Trend  |  | meter_apisix_http_requests_total |Service | The increment rate of HTTP requests | APISIX Prometheus plugin|
+|HTTP Request Trend  |  | meter_apisix_http_requests_total |Service | The increment rate of HTTP requests | APISIX Prometheus plugin|
 |Shared dict capacity | MB  | meter_apisix_shared_dict_capacity_bytes |Service | The avg capacity of shared dict capacity | APISIX Prometheus plugin|
 |Shared free space| MB  | meter_apisix_shared_dict_free_space_bytes |Service | The avg free space of shared dict capacity | APISIX Prometheus plugin|
 |Etcd index|   | meter_apisix_sv_etcd_indexes |Service | Etcd modify index for APISIX keys | APISIX Prometheus plugin|
