@@ -42,6 +42,8 @@ metricsRules:
     exp: apisix_shared_dict_free_space_bytes.sum(['name','host_name']).service(['host_name'] , Layer.APISIX)
   - name: sv_etcd_indexes
     exp: apisix_etcd_modify_indexes.sum(['key','host_name']).service(['host_name'] , Layer.APISIX)
+  - name: sv_etcd_reachable
+    exp: apisix_etcd_reachable.downsampling(LATEST).service(['host_name'] , Layer.APISIX)
   - name: http_requests_total
     exp: apisix_http_requests_total.downsampling(LATEST).service(['host_name'] , Layer.APISIX)
     # Not match any route
@@ -52,7 +54,6 @@ metricsRules:
     exp: apisix_http_status.tagEqual('route','').tagEqual('node','').sum(['code','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
   - name: sv_http_latency_unmatched
     exp:  apisix_http_latency.tagEqual('route','').tagEqual('node','').sum(['type','le','host_name']).histogram().histogram_percentile([50,70,90,99]).service(['host_name'] , Layer.APISIX)
-
    # Could match a route
   - name: sv_bandwidth_matched
     exp: apisix_bandwidth.tagNotEqual('route','').tagNotEqual('node','').sum(['type','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)

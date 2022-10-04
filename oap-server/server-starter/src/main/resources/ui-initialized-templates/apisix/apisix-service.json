@@ -547,6 +547,54 @@
             }
           ]
         },
+
+        {
+          "x": 18,
+          "y": 26,
+          "w": 6,
+          "h": 13,
+          "i": "14",
+          "type": "Widget",
+          "widget": {
+            "title": "Etcd Reachable(0/1)"
+          },
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "metrics": [
+            "meter_apisix_sv_etcd_reachable"
+          ],
+          "metricTypes": [
+            "readMetricsValue"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+
         {
           "x": 0,
           "y": 39,
