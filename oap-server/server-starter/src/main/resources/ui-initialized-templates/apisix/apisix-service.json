@@ -28,6 +28,32 @@
           "i": "1",
           "type": "Widget",
           "widget": {
+            "title": "HTTP Request Trend (requests per second)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "meter_apisix_http_requests"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ]
+        },
+
+        {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "2",
+          "type": "Widget",
+          "widget": {
             "title": "HTTP Status Trend (requests per second)"
           },
           "graph": {
@@ -69,11 +95,11 @@
           ]
         },
         {
-          "x": 6,
+          "x": 12,
           "y": 0,
           "w": 6,
           "h": 13,
-          "i": "2",
+          "i": "3",
           "type": "Widget",
           "widget": {
             "title": "HTTP Latency (ms)"
@@ -118,11 +144,11 @@
         },
 
         {
-          "x": 12,
+          "x": 18,
           "y": 0,
           "w": 6,
           "h": 13,
-          "i": "3",
+          "i": "4",
           "type": "Widget",
           "widget": {
             "title": "HTTP Bandwidth (KB)"
@@ -171,11 +197,11 @@
           ]
         },
         {
-          "x": 18,
-          "y": 0,
+          "x": 0,
+          "y": 13,
           "w": 6,
           "h": 13,
-          "i": "4",
+          "i": "5",
           "type": "Widget",
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -220,11 +246,11 @@
         },
 
         {
-          "x": 0,
+          "x": 6,
           "y": 13,
           "w": 6,
           "h": 13,
-          "i": "5",
+          "i": "6",
           "type": "Widget",
           "widget": {
             "title": "HTTP Status Trend of non-matched requests (requests per second)"
@@ -268,11 +294,11 @@
           ]
         },
         {
-          "x": 6,
+          "x": 12,
           "y": 13,
           "w": 6,
           "h": 13,
-          "i": "6",
+          "i": "7",
           "type": "Widget",
           "widget": {
             "title": "HTTP Latency of non-matched requests (ms)"
@@ -317,11 +343,11 @@
         },
 
         {
-          "x": 12,
+          "x": 18,
           "y": 13,
           "w": 6,
           "h": 13,
-          "i": "7",
+          "i": "8",
           "type": "Widget",
           "widget": {
             "title": "HTTP Bandwidth of non-matched requests (KB)"
@@ -369,31 +395,7 @@
             }
           ]
         },
-        {
-          "x": 18,
-          "y": 13,
-          "w": 6,
-          "h": 13,
-          "i": "8",
-          "type": "Widget",
-          "widget": {
-            "title": "HTTP Request Trend (requests per second)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "meter_apisix_http_requests"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ]
-        },
+
         {
           "x": 0,
           "y": 26,
@@ -425,25 +427,10 @@
           ],
           "associate": [
             {
-              "widgetId": "1"
+              "widgetId": "9"
             },
             {
-              "widgetId": "2"
-            },
-            {
-              "widgetId": "3"
-            },
-            {
-              "widgetId": "4"
-            },
-            {
-              "widgetId": "6"
-            },
-            {
-              "widgetId": "7"
-            },
-            {
-              "widgetId": "8"
+              "widgetId": "10"
             }
           ]
         },
@@ -479,25 +466,10 @@
           ],
           "associate": [
             {
-              "widgetId": "1"
+              "widgetId": "9"
             },
             {
-              "widgetId": "2"
-            },
-            {
-              "widgetId": "3"
-            },
-            {
-              "widgetId": "4"
-            },
-            {
-              "widgetId": "6"
-            },
-            {
-              "widgetId": "7"
-            },
-            {
-              "widgetId": "8"
+              "widgetId": "10"
             }
           ]
         },
@@ -526,27 +498,6 @@
             "readLabeledMetricsValues"
           ],
           "associate": [
-            {
-              "widgetId": "1"
-            },
-            {
-              "widgetId": "2"
-            },
-            {
-              "widgetId": "3"
-            },
-            {
-              "widgetId": "4"
-            },
-            {
-              "widgetId": "6"
-            },
-            {
-              "widgetId": "7"
-            },
-            {
-              "widgetId": "8"
-            }
           ]
         },
 
