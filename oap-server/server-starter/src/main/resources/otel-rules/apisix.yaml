@@ -54,7 +54,7 @@ metricsRules:
     exp: apisix_http_status.tagEqual('route','').tagEqual('node','').sum(['code','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
   - name: sv_http_latency_unmatched
     exp:  apisix_http_latency.tagEqual('route','').tagEqual('node','').sum(['type','le','host_name']).histogram().histogram_percentile([50,70,90,99]).service(['host_name'] , Layer.APISIX)
-   # Could match a route
+   # Match a route
   - name: sv_bandwidth_matched
     exp: apisix_bandwidth.tagNotEqual('route','').tagNotEqual('node','').sum(['type','host_name']).rate('PT1M').service(['host_name'] , Layer.APISIX)
   - name: sv_http_status_matched
