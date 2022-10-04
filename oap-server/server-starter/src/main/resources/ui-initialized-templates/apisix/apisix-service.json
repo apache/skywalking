@@ -28,7 +28,7 @@
           "i": "1",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Status Trend (per second)"
+            "title": "HTTP Status Trend (requests per second)"
           },
           "graph": {
             "type": "Line",
@@ -227,7 +227,7 @@
           "i": "5",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Status Trend of non-matched requests (per second)"
+            "title": "HTTP Status Trend of non-matched requests (requests per second)"
           },
           "graph": {
             "type": "Line",
@@ -377,7 +377,7 @@
           "i": "8",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Request Trend (per second)"
+            "title": "HTTP Request Trend (requests per second)"
           },
           "graph": {
             "type": "Line",
@@ -509,7 +509,7 @@
           "i": "11",
           "type": "Widget",
           "widget": {
-            "title": "Etcd indexes"
+            "title": "etcd indexes"
           },
           "graph": {
             "type": "Line",
@@ -558,7 +558,8 @@
           "i": "14",
           "type": "Widget",
           "widget": {
-            "title": "Etcd Reachable (0/1)"
+            "title": "etcd latest reachability",
+            "tips": "0 represents etcd unreachable, 1 represents etcd connected."
           },
           "graph": {
             "type": "Card",

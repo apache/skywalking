@@ -18,26 +18,26 @@ SkyWalking leverages OpenTelemetry Collector to transfer the metrics to
 Accordingly, Skywalking observes the status, payload, and latency of the APISIX server, which is cataloged as a `LAYER: APISIX` `Service` in the OAP. Meanwhile, the server node would be recognized as `instance, and the route rule would be recognized as `endpoint`.
 
 #### Supported Metrics 
-| Monitoring Panel | Unit | Metric Name |Catalog | Description | Data Source |
-|-----|------|-----|-----|-----|-----|
-|HTTP status  |  | meter_apisix_sv_http_status |Service | The increment rate of the status of HTTP requests| APISIX Prometheus plugin|
-|HTTP latency |  | meter_apisix_sv_http_latency |Service | The increment rate of the latency of HTTP requests| APISIX Prometheus plugin|
-|HTTP bandwidth  | KB | meter_apisix_sv_bandwidth |Service | The increment rate of the bandwidth of HTTP requests| APISIX Prometheus plugin|
-|HTTP status of non-matched requests  |  | meter_apisix_sv_http_status |Service | The increment rate of the status of HTTP requests, which don't match any route| APISIX Prometheus plugin|
-|HTTP latency non-matched requests |  | meter_apisix_sv_http_latency |Service | The increment rate of the latency of HTTP requests, which don't match any route| APISIX Prometheus plugin|
-|HTTP bandwidth non-matched requests  | KB | meter_apisix_sv_bandwidth |Service | The increment rate of the bandwidth of HTTP requests ,which don't match any route| APISIX Prometheus plugin|
-|HTTP connection |  | meter_apisix_sv_http_connections |Service | The avg number of the connections | APISIX Prometheus plugin|
-|HTTP Request Trend  |  | meter_apisix_http_requests |Service | The increment rate of HTTP requests | APISIX Prometheus plugin|
-|Shared dict capacity | MB  | meter_apisix_shared_dict_capacity_bytes |Service | The avg capacity of shared dict capacity | APISIX Prometheus plugin|
-|Shared free space| MB  | meter_apisix_shared_dict_free_space_bytes |Service | The avg free space of shared dict capacity | APISIX Prometheus plugin|
-|Etcd index|   | meter_apisix_sv_etcd_indexes |Service | Etcd modify index for APISIX keys | APISIX Prometheus plugin|
-|Etcd Reachable|   | meter_apisix_sv_etcd_reachable |Service | Etcd Reachable , See [APISIX Prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/)| APISIX Prometheus plugin|
-|HTTP status  |  | meter_apisix_node_http_status |Instance | The increment rate of the status of HTTP requests | APISIX Prometheus plugin|
-|HTTP latency |  | meter_apisix_node_http_latency |Instance | The increment rate of the latency of HTTP requests | APISIX Prometheus plugin|
-|HTTP bandwidth  | KB | meter_apisix_node_bandwidth |Endpoint | The increment rate of the bandwidth of HTTP requests | APISIX Prometheus plugin|
-|HTTP status  |  | meter_apisix_route_http_status |Endpoint | The increment rate of the status of HTTP requests| APISIX Prometheus plugin|
-|HTTP latency |  | meter_apisix_route_http_latency |Endpoint | The increment rate of the latency of HTTP requests| APISIX Prometheus plugin|
-|HTTP bandwidth  | KB | meter_apisix_route_bandwidth |Endpoint | The increment rate of the bandwidth of HTTP requests| APISIX Prometheus plugin|
+| Monitoring Panel                    | Unit | Metric Name |Catalog | Description                                                                                                       | Data Source |
+|-------------------------------------|------|-----|-----|-------------------------------------------------------------------------------------------------------------------|-----|
+| HTTP status                         |  | meter_apisix_sv_http_status |Service | The increment rate of the status of HTTP requests                                                                 | APISIX Prometheus plugin|
+| HTTP latency                        |  | meter_apisix_sv_http_latency |Service | The increment rate of the latency of HTTP requests                                                                | APISIX Prometheus plugin|
+| HTTP bandwidth                      | KB | meter_apisix_sv_bandwidth |Service | The increment rate of the bandwidth of HTTP requests                                                              | APISIX Prometheus plugin|
+| HTTP status of non-matched requests |  | meter_apisix_sv_http_status |Service | The increment rate of the status of HTTP requests, which don't match any route                                    | APISIX Prometheus plugin|
+| HTTP latency non-matched requests   |  | meter_apisix_sv_http_latency |Service | The increment rate of the latency of HTTP requests, which don't match any route                                   | APISIX Prometheus plugin|
+| HTTP bandwidth non-matched requests | KB | meter_apisix_sv_bandwidth |Service | The increment rate of the bandwidth of HTTP requests ,which don't match any route                                 | APISIX Prometheus plugin|
+| HTTP connection                     |  | meter_apisix_sv_http_connections |Service | The avg number of the connections                                                                                 | APISIX Prometheus plugin|
+| HTTP Request Trend                  |  | meter_apisix_http_requests |Service | The increment rate of HTTP requests                                                                               | APISIX Prometheus plugin|
+| Shared dict capacity                | MB  | meter_apisix_shared_dict_capacity_bytes |Service | The avg capacity of shared dict capacity                                                                          | APISIX Prometheus plugin|
+| Shared free space                   | MB  | meter_apisix_shared_dict_free_space_bytes |Service | The avg free space of shared dict capacity                                                                        | APISIX Prometheus plugin|
+| etcd index                          |   | meter_apisix_sv_etcd_indexes |Service | etcd modify index for APISIX keys                                                                                 | APISIX Prometheus plugin|
+| etcd latest reachability            |   | meter_apisix_sv_etcd_reachable |Service | etcd latest reachable , See [APISIX Prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) | APISIX Prometheus plugin|
+| HTTP status                         |  | meter_apisix_node_http_status |Instance | The increment rate of the status of HTTP requests                                                                 | APISIX Prometheus plugin|
+| HTTP latency                        |  | meter_apisix_node_http_latency |Instance | The increment rate of the latency of HTTP requests                                                                | APISIX Prometheus plugin|
+| HTTP bandwidth                      | KB | meter_apisix_node_bandwidth |Endpoint | The increment rate of the bandwidth of HTTP requests                                                              | APISIX Prometheus plugin|
+| HTTP status                         |  | meter_apisix_route_http_status |Endpoint | The increment rate of the status of HTTP requests                                                                 | APISIX Prometheus plugin|
+| HTTP latency                        |  | meter_apisix_route_http_latency |Endpoint | The increment rate of the latency of HTTP requests                                                                | APISIX Prometheus plugin|
+| HTTP bandwidth                      | KB | meter_apisix_route_bandwidth |Endpoint | The increment rate of the bandwidth of HTTP requests                                                              | APISIX Prometheus plugin|
 
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
