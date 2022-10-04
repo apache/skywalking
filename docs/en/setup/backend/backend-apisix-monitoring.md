@@ -20,24 +20,24 @@ Accordingly, Skywalking observes the status, payload, and latency of the APISIX 
 #### Supported Metrics 
 | Monitoring Panel | Unit | Metric Name |Catalog | Description | Data Source |
 |-----|------|-----|-----|-----|-----|
-|HTTP status(per second)  |  | meter_apisix_sv_http_status |Service | The rate of http status trend| APISIX prometheus plugin|
-|HTTP latency(per second) |  | meter_apisix_sv_http_latency |Service | The rate of http latency trend| APISIX prometheus plugin|
-|HTTP bandwidth(per second)  | KB | meter_apisix_sv_bandwidth |Service | The rate of http latency trend| APISIX prometheus plugin|
-|HTTP status(Not matched route , per second)  |  | meter_apisix_sv_http_status |Service | The rate of http status trend, which request not match any route| APISIX prometheus plugin|
-|HTTP latency(Not matched route , per second) |  | meter_apisix_sv_http_latency |Service | The rate of http latency trend, which request not match any route| APISIX prometheus plugin|
-|HTTP bandwidth(Not matched route , per second)  | KB | meter_apisix_sv_bandwidth |Service | The rate of http latency trend ,which request not match any route| APISIX prometheus plugin|
-|HTTP connection |  | meter_apisix_sv_http_connections |Service | The avg number of current connection | APISIX prometheus plugin|
-|HTTP request  |  | meter_apisix_http_requests_total |Service | The number of request since APISIX startup | APISIX prometheus plugin|
-|Shared dict capacity | MB  | meter_apisix_shared_dict_capacity_bytes |Service | The  avg capacity of shared dict capacity | APISIX prometheus plugin|
-|Shared free space| MB  | meter_apisix_shared_dict_free_space_bytes |Service | The  avg free space of shared dict capacity | APISIX prometheus plugin|
-|Etcd index|   | meter_apisix_sv_etcd_indexes |Service | Etcd modify index for APISIX keys | APISIX prometheus plugin|
-|Etcd Reachable|   | meter_apisix_sv_etcd_reachable |Service | Etcd Reachable , See [APISIX Prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/)| APISIX prometheus plugin|
-|HTTP status  |  | meter_apisix_node_http_status |Instance | The rate of http status trend | APISIX prometheus plugin|
-|HTTP latency |  | meter_apisix_node_http_latency |Instance | The rate of http latency trend | APISIX prometheus plugin|
-|HTTP bandwidth  | KB | meter_apisix_node_bandwidth |Endpoint | The rate of http latency trend | APISIX prometheus plugin|
-|HTTP status  |  | meter_apisix_route_http_status |Endpoint | The rate of http status trend| APISIX prometheus plugin|
-|HTTP latency |  | meter_apisix_route_http_latency |Endpoint | The rate of http latency trend| APISIX prometheus plugin|
-|HTTP bandwidth  | KB | meter_apisix_route_bandwidth |Endpoint | The rate of http latency trend| APISIX prometheus plugin|
+|HTTP status  |  | meter_apisix_sv_http_status |Service | The increment rate of the status of HTTP requests| APISIX Prometheus plugin|
+|HTTP latency |  | meter_apisix_sv_http_latency |Service | The increment rate of the latency of HTTP requests| APISIX Prometheus plugin|
+|HTTP bandwidth  | KB | meter_apisix_sv_bandwidth |Service | The increment rate of the bandwidth of HTTP requests| APISIX Prometheus plugin|
+|HTTP status of non-matched requests  |  | meter_apisix_sv_http_status |Service | The increment rate of the status of HTTP requests, which don't match any route| APISIX Prometheus plugin|
+|HTTP latency non-matched requests |  | meter_apisix_sv_http_latency |Service | The increment rate of the latency of HTTP requests, which don't match any route| APISIX Prometheus plugin|
+|HTTP bandwidth non-matched requests  | KB | meter_apisix_sv_bandwidth |Service | The increment rate of the bandwidth of HTTP requests ,which don't match any route| APISIX Prometheus plugin|
+|HTTP connection |  | meter_apisix_sv_http_connections |Service | The avg number of the connections | APISIX Prometheus plugin|
+|HTTP Requests Trend  |  | meter_apisix_http_requests_total |Service | The increment rate of HTTP requests | APISIX Prometheus plugin|
+|Shared dict capacity | MB  | meter_apisix_shared_dict_capacity_bytes |Service | The avg capacity of shared dict capacity | APISIX Prometheus plugin|
+|Shared free space| MB  | meter_apisix_shared_dict_free_space_bytes |Service | The avg free space of shared dict capacity | APISIX Prometheus plugin|
+|Etcd index|   | meter_apisix_sv_etcd_indexes |Service | Etcd modify index for APISIX keys | APISIX Prometheus plugin|
+|Etcd Reachable|   | meter_apisix_sv_etcd_reachable |Service | Etcd Reachable , See [APISIX Prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/)| APISIX Prometheus plugin|
+|HTTP status  |  | meter_apisix_node_http_status |Instance | The increment rate of the status of HTTP requests | APISIX Prometheus plugin|
+|HTTP latency |  | meter_apisix_node_http_latency |Instance | The increment rate of the latency of HTTP requests | APISIX Prometheus plugin|
+|HTTP bandwidth  | KB | meter_apisix_node_bandwidth |Endpoint | The increment rate of the bandwidth of HTTP requests | APISIX Prometheus plugin|
+|HTTP status  |  | meter_apisix_route_http_status |Endpoint | The increment rate of the status of HTTP requests| APISIX Prometheus plugin|
+|HTTP latency |  | meter_apisix_route_http_latency |Endpoint | The increment rate of the latency of HTTP requests| APISIX Prometheus plugin|
+|HTTP bandwidth  | KB | meter_apisix_route_bandwidth |Endpoint | The increment rate of the bandwidth of HTTP requests| APISIX Prometheus plugin|
 
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.

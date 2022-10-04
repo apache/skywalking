@@ -64,7 +64,7 @@
           "i": "2",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Latency(ms)"
+            "title": "HTTP Latency (ms)"
           },
           "graph": {
             "type": "Line",
@@ -101,7 +101,7 @@
           "i": "3",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Bandwidth(KB)"
+            "title": "HTTP Bandwidth (KB)"
           },
           "graph": {
             "type": "Line",

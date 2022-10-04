@@ -76,7 +76,7 @@
           "i": "2",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Latency(ms)"
+            "title": "HTTP Latency (ms)"
           },
           "graph": {
             "type": "Line",
@@ -125,7 +125,7 @@
           "i": "3",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Bandwidth(KB)"
+            "title": "HTTP Bandwidth (KB)"
           },
           "graph": {
             "type": "Line",
@@ -227,7 +227,7 @@
           "i": "5",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Status Trend (Not matched route , per second)"
+            "title": "HTTP Status Trend of non-matched requests (per second)"
           },
           "graph": {
             "type": "Line",
@@ -275,7 +275,7 @@
           "i": "6",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Latency( Not matched route ,ms)"
+            "title": "HTTP Latency of non-matched requests (ms)"
           },
           "graph": {
             "type": "Line",
@@ -324,7 +324,7 @@
           "i": "7",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Bandwidth(Not matched route , KB)"
+            "title": "HTTP Bandwidth of non-matched requests (KB)"
           },
           "graph": {
             "type": "Line",
@@ -377,19 +377,21 @@
           "i": "8",
           "type": "Widget",
           "widget": {
-            "title": "HTTP Total Request"
+            "title": "HTTP Request Trend (per second)"
           },
           "graph": {
-            "type": "Card",
-            "fontSize": 40,
-            "textAlign": "center",
-            "showUnit": true
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_http_requests_total"
+            "meter_apisix_http_requests"
           ],
           "metricTypes": [
-            "readMetricsValue"
+            "readMetricsValues"
           ]
         },
         {
@@ -400,7 +402,7 @@
           "i": "9",
           "type": "Widget",
           "widget": {
-            "title": "Shard Dict Capacity(MB)"
+            "title": "Shard Dict Capacity (MB)"
           },
           "graph": {
             "type": "Line",
@@ -454,7 +456,7 @@
           "i": "10",
           "type": "Widget",
           "widget": {
-            "title": "Shared Dict Free Space(MB)"
+            "title": "Shared Dict Free Space (MB)"
           },
           "graph": {
             "type": "Line",
@@ -556,7 +558,7 @@
           "i": "14",
           "type": "Widget",
           "widget": {
-            "title": "Etcd Reachable(0/1)"
+            "title": "Etcd Reachable (0/1)"
           },
           "graph": {
             "type": "Card",

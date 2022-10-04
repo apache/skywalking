@@ -44,8 +44,8 @@ metricsRules:
     exp: apisix_etcd_modify_indexes.sum(['key','host_name']).service(['host_name'] , Layer.APISIX)
   - name: sv_etcd_reachable
     exp: apisix_etcd_reachable.downsampling(LATEST).service(['host_name'] , Layer.APISIX)
-  - name: http_requests_total
-    exp: apisix_http_requests_total.downsampling(LATEST).service(['host_name'] , Layer.APISIX)
+  - name: http_requests
+    exp: apisix_http_requests_total.rate('PT1M').service(['host_name'] , Layer.APISIX)
     # Not match any route
     # Refer to  https://apisix.apache.org/docs/apisix/plugins/prometheus/
   - name: sv_bandwidth_unmatched
