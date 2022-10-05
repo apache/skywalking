@@ -58,6 +58,7 @@ public class UITemplateInitializer {
         Layer.K8S_SERVICE.name(),
         Layer.SO11Y_SATELLITE.name(),
         Layer.FAAS.name(),
+        Layer.APISIX.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
