@@ -131,7 +131,12 @@ public enum Layer {
     /**
      * PostgreSQL is an advanced, enterprise-class, and open-source relational database system.
      */
-    POSTGRESQL(20, true);
+    POSTGRESQL(20, true),
+
+    /**
+     * Apache APISIX is an open source, dynamic, scalable, and high-performance cloud native API gateway.
+     */
+    APISIX(21, true);
 
     private final int value;
     /**

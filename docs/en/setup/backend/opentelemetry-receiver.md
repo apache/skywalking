@@ -39,5 +39,6 @@ for identification of the metric data.
 |k8s-service| Metrics of K8s cluster | otel-rules/k8s-service.yaml | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector -- OC/OTLP exporter --> SkyWalking OAP Server |
 |mysql| Metrics of MYSQL| otel-rules/mysql.yaml | prometheus/mysqld_exporter -> OpenTelemetry Collector -- OC/OTLP exporter --> SkyWalking OAP Server |
 |postgresql| Metrics of PostgreSQL| otel-rules/postgresql.yaml | postgres_exporter -> OpenTelemetry Collector -- OC/OTLP exporter --> SkyWalking OAP Server |
+|apisix| Metrics of Apache APISIX| otel-rules/apisix.yaml | apisix prometheus plugin -> OpenTelemetry Collector -- OC/OTLP exporter --> SkyWalking OAP Server |
 
 **Note**: You can also use OpenTelemetry exporter to transport the metrics to SkyWalking OAP directly. See [OpenTelemetry Exporter](./backend-meter.md#opentelemetry-exporter).

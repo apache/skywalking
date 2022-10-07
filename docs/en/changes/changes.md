@@ -39,6 +39,7 @@
   (explicit_bounds[i-1], +infinity) for i == size(explicit_bounds)
   ```
 * Support Golang runtime metrics analysis.
+* Add APISIX metrics monitoring
 
 #### UI
 
@@ -61,7 +62,10 @@
 * Remove All from the endpoints selector.
 * Enhance menu configurations to make it easier to change.
 * Update PostgreSQL dashboard to visualize collected slow SQLs.
-* Add golang runtime metrics and cpu/memory used rate panels in General-Instance dashboard
+* Add Golang runtime metrics and cpu/memory used rate panels in General-Instance dashboard
+* Add gateway apisix menu
+* Query logs with the specific service ID
+* Bump d3-color from 3.0.1 to 3.1.0
 
 #### Documentation
 
