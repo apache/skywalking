@@ -20,15 +20,19 @@
   in `no-init` mode.
 * Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
 * Support monitoring PostgreSQL slow SQLs.
-* [**Breaking Change**] Support sharding MySQL database instances and tables by [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy).
-  SQL-Database requires removing tables `log_tag/segment_tag/zipkin_query` before OAP starts, if bump up from previous releases.
+* [**Breaking Change**] Support sharding MySQL database instances and tables
+  by [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy).
+  SQL-Database requires removing tables `log_tag/segment_tag/zipkin_query` before OAP starts, if bump up from previous
+  releases.
 * Fix meter functions `avgHistogram`, `avgHistogramPercentile`, `avgLabeled`, `sumHistogram` having data conflict when
   downsampling.
 * Do sorting `readLabeledMetricsValues` result forcedly in case the storage(database) doesn't return data consistent
   with the parameter list.
-* Fix the wrong watch semantics in Kubernetes watchers, which causes heavy traffic to API server in some Kubernetes clusters,
+* Fix the wrong watch semantics in Kubernetes watchers, which causes heavy traffic to API server in some Kubernetes
+  clusters,
   we should use `Get State and Start at Most Recent` semantic instead of `Start at Exact`
-  because we don't need the changing history events, see https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch.
+  because we don't need the changing history events,
+  see https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch.
 * Unify query services and DAOs codes time range condition to `Duration`.
 * [**Breaking Change**]: Remove prometheus-fetcher plugin, please use OpenTelemetry to scrape Prometheus metrics and
   set up SkyWalking OpenTelemetry receiver instead.
@@ -39,6 +43,9 @@
   (explicit_bounds[i-1], +infinity) for i == size(explicit_bounds)
   ```
 * Add APISIX metrics monitoring
+* Support skywalking-client-js report empty `service version` and `page path` , set default version as `latest` and
+  default page path as `/`(root). Fix the
+  error `fetching data (/browser_app_page_pv0) : Can't split endpoint id into 2 parts`.
 
 #### UI
 
