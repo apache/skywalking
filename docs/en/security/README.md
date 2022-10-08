@@ -26,5 +26,5 @@ and UI services.
 
 ## appendix
 
-The SkyWalking [client-js](https://github.com/apache/skywalking-client-js) agent is always running our of the secured
-environment. Please follow its [security notice] for more details.
+The SkyWalking [client-js](https://github.com/apache/skywalking-client-js) agent is always running out of the secured
+environment. Please follow its **security notice** for more details.
