@@ -209,6 +209,8 @@ catalog:
         path: "/en/protocols/readme"
       - name: "Query Protocol (GraphQL)"
         path: "/en/protocols/query-protocol"
+  - name: "Security Notice"
+    path: "/en/security/readme"
   - name: "Academy"
     catalog:
       - name: "Scaling SkyWalking server automatically in kubernetes"
