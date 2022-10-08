@@ -45,6 +45,8 @@ import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.source.Log;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.toJSON;
 
@@ -53,6 +55,7 @@ import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.to
  */
 @RequiredArgsConstructor
 public class RecordSinkListener implements LogSinkListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecordSinkListener.class);
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingControl;
     private final List<String> searchableTagKeys;
@@ -126,6 +129,12 @@ public class RecordSinkListener implements LogSinkListener {
         logData.getTags().getDataList().forEach(tag -> {
             if (searchableTagKeys.contains(tag.getKey())) {
                 final Tag logTag = new Tag(tag.getKey(), tag.getValue());
+                if (tag.getValue().length()  > Tag.TAG_LENGTH || logTag.toString().length() > Tag.TAG_LENGTH) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Log tag : {} length > : {}, dropped", logTag, Tag.TAG_LENGTH);
+                    }
+                    return;
+                }
                 logTags.add(logTag);
             }
         });

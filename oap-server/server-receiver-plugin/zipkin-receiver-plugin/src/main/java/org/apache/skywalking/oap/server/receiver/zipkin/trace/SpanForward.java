@@ -24,10 +24,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinService;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinServiceRelation;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinServiceSpan;
@@ -42,8 +45,8 @@ import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import zipkin2.Annotation;
 import zipkin2.Span;
 import zipkin2.internal.HexCodec;
-import zipkin2.internal.RecyclableBuffers;
 
+@Slf4j
 public class SpanForward {
     private final ZipkinReceiverConfig config;
     private final NamingControl namingControl;
@@ -110,7 +113,10 @@ public class SpanForward {
                 JsonObject tagsJson = new JsonObject();
                 for (Annotation annotation : span.annotations()) {
                     annotationsJson.addProperty(Long.toString(annotation.timestamp()), annotation.value());
-                    if (annotation.value().length() > RecyclableBuffers.SHORT_STRING_LENGTH) {
+                    if (annotation.value().length() > ZipkinSpanRecord.QUERY_LENGTH) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Span annotation : {}  length > : {}, dropped", annotation.value(), ZipkinSpanRecord.QUERY_LENGTH);
+                        }
                         continue;
                     }
                     query.add(annotation.value());
@@ -119,7 +125,10 @@ public class SpanForward {
                 for (Map.Entry<String, String> tag : span.tags().entrySet()) {
                     String tagString = tag.getKey() + "=" + tag.getValue();
                     tagsJson.addProperty(tag.getKey(), tag.getValue());
-                    if (tagString.length() > RecyclableBuffers.SHORT_STRING_LENGTH) {
+                    if (tag.getValue().length()  > Tag.TAG_LENGTH || tagString.length() > Tag.TAG_LENGTH) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Span tag : {} length > : {}, dropped", tagString, Tag.TAG_LENGTH);
+                        }
                         continue;
                     }
                     query.add(tag.getKey());
