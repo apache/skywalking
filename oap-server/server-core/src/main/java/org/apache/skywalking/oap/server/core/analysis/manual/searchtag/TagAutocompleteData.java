@@ -55,7 +55,7 @@ public class TagAutocompleteData extends Metrics {
     private String tagKey;
     @Setter
     @Getter
-    @Column(columnName = TAG_VALUE)
+    @Column(columnName = TAG_VALUE, length = Tag.TAG_LENGTH)
     private String tagValue;
 
     @Setter

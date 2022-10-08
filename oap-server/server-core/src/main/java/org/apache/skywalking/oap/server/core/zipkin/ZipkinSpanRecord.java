@@ -48,6 +48,7 @@ import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_SEC_RANGE_SHARDING_ALGORITHM, dataSourceShardingColumn = TRACE_ID, tableShardingColumn = TIME_BUCKET)
 public class ZipkinSpanRecord extends Record {
     private static final Gson GSON = new Gson();
+    public static final int QUERY_LENGTH = 256;
     public static final String INDEX_NAME = "zipkin_span";
     public static final String ADDITIONAL_QUERY_TABLE = "zipkin_query";
     public static final String TRACE_ID = "trace_id";
@@ -156,7 +157,7 @@ public class ZipkinSpanRecord extends Record {
     private int shared;
     @Setter
     @Getter
-    @Column(columnName = QUERY, indexOnly = true)
+    @Column(columnName = QUERY, indexOnly = true, length = QUERY_LENGTH)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_QUERY_TABLE})
     private List<String> query;
 

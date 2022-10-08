@@ -9,6 +9,8 @@ Set `enableHttpCollector` to enable HTTP collector and `enableKafkaCollector` to
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:default}
   default:
+    # Defines a set of span tag keys which are searchable.
+    # The max length of key=value should be less than 256 or will be dropped.
     searchableTracesTags: ${SW_ZIPKIN_SEARCHABLE_TAG_KEYS:http.method}
     # The sample rate precision is 1/10000, should be between 0 and 10000
     sampleRate: ${SW_ZIPKIN_SAMPLE_RATE:10000}

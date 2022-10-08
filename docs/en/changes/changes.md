@@ -46,6 +46,9 @@
 * Support skywalking-client-js report empty `service version` and `page path` , set default version as `latest` and
   default page path as `/`(root). Fix the
   error `fetching data (/browser_app_page_pv0) : Can't split endpoint id into 2 parts`.
+* [**Breaking Change**] Limit the max length of trace/log/alarm tag's `key=value`, set the max length of column `tags`
+  in tables`log_tag/segment_tag/alarm_record_tag` and column `query` in `zipkin_query` and column `tag_value` in `tag_autocomplete` to 256.
+  SQL-Database requires altering these columns' length or removing these tables before OAP starts, if bump up from previous releases.
 
 #### UI
 
