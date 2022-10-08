@@ -79,5 +79,6 @@
 * Move general good read blogs from `Agent Introduction` to `Academy`.
 * Add re-post for blog `Scaling with Apache SkyWalking` in the academy list.
 * Add re-post for blog `Diagnose Service Mesh Network Performance with eBPF` in the academy list.
+* Add **Security Notice** doc. 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)
