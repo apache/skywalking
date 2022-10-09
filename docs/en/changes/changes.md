@@ -42,6 +42,7 @@
   (explicit_bounds[i-1], explicit_bounds[i]] for 0 < i < size(explicit_bounds)
   (explicit_bounds[i-1], +infinity) for i == size(explicit_bounds)
   ```
+* Support Golang runtime metrics analysis.
 * Add APISIX metrics monitoring
 * Support skywalking-client-js report empty `service version` and `page path` , set default version as `latest` and
   default page path as `/`(root). Fix the
@@ -71,6 +72,7 @@
 * Remove All from the endpoints selector.
 * Enhance menu configurations to make it easier to change.
 * Update PostgreSQL dashboard to visualize collected slow SQLs.
+* Add Golang runtime metrics and cpu/memory used rate panels in General-Instance dashboard
 * Add gateway apisix menu
 * Query logs with the specific service ID
 * Bump d3-color from 3.0.1 to 3.1.0
