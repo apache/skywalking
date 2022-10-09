@@ -22,6 +22,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -99,7 +100,7 @@ public class SegmentRecord extends Record {
     private byte[] dataBinary;
     @Setter
     @Getter
-    @Column(columnName = TAGS, indexOnly = true)
+    @Column(columnName = TAGS, indexOnly = true, length = Tag.TAG_LENGTH)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tags;
 

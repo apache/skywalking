@@ -20,15 +20,19 @@
   in `no-init` mode.
 * Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
 * Support monitoring PostgreSQL slow SQLs.
-* [**Breaking Change**] Support sharding MySQL database instances and tables by [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy).
-  SQL-Database requires removing tables `log_tag/segment_tag/zipkin_query` before OAP starts, if bump up from previous releases.
+* [**Breaking Change**] Support sharding MySQL database instances and tables
+  by [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy).
+  SQL-Database requires removing tables `log_tag/segment_tag/zipkin_query` before OAP starts, if bump up from previous
+  releases.
 * Fix meter functions `avgHistogram`, `avgHistogramPercentile`, `avgLabeled`, `sumHistogram` having data conflict when
   downsampling.
 * Do sorting `readLabeledMetricsValues` result forcedly in case the storage(database) doesn't return data consistent
   with the parameter list.
-* Fix the wrong watch semantics in Kubernetes watchers, which causes heavy traffic to API server in some Kubernetes clusters,
+* Fix the wrong watch semantics in Kubernetes watchers, which causes heavy traffic to API server in some Kubernetes
+  clusters,
   we should use `Get State and Start at Most Recent` semantic instead of `Start at Exact`
-  because we don't need the changing history events, see https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch.
+  because we don't need the changing history events,
+  see https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch.
 * Unify query services and DAOs codes time range condition to `Duration`.
 * [**Breaking Change**]: Remove prometheus-fetcher plugin, please use OpenTelemetry to scrape Prometheus metrics and
   set up SkyWalking OpenTelemetry receiver instead.
@@ -40,6 +44,12 @@
   ```
 * Support Golang runtime metrics analysis.
 * Add APISIX metrics monitoring
+* Support skywalking-client-js report empty `service version` and `page path` , set default version as `latest` and
+  default page path as `/`(root). Fix the
+  error `fetching data (/browser_app_page_pv0) : Can't split endpoint id into 2 parts`.
+* [**Breaking Change**] Limit the max length of trace/log/alarm tag's `key=value`, set the max length of column `tags`
+  in tables`log_tag/segment_tag/alarm_record_tag` and column `query` in `zipkin_query` and column `tag_value` in `tag_autocomplete` to 256.
+  SQL-Database requires altering these columns' length or removing these tables before OAP starts, if bump up from previous releases.
 
 #### UI
 
@@ -74,5 +84,6 @@
 * Move general good read blogs from `Agent Introduction` to `Academy`.
 * Add re-post for blog `Scaling with Apache SkyWalking` in the academy list.
 * Add re-post for blog `Diagnose Service Mesh Network Performance with eBPF` in the academy list.
+* Add **Security Notice** doc. 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)
