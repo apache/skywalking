@@ -21,6 +21,8 @@ receivers:
           scrape_interval: 5s
           static_configs:
             - targets: ["postgres-exporter:9187"]
+              labels:
+                host_name: postgres:5432
 processors:
   batch:
 
