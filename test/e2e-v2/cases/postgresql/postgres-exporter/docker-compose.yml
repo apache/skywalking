@@ -67,7 +67,7 @@ services:
       - "psql -f /docker/mock.sql -h postgres -p 5432 -U postgres"
   postgres-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter:v0.11.0
-    depends_on: 
+    depends_on:
       - postgres
     ports:
       - 9187
@@ -89,7 +89,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-  
+
   otel-collector:
     image: otel/opentelemetry-collector:0.50.0
     networks:
