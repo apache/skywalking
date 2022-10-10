@@ -31,7 +31,7 @@ Meanwhile, there are two ways to edit an existing dashboard.
 
 ## Widget
 
-A dashoard consists of various widget. In the `Edit` mode, widgets could be added/moved/removed/edit according to the Layer.(Every widget declares its suitable layer.)
+A dashboard consists of various widget. In the `Edit` mode, widgets could be added/moved/removed/edit according to the Layer.(Every widget declares its suitable layer.)
 
 The widget provides the ability to visualize the metrics, generated through [OAL](../concepts-and-designs/mal.md), [MAL](../concepts-and-designs/mal.md), or [LAL](../concepts-and-designs/lal.md) scripts.
 

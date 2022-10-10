@@ -95,10 +95,10 @@ extend type Query {
 extend type Query {
     getValues(metric: BatchMetricConditions!, duration: Duration!): IntValues
     getLinearIntValues(metric: MetricCondition!, duration: Duration!): IntValues
-    # Query the type of metrics including multiple values, and format them as multiple linears.
+    # Query the type of metrics including multiple values, and format them as multiple lines.
     # The seq of these multiple lines base on the calculation func in OAL
     # Such as, should us this to query the result of func percentile(50,75,90,95,99) in OAL,
-    # then five lines will be responsed, p50 is the first element of return value.
+    # then five lines will be responded, p50 is the first element of return value.
     getMultipleLinearIntValues(metric: MetricCondition!, numOfLinear: Int!, duration: Duration!): [IntValues!]!
     getThermodynamic(metric: MetricCondition!, duration: Duration!): Thermodynamic
 }

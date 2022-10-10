@@ -13,7 +13,7 @@ The settings file of UI is  `webapp/webapp.yml` in the distribution package. It 
 ```yaml
 serverPort: ${SW_SERVER_PORT:-8080}
 
-# Comma seperated list of OAP addresses, without http:// prefix.
+# Comma separated list of OAP addresses, without http:// prefix.
 oapServices: ${SW_OAP_ADDRESS:-localhost:12800}
 ```
 
