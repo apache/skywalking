@@ -152,7 +152,7 @@ message SpanObject {
     // Exception or error code happened in the tracked process doesn't mean isError == true, the implementations of agent plugin and tracing SDK make the final decision.
     bool isError = 11;
     // String key, String value pair.
-    // Tags provides more informance, includes parameters.
+    // Tags provides more information, includes parameters.
     //
     // In the OAP backend analysis, some special tag or tag combination could provide other advanced features.
     // https://github.com/apache/skywalking/blob/master/docs/en/guides/Java-Plugin-Development-Guide.md#special-span-tags
@@ -209,7 +209,7 @@ enum SpanLayer {
     RPCFramework = 2;
     // HTTP is a more specific RPCFramework.
     Http = 3;
-    // A MQ layer, used in both producer and consuer sides of the MQ component.
+    // A MQ layer, used in both producer and consumer sides of the MQ component.
     MQ = 4;
     // A cache layer, used in tracing the cache client component.
     Cache = 5;
