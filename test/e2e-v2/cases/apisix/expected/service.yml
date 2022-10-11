@@ -14,10 +14,10 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "apisix::apisix-serer:9091" }}.1
-  name: apisix::apisix-serer:9091
-  shortname: apisix-serer:9091
-  group: apisix
+- id: {{ b64enc "showcase-apisix-service" }}.1
+  name: showcase-apisix-service
+  shortname: showcase-apisix-service
+  group: ""
   normal: true
   layers:
     - APISIX
