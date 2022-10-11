@@ -17,7 +17,7 @@
 
 [
   {
-    "id": "apisix-service",
+    "id": "apisix-Instance",
     "configuration": {
       "children": [
         {
@@ -39,10 +39,10 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_requests"
+            "meter_apisix_instance_http_requests"
           ],
           "metricTypes": [
-            "readLabeledMetricsValues"
+            "readMetricsValues"
           ]
         },
 
@@ -65,7 +65,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_status_matched"
+            "meter_apisix_instance_http_status_matched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -113,7 +113,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_latency_matched"
+            "meter_apisix_instance_http_latency_matched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -162,7 +162,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_bandwidth_matched"
+            "meter_apisix_instance_bandwidth_matched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -207,7 +207,7 @@
             "readLabeledMetricsValues"
           ],
           "metrics": [
-            "meter_apisix_sv_http_connections"
+            "meter_apisix_instance_http_connections"
           ],
           "graph": {
             "type": "Line",
@@ -264,7 +264,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_status_unmatched"
+            "meter_apisix_instance_http_status_unmatched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -312,7 +312,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_latency_unmatched"
+            "meter_apisix_instance_http_latency_unmatched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -361,7 +361,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_bandwidth_unmatched"
+            "meter_apisix_instance_bandwidth_unmatched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -415,7 +415,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_shared_dict_capacity_bytes"
+            "meter_apisix_instance_shared_dict_capacity_bytes"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -454,7 +454,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_shared_dict_free_space_bytes"
+            "meter_apisix_instance_shared_dict_free_space_bytes"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -492,7 +492,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_etcd_indexes"
+            "meter_apisix_instance_etcd_indexes"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -519,7 +519,7 @@
             "showUnit": true
           },
           "metrics": [
-            "meter_apisix_sv_etcd_reachable"
+            "meter_apisix_instance_etcd_reachable"
           ],
           "metricTypes": [
             "readMetricsValue"
@@ -547,51 +547,12 @@
               "widgetId": "8"
             }
           ]
-        },
-
-        {
-          "x": 0,
-          "y": 39,
-          "w": 12,
-          "h": 26,
-          "i": "12",
-          "type": "Widget",
-          "widget": {
-            "title": "Nodes"
-          },
-          "graph": {
-            "type": "InstanceList",
-            "dashboardName": "APISIX-Instance",
-            "fontSize": 12,
-            "showXAxis": false,
-            "showYAxis": false,
-            "showGroup": true
-          }
-        },
-        {
-          "x": 12,
-          "y": 39,
-          "w": 12,
-          "h": 26,
-          "i": "13",
-          "type": "Widget",
-          "widget": {
-            "title": "Routes"
-          },
-          "graph": {
-            "type": "EndpointList",
-            "dashboardName": "APISIX-Endpoint",
-            "fontSize": 12,
-            "showXAxis": false,
-            "showYAxis": false,
-            "showGroup": true
-          }
         }
       ],
       "layer": "APISIX",
-      "entity": "Service",
-      "name": "APISIX-Service",
-      "id": "apisix-service",
+      "entity": "ServiceInstance",
+      "name": "APISIX-Instance",
+      "id": "apisix-Instance",
       "isRoot": false
     }
   }
