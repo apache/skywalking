@@ -58,7 +58,6 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
     public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
         this.config = config;
         serviceRegistry = new K8SServiceRegistry(config);
-        serviceRegistry.start();
     }
 
     @Override
@@ -69,9 +68,6 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
         final Role role
     ) {
         if (isNotEmpty(previousResult.getMetrics())) {
-            return previousResult;
-        }
-        if (serviceRegistry.isEmpty()) {
             return previousResult;
         }
         switch (role) {

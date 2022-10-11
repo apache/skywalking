@@ -28,7 +28,6 @@
 #    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
-initExp: Kubernetes.startMetadataListener()
 filter: "{ tags -> tags.job_name in [ 'kubernetes-cadvisor', 'kube-state-metrics' ] }" # The OpenTelemetry job name
 expSuffix: service(['cluster' , 'service'], '::', Layer.K8S_SERVICE)
 metricPrefix: k8s_service

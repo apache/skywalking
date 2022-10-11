@@ -22,5 +22,6 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 
 public interface Retag {
     String BLANK = "";
+
     Sample[] execute(Sample[] ss, String newLabelName, String existingLabelName, String namespaceLabelName);
 }
