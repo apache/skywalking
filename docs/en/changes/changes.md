@@ -52,7 +52,6 @@
   SQL-Database requires altering these columns' length or removing these tables before OAP starts, if bump up from previous releases.
 * Optimize the creation conditions of profiling task.
 * Lazy load the Kubernetes metadata and switch from event-driven to polling.
-  This is for ALS k8s analyzer.
   Previously we set up watchers to watch the Kubernetes metadata changes, this is perfect when there are deployments changes and
   SkyWalking can react to the changes in real time. However when the cluster has many events (such as in large cluster
   or some special Kubernetes engine like OpenShift), the requests sent from SkyWalking becomes unpredictable, i.e. SkyWalking might
