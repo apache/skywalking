@@ -19,7 +19,7 @@ Accordingly, Skywalking observes the status, payload, and latency of the APISIX 
 
 #### Specify Skywalking Service name  
 
-Skywalking extract OTEL Collector attribute `skywalking_service` as `Service` name .
+SkyWalking expects OTEL Collector attribute `skywalking_service` to be the `Service` name.
 
 Make sure `skywalking_service` attribute exists through `static_configs` of OTEL Prometheus scape config.
 
