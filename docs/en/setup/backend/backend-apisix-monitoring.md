@@ -45,7 +45,7 @@ processors:
       value: exmple_service_name # Specify Skywalking Service name 
       action: insert                     
 ```
-Note , if you don't specify `service` attribute , Skywalking would use `APISIX` as default service name  
+Notice , if you don't specify `skywalking_service` attribute, SkyWalking OAP would use `APISIX` as the default service name  
 
 #### Supported Metrics 
 | Monitoring Panel                    | Unit | Metric Name                                        | Catalog  | Description                                                                                                            | Data Source              |
