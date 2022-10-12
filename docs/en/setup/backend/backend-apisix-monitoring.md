@@ -35,7 +35,7 @@ receivers:
                skywalking_service: exmple_service_name  # Specify SkyWalking Service name              
 ```
 
-You also could leverage OTEL Collector processor to add `service` attribute , as following :
+You also could leverage OTEL Collector processor to add `skywalking_service` attribute , as following :
 
 ```yaml      
 processors:
