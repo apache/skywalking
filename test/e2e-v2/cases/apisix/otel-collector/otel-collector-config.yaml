@@ -23,7 +23,7 @@ receivers:
           static_configs:
             - targets: ['apisix-serer:9091']
               labels:
-                service: showcase-apisix-service
+                skywalking_service: showcase-apisix-service
 processors:
   batch:
 
