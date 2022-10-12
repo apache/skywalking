@@ -32,7 +32,7 @@ receivers:
          static_configs:
            - targets: ['apisix:9091']
              labels:
-               skywalking_service: exmple_service_name  # Specify Skywalking Service name              
+               skywalking_service: exmple_service_name  # Specify SkyWalking Service name              
 ```
 
 You also could leverage OTEL Collector processor to add `service` attribute , as following :
