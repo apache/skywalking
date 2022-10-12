@@ -21,7 +21,7 @@ Accordingly, Skywalking observes the status, payload, and latency of the APISIX 
 
 Skywalking extract OTEL Collector attribute `service` as `Service` name .
 
-You could specify `service` attribute by `labels` keyword if using Prometheus receiver , as following :
+You could specify `skywalking_service` attribute by `labels` keyword if using Prometheus receiver , as following :
 
 ```yaml
 receivers:
@@ -32,7 +32,7 @@ receivers:
          static_configs:
            - targets: ['apisix:9091']
              labels:
-              service: exmple_service_name  # Specify Skywalking Service name              
+               skywalking_service: exmple_service_name  # Specify Skywalking Service name              
 ```
 
 You also could leverage OTEL Collector processor to add `service` attribute , as following :
@@ -41,7 +41,7 @@ You also could leverage OTEL Collector processor to add `service` attribute , as
 processors:
   resource/skywalking-service:
     attributes:
-    - key: service   
+    - key: skywalking_service   
       value: exmple_service_name # Specify Skywalking Service name 
       action: insert                     
 ```
