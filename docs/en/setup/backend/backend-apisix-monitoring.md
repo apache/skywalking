@@ -19,7 +19,7 @@ Accordingly, Skywalking observes the status, payload, and latency of the APISIX 
 
 #### Specify Skywalking Service name  
 
-Skywalking extract OTEL Collector attribute `service` as `Service` name .
+Skywalking extract OTEL Collector attribute `skywalking_service` as `Service` name .
 
 You could specify `skywalking_service` attribute by `labels` keyword if using Prometheus receiver , as following :
 
