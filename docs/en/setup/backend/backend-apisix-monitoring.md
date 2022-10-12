@@ -15,7 +15,7 @@ SkyWalking leverages OpenTelemetry Collector to transfer the metrics to
 
 ### APISIX Monitoring
 [APISIX prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) provide multiple dimensions metrics for APISIX server , node , route , etc. 
-Accordingly, Skywalking observes the status, payload, and latency of the APISIX server, which is cataloged as a `LAYER: APISIX` `Service` in the OAP. Meanwhile, the APISIX instance would be recognized as `LAYER: APISIX` `instance`, and the route rule , node would be recognized as `LAYER: APISIX` `endpoint`.
+Accordingly, Skywalking observes the status, payload, and latency of the APISIX server, which is cataloged as a `LAYER: APISIX` `Service` in the OAP. Meanwhile, the instances would be recognized as `LAYER: APISIX` `instance`s. The route rules and nodes would be recognized as `endpoint`s with `route/` and `node/` prefixes.
 
 #### Specify Skywalking Service name  
 
