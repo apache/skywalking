@@ -402,9 +402,6 @@
           "h": 26,
           "i": "12",
           "type": "Widget",
-          "widget": {
-            "title": "Nodes"
-          },
           "graph": {
             "type": "InstanceList",
             "dashboardName": "APISIX-Instance",
@@ -421,9 +418,6 @@
           "h": 26,
           "i": "13",
           "type": "Widget",
-          "widget": {
-            "title": "Routes"
-          },
           "graph": {
             "type": "EndpointList",
             "dashboardName": "APISIX-Endpoint",
