@@ -13,11 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-filter: "{ tags -> tags.job_name in [ 'kubernetes-cadvisor', 'kube-state-metrics' ] }" # The OpenTelemetry job name
-expSuffix: |-
-  service(['cluster' , 'service'], '::', Layer.K8S_SERVICE)
-  .instance(['cluster', 'service'], '::', ['pod'], '', Layer.K8S_SERVICE, { tags -> ['pod': tags.pod, 'namespace': tags.namespace] })
-metricPrefix: k8s_service_instance
+expSuffix: instance(['service'], ['instance'], Layer.GENERAL)
+metricPrefix: meter
 metricsRules:
-  - name: pod_instance_status
-    exp: kube_pod_status_phase.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster', 'namespace', 'service' , 'pod'])
+  - name: instance_golang_heap_alloc
+    exp: instance_golang_heap_alloc
+  - name: instance_golang_stack_used
+    exp: instance_golang_stack_used
+  - name: instance_golang_gc_pause_time
+    exp: instance_golang_gc_pause_time.increase('PT1M')
+  - name: instance_golang_gc_count
+    exp: instance_golang_gc_count.increase('PT1M')
+  - name: instance_golang_os_threads_num
+    exp: instance_golang_os_threads_num
+  - name: instance_golang_live_goroutines_num
+    exp: instance_golang_live_goroutines_num
+  - name: instance_host_cpu_used_rate
+    exp: instance_host_cpu_used_rate
+  - name: instance_host_mem_used_rate
+    exp: instance_host_mem_used_rate

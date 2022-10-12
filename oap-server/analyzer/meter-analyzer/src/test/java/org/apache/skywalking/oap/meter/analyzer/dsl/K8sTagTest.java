@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.kubernetes.client.openapi.models.V1LoadBalancerIngress;
 import io.kubernetes.client.openapi.models.V1LoadBalancerStatus;
@@ -33,8 +34,9 @@ import java.util.Map;
 import io.kubernetes.client.openapi.models.V1ServiceStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.kubernetes.KubernetesPods;
+import org.apache.skywalking.library.kubernetes.KubernetesServices;
 import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.Retag;
-import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +44,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.powermock.reflect.Whitebox;
 
 import static com.google.common.collect.ImmutableMap.of;
@@ -50,7 +56,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @Slf4j
-@RunWith(Parameterized.class)
+@PowerMockIgnore("javax.net.ssl.*")
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(Parameterized.class)
+@PrepareForTest({KubernetesPods.class, KubernetesServices.class})
 public class K8sTagTest {
 
     @Parameterized.Parameter
@@ -247,42 +256,22 @@ public class K8sTagTest {
     @SneakyThrows
     @Before
     public void setup() {
-        Whitebox.setInternalState(K8sInfoRegistry.class, "INSTANCE",
-                                  Mockito.spy(K8sInfoRegistry.getInstance())
+        PowerMockito.mockStatic(KubernetesServices.class);
+        PowerMockito.mockStatic(KubernetesPods.class);
+
+        Whitebox.setInternalState(KubernetesServices.class, "INSTANCE",
+                                  Mockito.mock(KubernetesServices.class)
         );
-        PowerMockito.doNothing().when(K8sInfoRegistry.getInstance(), "start");
+        Whitebox.setInternalState(KubernetesPods.class, "INSTANCE",
+                                  Mockito.mock(KubernetesPods.class)
+        );
 
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "onServiceAdded", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
-                    .thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "onServiceAdded",
-            mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"), "2.2.2.2")
-        ).thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "onPodAdded",
-            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1")
-        ).thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "onPodAdded",
-            mockPod("kube-state-metrics-6f979fd498-z7xwx", "kube-system", of("run", "kube-state-metrics"), "1.1.1.2")
-        ).thenCallRealMethod();
-
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "onServiceDeleted", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
-                    .thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "onPodDeleted",
-            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1")
-        ).thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "onServiceAdded", mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"))
-                    .thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "onPodAdded",
-            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1")
-        ).thenCallRealMethod();
-
+        PowerMockito.when(KubernetesServices.INSTANCE, "list").thenReturn(ImmutableList.of(
+                mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"),
+                mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"), "2.2.2.2")));
+        PowerMockito.when(KubernetesPods.INSTANCE, "list").thenReturn(ImmutableList.of(
+            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1"),
+            mockPod("kube-state-metrics-6f979fd498-z7xwx", "kube-system", of("run", "kube-state-metrics"), "1.1.1.2")));
     }
 
     @Test

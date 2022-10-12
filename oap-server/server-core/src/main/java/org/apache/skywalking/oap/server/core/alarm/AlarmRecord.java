@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -80,7 +81,7 @@ public class AlarmRecord extends Record {
     @Column(columnName = TAGS, indexOnly = true)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
-    @Column(columnName = TAGS_RAW_DATA, storageOnly = true)
+    @Column(columnName = TAGS_RAW_DATA, storageOnly = true, length = Tag.TAG_LENGTH)
     private byte[] tagsRawData;
 
     public static class Builder implements StorageBuilder<AlarmRecord> {
