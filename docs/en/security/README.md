@@ -1,7 +1,7 @@
 # Security Notice
 
-The SkyWalking OAP server and UI should run in a secure environment, such as only inside your data center.
-OAP server, UI, and all agents deployment should only be reachable by the operation team only on default
+The SkyWalking OAP server, UI, and agent deployments should run in a secure environment, such as only inside your data center.
+OAP server, UI, and agent deployments should only be reachable by the operation team on default
 deployment.
 
 All telemetry data are trusted. The OAP server **would not validate any field** of the telemetry data to avoid extra
@@ -13,8 +13,8 @@ The following security policies should be considered to add to secure your SkyWa
 
 1. HTTPs and gRPC+TLS should be used between agents and OAP servers, as well as UI.
 2. Set up TOKEN or username/password based authentications for the OAP server and UI through your Gateway.
-3. Validate all fields in the body of the traceable RPC(including HTTP 1/2, MQ) headers when requests are from out of
-   the trusted zone.
+3. Validate all fields of the traceable RPC(including HTTP 1/2, MQ) headers(header names are `sw8`, `sw8-x` and `sw8-correlation`) 
+   when requests are from out of the trusted zone. Or simply block/remove those headers unless you are using the client-js agent.
 4. All fields of telemetry data(HTTP in raw text or encoded Protobuf format) should be validated and reject malicious
    data.
 
