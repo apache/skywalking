@@ -17,7 +17,7 @@
 
 [
   {
-    "id": "apisix-service",
+    "id": "apisix-Instance",
     "configuration": {
       "children": [
         {
@@ -39,10 +39,10 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_requests"
+            "meter_apisix_instance_http_requests"
           ],
           "metricTypes": [
-            "readLabeledMetricsValues"
+            "readMetricsValues"
           ]
         },
 
@@ -65,7 +65,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_status_matched"
+            "meter_apisix_instance_http_status_matched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -113,7 +113,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_latency_matched"
+            "meter_apisix_instance_http_latency_matched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -162,7 +162,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_bandwidth_matched"
+            "meter_apisix_instance_bandwidth_matched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -207,7 +207,7 @@
             "readLabeledMetricsValues"
           ],
           "metrics": [
-            "meter_apisix_sv_http_connections"
+            "meter_apisix_instance_http_connections"
           ],
           "graph": {
             "type": "Line",
@@ -264,7 +264,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_status_unmatched"
+            "meter_apisix_instance_http_status_unmatched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -312,7 +312,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_http_latency_unmatched"
+            "meter_apisix_instance_http_latency_unmatched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -361,7 +361,7 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_apisix_sv_bandwidth_unmatched"
+            "meter_apisix_instance_bandwidth_unmatched"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
@@ -395,43 +395,164 @@
             }
           ]
         },
+
         {
           "x": 0,
           "y": 26,
-          "w": 12,
-          "h": 26,
-          "i": "12",
+          "w": 6,
+          "h": 13,
+          "i": "9",
           "type": "Widget",
+          "widget": {
+            "title": "Shard Dict Capacity (MB)"
+          },
           "graph": {
-            "type": "InstanceList",
-            "dashboardName": "APISIX-Instance",
-            "fontSize": 12,
-            "showXAxis": false,
-            "showYAxis": false,
-            "showGroup": true
-          }
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "meter_apisix_instance_shared_dict_capacity_bytes"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "byteToMB"
+            }
+          ],
+          "associate": [
+            {
+              "widgetId": "9"
+            },
+            {
+              "widgetId": "10"
+            }
+          ]
+        },
+
+        {
+          "x": 6,
+          "y": 26,
+          "w": 6,
+          "h": 13,
+          "i": "10",
+          "type": "Widget",
+          "widget": {
+            "title": "Shared Dict Free Space (MB)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "meter_apisix_instance_shared_dict_free_space_bytes"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "byteToMB"
+            }
+          ],
+          "associate": [
+            {
+              "widgetId": "9"
+            },
+            {
+              "widgetId": "10"
+            }
+          ]
         },
         {
           "x": 12,
           "y": 26,
-          "w": 12,
-          "h": 26,
-          "i": "13",
+          "w": 6,
+          "h": 13,
+          "i": "11",
           "type": "Widget",
+          "widget": {
+            "title": "etcd indexes"
+          },
           "graph": {
-            "type": "EndpointList",
-            "dashboardName": "APISIX-Endpoint",
-            "fontSize": 12,
-            "showXAxis": false,
-            "showYAxis": false,
-            "showGroup": true
-          }
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "meter_apisix_instance_etcd_indexes"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "associate": [
+          ]
+        },
+
+        {
+          "x": 18,
+          "y": 26,
+          "w": 6,
+          "h": 13,
+          "i": "14",
+          "type": "Widget",
+          "widget": {
+            "title": "etcd latest reachability",
+            "tips": "0 represents etcd unreachable, 1 represents etcd connected."
+          },
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "metrics": [
+            "meter_apisix_instance_etcd_reachable"
+          ],
+          "metricTypes": [
+            "readMetricsValue"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
         }
       ],
       "layer": "APISIX",
-      "entity": "Service",
-      "name": "APISIX-Service",
-      "id": "apisix-service",
+      "entity": "ServiceInstance",
+      "name": "APISIX-Instance",
+      "id": "apisix-Instance",
       "isRoot": false
     }
   }
