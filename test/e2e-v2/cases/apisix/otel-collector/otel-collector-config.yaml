@@ -22,6 +22,8 @@ receivers:
           metrics_path: "/apisix/prometheus/metrics"
           static_configs:
             - targets: ['apisix-serer:9091']
+              labels:
+                skywalking_service: showcase-apisix-service
 processors:
   batch:
 
