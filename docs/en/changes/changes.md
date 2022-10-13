@@ -60,6 +60,7 @@
   so that the requests sent to API server is predictable (~10 requests every `interval`, 3 minutes), and the requests count is constant
   regardless of the cluster's changes. However with this change SkyWalking can't react to the cluster changes in time, but the delay
   is acceptable in our case.
+* Optimize the query time of tasks in ProfileTaskCache.
 
 #### UI
 
