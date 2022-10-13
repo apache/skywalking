@@ -29,7 +29,7 @@
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
 filter: "{ tags -> tags.job_name == 'apisix-monitoring' }" # The OpenTelemetry job name
-expPrefix: tag({tags -> tags.service_name = 'APISIX::'+(tags['skywalking_service']?.trim() ?: 'APISIX')})
+expPrefix: tag({tags -> tags.service_name = 'APISIX::'+(tags['skywalking_service']?.trim()?:'APISIX')})
 expSuffix:
 metricPrefix: meter_apisix
 metricsRules:
@@ -93,8 +93,8 @@ metricsRules:
     exp: apisix_http_latency.tagNotEqual('route','').tag({tags->tags.route = 'route/'+tags['route']}).sum(['type','le','service_name','route']).histogram().histogram_percentile([50,70,90,99]).endpoint(['service_name'],['route'], Layer.APISIX)
     # Reorganization metrics which has `node` label as endpoint , that is formatted to `node/{node}`
   - name: endpoint_http_status
-    exp: apisix_http_status.tagNotEqual('node','').tag({tags->tags.node = 'node/'+tags['node']}).sum(['code','service_name','node']).rate('PT1M').endpoint(['service_name'],['node'], Layer.APISIX)
+    exp: apisix_http_status.tagNotEqual('node','').tag({tags->tags.node = 'upstream/'+tags['node']}).sum(['code','service_name','node']).rate('PT1M').endpoint(['service_name'],['node'], Layer.APISIX)
   - name: endpoint_bandwidth
-    exp: apisix_bandwidth.tagNotEqual('node','').tag({tags->tags.node = 'node/'+tags['node']}).sum(['type','service_name','node']).rate('PT1M').endpoint(['service_name'],['node'], Layer.APISIX)
+    exp: apisix_bandwidth.tagNotEqual('node','').tag({tags->tags.node = 'upstream/'+tags['node']}).sum(['type','service_name','node']).rate('PT1M').endpoint(['service_name'],['node'], Layer.APISIX)
   - name: endpoint_http_latency
-    exp: apisix_http_latency.tagNotEqual('node','').tag({tags->tags.node = 'node/'+tags['node']})sum(['type','le','service_name','node']).histogram().histogram_percentile([50,70,90,99]).endpoint(['service_name'],['node'], Layer.APISIX)
+    exp: apisix_http_latency.tagNotEqual('node','').tag({tags->tags.node = 'upstream/'+tags['node']})sum(['type','le','service_name','node']).histogram().histogram_percentile([50,70,90,99]).endpoint(['service_name'],['node'], Layer.APISIX)
