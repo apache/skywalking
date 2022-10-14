@@ -75,7 +75,9 @@ public class ProcessRegistry {
         traffic.setAgentId(Const.EMPTY_STRING);
         traffic.setLabelsJson(Const.EMPTY_STRING);
         traffic.setDetectType(ProcessDetectType.VIRTUAL.value());
-        traffic.setTimeBucket(TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute));
+        final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
+        traffic.setTimeBucket(timeBucket);
+        traffic.setLastPingTimestamp(timeBucket);
         MetricsStreamProcessor.getInstance().in(traffic);
         return traffic.id();
     }

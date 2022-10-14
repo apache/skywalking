@@ -1,12 +1,12 @@
 # How to use the Docker images
 
-## Start a `standlone` container with `H2` storage
+## Start a `standalone` container with `H2` storage
 
 ```shell
 docker run --name oap --restart always -d apache/skywalking-oap-server:9.0.0
 ```
 
-## Start a `standlone` container with ElasticSearch 7 as storage whose address is `elasticsearch:9200`
+## Start a `standalone` container with ElasticSearch 7 as storage whose address is `elasticsearch:9200`
 
 ```shell
 docker run --name oap --restart always -d -e SW_STORAGE=elasticsearch -e SW_STORAGE_ES_CLUSTER_NODES=elasticsearch:9200 apache/skywalking-oap-server:9.0.0
@@ -14,7 +14,7 @@ docker run --name oap --restart always -d -e SW_STORAGE=elasticsearch -e SW_STOR
 
 # Configuration
 
-We could set up environment variables to configure this image. They are defined in [backend-setup](https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-setup/).
+We could set up environment variables to configure this image. They are defined in [backend-setup](https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-setup/).
 
 # Extend image
 

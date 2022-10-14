@@ -83,13 +83,15 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
 
     protected StringBuilder buildMetricsValueSql(String valueColumnName, String metricsName) {
         StringBuilder sql = new StringBuilder();
-        sql.append("select * from (select avg(")
-                .append(valueColumnName)
-                .append(") result,")
-                .append(Metrics.ENTITY_ID)
-                .append(" from ")
-                .append(metricsName)
-                .append(" where ");
+        sql.append("select result,")
+           .append(Metrics.ENTITY_ID)
+           .append(" from (select avg(")
+           .append(valueColumnName)
+           .append(") result,")
+           .append(Metrics.ENTITY_ID)
+           .append(" from ")
+           .append(metricsName)
+           .append(" where ");
         return sql;
     }
 }

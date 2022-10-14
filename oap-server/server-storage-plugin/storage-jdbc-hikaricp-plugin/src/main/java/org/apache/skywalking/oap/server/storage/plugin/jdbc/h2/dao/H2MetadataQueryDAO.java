@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraf
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.enumeration.Language;
 import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.Process;
@@ -112,9 +113,9 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp,
+    public List<ServiceInstance> listInstances(Duration duration,
                                                String serviceId) throws IOException {
-        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
+        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
 
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
@@ -190,7 +191,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>();
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, null, null, supportStatus, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        appendProcessWhereQuery(sql, condition, serviceId, null, null, supportStatus, lastPingStartTimeBucket, lastPingEndTimeBucket, false);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -204,11 +205,13 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceInstanceId, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+    public List<Process> listProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual) throws IOException {
+        long lastPingStartTimeBucket = duration.getStartTimeBucket();
+        long lastPingEndTimeBucket = duration.getEndTimeBucket();
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>();
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, null, serviceInstanceId, null, null, lastPingStartTimeBucket, lastPingEndTimeBucket);
+        appendProcessWhereQuery(sql, condition, null, serviceInstanceId, null, null, lastPingStartTimeBucket, lastPingEndTimeBucket, includeVirtual);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -226,7 +229,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(2);
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, null, null, agentId, null, 0, 0);
+        appendProcessWhereQuery(sql, condition, null, null, agentId, null, 0, 0, false);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -245,7 +248,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         List<Object> condition = new ArrayList<>(5);
         sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
         appendProcessWhereQuery(sql, condition, serviceId, null, null, profilingSupportStatus,
-            lastPingStartTimeBucket, lastPingEndTimeBucket);
+            lastPingStartTimeBucket, lastPingEndTimeBucket, false);
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
@@ -265,7 +268,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
         sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, null, instanceId, null, null, 0, 0);
+        appendProcessWhereQuery(sql, condition, null, instanceId, null, null, 0, 0, false);
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
@@ -328,7 +331,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
     private void appendProcessWhereQuery(StringBuilder sql, List<Object> condition, String serviceId, String instanceId,
                                          String agentId, final ProfilingSupportStatus profilingSupportStatus,
-                                         final long lastPingStartTimeBucket, final long lastPingEndTimeBucket) {
+                                         final long lastPingStartTimeBucket, final long lastPingEndTimeBucket,
+                                         boolean includeVirtual) {
         if (StringUtil.isNotEmpty(serviceId) || StringUtil.isNotEmpty(instanceId) || StringUtil.isNotEmpty(agentId)) {
             sql.append(" where ");
         }
@@ -365,11 +369,13 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             sql.append(ProcessTraffic.LAST_PING_TIME_BUCKET).append(">=?");
             condition.add(lastPingStartTimeBucket);
         }
-        if (!condition.isEmpty()) {
-            sql.append(" and ");
+        if (!includeVirtual) {
+            if (!condition.isEmpty()) {
+                sql.append(" and ");
+            }
+            sql.append(ProcessTraffic.DETECT_TYPE).append("!=?");
+            condition.add(ProcessDetectType.VIRTUAL.value());
         }
-        sql.append(ProcessTraffic.DETECT_TYPE).append("!=?");
-        condition.add(ProcessDetectType.VIRTUAL.value());
     }
 
     @Override

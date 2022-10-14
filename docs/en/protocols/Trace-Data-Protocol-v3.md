@@ -140,10 +140,10 @@ message SpanObject {
     SpanType spanType = 8;
     // Span layer represent the component tech stack, related to the network tech.
     SpanLayer spanLayer = 9;
-    // Component id is a predefinited number id in the SkyWalking.
+    // Component id is a predefined number id in the SkyWalking.
     // It represents the framework, tech stack used by this tracked span, such as Spring.
     // All IDs are defined in the https://github.com/apache/skywalking/blob/master/oap-server/server-bootstrap/src/main/resources/component-libraries.yml
-    // Send a pull request if you want to add languages, components or mapping defintions,
+    // Send a pull request if you want to add languages, components or mapping definitions,
     // all public components could be accepted.
     // Follow this doc for more details, https://github.com/apache/skywalking/blob/master/docs/en/guides/Component-library-settings.md
     int32 componentId = 10;
@@ -152,7 +152,7 @@ message SpanObject {
     // Exception or error code happened in the tracked process doesn't mean isError == true, the implementations of agent plugin and tracing SDK make the final decision.
     bool isError = 11;
     // String key, String value pair.
-    // Tags provides more informance, includes parameters.
+    // Tags provides more information, includes parameters.
     //
     // In the OAP backend analysis, some special tag or tag combination could provide other advanced features.
     // https://github.com/apache/skywalking/blob/master/docs/en/guides/Java-Plugin-Development-Guide.md#special-span-tags
@@ -209,7 +209,7 @@ enum SpanLayer {
     RPCFramework = 2;
     // HTTP is a more specific RPCFramework.
     Http = 3;
-    // A MQ layer, used in both producer and consuer sides of the MQ component.
+    // A MQ layer, used in both producer and consumer sides of the MQ component.
     MQ = 4;
     // A cache layer, used in tracing the cache client component.
     Cache = 5;

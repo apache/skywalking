@@ -29,7 +29,7 @@
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
 filter: "{ tags -> tags.job_name == 'postgresql-monitoring' }" # The OpenTelemetry job name
-expSuffix:  tag({tags -> tags.server = 'postgresql::' + tags.server}).service(['server'] , Layer.POSTGRESQL)
+expSuffix:  tag({tags -> tags.host_name = 'postgresql::' + tags.host_name}).service(['host_name'] , Layer.POSTGRESQL)
 metricPrefix: meter_pg
 metricsRules:
   # postgresql configurations
@@ -55,36 +55,36 @@ metricsRules:
   # dashboards
   ## rows
   - name: fetched_rows_rate
-    exp: pg_stat_database_tup_fetched.sum(['datname','server']).rate('PT1M')
+    exp: pg_stat_database_tup_fetched.sum(['datname','host_name']).rate('PT1M')
   - name: deleted_rows_rate
-    exp: pg_stat_database_tup_deleted.sum(['datname','server']).rate('PT1M')
+    exp: pg_stat_database_tup_deleted.sum(['datname','host_name']).rate('PT1M')
   - name: inserted_rows_rate
-    exp: pg_stat_database_tup_inserted.sum(['datname','server']).rate('PT1M')
+    exp: pg_stat_database_tup_inserted.sum(['datname','host_name']).rate('PT1M')
   - name: updated_rows_rate
-    exp: pg_stat_database_tup_updated.sum(['datname','server']).rate('PT1M')
+    exp: pg_stat_database_tup_updated.sum(['datname','host_name']).rate('PT1M')
   - name: returned_rows_rate
-    exp: pg_stat_database_tup_returned.sum(['datname','server']).rate('PT1M')
+    exp: pg_stat_database_tup_returned.sum(['datname','host_name']).rate('PT1M')
   ## locks
   - name: locks_count
-    exp: pg_locks_count.tag({tags -> tags.mode = tags.datname + ":" + tags.mode}).sum(['mode','server'])
+    exp: pg_locks_count.tag({tags -> tags.mode = tags.datname + ":" + tags.mode}).sum(['mode','host_name'])
 
-  ## sessions  
+  ## sessions
   - name: active_sessions
-    exp: pg_stat_activity_count.tagEqual('state','active').sum(['datname' , 'server'])
+    exp: pg_stat_activity_count.tagEqual('state','active').sum(['datname' , 'host_name'])
   - name: idle_sessions
-    exp: pg_stat_activity_count.tagMatch('state','idle|idle in transaction|idle in transaction (aborted)').sum(['datname' , 'server'])
+    exp: pg_stat_activity_count.tagMatch('state','idle|idle in transaction|idle in transaction (aborted)').sum(['datname' , 'host_name'])
 
   ## transactions
   - name: committed_transactions_rate
-    exp: pg_stat_database_xact_commit.sum(['datname','server']).rate('PT1M')
+    exp: pg_stat_database_xact_commit.sum(['datname','host_name']).rate('PT1M')
   - name: rolled_back_transactions_rate
-    exp: pg_stat_database_xact_rollback.sum(['datname','server']).rate('PT1M')
+    exp: pg_stat_database_xact_rollback.sum(['datname','host_name']).rate('PT1M')
 
   ## cache and temporary file
   - name: cache_hit_rate
-    exp: (pg_stat_database_blks_hit*100 / (pg_stat_database_blks_read + pg_stat_database_blks_hit)).sum(['datname','server'])
+    exp: (pg_stat_database_blks_hit*100 / (pg_stat_database_blks_read + pg_stat_database_blks_hit)).sum(['datname','host_name'])
   - name: temporary_files_rate
-    exp: pg_stat_database_temp_bytes.sum(['datname','server']).rate('PT1M')
+    exp: pg_stat_database_temp_bytes.sum(['datname','host_name']).rate('PT1M')
 
   ## checkpoint
   - name: checkpoint_write_time_rate
@@ -95,14 +95,14 @@ metricsRules:
     exp: pg_stat_bgwriter_checkpoints_req_total.rate('PT1M')
   - name: checkpoints_timed_rate
     exp: pg_stat_bgwriter_checkpoints_timed_total.rate('PT1M')
-  
+
   ## conflicts and deadlocks
   - name: conflicts_rate
-    exp: pg_stat_database_conflicts.sum(['datname','server']).rate('PT1M')
+    exp: pg_stat_database_conflicts.sum(['datname','host_name']).rate('PT1M')
   - name: deadlocks_rate
-    exp: pg_stat_database_deadlocks.sum(['datname','server']).rate('PT1M')
+    exp: pg_stat_database_deadlocks.sum(['datname','host_name']).rate('PT1M')
 
-  ## buffers 
+  ## buffers
   - name: buffers_checkpoint
     exp: pg_stat_bgwriter_buffers_checkpoint.rate('PT1M')
   - name: buffers_clean

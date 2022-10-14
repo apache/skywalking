@@ -52,6 +52,12 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     public long readMetricsValue(final MetricsCondition condition,
                                 String valueColumnName,
                                 final Duration duration) throws IOException {
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        List<String> ids = new ArrayList<>(pointOfTimes.size());
+        final String entityId = condition.getEntity().buildId();
+        pointOfTimes.forEach(pointOfTime -> {
+            ids.add(pointOfTime.id(entityId));
+        });
         int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         final Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
         if (function == Function.Latest) {
@@ -66,15 +72,22 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                 op = "sum";
         }
         StringBuilder sql = buildMetricsValueSql(op, valueColumnName, condition.getName());
-        final String entityId = condition.getEntity().buildId();
         List<Object> parameters = new ArrayList();
         if (entityId != null) {
             sql.append(Metrics.ENTITY_ID + " = ? and ");
             parameters.add(entityId);
         }
-        sql.append(Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=?" + " group by " + Metrics.ENTITY_ID);
-        parameters.add(duration.getStartTimeBucket());
-        parameters.add(duration.getEndTimeBucket());
+        sql.append("id in (");
+        for (int i = 0; i < ids.size(); i++) {
+            if (i == 0) {
+                sql.append("?");
+            } else {
+                sql.append(",?");
+            }
+            parameters.add(ids.get(i));
+        }
+        sql.append(")");
+        sql.append(" group by " + Metrics.ENTITY_ID);
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
@@ -103,8 +116,9 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                                            final Duration duration) throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
+        final String entityId = condition.getEntity().buildId();
         pointOfTimes.forEach(pointOfTime -> {
-            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+            ids.add(pointOfTime.id(entityId));
         });
 
         StringBuilder sql = new StringBuilder(
@@ -119,6 +133,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             parameters.add(ids.get(i));
         }
         sql.append(")");
+
+        buildShardingCondition(sql, parameters, entityId);
 
         MetricsValues metricsValues = new MetricsValues();
         // Label is null, because in readMetricsValues, no label parameter.
@@ -152,8 +168,9 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                                                         final Duration duration) throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
+        final String entityId = condition.getEntity().buildId();
         pointOfTimes.forEach(pointOfTime -> {
-            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+            ids.add(pointOfTime.id(entityId));
         });
 
         StringBuilder sql = new StringBuilder(
@@ -169,6 +186,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             parameters.add(ids.get(i));
         }
         sql.append(")");
+
+        buildShardingCondition(sql, parameters, entityId);
 
         Map<String, DataTable> idMap = new HashMap<>();
         try (Connection connection = h2Client.getConnection()) {
@@ -186,7 +205,11 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         } catch (SQLException e) {
             throw new IOException(e);
         }
-        return Util.composeLabelValue(condition, labels, ids, idMap);
+        return Util.sortValues(
+            Util.composeLabelValue(condition, labels, ids, idMap),
+            ids,
+            ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+        );
     }
 
     @Override
@@ -195,8 +218,9 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                                final Duration duration) throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
+        final String entityId = condition.getEntity().buildId();
         pointOfTimes.forEach(pointOfTime -> {
-            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+            ids.add(pointOfTime.id(entityId));
         });
 
         StringBuilder sql = new StringBuilder(
@@ -211,6 +235,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             parameters.add(ids.get(i));
         }
         sql.append(")");
+
+        buildShardingCondition(sql, parameters, entityId);
 
         final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
 
@@ -231,5 +257,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         } catch (SQLException e) {
             throw new IOException(e);
         }
+    }
+
+    protected void buildShardingCondition(StringBuilder sql, List<Object> parameters, String entityId) {
     }
 }

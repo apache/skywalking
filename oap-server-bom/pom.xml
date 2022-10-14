@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.2.0-SNAPSHOT</version>
+        <version>9.3.0-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -31,16 +31,16 @@
         <slf4j.version>1.7.30</slf4j.version>
         <log4j.version>2.17.1</log4j.version>
         <google.error_prone_annotations>2.11.0</google.error_prone_annotations>
-        <graphql-java-tools.version>12.0.2</graphql-java-tools.version>
-        <graphql-java.version>17.3</graphql-java.version>
-        <graphql-java-extended-scalars.version>17.0</graphql-java-extended-scalars.version>
+        <graphql-java-tools.version>13.0.1</graphql-java-tools.version>
+        <graphql-java.version>19.2</graphql-java.version>
+        <graphql-java-extended-scalars.version>18.1</graphql-java-extended-scalars.version>
         <okhttp.version>3.14.9</okhttp.version>
         <httpclient.version>4.5.13</httpclient.version>
         <h2.version>2.1.212</h2.version>
         <joda-time.version>2.10.5</joda-time.version>
         <zookeeper.version>3.5.7</zookeeper.version>
         <guava.version>31.1-jre</guava.version>
-        <snakeyaml.version>1.28</snakeyaml.version>
+        <snakeyaml.version>1.32</snakeyaml.version>
         <protobuf-java.version>3.19.4</protobuf-java.version>
         <protobuf-java-util.version>3.19.4</protobuf-java-util.version>
         <commons-codec.version>1.11</commons-codec.version>
@@ -49,9 +49,7 @@
         <kubernetes.version>16.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.23.16</zipkin.version>
-        <jackson-core.version>2.13.2</jackson-core.version>
-        <jackson-annotations.version>2.13.2</jackson-annotations.version>
-        <jackson-databind.version>2.13.2.2</jackson-databind.version>
+        <jackson.version>2.13.4</jackson.version>
         <commons-text.version>1.4</commons-text.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.8.0</apollo.version>
@@ -59,7 +57,6 @@
         <curator.version>4.3.0</curator.version>
         <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.18.0</etcd4j.version>
-        <jackson-module-afterburner.version>2.12.2</jackson-module-afterburner.version>
         <antlr.version>4.9.2</antlr.version>
         <freemarker.version>2.3.31</freemarker.version>
         <javaassist.version>3.25.0-GA</javaassist.version>
@@ -68,10 +65,10 @@
         <mvel.version>2.4.8.Final</mvel.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <flatbuffers-java.version>1.12.0</flatbuffers-java.version>
-        <postgresql.version>42.3.3</postgresql.version>
+        <postgresql.version>42.4.1</postgresql.version>
         <jetcd.version>0.5.3</jetcd.version>
         <testcontainers.version>1.15.3</testcontainers.version>
-        <armeria.version>1.16.0</armeria.version>
+        <armeria.version>1.18.0</armeria.version>
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
         <commons-compress.version>1.21</commons-compress.version>
@@ -308,17 +305,17 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>${jackson-core.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${jackson-annotations.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson-databind.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -376,12 +373,6 @@
                         <artifactId>slf4j-api</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
-                <artifactId>jackson-module-afterburner</artifactId>
-                <version>${jackson-module-afterburner.version}</version>
             </dependency>
 
             <dependency>

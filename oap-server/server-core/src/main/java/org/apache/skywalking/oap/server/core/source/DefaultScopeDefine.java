@@ -106,6 +106,8 @@ public class DefaultScopeDefine {
     public static final int ZIPKIN_SERVICE_SPAN = 52;
     public static final int ZIPKIN_SERVICE_RELATION = 53;
     public static final int PROCESS_RELATION = 54;
+    public static final int CACHE_ACCESS = 55;
+    public static final int CACHE_SLOW_ACCESS = 56;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

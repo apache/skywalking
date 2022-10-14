@@ -200,13 +200,6 @@ public class AnalyzerTest {
                       .labels(of("le", "0.75", "service", "service1", "instance", "instance2"))
                       .value(122)
                       .name("instance_cpu_percentage")
-                      .build(),
-                Sample.builder()
-                      .labels(of("le", String.valueOf(Integer.MAX_VALUE), "service", "service1", "instance",
-                                 "instance2"
-                      ))
-                      .value(410)
-                      .name("instance_cpu_percentage")
                       .build()
             ).build()
         );
@@ -215,11 +208,10 @@ public class AnalyzerTest {
         doAnswer(invocationOnMock -> {
             AvgHistogramPercentileFunction actValue = (AvgHistogramPercentileFunction) invocationOnMock.getArgument(
                 0, AcceptableValue.class);
-            if (actValue.getSummation().hasKey("instance1:0")) {
+            if (actValue.getSummation().hasKey("instance1:25")) {
                 actValues.put("instance1", actValue);
             } else {
                 actValues.put("instance2", actValue);
-
             }
             return null;
         }).when(meterSystem).doStreamingCalculation(any());
@@ -240,14 +232,12 @@ public class AnalyzerTest {
         });
         AvgHistogramPercentileFunction instance1 = actValues.get("instance1");
         AvgHistogramPercentileFunction instance2 = actValues.get("instance2");
-        Assert.assertEquals(100L, instance1.getSummation().get("instance1:0"), 0.0);
-        Assert.assertEquals(178L, instance1.getSummation().get("instance1:750"), 0.0);
-        Assert.assertEquals(1L, instance1.getCount().get("instance1:0"), 0.0);
-        Assert.assertEquals(1L, instance1.getCount().get("instance1:750"), 0.0);
+        Assert.assertEquals(100L, instance1.getSummation().get("instance1:25"), 0.0);
+        Assert.assertEquals(300L, instance1.getSummation().get("instance1:1250"), 0.0);
+        Assert.assertEquals(1L, instance1.getCount().get("instance1:25"), 0.0);
+        Assert.assertEquals(1L, instance1.getCount().get("instance1:1250"), 0.0);
 
-        Assert.assertEquals(22L, instance2.getSummation().get("instance2:25"), 0.0);
-        Assert.assertEquals(110L, instance2.getSummation().get("instance2:1250"), 0.0);
-        Assert.assertEquals(1L, instance2.getCount().get("instance2:25"), 0.0);
-        Assert.assertEquals(1L, instance2.getCount().get("instance2:1250"), 0.0);
+        Assert.assertEquals(122L, instance2.getSummation().get("instance2:750"), 0.0);
+        Assert.assertEquals(1L, instance2.getCount().get("instance2:750"), 0.0);
     }
 }

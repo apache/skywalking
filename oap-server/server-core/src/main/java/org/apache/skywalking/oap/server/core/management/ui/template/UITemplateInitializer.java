@@ -54,9 +54,11 @@ public class UITemplateInitializer {
         Layer.BROWSER.name(),
         Layer.SO11Y_OAP.name(),
         Layer.VIRTUAL_DATABASE.name(),
+        Layer.VIRTUAL_CACHE.name(),
         Layer.K8S_SERVICE.name(),
         Layer.SO11Y_SATELLITE.name(),
         Layer.FAAS.name(),
+        Layer.APISIX.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

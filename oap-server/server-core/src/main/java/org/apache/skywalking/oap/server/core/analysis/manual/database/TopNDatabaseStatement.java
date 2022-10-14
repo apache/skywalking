@@ -56,7 +56,7 @@ public class TopNDatabaseStatement extends TopN {
         if (o == null || getClass() != o.getClass())
             return false;
         TopNDatabaseStatement statement = (TopNDatabaseStatement) o;
-        return getServiceId() == statement.getServiceId();
+        return Objects.equals(getServiceId(), statement.getServiceId());
     }
 
     @Override

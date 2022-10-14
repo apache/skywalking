@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
@@ -43,10 +44,14 @@ public class H2BrowserLogQueryDAO implements IBrowserLogQueryDAO {
                                                   String serviceVersionId,
                                                   String pagePathId,
                                                   BrowserErrorCategory category,
-                                                  long startSecondTB,
-                                                  long endSecondTB,
+                                                  Duration duration,
                                                   int limit,
                                                   int from) throws IOException {
+        long startSecondTB = 0, endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
         StringBuilder sql = new StringBuilder();
 
         List<Object> parameters = new ArrayList<>(9);

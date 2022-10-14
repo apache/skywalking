@@ -116,10 +116,13 @@ core:
     # The max length of service + endpoint names should be less than 240
     endpointNameMaxLength: ${SW_ENDPOINT_NAME_MAX_LENGTH:150}
     # Define the set of span tag keys, which should be searchable through the GraphQL.
+    # The max length of key=value should be less than 256 or will be dropped.
     searchableTracesTags: ${SW_SEARCHABLE_TAG_KEYS:http.method,http.status_code,rpc.status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
     # Define the set of log tag keys, which should be searchable through the GraphQL.
+    # The max length of key=value should be less than 256 or will be dropped.
     searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:level}
     # Define the set of alarm tag keys, which should be searchable through the GraphQL.
+    # The max length of key=value should be less than 256 or will be dropped.
     searchableAlarmTags: ${SW_SEARCHABLE_ALARM_TAG_KEYS:level}
     # The max size of tags keys for autocomplete select.
     autocompleteTagKeysQueryMaxSize: ${SW_AUTOCOMPLETE_TAG_KEYS_QUERY_MAX_SIZE:100}
@@ -187,6 +190,17 @@ storage:
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
+  mysql-sharding:
+    properties:
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:13307/swtest?rewriteBatchedStatements=true"}
+      dataSource.user: ${SW_DATA_SOURCE_USER:root}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root}
+    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+    maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
+    asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
+    # The dataSources are configured in ShardingSphere-Proxy config-sharding.yaml.
+    # The dataSource name should include the prefix "ds_" and separated by "," and start from ds_0
+    dataSources: ${SW_JDBC_SHARDING_DATA_SOURCES:ds_0,ds_1}
   tidb:
     properties:
       jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:4000/tidbswtest?rewriteBatchedStatements=true"}
@@ -234,12 +248,14 @@ agent-analyzer:
     # Nginx and Envoy agents can't get the real remote address.
     # Exit spans with the component in the list would not generate the client-side instance relation metrics.
     noUpstreamRealAddressAgents: ${SW_NO_UPSTREAM_REAL_ADDRESS:6000,9000}
-    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite} # Which files could be meter analyzed, files split by ","
+    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite,go-runtime} # Which files could be meter analyzed, files split by ","
+    slowCacheReadThreshold: ${SW_SLOW_CACHE_SLOW_READ_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
+    slowCacheWriteThreshold: ${SW_SLOW_CACHE_SLOW_WRITE_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
 
 log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:
-    lalFiles: ${SW_LOG_LAL_FILES:default}
+    lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mysql-slowsql,pgsql-slowsql,default}
     malFiles: ${SW_LOG_MAL_FILES:""}
 
 event-analyzer:
@@ -312,12 +328,6 @@ envoy-metric:
     # Be careful, when using environment variables to pass this configuration, use single quotes(`''`) to avoid it being evaluated by the shell.
     k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${pod.metadata.labels.(service.istio.io/canonical-name)}"}
 
-prometheus-fetcher:
-  selector: ${SW_PROMETHEUS_FETCHER:-}
-  default:
-    enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self"}
-    maxConvertWorker: ${SW_PROMETHEUS_FETCHER_NUM_CONVERT_WORKER:-1}
-
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:-}
   default:
@@ -338,13 +348,14 @@ receiver-meter:
 receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
-    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc,otlp"}
-    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"istio-controlplane,k8s-node,oap,vm,mysql,postgresql"}
+    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"istio-controlplane,k8s-node,oap,vm,mysql,postgresql,apisix"}
 
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
+    # Defines a set of span tag keys which are searchable.
+    # The max length of key=value should be less than 256 or will be dropped.
     searchableTracesTags: ${SW_ZIPKIN_SEARCHABLE_TAG_KEYS:http.method}
     # The sample rate precision is 1/10000, should be between 0 and 10000
     sampleRate: ${SW_ZIPKIN_SAMPLE_RATE:10000}

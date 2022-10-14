@@ -1,0 +1,100 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+filter: "{ tags -> tags.job_name == 'apisix-monitoring' }" # The OpenTelemetry job name
+expPrefix: tag({tags -> tags.service_name = 'APISIX::'+(tags['skywalking_service']?.trim()?:'APISIX')})
+expSuffix:
+metricPrefix: meter_apisix
+metricsRules:
+  # Service
+  - name: sv_http_connections
+    exp: apisix_nginx_http_current_connections.sum(['state','service_name']).service(['service_name'] , Layer.APISIX)
+  - name: sv_http_requests
+    exp: apisix_http_requests_total.sum(['service_instance_id','service_name']).rate('PT1M').service(['service_name'] , Layer.APISIX)
+    # Not match any route
+    # Refer to  https://apisix.apache.org/docs/apisix/plugins/prometheus/
+  - name: sv_bandwidth_unmatched
+    exp: apisix_bandwidth.tagEqual('route' , '' , 'node' , '').sum(['type','service_name']).rate('PT1M').service(['service_name'] , Layer.APISIX)
+  - name: sv_http_status_unmatched
+    exp: apisix_http_status.tagEqual('route' , '' , 'node' , '').sum(['code','service_name']).rate('PT1M').service(['service_name'] , Layer.APISIX)
+  - name: sv_http_latency_unmatched
+    exp: apisix_http_latency.tagEqual('route' , '' , 'node' , '').sum(['type','le','service_name']).histogram().histogram_percentile([50,70,90,99]).service(['service_name'] , Layer.APISIX)
+   # Match a route
+  - name: sv_bandwidth_matched
+    exp: apisix_bandwidth.tagNotEqual('route' , '' , 'node' , '').sum(['type','service_name']).rate('PT1M').service(['service_name'] , Layer.APISIX)
+  - name: sv_http_status_matched
+    exp: apisix_http_status.tagNotEqual('route' , '' , 'node' , '').sum(['code','service_name']).rate('PT1M').service(['service_name'] , Layer.APISIX)
+  - name: sv_http_latency_matched
+    exp: apisix_http_latency.tagNotEqual('route' , '' , 'node' , '').sum(['type','le','service_name']).histogram().histogram_percentile([50,70,90,99]).service(['service_name'] , Layer.APISIX)
+
+  # Instance
+  - name: instance_shared_dict_capacity_bytes
+    exp: apisix_shared_dict_capacity_bytes.sum(['name','service_name','service_instance_id']).instance(['service_name'],['service_instance_id'], Layer.APISIX)
+  - name: instance_shared_dict_free_space_bytes
+    exp: apisix_shared_dict_free_space_bytes.sum(['name','service_name','service_instance_id']).instance(['service_name'],['service_instance_id'], Layer.APISIX)
+  - name: instance_etcd_indexes
+    exp: apisix_etcd_modify_indexes.sum(['key','service_name','service_instance_id']).instance(['service_name'],['service_instance_id'], Layer.APISIX)
+  - name: instance_etcd_reachable
+    exp: apisix_etcd_reachable.downsampling(LATEST).instance(['service_name'],['service_instance_id'], Layer.APISIX)
+  - name: instance_http_connections
+    exp: apisix_nginx_http_current_connections.sum(['state','service_name','service_instance_id']).instance(['service_name'],['service_instance_id'], Layer.APISIX)
+  - name: instance_http_requests
+    exp: apisix_http_requests_total.rate('PT1M').instance(['service_name'],['service_instance_id'], Layer.APISIX)
+    # Match a route
+  - name: instance_bandwidth_matched
+    exp: apisix_bandwidth.tagNotEqual('route' , '' , 'node' , '' ).sum(['type','service_name','service_instance_id']).rate('PT1M').instance(['service_name'],['service_instance_id'], Layer.APISIX)
+  - name: instance_http_status_matched
+    exp: apisix_http_status.tagNotEqual('route' , '' , 'node' , '').sum(['code','service_name','service_instance_id']).rate('PT1M').instance(['service_name'],['service_instance_id'], Layer.APISIX)
+  - name: instance_http_latency_matched
+    exp: apisix_http_latency.tagNotEqual('route' , '' , 'node' , '').sum(['type','le','service_name','service_instance_id']).histogram().histogram_percentile([50,70,90,99]).instance(['service_name'],['service_instance_id'], Layer.APISIX)
+    # Not match any route
+    # Refer to  https://apisix.apache.org/docs/apisix/plugins/prometheus/
+  - name: instance_bandwidth_unmatched
+    exp: apisix_bandwidth.tagEqual('route' , '' , 'node' , '').sum(['type','service_name','service_instance_id']).rate('PT1M').instance(['service_name'],['service_instance_id'], Layer.APISIX)
+  - name: instance_http_status_unmatched
+    exp: apisix_http_status.tagEqual('route' , '' , 'node' , '').sum(['code','service_name','service_instance_id']).rate('PT1M').instance(['service_name'],['service_instance_id'], Layer.APISIX)
+  - name: instance_http_latency_unmatched
+    exp: apisix_http_latency.tagEqual('route' , '' , 'node' , '').sum(['type','le','service_name','service_instance_id']).histogram().histogram_percentile([50,70,90,99]).instance(['service_name'],['service_instance_id'], Layer.APISIX)
+
+  # Endpoint
+    # Reorganization metrics which has `route` label as endpoint ,that is formatted to `router/{routerId}`
+  - name: endpoint_http_status
+    exp: apisix_http_status.tagNotEqual('route','').tag({tags->tags.route = 'route/'+tags['route']}).sum(['code','service_name','route']).rate('PT1M').endpoint(['service_name'],['route'], Layer.APISIX)
+  - name: endpoint_bandwidth
+    exp: apisix_bandwidth.tagNotEqual('route','').tag({tags->tags.route = 'route/'+tags['route']}).sum(['type','service_name','route']).rate('PT1M').endpoint(['service_name'],['route'], Layer.APISIX)
+  - name: endpoint_http_latency
+    exp: apisix_http_latency.tagNotEqual('route','').tag({tags->tags.route = 'route/'+tags['route']}).sum(['type','le','service_name','route']).histogram().histogram_percentile([50,70,90,99]).endpoint(['service_name'],['route'], Layer.APISIX)
+    # Reorganization metrics which has `node` label as endpoint , that is formatted to `node/{node}`
+  - name: endpoint_http_status
+    exp: apisix_http_status.tagNotEqual('node','').tag({tags->tags.node = 'upstream/'+tags['node']}).sum(['code','service_name','node']).rate('PT1M').endpoint(['service_name'],['node'], Layer.APISIX)
+  - name: endpoint_bandwidth
+    exp: apisix_bandwidth.tagNotEqual('node','').tag({tags->tags.node = 'upstream/'+tags['node']}).sum(['type','service_name','node']).rate('PT1M').endpoint(['service_name'],['node'], Layer.APISIX)
+  - name: endpoint_http_latency
+    exp: apisix_http_latency.tagNotEqual('node','').tag({tags->tags.node = 'upstream/'+tags['node']})sum(['type','le','service_name','node']).histogram().histogram_percentile([50,70,90,99]).endpoint(['service_name'],['node'], Layer.APISIX)

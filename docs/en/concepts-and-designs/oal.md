@@ -138,7 +138,7 @@ endpoint_percentile = from(Endpoint.latency).percentile(10)
 endpoint_success = from(Endpoint.*).filter(status == true).percent()
 
 // Calculate the sum of response code in [404, 500, 503], for each service.
-endpoint_abnormal = from(Endpoint.*).filter(responseCode in [404, 500, 503]).count()
+endpoint_abnormal = from(Endpoint.*).filter(httpResponseStatusCode in [404, 500, 503]).count()
 
 // Calculate the sum of request type in [RequestType.RPC, RequestType.gRPC], for each service.
 endpoint_rpc_calls_sum = from(Endpoint.*).filter(type in [RequestType.RPC, RequestType.gRPC]).count()

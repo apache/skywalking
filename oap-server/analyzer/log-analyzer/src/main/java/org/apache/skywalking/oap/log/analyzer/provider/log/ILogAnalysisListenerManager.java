@@ -19,10 +19,15 @@ package org.apache.skywalking.oap.log.analyzer.provider.log;
 
 import java.util.List;
 import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListenerFactory;
+import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogSinkListenerFactory;
 
 public interface ILogAnalysisListenerManager {
 
     void addListenerFactory(LogAnalysisListenerFactory factory);
 
     List<LogAnalysisListenerFactory> getLogAnalysisListenerFactories();
+
+    void addSinkListenerFactory(LogSinkListenerFactory factory);
+
+    List<LogSinkListenerFactory> getSinkListenerFactory();
 }

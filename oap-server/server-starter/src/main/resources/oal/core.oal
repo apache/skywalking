@@ -71,3 +71,18 @@ database_access_resp_time = from(DatabaseAccess.latency).longAvg();
 database_access_sla = from(DatabaseAccess.*).percent(status == true);
 database_access_cpm = from(DatabaseAccess.*).cpm();
 database_access_percentile = from(DatabaseAccess.latency).percentile(10);
+
+cache_read_resp_time = from(CacheAccess.latency).filter(operation == VirtualCacheOperation.Read).longAvg();
+cache_read_sla = from(CacheAccess.*).filter(operation == VirtualCacheOperation.Read).percent(status == true);
+cache_read_cpm = from(CacheAccess.*).filter(operation == VirtualCacheOperation.Read).cpm();
+cache_read_percentile = from(CacheAccess.latency).filter(operation == VirtualCacheOperation.Read).percentile(10);
+
+cache_write_resp_time = from(CacheAccess.latency).filter(operation == VirtualCacheOperation.Write).longAvg();
+cache_write_sla = from(CacheAccess.*).filter(operation == VirtualCacheOperation.Write).percent(status == true);
+cache_write_cpm = from(CacheAccess.*).filter(operation == VirtualCacheOperation.Write).cpm();
+cache_write_percentile = from(CacheAccess.latency).filter(operation == VirtualCacheOperation.Write).percentile(10);
+
+cache_access_resp_time = from(CacheAccess.latency).longAvg();
+cache_access_sla = from(CacheAccess.*).percent(status == true);
+cache_access_cpm = from(CacheAccess.*).cpm();
+cache_access_percentile = from(CacheAccess.latency).percentile(10);

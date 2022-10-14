@@ -13,7 +13,6 @@ This calculates the metrics data from each request of the service.
 | endpointName | The name of the endpoint, such as a full path of HTTP URI. | | string |
 | latency | The time taken by each request. | | int |
 | status | Indicates the success or failure of the request. | | bool(true for success)  |
-| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
 | httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
 | rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
@@ -34,7 +33,6 @@ This calculates the metrics data from each request of the service instance.
 | endpointName | The name of the endpoint, such as a full path of the HTTP URI. | | string|
 | latency | The time taken by each request. | | int |
 | status | Indicates the success or failure of the request. | | bool(true for success) |
-| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
 | httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
 | rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
@@ -126,7 +124,6 @@ This calculates the metrics data from each request of the endpoint in the servic
 | serviceInstanceName | The name of the service instance ID. | | string |
 | latency | The time taken by each request. | | int |
 | status | Indicates the success or failure of the request.| | bool(true for success) |
-| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
 | httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
 | rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
@@ -152,7 +149,6 @@ This calculates the metrics data from each request between services.
 | componentId               | The ID of component used in this call.                                                                                                              | yes       | string                 |
 | latency                   | The time taken by each request.                                                                                                                     |           | int                    |
 | status                    | Indicates the success or failure of the request.                                                                                                    |           | bool(true for success) |
-| ~~responseCode~~          | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302                                         |           | int                    |
 | httpResponseStatusCode    | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302                                                    |           | int                    |
 | rpcStatusCode             | The string value of the rpc response code.                                                                                                          |           | string                 |
 | type                      | The type of each request, such as Database, HTTP, RPC, or gRPC.                                                                                     |           | enum                   |
@@ -178,7 +174,6 @@ This calculates the metrics data from each request between service instances.
 | componentId               | The ID of the component used in this call.                                                                                                                                    | yes       | string                 |
 | latency                   | The time taken by each request.                                                                                                                                               |           | int                    |
 | status                    | Indicates the success or failure of the request.                                                                                                                              |           | bool(true for success) |
-| ~~responseCode~~          | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302                                                                   |           | int                    |
 | httpResponseStatusCode    | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302                                                                              |           | int                    |
 | rpcStatusCode             | The string value of the rpc response code.                                                                                                                                    |           | string                 |
 | type                      | The type of each request, such as Database, HTTP, RPC, or gRPC.                                                                                                               |           | enum                   |
@@ -207,7 +202,6 @@ including auto instrument agents (like Java and .NET), OpenCensus SkyWalking exp
 | rpcLatency | The latency of the RPC between the parent endpoint and childEndpoint, excluding the latency caused by the parent endpoint itself.
 | componentId | The ID of the component used in this call. | yes | string
 | status | Indicates the success or failure of the request.| | bool(true for success) |
-| ~~responseCode~~ | Deprecated.The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
 | httpResponseStatusCode | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302| | int |
 | rpcStatusCode | The string value of the rpc response code. | | string |
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
@@ -286,3 +280,54 @@ This calculates the metrics data from [events](event.md).
 | type | The type of the event, `Normal` or `Error`. | | string|
 | message | The message of the event. | | string |
 | parameters | The parameters in the `message`, see [parameters](event.md#parameters). | | string |
+
+
+### SCOPE `DatabaseAccess`
+
+This calculates the metrics data from each request of cache system.
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name | The service name of virtual database service. |  | string |
+| databaseTypeId | The ID of the component used in this call. | | int |
+| latency | The time taken by each request. | | int(in ms)|
+| status | Indicates the success or failure of the request.| | boolean |
+
+### SCOPE `DatabaseSlowStatement`
+
+This calculates the metrics data from slow request of cache system , which is used for `write` or `read` operation.
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| databaseServiceId | The service id of virtual cache service. |  | string |
+| statement | The sql statement . | | string |
+| latency | The time taken by each request. | | int(in ms)|
+| traceId | The traceId of this slow statement| | string|
+
+
+### SCOPE `CacheAccess`
+
+This calculates the metrics data from each request of cache system.
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name | The service name of virtual cache service. |  | string |
+| cacheTypeId | The ID of the component used in this call. | | int |
+| latency | The time taken by each request. | | int(in ms)|
+| status | Indicates the success or failure of the request.| | boolean |
+| operation | Indicates this access is used for `write` or `read` | | string |
+
+
+### SCOPE `CacheSlowAccess`
+
+This calculates the metrics data from slow request of cache system , which is used for `write` or `read` operation.
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| cacheServiceId | The service id of virtual cache service. |  | string |
+| command | The cache command . | | string |
+| key | The cache command key. | | string|
+| latency | The time taken by each request. | | int(in ms)|
+| traceId | The traceId of this slow access| | string|
+| status | Indicates the success or failure of the request.| | boolean |
+| operation | Indicates this access is used for `write` or `read` | | string |

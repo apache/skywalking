@@ -131,7 +131,7 @@ public class DSLSecurityTest {
     public void testSecurity() throws ModuleStartException {
         final DSL dsl = DSL.of(manager, new LogAnalyzerModuleConfig(), script);
         Whitebox.setInternalState(
-            Whitebox.getInternalState(dsl, "filterSpec"), "factories", Collections.emptyList()
+            Whitebox.getInternalState(dsl, "filterSpec"), "sinkListenerFactories", Collections.emptyList()
         );
 
         dsl.bind(new Binding().log(LogData.newBuilder()));

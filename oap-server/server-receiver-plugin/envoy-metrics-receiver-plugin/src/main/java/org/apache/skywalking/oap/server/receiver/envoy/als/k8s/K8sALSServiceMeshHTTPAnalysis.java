@@ -59,7 +59,6 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
     public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
         this.config = config;
         serviceRegistry = new K8SServiceRegistry(config);
-        serviceRegistry.start();
     }
 
     @Override
@@ -71,9 +70,6 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
     ) {
         if (isNotEmpty(result.getMetrics())) {
             return result;
-        }
-        if (serviceRegistry.isEmpty()) {
-            return Result.builder().build();
         }
         switch (role) {
             case PROXY:

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.2.0-SNAPSHOT</version>
+        <version>9.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -171,11 +171,6 @@
         <!-- fetcher module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>prometheus-fetcher-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>kafka-fetcher-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -195,6 +190,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>storage-banyandb-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-shardingsphere-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- storage module -->

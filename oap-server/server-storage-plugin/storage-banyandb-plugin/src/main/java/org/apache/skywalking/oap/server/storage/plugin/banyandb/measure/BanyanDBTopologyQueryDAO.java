@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.Pr
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
@@ -47,6 +48,8 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
+import static java.util.Objects.nonNull;
+
 public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITopologyQueryDAO {
 
     public BanyanDBTopologyQueryDAO(final BanyanDBStorageClient client) {
@@ -54,35 +57,35 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB, long endTB, List<String> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(Duration duration, List<String> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
 
         List<QueryBuilder<MeasureQuery>> queryBuilderList = buildServiceRelationsQueries(serviceIds);
 
-        return queryServiceRelation(startTB, endTB, queryBuilderList, DetectPoint.SERVER);
+        return queryServiceRelation(duration, queryBuilderList, DetectPoint.SERVER);
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(long startTB, long endTB, List<String> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(Duration duration, List<String> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
 
         List<QueryBuilder<MeasureQuery>> queryBuilderList = buildServiceRelationsQueries(serviceIds);
 
-        return queryServiceRelation(startTB, endTB, queryBuilderList, DetectPoint.CLIENT);
+        return queryServiceRelation(duration, queryBuilderList, DetectPoint.CLIENT);
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB, long endTB) throws IOException {
-        return queryServiceRelation(startTB, endTB, Collections.singletonList(emptyMeasureQuery()), DetectPoint.SERVER);
+    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(Duration duration) throws IOException {
+        return queryServiceRelation(duration, Collections.singletonList(emptyMeasureQuery()), DetectPoint.SERVER);
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(long startTB, long endTB) throws IOException {
-        return queryServiceRelation(startTB, endTB, Collections.singletonList(emptyMeasureQuery()), DetectPoint.CLIENT);
+    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(Duration duration) throws IOException {
+        return queryServiceRelation(duration, Collections.singletonList(emptyMeasureQuery()), DetectPoint.CLIENT);
     }
 
     private List<QueryBuilder<MeasureQuery>> buildServiceRelationsQueries(List<String> serviceIds) {
@@ -105,7 +108,13 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         return queryBuilderList;
     }
 
-    List<Call.CallDetail> queryServiceRelation(long startTB, long endTB, List<QueryBuilder<MeasureQuery>> queryBuilderList, DetectPoint detectPoint) throws IOException {
+    List<Call.CallDetail> queryServiceRelation(Duration duration, List<QueryBuilder<MeasureQuery>> queryBuilderList, DetectPoint detectPoint) throws IOException {
+        long startTB = 0;
+        long endTB = 0;
+        if (nonNull(duration)) {
+            startTB = duration.getStartTimeBucketInSec();
+            endTB = duration.getEndTimeBucketInSec();
+        }
         TimestampRange timestampRange = null;
         if (startTB > 0 && endTB > 0) {
             timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
@@ -133,15 +142,15 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
     }
 
     @Override
-    public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId, String serverServiceId, long startTB, long endTB) throws IOException {
+    public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId, String serverServiceId, Duration duration) throws IOException {
         List<QueryBuilder<MeasureQuery>> queryBuilderList = buildInstanceRelationsQueries(clientServiceId, serverServiceId);
-        return queryInstanceRelation(startTB, endTB, queryBuilderList, DetectPoint.SERVER);
+        return queryInstanceRelation(duration, queryBuilderList, DetectPoint.SERVER);
     }
 
     @Override
-    public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId, String serverServiceId, long startTB, long endTB) throws IOException {
+    public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId, String serverServiceId, Duration duration) throws IOException {
         List<QueryBuilder<MeasureQuery>> queryBuilderList = buildInstanceRelationsQueries(clientServiceId, serverServiceId);
-        return queryInstanceRelation(startTB, endTB, queryBuilderList, DetectPoint.CLIENT);
+        return queryInstanceRelation(duration, queryBuilderList, DetectPoint.CLIENT);
     }
 
     private List<QueryBuilder<MeasureQuery>> buildInstanceRelationsQueries(String clientServiceId, String serverServiceId) {
@@ -164,7 +173,13 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         return queryBuilderList;
     }
 
-    List<Call.CallDetail> queryInstanceRelation(long startTB, long endTB, List<QueryBuilder<MeasureQuery>> queryBuilderList, DetectPoint detectPoint) throws IOException {
+    List<Call.CallDetail> queryInstanceRelation(Duration duration, List<QueryBuilder<MeasureQuery>> queryBuilderList, DetectPoint detectPoint) throws IOException {
+        long startTB = 0;
+        long endTB = 0;
+        if (nonNull(duration)) {
+            startTB = duration.getStartTimeBucketInSec();
+            endTB = duration.getEndTimeBucketInSec();
+        }
         TimestampRange timestampRange = null;
         if (startTB > 0 && endTB > 0) {
             timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
@@ -192,19 +207,19 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
     }
 
     @Override
-    public List<Call.CallDetail> loadEndpointRelation(long startTB, long endTB, String destEndpointId) throws IOException {
+    public List<Call.CallDetail> loadEndpointRelation(Duration duration, String destEndpointId) throws IOException {
         List<QueryBuilder<MeasureQuery>> queryBuilderList = buildEndpointRelationsQueries(destEndpointId);
-        return queryEndpointRelation(startTB, endTB, queryBuilderList, DetectPoint.SERVER);
+        return queryEndpointRelation(duration, queryBuilderList, DetectPoint.SERVER);
     }
 
     @Override
-    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
-        return queryProcessRelation(startTB, endTB, serviceInstanceId, DetectPoint.CLIENT);
+    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId, Duration duration) throws IOException {
+        return queryProcessRelation(duration, serviceInstanceId, DetectPoint.CLIENT);
     }
 
     @Override
-    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
-        return queryProcessRelation(startTB, endTB, serviceInstanceId, DetectPoint.SERVER);
+    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId, Duration duration) throws IOException {
+        return queryProcessRelation(duration, serviceInstanceId, DetectPoint.SERVER);
     }
 
     private List<QueryBuilder<MeasureQuery>> buildEndpointRelationsQueries(String destEndpointId) {
@@ -225,7 +240,13 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         return queryBuilderList;
     }
 
-    List<Call.CallDetail> queryEndpointRelation(long startTB, long endTB, List<QueryBuilder<MeasureQuery>> queryBuilderList, DetectPoint detectPoint) throws IOException {
+    List<Call.CallDetail> queryEndpointRelation(Duration duration, List<QueryBuilder<MeasureQuery>> queryBuilderList, DetectPoint detectPoint) throws IOException {
+        long startTB = 0;
+        long endTB = 0;
+        if (nonNull(duration)) {
+            startTB = duration.getStartTimeBucketInSec();
+            endTB = duration.getEndTimeBucketInSec();
+        }
         TimestampRange timestampRange = null;
         if (startTB > 0 && endTB > 0) {
             timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
@@ -248,7 +269,13 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         return new ArrayList<>(callMap.values());
     }
 
-    List<Call.CallDetail> queryProcessRelation(long startTB, long endTB, String serviceInstanceId, DetectPoint detectPoint) throws IOException {
+    List<Call.CallDetail> queryProcessRelation(Duration duration, String serviceInstanceId, DetectPoint detectPoint) throws IOException {
+        long startTB = 0;
+        long endTB = 0;
+        if (nonNull(duration)) {
+            startTB = duration.getStartTimeBucketInSec();
+            endTB = duration.getEndTimeBucketInSec();
+        }
         TimestampRange timestampRange = null;
         if (startTB > 0 && endTB > 0) {
             timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));

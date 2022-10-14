@@ -520,12 +520,6 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
-                  ],
                   "value": "4-0-11",
                   "label": "4-0-11"
                 },
@@ -548,12 +542,6 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
                   ],
                   "value": "4-0-12",
                   "label": "4-0-12"
@@ -914,7 +902,7 @@
                     "content": "eBPF Profiling support services written in C, C++, Golang, and Rust. SkyWalking Rover provides this profiling capability. ",
                     "fontSize": 14,
                     "textAlign": "left",
-                    "url": "https://skywalking.apache.org/docs/skywalking-rover/latest/readme/"
+                    "url": "https://skywalking.apache.org/docs/skywalking-rover/next/readme/"
                   }
                 },
                 {

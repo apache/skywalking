@@ -74,6 +74,7 @@ dependency:
     - skywalking-ui/package.json
   excludes:
     - name: org.openjdk.jmh:jmh-core # We don't distribute the dependencies, they are just for the build process
+      recursive: true
     - name: org.apache.skywalking:* # Exclude self dependencies
   licenses:
     - name: org.slf4j:slf4j-api
@@ -98,13 +99,13 @@ dependency:
       version: 2.3.0,2.5.0
       license: Apache-2.0
     - name: com.fasterxml.jackson.module:jackson-module-kotlin
-      version: 2.13.1
+      version: 2.13.4
       license: Apache-2.0
     - name: com.fasterxml.jackson.datatype:jackson-datatype-jsr310
       version: 2.13.2
       license: Apache-2.0
     - name: com.graphql-java:graphql-java-extended-scalars
-      version: 17.0
+      version: 18.1
       license: MIT
     - name: com.github.luben:zstd-jni
       version: 1.4.3-1

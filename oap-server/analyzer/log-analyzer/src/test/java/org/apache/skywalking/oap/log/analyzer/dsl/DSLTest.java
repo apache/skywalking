@@ -45,120 +45,139 @@ public class DSLTest {
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(
-            new String[] {
-                "parser",
-                "filter {\n" +
-                    "  json {\n" +
-                    "    abortOnFailure false // for test purpose, we want to persist all logs\n" +
-                    "  }\n" +
-                    "  text {\n" +
-                    "    abortOnFailure false // for test purpose, we want to persist all logs\n" +
-                    "    regexp $/(?s)(?<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}.\\d{3}) \\[TID:(?<tid>.+?)] \\[(?<thread>.+?)] (?<level>\\w{4,}) (?<logger>.{1,36}) (?<msg>.+)/$" +
-                    "  }\n" +
-                    "  yaml {\n" +
-                    "    abortOnFailure false // for test purpose, we want to persist all logs\n" +
-                    "  }" +
-                    "}",
+                new String[] {
+                        "parser",
+                        "filter {\n" +
+                                "  json {\n" +
+                                "    abortOnFailure false // for test purpose, we want to persist all logs\n" +
+                                "  }\n" +
+                                "  text {\n" +
+                                "    abortOnFailure false // for test purpose, we want to persist all logs\n" +
+                                "    regexp $/(?s)(?<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}.\\d{3}) \\[TID:(?<tid>.+?)] \\[(?<thread>.+?)] (?<level>\\w{4,}) (?<logger>.{1,36}) (?<msg>.+)/$" +
+                                "  }\n" +
+                                "  yaml {\n" +
+                                "    abortOnFailure false // for test purpose, we want to persist all logs\n" +
+                                "  }" +
+                                "}",
                 },
-            new String[] {
-                "extractor",
-                "filter {\n" +
-                    "  extractor {\n" +
-                    "    service \"test\"\n" +
-                    "    instance \"test\"\n" +
-                    "    endpoint \"test\"\n" +
-                    "    layer \"mesh\"\n" +
-                    "    traceId \"123\"\n" +
-                    "    segmentId \"123\"\n" +
-                    "    spanId \"123\"\n" +
-                    "    timestamp \"123\"\n" +
-                    "    metrics {\n" +
-                    "      name \"metricsName\"\n" +
-                    "      value 123\n" +
-                    "      timestamp \"123\"\n" +
-                    "      labels \"k1\": \"v1\"\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}",
+                new String[] {
+                        "extractor",
+                        "filter {\n" +
+                                "  extractor {\n" +
+                                "    service \"test\"\n" +
+                                "    instance \"test\"\n" +
+                                "    endpoint \"test\"\n" +
+                                "    layer \"mesh\"\n" +
+                                "    traceId \"123\"\n" +
+                                "    segmentId \"123\"\n" +
+                                "    spanId \"123\"\n" +
+                                "    timestamp \"123\"\n" +
+                                "    metrics {\n" +
+                                "      name \"metricsName\"\n" +
+                                "      value 123\n" +
+                                "      timestamp \"123\"\n" +
+                                "      labels \"k1\": \"v1\"\n" +
+                                "    }\n" +
+                                "  }\n" +
+                                "}",
                 },
-            new String[] {
-                "sink",
-                "filter {\n" +
-                    "  sink {\n" +
-                    "    enforcer {\n" +
-                    "    }\n" +
-                    "    dropper {\n" +
-                    "    }\n" +
-                    "    sampler {\n" +
-                    "      if (parsed?.commonProperties?.responseFlags) {\n" +
-                    "        // use service:errorCode as sampler id so that each service:errorCode has its own sampler,\n" +
-                    "        // e.g. checkoutservice:[upstreamConnectionFailure], checkoutservice:[upstreamRetryLimitExceeded]\n" +
-                    "        rateLimit(\"${log.service}:${log.body.json.json}:${log.tags.getData(0).key}:${parsed?.commonProperties?.responseFlags}\") {\n" +
-                    "          rpm 100\n" +
-                    "        }\n" +
-                    "      } else {\n" +
-                    "        // use service:responseCode as sampler id so that each service:responseCode has its own sampler,\n" +
-                    "        // e.g. checkoutservice:500, checkoutservice:404.\n" +
-                    "        rateLimit(\"${log.service}:${log.body?.type}:${log.traceContext?.traceId}:${parsed?.response?.responseCode}\") {\n" +
-                    "          rpm 100\n" +
-                    "        }\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}",
+                new String[] {
+                        "sink",
+                        "filter {\n" +
+                                "  sink {\n" +
+                                "    enforcer {\n" +
+                                "    }\n" +
+                                "    dropper {\n" +
+                                "    }\n" +
+                                "    sampler {\n" +
+                                "      if (parsed?.commonProperties?.responseFlags) {\n" +
+                                "        // use service:errorCode as sampler id so that each service:errorCode has its own sampler,\n" +
+                                "        // e.g. checkoutservice:[upstreamConnectionFailure], checkoutservice:[upstreamRetryLimitExceeded]\n" +
+                                "        rateLimit(\"${log.service}:${log.body.json.json}:${log.tags.getData(0).key}:${parsed?.commonProperties?.responseFlags}\") {\n" +
+                                "          rpm 100\n" +
+                                "        }\n" +
+                                "      } else {\n" +
+                                "        // use service:responseCode as sampler id so that each service:responseCode has its own sampler,\n" +
+                                "        // e.g. checkoutservice:500, checkoutservice:404.\n" +
+                                "        rateLimit(\"${log.service}:${log.body?.type}:${log.traceContext?.traceId}:${parsed?.response?.responseCode}\") {\n" +
+                                "          rpm 100\n" +
+                                "        }\n" +
+                                "      }\n" +
+                                "    }\n" +
+                                "  }\n" +
+                                "}",
                 },
-            new String[] {
-                "e2e",
-                "filter {\n" +
-                    "  text {\n" +
-                    "    abortOnFailure false // for test purpose, we want to persist all logs\n" +
-                    "    regexp $/(?s)(?<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}.\\d{3}) \\[TID:(?<tid>.+?)] \\[(?<thread>.+?)] (?<level>\\w{4,}) (?<logger>.{1,36}) (?<msg>.+)/$\n" +
-                    "  }\n" +
-                    "  extractor {\n" +
-                    "    metrics {\n" +
-                    "      timestamp \"${log.timestamp}\"\n" +
-                    "      labels level: parsed.level, service: log.service, instance: log.serviceInstance\n" +
-                    "      name \"log_count\"\n" +
-                    "      value 1\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "  sink {\n" +
-                    "  }\n" +
-                    "}\n",
+                new String[] {
+                        "e2e",
+                        "filter {\n" +
+                                "  text {\n" +
+                                "    abortOnFailure false // for test purpose, we want to persist all logs\n" +
+                                "    regexp $/(?s)(?<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}.\\d{3}) \\[TID:(?<tid>.+?)] \\[(?<thread>.+?)] (?<level>\\w{4,}) (?<logger>.{1,36}) (?<msg>.+)/$\n" +
+                                "  }\n" +
+                                "  extractor {\n" +
+                                "    metrics {\n" +
+                                "      timestamp \"${log.timestamp}\"\n" +
+                                "      labels level: parsed.level, service: log.service, instance: log.serviceInstance\n" +
+                                "      name \"log_count\"\n" +
+                                "      value 1\n" +
+                                "    }\n" +
+                                "  }\n" +
+                                "  sink {\n" +
+                                "  }\n" +
+                                "}\n",
                 },
-            new String[] {
-                "e2e",
-                "filter {\n" +
-                    "  json {\n" +
-                    "  }\n" +
-                    "  // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)\n" +
-                    "  if (parsed?.response?.responseCode as Integer < 400 && !parsed?.commonProperties?.responseFlags) {\n" +
-                    "    abort {}\n" +
-                    "  }\n" +
-                    "  extractor {\n" +
-                    "    if (parsed?.response?.responseCode) {\n" +
-                    "      tag 'status.code': parsed?.response?.responseCode as int\n" +
-                    "    }\n" +
-                    "    tag 'response.flag': (parsed?.commonProperties?.responseFlags as Map)?.keySet()\n" +
-                    "  }\n" +
-                    "  sink {\n" +
-                    "    sampler {\n" +
-                    "      if (parsed?.commonProperties?.responseFlags) {\n" +
-                    "        // use service:errorCode as sampler id so that each service:errorCode has its own sampler,\n" +
-                    "        // e.g. checkoutservice:[upstreamConnectionFailure], checkoutservice:[upstreamRetryLimitExceeded]\n" +
-                    "        rateLimit(\"${log.service}:${(parsed?.commonProperties?.responseFlags as Map)?.keySet()}\") {\n" +
-                    "          rpm 100\n" +
-                    "        }\n" +
-                    "      } else {\n" +
-                    "        // use service:responseCode as sampler id so that each service:responseCode has its own sampler,\n" +
-                    "        // e.g. checkoutservice:500, checkoutservice:404.\n" +
-                    "        rateLimit(\"${log.service}:${parsed?.response?.responseCode}\") {\n" +
-                    "          rpm 100\n" +
-                    "        }\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}\n",
+                new String[] {
+                        "e2e",
+                        "filter {\n" +
+                                "  json {\n" +
+                                "  }\n" +
+                                "  // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)\n" +
+                                "  if (parsed?.response?.responseCode as Integer < 400 && !parsed?.commonProperties?.responseFlags) {\n" +
+                                "    abort {}\n" +
+                                "  }\n" +
+                                "  extractor {\n" +
+                                "    if (parsed?.response?.responseCode) {\n" +
+                                "      tag 'status.code': parsed?.response?.responseCode as int\n" +
+                                "    }\n" +
+                                "    tag 'response.flag': (parsed?.commonProperties?.responseFlags as Map)?.keySet()\n" +
+                                "  }\n" +
+                                "  sink {\n" +
+                                "    sampler {\n" +
+                                "      if (parsed?.commonProperties?.responseFlags) {\n" +
+                                "        // use service:errorCode as sampler id so that each service:errorCode has its own sampler,\n" +
+                                "        // e.g. checkoutservice:[upstreamConnectionFailure], checkoutservice:[upstreamRetryLimitExceeded]\n" +
+                                "        rateLimit(\"${log.service}:${(parsed?.commonProperties?.responseFlags as Map)?.keySet()}\") {\n" +
+                                "          rpm 100\n" +
+                                "        }\n" +
+                                "      } else {\n" +
+                                "        // use service:responseCode as sampler id so that each service:responseCode has its own sampler,\n" +
+                                "        // e.g. checkoutservice:500, checkoutservice:404.\n" +
+                                "        rateLimit(\"${log.service}:${parsed?.response?.responseCode}\") {\n" +
+                                "          rpm 100\n" +
+                                "        }\n" +
+                                "      }\n" +
+                                "    }\n" +
+                                "  }\n" +
+                                "}\n",
+                },
+                new String[] {
+                        "extractor-slowSql",
+                        "filter {\n" +
+                                "        json{\n" +
+                                "        }\n" +
+                                "        extractor{\n" +
+                                "          layer parsed.layer as String\n" +
+                                "          service parsed.service as String\n" +
+                                "          timestamp parsed.time as String\n" +
+                                "          if (tag(\"LOG_KIND\") == \"SLOW_SQL\") {\n" +
+                                "             slowSql {\n" +
+                                "                      id parsed.id as String\n" +
+                                "                      statement parsed.statement as String\n" +
+                                "                      latency parsed.query_time as Long\n" +
+                                "                     }\n" +
+                                "          }\n" +
+                                "        }\n" +
+                                "      }"
                 }
         );
     }
@@ -177,21 +196,21 @@ public class DSLTest {
         when(manager.find(anyString())).thenReturn(mock(ModuleProviderHolder.class));
         when(manager.find(CoreModule.NAME).provider()).thenReturn(mock(ModuleServiceHolder.class));
         when(manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class))
-            .thenReturn(mock(SourceReceiver.class));
+                .thenReturn(mock(SourceReceiver.class));
         when(manager.find(CoreModule.NAME).provider().getService(ConfigService.class))
-            .thenReturn(mock(ConfigService.class));
+                .thenReturn(mock(ConfigService.class));
         when(manager.find(CoreModule.NAME)
-                    .provider()
-                    .getService(ConfigService.class)
-                    .getSearchableLogsTags())
-            .thenReturn("");
+                .provider()
+                .getService(ConfigService.class)
+                .getSearchableLogsTags())
+                .thenReturn("");
     }
 
     @Test
     public void testDslStaticCompile() throws ModuleStartException {
         final DSL dsl = DSL.of(manager, new LogAnalyzerModuleConfig(), script);
         Whitebox.setInternalState(
-            Whitebox.getInternalState(dsl, "filterSpec"), "factories", Collections.emptyList()
+            Whitebox.getInternalState(dsl, "filterSpec"), "sinkListenerFactories", Collections.emptyList()
         );
 
         dsl.bind(new Binding().log(LogData.newBuilder().build()));

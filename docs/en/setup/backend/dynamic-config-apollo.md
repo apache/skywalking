@@ -19,7 +19,7 @@ Single configs in Apollo are key/value pairs:
 
 | Key | Value |
 |-----|-----|
-| configKey | configVaule |
+| configKey | configValue |
 
 e.g. The config is:
 ```

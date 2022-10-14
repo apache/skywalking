@@ -1,118 +1,100 @@
-## 9.2.0
+## 9.3.0
 
 #### Project
 
-* [Critical] Fix a low performance issue of metrics persistent in the ElasticSearch storage implementation. One single
-  metric could have to wait for an unnecessary 7~10s(System Env Variable `SW_STORAGE_ES_FLUSH_INTERVAL`) since 8.8.0 -
-  9.1.0 releases.
-* Upgrade Armeria to 1.16.0, Kubernetes Java client to 15.0.1.
+* Bump up the embedded `swctl` version in OAP Docker image.
 
 #### OAP Server
 
-* Add more entities for Zipkin to improve performance.
-* ElasticSearch: scroll id should be updated when scrolling as it may change.
-* Mesh: fix only last rule works when multiple rules are defined in metadata-service-mapping.yaml.
-* Support sending alarm messages to PagerDuty.
-* Support Zipkin kafka collector.
-* Add `VIRTUAL` detect type to Process for Network Profiling.
-* Add component ID(128) for Java Hutool plugin.
-* Add Zipkin query exception handler, response error message for illegal arguments.
-* Fix a NullPointerException in the endpoint analysis, which would cause missing MQ-related `LocalSpan` in the trace.
-* Add `forEach`, `processRelation` function to MAL expression.
-* Add `expPrefix`, `initExp` in MAL config.
-* Add component ID(7015) for Python Bottle plugin.
-* Remove legacy OAL `percentile` functions, `p99`, `p95`, `p90`, `p75`, `p50` func(s).
-* Revert [#8066](https://github.com/apache/skywalking/pull/8066). Keep all metrics persistent even it is default value.
-* Skip loading UI templates if folder is empty or doesn't exist.
-* Optimize ElasticSearch query performance by using `_mGet` and physical index name rather than alias in these
-  scenarios,  (a) Metrics aggregation (b) Zipkin query (c) Metrics query (d) Log query
-* Support the `NETWORK` type of eBPF Profiling task.
-* Support `sumHistogram` in `MAL`.
-* [Breaking Change] Make the eBPF Profiling task support to the service instance level,
-  index/table `ebpf_profiling_task` is required to be re-created when bump up from previous releases.
-* Fix race condition in Banyandb storage
-* Support `SUM_PER_MIN` downsampling in `MAL`.
-* Support `sumHistogramPercentile` in `MAL`.
-* Add `VIRTUAL_CACHE` to Layer, to fix conjectured Redis server, which icon can't show on the topology.
-* [Breaking Change] Elasticsearch storage merge all metrics/meter and records(without super datasets) indices into one
-  physical index template `metrics-all` and `records-all` on the default setting.
-  Provide system environment variable(`SW_STORAGE_ES_LOGIC_SHARDING`) to shard metrics/meter indices into
-  multi-physical indices as the previous versions(one index template per metric/meter aggregation function).
-  In the current one index mode, users still could choose to adjust ElasticSearch's shard
-  number(`SW_STORAGE_ES_INDEX_SHARDS_NUMBER`) to scale out.
-  More details please refer to [New ElasticSearch storage option explanation in 9.2.0](../FAQ/New-ElasticSearch-storage-option-explanation-in-9.2.0.md)
-  and [backend-storage.md](../setup/backend/backend-storage.md)
-* [Breaking Change] Index/table `ebpf_profiling_schedule` added a new column `ebpf_profiling_schedule_id`,
-  the H2/Mysql/Tidb/Postgres storage users are required to re-created it when bump up from previous releases.
-* Fix Zipkin trace query the max size of spans.
-* Add `tls` and `https` component IDs for Network Profiling.
-* Support Elasticsearch column alias for the compatibility between storage logicSharding model and no-logicSharding model.
-* Support MySQL monitoring.
-* Support PostgreSQL monitoring.
-* Fix query services by serviceId error when Elasticsearch storage `SW_STORAGE_ES_QUERY_MAX_SIZE` > 10000.
-* Support sending alarm messages to Discord.
-* Fix query history process data failure.
-* Optimize TTL mechanism for Elasticsearch storage, skip executed indices in one TTL rotation.
-* Add Kubernetes support module to share codes between modules and reduce calls to Kubernetes API server.
-* Bump up Kubernetes Java client to fix cve.
-* Adapt OpenTelemetry native metrics protocol.
-* [Breaking Change] rename configuration folder from `otel-oc-rules` to `otel-rules`.
-* [Breaking Change] rename configuration field from `enabledOcRules` to `enabledOtelRules` and
-  environment variable name from `SW_OTEL_RECEIVER_ENABLED_OC_RULES` to `SW_OTEL_RECEIVER_ENABLED_OTEL_RULES`.
-* [Breaking Change] Fix JDBC TTL to delete additional tables data. 
-  SQL Database requires removing `segment`,`segment_tag`, `logs`, `logs_tag`, `alarms`, `alarms_tag`, `zipkin_span`, `zipkin_query` before OAP starts.
-* SQL Database: add `@SQLDatabase.ExtraColumn4AdditionalEntity` to support add an extra column from parent to an additional table.
+* Add component ID(133) for impala JDBC Java agent plugin and component ID(134) for impala server.
+* Use prepareStatement in H2SQLExecutor#getByIDs.(No function change).
+* Bump up snakeyaml to 1.32 for fixing CVE.
+* Fix `DurationUtils.convertToTimeBucket` missed verify date format.
+* Enhance LAL to support converting LogData to DatabaseSlowStatement.
+* [**Breaking Change**] Change the LAL script format(Add layer property).
+* Adapt ElasticSearch 8.1+, migrate from removed APIs to recommended APIs.
+* Support monitoring MySQL slow SQLs.
+* Support analyzing cache related spans to provide metrics and slow commands for cache services from client side
+* Optimize virtual database, fix dynamic config watcher NPE when default value is null
+* Remove physical index existing check and keep template existing check only to avoid meaningless `retry wait`
+  in `no-init` mode.
+* Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
+* Support monitoring PostgreSQL slow SQLs.
+* [**Breaking Change**] Support sharding MySQL database instances and tables
+  by [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy).
+  SQL-Database requires removing tables `log_tag/segment_tag/zipkin_query` before OAP starts, if bump up from previous
+  releases.
+* Fix meter functions `avgHistogram`, `avgHistogramPercentile`, `avgLabeled`, `sumHistogram` having data conflict when
+  downsampling.
+* Do sorting `readLabeledMetricsValues` result forcedly in case the storage(database) doesn't return data consistent
+  with the parameter list.
+* Fix the wrong watch semantics in Kubernetes watchers, which causes heavy traffic to API server in some Kubernetes
+  clusters,
+  we should use `Get State and Start at Most Recent` semantic instead of `Start at Exact`
+  because we don't need the changing history events,
+  see https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch.
+* Unify query services and DAOs codes time range condition to `Duration`.
+* [**Breaking Change**]: Remove prometheus-fetcher plugin, please use OpenTelemetry to scrape Prometheus metrics and
+  set up SkyWalking OpenTelemetry receiver instead.
+* BugFix: histogram metrics sent to MAL should be treated as OpenTelemetry style, not Prometheus style:
+  ```
+  (-infinity, explicit_bounds[i]] for i == 0
+  (explicit_bounds[i-1], explicit_bounds[i]] for 0 < i < size(explicit_bounds)
+  (explicit_bounds[i-1], +infinity) for i == size(explicit_bounds)
+  ```
+* Support Golang runtime metrics analysis.
+* Add APISIX metrics monitoring
+* Support skywalking-client-js report empty `service version` and `page path` , set default version as `latest` and
+  default page path as `/`(root). Fix the
+  error `fetching data (/browser_app_page_pv0) : Can't split endpoint id into 2 parts`.
+* [**Breaking Change**] Limit the max length of trace/log/alarm tag's `key=value`, set the max length of column `tags`
+  in tables`log_tag/segment_tag/alarm_record_tag` and column `query` in `zipkin_query` and column `tag_value` in `tag_autocomplete` to 256.
+  SQL-Database requires altering these columns' length or removing these tables before OAP starts, if bump up from previous releases.
+* Optimize the creation conditions of profiling task.
+* Lazy load the Kubernetes metadata and switch from event-driven to polling.
+  Previously we set up watchers to watch the Kubernetes metadata changes, this is perfect when there are deployments changes and
+  SkyWalking can react to the changes in real time. However when the cluster has many events (such as in large cluster
+  or some special Kubernetes engine like OpenShift), the requests sent from SkyWalking becomes unpredictable, i.e. SkyWalking might
+  send massive requests to Kubernetes API server, causing heavy load to the API server.
+  This PR switches from the watcher mechanism to polling mechanism, SkyWalking polls the metadata in a specified interval,
+  so that the requests sent to API server is predictable (~10 requests every `interval`, 3 minutes), and the requests count is constant
+  regardless of the cluster's changes. However with this change SkyWalking can't react to the cluster changes in time, but the delay
+  is acceptable in our case.
+* Optimize the query time of tasks in ProfileTaskCache.
 
 #### UI
 
-* Fix query conditions for the browser logs.
-* Implement a url parameter to activate tab index.
-* Fix clear interval fail when switch autoRefresh to off.
-* Optimize log tables.
-* Fix log detail pop-up page doesn't work.
-* Optimize table widget to hide the whole metric column when no metric is set.
-* Implement the Event widget. Remove `event` menu.
-* Fix span detail text overlap.
-* Add Python Bottle Plugin Logo.
-* Implement an association between widgets(line, bar, area graphs) with time.
-* Fix tag dropdown style.
-* Hide the copy button when db.statement is empty.
-* Fix legend metrics for topology.
-* Dashboard: Add metrics association.
-* Dashboard: Fix `FaaS-Root` document link and topology service relation dashboard link.
-* Dashboard: Fix `Mesh-Instance` metric `Throughput`.
-* Dashboard: Fix `Mesh-Service-Relation` metric `Throughput`
-  and `Proxy Sidecar Internal Latency in Nanoseconds (Client Response)`.
-* Dashboard: Fix `Mesh-Instance-Relation` metric `Throughput`.
-* Enhance associations for the Event widget.
-* Add event widgets in dashboard where applicable.
-* Fix dashboard list search box not work.
-* Fix short time range.
-* Fix event widget incompatibility in Safari.
-* Refactor the tags component to support searching for tag keys and values.
-* Implement the log widget and the trace widget associate with each other, remove log tables on the trace widget.
-* Add log widget to general service root.
-* Associate the event widget with the trace and log widget.
-* Add the MYSQL layer and update layer routers.
-* Fix query order for trace list.
-* Add a calculation to convert seconds to days.
-* Add component ID(131) for Java Micronaut plugin
-* Add Spring Sleuth dashboard to general service instance.
-* Support the process dashboard and create the time range text widget.
-* Fix picking calendar with a wrong time range and setting a unique value for dashboard grid key.
-* Add PostgreSQL to Database sub-menu.
-* Implement the network profiling widget.
-* Add Nats icon for Java plugin.
-* Bump moment and @vue/cli-plugin-e2e-cypress.
+* Fix: tab active incorrectly, when click tab space
+* Add impala icon for impala JDBC Java agent plugin.
+* (Webapp)Bump up snakeyaml to 1.31 for fixing CVE-2022-25857
+* [Breaking Change]: migrate from Spring Web to Armeria, now you should use the environment variable
+  name `SW_OAP_ADDRESS`
+  to change the OAP backend service addresses, like `SW_OAP_ADDRESS=localhost:12800,localhost:12801`, and use
+  environment
+  variable `SW_SERVER_PORT` to change the port. Other Spring-related configurations don't take effect anymore.
+* Polish the endpoint list graph.
+* Fix styles for an adaptive height.
+* Fix setting up a new time range after clicking the refresh button.
+* Enhance the process topology graph to support dragging nodes.
+* UI-template: Fix metrics calculation in `general-service/mesh-service/faas-function` top-list dashboard.
+* Update MySQL dashboard to visualize collected slow SQLs.
+* Add virtual cache dashboard
+* Remove `responseCode` fields of all OAL sources, as well as examples to avoid user's confusion.
+* Remove All from the endpoints selector.
+* Enhance menu configurations to make it easier to change.
+* Update PostgreSQL dashboard to visualize collected slow SQLs.
+* Add Golang runtime metrics and cpu/memory used rate panels in General-Instance dashboard
+* Add gateway apisix menu
+* Query logs with the specific service ID
+* Bump d3-color from 3.0.1 to 3.1.0
 
 #### Documentation
 
-* Fix invalid links in release docs.
-* Clean up doc about event metrics.
-* Add a table for metric calculations in the ui doc.
-* Add an explanation for alerting kernel and its in-memory window mechanism.
-* Add more docs for widget details.
-* Update alarm doc introduce configuration property key
-* Fix dependency license's NOTICE and binary jar included issues in the source release.
+* Add `metadata-uid` setup doc about Kubernetes coordinator in the cluster management.
+* Add a doc for adding menus to booster UI.
+* Move general good read blogs from `Agent Introduction` to `Academy`.
+* Add re-post for blog `Scaling with Apache SkyWalking` in the academy list.
+* Add re-post for blog `Diagnose Service Mesh Network Performance with eBPF` in the academy list.
+* Add **Security Notice** doc.
 
-All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/136?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)

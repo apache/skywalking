@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -38,7 +39,6 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObje
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.ArrayParamBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
@@ -49,26 +49,32 @@ public class H2SQLExecutor {
                                                                  String modelName,
                                                                  String[] ids,
                                                                  StorageBuilder<T> storageBuilder) throws IOException {
-        /*
-         * Although H2 database or other database support createArrayOf and setArray operate,
-         * Mysql 5.1.44 driver doesn't.
-         */
-        String param = ArrayParamBuilder.build(ids);
 
-        try (Connection connection = h2Client.getConnection();
-             ResultSet rs = h2Client.executeQuery(
-                 connection, "SELECT * FROM " + modelName + " WHERE id in (" + param + ")")) {
-            List<StorageData> storageDataList = new ArrayList<>();
-            StorageData storageData;
-            do {
-                storageData = toStorageData(rs, modelName, storageBuilder);
-                if (storageData != null) {
-                    storageDataList.add(storageData);
+        try (Connection connection = h2Client.getConnection()) {
+            SQLBuilder sql = new SQLBuilder("SELECT * FROM " + modelName + " WHERE id in (");
+            List<Object> parameters = new ArrayList<>(ids.length);
+            for (int i = 0; i < ids.length; i++) {
+                if (i == 0) {
+                    sql.append("?");
+                } else {
+                    sql.append(",?");
                 }
+                parameters.add(ids[i]);
             }
-            while (storageData != null);
+            sql.append(")");
+            try (ResultSet rs = h2Client.executeQuery(connection, sql.toString(), parameters.toArray(new Object[0]))) {
+                StorageData storageData;
+                List<StorageData> storageDataList = new ArrayList<>();
+                do {
+                    storageData = toStorageData(rs, modelName, storageBuilder);
+                    if (storageData != null) {
+                        storageDataList.add(storageData);
+                    }
+                }
+                while (storageData != null);
 
-            return storageDataList;
+                return storageDataList;
+            }
         } catch (SQLException | JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
         }
@@ -148,14 +154,14 @@ public class H2SQLExecutor {
         param.add(metrics.id());
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
-                sqlBuilder.append("?");
+            sqlBuilder.append("?");
 
-                Object value = objectMap.get(column.getColumnName().getName());
-                if (value instanceof StorageDataComplexObject) {
-                    param.add(((StorageDataComplexObject) value).toStorageData());
-                } else {
-                    param.add(value);
-                }
+            Object value = objectMap.get(column.getColumnName().getName());
+            if (value instanceof StorageDataComplexObject) {
+                param.add(((StorageDataComplexObject) value).toStorageData());
+            } else {
+                param.add(value);
+            }
 
             if (i != columns.size() - 1) {
                 sqlBuilder.append(",");
@@ -220,23 +226,30 @@ public class H2SQLExecutor {
         storageBuilder.entity2Storage(metrics, toStorage);
         Map<String, Object> objectMap = toStorage.obtain();
 
-        SQLBuilder sqlBuilder = new SQLBuilder("UPDATE " + modelName + " SET ");
-        List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
+        StringBuilder sqlBuilder = new StringBuilder("UPDATE " + modelName + " SET ");
+        Model model = TableMetaInfo.get(modelName);
+        List<ModelColumn> columns = model.getColumns();
         List<Object> param = new ArrayList<>();
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
-            sqlBuilder.append(column.getColumnName().getStorageName() + "= ?");
-            if (i != columns.size() - 1) {
-                sqlBuilder.append(",");
+            String columnName = column.getColumnName().getName();
+            if (model.getSqlDBModelExtension().isShardingTable()) {
+                SQLDatabaseModelExtension.Sharding sharding = model.getSqlDBModelExtension().getSharding().orElseThrow(
+                    () -> new UnexpectedException("Sharding should not be empty."));
+                if (columnName.equals(sharding.getDataSourceShardingColumn()) || columnName.equals(sharding.getTableShardingColumn())) {
+                    continue;
+                }
             }
+            sqlBuilder.append(column.getColumnName().getStorageName()).append("= ?,");
 
-            Object value = objectMap.get(column.getColumnName().getName());
+            Object value = objectMap.get(columnName);
             if (value instanceof StorageDataComplexObject) {
                 param.add(((StorageDataComplexObject) value).toStorageData());
             } else {
                 param.add(value);
             }
         }
+        sqlBuilder.replace(sqlBuilder.length() - 1, sqlBuilder.length(), "");
         sqlBuilder.append(" WHERE id = ?");
         param.add(metrics.id());
 

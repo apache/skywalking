@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -45,6 +46,8 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+
+import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller.ID_COLUMN;
 
 public class H2TraceQueryDAO implements ITraceQueryDAO {
@@ -59,8 +62,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
     }
 
     @Override
-    public TraceBrief queryBasicTraces(long startSecondTB,
-                                       long endSecondTB,
+    public TraceBrief queryBasicTraces(Duration duration,
                                        long minDuration,
                                        long maxDuration,
                                        String serviceId,
@@ -72,6 +74,12 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                                        TraceState traceState,
                                        QueryOrder queryOrder,
                                        final List<Tag> tags) throws IOException {
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
         if (searchableTagKeys == null) {
             final ConfigService configService = manager.find(CoreModule.NAME)
                                                        .provider()
@@ -113,7 +121,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             parameters.add(maxDuration);
         }
         if (StringUtil.isNotEmpty(serviceId)) {
-            sql.append(" and ").append(SegmentRecord.SERVICE_ID).append(" = ?");
+            sql.append(" and ").append(SegmentRecord.INDEX_NAME).append(".").append(SegmentRecord.SERVICE_ID).append(" = ?");
             parameters.add(serviceId);
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
