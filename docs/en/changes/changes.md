@@ -61,7 +61,7 @@
   regardless of the cluster's changes. However with this change SkyWalking can't react to the cluster changes in time, but the delay
   is acceptable in our case.
 * Optimize the query time of tasks in ProfileTaskCache.
-* Fix metrics was put into wrong slot of the window in the alarting kernel.
+* Fix metrics was put into wrong slot of the window in the alerting kernel.
 
 #### UI
 
