@@ -26,34 +26,31 @@ import java.util.Objects;
 import java.util.Optional;
 import org.apache.skywalking.library.kubernetes.KubernetesPods;
 import org.apache.skywalking.library.kubernetes.KubernetesServices;
+import org.apache.skywalking.library.kubernetes.ObjectID;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1Service;
 import lombok.SneakyThrows;
 
 public class K8sInfoRegistry {
-
     private final static K8sInfoRegistry INSTANCE = new K8sInfoRegistry();
-    private final LoadingCache<String/* podName.namespace */, String /* serviceName.namespace */> podServiceMap;
-    private final LoadingCache<String/* podIP */, String /* podName.namespace */> ipPodMap;
-    private final LoadingCache<String/* serviceIP */, String /* serviceName.namespace */> ipServiceMap;
-    private static final String SEPARATOR = ".";
+    private final LoadingCache<ObjectID /* Pod */, ObjectID /* Service */> podServiceMap;
+    private final LoadingCache<String/* podIP */, ObjectID /* Pod */> ipPodMap;
+    private final LoadingCache<String/* serviceIP */, ObjectID /* Service */> ipServiceMap;
 
     private K8sInfoRegistry() {
         ipPodMap = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(3))
             .build(CacheLoader.from(ip -> KubernetesPods.INSTANCE
-                .list()
-                .stream()
-                .filter(it -> it.getStatus() != null)
-                .filter(it -> it.getMetadata() != null)
-                .filter(it -> Objects.equals(it.getStatus().getPodIP(), ip))
-                .map(it -> metadataID(it.getMetadata()))
-                .findFirst()
-                .orElse("")));
+                .findByIP(ip)
+                .map(it -> ObjectID
+                    .builder()
+                    .name(it.getMetadata().getName())
+                    .namespace(it.getMetadata().getNamespace())
+                    .build())
+                .orElse(ObjectID.EMPTY)));
         ipServiceMap = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(3))
             .build(CacheLoader.from(ip -> KubernetesServices.INSTANCE
@@ -69,25 +66,28 @@ public class K8sInfoRegistry {
                         it.getStatus().getLoadBalancer().getIngress() != null &&
                         it.getStatus().getLoadBalancer().getIngress().stream()
                             .anyMatch(ingress -> Objects.equals(ingress.getIp(), ip))))
-                .map(it -> metadataID(it.getMetadata()))
+                .map(it -> ObjectID
+                    .builder()
+                    .name(it.getMetadata().getName())
+                    .namespace(it.getMetadata().getNamespace())
+                    .build())
                 .findFirst()
-                .orElse("")));
+                .orElse(ObjectID.EMPTY)));
         podServiceMap = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(3))
-            .build(CacheLoader.from(podMetadataID -> {
+            .build(CacheLoader.from(podObjectID -> {
                 final Optional<V1Pod> pod = KubernetesPods.INSTANCE
-                    .list()
-                    .stream()
-                    .filter(it -> it.getMetadata() != null)
-                    .filter(it -> Objects.equals(
-                        metadataID(it.getMetadata()),
-                        podMetadataID))
-                    .findFirst();
+                    .findByObjectID(
+                        ObjectID
+                            .builder()
+                            .name(podObjectID.name())
+                            .namespace(podObjectID.namespace())
+                            .build());
 
                 if (!pod.isPresent()
                     || pod.get().getMetadata() == null
                     || pod.get().getMetadata().getLabels() == null) {
-                    return "";
+                    return ObjectID.EMPTY;
                 }
 
                 final Optional<V1Service> service = KubernetesServices.INSTANCE
@@ -103,11 +103,13 @@ public class K8sInfoRegistry {
                     })
                     .findFirst();
                 if (!service.isPresent()) {
-                    return "";
+                    return ObjectID.EMPTY;
                 }
-                return service.get().getMetadata().getName()
-                    + SEPARATOR
-                    + service.get().getMetadata().getNamespace();
+                return ObjectID
+                    .builder()
+                    .name(service.get().getMetadata().getName())
+                    .namespace(service.get().getMetadata().getNamespace())
+                    .build();
             }));
     }
 
@@ -117,17 +119,23 @@ public class K8sInfoRegistry {
 
     @SneakyThrows
     public String findServiceName(String namespace, String podName) {
-        return this.podServiceMap.get(podName + SEPARATOR + namespace);
+        return this.podServiceMap.get(
+            ObjectID
+                .builder()
+                .name(podName)
+                .namespace(namespace)
+                .build())
+            .toString();
     }
 
     @SneakyThrows
     public String findPodByIP(String ip) {
-        return this.ipPodMap.get(ip);
+        return this.ipPodMap.get(ip).toString();
     }
 
     @SneakyThrows
     public String findServiceByIP(String ip) {
-        return this.ipServiceMap.get(ip);
+        return this.ipServiceMap.get(ip).toString();
     }
 
     private boolean hasIntersection(Collection<?> o, Collection<?> c) {
@@ -139,9 +147,5 @@ public class K8sInfoRegistry {
             }
         }
         return true;
-    }
-
-    String metadataID(final V1ObjectMeta metadata) {
-        return metadata.getName() + SEPARATOR + metadata.getNamespace();
     }
 }

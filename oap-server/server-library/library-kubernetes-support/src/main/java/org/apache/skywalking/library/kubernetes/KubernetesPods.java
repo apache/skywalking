@@ -20,13 +20,10 @@
 package org.apache.skywalking.library.kubernetes;
 
 import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import org.slf4j.LoggerFactory;
+import java.util.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.SneakyThrows;
@@ -34,7 +31,10 @@ import lombok.SneakyThrows;
 public enum KubernetesPods {
     INSTANCE;
 
-    private final LoadingCache<KubernetesPods, List<V1Pod>> pods;
+    private static final String FIELD_SELECTOR_PATTERN_POD_IP = "status.podIP=%s";
+
+    private final LoadingCache<String, Optional<V1Pod>> podByIP;
+    private final LoadingCache<ObjectID, Optional<V1Pod>> podByObjectID;
 
     @SneakyThrows
     private KubernetesPods() {
@@ -43,24 +43,41 @@ public enum KubernetesPods {
         final CoreV1Api coreV1Api = new CoreV1Api();
         final CacheBuilder<Object, Object> cacheBuilder =
             CacheBuilder.newBuilder()
-                .expireAfterAccess(Duration.ofMinutes(3));
+                .expireAfterAccess(Duration.ofMinutes(5));
 
-        pods = cacheBuilder.build(CacheLoader.from(() -> {
-            try {
+        podByIP = cacheBuilder.build(new CacheLoader<String, Optional<V1Pod>>() {
+            @Override
+            public Optional<V1Pod> load(String ip) throws Exception {
                 return coreV1Api
                     .listPodForAllNamespaces(
-                        null, null, null, null, null,
-                        null, null, null, null, null)
-                    .getItems();
-            } catch (ApiException e) {
-                LoggerFactory.getLogger(getClass()).error("Failed to list Pods.", e);
-                return Collections.emptyList();
+                        null, null, String.format(FIELD_SELECTOR_PATTERN_POD_IP, ip),
+                        null, null, null, null, null, null, null)
+                    .getItems()
+                    .stream()
+                    .findFirst();
             }
-        }));
+        });
+
+        podByObjectID = cacheBuilder.build(new CacheLoader<ObjectID, Optional<V1Pod>>() {
+            @Override
+            public Optional<V1Pod> load(ObjectID objectID) throws Exception {
+                return Optional.ofNullable(
+                    coreV1Api
+                        .readNamespacedPod(
+                            objectID.name(),
+                            objectID.namespace(),
+                            null));
+            }
+        });
     }
 
     @SneakyThrows
-    public List<V1Pod> list() {
-        return pods.get(this);
+    public Optional<V1Pod> findByIP(final String ip) {
+        return podByIP.get(ip);
+    }
+
+    @SneakyThrows
+    public Optional<V1Pod> findByObjectID(final ObjectID id) {
+        return podByObjectID.get(id);
     }
 }
