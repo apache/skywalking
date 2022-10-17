@@ -102,7 +102,7 @@ public class TelegrafServiceHandler {
             List<Sample> allSamples = new ArrayList<>();
 
             List<TelegrafDatum> metrics = telegrafData.getMetrics();
-            for(TelegrafDatum m : metrics) {
+            for (TelegrafDatum m : metrics) {
                 List<Sample> samples = convertTelegraf(m);
                 allSamples.addAll(samples);
             }

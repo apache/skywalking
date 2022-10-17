@@ -37,7 +37,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TelegrafData implements RequestConverterFunction {
     private List<TelegrafDatum> metrics;
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
     public @Nullable Object convertRequest(ServiceRequestContext ctx, AggregatedHttpRequest request, Class<?> expectedResultType,
@@ -45,7 +45,7 @@ public class TelegrafData implements RequestConverterFunction {
 
         if (expectedResultType == TelegrafData.class) {
             // Convert the request to a TelegrafData object
-            return mapper.readValue(request.contentUtf8(), TelegrafData.class);
+            return MAPPER.readValue(request.contentUtf8(), TelegrafData.class);
         }
         return RequestConverterFunction.fallthrough();
     }

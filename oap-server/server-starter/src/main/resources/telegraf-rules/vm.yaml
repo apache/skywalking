@@ -20,22 +20,16 @@ metricsRules:
   # cpu
   - name: cpu_usage_guest_info
     exp: cpu_usage_guest
-  - name: cpu_usage_guest_nice_info
-    exp: cpu_usage_guest_nice
   - name: cpu_usage_idle_info
     exp: cpu_usage_idle
   - name: cpu_usage_iowait_info
     exp: cpu_usage_iowait
-  - name: cpu_usage_nice_info
-    exp: cpu_usage_nice
   - name: cpu_usage_softirq_info
     exp: cpu_usage_softirq
-  - name: cpu_usage_steal_info
-    exp: cpu_usage_steal
   - name: cpu_usage_system_info
-    exp: cpu_usage_system * 100
+    exp: (cpu_usage_system * 10)
   - name: cpu_usage_user_info
-    exp: cpu_usage_user * 100
+    exp: (cpu_usage_user * 10)
 
   # memory
   - name: mem_available_info
@@ -47,4 +41,4 @@ metricsRules:
   - name: mem_used_info
     exp: mem_used
   - name: mem_used_percent_info
-    exp: mem_used_percent
+    exp: (mem_used_percent * 1000)
