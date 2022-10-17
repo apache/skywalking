@@ -21,6 +21,7 @@
 * Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
 * Support monitoring PostgreSQL slow SQLs.
 * Support Telegraf receiver plugin module.
+* Support monitoring Linux OS through Telegraf.
 
 #### UI
 
