@@ -516,4 +516,4 @@ receiver-ebpf:
 receiver-telegraf:
   selector: ${SW_RECEIVER_TELEGRAF:default}
   default:
-    activeFiles: ${SW_RECEIVER_TELEGRAF_ACTIVE_FILES:default}
+    activeFiles: ${SW_RECEIVER_TELEGRAF_ACTIVE_FILES:vm}
