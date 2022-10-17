@@ -209,9 +209,8 @@ Apache-2.0 licenses
 The following components are provided under the Apache-2.0 License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j/1.7.1 Apache-2.0
-    https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-api/1.4.2 Apache-2.0
-    https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-client/1.4.2 Apache-2.0
-    https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-common/1.4.2 Apache-2.0
+    https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-auth-plugin/2.1.2 Apache-2.0
+    https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-encryption-plugin/2.1.2 Apache-2.0
     https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-client/1.8.0 Apache-2.0
     https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-core/1.8.0 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations/2.13.4 Apache-2.0
@@ -541,6 +540,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/async-validator/v/4.0.7 4.0.7 MIT
     https://npmjs.com/package/axios/v/0.24.0 0.24.0 MIT
     https://npmjs.com/package/batch-processor/v/1.0.0 1.0.0 MIT
+    https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-client/2.1.2 MIT
     https://mvnrepository.com/artifact/com.graphql-java-kickstart/graphql-java-tools/13.0.1 MIT
     https://mvnrepository.com/artifact/com.graphql-java/graphql-java/19.2 MIT
     https://mvnrepository.com/artifact/com.graphql-java/graphql-java-extended-scalars/18.1 MIT
