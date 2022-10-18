@@ -22,6 +22,7 @@ package org.apache.skywalking.library.kubernetes;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.slf4j.LoggerFactory;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -35,6 +36,7 @@ public enum KubernetesServices {
     INSTANCE;
 
     private final LoadingCache<KubernetesServices, List<V1Service>> services;
+    private final LoadingCache<ObjectID, Optional<V1Service>> serviceByID;
 
     @SneakyThrows
     private KubernetesServices() {
@@ -57,10 +59,27 @@ public enum KubernetesServices {
                 return Collections.emptyList();
             }
         }));
+
+        serviceByID = cacheBuilder.build(new CacheLoader<ObjectID, Optional<V1Service>>() {
+            @Override
+            public Optional<V1Service> load(ObjectID id) throws Exception {
+                return Optional.ofNullable(
+                    coreV1Api
+                        .readNamespacedService(
+                            id.name(),
+                            id.namespace(),
+                            null));
+            }
+        });
     }
 
     @SneakyThrows
     public List<V1Service> list() {
         return services.get(this);
+    }
+
+    @SneakyThrows
+    public Optional<V1Service> findByID(final ObjectID id) {
+        return serviceByID.get(id);
     }
 }

@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ import org.apache.skywalking.library.kubernetes.KubernetesClient;
 import org.apache.skywalking.library.kubernetes.KubernetesEndpoints;
 import org.apache.skywalking.library.kubernetes.KubernetesPods;
 import org.apache.skywalking.library.kubernetes.KubernetesServices;
+import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
@@ -95,19 +95,13 @@ public class K8SServiceRegistry {
         ipServiceMetaInfoMap = cacheBuilder.build(new CacheLoader<String, ServiceMetaInfo>() {
             @Override
             public ServiceMetaInfo load(String ip) throws Exception {
-                final Optional<V1Pod> pod =
-                    KubernetesPods.INSTANCE
-                        .list()
-                        .stream()
-                        .filter(it -> it.getStatus() != null)
-                        .filter(it -> Objects.equals(ip, requireNonNull(it.getStatus()).getPodIP()))
-                        .findFirst();
+                final Optional<V1Pod> pod = KubernetesPods.INSTANCE.findByIP(ip);
                 if (!pod.isPresent()) {
                     log.debug("No corresponding Pod for IP: {}", ip);
                     return config.serviceMetaInfoFactory().unknown();
                 }
 
-                final Optional<Tuple2<String, String>> /* <namespace, serviceName> */ serviceID =
+                final Optional<ObjectID> serviceID =
                     KubernetesEndpoints.INSTANCE
                         .list()
                         .stream()
@@ -121,7 +115,11 @@ public class K8SServiceRegistry {
                                 .filter(subset -> subset.getAddresses() != null)
                                 .flatMap(subset -> subset.getAddresses().stream())
                                 .anyMatch(address -> Objects.equals(ip, address.getIp()))) {
-                                return metadataID(metadata);
+                                return ObjectID
+                                    .builder()
+                                    .name(metadata.getName())
+                                    .namespace(metadata.getNamespace())
+                                    .build();
                             }
                             return null;
                         })
@@ -133,14 +131,7 @@ public class K8SServiceRegistry {
                 }
 
                 final Optional<V1Service> service =
-                    KubernetesServices.INSTANCE
-                        .list()
-                        .stream()
-                        .filter(it -> it.getMetadata() != null)
-                        .filter(it -> Objects.equals(
-                            metadataID(it.getMetadata()),
-                            serviceID.get()))
-                        .findFirst();
+                    KubernetesServices.INSTANCE.findByID(serviceID.get());
                 if (!service.isPresent()) {
                     log.debug("No service for namespace and name: {}", serviceID.get());
                     return config.serviceMetaInfoFactory().unknown();

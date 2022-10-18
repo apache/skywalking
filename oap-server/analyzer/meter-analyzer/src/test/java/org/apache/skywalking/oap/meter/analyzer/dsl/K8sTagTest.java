@@ -30,12 +30,13 @@ import io.kubernetes.client.openapi.models.V1ServiceSpec;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-
+import java.util.Optional;
 import io.kubernetes.client.openapi.models.V1ServiceStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.kubernetes.KubernetesPods;
 import org.apache.skywalking.library.kubernetes.KubernetesServices;
+import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.Retag;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.junit.Before;
@@ -56,7 +57,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @Slf4j
-@PowerMockIgnore("javax.net.ssl.*")
+@PowerMockIgnore({"javax.net.ssl.*", "javax.management.*"})
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(Parameterized.class)
 @PrepareForTest({KubernetesPods.class, KubernetesServices.class})
@@ -266,12 +267,27 @@ public class K8sTagTest {
                                   Mockito.mock(KubernetesPods.class)
         );
 
-        PowerMockito.when(KubernetesServices.INSTANCE, "list").thenReturn(ImmutableList.of(
+        PowerMockito.when(KubernetesServices.INSTANCE.list()).thenReturn(ImmutableList.of(
                 mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"),
                 mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"), "2.2.2.2")));
-        PowerMockito.when(KubernetesPods.INSTANCE, "list").thenReturn(ImmutableList.of(
+        ImmutableList.of(
+            mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"),
+            mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"), "2.2.2.2"))
+            .forEach(svc ->
+                PowerMockito
+                .when(KubernetesServices.INSTANCE.findByID(ObjectID.builder().namespace(svc.getMetadata().getNamespace()).name(svc.getMetadata().getName()).build()))
+                .thenReturn(Optional.of(svc))
+            );
+        ImmutableList.of(
             mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1"),
-            mockPod("kube-state-metrics-6f979fd498-z7xwx", "kube-system", of("run", "kube-state-metrics"), "1.1.1.2")));
+            mockPod("kube-state-metrics-6f979fd498-z7xwx", "kube-system", of("run", "kube-state-metrics"), "1.1.1.2"))
+            .forEach(pod -> {
+                PowerMockito
+                .when(KubernetesPods.INSTANCE.findByIP(pod.getStatus().getPodIP()))
+                .thenReturn(Optional.of(pod));
+                PowerMockito
+                .when(KubernetesPods.INSTANCE.findByObjectID(ObjectID.builder().name(pod.getMetadata().getName()).namespace(pod.getMetadata().getNamespace()).build())).thenReturn(Optional.of(pod));
+        });
     }
 
     @Test
