@@ -46,8 +46,8 @@ import java.util.Objects;
 @MeterFunction(functionName = "sumPerMinLabeled")
 public abstract class SumPerMinLabeledFunction extends Meter implements AcceptableValue<DataTable>, LabeledValueHolder {
 
-    protected static final String VALUE = "value";
-    protected static final String TOTAL = "total";
+    protected static final String VALUE = "datatable_value";
+    protected static final String TOTAL = "datatable_total";
 
     @Setter
     @Getter
@@ -62,14 +62,12 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
 
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
-    @ElasticSearch.Column(columnAlias = "datatable_value")
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     private DataTable value = new DataTable(30);
 
     @Getter
     @Setter
     @Column(columnName = TOTAL, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "datatable_total")
     private DataTable total = new DataTable(30);
 
     @Entrance
