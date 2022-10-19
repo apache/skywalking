@@ -37,7 +37,8 @@ import static java.util.Objects.isNull;
 public class DeepAnalysis {
     public AnalysisResult analysis(AnalysisResult result) {
         // 1. Set sub package name by source.metrics
-        Class<? extends Metrics> metricsClass = MetricsHolder.find(result.getAggregationFuncStmt().getAggregationFunctionName());
+        Class<? extends Metrics> metricsClass = MetricsHolder.find(
+            result.getAggregationFuncStmt().getAggregationFunctionName());
         String metricsClassSimpleName = metricsClass.getSimpleName();
 
         result.setMetricsClassName(metricsClassSimpleName);
@@ -81,9 +82,10 @@ public class DeepAnalysis {
         EntryMethod entryMethod = new EntryMethod();
         result.setEntryMethod(entryMethod);
         entryMethod.setMethodName(entranceMethod.getName());
-
+        final Parameter[] parameters = entranceMethod.getParameters();
         // 4. Use parameter's annotation of entrance method to generate aggregation entrance.
-        for (Parameter parameter : entranceMethod.getParameters()) {
+        for (int i = 0; i < parameters.length; i++) {
+            Parameter parameter = parameters[i];
             Class<?> parameterType = parameter.getType();
             Annotation[] parameterAnnotations = parameter.getAnnotations();
             if (parameterAnnotations == null || parameterAnnotations.length == 0) {

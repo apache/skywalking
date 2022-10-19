@@ -57,7 +57,7 @@ source
       SRC_ENVOY_INSTANCE_METRIC |
       SRC_BROWSER_APP_PERF | SRC_BROWSER_APP_PAGE_PERF | SRC_BROWSER_APP_SINGLE_VERSION_PERF |
       SRC_BROWSER_APP_TRAFFIC | SRC_BROWSER_APP_PAGE_TRAFFIC | SRC_BROWSER_APP_SINGLE_VERSION_TRAFFIC |
-      SRC_EVENT
+      SRC_EVENT | SRC_MQ_ACCESS
     ;
 
 disableSource
@@ -77,7 +77,7 @@ variable
     ;
 
 aggregateFunction
-    : functionName LR_BRACKET ((funcParamExpression|literalExpression|attributeExpression) (COMMA (funcParamExpression|literalExpression|attributeExpression))?)? RR_BRACKET
+    : functionName LR_BRACKET ((funcParamExpression|literalExpression|attributeExpression|arrayFuncParamExpression) (COMMA (funcParamExpression|literalExpression|attributeExpression|arrayFuncParamExpression))?)? RR_BRACKET
     ;
 
 functionName
@@ -87,7 +87,9 @@ functionName
 funcParamExpression
     : expression
     ;
-
+arrayFuncParamExpression
+    : LS_BRACKET ((funcParamExpression|literalExpression|attributeExpression) (COMMA (funcParamExpression|literalExpression|attributeExpression))*) RS_BRACKET
+    ;
 literalExpression
     : BOOL_LITERAL | NUMBER_LITERAL | STRING_LITERAL
     ;

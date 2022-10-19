@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public class AggregationFuncStmt {
 
     private int funcConditionExpressionGetIdx = 0;
 
-    private List<Argument> funcArgs;
+    private List<Argument[]> funcArgs;
 
     private int argGetIdx = 0;
 
@@ -49,22 +50,23 @@ public class AggregationFuncStmt {
         return funcConditionExpressions.get(funcConditionExpressionGetIdx++);
     }
 
-    public void addFuncArg(Argument argument) {
+    public void addFuncArg(Argument... argument) {
         if (funcArgs == null) {
             funcArgs = new LinkedList<>();
         }
         if (nextArgCast != null) {
-            argument.setCastType(nextArgCast);
+            Arrays.stream(argument).forEach(a->a.setCastType(nextArgCast));
             nextArgCast = null;
         }
         funcArgs.add(argument);
     }
 
-    public Argument getLastArgument() {
+    public Argument[] getLastArgument() {
         return funcArgs.get(funcArgs.size() - 1);
     }
 
-    public Argument getNextFuncArg() {
+    public Argument[] getNextFuncArg() {
         return funcArgs.get(argGetIdx++);
     }
+
 }

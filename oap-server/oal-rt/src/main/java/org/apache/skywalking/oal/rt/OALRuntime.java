@@ -421,12 +421,12 @@ public class OALRuntime implements OALEngine {
                         )
                     }
                 );
-
             dispatcherClass.setGenericSignature(dispatcherSignature.encode());
         } catch (NotFoundException e) {
             log.error("Can't find Dispatcher interface for " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
+
 
         /**
          * Generate methods

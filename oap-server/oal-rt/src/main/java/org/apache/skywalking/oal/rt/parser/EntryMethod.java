@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,7 +38,13 @@ public class EntryMethod {
     private List<Integer> argTypes = new ArrayList<>();
     private List<Object> argsExpressions = new ArrayList<>();
 
-    void addArg(Class<?> parameterType, Argument arg) {
+    void addArg(Class<?> parameterType, Argument[] args) {
+        if (parameterType.isArray()) {
+            addArgs(args);
+            return;
+        }
+
+        Argument arg = args[0];
         if (arg.getType() == LITERAL_TYPE) {
             // As literal type, there is always one element.
             addArg(parameterType, arg.getType(), arg.getText().get(0));
@@ -46,6 +54,22 @@ public class EntryMethod {
             TypeCastUtil.withCast(arg.getCastType(), "source." + ClassMethodUtil.toIsMethod(arg.getText()))
             :
             TypeCastUtil.withCast(arg.getCastType(), "source." + ClassMethodUtil.toGetMethod(arg.getText())));
+    }
+
+    private void addArgs(final Argument[] args) {
+        StringBuilder exp = new StringBuilder("new String[]{");
+
+        for (Argument arg : args) {
+            if (arg.getType() == LITERAL_TYPE) {
+                exp.append((arg.getText().get(0))).append(",");
+            } else {
+                exp.append(
+                       TypeCastUtil.withCast(arg.getCastType(), "source." + ClassMethodUtil.toGetMethod(arg.getText())))
+                   .append(",");
+            }
+        }
+        argTypes.add(ATTRIBUTE_EXP_TYPE);
+        argsExpressions.add(exp.deleteCharAt(exp.length() - 1).append("}"));
     }
 
     void addArg(Class<?> parameterType, String expression) {

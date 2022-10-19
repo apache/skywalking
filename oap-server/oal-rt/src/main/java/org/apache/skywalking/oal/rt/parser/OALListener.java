@@ -20,6 +20,7 @@ package org.apache.skywalking.oal.rt.parser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.apache.skywalking.oal.rt.grammar.OALParser;
@@ -32,6 +33,8 @@ public class OALListener extends OALParserBaseListener {
     private DisableCollection collection;
 
     private ConditionExpression conditionExpression;
+
+    private List<Argument> multipleArgument;
 
     private final String sourcePackage;
 
@@ -105,6 +108,17 @@ public class OALListener extends OALParserBaseListener {
     public void exitFuncParamExpression(OALParser.FuncParamExpressionContext ctx) {
         current.getAggregationFuncStmt().addFuncConditionExpression(conditionExpression);
         conditionExpression = null;
+    }
+
+    @Override
+    public void enterArrayFuncParamExpression(OALParser.ArrayFuncParamExpressionContext ctx) {
+        multipleArgument = new ArrayList<>();
+    }
+
+    @Override
+    public void exitArrayFuncParamExpression(OALParser.ArrayFuncParamExpressionContext ctx) {
+        current.getAggregationFuncStmt().addFuncArg(multipleArgument.toArray(new Argument[0]));
+        multipleArgument = null;
     }
 
     /////////////
@@ -235,22 +249,38 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterLiteralExpression(OALParser.LiteralExpressionContext ctx) {
-        current.getAggregationFuncStmt().addFuncArg(new Argument(EntryMethod.LITERAL_TYPE, Arrays.asList(ctx.getText())));
+        final Argument argument = new Argument(EntryMethod.LITERAL_TYPE, Collections.singletonList(ctx.getText()));
+        if (multipleArgument != null) {
+            multipleArgument.add(argument);
+        } else {
+            current.getAggregationFuncStmt().addFuncArg(argument);
+        }
     }
 
     @Override
     public void enterAttributeExpression(final OALParser.AttributeExpressionContext ctx) {
-        current.getAggregationFuncStmt().addFuncArg(new Argument(EntryMethod.ATTRIBUTE_EXP_TYPE, new ArrayList<>(3)));
+        final Argument argument = new Argument(EntryMethod.ATTRIBUTE_EXP_TYPE, new ArrayList<>(3));
+        if (multipleArgument != null) {
+            multipleArgument.add(argument);
+        } else {
+            current.getAggregationFuncStmt().addFuncArg(argument);
+        }
     }
 
     @Override
     public void enterAttributeExpressionSegment(OALParser.AttributeExpressionSegmentContext ctx) {
-        current.getAggregationFuncStmt().getLastArgument().addText(ctx.getText());
+        if (multipleArgument != null) {
+            multipleArgument.get(multipleArgument.size() - 1).addText(ctx.getText());
+        }else{
+            current.getAggregationFuncStmt().getLastArgument()[0].addText(ctx.getText());
+        }
+
+
     }
 
     @Override
     public void enterFunctionArgCast(final OALParser.FunctionArgCastContext ctx) {
-        current.getAggregationFuncStmt().getLastArgument().setCastType(ctx.getText());
+        current.getAggregationFuncStmt().getLastArgument()[0].setCastType(ctx.getText());
     }
 
     private String metricsNameFormat(String source) {
