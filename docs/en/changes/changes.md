@@ -62,6 +62,7 @@
   is acceptable in our case.
 * Optimize the query time of tasks in ProfileTaskCache.
 * Fix metrics was put into wrong slot of the window in the alerting kernel.
+* Support `sumPerMinLabeled` in `MAL`.
 
 #### UI
 
