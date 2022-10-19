@@ -97,5 +97,7 @@
 * Add re-post for blog `Scaling with Apache SkyWalking` in the academy list.
 * Add re-post for blog `Diagnose Service Mesh Network Performance with eBPF` in the academy list.
 * Add **Security Notice** doc.
+* Add new docs for `Report Span Attached Events` data collecting protocol.
+* Add new docs for `Record` query protocol
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)
