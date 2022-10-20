@@ -1,11 +1,11 @@
 # Exporter
-SkyWalking provides the essential functions of metrics aggregation, trace, log, alarm, and analysis.
+SkyWalking provides the essential functions of observability, including metrics aggregation, trace, log, alerting, and profiling.
 In many real-world scenarios, users may want to forward their data to a 3rd party system for further in-depth analysis.
 **Exporter** has made that possible.
 
 The exporter is an independent module that has to be manually activated.
 
-Right now, we provide the following exporters:
+Right now, we provide the following exporting channels:
 1. gRPC Exporter
 - Metrics
 2. Kafka Exporter
@@ -14,7 +14,7 @@ Right now, we provide the following exporters:
 
 ## gRPC Exporter
 ### Metrics gRPC Exporter
-Metrics gRPC exporter uses SkyWalking's native exporter service definition. Here is the proto definition.
+Metrics gRPC exporter uses SkyWalking's native export service definition. Here is the proto definition.
 ```proto
 service MetricExportService {
     rpc export (stream ExportMetricValue) returns (ExportResponse) {
