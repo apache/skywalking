@@ -21,6 +21,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.util.Base64;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
@@ -31,8 +32,7 @@ public interface IBrowserLogQueryDAO extends Service {
                                            String serviceVersionId,
                                            String pagePathId,
                                            BrowserErrorCategory category,
-                                           long startSecondTB,
-                                           long endSecondTB,
+                                           Duration duration,
                                            int limit,
                                            int from) throws IOException;
 

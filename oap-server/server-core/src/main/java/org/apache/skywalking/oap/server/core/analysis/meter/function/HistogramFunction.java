@@ -101,7 +101,7 @@ public abstract class HistogramFunction extends Meter implements AcceptableValue
         HistogramFunction metrics = (HistogramFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
-        metrics.setDataset(getDataset());
+        metrics.getDataset().copyFrom(getDataset());
         return metrics;
     }
 
@@ -110,7 +110,7 @@ public abstract class HistogramFunction extends Meter implements AcceptableValue
         HistogramFunction metrics = (HistogramFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
-        metrics.setDataset(getDataset());
+        metrics.getDataset().copyFrom(getDataset());
         return metrics;
     }
 

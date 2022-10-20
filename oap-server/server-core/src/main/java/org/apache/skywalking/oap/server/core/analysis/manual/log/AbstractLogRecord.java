@@ -22,6 +22,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
@@ -50,6 +51,7 @@ public abstract class AbstractLogRecord extends Record {
     @Getter
     @Column(columnName = SERVICE_ID)
     @BanyanDB.ShardingKey(index = 0)
+    @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE}, reserveOriginalColumns = true)
     private String serviceId;
     @Setter
     @Getter
@@ -98,7 +100,7 @@ public abstract class AbstractLogRecord extends Record {
     private byte[] tagsRawData;
     @Setter
     @Getter
-    @Column(columnName = TAGS, indexOnly = true)
+    @Column(columnName = TAGS, indexOnly = true, length = Tag.TAG_LENGTH)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
 

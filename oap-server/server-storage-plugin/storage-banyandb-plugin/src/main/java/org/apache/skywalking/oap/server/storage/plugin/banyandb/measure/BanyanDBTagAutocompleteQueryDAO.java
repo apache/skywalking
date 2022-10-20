@@ -26,6 +26,7 @@ import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
@@ -34,6 +35,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import static java.util.Objects.nonNull;
 
 public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO implements ITagAutoCompleteQueryDAO {
     private static final Set<String> TAGS_KEY = ImmutableSet.of(TagAutocompleteData.TAG_TYPE,
@@ -47,10 +50,16 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
     }
 
     @Override
-    public Set<String> queryTagAutocompleteKeys(TagType tagType, int limit, long startSecondTB, long endSecondTB) throws IOException {
+    public Set<String> queryTagAutocompleteKeys(TagType tagType, int limit, Duration duration) throws IOException {
+        long startTB = 0;
+        long endTB = 0;
+        if (nonNull(duration)) {
+            startTB = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+            endTB = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+        }
         TimestampRange range = null;
-        if (startSecondTB > 0 && endSecondTB > 0) {
-            range = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
+        if (startTB > 0 && endTB > 0) {
+            range = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
         MeasureQueryResponse resp = query(TagAutocompleteData.INDEX_NAME,
                 TAGS_KEY, Collections.emptySet(),
@@ -77,10 +86,20 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
     }
 
     @Override
-    public Set<String> queryTagAutocompleteValues(TagType tagType, String tagKey, int limit, long startSecondTB, long endSecondTB) throws IOException {
+    public Set<String> queryTagAutocompleteValues(TagType tagType, String tagKey, int limit, Duration duration) throws IOException {
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
+
+        long startTB = startSecondTB / 1000000 * 10000;
+        long endTB = endSecondTB / 1000000 * 10000 + 2359;
+
         TimestampRange range = null;
-        if (startSecondTB > 0 && endSecondTB > 0) {
-            range = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
+        if (startTB > 0 && endTB > 0) {
+            range = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
         MeasureQueryResponse resp = query(TagAutocompleteData.INDEX_NAME,
                 TAGS_KV, Collections.emptySet(),

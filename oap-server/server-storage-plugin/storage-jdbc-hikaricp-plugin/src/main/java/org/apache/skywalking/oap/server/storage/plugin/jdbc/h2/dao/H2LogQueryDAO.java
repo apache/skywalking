@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -75,11 +76,16 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                           Order queryOrder,
                           int from,
                           int limit,
-                          final long startSecondTB,
-                          final long endSecondTB,
+                          final Duration duration,
                           final List<Tag> tags,
                           final List<String> keywordsOfContent,
                           final List<String> excludingKeywordsOfContent) throws IOException {
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
         if (searchableTagKeys == null) {
             final ConfigService configService = manager.find(CoreModule.NAME)
                                                        .provider()
@@ -112,7 +118,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
         }
 
         if (StringUtil.isNotEmpty(serviceId)) {
-            sql.append(" and ").append(SERVICE_ID).append(" = ?");
+            sql.append(" and ").append(LogRecord.INDEX_NAME).append(".").append(SERVICE_ID).append(" = ?");
             parameters.add(serviceId);
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {

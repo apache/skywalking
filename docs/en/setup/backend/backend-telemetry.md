@@ -33,63 +33,15 @@ telemetry:
     port: 1543
 ```
 
-2. Set up Prometheus fetcher.
+2. Set up OpenTelemetry to scrape the metrics from OAP telemetry.
 
-```yaml
-prometheus-fetcher:
-  selector: ${SW_PROMETHEUS_FETCHER:default}
-  default:
-    enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self"}
-```
+Refer to [the E2E test case](../../../../test/e2e-v2/cases/so11y/otel-collector-config.yaml) as an example.
 
-3. Make sure `config/fetcher-prom-rules/self.yaml` exists.
+For Kubernetes deployments, read the following section, otherwise you should be able to
+adjust the configurations below to fit your scenarios.
 
-Once you deploy an OAP server cluster, the target host should be replaced with a dedicated IP or hostname. For instance,
-if there are three OAP servers in your cluster, their hosts are `service1`, `service2`, and `service3`, respectively. You should
-update each `self.yaml` to switch the target host.
-
-service1:
-```yaml
-fetcherInterval: PT15S
-fetcherTimeout: PT10S
-metricsPath: /metrics
-staticConfig:
-  # targets will be labeled as "instance"
-  targets:
-    - service1:1234
-  labels:
-    service: oap-server
-...
-```
-
-service2:
-```yaml
-fetcherInterval: PT15S
-fetcherTimeout: PT10S
-metricsPath: /metrics
-staticConfig:
-  # targets will be labeled as "instance"
-  targets:
-    - service2:1234
-  labels:
-    service: oap-server
-...
-```
-
-service3:
-```yaml
-fetcherInterval: PT15S
-fetcherTimeout: PT10S
-metricsPath: /metrics
-staticConfig:
-  # targets will be labeled as "instance"
-  targets:
-    - service3:1234
-  labels:
-    service: oap-server
-...
-```
 ### Service discovery on Kubernetes
+
 If you deploy an OAP server cluster on Kubernetes, the oap-server instance (pod) would not have a static IP or hostname. We can leverage [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes) to discover the oap-server instance, and scrape & transfer the metrics to OAP [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 On how to install SkyWalking on k8s, you can refer to [Apache SkyWalking Kubernetes](https://github.com/apache/skywalking-kubernetes).

@@ -49,7 +49,7 @@ services:
       context: ./../
       dockerfile: docker/Dockerfile.provider
       args:
-        - SW_AGENT_PYTHON_COMMIT=c8479000eb729cc86509222fd48b942edcaaca74
+        - SW_AGENT_PYTHON_COMMIT=${SW_AGENT_PYTHON_COMMIT}
     command: [ 'python3', '/entrypoint.py' ]
     networks:
       - e2e

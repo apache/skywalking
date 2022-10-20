@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-initExp: Kubernetes.startMetadataListener()
 expSuffix: |-
   processRelation('side', ['service'], ['instance'], 'client_process_id', 'server_process_id', 'component')
 expPrefix: |-

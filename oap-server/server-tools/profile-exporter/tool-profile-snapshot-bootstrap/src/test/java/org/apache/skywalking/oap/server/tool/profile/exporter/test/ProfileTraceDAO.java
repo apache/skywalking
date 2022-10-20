@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
@@ -39,8 +40,7 @@ public class ProfileTraceDAO implements ITraceQueryDAO {
     }
 
     @Override
-    public TraceBrief queryBasicTraces(long startSecondTB,
-                                       long endSecondTB,
+    public TraceBrief queryBasicTraces(Duration duration,
                                        long minDuration,
                                        long maxDuration,
                                        String serviceId,

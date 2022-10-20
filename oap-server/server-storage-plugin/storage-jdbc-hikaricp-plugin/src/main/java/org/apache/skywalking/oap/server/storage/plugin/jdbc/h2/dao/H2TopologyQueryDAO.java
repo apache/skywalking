@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.Pr
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
@@ -45,42 +46,38 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB,
-                                                                          long endTB,
+    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(Duration duration,
                                                                           List<String> serviceIds) throws IOException {
         return loadServiceCalls(
-            ServiceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceRelationServerSideMetrics.INDEX_NAME, duration,
             ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
             ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds, DetectPoint.SERVER
         );
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(long startTB,
-                                                                         long endTB,
+    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(Duration duration,
                                                                          List<String> serviceIds) throws IOException {
         return loadServiceCalls(
-            ServiceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceRelationClientSideMetrics.INDEX_NAME, duration,
             ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
             ServiceRelationClientSideMetrics.DEST_SERVICE_ID, serviceIds, DetectPoint.CLIENT
         );
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB,
-                                                                          long endTB) throws IOException {
+    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(Duration duration) throws IOException {
         return loadServiceCalls(
-            ServiceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceRelationServerSideMetrics.INDEX_NAME, duration,
             ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
             ServiceRelationServerSideMetrics.DEST_SERVICE_ID, new ArrayList<>(0), DetectPoint.SERVER
         );
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(long startTB,
-                                                                         long endTB) throws IOException {
+    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(Duration duration) throws IOException {
         return loadServiceCalls(
-            ServiceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceRelationClientSideMetrics.INDEX_NAME, duration,
             ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
             ServiceRelationClientSideMetrics.DEST_SERVICE_ID, new ArrayList<>(0), DetectPoint.CLIENT
         );
@@ -89,10 +86,9 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId,
                                                                           String serverServiceId,
-                                                                          long startTB,
-                                                                          long endTB) throws IOException {
+                                                                          Duration duration) throws IOException {
         return loadServiceInstanceCalls(
-            ServiceInstanceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceInstanceRelationServerSideMetrics.INDEX_NAME, duration,
             ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
             ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId, serverServiceId,
             DetectPoint.SERVER
@@ -102,10 +98,9 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId,
                                                                           String serverServiceId,
-                                                                          long startTB,
-                                                                          long endTB) throws IOException {
+                                                                          Duration duration) throws IOException {
         return loadServiceInstanceCalls(
-            ServiceInstanceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceInstanceRelationClientSideMetrics.INDEX_NAME, duration,
             ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID,
             ServiceInstanceRelationClientSideMetrics.DEST_SERVICE_ID, clientServiceId, serverServiceId,
             DetectPoint.CLIENT
@@ -113,16 +108,15 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadEndpointRelation(long startTB,
-                                                      long endTB,
+    public List<Call.CallDetail> loadEndpointRelation(Duration duration,
                                                       String destEndpointId) throws IOException {
         List<Call.CallDetail> calls = loadEndpointFromSide(
-            EndpointRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+            EndpointRelationServerSideMetrics.INDEX_NAME, duration,
             EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
             EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId, false
         );
         calls.addAll(
-            loadEndpointFromSide(EndpointRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+            loadEndpointFromSide(EndpointRelationServerSideMetrics.INDEX_NAME, duration,
                                  EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
                                  EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId, true
             ));
@@ -130,25 +124,24 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
-        return loadProcessFromSide(startTB, endTB, serviceInstanceId, DetectPoint.CLIENT);
+    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId, Duration duration) throws IOException {
+        return loadProcessFromSide(duration, serviceInstanceId, DetectPoint.CLIENT);
     }
 
     @Override
-    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId, long startTB, long endTB) throws IOException {
-        return loadProcessFromSide(startTB, endTB, serviceInstanceId, DetectPoint.SERVER);
+    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId, Duration duration) throws IOException {
+        return loadProcessFromSide(duration, serviceInstanceId, DetectPoint.SERVER);
     }
 
     private List<Call.CallDetail> loadServiceCalls(String tableName,
-                                                   long startTB,
-                                                   long endTB,
+                                                   Duration duration,
                                                    String sourceCName,
                                                    String destCName,
                                                    List<String> serviceIds,
                                                    DetectPoint detectPoint) throws IOException {
         Object[] conditions = new Object[serviceIds.size() * 2 + 2];
-        conditions[0] = startTB;
-        conditions[1] = endTB;
+        conditions[0] = duration.getStartTimeBucket();
+        conditions[1] = duration.getEndTimeBucket();
         StringBuilder serviceIdMatchSql = new StringBuilder();
         if (serviceIds.size() > 0) {
             serviceIdMatchSql.append("and (");
@@ -181,16 +174,15 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     private List<Call.CallDetail> loadServiceInstanceCalls(String tableName,
-                                                           long startTB,
-                                                           long endTB,
+                                                           Duration duration,
                                                            String sourceCName,
                                                            String descCName,
                                                            String sourceServiceId,
                                                            String destServiceId,
                                                            DetectPoint detectPoint) throws IOException {
         Object[] conditions = new Object[] {
-            startTB,
-            endTB,
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket(),
             sourceServiceId,
             destServiceId,
             destServiceId,
@@ -224,15 +216,14 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     private List<Call.CallDetail> loadEndpointFromSide(String tableName,
-                                                       long startTB,
-                                                       long endTB,
+                                                       Duration duration,
                                                        String sourceCName,
                                                        String destCName,
                                                        String id,
                                                        boolean isSourceId) throws IOException {
         Object[] conditions = new Object[3];
-        conditions[0] = startTB;
-        conditions[1] = endTB;
+        conditions[0] = duration.getStartTimeBucket();
+        conditions[1] = duration.getEndTimeBucket();
         conditions[2] = id;
         List<Call.CallDetail> calls = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
@@ -252,13 +243,12 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         return calls;
     }
 
-    private List<Call.CallDetail> loadProcessFromSide(long startTB,
-                                                       long endTB,
+    private List<Call.CallDetail> loadProcessFromSide(Duration duration,
                                                        String instanceId,
                                                        DetectPoint detectPoint) throws IOException {
         Object[] conditions = new Object[3];
-        conditions[0] = startTB;
-        conditions[1] = endTB;
+        conditions[0] = duration.getStartTimeBucket();
+        conditions[1] = duration.getEndTimeBucket();
         conditions[2] = instanceId;
         List<Call.CallDetail> calls = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {

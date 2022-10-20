@@ -43,7 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import java.util.Objects;
 
 @ToString
-@MeterFunction(functionName = "sum_per_min")
+@MeterFunction(functionName = "sumPerMin")
 public abstract class SumPerMinFunction extends Meter implements AcceptableValue<Long>, LongValueHolder {
     protected static final String VALUE = "value";
     protected static final String TOTAL = "total";

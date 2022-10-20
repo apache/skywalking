@@ -6,11 +6,11 @@ If the new configuration is not well-formed, the OAP may fail to start up. The f
 Supported handlers:
 
 * `oc`: [OpenCensus](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/a08903f05d3a544f548535c222b1c205b9f5a154/exporter/opencensusexporter/README.md) gRPC service handler.
-* `otlp`: [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/otlpexporter) gRPC service handler.
+* `otlp`: [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-collector/tree/1c217b366fbdb209044d8f4c3fece079ae23bd3b/exporter/otlpexporter) gRPC service handler.
 
 **Notice:**  Set `SW_OTEL_RECEIVER=default` through system environment or change `receiver-otel/selector=${SW_OTEL_RECEIVER:default}` to activate the OpenTelemetry receiver.
 
-The rule file should be in YAML format, defined by the scheme described in [prometheus-fetcher](./prometheus-metrics.md).
+The rule file should be in YAML format, defined by the scheme described in [MAL](../../concepts-and-designs/mal.md).
 Note: `receiver-otel` only supports the `group`, `defaultMetricLevel`, and `metricsRules` nodes of the scheme due to its push mode.
 
 To activate the `oc` handler and relevant rules of `istio`:
@@ -39,5 +39,6 @@ for identification of the metric data.
 |k8s-service| Metrics of K8s cluster | otel-rules/k8s-service.yaml | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector -- OC/OTLP exporter --> SkyWalking OAP Server |
 |mysql| Metrics of MYSQL| otel-rules/mysql.yaml | prometheus/mysqld_exporter -> OpenTelemetry Collector -- OC/OTLP exporter --> SkyWalking OAP Server |
 |postgresql| Metrics of PostgreSQL| otel-rules/postgresql.yaml | postgres_exporter -> OpenTelemetry Collector -- OC/OTLP exporter --> SkyWalking OAP Server |
+|apisix| Metrics of Apache APISIX| otel-rules/apisix.yaml | apisix prometheus plugin -> OpenTelemetry Collector -- OC/OTLP exporter --> SkyWalking OAP Server |
 
 **Note**: You can also use OpenTelemetry exporter to transport the metrics to SkyWalking OAP directly. See [OpenTelemetry Exporter](./backend-meter.md#opentelemetry-exporter).

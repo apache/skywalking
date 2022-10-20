@@ -126,8 +126,8 @@ public abstract class AvgHistogramFunction extends Meter implements AcceptableVa
         AvgHistogramFunction metrics = (AvgHistogramFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
-        metrics.setCount(getCount());
-        metrics.setSummation(getSummation());
+        metrics.getSummation().copyFrom(getSummation());
+        metrics.getCount().copyFrom(getCount());
         return metrics;
     }
 
@@ -136,8 +136,8 @@ public abstract class AvgHistogramFunction extends Meter implements AcceptableVa
         AvgHistogramFunction metrics = (AvgHistogramFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
-        metrics.setCount(getCount());
-        metrics.setSummation(getSummation());
+        metrics.getSummation().copyFrom(getSummation());
+        metrics.getCount().copyFrom(getCount());
         return metrics;
     }
 

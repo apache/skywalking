@@ -50,7 +50,7 @@ and multiple formats, including
 6. Browser agent.
 7. Service Mesh Observability. Control plane and data plane.
 8. Metrics system, including Prometheus, OpenTelemetry, Micrometer(Spring Sleuth), Zabbix.
-9. Logs， including OpenTelemetry.
+9. Logs, including OpenTelemetry.
 10. Zipkin v1/v2 trace.(No Analysis).
 
 # Documentation

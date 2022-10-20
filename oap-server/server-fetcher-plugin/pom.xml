@@ -29,7 +29,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>prometheus-fetcher-plugin</module>
         <module>kafka-fetcher-plugin</module>
     </modules>
 

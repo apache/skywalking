@@ -18,159 +18,124 @@
 
 package org.apache.skywalking.oap.meter.analyzer.k8s;
 
-import static java.util.Objects.isNull;
-import static java.util.Optional.ofNullable;
+import static java.util.Objects.requireNonNull;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import org.apache.skywalking.library.kubernetes.KubernetesPodListener;
-import org.apache.skywalking.library.kubernetes.KubernetesPodWatcher;
-import org.apache.skywalking.library.kubernetes.KubernetesServiceListener;
-import org.apache.skywalking.library.kubernetes.KubernetesServiceWatcher;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import com.google.common.base.Strings;
-import io.kubernetes.client.openapi.models.V1LoadBalancerIngress;
-import io.kubernetes.client.openapi.models.V1LoadBalancerStatus;
+import java.util.Optional;
+import org.apache.skywalking.library.kubernetes.KubernetesPods;
+import org.apache.skywalking.library.kubernetes.KubernetesServices;
+import org.apache.skywalking.library.kubernetes.ObjectID;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1Service;
-import io.kubernetes.client.openapi.models.V1ServiceSpec;
-import io.kubernetes.client.openapi.models.V1ServiceStatus;
 import lombok.SneakyThrows;
 
-public class K8sInfoRegistry
-    implements KubernetesServiceListener, KubernetesPodListener {
-
+public class K8sInfoRegistry {
     private final static K8sInfoRegistry INSTANCE = new K8sInfoRegistry();
-    private final Map<String/* podName.namespace */, V1Pod> namePodMap = new ConcurrentHashMap<>();
-    protected final Map<String/* serviceName.namespace  */, V1Service> nameServiceMap = new ConcurrentHashMap<>();
-    private final Map<String/* podName.namespace */, String /* serviceName.namespace */> podServiceMap = new ConcurrentHashMap<>();
-    private final Map<String/* podIP */, String /* podName.namespace */> ipPodMap = new ConcurrentHashMap<>();
-    private final Map<String/* serviceIP */, String /* serviceName.namespace */> ipServiceMap = new ConcurrentHashMap<>();
-    private static final String SEPARATOR = ".";
+    private final LoadingCache<ObjectID /* Pod */, ObjectID /* Service */> podServiceMap;
+    private final LoadingCache<String/* podIP */, ObjectID /* Pod */> ipPodMap;
+    private final LoadingCache<String/* serviceIP */, ObjectID /* Service */> ipServiceMap;
+
+    private K8sInfoRegistry() {
+        ipPodMap = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofMinutes(3))
+            .build(CacheLoader.from(ip -> KubernetesPods.INSTANCE
+                .findByIP(ip)
+                .map(it -> ObjectID
+                    .builder()
+                    .name(it.getMetadata().getName())
+                    .namespace(it.getMetadata().getNamespace())
+                    .build())
+                .orElse(ObjectID.EMPTY)));
+        ipServiceMap = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofMinutes(3))
+            .build(CacheLoader.from(ip -> KubernetesServices.INSTANCE
+                .list()
+                .stream()
+                .filter(it -> it.getSpec() != null)
+                .filter(it -> it.getStatus() != null)
+                .filter(it -> it.getMetadata() != null)
+                .filter(it -> (it.getSpec().getClusterIPs() != null &&
+                    it.getSpec().getClusterIPs().stream()
+                        .anyMatch(clusterIP -> Objects.equals(clusterIP, ip)))
+                    || (it.getStatus().getLoadBalancer() != null &&
+                        it.getStatus().getLoadBalancer().getIngress() != null &&
+                        it.getStatus().getLoadBalancer().getIngress().stream()
+                            .anyMatch(ingress -> Objects.equals(ingress.getIp(), ip))))
+                .map(it -> ObjectID
+                    .builder()
+                    .name(it.getMetadata().getName())
+                    .namespace(it.getMetadata().getNamespace())
+                    .build())
+                .findFirst()
+                .orElse(ObjectID.EMPTY)));
+        podServiceMap = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofMinutes(3))
+            .build(CacheLoader.from(podObjectID -> {
+                final Optional<V1Pod> pod = KubernetesPods.INSTANCE
+                    .findByObjectID(
+                        ObjectID
+                            .builder()
+                            .name(podObjectID.name())
+                            .namespace(podObjectID.namespace())
+                            .build());
+
+                if (!pod.isPresent()
+                    || pod.get().getMetadata() == null
+                    || pod.get().getMetadata().getLabels() == null) {
+                    return ObjectID.EMPTY;
+                }
+
+                final Optional<V1Service> service = KubernetesServices.INSTANCE
+                    .list()
+                    .stream()
+                    .filter(it -> it.getMetadata() != null)
+                    .filter(it -> it.getSpec() != null)
+                    .filter(it -> requireNonNull(it.getSpec()).getSelector() != null)
+                    .filter(it -> {
+                        final Map<String, String> labels = pod.get().getMetadata().getLabels();
+                        final Map<String, String> selector = it.getSpec().getSelector();
+                        return hasIntersection(selector.entrySet(), labels.entrySet());
+                    })
+                    .findFirst();
+                if (!service.isPresent()) {
+                    return ObjectID.EMPTY;
+                }
+                return ObjectID
+                    .builder()
+                    .name(service.get().getMetadata().getName())
+                    .namespace(service.get().getMetadata().getNamespace())
+                    .build();
+            }));
+    }
 
     public static K8sInfoRegistry getInstance() {
         return INSTANCE;
     }
 
     @SneakyThrows
-    public void start() {
-        KubernetesPodWatcher.INSTANCE.addListener(this).start();
-        KubernetesServiceWatcher.INSTANCE.addListener(this).start();
-    }
-
-    @Override
-    public void onServiceAdded(final V1Service service) {
-        ofNullable(service.getMetadata()).ifPresent(
-            metadata -> nameServiceMap.put(metadata.getName() + SEPARATOR + metadata.getNamespace(), service)
-        );
-        recompose();
-    }
-
-    @Override
-    public void onServiceDeleted(final V1Service service) {
-        ofNullable(service.getMetadata()).ifPresent(
-            metadata -> nameServiceMap.remove(metadata.getName() + SEPARATOR + metadata.getNamespace())
-        );
-        ofNullable(service.getStatus()).map(V1ServiceStatus::getLoadBalancer).filter(Objects::nonNull)
-            .map(V1LoadBalancerStatus::getIngress).filter(CollectionUtils::isNotEmpty)
-            .ifPresent(l -> l.stream().filter(i -> StringUtil.isNotEmpty(i.getIp()))
-                    .forEach(i -> ipServiceMap.remove(i.getIp())));
-        ofNullable(service.getSpec()).map(V1ServiceSpec::getClusterIPs).filter(CollectionUtils::isNotEmpty)
-            .ifPresent(l -> l.stream().filter(StringUtil::isNotEmpty).forEach(ipServiceMap::remove));
-        recompose();
-    }
-
-    @Override
-    public void onServiceUpdated(V1Service oldService, V1Service newService) {
-        onServiceAdded(newService);
-    }
-
-    @Override
-    public void onPodAdded(final V1Pod pod) {
-        ofNullable(pod.getMetadata()).ifPresent(
-            metadata -> namePodMap.put(metadata.getName() + SEPARATOR + metadata.getNamespace(), pod));
-
-        recompose();
-    }
-
-    @Override
-    public void onPodDeleted(final V1Pod pod) {
-        ofNullable(pod.getMetadata()).ifPresent(
-            metadata -> namePodMap.remove(metadata.getName() + SEPARATOR + metadata.getNamespace()));
-
-        ofNullable(pod.getMetadata()).ifPresent(
-            metadata -> podServiceMap.remove(metadata.getName() + SEPARATOR + metadata.getNamespace()));
-
-        ofNullable(pod.getStatus()).filter(s -> StringUtil.isNotEmpty(s.getPodIP())).ifPresent(
-            status -> ipPodMap.remove(status.getPodIP()));
-    }
-
-    @Override
-    public void onPodUpdated(V1Pod oldPod, V1Pod newPod) {
-        onPodAdded(newPod);
-    }
-
-    private void recompose() {
-        namePodMap.forEach((podName, pod) -> {
-            if (!isNull(pod.getMetadata())) {
-                ofNullable(pod.getStatus()).filter(s -> StringUtil.isNotEmpty(s.getPodIP())).ifPresent(
-                        status -> ipPodMap.put(status.getPodIP(), podName));
-            }
-
-            nameServiceMap.forEach((serviceName, service) -> {
-                if (isNull(pod.getMetadata()) || isNull(service.getMetadata()) || isNull(service.getSpec())) {
-                    return;
-                }
-
-                Map<String, String> selector = service.getSpec().getSelector();
-                Map<String, String> labels = pod.getMetadata().getLabels();
-
-                if (isNull(labels) || isNull(selector)) {
-                    return;
-                }
-
-                String podNamespace = pod.getMetadata().getNamespace();
-                String serviceNamespace = service.getMetadata().getNamespace();
-
-                if (Strings.isNullOrEmpty(podNamespace) || Strings.isNullOrEmpty(
-                    serviceNamespace) || !podNamespace.equals(serviceNamespace)) {
-                    return;
-                }
-
-                if (hasIntersection(selector.entrySet(), labels.entrySet())) {
-                    podServiceMap.put(podName, serviceName);
-                }
-            });
-        });
-        nameServiceMap.forEach((serviceName, service) -> {
-            if (!isNull(service.getSpec()) && CollectionUtils.isNotEmpty(service.getSpec().getClusterIPs())) {
-                for (String clusterIP : service.getSpec().getClusterIPs()) {
-                    ipServiceMap.put(clusterIP, serviceName);
-                }
-            }
-            if (!isNull(service.getStatus()) && !isNull(service.getStatus().getLoadBalancer())
-                && CollectionUtils.isNotEmpty(service.getStatus().getLoadBalancer().getIngress())) {
-                for (V1LoadBalancerIngress loadBalancerIngress : service.getStatus().getLoadBalancer().getIngress()) {
-                    if (StringUtil.isNotEmpty(loadBalancerIngress.getIp())) {
-                        ipServiceMap.put(loadBalancerIngress.getIp(), serviceName);
-                    }
-                }
-            }
-        });
-    }
-
     public String findServiceName(String namespace, String podName) {
-        return this.podServiceMap.get(podName + SEPARATOR + namespace);
+        return this.podServiceMap.get(
+            ObjectID
+                .builder()
+                .name(podName)
+                .namespace(namespace)
+                .build())
+            .toString();
     }
 
+    @SneakyThrows
     public String findPodByIP(String ip) {
-        return this.ipPodMap.get(ip);
+        return this.ipPodMap.get(ip).toString();
     }
 
+    @SneakyThrows
     public String findServiceByIP(String ip) {
-        return this.ipServiceMap.get(ip);
+        return this.ipServiceMap.get(ip).toString();
     }
 
     private boolean hasIntersection(Collection<?> o, Collection<?> c) {
