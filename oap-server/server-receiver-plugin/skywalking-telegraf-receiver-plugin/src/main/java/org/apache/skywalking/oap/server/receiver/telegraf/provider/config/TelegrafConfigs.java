@@ -65,10 +65,9 @@ public class TelegrafConfigs {
                         try {
                             throw new ModuleStartException(e.getMessage(), e);
                         } catch (ModuleStartException ex) {
-                            ex.printStackTrace();
+                            return null;
                         }
                     }
-                    return null;
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
