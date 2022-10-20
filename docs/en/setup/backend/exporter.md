@@ -7,14 +7,14 @@ The exporter is an independent module that has to be manually activated.
 
 Right now, we provide the following exporting channels:
 1. gRPC Exporter
-- Metrics
-2. Kafka Exporter
-- Trace
-- Log
+- [Metrics](#metrics-grpc-exporter)
+1. Kafka Exporter
+- [Trace](#trace-kafka-exporter)
+- [Log](#log-kafka-exporter)
 
 ## gRPC Exporter
 ### Metrics gRPC Exporter
-Metrics gRPC exporter uses SkyWalking's native export service definition. Here is the proto definition.
+Metrics gRPC exporter uses SkyWalking's native export service definition. Here is the proto definition: [metric-exporter.proto](https://github.com/apache/skywalking/blob/master/oap-server/exporter/src/main/proto/metric-exporter.proto).
 ```proto
 service MetricExportService {
     rpc export (stream ExportMetricValue) returns (ExportResponse) {
@@ -23,49 +23,9 @@ service MetricExportService {
     rpc subscription (SubscriptionReq) returns (SubscriptionsResp) {
     }
 }
-
-message ExportMetricValue {
-    string metricName = 1;
-    string entityName = 2;
-    string entityId = 3;
-    ValueType type = 4;
-    int64 timeBucket = 5;
-    int64 longValue = 6;
-    double doubleValue = 7;
-    repeated int64 longValues = 8;
-}
-
-message SubscriptionsResp {
-    repeated SubscriptionMetric metrics = 1;
-}
-
-message SubscriptionMetric {
-    string metricName = 1;
-    EventType eventType = 2;
-}
-
-enum ValueType {
-    LONG = 0;
-    DOUBLE = 1;
-    MULTI_LONG = 2;
-}
-
-enum EventType {
-    // The metrics aggregated in this bulk, not include the existing persistent data.
-    INCREMENT = 0;
-    // Final result of the metrics at this moment.
-    TOTAL = 1;
-}
-
-message SubscriptionReq {
-
-}
-
-message ExportResponse {
-}
 ```
 
-To activate the exporter, you should add this into your `application.yml`
+To activate the exporter, you should set `${SW_EXPORTER_ENABLE_GRPC_METRICS:true}` and config the target gRPC server address.
 ```yaml
 exporter:
   default:
@@ -111,7 +71,7 @@ message SegmentObject {
 }
 ```
 
-To activate the exporter, you should add this into your `application.yml`
+To activate the exporter, you should set `${SW_EXPORTER_ENABLE_KAFKA_TRACE:true}` and config the Kafka server.
 ```yaml
 exporter:
   default:
@@ -147,7 +107,7 @@ message LogData {
 }
 ```
 
-To activate the exporter, you should add this into your `application.yml`
+To activate the exporter, you should set `${SW_EXPORTER_ENABLE_KAFKA_LOG:true}` and config the Kafka server.
 ```yaml
 exporter:
   default:
