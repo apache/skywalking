@@ -548,6 +548,8 @@ jobs:
             config: test/e2e-v2/cases/vm/zabbix/e2e.yaml
           - name: VM Prometheus
             config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
+          - name: VM Telegraf
+            config: test/e2e-v2/cases/vm/telegraf/e2e.yaml
           - name: So11y
             config: test/e2e-v2/cases/so11y/e2e.yaml
           - name: MySQL Prometheus and slowsql
