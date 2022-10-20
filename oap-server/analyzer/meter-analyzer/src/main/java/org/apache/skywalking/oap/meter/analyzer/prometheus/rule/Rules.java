@@ -47,29 +47,36 @@ public class Rules {
     public static List<Rule> loadRules(final String path, List<String> enabledRules) throws ModuleStartException {
         File[] rules;
         try {
-            rules = ResourceUtils.getPathFiles(path);
+            rules = ResourceUtils.getPathDirectories(path);
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Load fetcher rules failed", e);
         }
         return Arrays.stream(rules)
-            .filter(File::isFile)
-            .map(f -> {
-                try (Reader r = new FileReader(f)) {
-                    String fileName = f.getName();
-                    int dotIndex = fileName.lastIndexOf('.');
-                    fileName = (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
-                    if (!enabledRules.contains(fileName)) {
-                        return null;
+                .filter(dir -> enabledRules.contains(dir.getName()))
+                .map(File::listFiles)
+                .filter(Objects::nonNull)
+                .flatMap(Arrays::stream)
+                .filter(File::isFile)
+                .map(f -> {
+                    try (Reader r = new FileReader(f)) {
+                        String fileName = f.getName();
+                        int dotIndex = fileName.lastIndexOf('.');
+                        if (dotIndex == -1 || !"yaml".equals(fileName.substring(dotIndex + 1))) {
+                            return null;
+                        }
+                        fileName = fileName.substring(0, dotIndex);
+                        Rule rule = new Yaml().loadAs(r, Rule.class);
+                        if (rule == null) {
+                            return null;
+                        }
+                        rule.setName(fileName);
+                        return rule;
+                    } catch (IOException e) {
+                        LOG.debug("Reading file {} failed", f, e);
                     }
-                    Rule rule = new Yaml().loadAs(r, Rule.class);
-                    rule.setName(fileName);
-                    return rule;
-                } catch (IOException e) {
-                    LOG.debug("Reading file {} failed", f, e);
-                }
-                return null;
-            })
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }
