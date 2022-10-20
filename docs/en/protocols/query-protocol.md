@@ -80,6 +80,7 @@ extend type Query {
     readLabeledMetricsValues(condition: MetricsCondition!, labels: [String!]!, duration: Duration!): [MetricsValues!]!
     # Heatmap is bucket based value statistic result.
     readHeatMap(condition: MetricsCondition!, duration: Duration!): HeatMap
+    # Deprecated since 9.3.0, replaced by readRecords defined in record.graphqls
     # Read the sampled records
     # TopNCondition#scope is not required.
     readSampledRecords(condition: TopNCondition!, duration: Duration!): [SelectedRecord!]!
@@ -124,6 +125,18 @@ extend type Query {
     getServiceInstanceTopN(serviceId: ID!, name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
     getAllEndpointTopN(name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
     getEndpointTopN(serviceId: ID!, name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
+}
+```
+
+### Record
+Record is a general and abstract type for collected raw data.
+In the observability, traces and logs have specific and well-defined meanings, meanwhile, the general records represent other
+collected records. Such as sampled slow SQL statement, HTTP request raw data(request/response header/body)
+
+```graphql
+extend type Query {
+    # Query collected records with given metric name and parent entity conditions, and return in the requested order.
+    readRecords(condition: RecordCondition!, duration: Duration!): [Record!]!
 }
 ```
 

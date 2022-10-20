@@ -1,17 +1,16 @@
-# Trace Data Protocol v3
+# Trace Data Protocol v3.1
 Trace Data Protocol describes the data format between SkyWalking agent/sniffer and backend. 
 
-## Overview
 Trace data protocol is defined and provided in [gRPC format](https://github.com/apache/skywalking-data-collect-protocol), and implemented in [HTTP 1.1](HTTP-API-Protocol.md).
 
-### Report service instance status
+## Report service instance status
 1. Service Instance Properties 
 Service instance contains more information than just a name. In order for the agent to report service instance status, use `ManagementService#reportInstanceProperties` service to provide a string-key/string-value pair list as the parameter. The `language` of target instance must be provided as the minimum requirement.
 
 2. Service Ping
 Service instance should keep alive with the backend. The agent should set a scheduler using `ManagementService#keepAlive` service every minute.
 
-### Send trace and metrics
+## Send trace and JVM metrics
 After you have the service ID and service instance ID ready, you could send traces and metrics. Now we
 have 
 1. `TraceSegmentReportService#collect` for the SkyWalking native trace format
@@ -40,7 +39,7 @@ See [Cross Process Propagation Headers Protocol v3](Skywalking-Cross-Process-Pro
 
 4. `Span#skipAnalysis` may be TRUE, if this span doesn't require backend analysis.
 
-### Protocol Definition
+## Trace Report Protocol
 ```protobuf
 // The segment is a collection of spans. It includes all collected spans in a simple one request context, such as a HTTP request process.
 //
@@ -218,5 +217,72 @@ enum SpanLayer {
 // The segment collections for trace report in batch and sync mode.
 message SegmentCollection {
     repeated SegmentObject segments = 1;
+}
+```
+
+## Report Span Attached Events
+Besides in-process agents, there are other out-of-process agent, such as ebpf agent, could report additional information
+as attached events for the relative spans.
+
+`SpanAttachedEventReportService#collect` for attached event reporting.
+
+```protobuf
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ebpf agent(SkyWalking Rover) collects extra information from the OS(Linux Only) level to attach on the traced span.
+// Since v3.1
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+service SpanAttachedEventReportService {
+    // Collect SpanAttachedEvent to the OAP server in the streaming mode.
+    rpc collect (stream SpanAttachedEvent) returns (Commands) {
+    }
+}
+
+// SpanAttachedEvent represents an attached event for a traced RPC.
+//
+// When an RPC is being traced by the in-process language agent, a span would be reported by the client-side agent.
+// And the rover would be aware of this RPC due to the existing tracing header.
+// Then, the rover agent collects extra information from the OS level to provide assistance information to diagnose network performance.
+message SpanAttachedEvent {
+    // The nanosecond timestamp of the event's start time.
+    // Notice, most unit of timestamp in SkyWalking is milliseconds, but NANO-SECOND is required here.
+    // Because the attached event happens in the OS syscall level, most of them are executed rapidly.
+    Instant startTime = 1;
+    // The official event name.
+    // For example, the event name is a method signature from syscall stack.
+    string event = 2;
+    // [Optional] The nanosecond timestamp of the event's end time.
+    Instant endTime = 3;
+    // The tags for this event includes some extra OS level information,
+    // such as
+    // 1. net_device used for this exit span.
+    // 2. network L7 protocol
+    repeated KeyStringValuePair tags = 4;
+    // The summary of statistics during this event.
+    // Each statistic provides a name(metric name) to represent the name, and an int64/long as the value.
+    repeated KeyIntValuePair summary = 5;
+    // Refer to a trace context decoded from `sw8` header through network, such as HTTP header, MQ metadata
+    // https://skywalking.apache.org/docs/main/next/en/protocols/skywalking-cross-process-propagation-headers-protocol-v3/#standard-header-item
+    SpanReference traceContext = 6;
+
+    message SpanReference {
+        SpanReferenceType type = 1;
+        // [Optional] A string id represents the whole trace.
+        string traceId = 2;
+        // A unique id represents this segment. Other segments could use this id to reference as a child segment.
+        // [Optional] when this span reference
+        string traceSegmentId = 3;
+        // If type == SKYWALKING
+        // The number id of the span. Should be unique in the whole segment.
+        // Starting at 0
+        //
+        // If type == ZIPKIN
+        // The type of span ID is string.
+        string spanId = 4;
+    }
+
+    enum SpanReferenceType {
+        SKYWALKING = 0;
+        ZIPKIN = 1;
+    }
 }
 ```
