@@ -47,7 +47,7 @@ metricsRules:
     exp: pg_settings_random_page_cost
   - name: max_wal_size
     exp: pg_settings_max_wal_size_bytes
-  - name: max_parallel_worker
+  - name: max_parallel_workers
     exp: pg_settings_max_parallel_workers
   - name: max_worker_processes
     exp: pg_settings_max_worker_processes
