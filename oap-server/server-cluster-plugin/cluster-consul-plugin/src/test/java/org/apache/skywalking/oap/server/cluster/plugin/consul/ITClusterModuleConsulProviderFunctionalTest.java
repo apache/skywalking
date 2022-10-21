@@ -198,7 +198,8 @@ public class ITClusterModuleConsulProviderFunctionalTest {
         int internalComPort) throws Exception {
         ClusterModuleConsulProvider provider = new ClusterModuleConsulProvider();
 
-        ClusterModuleConsulConfig config = (ClusterModuleConsulConfig) provider.newConfigCreator();
+        ClusterModuleConsulConfig config = new ClusterModuleConsulConfig();
+        provider.newConfigCreator().onInitialized(config);
 
         config.setHostPort(consulAddress);
         config.setServiceName(serviceName);

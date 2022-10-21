@@ -213,8 +213,8 @@ public class ITClusterModuleNacosProviderFunctionalTest {
                                                       int internalComPort) throws Exception {
         ClusterModuleNacosProvider provider = new ClusterModuleNacosProvider();
 
-        ClusterModuleNacosConfig config =
-            (ClusterModuleNacosConfig) provider.newConfigCreator();
+        ClusterModuleNacosConfig config = new ClusterModuleNacosConfig();
+        provider.newConfigCreator().onInitialized(config);
 
         config.setHostPort(nacosAddress);
         config.setServiceName(serviceName);

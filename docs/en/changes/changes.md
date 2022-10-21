@@ -65,6 +65,7 @@
 * Support `sumPerMinLabeled` in `MAL`.
 * Bump up jackson databind, snakeyaml, grpc dependencies.
 * Support export `Trace` and `Log` through Kafka.
+* Add new config initialization mechanism of module provider. This is a ModuleManager lib kernel level change.
 
 #### UI
 

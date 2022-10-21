@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.provider;
 
+import lombok.Getter;
 import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.log.analyzer.provider.log.LogAnalyzerServiceImpl;
@@ -29,7 +30,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
 public class LogAnalyzerModuleProvider extends ModuleProvider {
-
+    @Getter
     private LogAnalyzerModuleConfig moduleConfig;
 
     private LogAnalyzerServiceImpl logAnalyzerService;

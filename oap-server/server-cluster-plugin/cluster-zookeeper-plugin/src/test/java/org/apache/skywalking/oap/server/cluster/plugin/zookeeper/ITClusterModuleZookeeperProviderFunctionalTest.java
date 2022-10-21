@@ -21,13 +21,13 @@ package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 import java.util.Collections;
 import java.util.List;
 import org.apache.curator.x.discovery.ServiceDiscovery;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
@@ -193,7 +193,8 @@ public class ITClusterModuleZookeeperProviderFunctionalTest {
         int internalComPort) throws Exception {
         ClusterModuleZookeeperProvider provider = new ClusterModuleZookeeperProvider();
         provider.setManager(moduleManager);
-        ClusterModuleZookeeperConfig moduleConfig = (ClusterModuleZookeeperConfig) provider.newConfigCreator();
+        ClusterModuleZookeeperConfig moduleConfig = new ClusterModuleZookeeperConfig();
+        provider.newConfigCreator().onInitialized(moduleConfig);
         moduleConfig.setHostPort(zkAddress);
         moduleConfig.setBaseSleepTimeMs(3000);
         moduleConfig.setMaxRetries(3);

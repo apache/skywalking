@@ -191,8 +191,8 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         throws ModuleStartException {
         ClusterModuleEtcdProvider provider = new ClusterModuleEtcdProvider();
 
-        ClusterModuleEtcdConfig config =
-            (ClusterModuleEtcdConfig) provider.newConfigCreator();
+        ClusterModuleEtcdConfig config = new ClusterModuleEtcdConfig();
+        provider.newConfigCreator().onInitialized(config);
 
         config.setEndpoints(endpoint);
         config.setServiceName(serviceName);
