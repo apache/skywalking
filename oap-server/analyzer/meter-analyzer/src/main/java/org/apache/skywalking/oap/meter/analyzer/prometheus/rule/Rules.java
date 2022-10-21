@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -56,8 +57,18 @@ public class Rules {
         final List<String> formedEnabledRules =
                 enabledRules
                         .stream()
-                        .map(rule -> rule.endsWith(".yaml") ? rule : rule + ".yaml")
-                        .map(rule -> rule.startsWith("/") ? rule.substring(1) : rule)
+                        .map(rule -> {
+                            if (rule.startsWith("/")) {
+                                rule = rule.substring(1);
+                            }
+                            if (rule.endsWith(".yaml")) {
+                                return rule;
+                            } else if (rule.endsWith(".yml")) {
+                                return rule.substring(0, rule.length() - 2) + "aml";
+                            } else {
+                                return rule + ".yaml";
+                            }
+                        })
                         .collect(Collectors.toList());
 
         return Arrays.stream(rules)
@@ -65,54 +76,47 @@ public class Rules {
                     if (f.isDirectory()) {
                         return Arrays.stream(Objects.requireNonNull(f.listFiles()))
                                 .filter(File::isFile)
-                                .map(file -> {
-                                    try (Reader r = new FileReader(file)) {
-                                        String fileName = file.getName();
-                                        int dotIndex = fileName.lastIndexOf('.');
-
-                                        if (dotIndex == -1 || !"yaml".equals(fileName.substring(dotIndex + 1))) {
-                                            return null;
-                                        }
-                                        String ruleName = fileName.substring(0, dotIndex);
-                                        fileName = f.getName() + '/' + fileName;
-                                        if (!formedEnabledRules.contains(fileName) && !formedEnabledRules.contains(f.getName() + "/*.yaml")) {
-                                            return null;
-                                        }
-                                        Rule rule = new Yaml().loadAs(r, Rule.class);
-                                        if (rule == null) {
-                                            return null;
-                                        }
-                                        rule.setName(ruleName);
-                                        return rule;
-                                    } catch (IOException e) {
-                                        LOG.debug("Reading file {} failed", f, e);
-                                    }
-                                    return null;
-                                });
+                                .map(file -> getRulesFromFile(formedEnabledRules, f, file));
                     } else {
-                        try (Reader r = new FileReader(f)) {
-                            String fileName = f.getName();
-                            int dotIndex = fileName.lastIndexOf('.');
-                            if (dotIndex == -1 || !"yaml".equals(fileName.substring(dotIndex + 1))) {
-                                return null;
-                            }
-                            String ruleName = fileName.substring(0, dotIndex);
-                            if (!formedEnabledRules.contains(fileName)) {
-                                return null;
-                            }
-                            Rule rule = new Yaml().loadAs(r, Rule.class);
-                            if (rule == null) {
-                                return null;
-                            }
-                            rule.setName(ruleName);
-                            return Stream.of(rule);
-                        } catch (IOException e) {
-                            LOG.debug("Reading file {} failed", f, e);
-                        }
-                        return null;
+                        return Stream.of(getRulesFromFile(formedEnabledRules, null, f));
                     }
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    @Nullable
+    private static Rule getRulesFromFile(List<String> formedEnabledRules, File directory, File file) {
+        try (Reader r = new FileReader(file)) {
+            String fileName = file.getName();
+            int dotIndex = fileName.lastIndexOf('.');
+            if (fileName.endsWith(".yml")) {
+                fileName = fileName.substring(0, fileName.length() - 2) + "aml";
+            }
+            if (dotIndex == -1 || !"yaml".equals(fileName.substring(dotIndex + 1))) {
+                return null;
+            }
+            String ruleName = fileName.substring(0, dotIndex);
+            if (directory != null) {
+                fileName = directory.getName() + "/" + ruleName;
+                if (!formedEnabledRules.contains(fileName) && !formedEnabledRules.contains(directory.getName() + "/*.yaml")) {
+                    return null;
+                }
+            } else {
+                if (!formedEnabledRules.contains(fileName)) {
+                    return null;
+                }
+            }
+
+            Rule rule = new Yaml().loadAs(r, Rule.class);
+            if (rule == null) {
+                return null;
+            }
+            rule.setName(ruleName);
+            return rule;
+        } catch (IOException e) {
+            LOG.debug("Reading file {} failed", file, e);
+        }
+        return null;
     }
 }
