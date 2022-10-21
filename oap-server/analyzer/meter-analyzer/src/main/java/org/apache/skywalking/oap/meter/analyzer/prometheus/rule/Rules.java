@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.jetbrains.annotations.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -85,7 +85,6 @@ public class Rules {
                 .collect(Collectors.toList());
     }
 
-    @Nullable
     private static Rule getRulesFromFile(List<String> formedEnabledRules, File directory, File file) {
         try (Reader r = new FileReader(file)) {
             String fileName = file.getName();
