@@ -16,17 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.exporter.provider.grpc;
+package org.apache.skywalking.oap.server.core.exporter;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-@Setter
-@Getter
-public class GRPCExporterSetting extends ModuleConfig {
-    private String targetHost;
-    private int targetPort;
-    private int bufferChannelSize = 20000;
-    private int bufferChannelNum = 2;
+/**
+ * Export the traces from metrics through this service.
+ */
+public interface TraceExportService extends Service, ExporterService<SegmentRecord> {
+
+    void export(SegmentRecord segmentRecord);
 }

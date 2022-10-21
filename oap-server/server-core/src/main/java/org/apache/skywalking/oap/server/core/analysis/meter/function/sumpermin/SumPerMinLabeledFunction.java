@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function.sumpermin;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
@@ -28,11 +27,11 @@ import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
-import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -42,11 +41,11 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import java.util.Objects;
 
-@ToString
-@MeterFunction(functionName = "sumPerMin")
-public abstract class SumPerMinFunction extends Meter implements AcceptableValue<Long>, LongValueHolder {
-    protected static final String VALUE = "value";
-    protected static final String TOTAL = "total";
+@MeterFunction(functionName = "sumPerMinLabeled")
+public abstract class SumPerMinLabeledFunction extends Meter implements AcceptableValue<DataTable>, LabeledValueHolder {
+
+    protected static final String VALUE = "datatable_value";
+    protected static final String TOTAL = "datatable_total";
 
     @Setter
     @Getter
@@ -61,34 +60,52 @@ public abstract class SumPerMinFunction extends Meter implements AcceptableValue
 
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
-    private long value;
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    private DataTable value = new DataTable(30);
 
     @Getter
     @Setter
     @Column(columnName = TOTAL, storageOnly = true)
-    private long total;
+    private DataTable total = new DataTable(30);
 
     @Entrance
-    public final void combine(@SourceFrom long value) {
-        this.total += value;
+    public final void combine(@SourceFrom DataTable value) {
+        this.total.append(value);
+    }
+
+    @Override
+    public void accept(MeterEntity entity, DataTable value) {
+        setEntityId(entity.id());
+        setServiceId(entity.serviceId());
+        this.total.append(value);
+    }
+
+    @Override
+    public Class<? extends StorageBuilder> builder() {
+        return SumPerMinLabeledStorageBuilder.class;
     }
 
     @Override
     public boolean combine(Metrics metrics) {
-        final SumPerMinFunction sumPerMinFunction = (SumPerMinFunction) metrics;
-        combine(sumPerMinFunction.getTotal());
+        final SumPerMinLabeledFunction sumPerMinLabeledFunction = (SumPerMinLabeledFunction) metrics;
+        combine(sumPerMinLabeledFunction.getTotal());
         return true;
     }
 
     @Override
     public void calculate() {
-        setValue(this.total / getDurationInMinute());
+        for (String key : total.keys()) {
+            final Long val = total.get(key);
+            if (Objects.isNull(val)) {
+                continue;
+            }
+            value.put(key, val / getDurationInMinute());
+        }
     }
 
     @Override
     public Metrics toHour() {
-        final SumPerMinFunction metrics = (SumPerMinFunction) createNew();
+        final SumPerMinLabeledFunction metrics = (SumPerMinLabeledFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
         metrics.setServiceId(getServiceId());
@@ -98,7 +115,7 @@ public abstract class SumPerMinFunction extends Meter implements AcceptableValue
 
     @Override
     public Metrics toDay() {
-        final SumPerMinFunction metrics = (SumPerMinFunction) createNew();
+        final SumPerMinLabeledFunction metrics = (SumPerMinLabeledFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
         metrics.setServiceId(getServiceId());
@@ -107,14 +124,14 @@ public abstract class SumPerMinFunction extends Meter implements AcceptableValue
     }
 
     @Override
-    public int remoteHashCode() {
-        return getEntityId().hashCode();
+    protected String id0() {
+        return getTimeBucket() + Const.ID_CONNECTOR + getEntityId();
     }
 
     @Override
     public void deserialize(RemoteData remoteData) {
-        setTotal(remoteData.getDataLongs(0));
-        setTimeBucket(remoteData.getDataLongs(1));
+        setTotal(new DataTable(remoteData.getDataObjectStrings(0)));
+        setTimeBucket(remoteData.getDataLongs(0));
 
         setEntityId(remoteData.getDataStrings(0));
         setServiceId(remoteData.getDataStrings(1));
@@ -124,7 +141,7 @@ public abstract class SumPerMinFunction extends Meter implements AcceptableValue
     public RemoteData.Builder serialize() {
         final RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
 
-        remoteBuilder.addDataLongs(getTotal());
+        remoteBuilder.addDataObjectStrings(total.toStorageData());
         remoteBuilder.addDataLongs(getTimeBucket());
 
         remoteBuilder.addDataStrings(getEntityId());
@@ -133,33 +150,22 @@ public abstract class SumPerMinFunction extends Meter implements AcceptableValue
     }
 
     @Override
-    protected String id0() {
-        return getTimeBucket() + Const.ID_CONNECTOR + getEntityId();
+    public int remoteHashCode() {
+        return getEntityId().hashCode();
     }
 
-    @Override
-    public void accept(MeterEntity entity, Long value) {
-        setEntityId(entity.id());
-        setServiceId(entity.serviceId());
-        setTotal(getTotal() + value);
-    }
+    public static class SumPerMinLabeledStorageBuilder implements StorageBuilder<SumPerMinLabeledFunction> {
 
-    @Override
-    public Class<? extends StorageBuilder> builder() {
-        return SumPerMinStorageBuilder.class;
-    }
-
-    public static class SumPerMinStorageBuilder implements StorageBuilder<SumPerMinFunction> {
         @Override
-        public SumPerMinFunction storage2Entity(final Convert2Entity converter) {
-            final SumPerMinFunction metrics = new SumPerMinFunction() {
+        public SumPerMinLabeledFunction storage2Entity(Convert2Entity converter) {
+            final SumPerMinLabeledFunction metrics = new SumPerMinLabeledFunction() {
                 @Override
-                public AcceptableValue<Long> createNew() {
+                public AcceptableValue<DataTable> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
-            metrics.setValue(((Number) converter.get(VALUE)).longValue());
-            metrics.setTotal(((Number) converter.get(TOTAL)).longValue());
+            metrics.setValue(new DataTable((String) converter.get(VALUE)));
+            metrics.setTotal(new DataTable((String) converter.get(TOTAL)));
             metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             metrics.setServiceId((String) converter.get(InstanceTraffic.SERVICE_ID));
             metrics.setEntityId((String) converter.get(ENTITY_ID));
@@ -167,30 +173,12 @@ public abstract class SumPerMinFunction extends Meter implements AcceptableValue
         }
 
         @Override
-        public void entity2Storage(final SumPerMinFunction storageData, final Convert2Storage converter) {
+        public void entity2Storage(SumPerMinLabeledFunction storageData, Convert2Storage converter) {
             converter.accept(VALUE, storageData.getValue());
             converter.accept(TOTAL, storageData.getTotal());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
             converter.accept(ENTITY_ID, storageData.getEntityId());
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof SumPerMinFunction)) {
-            return false;
-        }
-        final SumPerMinFunction function = (SumPerMinFunction) o;
-        return Objects.equals(getEntityId(), function.getEntityId())
-            && Objects.equals(getTimeBucket(), function.getTimeBucket());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getEntityId(), getTimeBucket());
     }
 }

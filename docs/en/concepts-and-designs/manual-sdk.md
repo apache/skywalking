@@ -1,5 +1,6 @@
 # Manual instrument SDK
 Our incredible community has contributed to the manual instrument SDK.
+- [Rust](https://github.com/apache/skywalking-rust). Rust SDK follows the SkyWalking format.
 - [Go2Sky](https://github.com/SkyAPM/go2sky). Go SDK follows the SkyWalking format.
 - [C++](https://github.com/SkyAPM/cpp2sky). C++ SDK follows the SkyWalking format. 
 

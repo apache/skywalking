@@ -62,6 +62,9 @@
   is acceptable in our case.
 * Optimize the query time of tasks in ProfileTaskCache.
 * Fix metrics was put into wrong slot of the window in the alerting kernel.
+* Support `sumPerMinLabeled` in `MAL`.
+* Bump up jackson databind, snakeyaml, grpc dependencies.
+* Support export `Trace` and `Log` through Kafka.
 * [**Breaking Change**] Support new records query protocol, rename the column named `service_id` to `entity_id` for support difference entity.
   Please re-create `top_n_database_statement` index/table.
 
@@ -99,5 +102,7 @@
 * Add re-post for blog `Scaling with Apache SkyWalking` in the academy list.
 * Add re-post for blog `Diagnose Service Mesh Network Performance with eBPF` in the academy list.
 * Add **Security Notice** doc.
+* Add new docs for `Report Span Attached Events` data collecting protocol.
+* Add new docs for `Record` query protocol
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)

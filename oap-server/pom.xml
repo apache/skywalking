@@ -51,9 +51,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <kafka-clients.version>2.4.1</kafka-clients.version>
-        <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
     </properties>
 
     <dependencies>
