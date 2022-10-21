@@ -18,7 +18,10 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
+import lombok.Getter;
+
 public class ModuleAProvider extends ModuleProvider {
+    @Getter
     private ModuleAProviderConfig config;
 
     @Override

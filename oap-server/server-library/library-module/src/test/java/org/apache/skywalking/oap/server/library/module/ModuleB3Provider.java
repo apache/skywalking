@@ -25,7 +25,6 @@ public class ModuleB3Provider extends ModuleProvider {
         return "P-B3";
     }
 
-
     @Override
     public Class<? extends ModuleDefine> module() {
         return BaseModuleB.class;
