@@ -74,6 +74,8 @@
         <httpcore.version>4.4.13</httpcore.version>
         <commons-compress.version>1.21</commons-compress.version>
         <banyandb-java-client.version>0.1.0</banyandb-java-client.version>
+        <kafka-clients.version>2.4.1</kafka-clients.version>
+        <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
     </properties>
 
     <dependencyManagement>
@@ -554,6 +556,18 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commons-compress.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka-clients.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka-test</artifactId>
+                <version>${spring-kafka-test.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

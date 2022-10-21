@@ -64,6 +64,7 @@
 * Fix metrics was put into wrong slot of the window in the alerting kernel.
 * Support `sumPerMinLabeled` in `MAL`.
 * Bump up jackson databind, snakeyaml, grpc dependencies.
+* Support export `Trace` and `Log` through Kafka.
 
 #### UI
 
