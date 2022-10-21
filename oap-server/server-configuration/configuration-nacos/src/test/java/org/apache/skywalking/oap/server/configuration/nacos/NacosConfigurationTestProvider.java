@@ -47,9 +47,8 @@ public class NacosConfigurationTestProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return new ModuleConfig() {
-        };
+    public ConfigCreator newConfigCreator() {
+        return null;
     }
 
     @Override

@@ -107,7 +107,7 @@ public class ITClusterModuleNacosProviderFunctionalTest {
         List<RemoteInstance> remoteInstances = queryRemoteNodes(provider, 1);
 
         ClusterModuleNacosConfig config =
-            (ClusterModuleNacosConfig) provider.createConfigBeanIfAbsent();
+            (ClusterModuleNacosConfig) provider.newConfigCreator();
         assertEquals(1, remoteInstances.size());
         Address queryAddress = remoteInstances.get(0).getAddress();
         assertEquals(config.getInternalComHost(), queryAddress.getHost());
@@ -195,7 +195,7 @@ public class ITClusterModuleNacosProviderFunctionalTest {
         ClusterModuleNacosProvider provider = new ClusterModuleNacosProvider();
 
         ClusterModuleNacosConfig config =
-            (ClusterModuleNacosConfig) provider.createConfigBeanIfAbsent();
+            (ClusterModuleNacosConfig) provider.newConfigCreator();
 
         config.setHostPort(nacosAddress);
         config.setServiceName(servicName);
@@ -214,7 +214,7 @@ public class ITClusterModuleNacosProviderFunctionalTest {
         ClusterModuleNacosProvider provider = new ClusterModuleNacosProvider();
 
         ClusterModuleNacosConfig config =
-            (ClusterModuleNacosConfig) provider.createConfigBeanIfAbsent();
+            (ClusterModuleNacosConfig) provider.newConfigCreator();
 
         config.setHostPort(nacosAddress);
         config.setServiceName(serviceName);

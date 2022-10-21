@@ -99,7 +99,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         List<RemoteInstance> remoteInstances = queryRemoteNodes(provider, 1);
 
         ClusterModuleEtcdConfig config =
-            (ClusterModuleEtcdConfig) provider.createConfigBeanIfAbsent();
+            (ClusterModuleEtcdConfig) provider.newConfigCreator();
         assertEquals(1, remoteInstances.size());
         Address queryAddress = remoteInstances.get(0).getAddress();
         assertEquals(config.getInternalComHost(), queryAddress.getHost());
@@ -192,7 +192,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         ClusterModuleEtcdProvider provider = new ClusterModuleEtcdProvider();
 
         ClusterModuleEtcdConfig config =
-            (ClusterModuleEtcdConfig) provider.createConfigBeanIfAbsent();
+            (ClusterModuleEtcdConfig) provider.newConfigCreator();
 
         config.setEndpoints(endpoint);
         config.setServiceName(serviceName);

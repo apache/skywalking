@@ -40,7 +40,7 @@ public class ConfigmapConfigurationProviderTest {
 
     @Test
     public void module() {
-        ModuleConfig moduleConfig = provider.createConfigBeanIfAbsent();
+        ModuleConfig moduleConfig = provider.newConfigCreator();
         assertTrue(moduleConfig instanceof ConfigmapConfigurationSettings);
     }
 

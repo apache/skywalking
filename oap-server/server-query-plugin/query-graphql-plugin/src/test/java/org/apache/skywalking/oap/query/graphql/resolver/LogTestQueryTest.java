@@ -63,7 +63,7 @@ public class LogTestQueryTest extends TestCase {
             .thenReturn(providerHolder);
         when(providerHolder.provider())
             .thenReturn(serviceHolder);
-        when(serviceHolder.createConfigBeanIfAbsent())
+        when(serviceHolder.newConfigCreator())
             .thenReturn(lalConfig);
 
         final ModuleProviderHolder m = mock(ModuleProviderHolder.class);

@@ -20,25 +20,20 @@ package org.apache.skywalking.oap.query.zipkin;
 
 import com.linecorp.armeria.common.HttpMethod;
 import java.util.Collections;
+import org.apache.skywalking.oap.query.zipkin.handler.ZipkinQueryHandler;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
-import org.apache.skywalking.oap.query.zipkin.handler.ZipkinQueryHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class ZipkinQueryProvider extends ModuleProvider {
     public static final String NAME = "default";
-    private final ZipkinQueryConfig config;
+    private ZipkinQueryConfig config;
     private HTTPServer httpServer;
-
-    public ZipkinQueryProvider() {
-        config = new ZipkinQueryConfig();
-    }
 
     @Override
     public String name() {
@@ -51,8 +46,18 @@ public class ZipkinQueryProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<ZipkinQueryConfig>() {
+            @Override
+            public Class type() {
+                return ZipkinQueryConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final ZipkinQueryConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override

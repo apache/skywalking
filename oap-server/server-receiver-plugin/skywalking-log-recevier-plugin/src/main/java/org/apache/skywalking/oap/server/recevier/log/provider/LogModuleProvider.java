@@ -47,7 +47,7 @@ public class LogModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
+    public ConfigCreator newConfigCreator() {
         return null;
     }
 

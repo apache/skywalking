@@ -37,10 +37,10 @@ import org.apache.skywalking.oap.query.graphql.resolver.MetadataQueryV2;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.Mutation;
+import org.apache.skywalking.oap.query.graphql.resolver.OndemandLogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.ProfileMutation;
 import org.apache.skywalking.oap.query.graphql.resolver.ProfileQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.Query;
-import org.apache.skywalking.oap.query.graphql.resolver.OndemandLogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopNRecordsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopologyQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TraceQuery;
@@ -48,7 +48,6 @@ import org.apache.skywalking.oap.query.graphql.resolver.UIConfigurationManagemen
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.QueryModule;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -58,7 +57,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
  * GraphQL query provider.
  */
 public class GraphQLQueryProvider extends ModuleProvider {
-    protected final GraphQLQueryConfig config = new GraphQLQueryConfig();
+    protected GraphQLQueryConfig config;
     protected final SchemaParserBuilder schemaBuilder = SchemaParser.newParser();
 
     @Override
@@ -72,8 +71,18 @@ public class GraphQLQueryProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<GraphQLQueryConfig>() {
+            @Override
+            public Class type() {
+                return GraphQLQueryConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final GraphQLQueryConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override

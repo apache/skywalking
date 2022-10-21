@@ -88,7 +88,7 @@ public class ClusterModuleConsulProviderTest {
 
     @Test
     public void createConfigBeanIfAbsent() {
-        ModuleConfig moduleConfig = provider.createConfigBeanIfAbsent();
+        ModuleConfig moduleConfig = provider.newConfigCreator();
         assertTrue(moduleConfig instanceof ClusterModuleConsulConfig);
     }
 

@@ -26,13 +26,13 @@ public class ModuleB2Provider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return null;
+    public Class<? extends ModuleDefine> module() {
+        return BaseModuleB.class;
     }
 
     @Override
-    public Class<? extends ModuleDefine> module() {
-        return BaseModuleB.class;
+    public ConfigCreator newConfigCreator() {
+        return null;
     }
 
     @Override

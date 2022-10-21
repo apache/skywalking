@@ -28,11 +28,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
  * Get configuration from Apollo configuration center.
  */
 public class ApolloConfigurationProvider extends AbstractConfigurationProvider {
-    private final ApolloConfigurationCenterSettings settings;
-
-    public ApolloConfigurationProvider() {
-        settings = new ApolloConfigurationCenterSettings();
-    }
+    private ApolloConfigurationCenterSettings settings;
 
     @Override
     public String name() {
@@ -40,8 +36,18 @@ public class ApolloConfigurationProvider extends AbstractConfigurationProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return settings;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<ApolloConfigurationCenterSettings>() {
+            @Override
+            public Class type() {
+                return ApolloConfigurationCenterSettings.class;
+            }
+
+            @Override
+            public void onInitialized(final ApolloConfigurationCenterSettings initialized) {
+                settings = initialized;
+            }
+        };
     }
 
     @Override

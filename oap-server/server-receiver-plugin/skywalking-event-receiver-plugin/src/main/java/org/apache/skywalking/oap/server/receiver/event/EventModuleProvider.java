@@ -45,8 +45,8 @@ public class EventModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return new EventModuleConfig();
+    public ConfigCreator newConfigCreator() {
+        return null;
     }
 
     @Override

@@ -102,7 +102,7 @@ public class ITClusterModuleZookeeperProviderFunctionalTest {
 
         List<RemoteInstance> remoteInstances = queryRemoteNodes(provider, 1);
 
-        ClusterModuleZookeeperConfig config = (ClusterModuleZookeeperConfig) provider.createConfigBeanIfAbsent();
+        ClusterModuleZookeeperConfig config = (ClusterModuleZookeeperConfig) provider.newConfigCreator();
         assertEquals(1, remoteInstances.size());
         Address queryAddress = remoteInstances.get(0).getAddress();
         assertEquals(config.getInternalComHost(), queryAddress.getHost());
@@ -193,7 +193,7 @@ public class ITClusterModuleZookeeperProviderFunctionalTest {
         int internalComPort) throws Exception {
         ClusterModuleZookeeperProvider provider = new ClusterModuleZookeeperProvider();
         provider.setManager(moduleManager);
-        ClusterModuleZookeeperConfig moduleConfig = (ClusterModuleZookeeperConfig) provider.createConfigBeanIfAbsent();
+        ClusterModuleZookeeperConfig moduleConfig = (ClusterModuleZookeeperConfig) provider.newConfigCreator();
         moduleConfig.setHostPort(zkAddress);
         moduleConfig.setBaseSleepTimeMs(3000);
         moduleConfig.setMaxRetries(3);

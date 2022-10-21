@@ -72,7 +72,7 @@ public class ClusterModuleKubernetesProviderTest {
 
     @Test
     public void createConfigBeanIfAbsent() {
-        ModuleConfig moduleConfig = provider.createConfigBeanIfAbsent();
+        ModuleConfig moduleConfig = provider.newConfigCreator();
         assertTrue(moduleConfig instanceof ClusterModuleKubernetesConfig);
     }
 

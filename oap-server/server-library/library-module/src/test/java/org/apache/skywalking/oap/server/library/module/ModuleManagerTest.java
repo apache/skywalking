@@ -55,7 +55,7 @@ public class ModuleManagerTest {
         final ModuleServiceHolder provider = manager.find("BaseA").provider();
         Assert.assertTrue(provider instanceof ModuleAProvider);
         final ModuleAProvider moduleAProvider = (ModuleAProvider) provider;
-        final ModuleAProviderConfig config = (ModuleAProviderConfig) moduleAProvider.createConfigBeanIfAbsent();
+        final ModuleAProviderConfig config = (ModuleAProviderConfig) moduleAProvider.newConfigCreator();
         Assert.assertEquals("abc", config.getAttr1());
         Assert.assertEquals(123, config.getAttr2().intValue());
         Assert.assertEquals(123L, config.getAttr3().longValue());

@@ -47,27 +47,26 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBEBPFProfilingScheduleQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBNetworkAddressAliasDAO;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBTagAutocompleteQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBServiceLabelDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBTagAutocompleteQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBTopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBAlarmQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBEBPFProfilingDataDAO;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBEBPFProfilingScheduleQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBProfileTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBStorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBTraceQueryDAO;
@@ -81,10 +80,6 @@ public class BanyanDBStorageProvider extends ModuleProvider {
     private BanyanDBStorageConfig config;
     private BanyanDBStorageClient client;
 
-    public BanyanDBStorageProvider() {
-        this.config = new BanyanDBStorageConfig();
-    }
-
     @Override
     public String name() {
         return "banyandb";
@@ -96,8 +91,18 @@ public class BanyanDBStorageProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<BanyanDBStorageConfig>() {
+            @Override
+            public Class type() {
+                return BanyanDBStorageConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final BanyanDBStorageConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
@@ -107,7 +112,10 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.client = new BanyanDBStorageClient(config.getHost(), config.getPort());
 
         // Stream
-        this.registerServiceImplementation(IBatchDAO.class, new BanyanDBBatchDAO(client, config.getMaxBulkSize(), config.getFlushInterval(), config.getConcurrentWriteThreads()));
+        this.registerServiceImplementation(
+            IBatchDAO.class, new BanyanDBBatchDAO(client, config.getMaxBulkSize(), config.getFlushInterval(),
+                                                  config.getConcurrentWriteThreads()
+            ));
         this.registerServiceImplementation(StorageDAO.class, new BanyanDBStorageDAO(client));
         this.registerServiceImplementation(INetworkAddressAliasDAO.class, new BanyanDBNetworkAddressAliasDAO(client));
         this.registerServiceImplementation(ITraceQueryDAO.class, new BanyanDBTraceQueryDAO(client));
@@ -115,15 +123,25 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IMetadataQueryDAO.class, new BanyanDBMetadataQueryDAO(client));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new BanyanDBAlarmQueryDAO(client));
         this.registerServiceImplementation(ILogQueryDAO.class, new BanyanDBLogQueryDAO(client));
-        this.registerServiceImplementation(IProfileTaskQueryDAO.class, new BanyanDBProfileTaskQueryDAO(client, this.config.getProfileTaskQueryMaxSize()));
-        this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new BanyanDBProfileTaskLogQueryDAO(client, this.config.getProfileTaskQueryMaxSize()));
-        this.registerServiceImplementation(IProfileThreadSnapshotQueryDAO.class, new BanyanDBProfileThreadSnapshotQueryDAO(client, this.config.getProfileTaskQueryMaxSize()));
+        this.registerServiceImplementation(
+            IProfileTaskQueryDAO.class, new BanyanDBProfileTaskQueryDAO(client,
+                                                                        this.config.getProfileTaskQueryMaxSize()
+            ));
+        this.registerServiceImplementation(
+            IProfileTaskLogQueryDAO.class, new BanyanDBProfileTaskLogQueryDAO(client,
+                                                                              this.config.getProfileTaskQueryMaxSize()
+            ));
+        this.registerServiceImplementation(
+            IProfileThreadSnapshotQueryDAO.class, new BanyanDBProfileThreadSnapshotQueryDAO(client,
+                                                                                            this.config.getProfileTaskQueryMaxSize()
+            ));
         this.registerServiceImplementation(UITemplateManagementDAO.class, new BanyanDBUITemplateManagementDAO(client));
         this.registerServiceImplementation(IEventQueryDAO.class, new BanyanDBEventQueryDAO(client));
         this.registerServiceImplementation(ITopologyQueryDAO.class, new BanyanDBTopologyQueryDAO(client));
         this.registerServiceImplementation(IEBPFProfilingTaskDAO.class, new BanyanDBEBPFProfilingTaskDAO(client));
         this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new BanyanDBEBPFProfilingDataDAO(client));
-        this.registerServiceImplementation(IEBPFProfilingScheduleDAO.class, new BanyanDBEBPFProfilingScheduleQueryDAO(client));
+        this.registerServiceImplementation(
+            IEBPFProfilingScheduleDAO.class, new BanyanDBEBPFProfilingScheduleQueryDAO(client));
 
         this.registerServiceImplementation(IServiceLabelDAO.class, new BanyanDBServiceLabelDAO(client));
         this.registerServiceImplementation(ITagAutoCompleteQueryDAO.class, new BanyanDBTagAutocompleteQueryDAO(client));
@@ -137,14 +155,14 @@ public class BanyanDBStorageProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         final ConfigService configService = getManager().find(CoreModule.NAME)
-                .provider()
-                .getService(ConfigService.class);
+                                                        .provider()
+                                                        .getService(ConfigService.class);
 
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME)
-                .provider()
-                .getService(MetricsCreator.class);
+                                                   .provider()
+                                                   .getService(MetricsCreator.class);
         HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge(
-                "storage_banyandb", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+            "storage_banyandb", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         this.client.registerChecker(healthChecker);
         try {
             this.client.connect();
@@ -162,6 +180,6 @@ public class BanyanDBStorageProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[]{CoreModule.NAME};
+        return new String[] {CoreModule.NAME};
     }
 }

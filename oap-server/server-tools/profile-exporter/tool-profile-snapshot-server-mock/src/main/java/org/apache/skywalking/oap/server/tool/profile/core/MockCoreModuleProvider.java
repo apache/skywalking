@@ -95,8 +95,8 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return new MockCoreModuleConfig();
+    public ConfigCreator newConfigCreator() {
+        return null;
     }
 
     @Override

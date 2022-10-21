@@ -30,7 +30,7 @@ public class TestModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
+    public ConfigCreator newConfigCreator() {
         return null;
     }
 

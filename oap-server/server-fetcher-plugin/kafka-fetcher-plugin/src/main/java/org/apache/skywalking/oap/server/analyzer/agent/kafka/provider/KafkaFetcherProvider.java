@@ -42,11 +42,7 @@ import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 @Slf4j
 public class KafkaFetcherProvider extends ModuleProvider {
     private KafkaFetcherHandlerRegister handlerRegister;
-    private final KafkaFetcherConfig config;
-
-    public KafkaFetcherProvider() {
-        config = new KafkaFetcherConfig();
-    }
+    private KafkaFetcherConfig config;
 
     @Override
     public String name() {
@@ -59,8 +55,18 @@ public class KafkaFetcherProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<KafkaFetcherConfig>() {
+            @Override
+            public Class type() {
+                return KafkaFetcherConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final KafkaFetcherConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override

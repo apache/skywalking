@@ -30,18 +30,24 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 public class ZookeeperConfigurationProvider extends AbstractConfigurationProvider {
     private ZookeeperServerSettings settings;
 
-    public ZookeeperConfigurationProvider() {
-        settings = new ZookeeperServerSettings();
-    }
-
     @Override
     public String name() {
         return "zookeeper";
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return settings;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<ZookeeperServerSettings>() {
+            @Override
+            public Class type() {
+                return ZookeeperServerSettings.class;
+            }
+
+            @Override
+            public void onInitialized(final ZookeeperServerSettings initialized) {
+                settings = initialized;
+            }
+        };
     }
 
     @Override

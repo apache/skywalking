@@ -22,13 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.util.Properties;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
-import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -38,6 +31,10 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
@@ -48,16 +45,18 @@ import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.util.MultipleFilesChangeMonitor;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.BatchProcessEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.HistoryDeleteEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
@@ -75,10 +74,10 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ESEve
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.LogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetadataQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ServiceLabelEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskLogEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileThreadSnapshotQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ServiceLabelEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopNRecordsQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopologyQueryEsDAO;
@@ -96,13 +95,8 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @Slf4j
 public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
-    protected final StorageModuleElasticsearchConfig config;
+    protected StorageModuleElasticsearchConfig config;
     protected ElasticSearchClient elasticSearchClient;
-
-    public StorageModuleElasticsearchProvider() {
-        super();
-        this.config = new StorageModuleElasticsearchConfig();
-    }
 
     @Override
     public String name() {
@@ -115,8 +109,18 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<StorageModuleElasticsearchConfig>() {
+            @Override
+            public Class type() {
+                return StorageModuleElasticsearchConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final StorageModuleElasticsearchConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override

@@ -49,7 +49,6 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -62,10 +61,10 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EventQueryD
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2HistoryDeleteDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressAliasDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceLabelQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceLabelQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopNRecordsQueryDAO;
@@ -88,10 +87,6 @@ public class PostgreSQLStorageProvider extends ModuleProvider {
     private PostgreSQLStorageConfig config;
     private JDBCHikariCPClient postgresqlClient;
 
-    public PostgreSQLStorageProvider() {
-        config = new PostgreSQLStorageConfig();
-    }
-
     @Override
     public String name() {
         return "postgresql";
@@ -103,8 +98,18 @@ public class PostgreSQLStorageProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<PostgreSQLStorageConfig>() {
+            @Override
+            public Class type() {
+                return PostgreSQLStorageConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final PostgreSQLStorageConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
@@ -113,43 +118,55 @@ public class PostgreSQLStorageProvider extends ModuleProvider {
 
         postgresqlClient = new JDBCHikariCPClient(config.getProperties());
 
-        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(postgresqlClient, config.getMaxSizeOfBatchSql(), config.getAsyncBatchPersistentPoolSize()));
         this.registerServiceImplementation(
-                StorageDAO.class,
-                new H2StorageDAO(postgresqlClient));
+            IBatchDAO.class, new H2BatchDAO(postgresqlClient, config.getMaxSizeOfBatchSql(),
+                                            config.getAsyncBatchPersistentPoolSize()
+            ));
         this.registerServiceImplementation(
-                INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(postgresqlClient));
+            StorageDAO.class,
+            new H2StorageDAO(postgresqlClient)
+        );
+        this.registerServiceImplementation(
+            INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(postgresqlClient));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(postgresqlClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new PostgreSQLMetricsQueryDAO(postgresqlClient));
         this.registerServiceImplementation(
-                ITraceQueryDAO.class,
-                new PostgreSQLTraceQueryDAO(getManager(), postgresqlClient)
+            ITraceQueryDAO.class,
+            new PostgreSQLTraceQueryDAO(getManager(), postgresqlClient)
         );
-        this.registerServiceImplementation(IBrowserLogQueryDAO.class, new PostgreSQLBrowserLogQueryDAO(postgresqlClient));
         this.registerServiceImplementation(
-                IMetadataQueryDAO.class, new H2MetadataQueryDAO(postgresqlClient, config.getMetadataQueryMaxSize()));
-        this.registerServiceImplementation(IAggregationQueryDAO.class, new PostgreSQLAggregationQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new PostgreSQLAlarmQueryDAO(postgresqlClient, getManager()));
+            IBrowserLogQueryDAO.class, new PostgreSQLBrowserLogQueryDAO(postgresqlClient));
         this.registerServiceImplementation(
-                IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(postgresqlClient));
+            IMetadataQueryDAO.class, new H2MetadataQueryDAO(postgresqlClient, config.getMetadataQueryMaxSize()));
+        this.registerServiceImplementation(
+            IAggregationQueryDAO.class, new PostgreSQLAggregationQueryDAO(postgresqlClient));
+        this.registerServiceImplementation(
+            IAlarmQueryDAO.class, new PostgreSQLAlarmQueryDAO(postgresqlClient, getManager()));
+        this.registerServiceImplementation(
+            IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(postgresqlClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(postgresqlClient));
         this.registerServiceImplementation(
-                ILogQueryDAO.class,
-                new PostgreSQLLogQueryDAO(postgresqlClient, getManager()));
+            ILogQueryDAO.class,
+            new PostgreSQLLogQueryDAO(postgresqlClient, getManager())
+        );
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(postgresqlClient));
         this.registerServiceImplementation(
-                IProfileThreadSnapshotQueryDAO.class, new H2ProfileThreadSnapshotQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(UITemplateManagementDAO.class, new H2UITemplateManagementDAO(postgresqlClient));
+            IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(postgresqlClient));
+        this.registerServiceImplementation(
+            IProfileThreadSnapshotQueryDAO.class, new H2ProfileThreadSnapshotQueryDAO(postgresqlClient));
+        this.registerServiceImplementation(
+            UITemplateManagementDAO.class, new H2UITemplateManagementDAO(postgresqlClient));
         this.registerServiceImplementation(IEventQueryDAO.class, new H2EventQueryDAO(postgresqlClient));
 
         this.registerServiceImplementation(IEBPFProfilingTaskDAO.class, new H2EBPFProfilingTaskDAO(postgresqlClient));
-        this.registerServiceImplementation(IEBPFProfilingScheduleDAO.class, new H2EBPFProfilingScheduleDAO(postgresqlClient));
+        this.registerServiceImplementation(
+            IEBPFProfilingScheduleDAO.class, new H2EBPFProfilingScheduleDAO(postgresqlClient));
         this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new H2EBPFProfilingDataDAO(postgresqlClient));
         this.registerServiceImplementation(IServiceLabelDAO.class, new H2ServiceLabelQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(ITagAutoCompleteQueryDAO.class, new H2TagAutoCompleteQueryDAO(postgresqlClient));
+        this.registerServiceImplementation(
+            ITagAutoCompleteQueryDAO.class, new H2TagAutoCompleteQueryDAO(postgresqlClient));
         this.registerServiceImplementation(IZipkinQueryDAO.class, new H2ZipkinQueryDAO(postgresqlClient));
     }
 

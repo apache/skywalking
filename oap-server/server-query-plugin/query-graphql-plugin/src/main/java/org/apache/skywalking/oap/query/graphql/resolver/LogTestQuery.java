@@ -66,7 +66,7 @@ public class LogTestQuery implements GraphQLQueryResolver {
             (LogAnalyzerModuleProvider) moduleManager.find(LogAnalyzerModule.NAME)
                                                      .provider();
         final LogAnalyzerModuleConfig config =
-            (LogAnalyzerModuleConfig) provider.createConfigBeanIfAbsent();
+            (LogAnalyzerModuleConfig) provider.newConfigCreator();
         final DSL dsl = DSL.of(moduleManager, config, request.getDsl());
         final Binding binding = new Binding();
 

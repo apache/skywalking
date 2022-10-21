@@ -112,7 +112,7 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
  */
 public class CoreModuleProvider extends ModuleProvider {
 
-    private final CoreModuleConfig moduleConfig;
+    private CoreModuleConfig moduleConfig;
     private GRPCServer grpcServer;
     private HTTPServer httpServer;
     private RemoteClientManager remoteClientManager;
@@ -127,7 +127,6 @@ public class CoreModuleProvider extends ModuleProvider {
 
     public CoreModuleProvider() {
         super();
-        this.moduleConfig = new CoreModuleConfig();
         this.annotationScan = new AnnotationScan();
         this.storageModels = new StorageModels();
         this.receiver = new SourceReceiverImpl();
@@ -144,8 +143,18 @@ public class CoreModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return moduleConfig;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<CoreModuleConfig>() {
+            @Override
+            public Class type() {
+                return CoreModuleConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final CoreModuleConfig initialized) {
+                moduleConfig = initialized;
+            }
+        };
     }
 
     @Override

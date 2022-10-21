@@ -36,12 +36,11 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 
 public class ClusterModuleNacosProvider extends ModuleProvider {
 
-    private final ClusterModuleNacosConfig config;
+    private ClusterModuleNacosConfig config;
     private NamingService namingService;
 
     public ClusterModuleNacosProvider() {
         super();
-        this.config = new ClusterModuleNacosConfig();
     }
 
     @Override
@@ -55,8 +54,18 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<ClusterModuleNacosConfig>() {
+            @Override
+            public Class type() {
+                return ClusterModuleNacosConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final ClusterModuleNacosConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override

@@ -31,12 +31,6 @@ import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerMod
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class MeshReceiverProvider extends ModuleProvider {
-    private MeshModuleConfig config;
-
-    public MeshReceiverProvider() {
-        config = new MeshModuleConfig();
-    }
-
     @Override
     public String name() {
         return "default";
@@ -48,8 +42,8 @@ public class MeshReceiverProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return null;
     }
 
     @Override

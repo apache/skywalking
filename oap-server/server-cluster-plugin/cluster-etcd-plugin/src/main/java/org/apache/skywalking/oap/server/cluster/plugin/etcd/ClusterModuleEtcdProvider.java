@@ -33,11 +33,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
  */
 public class ClusterModuleEtcdProvider extends ModuleProvider {
 
-    private final ClusterModuleEtcdConfig config;
-
-    public ClusterModuleEtcdProvider() {
-        this.config = new ClusterModuleEtcdConfig();
-    }
+    private ClusterModuleEtcdConfig config;
 
     @Override
     public String name() {
@@ -50,8 +46,18 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<ClusterModuleEtcdConfig>() {
+            @Override
+            public Class type() {
+                return ClusterModuleEtcdConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final ClusterModuleEtcdConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
