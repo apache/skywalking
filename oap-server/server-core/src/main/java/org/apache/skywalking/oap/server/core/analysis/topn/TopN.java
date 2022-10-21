@@ -32,7 +32,7 @@ public abstract class TopN extends Record implements ComparableStorageData {
     public static final String STATEMENT = "statement";
     public static final String LATENCY = "latency";
     public static final String TRACE_ID = "trace_id";
-    public static final String SERVICE_ID = "service_id";
+    public static final String ENTITY_ID = "entity_id";
     
     @Getter
     @Setter
@@ -44,9 +44,9 @@ public abstract class TopN extends Record implements ComparableStorageData {
     private String traceId;
     @Getter
     @Setter
-    @Column(columnName = SERVICE_ID)
+    @Column(columnName = ENTITY_ID)
     @BanyanDB.ShardingKey(index = 0)
-    private String serviceId;
+    private String entityId;
 
     @Override
     public int compareTo(Object o) {
