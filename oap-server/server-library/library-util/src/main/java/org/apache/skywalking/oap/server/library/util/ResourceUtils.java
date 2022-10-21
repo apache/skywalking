@@ -91,12 +91,12 @@ public class ResourceUtils {
         return fileList;
     }
 
-    public static File[] getPathDirectories(String path) throws FileNotFoundException {
+    public static File[] getAllPathFiles(String path) throws FileNotFoundException {
         URL url = ResourceUtils.class.getClassLoader().getResource(path);
         if (url == null) {
             throw new FileNotFoundException("path not found: " + path);
         }
-        return Arrays.stream(Objects.requireNonNull(new File(url.getPath()).listFiles(), "No directories in " + path))
-                     .filter(File::isDirectory).toArray(File[]::new);
+        return Arrays.stream(Objects.requireNonNull(new File(url.getPath()).listFiles(), "No files in " + path))
+                     .toArray(File[]::new);
     }
 }

@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
@@ -47,34 +49,68 @@ public class Rules {
     public static List<Rule> loadRules(final String path, List<String> enabledRules) throws ModuleStartException {
         File[] rules;
         try {
-            rules = ResourceUtils.getPathDirectories(path);
+            rules = ResourceUtils.getAllPathFiles(path);
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Load fetcher rules failed", e);
         }
+        final List<String> formedEnabledRules =
+                enabledRules
+                        .stream()
+                        .map(rule -> rule.endsWith(".yaml") ? rule : rule + ".yaml")
+                        .map(rule -> rule.startsWith("/") ? rule.substring(1) : rule)
+                        .collect(Collectors.toList());
+
         return Arrays.stream(rules)
-                .filter(dir -> enabledRules.contains(dir.getName()))
-                .map(File::listFiles)
-                .filter(Objects::nonNull)
-                .flatMap(Arrays::stream)
-                .filter(File::isFile)
-                .map(f -> {
-                    try (Reader r = new FileReader(f)) {
-                        String fileName = f.getName();
-                        int dotIndex = fileName.lastIndexOf('.');
-                        if (dotIndex == -1 || !"yaml".equals(fileName.substring(dotIndex + 1))) {
-                            return null;
+                .flatMap(f -> {
+                    if (f.isDirectory()) {
+                        return Arrays.stream(Objects.requireNonNull(f.listFiles()))
+                                .filter(File::isFile)
+                                .map(file -> {
+                                    try (Reader r = new FileReader(file)) {
+                                        String fileName = file.getName();
+                                        int dotIndex = fileName.lastIndexOf('.');
+
+                                        if (dotIndex == -1 || !"yaml".equals(fileName.substring(dotIndex + 1))) {
+                                            return null;
+                                        }
+                                        String ruleName = fileName.substring(0, dotIndex);
+                                        fileName = f.getName() + '/' + fileName;
+                                        if (!formedEnabledRules.contains(fileName) && !formedEnabledRules.contains(f.getName() + "/*.yaml")) {
+                                            return null;
+                                        }
+                                        Rule rule = new Yaml().loadAs(r, Rule.class);
+                                        if (rule == null) {
+                                            return null;
+                                        }
+                                        rule.setName(ruleName);
+                                        return rule;
+                                    } catch (IOException e) {
+                                        LOG.debug("Reading file {} failed", f, e);
+                                    }
+                                    return null;
+                                });
+                    } else {
+                        try (Reader r = new FileReader(f)) {
+                            String fileName = f.getName();
+                            int dotIndex = fileName.lastIndexOf('.');
+                            if (dotIndex == -1 || !"yaml".equals(fileName.substring(dotIndex + 1))) {
+                                return null;
+                            }
+                            String ruleName = fileName.substring(0, dotIndex);
+                            if (!formedEnabledRules.contains(fileName)) {
+                                return null;
+                            }
+                            Rule rule = new Yaml().loadAs(r, Rule.class);
+                            if (rule == null) {
+                                return null;
+                            }
+                            rule.setName(ruleName);
+                            return Stream.of(rule);
+                        } catch (IOException e) {
+                            LOG.debug("Reading file {} failed", f, e);
                         }
-                        fileName = fileName.substring(0, dotIndex);
-                        Rule rule = new Yaml().loadAs(r, Rule.class);
-                        if (rule == null) {
-                            return null;
-                        }
-                        rule.setName(fileName);
-                        return rule;
-                    } catch (IOException e) {
-                        LOG.debug("Reading file {} failed", f, e);
+                        return null;
                     }
-                    return null;
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
