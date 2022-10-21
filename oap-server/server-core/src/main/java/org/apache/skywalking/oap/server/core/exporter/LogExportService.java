@@ -18,20 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.exporter;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-public class ExporterModule extends ModuleDefine {
-    public static final String NAME = "exporter";
+/**
+ * Export the log from metrics through this service.
+ */
+public interface LogExportService extends Service, ExporterService<LogRecord> {
 
-    public ExporterModule() {
-        super(NAME);
-    }
-
-    @Override
-    public Class[] services() {
-        return new Class[] {
-            MetricValuesExportService.class,
-            TraceExportService.class,
-            LogExportService.class};
-    }
+    void export(LogRecord logRecord);
 }
