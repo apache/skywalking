@@ -23,8 +23,8 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
-import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
+import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
+import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
@@ -32,8 +32,8 @@ import org.apache.skywalking.oap.server.library.module.Service;
  *
  * @since 8.0.0
  */
-public interface ITopNRecordsQueryDAO extends Service {
-    List<SelectedRecord> readSampledRecords(TopNCondition condition,
-                                            final String valueColumnName,
-                                            Duration duration) throws IOException;
+public interface IRecordsQueryDAO extends Service {
+    List<Record> readRecords(RecordCondition condition,
+                             final String valueColumnName,
+                             Duration duration) throws IOException;
 }

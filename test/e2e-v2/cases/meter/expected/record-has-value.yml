@@ -20,10 +20,10 @@
   - key: name
     value: {{ notEmpty .value}}
   - key: id
-    value: ""
+    value: {{ notEmpty .value}}
   - key: value
     value: {{ notEmpty .value}}
   - key: refid
-    value:
+    value: {{ notEmpty .value}}
   {{- end }}
 {{- end }}
