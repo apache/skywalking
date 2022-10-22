@@ -55,7 +55,7 @@ public abstract class ModuleProvider implements ModuleServiceHolder {
      * Create a config creator to initialize this configuration of this module provider
      * @return creator instance to initialize the configuration with callback. Or return null if no config is required.
      */
-    public abstract ConfigCreator newConfigCreator();
+    public abstract ConfigCreator<? extends ModuleConfig> newConfigCreator();
 
     /**
      * Configuration creator to provide Module Config to initialize
