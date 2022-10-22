@@ -18,13 +18,13 @@ format and maximize the analysis capabilities of the SkyWalking OAP server.
 
 - [Rust agent](https://github.com/apache/skywalking-rust). Learn how to integrate the Rust agent with a rust service.
 
+- [PHP agent](https://skywalking.apache.org/docs/skywalking-php/next/readme/). Learn how to install the PHP agent in your service without affecting your code.
+
 The following agents and SDKs are compatible with SkyWalking's data formats and network protocols but are maintained by
 third parties. See their project repositories for guides and releases.
 
 - [SkyAPM .NET Core agent](https://github.com/SkyAPM/SkyAPM-dotnet). See .NET Core agent project documentation for more
   details.
-
-- [SkyAPM PHP agent](https://github.com/SkyAPM/SkyAPM-php-sdk). See PHP agent project documentation for more details.
 
 - [SkyAPM Go SDK](https://github.com/SkyAPM/go2sky). See go2sky project documentation for more details.
 
