@@ -16,9 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.event;
+package org.apache.skywalking.oap.server.core.exporter;
 
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-public class EventModuleConfig extends ModuleConfig {
+/**
+ * Export the traces from metrics through this service.
+ */
+public interface TraceExportService extends Service, ExporterService<SegmentRecord> {
+
+    void export(SegmentRecord segmentRecord);
 }

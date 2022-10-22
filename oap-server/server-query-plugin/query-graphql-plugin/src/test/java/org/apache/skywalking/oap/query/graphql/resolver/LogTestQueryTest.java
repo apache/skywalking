@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.junit.Before;
@@ -63,8 +64,10 @@ public class LogTestQueryTest extends TestCase {
             .thenReturn(providerHolder);
         when(providerHolder.provider())
             .thenReturn(serviceHolder);
-        when(serviceHolder.createConfigBeanIfAbsent())
-            .thenReturn(lalConfig);
+        when(serviceHolder.newConfigCreator()).thenCallRealMethod();
+        when(serviceHolder.getModuleConfig()).thenCallRealMethod();
+        final ModuleProvider.ConfigCreator configCreator = serviceHolder.newConfigCreator();
+        configCreator.onInitialized(lalConfig);
 
         final ModuleProviderHolder m = mock(ModuleProviderHolder.class);
         when(moduleManager.find(CoreModule.NAME)).thenReturn(m);

@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionMetric;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionReq;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
 import org.apache.skywalking.oap.server.exporter.grpc.ValueType;
+import org.apache.skywalking.oap.server.exporter.provider.ExporterSetting;
 import org.apache.skywalking.oap.server.exporter.provider.MetricFormatter;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
@@ -52,22 +53,26 @@ import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.util.GRPCStreamStatus;
 
 @Slf4j
-public class GRPCExporter extends MetricFormatter implements MetricValuesExportService, IConsumer<ExportData> {
+public class GRPCMetricsExporter extends MetricFormatter implements MetricValuesExportService, IConsumer<ExportData> {
     /**
      * The period of subscription list fetching is hardcoded as 30s.
      */
     private static final long FETCH_SUBSCRIPTION_PERIOD = 30_000;
-    private final GRPCExporterSetting setting;
-    private final MetricExportServiceGrpc.MetricExportServiceStub exportServiceFutureStub;
-    private final MetricExportServiceGrpc.MetricExportServiceBlockingStub blockingStub;
-    private final DataCarrier exportBuffer;
-    private final ReentrantLock fetchListLock;
+    private final ExporterSetting setting;
+    private MetricExportServiceGrpc.MetricExportServiceStub exportServiceFutureStub;
+    private MetricExportServiceGrpc.MetricExportServiceBlockingStub blockingStub;
+    private DataCarrier exportBuffer;
+    private ReentrantLock fetchListLock;
     private volatile List<SubscriptionMetric> subscriptionList;
     private volatile long lastFetchTimestamp = 0;
 
-    public GRPCExporter(GRPCExporterSetting setting) {
+    public GRPCMetricsExporter(ExporterSetting setting) {
         this.setting = setting;
-        GRPCClient client = new GRPCClient(setting.getTargetHost(), setting.getTargetPort());
+    }
+
+    @Override
+    public void start() {
+        GRPCClient client = new GRPCClient(setting.getGRPCTargetHost(), setting.getGRPCTargetPort());
         client.connect();
         ManagedChannel channel = client.getChannel();
         exportServiceFutureStub = MetricExportServiceGrpc.newStub(channel);
@@ -96,6 +101,11 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
 
             fetchSubscriptionList();
         }
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return setting.isEnableGRPCMetrics();
     }
 
     /**
@@ -209,17 +219,17 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
 
             if (sleepTime > 2000L) {
                 log.warn(
-                    "Export {} metrics to {}:{}, wait {} milliseconds.", exportNum.get(), setting.getTargetHost(),
+                    "Export {} metrics to {}:{}, wait {} milliseconds.", exportNum.get(), setting.getGRPCTargetHost(),
                     setting
-                        .getTargetPort(), sleepTime
+                        .getGRPCTargetPort(), sleepTime
                 );
                 cycle = 2000L;
             }
         }
 
         log.debug(
-            "Exported {} metrics to {}:{} in {} milliseconds.", exportNum.get(), setting.getTargetHost(), setting
-                .getTargetPort(), sleepTime);
+            "Exported {} metrics to {}:{} in {} milliseconds.", exportNum.get(), setting.getGRPCTargetHost(), setting
+                .getGRPCTargetPort(), sleepTime);
 
         fetchSubscriptionList();
     }

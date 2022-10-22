@@ -21,13 +21,13 @@ package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 import java.util.Collections;
 import java.util.List;
 import org.apache.curator.x.discovery.ServiceDiscovery;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
@@ -102,11 +102,10 @@ public class ITClusterModuleZookeeperProviderFunctionalTest {
 
         List<RemoteInstance> remoteInstances = queryRemoteNodes(provider, 1);
 
-        ClusterModuleZookeeperConfig config = (ClusterModuleZookeeperConfig) provider.createConfigBeanIfAbsent();
         assertEquals(1, remoteInstances.size());
         Address queryAddress = remoteInstances.get(0).getAddress();
-        assertEquals(config.getInternalComHost(), queryAddress.getHost());
-        assertEquals(config.getInternalComPort(), queryAddress.getPort());
+        assertEquals("127.0.1.2", queryAddress.getHost());
+        assertEquals(1000, queryAddress.getPort());
         assertTrue(queryAddress.isSelf());
     }
 
@@ -193,7 +192,8 @@ public class ITClusterModuleZookeeperProviderFunctionalTest {
         int internalComPort) throws Exception {
         ClusterModuleZookeeperProvider provider = new ClusterModuleZookeeperProvider();
         provider.setManager(moduleManager);
-        ClusterModuleZookeeperConfig moduleConfig = (ClusterModuleZookeeperConfig) provider.createConfigBeanIfAbsent();
+        ClusterModuleZookeeperConfig moduleConfig = new ClusterModuleZookeeperConfig();
+        provider.newConfigCreator().onInitialized(moduleConfig);
         moduleConfig.setHostPort(zkAddress);
         moduleConfig.setBaseSleepTimeMs(3000);
         moduleConfig.setMaxRetries(3);

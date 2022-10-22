@@ -16,9 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.core.exporter;
 
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-public class AlarmSettings extends ModuleConfig {
+/**
+ * Export the log from metrics through this service.
+ */
+public interface LogExportService extends Service, ExporterService<LogRecord> {
+
+    void export(LogRecord logRecord);
 }

@@ -23,14 +23,12 @@ import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
-import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
-import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
+import org.apache.skywalking.oap.server.core.query.type.Record;
+import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
@@ -41,25 +39,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class BanyanDBTopNRecordsQueryDAO extends AbstractBanyanDBDAO implements ITopNRecordsQueryDAO {
-    private static final Set<String> TAGS = ImmutableSet.of(TopN.TIME_BUCKET, TopN.SERVICE_ID, TopN.STATEMENT, TopN.TRACE_ID);
+public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRecordsQueryDAO {
+    private static final Set<String> TAGS = ImmutableSet.of(TopN.TIME_BUCKET, TopN.ENTITY_ID, TopN.STATEMENT, TopN.TRACE_ID);
 
-    public BanyanDBTopNRecordsQueryDAO(BanyanDBStorageClient client) {
+    public BanyanDBRecordsQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
 
     @Override
-    public List<SelectedRecord> readSampledRecords(TopNCondition condition, String valueColumnName, Duration duration) throws IOException {
+    public List<Record> readRecords(RecordCondition condition, String valueColumnName, Duration duration) throws IOException {
         final String modelName = condition.getName();
         final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
         MeasureQueryResponse resp = query(modelName, TAGS,
                 Collections.singleton(valueColumnName), timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
-                        if (StringUtil.isNotEmpty(condition.getParentService())) {
-                            final String serviceId =
-                                    IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
-                            query.and(eq(TopN.SERVICE_ID, serviceId));
+                        if (condition.getParentEntity() != null && condition.getParentEntity().buildId() != null) {
+                            query.and(eq(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
                         }
                         if (condition.getOrder() == Order.DES) {
                             query.topN(condition.getTopN(), valueColumnName);
@@ -85,13 +81,14 @@ public class BanyanDBTopNRecordsQueryDAO extends AbstractBanyanDBDAO implements 
             throw new IOException("field spec is not registered");
         }
 
-        List<SelectedRecord> results = new ArrayList<>(condition.getTopN());
+        List<Record> results = new ArrayList<>(condition.getTopN());
 
         for (final DataPoint dataPoint : resp.getDataPoints()) {
-            SelectedRecord record = new SelectedRecord();
+            Record record = new Record();
+            final String refId = dataPoint.getTagValue(TopN.TRACE_ID);
             record.setName(dataPoint.getTagValue(TopN.STATEMENT));
-            record.setRefId(dataPoint.getTagValue(TopN.TRACE_ID));
-            record.setId(dataPoint.getTagValue(Metrics.ENTITY_ID));
+            record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
+            record.setId(record.getRefId());
             record.setValue(extractFieldValueAsString(spec, valueColumnName, dataPoint));
             results.add(record);
         }
