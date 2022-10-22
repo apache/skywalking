@@ -106,12 +106,10 @@ public class ITClusterModuleNacosProviderFunctionalTest {
 
         List<RemoteInstance> remoteInstances = queryRemoteNodes(provider, 1);
 
-        ClusterModuleNacosConfig config =
-            (ClusterModuleNacosConfig) provider.newConfigCreator();
         assertEquals(1, remoteInstances.size());
         Address queryAddress = remoteInstances.get(0).getAddress();
-        assertEquals(config.getInternalComHost(), queryAddress.getHost());
-        assertEquals(config.getInternalComPort(), queryAddress.getPort());
+        assertEquals("127.0.1.2", queryAddress.getHost());
+        assertEquals(1000, queryAddress.getPort());
         assertTrue(queryAddress.isSelf());
     }
 
@@ -194,8 +192,8 @@ public class ITClusterModuleNacosProviderFunctionalTest {
         throws ModuleStartException {
         ClusterModuleNacosProvider provider = new ClusterModuleNacosProvider();
 
-        ClusterModuleNacosConfig config =
-            (ClusterModuleNacosConfig) provider.newConfigCreator();
+        ClusterModuleNacosConfig config = new ClusterModuleNacosConfig();
+        provider.newConfigCreator().onInitialized(config);
 
         config.setHostPort(nacosAddress);
         config.setServiceName(servicName);
