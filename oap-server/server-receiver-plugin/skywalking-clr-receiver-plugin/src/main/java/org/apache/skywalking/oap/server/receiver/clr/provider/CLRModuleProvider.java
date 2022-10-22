@@ -21,14 +21,13 @@ package org.apache.skywalking.oap.server.receiver.clr.provider;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.clr.module.CLRModule;
-import org.apache.skywalking.oap.server.receiver.clr.provider.handler.CLRMetricReportServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.clr.provider.handler.CLRMetricReportServiceHandler;
+import org.apache.skywalking.oap.server.receiver.clr.provider.handler.CLRMetricReportServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 /**
@@ -47,7 +46,7 @@ public class CLRModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
+    public ConfigCreator newConfigCreator() {
         return null;
     }
 

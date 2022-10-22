@@ -65,6 +65,7 @@
 * Support `sumPerMinLabeled` in `MAL`.
 * Bump up jackson databind, snakeyaml, grpc dependencies.
 * Support export `Trace` and `Log` through Kafka.
+* Add new config initialization mechanism of module provider. This is a ModuleManager lib kernel level change.
 * [**Breaking Change**] Support new records query protocol, rename the column named `service_id` to `entity_id` for support difference entity.
   Please re-create `top_n_database_statement` index/table.
 

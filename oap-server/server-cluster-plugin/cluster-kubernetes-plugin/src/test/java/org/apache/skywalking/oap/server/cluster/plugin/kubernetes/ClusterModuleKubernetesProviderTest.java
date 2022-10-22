@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
@@ -37,7 +36,6 @@ import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
@@ -58,6 +56,7 @@ public class ClusterModuleKubernetesProviderTest {
         Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         provider.setManager(moduleManager);
+        Whitebox.setInternalState(provider, "config", new ClusterModuleKubernetesConfig());
     }
 
     @Test
@@ -68,12 +67,6 @@ public class ClusterModuleKubernetesProviderTest {
     @Test
     public void module() {
         assertEquals(ClusterModule.class, provider.module());
-    }
-
-    @Test
-    public void createConfigBeanIfAbsent() {
-        ModuleConfig moduleConfig = provider.createConfigBeanIfAbsent();
-        assertTrue(moduleConfig instanceof ClusterModuleKubernetesConfig);
     }
 
     @Test

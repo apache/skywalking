@@ -107,11 +107,10 @@ public class ITClusterModuleConsulProviderFunctionalTest {
 
         List<RemoteInstance> remoteInstances = queryRemoteNodes(provider, 1);
 
-        ClusterModuleConsulConfig config = (ClusterModuleConsulConfig) provider.createConfigBeanIfAbsent();
         assertEquals(1, remoteInstances.size());
         Address queryAddress = remoteInstances.get(0).getAddress();
-        assertEquals(config.getInternalComHost(), queryAddress.getHost());
-        assertEquals(config.getInternalComPort(), queryAddress.getPort());
+        assertEquals("127.0.1.2", queryAddress.getHost());
+        assertEquals(1001, queryAddress.getPort());
         assertTrue(queryAddress.isSelf());
     }
 
@@ -198,7 +197,8 @@ public class ITClusterModuleConsulProviderFunctionalTest {
         int internalComPort) throws Exception {
         ClusterModuleConsulProvider provider = new ClusterModuleConsulProvider();
 
-        ClusterModuleConsulConfig config = (ClusterModuleConsulConfig) provider.createConfigBeanIfAbsent();
+        ClusterModuleConsulConfig config = new ClusterModuleConsulConfig();
+        provider.newConfigCreator().onInitialized(config);
 
         config.setHostPort(consulAddress);
         config.setServiceName(serviceName);

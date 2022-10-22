@@ -26,21 +26,16 @@ import org.apache.skywalking.oap.server.core.exporter.TraceExportService;
 import org.apache.skywalking.oap.server.exporter.provider.grpc.GRPCMetricsExporter;
 import org.apache.skywalking.oap.server.exporter.provider.kafka.log.KafkaLogExporter;
 import org.apache.skywalking.oap.server.exporter.provider.kafka.trace.KafkaTraceExporter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
 public class ExporterProvider extends ModuleProvider {
-    private final ExporterSetting setting;
+    private ExporterSetting setting;
     private GRPCMetricsExporter grpcMetricsExporter;
     private KafkaTraceExporter kafkaTraceExporter;
     private KafkaLogExporter kafkaLogExporter;
-
-    public ExporterProvider() {
-        setting = new ExporterSetting();
-    }
 
     @Override
     public String name() {
@@ -53,8 +48,18 @@ public class ExporterProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return setting;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<ExporterSetting>() {
+            @Override
+            public Class type() {
+                return ExporterSetting.class;
+            }
+
+            @Override
+            public void onInitialized(final ExporterSetting initialized) {
+                setting = initialized;
+            }
+        };
     }
 
     @Override

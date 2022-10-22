@@ -57,7 +57,7 @@ public class GRPCExporterProviderTest {
         grpcExporterProvider = moduleProviderIterator.next();
         assertTrue(grpcExporterProvider instanceof ExporterProvider);
 
-        ExporterSetting config = (ExporterSetting) grpcExporterProvider.createConfigBeanIfAbsent();
+        ExporterSetting config = (ExporterSetting) grpcExporterProvider.newConfigCreator();
         assertNotNull(config);
         assertNull(config.getGRPCTargetHost());
         assertEquals(0, config.getGRPCTargetPort());
