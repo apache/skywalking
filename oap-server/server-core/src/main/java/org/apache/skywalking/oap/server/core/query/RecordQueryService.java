@@ -18,42 +18,37 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
-import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.Record;
-import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-public class TopNRecordsQueryService implements Service {
+import java.io.IOException;
+import java.util.List;
+
+public class RecordQueryService implements Service {
     private final ModuleManager moduleManager;
     private IRecordsQueryDAO recordsQueryDAO;
 
-    public TopNRecordsQueryService(ModuleManager manager) {
+    public RecordQueryService(ModuleManager manager) {
         this.moduleManager = manager;
     }
 
     private IRecordsQueryDAO getRecordsQueryDAO() {
         if (recordsQueryDAO == null) {
             this.recordsQueryDAO = moduleManager.find(StorageModule.NAME)
-                                                    .provider()
-                                                    .getService(IRecordsQueryDAO.class);
+                .provider()
+                .getService(IRecordsQueryDAO.class);
         }
         return recordsQueryDAO;
     }
 
-    public List<SelectedRecord> readSampledRecords(TopNCondition condition, Duration duration) throws IOException {
-        final List<Record> records = getRecordsQueryDAO().readRecords(
-            new RecordCondition(condition), ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
-        return records.stream().filter(Objects::nonNull).map(Record::toSelectedRecord).collect(Collectors.toList());
+    public List<Record> readRecords(RecordCondition condition, Duration duration) throws IOException {
+        return getRecordsQueryDAO().readRecords(
+            condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
     }
 }

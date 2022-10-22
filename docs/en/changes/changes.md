@@ -66,6 +66,8 @@
 * Bump up jackson databind, snakeyaml, grpc dependencies.
 * Support export `Trace` and `Log` through Kafka.
 * Add new config initialization mechanism of module provider. This is a ModuleManager lib kernel level change.
+* [**Breaking Change**] Support new records query protocol, rename the column named `service_id` to `entity_id` for support difference entity.
+  Please re-create `top_n_database_statement` index/table.
 
 #### UI
 
@@ -92,6 +94,7 @@
 * Add gateway apisix menu
 * Query logs with the specific service ID
 * Bump d3-color from 3.0.1 to 3.1.0
+* Add Golang runtime metrics and cpu/memory used rate panels in FaaS-Instance dashboard
 
 #### Documentation
 

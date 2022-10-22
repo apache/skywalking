@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.query.graphql.resolver.OndemandLogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.ProfileMutation;
 import org.apache.skywalking.oap.query.graphql.resolver.ProfileQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.Query;
+import org.apache.skywalking.oap.query.graphql.resolver.RecordsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopNRecordsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopologyQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TraceQuery;
@@ -130,7 +131,9 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .file("query-protocol/metadata-v2.graphqls")
                      .resolvers(metadataQueryV2)
                      .file("query-protocol/ebpf-profiling.graphqls")
-                     .resolvers(new EBPFProcessProfilingQuery(getManager()), new EBPFProcessProfilingMutation(getManager()));
+                     .resolvers(new EBPFProcessProfilingQuery(getManager()), new EBPFProcessProfilingMutation(getManager()))
+                     .file("query-protocol/record.graphqls")
+                     .resolvers(new RecordsQuery(getManager()));
 
         if (config.isEnableOnDemandPodLog()) {
             schemaBuilder

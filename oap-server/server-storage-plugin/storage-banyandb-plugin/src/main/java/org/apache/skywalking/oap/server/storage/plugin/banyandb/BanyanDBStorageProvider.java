@@ -43,7 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
@@ -148,7 +148,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IHistoryDeleteDAO.class, new BanyanDBHistoryDeleteDAO());
         this.registerServiceImplementation(IMetricsQueryDAO.class, new BanyanDBMetricsQueryDAO(client));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new BanyanDBAggregationQueryDAO(client));
-        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new BanyanDBTopNRecordsQueryDAO(client));
+        this.registerServiceImplementation(IRecordsQueryDAO.class, new BanyanDBRecordsQueryDAO(client));
         this.registerServiceImplementation(IZipkinQueryDAO.class, new BanyanDBZipkinQueryDAO(client));
     }
 

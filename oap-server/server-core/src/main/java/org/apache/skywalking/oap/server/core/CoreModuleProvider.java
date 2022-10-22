@@ -64,6 +64,7 @@ import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
+import org.apache.skywalking.oap.server.core.query.RecordQueryService;
 import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
@@ -273,6 +274,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
         this.registerServiceImplementation(EventQueryService.class, new EventQueryService(getManager()));
         this.registerServiceImplementation(TagAutoCompleteQueryService.class, new TagAutoCompleteQueryService(getManager(), moduleConfig));
+        this.registerServiceImplementation(RecordQueryService.class, new RecordQueryService(getManager()));
 
         // add profile service implementations
         this.registerServiceImplementation(

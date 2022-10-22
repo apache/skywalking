@@ -35,7 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
@@ -67,7 +67,7 @@ public class StorageModule extends ModuleDefine {
             IMetadataQueryDAO.class,
             IAggregationQueryDAO.class,
             IAlarmQueryDAO.class,
-            ITopNRecordsQueryDAO.class,
+            IRecordsQueryDAO.class,
             ILogQueryDAO.class,
             IProfileTaskQueryDAO.class,
             IProfileTaskLogQueryDAO.class,

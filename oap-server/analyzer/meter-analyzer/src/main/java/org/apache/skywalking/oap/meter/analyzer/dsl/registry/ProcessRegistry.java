@@ -66,7 +66,7 @@ public class ProcessRegistry {
         return generateVirtualProcess(service, instance, name);
     }
 
-    private static String generateVirtualProcess(String service, String instance, String processName) {
+    public static String generateVirtualProcess(String service, String instance, String processName) {
         final ProcessTraffic traffic = new ProcessTraffic();
         final String serviceId = IDManager.ServiceID.buildId(service, true);
         traffic.setServiceId(serviceId);

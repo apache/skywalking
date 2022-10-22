@@ -57,12 +57,12 @@ public class TopNCacheWriteCommand extends TopN {
         if (o == null || getClass() != o.getClass())
             return false;
         TopNCacheWriteCommand statement = (TopNCacheWriteCommand) o;
-        return Objects.equals(getServiceId(), statement.getServiceId());
+        return Objects.equals(getEntityId(), statement.getEntityId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServiceId());
+        return Objects.hash(getEntityId());
     }
 
     public static class Builder implements StorageBuilder<TopNCacheWriteCommand> {
@@ -72,7 +72,7 @@ public class TopNCacheWriteCommand extends TopN {
             statement.setCommand((String) converter.get(STATEMENT));
             statement.setTraceId((String) converter.get(TRACE_ID));
             statement.setLatency(((Number) converter.get(LATENCY)).longValue());
-            statement.setServiceId((String) converter.get(SERVICE_ID));
+            statement.setEntityId((String) converter.get(ENTITY_ID));
             statement.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return statement;
         }
@@ -82,7 +82,7 @@ public class TopNCacheWriteCommand extends TopN {
             converter.accept(STATEMENT, storageData.getCommand());
             converter.accept(TRACE_ID, storageData.getTraceId());
             converter.accept(LATENCY, storageData.getLatency());
-            converter.accept(SERVICE_ID, storageData.getServiceId());
+            converter.accept(ENTITY_ID, storageData.getEntityId());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
         }
     }
