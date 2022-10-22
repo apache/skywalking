@@ -154,10 +154,6 @@ public class BanyanDBStorageProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        final ConfigService configService = getManager().find(CoreModule.NAME)
-                                                        .provider()
-                                                        .getService(ConfigService.class);
-
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME)
                                                    .provider()
                                                    .getService(MetricsCreator.class);
