@@ -54,5 +54,5 @@
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_connects_available --service-name=mysql::root[root] |yq e 'to_entries' -
       expected:  expected/metrics-has-value.yml
     # slow sql
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics sampled-record --name=top_n_database_statement |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list --name=top_n_database_statement |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
       expected:  expected/db-has-value.yml

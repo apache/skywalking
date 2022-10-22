@@ -29,6 +29,9 @@ public class ExporterModule extends ModuleDefine {
 
     @Override
     public Class[] services() {
-        return new Class[] {MetricValuesExportService.class};
+        return new Class[] {
+            MetricValuesExportService.class,
+            TraceExportService.class,
+            LogExportService.class};
     }
 }

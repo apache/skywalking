@@ -36,6 +36,7 @@ spans:
         value: POST
       {{- end }}
     logs: []
+    attachedevents: []
   - traceid: {{ notEmpty .traceid }}
     segmentid: {{ notEmpty .segmentid }}
     spanid: {{ .spanid }}
@@ -61,6 +62,7 @@ spans:
         value: "200"
       {{- end }}
     logs: []
+    attachedevents: []
   - traceid: {{ notEmpty .traceid }}
     segmentid: {{ notEmpty .segmentid }}
     spanid: {{ .spanid }}
@@ -90,6 +92,7 @@ spans:
         value: POST
       {{- end }}
     logs: []
+    attachedevents: []
   - traceid: {{ notEmpty .traceid }}
     segmentid: {{ notEmpty .segmentid }}
     spanid: {{ .spanid }}
@@ -113,6 +116,7 @@ spans:
         value: POST
       {{- end }}
     logs: []
+    attachedevents: []
   - traceid: {{ notEmpty .traceid }}
     segmentid: {{ notEmpty .segmentid }}
     spanid: {{ .spanid }}
@@ -140,6 +144,7 @@ spans:
         value: POST
       {{- end }}
     logs: []
+    attachedevents: []
   - traceid: {{ notEmpty .traceid }}
     segmentid: {{ notEmpty .segmentid }}
     spanid: {{ .spanid }}
@@ -165,6 +170,7 @@ spans:
         value: "200"
       {{- end }}
     logs: []
+    attachedevents: []
   - traceid: {{ notEmpty .traceid }}
     segmentid: {{ notEmpty .segmentid }}
     spanid: {{ .spanid }}
@@ -192,4 +198,5 @@ spans:
         value: POST
       {{- end }}
     logs: []
+    attachedevents: []
   {{- end }}

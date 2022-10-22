@@ -16,24 +16,35 @@
  *
  */
 
-package org.apache.skywalking.oap.server.exporter.provider.grpc;
+package org.apache.skywalking.oap.server.exporter.provider;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.exporter.ExporterModule;
+import org.apache.skywalking.oap.server.core.exporter.LogExportService;
 import org.apache.skywalking.oap.server.core.exporter.MetricValuesExportService;
+import org.apache.skywalking.oap.server.core.exporter.TraceExportService;
+import org.apache.skywalking.oap.server.exporter.provider.grpc.GRPCMetricsExporter;
+import org.apache.skywalking.oap.server.exporter.provider.kafka.log.KafkaLogExporter;
+import org.apache.skywalking.oap.server.exporter.provider.kafka.trace.KafkaTraceExporter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
-public class GRPCExporterProvider extends ModuleProvider {
-    private GRPCExporterSetting setting;
-    private GRPCExporter exporter;
+public class ExporterProvider extends ModuleProvider {
+    private final ExporterSetting setting;
+    private GRPCMetricsExporter grpcMetricsExporter;
+    private KafkaTraceExporter kafkaTraceExporter;
+    private KafkaLogExporter kafkaLogExporter;
+
+    public ExporterProvider() {
+        setting = new ExporterSetting();
+    }
 
     @Override
     public String name() {
-        return "grpc";
+        return "default";
     }
 
     @Override
@@ -43,24 +54,37 @@ public class GRPCExporterProvider extends ModuleProvider {
 
     @Override
     public ModuleConfig createConfigBeanIfAbsent() {
-        setting = new GRPCExporterSetting();
         return setting;
     }
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        exporter = new GRPCExporter(setting);
-        this.registerServiceImplementation(MetricValuesExportService.class, exporter);
+        grpcMetricsExporter = new GRPCMetricsExporter(setting);
+        kafkaTraceExporter = new KafkaTraceExporter(getManager(), setting);
+        kafkaLogExporter = new KafkaLogExporter(getManager(), setting);
+        this.registerServiceImplementation(MetricValuesExportService.class, grpcMetricsExporter);
+        this.registerServiceImplementation(TraceExportService.class, kafkaTraceExporter);
+        this.registerServiceImplementation(LogExportService.class, kafkaLogExporter);
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-
+        if (setting.isEnableGRPCMetrics()) {
+            grpcMetricsExporter.start();
+        }
+        if (setting.isEnableKafkaTrace()) {
+            kafkaTraceExporter.start();
+        }
+        if (setting.isEnableKafkaLog()) {
+            kafkaLogExporter.start();
+        }
     }
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        exporter.fetchSubscriptionList();
+        if (setting.isEnableGRPCMetrics()) {
+            grpcMetricsExporter.fetchSubscriptionList();
+        }
     }
 
     @Override

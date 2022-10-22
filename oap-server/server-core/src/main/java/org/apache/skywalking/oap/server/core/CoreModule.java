@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskQueryService;
+import org.apache.skywalking.oap.server.core.query.RecordQueryService;
 import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
@@ -128,6 +129,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(BrowserLogQueryService.class);
         classes.add(EventQueryService.class);
         classes.add(TagAutoCompleteQueryService.class);
+        classes.add(RecordQueryService.class);
     }
 
     private void addServerInterface(List<Class> classes) {

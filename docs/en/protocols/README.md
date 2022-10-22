@@ -13,7 +13,7 @@ Please read SkyWalking language agents documentation to see whether it is suppor
 
 - **Trace Data Protocol** is an out-of-wire data format. Agent/SDK uses this to send traces to SkyWalking OAP server.
 
-[SkyWalking Trace Data Protocol v3](Trace-Data-Protocol-v3.md) defines the communication method and format between the agent and backend.
+[SkyWalking Trace Data Protocol v3.1](Trace-Data-Protocol-v3.md) defines the communication method and format between the agent and backend.
 
 ### Logging
 - **Log Data Protocol** is an out-of-wire data format. Agent/SDK and collector use this to send logs into SkyWalking OAP server.

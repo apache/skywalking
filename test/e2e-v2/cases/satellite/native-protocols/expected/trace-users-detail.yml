@@ -38,4 +38,5 @@ spans:
         value: {{ notEmpty .value }}
       {{- end }}
     logs: []
+    attachedevents: []
   {{- end }}

@@ -40,9 +40,9 @@
         <joda-time.version>2.10.5</joda-time.version>
         <zookeeper.version>3.5.7</zookeeper.version>
         <guava.version>31.1-jre</guava.version>
-        <snakeyaml.version>1.32</snakeyaml.version>
-        <protobuf-java.version>3.19.4</protobuf-java.version>
-        <protobuf-java-util.version>3.19.4</protobuf-java-util.version>
+        <snakeyaml.version>1.33</snakeyaml.version>
+        <protobuf-java.version>3.21.8</protobuf-java.version>
+        <protobuf-java-util.version>3.21.8</protobuf-java-util.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-io.version>2.7</commons-io.version>
@@ -50,6 +50,7 @@
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.23.16</zipkin.version>
         <jackson.version>2.13.4</jackson.version>
+        <jackson-databind.version>2.13.4.1</jackson-databind.version>
         <commons-text.version>1.4</commons-text.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.8.0</apollo.version>
@@ -73,6 +74,8 @@
         <httpcore.version>4.4.13</httpcore.version>
         <commons-compress.version>1.21</commons-compress.version>
         <banyandb-java-client.version>0.1.0</banyandb-java-client.version>
+        <kafka-clients.version>2.4.1</kafka-clients.version>
+        <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
     </properties>
 
     <dependencyManagement>
@@ -315,7 +318,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson-databind.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -564,6 +567,18 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commons-compress.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka-clients.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka-test</artifactId>
+                <version>${spring-kafka-test.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
