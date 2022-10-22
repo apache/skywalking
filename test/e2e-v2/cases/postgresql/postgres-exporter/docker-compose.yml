@@ -27,6 +27,8 @@ services:
       - SW_DATA_SOURCE_USER=postgres
       - SW_DATA_SOURCE_PASSWORD=123456
       - SW_CORE_TOPN_REPORT_PERIOD=2
+      - SW_OTEL_RECEIVER=default
+      - SW_OTEL_RECEIVER_ENABLED_OTEL_RULES=postgresql/*
     ports:
       - 12800
     depends_on:
