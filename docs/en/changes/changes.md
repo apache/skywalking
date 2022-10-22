@@ -91,6 +91,7 @@
 * Add gateway apisix menu
 * Query logs with the specific service ID
 * Bump d3-color from 3.0.1 to 3.1.0
+* Add Golang runtime metrics and cpu/memory used rate panels in FaaS-Instance dashboard
 
 #### Documentation
 
