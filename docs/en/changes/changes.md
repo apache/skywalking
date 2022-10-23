@@ -64,6 +64,12 @@
 * Fix metrics was put into wrong slot of the window in the alerting kernel.
 * Support `sumPerMinLabeled` in `MAL`.
 * [**Breaking Change**] Change the way of loading MAL rules(support pattern).
+* Bump up jackson databind, snakeyaml, grpc dependencies.
+* Support export `Trace` and `Log` through Kafka.
+* Add new config initialization mechanism of module provider. This is a ModuleManager lib kernel level change.
+* [**Breaking Change**] Support new records query protocol, rename the column named `service_id` to `entity_id` for support difference entity.
+  Please re-create `top_n_database_statement` index/table.
+* [**Breaking Change**] Change the way of loading MAL rules(support pattern).
 
 #### UI
 
@@ -90,6 +96,7 @@
 * Add gateway apisix menu
 * Query logs with the specific service ID
 * Bump d3-color from 3.0.1 to 3.1.0
+* Add Golang runtime metrics and cpu/memory used rate panels in FaaS-Instance dashboard
 
 #### Documentation
 
@@ -101,5 +108,6 @@
 * Add **Security Notice** doc.
 * Add new docs for `Report Span Attached Events` data collecting protocol.
 * Add new docs for `Record` query protocol
+* Update `Server Agents` and `Compatibility` for PHP agent.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)

@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -183,7 +182,7 @@ public class ConfigWatcherRegisterTest {
         }
 
         @Override
-        public ModuleConfig createConfigBeanIfAbsent() {
+        public ConfigCreator newConfigCreator() {
             return null;
         }
 

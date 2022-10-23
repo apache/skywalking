@@ -26,6 +26,7 @@ public class ConsulConfigurationProviderTest {
     @Test(expected = ModuleStartException.class)
     public void shouldThrowWhenSettingsInvalid() throws ModuleStartException {
         ConsulConfigurationProvider provider = new ConsulConfigurationProvider();
+        provider.newConfigCreator().onInitialized(new ConsulConfigurationCenterSettings());
         provider.initConfigReader();
     }
 }

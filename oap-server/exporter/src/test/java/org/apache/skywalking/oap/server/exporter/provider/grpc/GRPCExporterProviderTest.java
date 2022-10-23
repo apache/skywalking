@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.exporter.ExporterModule;
+import org.apache.skywalking.oap.server.exporter.provider.ExporterProvider;
+import org.apache.skywalking.oap.server.exporter.provider.ExporterSetting;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
@@ -53,17 +55,17 @@ public class GRPCExporterProviderTest {
         assertTrue(moduleProviderIterator.hasNext());
 
         grpcExporterProvider = moduleProviderIterator.next();
-        assertTrue(grpcExporterProvider instanceof GRPCExporterProvider);
+        assertTrue(grpcExporterProvider instanceof ExporterProvider);
 
-        GRPCExporterSetting config = (GRPCExporterSetting) grpcExporterProvider.createConfigBeanIfAbsent();
+        ExporterSetting config = (ExporterSetting) grpcExporterProvider.newConfigCreator();
         assertNotNull(config);
-        assertNull(config.getTargetHost());
-        assertEquals(0, config.getTargetPort());
+        assertNull(config.getGRPCTargetHost());
+        assertEquals(0, config.getGRPCTargetPort());
         assertEquals(20000, config.getBufferChannelSize());
         assertEquals(2, config.getBufferChannelNum());
 
         //for test
-        config.setTargetHost("localhost");
+        config.setGRPCTargetHost("localhost");
 
         grpcExporterProvider.prepare();
 
@@ -72,7 +74,7 @@ public class GRPCExporterProviderTest {
 
     @Test
     public void name() {
-        assertEquals("grpc", grpcExporterProvider.name());
+        assertEquals("default", grpcExporterProvider.name());
     }
 
     @Test
@@ -82,7 +84,7 @@ public class GRPCExporterProviderTest {
 
     @Test
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        GRPCExporter exporter = mock(GRPCExporter.class);
+        GRPCMetricsExporter exporter = mock(GRPCMetricsExporter.class);
 
         ModuleManager manager = mock(ModuleManager.class);
         ModuleProviderHolder providerHolder = mock(ModuleProviderHolder.class);
@@ -95,7 +97,7 @@ public class GRPCExporterProviderTest {
         doNothing().when(exporter).fetchSubscriptionList();
 
         grpcExporterProvider.setManager(manager);
-        Whitebox.setInternalState(grpcExporterProvider, "exporter", exporter);
+        Whitebox.setInternalState(grpcExporterProvider, "grpcMetricsExporter", exporter);
         grpcExporterProvider.notifyAfterCompleted();
     }
 
