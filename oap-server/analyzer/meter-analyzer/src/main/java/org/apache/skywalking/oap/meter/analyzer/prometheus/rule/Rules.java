@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
@@ -97,7 +98,7 @@ public class Rules {
             }
             String ruleName = fileName.substring(0, dotIndex);
             if (directory != null) {
-                fileName = directory.getName() + "/" + ruleName;
+                fileName = directory.getName() + "/" + fileName;
                 if (!formedEnabledRules.contains(fileName) && !formedEnabledRules.contains(directory.getName() + "/*.yaml")) {
                     return null;
                 }
@@ -114,8 +115,7 @@ public class Rules {
             rule.setName(ruleName);
             return rule;
         } catch (IOException e) {
-            LOG.debug("Reading file {} failed", file, e);
+            throw new UnexpectedException("Load rule file" + file + " failed", e);
         }
-        return null;
     }
 }
