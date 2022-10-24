@@ -47,6 +47,7 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -228,30 +229,37 @@ public enum MetadataRegistry {
      * @param modelColumn the column in the model to be parsed
      * @return a typed tag spec
      */
-    @Nullable
+    @Nonnull
     private TagFamilySpec.TagSpec parseTagSpec(ModelColumn modelColumn) {
         final Class<?> clazz = modelColumn.getType();
         final String colName = modelColumn.getColumnName().getStorageName();
+        TagFamilySpec.TagSpec tagSpec = null;
         if (String.class.equals(clazz) || StorageDataComplexObject.class.isAssignableFrom(clazz) || JsonObject.class.equals(clazz)) {
-            return TagFamilySpec.TagSpec.newStringTag(colName);
+            tagSpec = TagFamilySpec.TagSpec.newStringTag(colName);
         } else if (int.class.equals(clazz) || long.class.equals(clazz)) {
-            return TagFamilySpec.TagSpec.newIntTag(colName);
+            tagSpec = TagFamilySpec.TagSpec.newIntTag(colName);
         } else if (byte[].class.equals(clazz)) {
-            return TagFamilySpec.TagSpec.newBinaryTag(colName);
+            tagSpec = TagFamilySpec.TagSpec.newBinaryTag(colName);
         } else if (clazz.isEnum()) {
-            return TagFamilySpec.TagSpec.newIntTag(colName);
+            tagSpec = TagFamilySpec.TagSpec.newIntTag(colName);
         } else if (double.class.equals(clazz) || Double.class.equals(clazz)) {
             // serialize double as binary
-            return TagFamilySpec.TagSpec.newBinaryTag(colName);
+            tagSpec = TagFamilySpec.TagSpec.newBinaryTag(colName);
         } else if (IntList.class.isAssignableFrom(clazz)) {
-            return TagFamilySpec.TagSpec.newIntArrayTag(colName);
+            tagSpec = TagFamilySpec.TagSpec.newIntArrayTag(colName);
         } else if (List.class.isAssignableFrom(clazz)) { // handle exceptions
             ParameterizedType t = (ParameterizedType) modelColumn.getGenericType();
             if (String.class.equals(t.getActualTypeArguments()[0])) {
-                return TagFamilySpec.TagSpec.newStringArrayTag(colName);
+                tagSpec = TagFamilySpec.TagSpec.newStringArrayTag(colName);
             }
         }
-        throw new IllegalStateException("type " + modelColumn.getType().toString() + " is not supported");
+        if (tagSpec == null) {
+            throw new IllegalStateException("type " + modelColumn.getType().toString() + " is not supported");
+        }
+        if (modelColumn.isIndexOnly()) {
+            tagSpec.indexedOnly();
+        }
+        return tagSpec;
     }
 
     public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config) {
