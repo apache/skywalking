@@ -46,17 +46,19 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model, config);
         try {
             final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
-            // first check group
-            Group g = metadata.getOrCreateGroup(c);
-            if (g == null) {
-                throw new StorageException("fail to create group " + metadata.getGroup());
+            // first check resource existence and create group if necessary
+            final boolean resourceExist = metadata.checkResourceExistence(c);
+            if (!resourceExist) {
+                return false;
             }
-            log.info("group {} created", g.name());
+
             // then check entity schema
             if (metadata.findRemoteSchema(c).isPresent()) {
                 MetadataRegistry.INSTANCE.registerModel(model, config);
                 return true;
             }
+
+            // normally, we should not reach here
             return false;
         } catch (BanyanDBException ex) {
             throw new StorageException("fail to check existence", ex);

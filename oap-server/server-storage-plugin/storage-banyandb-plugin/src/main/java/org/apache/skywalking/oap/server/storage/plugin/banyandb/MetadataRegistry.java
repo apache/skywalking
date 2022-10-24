@@ -36,10 +36,12 @@ import org.apache.skywalking.banyandb.v1.client.metadata.IndexRule;
 import org.apache.skywalking.banyandb.v1.client.metadata.IntervalRule;
 import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
 import org.apache.skywalking.banyandb.v1.client.metadata.NamedSchema;
+import org.apache.skywalking.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -316,16 +318,27 @@ public enum MetadataRegistry {
             return tagFamilySpecs;
         }
 
-        public Group getOrCreateGroup(BanyanDBClient client) throws BanyanDBException {
-            Group g = client.findGroup(this.group);
-            if (g != null) {
-                return g;
-            }
+        public boolean checkResourceExistence(BanyanDBClient client) throws BanyanDBException {
+            ResourceExist resourceExist;
             switch (kind) {
                 case STREAM:
-                    return client.define(Group.create(this.group, Catalog.STREAM, this.shard, IntervalRule.create(IntervalRule.Unit.HOUR, 4), IntervalRule.create(IntervalRule.Unit.DAY, 1), IntervalRule.create(IntervalRule.Unit.DAY, 7)));
+                    resourceExist = client.existStream(this.group, this.name);
+                    if (!resourceExist.hasGroup()) {
+                        Group g = client.define(Group.create(this.group, Catalog.STREAM, this.shard, IntervalRule.create(IntervalRule.Unit.HOUR, 4), IntervalRule.create(IntervalRule.Unit.DAY, 1), IntervalRule.create(IntervalRule.Unit.DAY, 7)));
+                        if (g != null) {
+                            log.info("group {} created", g.name());
+                        }
+                    }
+                    return resourceExist.hasResource();
                 case MEASURE:
-                    return client.define(Group.create(this.group, Catalog.MEASURE, this.shard, IntervalRule.create(IntervalRule.Unit.HOUR, 4), IntervalRule.create(IntervalRule.Unit.HOUR, 24), IntervalRule.create(IntervalRule.Unit.DAY, 7)));
+                    resourceExist = client.existMeasure(this.group, this.name);
+                    if (!resourceExist.hasGroup()) {
+                        Group g = client.define(Group.create(this.group, Catalog.MEASURE, this.shard, IntervalRule.create(IntervalRule.Unit.HOUR, 4), IntervalRule.create(IntervalRule.Unit.DAY, 1), IntervalRule.create(IntervalRule.Unit.DAY, 7)));
+                        if (g != null) {
+                            log.info("group {} created", g.name());
+                        }
+                    }
+                    return resourceExist.hasResource();
                 default:
                     throw new IllegalStateException("should not reach here");
             }
