@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigChangeWatcher;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -47,9 +46,8 @@ public class NacosConfigurationTestProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return new ModuleConfig() {
-        };
+    public ConfigCreator newConfigCreator() {
+        return null;
     }
 
     @Override

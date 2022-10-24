@@ -47,12 +47,11 @@ import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -65,13 +64,13 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EventQueryD
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2HistoryDeleteDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressAliasDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceLabelQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceLabelQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLAlarmQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
@@ -89,10 +88,6 @@ public class MySQLShardingStorageProvider extends ModuleProvider {
     private MySQLShardingStorageConfig config;
     private JDBCHikariCPClient mysqlClient;
 
-    public MySQLShardingStorageProvider() {
-        config = new MySQLShardingStorageConfig();
-    }
-
     @Override
     public String name() {
         return "mysql-sharding";
@@ -104,20 +99,34 @@ public class MySQLShardingStorageProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<MySQLShardingStorageConfig>() {
+            @Override
+            public Class type() {
+                return MySQLShardingStorageConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final MySQLShardingStorageConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
-        
+
         mysqlClient = new JDBCHikariCPClient(config.getProperties());
 
-        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient, config.getMaxSizeOfBatchSql(), config.getAsyncBatchPersistentPoolSize()));
+        this.registerServiceImplementation(
+            IBatchDAO.class, new H2BatchDAO(mysqlClient, config.getMaxSizeOfBatchSql(),
+                                            config.getAsyncBatchPersistentPoolSize()
+            ));
         this.registerServiceImplementation(
             StorageDAO.class,
-            new H2StorageDAO(mysqlClient));
+            new H2StorageDAO(mysqlClient)
+        );
         this.registerServiceImplementation(
             INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(mysqlClient));
 
@@ -134,10 +143,11 @@ public class MySQLShardingStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IAlarmQueryDAO.class, new MySQLAlarmQueryDAO(mysqlClient, getManager()));
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(mysqlClient));
-        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IRecordsQueryDAO.class, new H2RecordsQueryDAO(mysqlClient));
         this.registerServiceImplementation(
             ILogQueryDAO.class,
-            new MySQLShardingLogQueryDAO(mysqlClient, getManager()));
+            new MySQLShardingLogQueryDAO(mysqlClient, getManager())
+        );
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(mysqlClient));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(mysqlClient));
@@ -151,7 +161,8 @@ public class MySQLShardingStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IEventQueryDAO.class, new H2EventQueryDAO(mysqlClient));
 
         this.registerServiceImplementation(IEBPFProfilingTaskDAO.class, new H2EBPFProfilingTaskDAO(mysqlClient));
-        this.registerServiceImplementation(IEBPFProfilingScheduleDAO.class, new H2EBPFProfilingScheduleDAO(mysqlClient));
+        this.registerServiceImplementation(
+            IEBPFProfilingScheduleDAO.class, new H2EBPFProfilingScheduleDAO(mysqlClient));
         this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new H2EBPFProfilingDataDAO(mysqlClient));
         this.registerServiceImplementation(IServiceLabelDAO.class, new H2ServiceLabelQueryDAO(mysqlClient));
         this.registerServiceImplementation(ITagAutoCompleteQueryDAO.class, new H2TagAutoCompleteQueryDAO(mysqlClient));

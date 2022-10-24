@@ -45,12 +45,11 @@ import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -68,14 +67,14 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2LogQueryDAO
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressAliasDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceLabelQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceLabelQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2UITemplateManagementDAO;
@@ -97,10 +96,6 @@ public class H2StorageProvider extends ModuleProvider {
     private H2StorageConfig config;
     private JDBCHikariCPClient h2Client;
 
-    public H2StorageProvider() {
-        config = new H2StorageConfig();
-    }
-
     @Override
     public String name() {
         return "h2";
@@ -112,8 +107,18 @@ public class H2StorageProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<H2StorageConfig>() {
+            @Override
+            public Class type() {
+                return H2StorageConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final H2StorageConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
@@ -147,7 +152,7 @@ public class H2StorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO(h2Client, getManager()));
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
-        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(h2Client));
+        this.registerServiceImplementation(IRecordsQueryDAO.class, new H2RecordsQueryDAO(h2Client));
         this.registerServiceImplementation(
             ILogQueryDAO.class,
             new H2LogQueryDAO(h2Client, getManager()));

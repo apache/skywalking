@@ -24,34 +24,35 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
+import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
-import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
-import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
+@Slf4j
+public class H2RecordsQueryDAO implements IRecordsQueryDAO {
     private JDBCHikariCPClient h2Client;
 
-    public H2TopNRecordsQueryDAO(JDBCHikariCPClient h2Client) {
+    public H2RecordsQueryDAO(JDBCHikariCPClient h2Client) {
         this.h2Client = h2Client;
     }
 
     @Override
-    public List<SelectedRecord> readSampledRecords(final TopNCondition condition,
-                                                   final String valueColumnName,
-                                                   final Duration duration) throws IOException {
+    public List<Record> readRecords(final RecordCondition condition,
+                                           final String valueColumnName,
+                                           final Duration duration) throws IOException {
         StringBuilder sql = new StringBuilder("select * from " + condition.getName() + " where ");
         List<Object> parameters = new ArrayList<>(10);
 
-        if (StringUtil.isNotEmpty(condition.getParentService())) {
-            sql.append(" service_id = ? and");
-            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
-            parameters.add(serviceId);
+        if (condition.getParentEntity() != null && condition.getParentEntity().buildId() != null) {
+            sql.append(" ").append(TopN.ENTITY_ID).append(" = ? and");
+            parameters.add(condition.getParentEntity().buildId());
         }
 
         sql.append(" ").append(TopN.TIME_BUCKET).append(" >= ?");
@@ -67,14 +68,15 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         }
         sql.append(" limit ").append(condition.getTopN());
 
-        List<SelectedRecord> results = new ArrayList<>();
+        List<Record> results = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
                 connection, sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
-                    SelectedRecord record = new SelectedRecord();
+                    Record record = new Record();
                     record.setName(resultSet.getString(TopN.STATEMENT));
-                    record.setRefId(resultSet.getString(TopN.TRACE_ID));
+                    final String refId = resultSet.getString(TopN.TRACE_ID);
+                    record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
                     record.setId(record.getRefId());
                     record.setValue(resultSet.getString(valueColumnName));
                     results.add(record);

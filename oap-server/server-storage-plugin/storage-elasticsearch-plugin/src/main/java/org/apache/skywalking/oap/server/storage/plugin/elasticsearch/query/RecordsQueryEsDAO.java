@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
+import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -30,26 +32,24 @@ import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder
 import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
-import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
-import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
-public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO {
-    public TopNRecordsQueryEsDAO(ElasticSearchClient client) {
+public class RecordsQueryEsDAO extends EsDAO implements IRecordsQueryDAO {
+    public RecordsQueryEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
     @Override
-    public List<SelectedRecord> readSampledRecords(final TopNCondition condition,
-                                                   final String valueColumnName,
-                                                   final Duration duration) throws IOException {
+    public List<Record> readRecords(final RecordCondition condition,
+                                           final String valueColumnName,
+                                           final Duration duration) throws IOException {
         final BoolQueryBuilder query =
             Query.bool()
                  .must(Query.range(TopN.TIME_BUCKET)
@@ -59,10 +59,8 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, condition.getName()));
         }
 
-        if (StringUtil.isNotEmpty(condition.getParentService())) {
-            final String serviceId =
-                IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
-            query.must(Query.term(TopN.SERVICE_ID, serviceId));
+        if (condition.getParentEntity() != null && condition.getParentEntity().buildId() != null) {
+            query.must(Query.term(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
         }
 
         final SearchBuilder search =
@@ -79,13 +77,14 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
             search.build()
         );
 
-        List<SelectedRecord> results = new ArrayList<>(condition.getTopN());
+        List<Record> results = new ArrayList<>(condition.getTopN());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
-            SelectedRecord record = new SelectedRecord();
+            Record record = new Record();
             final Map<String, Object> sourceAsMap = searchHit.getSource();
             record.setName((String) sourceAsMap.get(TopN.STATEMENT));
-            record.setRefId((String) sourceAsMap.get(TopN.TRACE_ID));
+            final String refId = (String) sourceAsMap.get(TopN.TRACE_ID);
+            record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
             record.setId(record.getRefId());
             record.setValue(sourceAsMap.get(valueColumnName).toString());
             results.add(record);

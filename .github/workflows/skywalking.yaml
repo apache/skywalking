@@ -586,6 +586,9 @@ jobs:
             config: test/e2e-v2/cases/zipkin/mysql/sharding/e2e.yaml
           - name: APISIX metrics
             config: test/e2e-v2/cases/apisix/otel-collector/e2e.yaml
+
+          - name: Exporter Kafka
+            config: test/e2e-v2/cases/exporter/kafka/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.exporter.provider.grpc;
+package org.apache.skywalking.oap.server.exporter.provider;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,9 +24,18 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Setter
 @Getter
-public class GRPCExporterSetting extends ModuleConfig {
-    private String targetHost;
-    private int targetPort;
+public class ExporterSetting extends ModuleConfig {
+    private boolean enableGRPCMetrics = false;
+    private String gRPCTargetHost;
+    private int gRPCTargetPort;
     private int bufferChannelSize = 20000;
     private int bufferChannelNum = 2;
+
+    //kafka
+    private boolean enableKafkaTrace = false;
+    private boolean enableKafkaLog = false;
+    private String kafkaBootstrapServers;
+    private String kafkaProducerConfig;
+    private String kafkaTopicTrace = "skywalking-export-trace";
+    private String kafkaTopicLog = "skywalking-export-log";
 }

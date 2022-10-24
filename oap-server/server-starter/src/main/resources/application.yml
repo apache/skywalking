@@ -501,9 +501,19 @@ configuration:
 
 exporter:
   selector: ${SW_EXPORTER:-}
-  grpc:
-    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
-    targetPort: ${SW_EXPORTER_GRPC_PORT:9870}
+  default:
+    # gRPC exporter
+    enableGRPCMetrics: ${SW_EXPORTER_ENABLE_GRPC_METRICS:false}
+    gRPCTargetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
+    gRPCTargetPort: ${SW_EXPORTER_GRPC_PORT:9870}
+    # Kafka exporter
+    enableKafkaTrace: ${SW_EXPORTER_ENABLE_KAFKA_TRACE:false}
+    enableKafkaLog: ${SW_EXPORTER_ENABLE_KAFKA_LOG:false}
+    kafkaBootstrapServers: ${SW_EXPORTER_KAFKA_SERVERS:localhost:9092}
+    # Kafka producer config, JSON format as Properties.
+    kafkaProducerConfig: ${SW_EXPORTER_KAFKA_PRODUCER_CONFIG:""}
+    kafkaTopicTrace: ${SW_EXPORTER_KAFKA_TOPIC_TRACE:skywalking-export-trace}
+    kafkaTopicLog: ${SW_EXPORTER_KAFKA_TOPIC_LOG:skywalking-export-log}
 
 health-checker:
   selector: ${SW_HEALTH_CHECKER:-}

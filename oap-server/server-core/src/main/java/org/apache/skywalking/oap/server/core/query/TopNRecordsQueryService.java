@@ -20,34 +20,40 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
-import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public class TopNRecordsQueryService implements Service {
     private final ModuleManager moduleManager;
-    private ITopNRecordsQueryDAO topNRecordsQueryDAO;
+    private IRecordsQueryDAO recordsQueryDAO;
 
     public TopNRecordsQueryService(ModuleManager manager) {
         this.moduleManager = manager;
     }
 
-    private ITopNRecordsQueryDAO getTopNRecordsQueryDAO() {
-        if (topNRecordsQueryDAO == null) {
-            this.topNRecordsQueryDAO = moduleManager.find(StorageModule.NAME)
+    private IRecordsQueryDAO getRecordsQueryDAO() {
+        if (recordsQueryDAO == null) {
+            this.recordsQueryDAO = moduleManager.find(StorageModule.NAME)
                                                     .provider()
-                                                    .getService(ITopNRecordsQueryDAO.class);
+                                                    .getService(IRecordsQueryDAO.class);
         }
-        return topNRecordsQueryDAO;
+        return recordsQueryDAO;
     }
 
     public List<SelectedRecord> readSampledRecords(TopNCondition condition, Duration duration) throws IOException {
-        return getTopNRecordsQueryDAO().readSampledRecords(
-            condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
+        final List<Record> records = getRecordsQueryDAO().readRecords(
+            new RecordCondition(condition), ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
+        return records.stream().filter(Objects::nonNull).map(Record::toSelectedRecord).collect(Collectors.toList());
     }
 }

@@ -16,9 +16,15 @@
  *
  */
 
-package org.apache.skywalking.aop.server.receiver.mesh;
+package org.apache.skywalking.oap.server.core.exporter;
 
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-public class MeshModuleConfig extends ModuleConfig {
+public interface ExporterService<T> extends Service {
+
+    void start();
+
+    void export(T data);
+
+    boolean isEnabled();
 }

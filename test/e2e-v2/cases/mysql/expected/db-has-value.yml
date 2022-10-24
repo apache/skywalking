@@ -17,7 +17,13 @@
 - key: 0
   value:
   {{- contains .value }}
-  - key: {{ notEmpty .key }}
+  - key: name
     value: {{ notEmpty .value }}
+  - key: value
+    value: {{ notEmpty .value }}
+  - key: id
+    value: ""
+  - key: refid
+    value: ""
   {{- end }}
 {{- end }}

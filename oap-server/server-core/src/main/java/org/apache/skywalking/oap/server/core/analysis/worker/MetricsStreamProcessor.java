@@ -205,7 +205,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                                                            MetricsTransWorker transWorker,
                                                            boolean supportUpdate) {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(moduleDefineHolder);
-        ExportWorker exportWorker = new ExportWorker(moduleDefineHolder);
+        ExportMetricsWorker exportWorker = new ExportMetricsWorker(moduleDefineHolder);
 
         MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(
             moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker,

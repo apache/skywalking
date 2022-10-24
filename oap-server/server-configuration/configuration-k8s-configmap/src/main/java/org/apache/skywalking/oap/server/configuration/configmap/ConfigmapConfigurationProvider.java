@@ -21,16 +21,11 @@ package org.apache.skywalking.oap.server.configuration.configmap;
 import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.configuration.api.AbstractConfigurationProvider;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 public class ConfigmapConfigurationProvider extends AbstractConfigurationProvider {
 
-    private final ConfigmapConfigurationSettings settings;
-
-    public ConfigmapConfigurationProvider() {
-        this.settings = new ConfigmapConfigurationSettings();
-    }
+    private ConfigmapConfigurationSettings settings;
 
     @Override
     public String name() {
@@ -38,8 +33,18 @@ public class ConfigmapConfigurationProvider extends AbstractConfigurationProvide
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return settings;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<ConfigmapConfigurationSettings>() {
+            @Override
+            public Class type() {
+                return ConfigmapConfigurationSettings.class;
+            }
+
+            @Override
+            public void onInitialized(final ConfigmapConfigurationSettings initialized) {
+                settings = initialized;
+            }
+        };
     }
 
     @Override
