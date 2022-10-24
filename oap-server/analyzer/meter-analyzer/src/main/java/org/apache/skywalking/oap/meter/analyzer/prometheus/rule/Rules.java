@@ -53,7 +53,7 @@ public class Rules {
     public static List<Rule> loadRules(final String path, List<String> enabledRules) throws ModuleStartException {
         File[] rules;
         try {
-            rules = ResourceUtils.getAllPathFiles(path);
+            rules = ResourceUtils.list(path);
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Load fetcher rules failed", e);
         }

@@ -91,7 +91,7 @@ public class ResourceUtils {
         return fileList;
     }
 
-    public static File[] getAllPathFiles(String path) throws FileNotFoundException {
+    public static File[] list(String path) throws FileNotFoundException {
         URL url = ResourceUtils.class.getClassLoader().getResource(path);
         if (url == null) {
             throw new FileNotFoundException("path not found: " + path);

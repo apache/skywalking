@@ -69,6 +69,7 @@
 * [**Breaking Change**] Support new records query protocol, rename the column named `service_id` to `entity_id` for support difference entity.
   Please re-create `top_n_database_statement` index/table.
 * [**Breaking Change**] Change the way of loading MAL rules(support pattern).
+* Move k8s relative MAL files into `/otel-rules/k8s`.
 
 #### UI
 
