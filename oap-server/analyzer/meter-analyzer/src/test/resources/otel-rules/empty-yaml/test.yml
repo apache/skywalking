@@ -13,11 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-filter: "{ tags -> tags.job_name in [ 'kubernetes-cadvisor', 'kube-state-metrics' ] }" # The OpenTelemetry job name
-expSuffix: |-
-  service(['cluster' , 'service'], '::', Layer.K8S_SERVICE)
-  .instance(['cluster', 'service'], '::', ['pod'], '', Layer.K8S_SERVICE, { tags -> ['pod': tags.pod, 'namespace': tags.namespace] })
-metricPrefix: k8s_service_instance
-metricsRules:
-  - name: pod_instance_status
-    exp: kube_pod_status_phase.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster', 'namespace', 'service' , 'pod'])
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>

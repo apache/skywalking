@@ -26,8 +26,10 @@ import java.io.Reader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 import java.util.stream.Stream;
 
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -55,24 +57,24 @@ public class Rules {
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Load fetcher rules failed", e);
         }
-        final List<String> formedEnabledRules =
-                enabledRules
-                        .stream()
-                        .map(rule -> {
-                            if (rule.startsWith("/")) {
-                                rule = rule.substring(1);
-                            }
-                            if (rule.endsWith(".yaml")) {
-                                return rule;
-                            } else if (rule.endsWith(".yml")) {
-                                return rule.substring(0, rule.length() - 2) + "aml";
-                            } else {
-                                return rule + ".yaml";
-                            }
-                        })
-                        .collect(Collectors.toList());
+        Map<String, Boolean> formedEnabledRules = enabledRules
+                .stream()
+                .map(rule -> {
+                    rule = rule.trim();
+                    if (rule.startsWith("/")) {
+                        rule = rule.substring(1);
+                    }
+                    if (rule.endsWith(".yaml")) {
+                        return rule;
+                    } else if (rule.endsWith(".yml")) {
+                        return rule.substring(0, rule.length() - 2) + "aml";
+                    } else {
+                        return rule + ".yaml";
+                    }
+                })
+                .collect(Collectors.toMap(rule -> rule, $ -> false));
 
-        return Arrays.stream(rules)
+        List<Rule> result = Arrays.stream(rules)
                 .flatMap(f -> {
                     if (f.isDirectory()) {
                         return Arrays.stream(Objects.requireNonNull(f.listFiles()))
@@ -84,9 +86,13 @@ public class Rules {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        if (formedEnabledRules.containsValue(false)) {
+            throw new UnexpectedException("Some configuration files of enabled rules are not found, enabled rules: " + formedEnabledRules.keySet());
+        }
+        return result;
     }
 
-    private static Rule getRulesFromFile(List<String> formedEnabledRules, File directory, File file) {
+    private static Rule getRulesFromFile(Map<String, Boolean> formedEnabledRules, File directory, File file) {
         try (Reader r = new FileReader(file)) {
             String fileName = file.getName();
             int dotIndex = fileName.lastIndexOf('.');
@@ -99,13 +105,17 @@ public class Rules {
             String ruleName = fileName.substring(0, dotIndex);
             if (directory != null) {
                 fileName = directory.getName() + "/" + fileName;
-                if (!formedEnabledRules.contains(fileName) && !formedEnabledRules.contains(directory.getName() + "/*.yaml")) {
+                if (!formedEnabledRules.containsKey(fileName) && !formedEnabledRules.containsKey(directory.getName() + "/*.yaml")) {
                     return null;
+                }
+                if (formedEnabledRules.replace(fileName, true) == null) {
+                    formedEnabledRules.replace(directory.getName() + "/*.yaml", true);
                 }
             } else {
-                if (!formedEnabledRules.contains(fileName)) {
+                if (!formedEnabledRules.containsKey(fileName)) {
                     return null;
                 }
+                formedEnabledRules.replace(fileName, true);
             }
 
             Rule rule = new Yaml().loadAs(r, Rule.class);
