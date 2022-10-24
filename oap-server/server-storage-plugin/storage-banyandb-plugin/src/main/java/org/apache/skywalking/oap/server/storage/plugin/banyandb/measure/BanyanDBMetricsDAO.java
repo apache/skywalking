@@ -61,7 +61,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
             MeasureQueryResponse resp = query(model.getName(), schema.getTags(), schema.getFields(), new QueryBuilder<MeasureQuery>() {
                 @Override
                 protected void apply(MeasureQuery query) {
-                    query.andWithID(missCachedMetric.id());
+                    query.and(id(missCachedMetric.id()));
                 }
             });
             if (resp.size() == 0) {

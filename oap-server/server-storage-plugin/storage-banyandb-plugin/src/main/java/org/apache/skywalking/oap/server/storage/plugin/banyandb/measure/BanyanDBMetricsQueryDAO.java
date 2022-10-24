@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
 import com.google.common.collect.ImmutableSet;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
@@ -168,9 +170,9 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         }
 
         return Util.sortValues(
-            Util.composeLabelValue(condition, labels, ids, dataTableMap),
-            ids,
-            ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+                Util.composeLabelValue(condition, labels, ids, dataTableMap),
+                ids,
+                ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
         );
     }
 
@@ -207,16 +209,16 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
 
     private Map<String, DataPoint> queryIDs(String modelName, String valueColumnName, List<String> measureIDs) throws IOException {
         Map<String, DataPoint> map = new HashMap<>(measureIDs.size());
-        for (final String id : measureIDs) {
-            MeasureQueryResponse resp = query(modelName, Collections.emptySet(), ImmutableSet.of(valueColumnName), new QueryBuilder<MeasureQuery>() {
-                @Override
-                protected void apply(MeasureQuery query) {
-                    query.andWithID(id);
+        MeasureQueryResponse resp = query(modelName, Collections.emptySet(), ImmutableSet.of(valueColumnName), new QueryBuilder<MeasureQuery>() {
+            @Override
+            protected void apply(MeasureQuery query) {
+                for (final String measureID : measureIDs) {
+                    query.or(id(measureID));
                 }
-            });
-            if (resp.size() > 0) {
-                map.putIfAbsent(resp.getDataPoints().get(0).getId(), resp.getDataPoints().get(0));
             }
+        });
+        if (resp.size() > 0) {
+            map.putIfAbsent(resp.getDataPoints().get(0).getId(), resp.getDataPoints().get(0));
         }
         return map;
     }

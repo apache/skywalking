@@ -33,6 +33,7 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Catalog;
 import org.apache.skywalking.banyandb.v1.client.metadata.Duration;
 import org.apache.skywalking.banyandb.v1.client.metadata.Group;
 import org.apache.skywalking.banyandb.v1.client.metadata.IndexRule;
+import org.apache.skywalking.banyandb.v1.client.metadata.IntervalRule;
 import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
 import org.apache.skywalking.banyandb.v1.client.metadata.NamedSchema;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
@@ -322,9 +323,9 @@ public enum MetadataRegistry {
             }
             switch (kind) {
                 case STREAM:
-                    return client.define(Group.create(this.group, Catalog.STREAM, this.shard, 0, Duration.ofDays(7)));
+                    return client.define(Group.create(this.group, Catalog.STREAM, this.shard, IntervalRule.create(IntervalRule.Unit.HOUR, 4), IntervalRule.create(IntervalRule.Unit.DAY, 1), IntervalRule.create(IntervalRule.Unit.DAY, 7)));
                 case MEASURE:
-                    return client.define(Group.create(this.group, Catalog.MEASURE, this.shard, 12, Duration.ofDays(7)));
+                    return client.define(Group.create(this.group, Catalog.MEASURE, this.shard, IntervalRule.create(IntervalRule.Unit.HOUR, 4), IntervalRule.create(IntervalRule.Unit.HOUR, 24), IntervalRule.create(IntervalRule.Unit.DAY, 7)));
                 default:
                     throw new IllegalStateException("should not reach here");
             }
