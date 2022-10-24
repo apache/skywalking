@@ -138,8 +138,8 @@ public class EBPFProfilingAnalyzerBenchmark extends AbstractMicrobenchmark {
         }
     }
 
-    private static int calculateStackCount(int stackReportPeriodSecond, int totalTimeMiniute, int combineInstanceCount) {
-        return (int) (TimeUnit.MINUTES.toSeconds(totalTimeMiniute) / stackReportPeriodSecond * combineInstanceCount);
+    private static int calculateStackCount(int stackReportPeriodSecond, int totalTimeMinute, int combineInstanceCount) {
+        return (int) (TimeUnit.MINUTES.toSeconds(totalTimeMinute) / stackReportPeriodSecond * combineInstanceCount);
     }
 
     @State(Scope.Benchmark)
