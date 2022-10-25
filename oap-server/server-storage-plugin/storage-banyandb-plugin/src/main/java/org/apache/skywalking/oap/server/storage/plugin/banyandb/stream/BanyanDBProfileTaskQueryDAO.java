@@ -83,7 +83,7 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
                         query.setOrderBy(new AbstractQuery.OrderBy(ProfileTaskRecord.START_TIME, AbstractQuery.Sort.DESC));
                     }
                 });
-g
+
         if (resp.size() == 0) {
             return Collections.emptyList();
         }
