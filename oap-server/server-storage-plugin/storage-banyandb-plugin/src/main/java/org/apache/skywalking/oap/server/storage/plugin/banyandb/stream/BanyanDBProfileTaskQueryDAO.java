@@ -83,7 +83,7 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
                         query.setOrderBy(new AbstractQuery.OrderBy(ProfileTaskRecord.START_TIME, AbstractQuery.Sort.DESC));
                     }
                 });
-
+g
         if (resp.size() == 0) {
             return Collections.emptyList();
         }
@@ -103,9 +103,9 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
                     @Override
                     protected void apply(StreamQuery query) {
                         if (StringUtil.isNotEmpty(id)) {
-                            // TODO: support search by ID
+                            query.and(eq(ProfileTaskRecord.TASK_ID, id));
                         }
-                        // query.setLimit(1);
+                        query.setLimit(1);
                     }
                 });
 
@@ -113,9 +113,7 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
             return null;
         }
 
-        RowEntity first = resp.getElements().stream().filter(e -> id.equals(e.getTagValue(ProfileTaskRecord.TASK_ID)))
-            .findFirst().orElse(null);
-        return first == null ? null : buildProfileTask(first);
+        return buildProfileTask(resp.getElements().get(0));
     }
 
     private ProfileTask buildProfileTask(RowEntity data) {
