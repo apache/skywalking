@@ -23,7 +23,6 @@ import com.linecorp.armeria.common.HttpMethod;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -58,8 +57,18 @@ public class TelegrafReceiverProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return moduleConfig;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<TelegrafModuleConfig>() {
+            @Override
+            public Class type() {
+                return TelegrafModuleConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final TelegrafModuleConfig initialized) {
+                moduleConfig = initialized;
+            }
+        };
     }
 
     @Override
