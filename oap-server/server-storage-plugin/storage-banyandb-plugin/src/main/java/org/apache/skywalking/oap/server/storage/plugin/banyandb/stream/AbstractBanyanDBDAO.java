@@ -131,5 +131,13 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         protected PairQueryCondition<String> id(String value) {
             return PairQueryCondition.IDQueryCondition.eq(Metrics.ID, value);
         }
+
+        protected AbstractQuery.OrderBy desc(String name) {
+            return new AbstractQuery.OrderBy(name, AbstractQuery.Sort.DESC);
+        }
+
+        protected AbstractQuery.OrderBy asc(String name) {
+            return new AbstractQuery.OrderBy(name, AbstractQuery.Sort.ASC);
+        }
     }
 }
