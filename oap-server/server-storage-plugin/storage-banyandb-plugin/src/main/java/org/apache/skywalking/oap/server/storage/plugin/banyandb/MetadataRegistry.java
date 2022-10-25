@@ -41,14 +41,12 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -207,9 +205,6 @@ public enum MetadataRegistry {
                 continue;
             }
             final TagFamilySpec.TagSpec tagSpec = parseTagSpec(col);
-            if (tagSpec == null) {
-                continue;
-            }
             builder.spec(col.getColumnName().getStorageName(), new ColumnSpec(ColumnType.TAG, col.getType()));
             if (col.shouldIndex()) {
                 // build indexRule
