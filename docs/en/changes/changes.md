@@ -96,6 +96,10 @@
 * Query logs with the specific service ID
 * Bump d3-color from 3.0.1 to 3.1.0
 * Add Golang runtime metrics and cpu/memory used rate panels in FaaS-Instance dashboard
+* Revert logs on trace widget.
+* Add `readRecords` to metric types.
+* Verify dashboard names for new dashboards.
+* Associate metrics with the trace widget on dashboards.
 
 #### Documentation
 
