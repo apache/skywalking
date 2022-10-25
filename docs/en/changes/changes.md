@@ -69,7 +69,7 @@
 * [**Breaking Change**] Support new records query protocol, rename the column named `service_id` to `entity_id` for support difference entity.
   Please re-create `top_n_database_statement` index/table.
 * Remove improper self-obs metrics in JvmMetricsHandler(for Kafka channel).
-* Client-side grpc stream envoy metrics receiver is not logged as an error when client cancels the stream. Client 
+* gRPC stream canceling code is not logged as an error when the client cancels the stream. The client 
   cancels the stream when the pod is terminated.
 
 #### UI
