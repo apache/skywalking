@@ -205,7 +205,7 @@ public class ScopeTest {
                 }
             },
             {
-                "sum_service_endpiont",
+                "sum_service_endpoint",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
                     Sample.builder()
@@ -250,7 +250,7 @@ public class ScopeTest {
             },
 
             {
-                "sum_service_endpiont_labels",
+                "sum_service_endpoint_labels",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
                     Sample.builder()
@@ -317,7 +317,7 @@ public class ScopeTest {
                 }
             },
             {
-                "sum_service_endpiont_labels_m",
+                "sum_service_endpoint_labels_m",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
                     Sample.builder()
