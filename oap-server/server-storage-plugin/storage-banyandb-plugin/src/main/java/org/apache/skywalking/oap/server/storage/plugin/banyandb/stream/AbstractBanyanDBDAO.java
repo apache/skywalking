@@ -18,9 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
+import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
+import org.apache.skywalking.banyandb.v1.client.And;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.Or;
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -34,6 +38,8 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageClient> {
     private static final Instant UPPER_BOUND = Instant.ofEpochSecond(0, Long.MAX_VALUE);
@@ -138,6 +144,33 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
 
         protected AbstractQuery.OrderBy asc(String name) {
             return new AbstractQuery.OrderBy(name, AbstractQuery.Sort.ASC);
+        }
+
+        protected AbstractCriteria and(List<? extends AbstractCriteria> conditions) {
+            if (conditions.isEmpty()) {
+                return null;
+            }
+            if (conditions.size() == 1) {
+                return conditions.get(0);
+            }
+
+            return conditions.subList(2, conditions.size()).stream().reduce(
+                    And.create(conditions.get(0), conditions.get(1)),
+                    (BiFunction<AbstractCriteria, AbstractCriteria, AbstractCriteria>) And::create,
+                    And::create);
+        }
+
+        protected AbstractCriteria or(List<? extends AbstractCriteria> conditions) {
+            if (conditions.isEmpty()) {
+                return null;
+            }
+            if (conditions.size() == 1) {
+                return conditions.get(0);
+            }
+            return conditions.subList(2, conditions.size()).stream().reduce(
+                    Or.create(conditions.get(0), conditions.get(1)),
+                    (BiFunction<AbstractCriteria, AbstractCriteria, AbstractCriteria>) Or::create,
+                    Or::create);
         }
     }
 }
