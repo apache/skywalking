@@ -93,6 +93,13 @@ public class EventGrpcServiceHandler extends EventServiceGrpc.EventServiceImplBa
 
             @Override
             public void onError(Throwable throwable) {
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(throwable.getMessage(), throwable);
+                    }
+                    return;
+                }
                 log.error(throwable.getMessage(), throwable);
             }
 

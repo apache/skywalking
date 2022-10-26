@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.remote.client;
 
 import io.grpc.ManagedChannel;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.netty.handler.ssl.SslContext;
 import java.util.List;
@@ -222,6 +223,13 @@ public class GRPCRemoteClient implements RemoteClient {
                            @Override
                            public void onError(Throwable throwable) {
                                concurrentStreamObserverNumber.addAndGet(-1);
+                               Status status = Status.fromThrowable(throwable);
+                               if (Status.CANCELLED.getCode() == status.getCode()) {
+                                   if (log.isDebugEnabled()) {
+                                       log.debug(throwable.getMessage(), throwable);
+                                   }
+                                   return;
+                               }
                                log.error(throwable.getMessage(), throwable);
                            }
 

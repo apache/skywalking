@@ -68,6 +68,9 @@
 * Add new config initialization mechanism of module provider. This is a ModuleManager lib kernel level change.
 * [**Breaking Change**] Support new records query protocol, rename the column named `service_id` to `entity_id` for support difference entity.
   Please re-create `top_n_database_statement` index/table.
+* Remove improper self-obs metrics in JvmMetricsHandler(for Kafka channel).
+* gRPC stream canceling code is not logged as an error when the client cancels the stream. The client 
+  cancels the stream when the pod is terminated.
 * [**Breaking Change**] Change the way of loading MAL rules(support pattern).
 * Move k8s relative MAL files into `/otel-rules/k8s`.
 
@@ -87,16 +90,21 @@
 * Enhance the process topology graph to support dragging nodes.
 * UI-template: Fix metrics calculation in `general-service/mesh-service/faas-function` top-list dashboard.
 * Update MySQL dashboard to visualize collected slow SQLs.
-* Add virtual cache dashboard
+* Add virtual cache dashboard.
 * Remove `responseCode` fields of all OAL sources, as well as examples to avoid user's confusion.
 * Remove All from the endpoints selector.
 * Enhance menu configurations to make it easier to change.
 * Update PostgreSQL dashboard to visualize collected slow SQLs.
-* Add Golang runtime metrics and cpu/memory used rate panels in General-Instance dashboard
-* Add gateway apisix menu
-* Query logs with the specific service ID
-* Bump d3-color from 3.0.1 to 3.1.0
-* Add Golang runtime metrics and cpu/memory used rate panels in FaaS-Instance dashboard
+* Add Golang runtime metrics and cpu/memory used rate panels in General-Instance dashboard.
+* Add gateway apisix menu.
+* Query logs with the specific service ID.
+* Bump d3-color from 3.0.1 to 3.1.0.
+* Add Golang runtime metrics and cpu/memory used rate panels in FaaS-Instance dashboard.
+* Revert logs on trace widget.
+* Add a sub-menu for virtual mq.
+* Add `readRecords` to metric types.
+* Verify dashboard names for new dashboards.
+* Associate metrics with the trace widget on dashboards.
 
 #### Documentation
 
