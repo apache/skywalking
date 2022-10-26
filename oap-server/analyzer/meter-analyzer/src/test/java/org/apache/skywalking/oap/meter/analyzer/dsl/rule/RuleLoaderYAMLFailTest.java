@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.yaml.snakeyaml.error.YAMLException;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -40,15 +41,14 @@ public class RuleLoaderYAMLFailTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
                 {Arrays.asList("illegal-yaml/test.yml")},
-                {Arrays.asList("illegal-yaml/test.yaml")},
+                {Arrays.asList("illegal-yaml/test")},
                 {Arrays.asList("illegal-yaml/*.yml")},
-                {Arrays.asList("illegal-yaml/*.yaml")},
-                {Arrays.asList("illegal-yaml/*")},
+                {Arrays.asList("/illegal-yaml/*")},
         });
     }
 
     @Test(expected = YAMLException.class)
-    public void test() throws ModuleStartException {
+    public void test() throws ModuleStartException, IOException {
         Rules.loadRules("otel-rules", enabledRule);
     }
 }

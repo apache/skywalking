@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -46,12 +47,12 @@ public class RuleLoaderFailTest {
             {Arrays.asList("not-exist-folder/not-exist-file.yaml")},
             {Arrays.asList("not-exist-single-file.yaml")},
             {Arrays.asList("test-folder/not-exist-file.yaml")},
-            {Arrays.asList("test-folder/not-exist-file.yaml", "not-exist-single-file.yaml")},
+            {Arrays.asList("test-folder/case1.yaml", "not-exist-single-file.yaml")},
         });
     }
 
     @Test(expected = UnexpectedException.class)
-    public void test() throws ModuleStartException {
+    public void test() throws ModuleStartException, IOException {
         Rules.loadRules("otel-rules", enabledRule);
     }
 }

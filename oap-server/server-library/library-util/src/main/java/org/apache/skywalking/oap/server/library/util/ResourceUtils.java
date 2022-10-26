@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -91,12 +92,7 @@ public class ResourceUtils {
         return fileList;
     }
 
-    public static File[] list(String path) throws FileNotFoundException {
-        URL url = ResourceUtils.class.getClassLoader().getResource(path);
-        if (url == null) {
-            throw new FileNotFoundException("path not found: " + path);
-        }
-        return Arrays.stream(Objects.requireNonNull(new File(url.getPath()).listFiles(), "No files in " + path))
-                     .toArray(File[]::new);
+    public static Path getPath(String path) {
+        return new File(Objects.requireNonNull(ResourceUtils.class.getClassLoader().getResource(path)).getPath()).toPath();
     }
 }

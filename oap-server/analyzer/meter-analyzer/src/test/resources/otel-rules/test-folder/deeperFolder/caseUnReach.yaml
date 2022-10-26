@@ -28,3 +28,13 @@
 #    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
+filter: ""
+expSuffix:
+metricPrefix:
+metricsRules:
+  - name: test1
+    exp: test_expression_1
+  - name: test2
+    exp: test_expression_2
+  - name: test3
+    exp: test_expression_3

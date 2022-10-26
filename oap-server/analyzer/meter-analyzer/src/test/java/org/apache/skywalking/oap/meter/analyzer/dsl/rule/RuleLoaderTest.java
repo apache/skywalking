@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -45,29 +46,29 @@ public class RuleLoaderTest {
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                {Arrays.asList("test-folder/*.yml"), 3},
-                {Arrays.asList("test-folder/*.yaml"), 3},
+                {Arrays.asList("test-folder/*.yml"), 1},
+                {Arrays.asList("test-folder/*.yaml"), 2},
                 {Arrays.asList("test-folder/*"), 3},
                 {Arrays.asList("/test-folder/*"), 3},
 
                 {Arrays.asList("test-folder/case1"), 1},
                 {Arrays.asList("/test-folder/case1.yaml"), 1},
-                {Arrays.asList("/test-folder/case1.yml"), 1},
+                {Arrays.asList("/test-folder/case2.yml"), 1},
 
                 {Arrays.asList("single-file-case.yaml"), 1},
                 {Arrays.asList("single-file-case"), 1},
                 {Arrays.asList("/single-file-case"), 1},
-                {Arrays.asList("/single-file-case.yml"), 1},
 
                 {Arrays.asList("/single-file-case.yaml", "test-folder/*"), 4},
-                {Arrays.asList("/single-file-case.yaml", "test-folder/case1", "test-folder/case2"), 3},
+                {Arrays.asList("/single-file-case.yaml", "test-folder/*.yml"), 2},
+                {Arrays.asList("/single-file-case.yaml", "test-folder/case1", "/test-folder/case2"), 3},
                 // test leading and trailing whitespace
-                {Arrays.asList("   /single-file-case.yml    "), 1},
+                {Arrays.asList("   /single-file-case.yaml    "), 1},
         });
     }
 
     @Test
-    public void test() throws ModuleStartException {
+    public void test() throws ModuleStartException, IOException {
         List<Rule> rules = Rules.loadRules("otel-rules", enabledRule);
         assertThat(rules.size(), is(rulesNumber));
     }
