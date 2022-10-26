@@ -103,6 +103,8 @@
 * Add `readRecords` to metric types.
 * Verify dashboard names for new dashboards.
 * Associate metrics with the trace widget on dashboards.
+* Add menu for virtual mq
+* Set selector props and update configuration panel styles
 
 #### Documentation
 
