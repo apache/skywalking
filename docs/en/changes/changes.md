@@ -111,6 +111,8 @@
 * Fix configuration panel styles.
 * Remove a un-use icon.
 * Support labeled value on the service/instance/endpoint list widgets.
+* Add menu for virtual mq
+* Set selector props and update configuration panel styles
 
 #### Documentation
 
