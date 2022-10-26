@@ -17,34 +17,34 @@
 
 package org.apache.skywalking.e2e.mq;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
-public class RabbitMQController {
+@ConditionalOnExpression("#{'true'.equals(environment['kafka_enable'])}")
+public class KafkaController {
 
     private KafkaProducer<Object, Object> objectObjectKafkaProducer;
 
-    @GetMapping(value = "rabbit/send")
-    public String sendMsg() throws IOException, TimeoutException {
+    @GetMapping(value = "kafka/send")
+    public String sendMsg() throws ExecutionException, InterruptedException {
 
         String topic = Optional.ofNullable(System.getenv("kafka_topic")).orElse("topic");
 
         objectObjectKafkaProducer.send(
-            new ProducerRecord<>(topic, 0, System.currentTimeMillis(), "a".getBytes(), "test".getBytes()),
-            (metadata, exception) -> {
-
-            }
-        );
+            new ProducerRecord<>(topic, 0, System.currentTimeMillis(), "a".getBytes(), "test".getBytes())
+        ).get();
         return "ok";
     }
 

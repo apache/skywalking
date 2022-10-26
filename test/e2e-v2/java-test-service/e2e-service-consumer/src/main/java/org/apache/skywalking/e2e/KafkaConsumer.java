@@ -27,14 +27,13 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-@ConditionalOnExpression("#{'true'.equals(environment['kafka_consumer_enable'])}")
-public class RabbitMQConsumer {
+@ConditionalOnExpression("#{'true'.equals(environment['kafka_enable'])}")
+public class KafkaConsumer {
 
     @PostConstruct
     public void startConsumer() throws IOException, TimeoutException {
@@ -47,9 +46,8 @@ public class RabbitMQConsumer {
         config.put("group.id", "a");
         config.put("key.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
         config.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
-        final KafkaConsumer<String, String> consumer = new KafkaConsumer<>(config);
+        final org.apache.kafka.clients.consumer.KafkaConsumer<String, String> consumer = new org.apache.kafka.clients.consumer.KafkaConsumer<>(config);
         consumer.subscribe(Collections.singletonList(topic));
-
         new Thread(() -> {
             while (true) {
                 try {
