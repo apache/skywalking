@@ -64,7 +64,7 @@ public class Rules {
                     if (rule.startsWith("/")) {
                         rule = rule.substring(1);
                     }
-                    if (!rule.endsWith(".yaml") && !rule.endsWith(".yml") && !rule.endsWith("*")) {
+                    if (!rule.endsWith(".yaml") && !rule.endsWith(".yml")) {
                         return rule + "{.yaml,.yml}";
                     }
                     return rule;
@@ -101,7 +101,7 @@ public class Rules {
         try (Reader r = new FileReader(file)) {
             String fileName = file.getName();
             int dotIndex = fileName.lastIndexOf('.');
-            if (fileName.startsWith(".") || dotIndex == -1 || (!fileName.endsWith(".yml") && !fileName.endsWith(".yaml"))) {
+            if (fileName.startsWith(".")) {
                 return null;
             }
             String relativePathName = relative.toString();
