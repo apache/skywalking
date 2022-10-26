@@ -75,8 +75,8 @@ public class VirtualServiceAnalysisListener implements ExitAnalysisListener, Loc
         public Factory(ModuleManager moduleManager) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
             this.namingControl = moduleManager.find(CoreModule.NAME)
-                                              .provider()
-                                              .getService(NamingControl.class);
+                    .provider()
+                    .getService(NamingControl.class);
         }
 
         @Override

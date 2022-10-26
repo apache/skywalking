@@ -32,14 +32,13 @@ trigger:
   action: http
   interval: 3s
   times: 10
-  url: http://${provider_host}:${provider_9090}/rabbit/send
+  url: http://${provider_host}:${provider_9090}/kafka/send
   method: GET
 
 verify:
   retry:
-    # The  total time must max than 1min
-    count: 30
+    count: 20
     interval: 3s
   cases:
     - includes:
-        - meter-cases.yaml
+        - mq-cases.yaml

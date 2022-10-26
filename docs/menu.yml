@@ -153,6 +153,8 @@ catalog:
                 path: "/en/setup/service-agent/virtual-database"
               - name: "Virtual Cache"
                 path: "/en/setup/service-agent/virtual-cache"
+              - name: "Virtual MQ"
+                path: "/en/setup/service-agent/virtual-mq"                
           - name: "Service Mesh"
             catalog:
               - name: "Observe Service Mesh"
