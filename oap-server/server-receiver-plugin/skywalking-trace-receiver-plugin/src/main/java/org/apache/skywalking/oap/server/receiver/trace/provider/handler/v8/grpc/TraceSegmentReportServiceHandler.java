@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
@@ -80,6 +81,13 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
 
             @Override
             public void onError(Throwable throwable) {
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(throwable.getMessage(), throwable);
+                    }
+                    return;
+                }
                 log.error(throwable.getMessage(), throwable);
             }
 

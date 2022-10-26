@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.ebpf.provider.handler;
 
 import com.google.common.base.Joiner;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -187,6 +188,13 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
 
             @Override
             public void onError(Throwable throwable) {
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(throwable.getMessage(), throwable);
+                    }
+                    return;
+                }
                 log.error("Error in receiving ebpf profiling data", throwable);
             }
 

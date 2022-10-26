@@ -23,6 +23,7 @@ import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v2.AccessLogServiceGrpc;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsResponse;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
@@ -170,6 +171,13 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
 
             @Override
             public void onError(Throwable throwable) {
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Envoy client cancelled sending access logs", throwable);
+                    }
+                    return;
+                }
                 LOGGER.error("Error in receiving access log from envoy", throwable);
             }
 
