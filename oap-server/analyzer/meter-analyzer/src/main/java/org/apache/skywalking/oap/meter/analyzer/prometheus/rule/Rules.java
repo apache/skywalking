@@ -83,10 +83,10 @@ public class Rules {
                                         return matches;
                                     }))
                     .map(pathPointer -> {
-                        Path relativize = root.relativize(pathPointer);
-                        String relativizePath = relativize.toString();
-                        relativizePath = relativizePath.substring(0, relativizePath.lastIndexOf("."));
-                        return getRulesFromFile(relativizePath, pathPointer);
+                        // Use relativized file path without suffix as the rule name.
+                        String relativizePath = root.relativize(pathPointer).toString();
+                        String ruleName = relativizePath.substring(0, relativizePath.lastIndexOf("."));
+                        return getRulesFromFile(ruleName, pathPointer);
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList()) ;
@@ -103,14 +103,10 @@ public class Rules {
 
     private static Rule getRulesFromFile(String ruleName, Path path) {
         File file = path.toFile();
-        if (!file.isFile()) {
+        if (!file.isFile() || file.isHidden()) {
             return null;
         }
         try (Reader r = new FileReader(file)) {
-            String fileName = file.getName();
-            if (fileName.startsWith(".")) {
-                return null;
-            }
             Rule rule = new Yaml().loadAs(r, Rule.class);
             if (rule == null) {
                 return null;
