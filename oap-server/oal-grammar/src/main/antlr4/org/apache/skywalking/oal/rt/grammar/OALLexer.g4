@@ -46,6 +46,8 @@ SRC_SERVICE_INSTANCE_CLR_THREAD: 'ServiceInstanceCLRThread';
 SRC_ENVOY_INSTANCE_METRIC: 'EnvoyInstanceMetric';
 SRC_EVENT: 'Event';
 SRC_CACHE_ACCESS: 'CacheAccess';
+SRC_MQ_ACCESS: 'MQAccess';
+SRC_MQ_ENDPOINT_ACCESS: 'MQEndpointAccess';
 
 
 // Browser keywords
