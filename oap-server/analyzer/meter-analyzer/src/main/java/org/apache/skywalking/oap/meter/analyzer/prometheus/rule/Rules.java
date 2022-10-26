@@ -82,30 +82,35 @@ public class Rules {
                                         }
                                         return matches;
                                     }))
-                    .map(path1 -> getRulesFromFile(root.relativize(path1), path1))
+                    .map(pathPointer -> {
+                        Path relativize = root.relativize(pathPointer);
+                        String relativizePath = relativize.toString();
+                        relativizePath = relativizePath.substring(0, relativizePath.lastIndexOf("."));
+                        return getRulesFromFile(relativizePath, pathPointer);
+                    })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList()) ;
         }
 
         if (formedEnabledRules.containsValue(false)) {
-            throw new UnexpectedException("Some configuration files of enabled rules are not found, enabled rules: " + formedEnabledRules.keySet());
+            List<String> rulesNotFound = formedEnabledRules.keySet().stream()
+                    .filter(rule -> !formedEnabledRules.get(rule))
+                    .collect(Collectors.toList());
+            throw new UnexpectedException("Some configuration files of enabled rules are not found, enabled rules: " + rulesNotFound);
         }
         return rules;
     }
 
-    private static Rule getRulesFromFile(Path relative, Path path) {
+    private static Rule getRulesFromFile(String ruleName, Path path) {
         File file = path.toFile();
         if (!file.isFile()) {
             return null;
         }
         try (Reader r = new FileReader(file)) {
             String fileName = file.getName();
-            int dotIndex = fileName.lastIndexOf('.');
             if (fileName.startsWith(".")) {
                 return null;
             }
-            String relativePathName = relative.toString();
-            String ruleName = relativePathName.substring(0, dotIndex);
             Rule rule = new Yaml().loadAs(r, Rule.class);
             if (rule == null) {
                 return null;
