@@ -228,7 +228,7 @@
                   "widget": {
                     "title": "Endpoint Load (calls / min)",
                     "name": "Endpoint_Load",
-                    "tips": "This metrics means incoming requests load (e.g. HTTP Request, MQ message consume, etc), "
+                    "tips": "requests(HTTP / RPC) / min, consuming messages(MQ) / min"
                   },
                   "graph": {
                     "type": "Line",
