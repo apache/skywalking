@@ -288,7 +288,7 @@
                 {
                   "x": 0,
                   "y": 16,
-                  "w": 24,
+                  "w": 8,
                   "h": 11,
                   "i": "6",
                   "type": "Widget",
@@ -385,6 +385,111 @@
                     },
                     {
                       "widgetId": "4-0-10"
+                    },
+                    {
+                      "widgetId": "4-0-9"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 12,
+                    "sourceId": "4-0-3"
+                  }
+                },
+                {
+                  "x": 8,
+                  "y": 16,
+                  "w": 8,
+                  "h": 11,
+                  "i": "9",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Message Queue Consuming Count",
+                    "name": "Message_Consuming_Count"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "service_mq_consume_count"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "value": "4-0-9",
+                  "label": "Message_Consuming_Count",
+                  "associate": [
+                    {
+                      "widgetId": "4-0-3"
+                    },
+                    {
+                      "widgetId": "4-0-4"
+                    },
+                    {
+                      "widgetId": "4-0-5"
+                    },
+                    {
+                      "widgetId": "4-0-6"
+                    },
+                    {
+                      "widgetId": "4-0-7"
+                    },
+                    {
+                      "widgetId": "4-0-10"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 12,
+                    "sourceId": "4-0-3"
+                  }
+                },
+                {
+                  "x": 16,
+                  "y": 16,
+                  "w": 8,
+                  "h": 11,
+                  "i": "10",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Message Queue Avg Consuming Latency (ms)",
+                    "tips": "The avg latency of message consuming. Latency = timestamp(received) - timestamp(producing)",
+                    "name": "Message_Consuming_Latency"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "service_mq_consume_latency"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "value": "4-0-10",
+                  "label": "Message_Consuming_Latency",
+                  "associate": [
+                    {
+                      "widgetId": "4-0-3"
+                    },
+                    {
+                      "widgetId": "4-0-4"
+                    },
+                    {
+                      "widgetId": "4-0-5"
+                    },
+                    {
+                      "widgetId": "4-0-6"
+                    },
+                    {
+                      "widgetId": "4-0-7"
                     },
                     {
                       "widgetId": "4-0-9"

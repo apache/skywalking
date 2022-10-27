@@ -22,6 +22,8 @@ service_sla = from(Service.*).percent(status == true);
 service_cpm = from(Service.*).cpm();
 service_percentile = from(Service.latency).percentile(10); // Multiple values including p50, p75, p90, p95, p99
 service_apdex = from(Service.latency).apdex(name, status);
+service_mq_consume_count = from(Service.*).filter(type == RequestType.MQ).count();
+service_mq_consume_latency = from((str->long)Service.tag["transmission.latency"]).filter(type == RequestType.MQ).filter(tag["transmission.latency"] != null).longAvg();
 
 // Service relation scope metrics for topology
 service_relation_client_cpm = from(ServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).cpm();
