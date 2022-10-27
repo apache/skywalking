@@ -16,20 +16,20 @@
  *
  */
 
-package org.apache.skywalking.aop.server.receiver.mesh;
+package org.apache.skywalking.oap.server.core.analysis.manual.instance;
 
-import io.grpc.stub.StreamObserver;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.apm.network.servicemesh.v3.MeshProbeDownstream;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
-import org.apache.skywalking.apm.network.servicemesh.v3.compat.ServiceMeshMetricServiceGrpc;
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.source.TCPServiceInstance;
 
-@RequiredArgsConstructor
-public class MeshGRPCHandlerCompat extends ServiceMeshMetricServiceGrpc.ServiceMeshMetricServiceImplBase {
-    private final MeshGRPCHandler delegate;
-
+public class TCPInstanceTrafficDispatcher implements SourceDispatcher<TCPServiceInstance> {
     @Override
-    public StreamObserver<ServiceMeshMetric> collect(final StreamObserver<MeshProbeDownstream> responseObserver) {
-        return delegate.collect(responseObserver);
+    public void dispatch(final TCPServiceInstance source) {
+        InstanceTraffic traffic = new InstanceTraffic();
+        traffic.setTimeBucket(source.getTimeBucket());
+        traffic.setName(source.getName());
+        traffic.setServiceId(source.getServiceId());
+        traffic.setLastPingTimestamp(source.getTimeBucket());
+        MetricsStreamProcessor.getInstance().in(traffic);
     }
 }
