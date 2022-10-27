@@ -55,6 +55,7 @@ endpoint_cpm = from(Endpoint.*).cpm();
 endpoint_resp_time = from(Endpoint.latency).longAvg();
 endpoint_sla = from(Endpoint.*).percent(status == true);
 endpoint_percentile = from(Endpoint.latency).percentile(10); // Multiple values including p50, p75, p90, p95, p99
+endpoint_mq_consume_latency = from((str->long)Endpoint.tag["transmission.latency"]).filter(type == RequestType.MQ).filter(tag["transmission.latency"] != null).longAvg();
 
 // Endpoint relation scope metrics
 endpoint_relation_cpm = from(EndpointRelation.*).filter(detectPoint == DetectPoint.SERVER).cpm();
