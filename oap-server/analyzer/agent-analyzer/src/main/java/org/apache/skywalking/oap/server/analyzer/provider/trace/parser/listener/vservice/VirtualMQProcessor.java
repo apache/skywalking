@@ -83,10 +83,8 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
     }
 
     private String buildEndpointName(String topic, String queue) {
-        return Arrays.stream(new String[] {
-                         topic,
-                         queue
-                     }).filter(StringUtil::isNotBlank)
+        return Stream.of(topic, queue)
+                     .filter(StringUtil::isNotBlank)
                      .reduce((a, b) -> a + "/" + b).orElse("");
     }
 
