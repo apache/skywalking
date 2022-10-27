@@ -75,6 +75,7 @@
 * Add `TCP{Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation}` sources and split TCP-related entities out from
   original `Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation`.
 * [**Breaking Change**] TCP-related source names are changed, fields of TCP-related sources are changed, please refer to the latest `oal/tcp.oal` file.
+* Do not log error logs when failed to create ElasticSearch index because the index is created already.
 
 #### UI
 
