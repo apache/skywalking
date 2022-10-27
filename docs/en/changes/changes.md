@@ -71,6 +71,7 @@
 * Remove improper self-obs metrics in JvmMetricsHandler(for Kafka channel).
 * gRPC stream canceling code is not logged as an error when the client cancels the stream. The client 
   cancels the stream when the pod is terminated.
+* Add virtual MQ analysis for native traces.
 
 #### UI
 
@@ -103,7 +104,7 @@
 * Add `readRecords` to metric types.
 * Verify dashboard names for new dashboards.
 * Associate metrics with the trace widget on dashboards.
-* Add menu for virtual mq
+* Add menu for virtual MQ
 * Set selector props and update configuration panel styles
 
 #### Documentation
