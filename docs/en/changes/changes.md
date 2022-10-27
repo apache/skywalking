@@ -69,8 +69,9 @@
 * [**Breaking Change**] Support new records query protocol, rename the column named `service_id` to `entity_id` for support difference entity.
   Please re-create `top_n_database_statement` index/table.
 * Remove improper self-obs metrics in JvmMetricsHandler(for Kafka channel).
-* gRPC stream canceling code is not logged as an error when the client cancels the stream. The client 
+* gRPC stream canceling code is not logged as an error when the client cancels the stream. The client
   cancels the stream when the pod is terminated.
+* Do not log error logs when failed to create ElasticSearch index because the index is created already.
 
 #### UI
 
