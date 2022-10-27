@@ -76,6 +76,7 @@
   original `Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation`.
 * [**Breaking Change**] TCP-related source names are changed, fields of TCP-related sources are changed, please refer to the latest `oal/tcp.oal` file.
 * Do not log error logs when failed to create ElasticSearch index because the index is created already.
+* Add virtual MQ analysis for native traces.
 
 #### UI
 
@@ -111,7 +112,7 @@
 * Fix configuration panel styles.
 * Remove a un-use icon.
 * Support labeled value on the service/instance/endpoint list widgets.
-* Add menu for virtual mq
+* Add menu for virtual MQ
 * Set selector props and update configuration panel styles
 
 #### Documentation

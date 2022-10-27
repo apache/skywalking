@@ -43,6 +43,26 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            }
           ]
         },
         {
@@ -74,6 +94,26 @@
             {
               "calculation": "percentage"
             }
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            }
           ]
         },
         {
@@ -104,6 +144,26 @@
             {
               "label": "P50, P75, P90, P95, P99",
               "labelsIndex": "0,1,2,3,4"
+            }
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
             }
           ]
         },
@@ -137,6 +197,26 @@
               "label": "P50, P75, P90, P95, P99",
               "labelsIndex": "0,1,2,3,4"
             }
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            }
           ]
         },
 
@@ -163,6 +243,26 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            }
           ]
         },
         {
@@ -194,6 +294,26 @@
             {
               "calculation": "percentage"
             }
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            }
           ]
         },
 
@@ -202,7 +322,7 @@
           "y": 26,
           "w": 24,
           "h": 26,
-          "i": "13",
+          "i": "7",
           "type": "Widget",
           "graph": {
             "type": "EndpointList",
