@@ -25,7 +25,8 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.manual.trace.SlowTraceRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampleTraceSlowRecord;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
@@ -34,7 +35,7 @@ import org.apache.skywalking.oap.server.core.source.ProcessRelation;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @RequiredArgsConstructor
-public class SlowTraceBuilder {
+public class SampleTraceBuilder {
     private final NamingControl namingControl;
 
     @Setter
@@ -46,6 +47,9 @@ public class SlowTraceBuilder {
     @Setter
     @Getter
     private long latency;
+    @Setter
+    @Getter
+    private Reason reason;
 
     @Setter
     @Getter
@@ -78,6 +82,7 @@ public class SlowTraceBuilder {
         result = validateNotEmpty(result, "traceId", traceId);
         result = validateBiggerZero(result, "latency", latency);
         result = validateNotEmpty(result, "uri", uri);
+        result = validateNotEmpty(result, "reason", reason);
         result = validateNotEmpty(result, "layer", layer);
         result = validateNotEmpty(result, "service name", serviceName);
         result = validateNotEmpty(result, "service instance name", serviceInstanceName);
@@ -90,8 +95,8 @@ public class SlowTraceBuilder {
         return result;
     }
 
-    public SlowTraceRecord toSlowTraceRecord() {
-        final SlowTraceRecord record = new SlowTraceRecord();
+    public Record toRecord() {
+        final SampleTraceSlowRecord record = new SampleTraceSlowRecord();
         record.setScope(DefaultScopeDefine.PROCESS_RELATION);
         record.setEntityId(IDManager.ProcessID.buildRelationId(new IDManager.ProcessID.ProcessRelationDefine(
             processId, destProcessId
@@ -146,4 +151,10 @@ public class SlowTraceBuilder {
         return null;
     }
 
+    /**
+     * The reason of sampled trace.
+     */
+    public enum Reason {
+        SLOW
+    }
 }

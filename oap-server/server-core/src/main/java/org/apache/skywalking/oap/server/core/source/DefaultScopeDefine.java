@@ -108,13 +108,13 @@ public class DefaultScopeDefine {
     public static final int PROCESS_RELATION = 54;
     public static final int CACHE_ACCESS = 55;
     public static final int CACHE_SLOW_ACCESS = 56;
-    public static final int SLOW_TRACE = 57;
 
     public static final int TCP_SERVICE = 57;
     public static final int TCP_SERVICE_INSTANCE = 58;
     public static final int TCP_SERVICE_RELATION = 59;
     public static final int TCP_SERVICE_INSTANCE_RELATION = 60;
     public static final int TCP_SERVICE_INSTANCE_UPDATE = 61;
+    public static final int SAMPLE_TRACE_SLOW = 62;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

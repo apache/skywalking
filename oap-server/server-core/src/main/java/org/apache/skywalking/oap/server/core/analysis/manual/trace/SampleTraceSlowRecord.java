@@ -31,15 +31,15 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SLOW_TRACE;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SAMPLE_TRACE_SLOW;
 
 @Setter
 @Getter
-@ScopeDeclaration(id = SLOW_TRACE, name = "SlowTrace")
-@Stream(name = SlowTraceRecord.INDEX_NAME, scopeId = SLOW_TRACE, builder = SlowTraceRecord.Builder.class, processor = RecordStreamProcessor.class)
-public class SlowTraceRecord extends Record {
+@ScopeDeclaration(id = SAMPLE_TRACE_SLOW, name = "SampleTraceSlowRecord")
+@Stream(name = SampleTraceSlowRecord.INDEX_NAME, scopeId = SAMPLE_TRACE_SLOW, builder = SampleTraceSlowRecord.Builder.class, processor = RecordStreamProcessor.class)
+public class SampleTraceSlowRecord extends Record {
 
-    public static final String INDEX_NAME = "slow_trace_record";
+    public static final String INDEX_NAME = "sample_trace_slow_record";
     public static final String SCOPE = "scope";
     public static final String ENTITY_ID = "entity_id";
     public static final String TRACE_ID = TopN.TRACE_ID;
@@ -62,11 +62,11 @@ public class SlowTraceRecord extends Record {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId + Const.ID_CONNECTOR + traceId;
     }
 
-    public static class Builder implements StorageBuilder<SlowTraceRecord> {
+    public static class Builder implements StorageBuilder<SampleTraceSlowRecord> {
 
         @Override
-        public SlowTraceRecord storage2Entity(Convert2Entity converter) {
-            final SlowTraceRecord record = new SlowTraceRecord();
+        public SampleTraceSlowRecord storage2Entity(Convert2Entity converter) {
+            final SampleTraceSlowRecord record = new SampleTraceSlowRecord();
             record.setScope(((Number) converter.get(SCOPE)).intValue());
             record.setEntityId((String) converter.get(ENTITY_ID));
             record.setTraceId((String) converter.get(TRACE_ID));
@@ -77,7 +77,7 @@ public class SlowTraceRecord extends Record {
         }
 
         @Override
-        public void entity2Storage(SlowTraceRecord entity, Convert2Storage converter) {
+        public void entity2Storage(SampleTraceSlowRecord entity, Convert2Storage converter) {
             converter.accept(SCOPE, entity.getScope());
             converter.accept(ENTITY_ID, entity.getEntityId());
             converter.accept(TRACE_ID, entity.getTraceId());

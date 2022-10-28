@@ -16,18 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.slowtrace;
+package org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.sampletrace;
 
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SlowTraceBuilder;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampleTraceBuilder;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import static java.util.Objects.nonNull;
 
-public class SlowTraceSpec extends AbstractSpec {
-    public SlowTraceSpec(ModuleManager moduleManager, LogAnalyzerModuleConfig moduleConfig) {
+public class SampleTraceSpec extends AbstractSpec {
+    public SampleTraceSpec(ModuleManager moduleManager, LogAnalyzerModuleConfig moduleConfig) {
         super(moduleManager, moduleConfig);
     }
 
@@ -36,8 +36,8 @@ public class SlowTraceSpec extends AbstractSpec {
             return;
         }
         if (nonNull(latency)) {
-            final SlowTraceBuilder slowTraceBuilder = BINDING.get().slowTraceBuilder();
-            slowTraceBuilder.setLatency(latency);
+            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
+            sampleTraceBuilder.setLatency(latency);
         }
     }
 
@@ -46,8 +46,18 @@ public class SlowTraceSpec extends AbstractSpec {
             return;
         }
         if (nonNull(uri)) {
-            final SlowTraceBuilder slowTraceBuilder = BINDING.get().slowTraceBuilder();
-            slowTraceBuilder.setUri(uri);
+            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
+            sampleTraceBuilder.setUri(uri);
+        }
+    }
+
+    public void reason(final String reason) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        if (nonNull(reason)) {
+            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
+            sampleTraceBuilder.setReason(SampleTraceBuilder.Reason.valueOf(reason.toUpperCase()));
         }
     }
 
@@ -56,8 +66,8 @@ public class SlowTraceSpec extends AbstractSpec {
             return;
         }
         if (nonNull(id)) {
-            final SlowTraceBuilder slowTraceBuilder = BINDING.get().slowTraceBuilder();
-            slowTraceBuilder.setProcessId(id);
+            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
+            sampleTraceBuilder.setProcessId(id);
         }
     }
 
@@ -66,8 +76,8 @@ public class SlowTraceSpec extends AbstractSpec {
             return;
         }
         if (nonNull(id)) {
-            final SlowTraceBuilder slowTraceBuilder = BINDING.get().slowTraceBuilder();
-            slowTraceBuilder.setDestProcessId(id);
+            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
+            sampleTraceBuilder.setDestProcessId(id);
         }
     }
 
@@ -77,8 +87,8 @@ public class SlowTraceSpec extends AbstractSpec {
         }
         if (nonNull(detectPoint)) {
             final DetectPoint point = DetectPoint.valueOf(detectPoint.toUpperCase());
-            final SlowTraceBuilder slowTraceBuilder = BINDING.get().slowTraceBuilder();
-            slowTraceBuilder.setDetectPoint(point);
+            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
+            sampleTraceBuilder.setDetectPoint(point);
         }
     }
 
@@ -87,8 +97,8 @@ public class SlowTraceSpec extends AbstractSpec {
             return;
         }
         if (id > 0) {
-            final SlowTraceBuilder slowTraceBuilder = BINDING.get().slowTraceBuilder();
-            slowTraceBuilder.setComponentId(id);
+            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
+            sampleTraceBuilder.setComponentId(id);
         }
     }
 

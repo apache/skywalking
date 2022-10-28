@@ -53,10 +53,11 @@ rules:
         json{
         }
         extractor{
-          if (tag("LOG_KIND") == "NET_PROFILING_SLOW_TRACE") {
-            slowTrace {
+          if (tag("LOG_KIND") == "NET_PROFILING_SAMPLE_TRACE") {
+            sampleTrace {
               latency parsed.latency as Long
               uri parsed.uri as String
+              reason parsed.reason as String
 
               if (parsed.client_process.process_id as String != "") {
                 processId parsed.client_process.process_id as String

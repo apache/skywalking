@@ -338,10 +338,10 @@ filter {
   }
 }
 ```
-- `slowTrace`
+- `sampleTrace`
 
-`slowTrace` aims to convert LogData to SlowTrace. It extracts data from `parsed` result and save them as SlowTrace. SlowTrace will not abort or edit logs, you can use other LAL for further processing.
-We require a log tag `"LOG_KIND" = "NET_PROFILING_SLOW_TRACE"` to make OAP distinguish slow trace logs from other log reports.
+`sampleTrace` aims to convert LogData to SampleTrace Records. It extracts data from `parsed` result and save them as SampleTraceRecord. SampleTrace will not abort or edit logs, you can use other LAL for further processing.
+We require a log tag `"LOG_KIND" = "NET_PROFILING_SAMPLE_TRACE"` to make OAP distinguish slow trace logs from other log reports.
 An example of JSON sent to OAP is as following:
 ``` json
 [
@@ -350,14 +350,14 @@ An example of JSON sent to OAP is as following:
          "data":[
             {
                "key":"LOG_KIND",
-               "value":"NET_PROFILING_SLOW_TRACE"
+               "value":"NET_PROFILING_SAMPLE_TRACE"
             }
          ]
       },
       "layer":"MESH",
       "body":{
          "json":{
-            "json":"{\"uri\":\"/provider\",\"latency\":2048,\"client_process\":{\"process_id\":\"c1519f4555ec11eda8df0242ac1d0002\",\"local\":false,\"address\":\"\"},\"server_process\":{\"process_id\":\"\",\"local\":false,\"address\":\"172.31.0.3:443\"},\"detect_point\":\"client\",\"component\":\"http\",\"ssl\":true}"
+            "json":"{\"uri\":\"/provider\",\"reason\":\"slow\",\"latency\":2048,\"client_process\":{\"process_id\":\"c1519f4555ec11eda8df0242ac1d0002\",\"local\":false,\"address\":\"\"},\"server_process\":{\"process_id\":\"\",\"local\":false,\"address\":\"172.31.0.3:443\"},\"detect_point\":\"client\",\"component\":\"http\",\"ssl\":true}"
          }
       },
       "service":"test-service",
@@ -372,10 +372,11 @@ Examples are as follows:
 filter {
     json {
     }
-    if (tag("LOG_KIND") == "NET_PROFILING_SLOW_TRACE") {
-        slowTrace {
+    if (tag("LOG_KIND") == "NET_PROFILING_SAMPLE_TRACE") {
+        sampleTrace {
             latency parsed.latency as Long
             uri parsed.uri as String
+            reason parsed.reason as String
 
             if (parsed.client_process.process_id as String != "") {
                 processId parsed.client_process.process_id as String
