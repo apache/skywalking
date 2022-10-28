@@ -72,6 +72,7 @@
 * gRPC stream canceling code is not logged as an error when the client cancels the stream. The client
   cancels the stream when the pod is terminated.
 * Do not log error logs when failed to create ElasticSearch index because the index is created already.
+* Support Python runtime metrics analysis.
 
 #### UI
 
@@ -104,6 +105,7 @@
 * Add `readRecords` to metric types.
 * Verify dashboard names for new dashboards.
 * Associate metrics with the trace widget on dashboards.
+* Add Python runtime metrics and cpu/memory utilization panels to General-Instance and Fass-Instance dashboards
 
 #### Documentation
 
