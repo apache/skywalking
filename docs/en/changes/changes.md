@@ -69,6 +69,13 @@
 * [**Breaking Change**] Support new records query protocol, rename the column named `service_id` to `entity_id` for support difference entity.
   Please re-create `top_n_database_statement` index/table.
 * Remove improper self-obs metrics in JvmMetricsHandler(for Kafka channel).
+* gRPC stream canceling code is not logged as an error when the client cancels the stream. The client
+  cancels the stream when the pod is terminated.
+* [**Breaking Change**] Refactor service mesh protobuf definitions and split TCP-related metrics to individual definition.
+* Add `TCP{Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation}` sources and split TCP-related entities out from
+  original `Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation`.
+* [**Breaking Change**] TCP-related source names are changed, fields of TCP-related sources are changed, please refer to the latest `oal/tcp.oal` file.
+* Do not log error logs when failed to create ElasticSearch index because the index is created already.
 * Support `slowTrace` in LAL.
 * Support multiple rules with different names under the same layer of LAL script.
 
@@ -88,16 +95,21 @@
 * Enhance the process topology graph to support dragging nodes.
 * UI-template: Fix metrics calculation in `general-service/mesh-service/faas-function` top-list dashboard.
 * Update MySQL dashboard to visualize collected slow SQLs.
-* Add virtual cache dashboard
+* Add virtual cache dashboard.
 * Remove `responseCode` fields of all OAL sources, as well as examples to avoid user's confusion.
 * Remove All from the endpoints selector.
 * Enhance menu configurations to make it easier to change.
 * Update PostgreSQL dashboard to visualize collected slow SQLs.
-* Add Golang runtime metrics and cpu/memory used rate panels in General-Instance dashboard
-* Add gateway apisix menu
-* Query logs with the specific service ID
-* Bump d3-color from 3.0.1 to 3.1.0
-* Add Golang runtime metrics and cpu/memory used rate panels in FaaS-Instance dashboard
+* Add Golang runtime metrics and cpu/memory used rate panels in General-Instance dashboard.
+* Add gateway apisix menu.
+* Query logs with the specific service ID.
+* Bump d3-color from 3.0.1 to 3.1.0.
+* Add Golang runtime metrics and cpu/memory used rate panels in FaaS-Instance dashboard.
+* Revert logs on trace widget.
+* Add a sub-menu for virtual mq.
+* Add `readRecords` to metric types.
+* Verify dashboard names for new dashboards.
+* Associate metrics with the trace widget on dashboards.
 
 #### Documentation
 

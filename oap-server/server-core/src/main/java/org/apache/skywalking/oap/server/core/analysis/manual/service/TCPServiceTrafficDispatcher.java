@@ -16,21 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.source.TCPService;
 
-@NoArgsConstructor
-@AllArgsConstructor
-public class TCPInfo {
-    @Getter
-    @Setter
-    private long receivedBytes;
-
-    @Getter
-    @Setter
-    private long sentBytes;
+public class TCPServiceTrafficDispatcher implements SourceDispatcher<TCPService> {
+    @Override
+    public void dispatch(final TCPService source) {
+        ServiceTraffic traffic = new ServiceTraffic();
+        traffic.setTimeBucket(source.getTimeBucket());
+        traffic.setName(source.getName());
+        traffic.setLayer(source.getLayer());
+        MetricsStreamProcessor.getInstance().in(traffic);
+    }
 }

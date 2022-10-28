@@ -18,20 +18,15 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
-import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
-import io.envoyproxy.envoy.service.accesslog.v2.AccessLogServiceGrpc;
-import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
-import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsResponse;
-import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetrics;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
+import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetrics;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
 import org.apache.skywalking.oap.server.receiver.envoy.als.AccessLogAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
@@ -43,6 +38,13 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
+import io.envoyproxy.envoy.service.accesslog.v2.AccessLogServiceGrpc;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsResponse;
+import io.grpc.Status;
+import io.grpc.stub.StreamObserver;
 
 public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessLogServiceGRPCHandler.class);
@@ -110,7 +112,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             public void onNext(StreamAccessLogsMessage message) {
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
-                    if (isFirst || (alwaysAnalyzeIdentity && message.hasIdentifier())) {
+                    if (isFirst || alwaysAnalyzeIdentity && message.hasIdentifier()) {
                         identifier = message.getIdentifier();
                         isFirst = false;
                         role = Role.NONE;
@@ -128,25 +130,29 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                                 .getId(), role, logCase, message);
                     }
 
-                    List<ServiceMeshMetric.Builder> sourceResult = new ArrayList<>();
+                    final ServiceMeshMetrics.Builder sourceResult = ServiceMeshMetrics.newBuilder();
                     switch (logCase) {
                         case HTTP_LOGS:
-                            StreamAccessLogsMessage.HTTPAccessLogEntries logs = message.getHttpLogs();
-                            counter.inc(logs.getLogEntryCount());
+                            final HTTPServiceMeshMetrics.Builder httpMetrics = HTTPServiceMeshMetrics.newBuilder();
+                            final StreamAccessLogsMessage.HTTPAccessLogEntries httpLogs = message.getHttpLogs();
 
-                            for (final HTTPAccessLogEntry log : logs.getLogEntryList()) {
+                            counter.inc(httpLogs.getLogEntryCount());
+
+                            for (final HTTPAccessLogEntry httpLog : httpLogs.getLogEntryList()) {
                                 AccessLogAnalyzer.Result result = AccessLogAnalyzer.Result.builder().build();
                                 for (ALSHTTPAnalysis analysis : envoyHTTPAnalysisList) {
-                                    result = analysis.analysis(result, identifier, log, role);
+                                    result = analysis.analysis(result, identifier, httpLog, role);
                                 }
-                                if (CollectionUtils.isNotEmpty(result.getMetrics())) {
-                                    sourceResult.addAll(result.getMetrics());
+                                if (result.hasResult()) {
+                                    httpMetrics.addAllMetrics(result.getMetrics().getHttpMetrics().getMetricsList());
                                 }
                             }
-
+                            sourceResult.setHttpMetrics(httpMetrics);
                             break;
                         case TCP_LOGS:
-                            StreamAccessLogsMessage.TCPAccessLogEntries tcpLogs = message.getTcpLogs();
+                            final TCPServiceMeshMetrics.Builder tcpMetrics = TCPServiceMeshMetrics.newBuilder();
+                            final StreamAccessLogsMessage.TCPAccessLogEntries tcpLogs = message.getTcpLogs();
+
                             counter.inc(tcpLogs.getLogEntryCount());
 
                             for (final TCPAccessLogEntry tcpLog : tcpLogs.getLogEntryList()) {
@@ -154,15 +160,18 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                                 for (TCPAccessLogAnalyzer analyzer : envoyTCPAnalysisList) {
                                     result = analyzer.analysis(result, identifier, tcpLog, role);
                                 }
-                                if (CollectionUtils.isNotEmpty(result.getMetrics())) {
-                                    sourceResult.addAll(result.getMetrics());
+                                if (result.hasResult()) {
+                                    tcpMetrics.addAllMetrics(result.getMetrics().getTcpMetrics().getMetricsList());
                                 }
                             }
-
+                            sourceResult.setTcpMetrics(tcpMetrics);
                             break;
+                        default: // Ignored
                     }
-                    sourceDispatcherCounter.inc(sourceResult.size());
-                    sourceResult.forEach(TelemetryDataDispatcher::process);
+                    sourceDispatcherCounter.inc(
+                        sourceResult.getHttpMetrics().getMetricsCount() +
+                            sourceResult.getTcpMetrics().getMetricsCount());
+                    TelemetryDataDispatcher.process(sourceResult.build());
                 } finally {
                     timer.finish();
                 }
@@ -170,6 +179,13 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
 
             @Override
             public void onError(Throwable throwable) {
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Envoy client cancelled sending access logs", throwable);
+                    }
+                    return;
+                }
                 LOGGER.error("Error in receiving access log from envoy", throwable);
             }
 

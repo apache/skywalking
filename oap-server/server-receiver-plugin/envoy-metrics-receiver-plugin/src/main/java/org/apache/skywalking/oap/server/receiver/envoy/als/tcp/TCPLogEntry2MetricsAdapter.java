@@ -25,12 +25,9 @@ import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
-import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
-import org.apache.skywalking.apm.network.servicemesh.v3.TCPInfo;
+import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetric;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
-import static org.apache.skywalking.oap.server.library.util.StringUtil.isBlank;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.formatAsLong;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.parseInternalErrorCode;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.parseTLS;
@@ -55,7 +52,7 @@ public class TCPLogEntry2MetricsAdapter {
      *
      * @return the {@link ServiceMeshMetric.Builder} adapted from the given entry.
      */
-    public ServiceMeshMetric.Builder adaptToDownstreamMetrics() {
+    public TCPServiceMeshMetric.Builder adaptToDownstreamMetrics() {
         final AccessLogCommon properties = entry.getCommonProperties();
         final long startTime = formatAsLong(properties.getStartTime());
         final long duration = formatAsLong(properties.getTimeToLastDownstreamTxByte());
@@ -63,7 +60,6 @@ public class TCPLogEntry2MetricsAdapter {
         return adaptCommonPart()
             .setStartTime(startTime)
             .setEndTime(startTime + duration)
-            .setLatency((int) Math.max(1L, duration))
             .setDetectPoint(DetectPoint.server);
     }
 
@@ -72,7 +68,7 @@ public class TCPLogEntry2MetricsAdapter {
      *
      * @return the {@link ServiceMeshMetric.Builder} adapted from the given entry.
      */
-    public ServiceMeshMetric.Builder adaptToUpstreamMetrics() {
+    public TCPServiceMeshMetric.Builder adaptToUpstreamMetrics() {
         final AccessLogCommon properties = entry.getCommonProperties();
         final long startTime = formatAsLong(properties.getStartTime());
         final long outboundStartTime = startTime + formatAsLong(properties.getTimeToFirstUpstreamTxByte());
@@ -81,11 +77,10 @@ public class TCPLogEntry2MetricsAdapter {
         return adaptCommonPart()
             .setStartTime(outboundStartTime)
             .setEndTime(outboundEndTime)
-            .setLatency((int) Math.max(1L, outboundEndTime - outboundStartTime))
             .setDetectPoint(DetectPoint.client);
     }
 
-    public ServiceMeshMetric.Builder adaptCommonPart() {
+    public TCPServiceMeshMetric.Builder adaptCommonPart() {
         final AccessLogCommon properties = entry.getCommonProperties();
         final ConnectionProperties connectionProperties = entry.getConnectionProperties();
         final String tlsMode = parseTLS(properties.getTlsProperties());
@@ -95,19 +90,15 @@ public class TCPLogEntry2MetricsAdapter {
             properties.getTimeToLastDownstreamTxByte().getNanos()
                 - properties.getTimeToFirstUpstreamRxByte().getNanos();
 
-        final ServiceMeshMetric.Builder builder =
-            ServiceMeshMetric.newBuilder()
-                             .setTlsMode(tlsMode)
-                             .setProtocol(Protocol.TCP)
-                             .setStatus(isBlank(internalErrorCode))
-                             .setTcp(
-                                 TCPInfo.newBuilder()
-                                        .setReceivedBytes(connectionProperties.getReceivedBytes())
-                                        .setSentBytes(connectionProperties.getSentBytes())
-                             )
-                             .setInternalErrorCode(internalErrorCode)
-                             .setInternalRequestLatencyNanos(internalRequestLatencyNanos)
-                             .setInternalResponseLatencyNanos(internalResponseLatencyNanos);
+        final TCPServiceMeshMetric.Builder builder =
+            TCPServiceMeshMetric
+                .newBuilder()
+                .setTlsMode(tlsMode)
+                .setReceivedBytes(connectionProperties.getReceivedBytes())
+                .setSentBytes(connectionProperties.getSentBytes())
+                .setInternalErrorCode(internalErrorCode)
+                .setInternalRequestLatencyNanos(internalRequestLatencyNanos)
+                .setInternalResponseLatencyNanos(internalResponseLatencyNanos);
 
         Optional.ofNullable(sourceService)
                 .map(ServiceMetaInfo::getServiceName)
