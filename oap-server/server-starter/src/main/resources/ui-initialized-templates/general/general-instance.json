@@ -137,7 +137,6 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Service Instance Load (calls / min)",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services, this means Packets Per Minute (PPM)",
                     "name": "Instance_Load"
                   },
                   "graph": {

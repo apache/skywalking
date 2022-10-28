@@ -24,17 +24,17 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_RELATION;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.TCP_SERVICE_RELATION;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_RELATION_CATALOG_NAME;
 
-@ScopeDeclaration(id = SERVICE_RELATION, name = "ServiceRelation", catalog = SERVICE_RELATION_CATALOG_NAME)
+@ScopeDeclaration(id = TCP_SERVICE_RELATION, name = "TCPServiceRelation", catalog = SERVICE_RELATION_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
-public class ServiceRelation extends Source {
+public class TCPServiceRelation extends Source {
     private String entityId;
 
     @Override
     public int scope() {
-        return DefaultScopeDefine.SERVICE_RELATION;
+        return DefaultScopeDefine.TCP_SERVICE_RELATION;
     }
 
     @Override
@@ -76,25 +76,7 @@ public class ServiceRelation extends Source {
     private String destServiceInstanceName;
     @Getter
     @Setter
-    private String endpoint;
-    @Getter
-    @Setter
     private int componentId;
-    @Getter
-    @Setter
-    private int latency;
-    @Getter
-    @Setter
-    private boolean status;
-    @Getter
-    @Setter
-    private int httpResponseStatusCode;
-    @Getter
-    @Setter
-    private String rpcStatusCode;
-    @Getter
-    @Setter
-    private RequestType type;
     @Getter
     @Setter
     private DetectPoint detectPoint;
@@ -104,6 +86,14 @@ public class ServiceRelation extends Source {
     @Getter
     @Setter
     private SideCar sideCar = new SideCar();
+
+    @Getter
+    @Setter
+    private long receivedBytes;
+
+    @Getter
+    @Setter
+    private long sentBytes;
 
     @Override
     public void prepare() {
