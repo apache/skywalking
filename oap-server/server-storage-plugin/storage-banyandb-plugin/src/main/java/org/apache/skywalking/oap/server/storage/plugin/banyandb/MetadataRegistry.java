@@ -276,10 +276,17 @@ public enum MetadataRegistry {
                     model.getName(),
                     Kind.STREAM,
                     config.getRecordShardsNumber() *
-                            (model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : 1)
+                            (model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : 1),
+                    config.getStreamBlockInterval(),
+                    config.getStreamSegmentInterval(),
+                    config.getStreamTTL()
             );
         }
-        return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE, config.getMetricsShardsNumber());
+        return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE,
+                config.getMetricsShardsNumber(),
+                config.getMeasureBlockInterval(),
+                config.getMeasureSegmentInterval(),
+                config.getMeasureTTL());
     }
 
     @RequiredArgsConstructor
@@ -290,6 +297,9 @@ public enum MetadataRegistry {
         private final Kind kind;
 
         private final int shard;
+        private final int blockIntervalHrs;
+        private final int segmentIntervalHrs;
+        private final int ttlDays;
 
         public Optional<NamedSchema<?>> findRemoteSchema(BanyanDBClient client) throws BanyanDBException {
             try {
@@ -335,7 +345,10 @@ public enum MetadataRegistry {
                 case STREAM:
                     resourceExist = client.existStream(this.group, this.name);
                     if (!resourceExist.hasGroup()) {
-                        Group g = client.define(Group.create(this.group, Catalog.STREAM, this.shard, IntervalRule.create(IntervalRule.Unit.HOUR, 4), IntervalRule.create(IntervalRule.Unit.DAY, 1), IntervalRule.create(IntervalRule.Unit.DAY, 7)));
+                        Group g = client.define(Group.create(this.group, Catalog.STREAM, this.shard,
+                                IntervalRule.create(IntervalRule.Unit.HOUR, this.blockIntervalHrs),
+                                IntervalRule.create(IntervalRule.Unit.HOUR, this.segmentIntervalHrs),
+                                IntervalRule.create(IntervalRule.Unit.DAY, this.ttlDays)));
                         if (g != null) {
                             log.info("group {} created", g.name());
                         }
@@ -344,7 +357,10 @@ public enum MetadataRegistry {
                 case MEASURE:
                     resourceExist = client.existMeasure(this.group, this.name);
                     if (!resourceExist.hasGroup()) {
-                        Group g = client.define(Group.create(this.group, Catalog.MEASURE, this.shard, IntervalRule.create(IntervalRule.Unit.HOUR, 4), IntervalRule.create(IntervalRule.Unit.DAY, 1), IntervalRule.create(IntervalRule.Unit.DAY, 7)));
+                        Group g = client.define(Group.create(this.group, Catalog.MEASURE, this.shard,
+                                IntervalRule.create(IntervalRule.Unit.HOUR, this.blockIntervalHrs),
+                                IntervalRule.create(IntervalRule.Unit.HOUR, this.segmentIntervalHrs),
+                                IntervalRule.create(IntervalRule.Unit.DAY, this.ttlDays)));
                         if (g != null) {
                             log.info("group {} created", g.name());
                         }
