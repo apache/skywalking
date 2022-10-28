@@ -3,9 +3,9 @@ Using the Aggregation Function, the requests will be grouped by time and **Group
 
 ### SCOPE `Service`
 
-This calculates the metrics data from each request of the service. 
+This calculates the metrics data from each request of the service.
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name | The name of the service. | | string |
 | layer | Layer represents an abstract framework in the computer science, such as operation system(OS_LINUX layer), Kubernetes(k8s layer) | | enum |
@@ -19,14 +19,27 @@ This calculates the metrics data from each request of the service.
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
 | tag | The key-value pair of span tags in the segment. | | `Map<String, String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
-| tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
-| tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
+
+### SCOPE `TCPService`
+
+This calculates the metrics data from each request of the TCP service.
+
+| Name | Remarks | Group Key | Type |
+|---|---|---|---|
+| name | The name of the service. | | string |
+| layer | Layer represents an abstract framework in the computer science, such as operation system(OS_LINUX layer), Kubernetes(k8s layer) | | enum |
+| serviceInstanceName | The name of the service instance ID. | | string |
+| tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
+| tag | The key-value pair of span tags in the segment. | | `Map<String, String>` |
+| sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
+| receivedBytes | The received bytes of the TCP traffic. | | long |
+| sentBytes | The sent bytes of the TCP traffic. | | long |
 
 ### SCOPE `ServiceInstance`
 
-This calculates the metrics data from each request of the service instance. 
+This calculates the metrics data from each request of the service instance.
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
 | serviceName | The name of the service. | | string |
@@ -39,16 +52,28 @@ This calculates the metrics data from each request of the service instance.
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
 | tag | The key-value pair of span tags in the segment. | | `Map<String, String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
-| tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
-| tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
 
-#### Secondary scopes of `ServiceInstance` 
+### SCOPE `TCPServiceInstance`
+
+This calculates the metrics data from each request of the service instance.
+
+| Name | Remarks | Group Key | Type |
+|---|---|---|---|
+| name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
+| serviceName | The name of the service. | | string |
+| tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
+| tag | The key-value pair of span tags in the segment. | | `Map<String, String>` |
+| sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
+| receivedBytes | The received bytes of the TCP traffic. | | long |
+| sentBytes | The sent bytes of the TCP traffic. | | long |
+
+#### Secondary scopes of `ServiceInstance`
 
 This calculates the metrics data if the service instance is a JVM and collects through javaagent.
 
 1. SCOPE `ServiceInstanceJVMCPU`
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
 | serviceName | The name of the service. | | string |
@@ -56,7 +81,7 @@ This calculates the metrics data if the service instance is a JVM and collects t
 
 2. SCOPE `ServiceInstanceJVMMemory`
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
 | serviceName | The name of the service. | | string |
@@ -68,7 +93,7 @@ This calculates the metrics data if the service instance is a JVM and collects t
 
 3. SCOPE `ServiceInstanceJVMMemoryPool`
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
 | serviceName | The name of the service. | | string |
@@ -80,7 +105,7 @@ This calculates the metrics data if the service instance is a JVM and collects t
 
 4. SCOPE `ServiceInstanceJVMGC`
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
 | serviceName | The name of the service. | | string |
@@ -90,7 +115,7 @@ This calculates the metrics data if the service instance is a JVM and collects t
 
 5. SCOPE `ServiceInstanceJVMThread`
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
 | serviceName | The name of the service. | | string |
@@ -104,7 +129,7 @@ This calculates the metrics data if the service instance is a JVM and collects t
 
 6. SCOPE `ServiceInstanceJVMClass`
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name |  The name of the service instance, such as `ip:port@Service Name`.  **Note**: Currently, the native agent uses `uuid@ipv4` as the instance name, which does not assist in setting up a filter in aggregation. | | string|
 | serviceName | The name of the service. | | string |
@@ -114,9 +139,9 @@ This calculates the metrics data if the service instance is a JVM and collects t
 
 ### SCOPE `Endpoint`
 
-This calculates the metrics data from each request of the endpoint in the service. 
+This calculates the metrics data from each request of the endpoint in the service.
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name | The name of the endpoint, such as a full path of the HTTP URI. | | string |
 | serviceName | The name of the service. | | string |
@@ -130,14 +155,12 @@ This calculates the metrics data from each request of the endpoint in the servic
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
 | tag | The key-value pair of span tags in the segment. | | `Map<String, String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
-| tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
-| tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
 
 ### SCOPE `ServiceRelation`
 
 This calculates the metrics data from each request between services.
 
-| Name                      | Remarks                                                                                                                                             | Group Key | Type                   | 
+| Name                      | Remarks                                                                                                                                             | Group Key | Type                   |
 |---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|-----------|------------------------|
 | sourceServiceName         | The name of the source service.                                                                                                                     |           | string                 |
 | sourceServiceInstanceName | The name of the source service instance.                                                                                                            |           | string                 |
@@ -155,14 +178,37 @@ This calculates the metrics data from each request between services.
 | detectPoint               | Where the relation is detected. The value may be client, server, or proxy.                                                                          | yes       | enum                   |
 | tlsMode                   | The TLS mode between source and destination services, such as `service_relation_mtls_cpm = from(ServiceRelation.*).filter(tlsMode == "mTLS").cpm()` |           | string                 |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation.                                                            |           | string                 |
-| tcpInfo.receivedBytes     | The received bytes of the TCP traffic, if this request is a TCP call.                                                                               |           | long                   |
-| tcpInfo.sentBytes         | The sent bytes of the TCP traffic, if this request is a TCP call.                                                                                   |           | long                   |
+
+### SCOPE `TCPServiceRelation`
+
+This calculates the metrics data from each request between services.
+
+| Name                      | Remarks                                                                                                                                             | Group Key | Type                   |
+|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|-----------|------------------------|
+| sourceServiceName         | The name of the source service.                                                                                                                     |           | string                 |
+| sourceServiceInstanceName | The name of the source service instance.                                                                                                            |           | string                 |
+| sourceLayer               | The layer of the source service.                                                                                                                    |           | enum                   |
+| destServiceName           | The name of the destination service.                                                                                                                |           | string                 |
+| destServiceInstanceName   | The name of the destination service instance.                                                                                                       |           | string                 |
+| destLayer                 | The layer of the destination service.                                                                                                               |           | enum                   |
+| endpoint                  | The endpoint used in this call.                                                                                                                     |           | string                 |
+| componentId               | The ID of component used in this call.                                                                                                              | yes       | string                 |
+| latency                   | The time taken by each request.                                                                                                                     |           | int                    |
+| status                    | Indicates the success or failure of the request.                                                                                                    |           | bool(true for success) |
+| httpResponseStatusCode    | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302                                                    |           | int                    |
+| rpcStatusCode             | The string value of the rpc response code.                                                                                                          |           | string                 |
+| type                      | The type of each request, such as Database, HTTP, RPC, or gRPC.                                                                                     |           | enum                   |
+| detectPoint               | Where the relation is detected. The value may be client, server, or proxy.                                                                          | yes       | enum                   |
+| tlsMode                   | The TLS mode between source and destination services, such as `service_relation_mtls_cpm = from(ServiceRelation.*).filter(tlsMode == "mTLS").cpm()` |           | string                 |
+| sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation.                                                            |           | string                 |
+| receivedBytes             | The received bytes of the TCP traffic.                                                                                                              |           | long                   |
+| sentBytes                 | The sent bytes of the TCP traffic.                                                                                                                  |           | long                   |
 
 ### SCOPE `ServiceInstanceRelation`
 
 This calculates the metrics data from each request between service instances.
 
-| Name                      | Remarks                                                                                                                                                                       | Group Key | Type                   | 
+| Name                      | Remarks                                                                                                                                                                       | Group Key | Type                   |
 |---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|------------------------|
 | sourceServiceName         | The name of the source service.                                                                                                                                               |           | string                 |
 | sourceServiceInstanceName | The name of the source service instance.                                                                                                                                      |           | string                 |
@@ -180,17 +226,34 @@ This calculates the metrics data from each request between service instances.
 | detectPoint               | Where the relation is detected. The value may be client, server, or proxy.                                                                                                    | yes       | enum                   |
 | tlsMode                   | The TLS mode between source and destination service instances, such as `service_instance_relation_mtls_cpm = from(ServiceInstanceRelation.*).filter(tlsMode == "mTLS").cpm()` || string    |     |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation.                                                                                      |           | string                 |
-| tcpInfo.receivedBytes     | The received bytes of the TCP traffic, if this request is a TCP call.                                                                                                         |           | long                   |
-| tcpInfo.sentBytes         | The sent bytes of the TCP traffic, if this request is a TCP call.                                                                                                             |           | long                   |
+
+### SCOPE `TCPServiceInstanceRelation`
+
+This calculates the metrics data from each request between service instances.
+
+| Name                      | Remarks                                                                                                                                                                       | Group Key | Type                   |
+|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|------------------------|
+| sourceServiceName         | The name of the source service.                                                                                                                                               |           | string                 |
+| sourceServiceInstanceName | The name of the source service instance.                                                                                                                                      |           | string                 |
+| sourceServiceLayer        | The layer of the source service.                                                                                                                                              |           | enum                   |
+| destServiceName           | The name of the destination service.                                                                                                                                          |           |                        |
+| destServiceInstanceName   | The name of the destination service instance.                                                                                                                                 |           | string                 |
+| destServiceLayer          | The layer of the destination service.                                                                                                                                         |           | enum                   |
+| componentId               | The ID of the component used in this call.                                                                                                                                    | yes       | string                 |
+| detectPoint               | Where the relation is detected. The value may be client, server, or proxy.                                                                                                    | yes       | enum                   |
+| tlsMode                   | The TLS mode between source and destination service instances, such as `service_instance_relation_mtls_cpm = from(ServiceInstanceRelation.*).filter(tlsMode == "mTLS").cpm()` || string    |     |
+| sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation.                                                                                      |           | string                 |
+| receivedBytes             | The received bytes of the TCP traffic.                                                                                                                                        |           | long                   |
+| sentBytes                 | The sent bytes of the TCP traffic.                                                                                                                                            |           | long                   |
 
 ### SCOPE `EndpointRelation`
 
-This calculates the metrics data of the dependency between endpoints. 
-This relation is hard to detect, and it depends on the tracing library to propagate the previous endpoint. 
-Therefore, the `EndpointRelation` scope aggregation comes into effect only in services under tracing by SkyWalking native agents, 
+This calculates the metrics data of the dependency between endpoints.
+This relation is hard to detect, and it depends on the tracing library to propagate the previous endpoint.
+Therefore, the `EndpointRelation` scope aggregation comes into effect only in services under tracing by SkyWalking native agents,
 including auto instrument agents (like Java and .NET), OpenCensus SkyWalking exporter implementation, or other tracing context propagation in SkyWalking specification.
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | endpoint | The parent endpoint in the dependency.| | string|
 | serviceName | The name of the service. | | string |
@@ -212,7 +275,7 @@ including auto instrument agents (like Java and .NET), OpenCensus SkyWalking exp
 
 This calculates the metrics data from each request of the browser application (browser only).
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name | The browser application name of each request. |  | string |
 | count | The number of request, which is fixed at 1. |  | int |
@@ -223,7 +286,7 @@ This calculates the metrics data from each request of the browser application (b
 
 This calculates the metrics data from each request of a single version in the browser application (browser only).
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name | The single version name of each request. |  | string |
 | serviceName | The name of the browser application. | | string |
@@ -235,7 +298,7 @@ This calculates the metrics data from each request of a single version in the br
 
 This calculates the metrics data from each request of the page in the browser application (browser only).
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name | The page name of each request. |  | string |
 | serviceName | The name of the browser application. | | string |
@@ -248,7 +311,7 @@ This calculates the metrics data from each request of the page in the browser ap
 
 This calculates the metrics data from each request of the page in the browser application (browser only).
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name | The page name of each request. |  | string |
 | serviceName | The name of the browser application. | | string |
@@ -271,7 +334,7 @@ This calculates the metrics data from each request of the page in the browser ap
 
 This calculates the metrics data from [events](event.md).
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name | The name of the event. |  | string |
 | service | The service name to which the event belongs to. | | string |
@@ -286,7 +349,7 @@ This calculates the metrics data from [events](event.md).
 
 This calculates the metrics data from each request of cache system.
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name | The service name of virtual database service. |  | string |
 | databaseTypeId | The ID of the component used in this call. | | int |
@@ -297,7 +360,7 @@ This calculates the metrics data from each request of cache system.
 
 This calculates the metrics data from slow request of cache system , which is used for `write` or `read` operation.
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | databaseServiceId | The service id of virtual cache service. |  | string |
 | statement | The sql statement . | | string |
@@ -309,7 +372,7 @@ This calculates the metrics data from slow request of cache system , which is us
 
 This calculates the metrics data from each request of cache system.
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | name | The service name of virtual cache service. |  | string |
 | cacheTypeId | The ID of the component used in this call. | | int |
@@ -322,7 +385,7 @@ This calculates the metrics data from each request of cache system.
 
 This calculates the metrics data from slow request of cache system , which is used for `write` or `read` operation.
 
-| Name | Remarks | Group Key | Type | 
+| Name | Remarks | Group Key | Type |
 |---|---|---|---|
 | cacheServiceId | The service id of virtual cache service. |  | string |
 | command | The cache command . | | string |

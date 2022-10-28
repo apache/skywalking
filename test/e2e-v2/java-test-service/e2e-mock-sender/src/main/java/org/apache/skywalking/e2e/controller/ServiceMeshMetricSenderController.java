@@ -26,9 +26,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.concurrent.CountDownLatch;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
+import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.MeshProbeDownstream;
 import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetricServiceGrpc;
 import org.apache.skywalking.e2e.E2EConfiguration;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,34 +56,42 @@ public class ServiceMeshMetricSenderController {
 
     @PostMapping("/sendMetrics4TTL/{metricsTTL}")
     public String sendMetrics4TTL(@PathVariable("metricsTTL") int metricsTTL) throws Exception {
-        final ServiceMeshMetric.Builder builder =
-            ServiceMeshMetric.newBuilder()
-                             .setSourceServiceName("e2e-test-source-service")
-                             .setSourceServiceInstance("e2e-test-source-service-instance")
-                             .setDestServiceName("e2e-test-dest-service")
-                             .setDestServiceInstance("e2e-test-dest-service-instance")
-                             .setEndpoint("e2e/test")
-                             .setLatency(2000)
-                             .setResponseCode(200)
-                             .setStatus(SUCCESS)
-                             .setProtocol(Protocol.HTTP)
-                             .setDetectPoint(DetectPoint.server);
+        final HTTPServiceMeshMetric.Builder builder =
+            HTTPServiceMeshMetric
+                .newBuilder()
+                .setSourceServiceName("e2e-test-source-service")
+                .setSourceServiceInstance("e2e-test-source-service-instance")
+                .setDestServiceName("e2e-test-dest-service")
+                .setDestServiceInstance("e2e-test-dest-service-instance")
+                .setEndpoint("e2e/test")
+                .setLatency(2000)
+                .setResponseCode(200)
+                .setStatus(SUCCESS)
+                .setProtocol(Protocol.HTTP)
+                .setDetectPoint(DetectPoint.server);
 
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         final LocalDateTime startTime = now.minusDays(metricsTTL + 1);
         final LocalDateTime endTime = startTime.plusMinutes(1);
 
-        sendMetrics(builder
-                        .setStartTime(startTime.toEpochSecond(ZoneOffset.UTC) * 1000)
-                        .setEndTime(endTime.toEpochSecond(ZoneOffset.UTC) * 1000).build());
+        sendMetrics(ServiceMeshMetrics
+            .newBuilder()
+            .setHttpMetrics(
+                HTTPServiceMeshMetrics
+                    .newBuilder()
+                    .addMetrics(
+                        builder
+                            .setStartTime(startTime.toEpochSecond(ZoneOffset.UTC) * 1000)
+                            .setEndTime(endTime.toEpochSecond(ZoneOffset.UTC) * 1000)))
+            .build());
 
         return "Metrics send success!";
     }
 
-    void sendMetrics(final ServiceMeshMetric metrics) throws InterruptedException {
+    void sendMetrics(final ServiceMeshMetrics metrics) throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
 
-        StreamObserver<ServiceMeshMetric> collect = grpcStub.collect(new StreamObserver<MeshProbeDownstream>() {
+        StreamObserver<ServiceMeshMetrics> collect = grpcStub.collect(new StreamObserver<MeshProbeDownstream>() {
             @Override
             public void onNext(final MeshProbeDownstream meshProbeDownstream) {
 
