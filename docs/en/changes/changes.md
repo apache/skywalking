@@ -3,6 +3,7 @@
 #### Project
 
 * Bump up the embedded `swctl` version in OAP Docker image.
+* Migrate to BanyanDB v0.2.0.
 
 #### OAP Server
 
