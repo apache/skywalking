@@ -41,6 +41,7 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -169,10 +170,17 @@ public enum MetadataRegistry {
             return IndexRule.create(tagName, IndexRule.IndexType.INVERTED, IndexRule.IndexLocation.SERIES);
         }
         if (modelColumn.getBanyanDBExtension().isGlobalIndexing()) {
-            return IndexRule.create(tagName, IndexRule.IndexType.INVERTED, IndexRule.IndexLocation.GLOBAL);
+            return IndexRule.create(tagName, parseIndexType(modelColumn.getBanyanDBExtension().getIndexType()), IndexRule.IndexLocation.GLOBAL);
         } else {
-            return IndexRule.create(tagName, IndexRule.IndexType.INVERTED, IndexRule.IndexLocation.SERIES);
+            return IndexRule.create(tagName, parseIndexType(modelColumn.getBanyanDBExtension().getIndexType()), IndexRule.IndexLocation.SERIES);
         }
+    }
+
+    private static IndexRule.IndexType parseIndexType(BanyanDB.IndexRule.IndexType indexType) {
+        if (indexType == BanyanDB.IndexRule.IndexType.INVERTED) {
+            return IndexRule.IndexType.INVERTED;
+        }
+        return IndexRule.IndexType.TREE;
     }
 
     /**
