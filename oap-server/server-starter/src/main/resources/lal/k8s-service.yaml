@@ -13,41 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# The default LAL script to save all logs, behaving like the versions before 8.5.0.
 rules:
-  - name: envoy-als
-    layer: MESH
-    dsl: |
-      filter {
-        // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)
-        if (parsed?.response?.responseCode?.value as Integer < 400 && !parsed?.commonProperties?.responseFlags?.toString()?.trim()) {
-          abort {}
-        }
-        extractor {
-          if (parsed?.response?.responseCode) {
-            tag 'status.code': parsed?.response?.responseCode?.value
-          }
-          tag 'response.flag': parsed?.commonProperties?.responseFlags
-        }
-        sink {
-          sampler {
-            if (parsed?.commonProperties?.responseFlags?.toString()) {
-              // use service:errorCode as sampler id so that each service:errorCode has its own sampler,
-              // e.g. checkoutservice:[upstreamConnectionFailure], checkoutservice:[upstreamRetryLimitExceeded]
-              rateLimit("${log.service}:${parsed?.commonProperties?.responseFlags?.toString()}") {
-                rpm 6000
-              }
-            } else {
-              // use service:responseCode as sampler id so that each service:responseCode has its own sampler,
-              // e.g. checkoutservice:500, checkoutservice:404.
-              rateLimit("${log.service}:${parsed?.response?.responseCode}") {
-                rpm 6000
-              }
-            }
-          }
-        }
-      }
   - name: network-profiling-slow-trace
-    layer: MESH
+    layer: K8S_SERVICE
     dsl: |
       filter {
         json{

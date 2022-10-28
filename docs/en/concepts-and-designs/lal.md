@@ -338,6 +338,76 @@ filter {
   }
 }
 ```
+- `slowTrace`
+
+`slowTrace` aims to convert LogData to SlowTrace. It extracts data from `parsed` result and save them as SlowTrace. SlowTrace will not abort or edit logs, you can use other LAL for further processing.
+We require a log tag `"LOG_KIND" = "NET_PROFILING_SLOW_TRACE"` to make OAP distinguish slow trace logs from other log reports.
+An example of JSON sent to OAP is as following:
+``` json
+[
+   {
+      "tags":{
+         "data":[
+            {
+               "key":"LOG_KIND",
+               "value":"NET_PROFILING_SLOW_TRACE"
+            }
+         ]
+      },
+      "layer":"MESH",
+      "body":{
+         "json":{
+            "json":"{\"uri\":\"/provider\",\"latency\":2048,\"client_process\":{\"process_id\":\"c1519f4555ec11eda8df0242ac1d0002\",\"local\":false,\"address\":\"\"},\"server_process\":{\"process_id\":\"\",\"local\":false,\"address\":\"172.31.0.3:443\"},\"detect_point\":\"client\",\"component\":\"http\",\"ssl\":true}"
+         }
+      },
+      "service":"test-service",
+      "serviceInstance":"test-service-instance",
+      "timestamp": 1666916962406,
+   }
+]
+```
+Examples are as follows:
+
+```groovy
+filter {
+    json {
+    }
+    if (tag("LOG_KIND") == "NET_PROFILING_SLOW_TRACE") {
+        slowTrace {
+            latency parsed.latency as Long
+            uri parsed.uri as String
+
+            if (parsed.client_process.process_id as String != "") {
+                processId parsed.client_process.process_id as String
+            } else if (parsed.client_process.local as Boolean) {
+                processId ProcessRegistry.generateVirtualLocalProcess(parsed.service as String, parsed.serviceInstance as String) as String
+            } else {
+                processId ProcessRegistry.generateVirtualRemoteProcess(parsed.service as String, parsed.serviceInstance as String, parsed.client_process.address as String) as String
+            }
+
+            if (parsed.server_process.process_id as String != "") {
+                destProcessId parsed.server_process.process_id as String
+            } else if (parsed.server_process.local as Boolean) {
+                destProcessId ProcessRegistry.generateVirtualLocalProcess(parsed.service as String, parsed.serviceInstance as String) as String
+            } else {
+                destProcessId ProcessRegistry.generateVirtualRemoteProcess(parsed.service as String, parsed.serviceInstance as String, parsed.server_process.address as String) as String
+            }
+
+            detectPoint parsed.detect_point as String
+
+            if (parsed.component as String == "http" && parsed.ssl as Boolean) {
+                componentId 129
+            } else if (parsed.component as String == "http") {
+                componentId 49
+            } else if (parsed.ssl as Boolean) {
+                componentId 130
+            } else {
+                componentId 110
+            }
+        }
+    }
+}
+```
 
 ### Sink
 

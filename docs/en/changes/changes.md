@@ -69,6 +69,8 @@
 * [**Breaking Change**] Support new records query protocol, rename the column named `service_id` to `entity_id` for support difference entity.
   Please re-create `top_n_database_statement` index/table.
 * Remove improper self-obs metrics in JvmMetricsHandler(for Kafka channel).
+* Support `slowTrace` in LAL.
+* Support multiple rules with different names under the same layer of LAL script.
 
 #### UI
 
