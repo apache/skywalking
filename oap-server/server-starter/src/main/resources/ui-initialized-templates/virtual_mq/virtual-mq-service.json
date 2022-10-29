@@ -333,11 +333,11 @@
             "showGroup": true
           },
           "metrics": [
-            "endpoint_mq_consume_latency",
-            "endpoint_mq_consume_sla",
-            "endpoint_mq_consume_cpm",
-            "endpoint_mq_produce_sla",
-            "endpoint_mq_produce_cpm"
+            "mq_endpoint_consume_latency",
+            "mq_endpoint_consume_sla",
+            "mq_endpoint_consume_cpm",
+            "mq_endpoint_produce_sla",
+            "mq_endpoint_produce_cpm"
           ],
           "metricTypes": [
             "readMetricsValues",

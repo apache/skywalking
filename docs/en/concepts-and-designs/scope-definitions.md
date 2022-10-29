@@ -347,7 +347,7 @@ This calculates the metrics data from [events](event.md).
 
 ### SCOPE `DatabaseAccess`
 
-This calculates the metrics data from each request of cache system.
+This calculates the metrics data from each request of database.
 
 | Name | Remarks | Group Key | Type |
 |---|---|---|---|
@@ -358,7 +358,7 @@ This calculates the metrics data from each request of cache system.
 
 ### SCOPE `DatabaseSlowStatement`
 
-This calculates the metrics data from slow request of cache system , which is used for `write` or `read` operation.
+This calculates the metrics data from slow request of database.
 
 | Name | Remarks | Group Key | Type |
 |---|---|---|---|
@@ -394,3 +394,26 @@ This calculates the metrics data from slow request of cache system , which is us
 | traceId | The traceId of this slow access| | string|
 | status | Indicates the success or failure of the request.| | boolean |
 | operation | Indicates this access is used for `write` or `read` | | string |
+
+### SCOPE `MQAccess`
+
+This calculates the service dimensional metrics data from each request of MQ system on consume/produce side
+
+| Name | Remarks | Group Key | Type |
+|---|---|---|---|
+| name | The service name , usually it's MQ address(es) | |string|
+| transmissionLatency | The latency from produce side to consume side . | | int(in ms)|
+| status | Indicates the success or failure of the request.| | boolean |
+| operation | Indicates this access is on `Produce` or `Consume` side | | enum  |
+
+### SCOPE `MQEndpointAccess`
+
+This calculates the endpoint dimensional metrics data from each request of MQ system on consume/produce side 
+
+| Name | Remarks | Group Key | Type |
+|---|---|---|---|
+| serviceName | The service name that this endpoint belongs to. |  | string |
+| endpoint | The endpoint name , usually it's combined by `queue`,`topic`   | | string |
+| transmissionLatency | The latency from produce side to consume side . | | int(in ms)|
+| status | Indicates the success or failure of the request.| | boolean |
+| operation | Indicates this access is on `Produce` or `Consume` side | | enum  |
