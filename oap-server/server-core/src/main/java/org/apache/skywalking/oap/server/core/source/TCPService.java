@@ -25,17 +25,17 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.TCP_SERVICE;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
 
-@ScopeDeclaration(id = SERVICE, name = "Service", catalog = SERVICE_CATALOG_NAME)
+@ScopeDeclaration(id = TCP_SERVICE, name = "TCPService", catalog = SERVICE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
-public class Service extends Source {
+public class TCPService extends Source {
     private volatile String entityId;
 
     @Override
     public int scope() {
-        return DefaultScopeDefine.SERVICE;
+        return DefaultScopeDefine.TCP_SERVICE;
     }
 
     @Override
@@ -58,30 +58,20 @@ public class Service extends Source {
     private String serviceInstanceName;
     @Getter
     @Setter
-    private String endpointName;
-    @Getter
-    @Setter
-    private int latency;
-    @Getter
-    @Setter
-    private boolean status;
-    @Getter
-    @Setter
-    private int httpResponseStatusCode;
-    @Getter
-    @Setter
-    private String rpcStatusCode;
-    @Getter
-    @Setter
-    private RequestType type;
-    @Getter
-    @Setter
     private List<String> tags;
     @Setter
     private Map<String, String> originalTags;
     @Getter
     @Setter
     private SideCar sideCar = new SideCar();
+
+    @Getter
+    @Setter
+    private long receivedBytes;
+
+    @Getter
+    @Setter
+    private long sentBytes;
 
     public String getTag(String key) {
         return originalTags.get(key);

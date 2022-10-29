@@ -25,55 +25,41 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.TCP_SERVICE_INSTANCE;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
 
-@ScopeDeclaration(id = SERVICE, name = "Service", catalog = SERVICE_CATALOG_NAME)
+@ScopeDeclaration(id = TCP_SERVICE_INSTANCE, name = "TCPServiceInstance", catalog = SERVICE_INSTANCE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
-public class Service extends Source {
+public class TCPServiceInstance extends Source {
     private volatile String entityId;
 
     @Override
     public int scope() {
-        return DefaultScopeDefine.SERVICE;
+        return DefaultScopeDefine.TCP_SERVICE_INSTANCE;
     }
 
     @Override
     public String getEntityId() {
         if (entityId == null) {
-            entityId = IDManager.ServiceID.buildId(name, layer.isNormal());
+            entityId = IDManager.ServiceInstanceID.buildId(serviceId, name);
         }
         return entityId;
     }
 
     @Getter
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    private String serviceId;
+    @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
-    @Setter
-    @Getter
-    private Layer layer;
     @Getter
     @Setter
-    private String serviceInstanceName;
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
+    private String serviceName;
     @Getter
     @Setter
-    private String endpointName;
-    @Getter
-    @Setter
-    private int latency;
-    @Getter
-    @Setter
-    private boolean status;
-    @Getter
-    @Setter
-    private int httpResponseStatusCode;
-    @Getter
-    @Setter
-    private String rpcStatusCode;
-    @Getter
-    @Setter
-    private RequestType type;
+    private Layer serviceLayer;
     @Getter
     @Setter
     private List<String> tags;
@@ -82,6 +68,19 @@ public class Service extends Source {
     @Getter
     @Setter
     private SideCar sideCar = new SideCar();
+
+    @Getter
+    @Setter
+    private long receivedBytes;
+
+    @Getter
+    @Setter
+    private long sentBytes;
+
+    @Override
+    public void prepare() {
+        serviceId = IDManager.ServiceID.buildId(serviceName, serviceLayer.isNormal());
+    }
 
     public String getTag(String key) {
         return originalTags.get(key);
