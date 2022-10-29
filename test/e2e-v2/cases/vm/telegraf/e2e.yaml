@@ -35,11 +35,11 @@ verify:
   cases:
     - includes:
         - ../vm-cases.yaml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_telegraf_cpu_usage_system_info --service-name=vm-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_cpu_usage_system --service-name=vm-service |yq e 'to_entries' -
       expected:  ../expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_telegraf_cpu_usage_user_info --service-name=vm-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_cpu_usage_user --service-name=vm-service |yq e 'to_entries' -
       expected:  ../expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_telegraf_mem_used_percent_info --service-name=vm-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_mem_used_percent --service-name=vm-service |yq e 'to_entries' -
       expected:  ../expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_telegraf_mem_available_percent_info --service-name=vm-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_mem_available_percent --service-name=vm-service |yq e 'to_entries' -
       expected:  ../expected/metrics-has-value.yml

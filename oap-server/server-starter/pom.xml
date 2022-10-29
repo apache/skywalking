@@ -319,7 +319,7 @@
                         <exclude>zabbix-rules/</exclude>
                         <exclude>lal/</exclude>
                         <exclude>log-mal-rules/</exclude>
-                        <exclude>telegraf-rules</exclude>
+                        <exclude>telegraf-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

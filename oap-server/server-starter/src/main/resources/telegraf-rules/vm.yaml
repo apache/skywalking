@@ -14,31 +14,31 @@
 # limitations under the License.
 
 expSuffix: service(['host'], Layer.OS_LINUX)
-metricPrefix: meter_telegraf
+metricPrefix: meter_vm
 metricsRules:
 
   # cpu
-  - name: cpu_usage_guest_info
+  - name: cpu_usage_guest
     exp: cpu_usage_guest
-  - name: cpu_usage_idle_info
+  - name: cpu_usage_idle
     exp: cpu_usage_idle
-  - name: cpu_usage_iowait_info
+  - name: cpu_usage_iowait
     exp: cpu_usage_iowait
-  - name: cpu_usage_softirq_info
+  - name: cpu_usage_softirq
     exp: cpu_usage_softirq
-  - name: cpu_usage_system_info
+  - name: cpu_usage_system
     exp: (cpu_usage_system * 10)
-  - name: cpu_usage_user_info
+  - name: cpu_usage_user
     exp: (cpu_usage_user * 10)
 
   # memory
-  - name: mem_available_info
+  - name: mem_available
     exp: mem_available
-  - name: mem_available_percent_info
+  - name: mem_available_percent
     exp: mem_available_percent
-  - name: mem_total_info
+  - name: mem_total
     exp: mem_total
-  - name: mem_used_info
+  - name: mem_used
     exp: mem_used
-  - name: mem_used_percent_info
+  - name: mem_used_percent
     exp: (mem_used_percent * 1000)
