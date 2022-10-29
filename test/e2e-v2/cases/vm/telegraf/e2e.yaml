@@ -33,13 +33,17 @@ verify:
     count: 20
     interval: 3s
   cases:
-    - includes:
-        - ../vm-cases.yaml
+    # service list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+      expected:  ../expected/service.yml
+    # linear metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_memory_used --service-name=vm-service |yq e 'to_entries' -
+      expected:  ../expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_memory_total --service-name=vm-service |yq e 'to_entries' -
+      expected:  ../expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_memory_available --service-name=vm-service |yq e 'to_entries' -
+      expected:  ../expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_cpu_usage_system --service-name=vm-service |yq e 'to_entries' -
       expected:  ../expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_cpu_usage_user --service-name=vm-service |yq e 'to_entries' -
-      expected:  ../expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_mem_used_percent --service-name=vm-service |yq e 'to_entries' -
-      expected:  ../expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_mem_available_percent --service-name=vm-service |yq e 'to_entries' -
       expected:  ../expected/metrics-has-value.yml
