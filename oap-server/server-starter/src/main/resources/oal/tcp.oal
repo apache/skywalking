@@ -17,16 +17,16 @@
  */
 
 // TCP services' metrics
-service_throughput_received = from(Service.tcpInfo.receivedBytes).filter(type == RequestType.TCP).longAvg();
-service_throughput_sent = from(Service.tcpInfo.sentBytes).filter(type == RequestType.TCP).longAvg();
-service_relation_client_received = from(ServiceRelation.tcpInfo.receivedBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-service_relation_client_sent = from(ServiceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-service_relation_server_received = from(ServiceRelation.tcpInfo.receivedBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();
-service_relation_server_sent = from(ServiceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();
+service_throughput_received = from(TCPService.receivedBytes).longAvg();
+service_throughput_sent = from(TCPService.sentBytes).longAvg();
+service_relation_client_received = from(TCPServiceRelation.receivedBytes).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_relation_client_sent = from(TCPServiceRelation.sentBytes).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_relation_server_received = from(TCPServiceRelation.receivedBytes).filter(detectPoint == DetectPoint.SERVER).longAvg();
+service_relation_server_sent = from(TCPServiceRelation.sentBytes).filter(detectPoint == DetectPoint.SERVER).longAvg();
 
-service_instance_throughput_received = from(ServiceInstance.tcpInfo.receivedBytes).filter(type == RequestType.TCP).longAvg();
-service_instance_throughput_sent = from(ServiceInstance.tcpInfo.sentBytes).filter(type == RequestType.TCP).longAvg();
-service_instance_relation_client_received = from(ServiceInstanceRelation.tcpInfo.receivedBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-service_instance_relation_client_sent = from(ServiceInstanceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-service_instance_relation_server_received = from(ServiceInstanceRelation.tcpInfo.receivedBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();
-service_instance_relation_server_sent = from(ServiceInstanceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();
+service_instance_throughput_received = from(TCPServiceInstance.receivedBytes).longAvg();
+service_instance_throughput_sent = from(TCPServiceInstance.sentBytes).longAvg();
+service_instance_relation_client_received = from(TCPServiceInstanceRelation.receivedBytes).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_instance_relation_client_sent = from(TCPServiceInstanceRelation.sentBytes).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_instance_relation_server_received = from(TCPServiceInstanceRelation.receivedBytes).filter(detectPoint == DetectPoint.SERVER).longAvg();
+service_instance_relation_server_sent = from(TCPServiceInstanceRelation.sentBytes).filter(detectPoint == DetectPoint.SERVER).longAvg();

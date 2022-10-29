@@ -23,9 +23,11 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
+import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.MeshProbeDownstream;
 import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetricServiceGrpc;
 
 public class MeshDataMock {
@@ -34,27 +36,36 @@ public class MeshDataMock {
     public static void main(String[] args) throws InterruptedException {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
 
-        long startTimestamp = System.currentTimeMillis();
-        //long startTimestamp = new DateTime().minusDays(2).getMillis();
-
-        final StreamObserver<ServiceMeshMetric> meshObserver = createMeshObserver(channel);
+        final StreamObserver<ServiceMeshMetrics> meshObserver = createMeshObserver(channel);
 
         for (int i = 0; i < 50; i++) {
-            meshObserver.onNext(ServiceMeshMetric.newBuilder()
-                                                 .setSourceServiceName("e2e-test-source-service")
-                                                 .setSourceServiceInstance("e2e-test-source-service-instance")
-                                                 .setDestServiceName("Extra model column are the column defined by in the codes, These columns of model are not required logically in aggregation or further query,")
-                                                 .setDestServiceInstance("Extra model column are the column defined by in the codes, These columns of model are not required logically in aggregation or further query,")
-                                                 .setEndpoint("Extra model column are the column defined by in the codes, These columns of model are not required logically in aggregation or further query,")
-                                                 .setStartTime(System.currentTimeMillis() - 1000L)
-                                                 .setEndTime(System.currentTimeMillis() - 500L + i)
-                                                 .setLatency(2000)
-                                                 .setResponseCode(200)
-                                                 .setStatus(true)
-                                                 .setProtocol(Protocol.HTTP)
-                                                 .setDetectPoint(DetectPoint.server)
-                                                 .setInternalErrorCode("rate_limited")
-                                                 .build());
+            meshObserver.onNext(
+                ServiceMeshMetrics
+                    .newBuilder()
+                    .setHttpMetrics(
+                        HTTPServiceMeshMetrics
+                            .newBuilder()
+                            .addMetrics(
+                                HTTPServiceMeshMetric
+                                    .newBuilder()
+                                    .setSourceServiceName("e2e-test-source-service")
+                                    .setSourceServiceInstance("e2e-test-source-service-instance")
+                                    .setDestServiceName(
+                                        "Extra model column are the column defined by in the codes, These columns of model are not required logically in aggregation or further query,")
+                                    .setDestServiceInstance(
+                                        "Extra model column are the column defined by in the codes, These columns of model are not required logically in aggregation or further query,")
+                                    .setEndpoint(
+                                        "Extra model column are the column defined by in the codes, These columns of model are not required logically in aggregation or further query,")
+                                    .setStartTime(System.currentTimeMillis() - 1000L)
+                                    .setEndTime(System.currentTimeMillis() - 500L + i)
+                                    .setLatency(2000)
+                                    .setResponseCode(200)
+                                    .setStatus(true)
+                                    .setProtocol(Protocol.HTTP)
+                                    .setDetectPoint(DetectPoint.server)
+                                    .setInternalErrorCode("rate_limited")
+                                    .build()))
+                    .build());
         }
         meshObserver.onCompleted();
 
@@ -63,7 +74,7 @@ public class MeshDataMock {
         }
     }
 
-    private static StreamObserver<ServiceMeshMetric> createMeshObserver(ManagedChannel channel) {
+    private static StreamObserver<ServiceMeshMetrics> createMeshObserver(ManagedChannel channel) {
         ServiceMeshMetricServiceGrpc.ServiceMeshMetricServiceStub stub = ServiceMeshMetricServiceGrpc.newStub(
             channel);
         return stub.collect(new StreamObserver<MeshProbeDownstream>() {

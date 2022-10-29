@@ -13,23 +13,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.aop.server.receiver.mesh;
+ package org.apache.skywalking.library.elasticsearch.exception;
 
-import io.grpc.stub.StreamObserver;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.apm.network.servicemesh.v3.MeshProbeDownstream;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
-import org.apache.skywalking.apm.network.servicemesh.v3.compat.ServiceMeshMetricServiceGrpc;
+import lombok.Getter;
 
-@RequiredArgsConstructor
-public class MeshGRPCHandlerCompat extends ServiceMeshMetricServiceGrpc.ServiceMeshMetricServiceImplBase {
-    private final MeshGRPCHandler delegate;
+@Getter
+public class ResponseException extends RuntimeException {
+    private final int statusCode;
 
-    @Override
-    public StreamObserver<ServiceMeshMetric> collect(final StreamObserver<MeshProbeDownstream> responseObserver) {
-        return delegate.collect(responseObserver);
+    public ResponseException(String message, int statusCode) {
+        super(message);
+
+        this.statusCode = statusCode;
     }
 }

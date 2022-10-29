@@ -16,9 +16,6 @@
  *
  */
 
-// For services using protocols HTTP 1/2, gRPC, RPC, etc., the cpm metrics means "calls per minute",
-// for services that are built on top of TCP, the cpm means "packages per minute".
-
 // Service scope metrics
 service_resp_time = from(Service.latency).longAvg();
 service_sla = from(Service.*).percent(status == true);

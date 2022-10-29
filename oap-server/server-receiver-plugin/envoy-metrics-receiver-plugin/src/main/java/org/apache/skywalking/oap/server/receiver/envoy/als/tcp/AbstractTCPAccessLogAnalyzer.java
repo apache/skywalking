@@ -21,19 +21,19 @@ package org.apache.skywalking.oap.server.receiver.envoy.als.tcp;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetric;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
 @Slf4j
 public abstract class AbstractTCPAccessLogAnalyzer implements TCPAccessLogAnalyzer {
 
     /**
-     * Create an adapter to adapt the {@link HTTPAccessLogEntry log entry} into a {@link ServiceMeshMetric.Builder}.
+     * Create an adapter to adapt the {@link HTTPAccessLogEntry log entry} into a {@link TCPServiceMeshMetric.Builder}.
      *
      * @param entry         the access log entry that is to be adapted from.
      * @param sourceService the source service.
      * @param targetService the target/destination service.
-     * @return an adapter that adapts {@link HTTPAccessLogEntry log entry} into a {@link ServiceMeshMetric.Builder}.
+     * @return an adapter that adapts {@link HTTPAccessLogEntry log entry} into a {@link TCPServiceMeshMetric.Builder}.
      */
     protected TCPLogEntry2MetricsAdapter newAdapter(
         final TCPAccessLogEntry entry,
