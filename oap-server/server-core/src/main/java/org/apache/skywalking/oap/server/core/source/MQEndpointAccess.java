@@ -34,8 +34,13 @@ public class MQEndpointAccess extends Source {
 
     @Override
     public String getEntityId() {
-        return IDManager.EndpointID.buildId(serviceId, endpoint);
+        if (entityId == null) {
+            entityId = IDManager.EndpointID.buildId(IDManager.ServiceID.buildId(serviceName, false), endpoint);
+        }
+        return entityId;
     }
+
+    private String entityId;
 
     @Getter
     @Setter
@@ -46,10 +51,6 @@ public class MQEndpointAccess extends Source {
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "endpoint", requireDynamicActive = true)
     private String endpoint;
-
-    @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
-    private String serviceId;
 
     @Getter
     @Setter
@@ -65,8 +66,4 @@ public class MQEndpointAccess extends Source {
     @Setter
     private MQOperation operation;
 
-    @Override
-    public void prepare() {
-        serviceId = IDManager.ServiceID.buildId(serviceName, false);
-    }
 }

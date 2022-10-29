@@ -34,8 +34,13 @@ public class MQAccess extends Source {
 
     @Override
     public String getEntityId() {
-        return IDManager.ServiceID.buildId(name, false);
+        if (entityId == null) {
+            entityId = IDManager.ServiceID.buildId(name, false);
+        }
+        return entityId;
     }
+
+    private String entityId;
 
     @Getter
     @Setter
