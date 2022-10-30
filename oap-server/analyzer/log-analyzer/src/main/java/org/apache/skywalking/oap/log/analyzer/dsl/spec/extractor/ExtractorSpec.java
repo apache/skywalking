@@ -41,14 +41,14 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.slowsql.SlowSqlSpec;
-import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.sampletrace.SampleTraceSpec;
+import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.sampledtrace.SampledTraceSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.DatabaseSlowStatementBuilder;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampleTraceBuilder;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -74,7 +74,7 @@ public class ExtractorSpec extends AbstractSpec {
     private final List<MetricConvert> metricConverts;
 
     private final SlowSqlSpec slowSql;
-    private final SampleTraceSpec sampleTrace;
+    private final SampledTraceSpec sampledTrace;
 
     private final NamingControl namingControl;
 
@@ -95,7 +95,7 @@ public class ExtractorSpec extends AbstractSpec {
                                      .collect(Collectors.toList());
 
         slowSql = new SlowSqlSpec(moduleManager(), moduleConfig());
-        sampleTrace = new SampleTraceSpec(moduleManager(), moduleConfig());
+        sampledTrace = new SampledTraceSpec(moduleManager(), moduleConfig());
 
         namingControl = moduleManager.find(CoreModule.NAME)
                 .provider()
@@ -300,25 +300,25 @@ public class ExtractorSpec extends AbstractSpec {
     }
 
     @SuppressWarnings("unused")
-    public void sampleTrace(@DelegatesTo(SampleTraceSpec.class) final Closure<?> cl) {
+    public void sampledTrace(@DelegatesTo(SampledTraceSpec.class) final Closure<?> cl) {
         if (BINDING.get().shouldAbort()) {
             return;
         }
         LogData.Builder log = BINDING.get().log();
-        SampleTraceBuilder builder = new SampleTraceBuilder(namingControl);
+        SampledTraceBuilder builder = new SampledTraceBuilder(namingControl);
         builder.setLayer(log.getLayer());
         builder.setTimestamp(log.getTimestamp());
         builder.setServiceName(log.getService());
         builder.setServiceInstanceName(log.getServiceInstance());
         builder.setTraceId(log.getTraceContext().getTraceId());
-        BINDING.get().sampleTrace(builder);
+        BINDING.get().sampledTrace(builder);
 
-        cl.setDelegate(sampleTrace);
+        cl.setDelegate(sampledTrace);
         cl.call();
 
         String validateError = builder.validate();
         if (StringUtils.isNotEmpty(validateError)) {
-            LOGGER.warn("SampleTrace extracts failed, {}", validateError);
+            LOGGER.warn("SampledTrace extracts failed, {}", validateError);
             return;
         }
 

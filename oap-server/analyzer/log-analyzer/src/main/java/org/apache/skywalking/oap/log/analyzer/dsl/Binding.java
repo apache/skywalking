@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.DatabaseSlowStatementBuilder;
 
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampleTraceBuilder;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
 import org.apache.skywalking.oap.server.core.source.Log;
 
 /**
@@ -54,7 +54,7 @@ public class Binding extends groovy.lang.Binding {
 
     public static final String KEY_DATABASE_SLOW_STATEMENT = "database_slow_statement";
 
-    public static final String KEY_SAMPLE_TRACE = "sample_trace";
+    public static final String KEY_SAMPLED_TRACE = "sampled_trace";
 
     public Binding() {
         setProperty(KEY_PARSED, new Parsed());
@@ -110,12 +110,12 @@ public class Binding extends groovy.lang.Binding {
         return this;
     }
 
-    public SampleTraceBuilder sampleTraceBuilder() {
-        return (SampleTraceBuilder) getProperty(KEY_SAMPLE_TRACE);
+    public SampledTraceBuilder sampledTraceBuilder() {
+        return (SampledTraceBuilder) getProperty(KEY_SAMPLED_TRACE);
     }
 
-    public Binding sampleTrace(SampleTraceBuilder sampleTraceBuilder) {
-        setProperty(KEY_SAMPLE_TRACE, sampleTraceBuilder);
+    public Binding sampledTrace(SampledTraceBuilder sampledTraceBuilder) {
+        setProperty(KEY_SAMPLED_TRACE, sampledTraceBuilder);
         return this;
     }
 

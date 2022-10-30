@@ -338,10 +338,10 @@ filter {
   }
 }
 ```
-- `sampleTrace`
+- `sampledTrace`
 
-`sampleTrace` aims to convert LogData to SampleTrace Records. It extracts data from `parsed` result and save them as SampleTraceRecord. SampleTrace will not abort or edit logs, you can use other LAL for further processing.
-We require a log tag `"LOG_KIND" = "NET_PROFILING_SAMPLE_TRACE"` to make OAP distinguish slow trace logs from other log reports.
+`sampledTrace` aims to convert LogData to SampledTrace Records. It extracts data from `parsed` result and save them as SampledTraceRecord. SampledTrace will not abort or edit logs, you can use other LAL for further processing.
+We require a log tag `"LOG_KIND" = "NET_PROFILING_SAMPLED_TRACE"` to make OAP distinguish slow trace logs from other log reports.
 An example of JSON sent to OAP is as following:
 ``` json
 [
@@ -350,7 +350,7 @@ An example of JSON sent to OAP is as following:
          "data":[
             {
                "key":"LOG_KIND",
-               "value":"NET_PROFILING_SAMPLE_TRACE"
+               "value":"NET_PROFILING_SAMPLED_TRACE"
             }
          ]
       },
@@ -372,8 +372,8 @@ Examples are as follows:
 filter {
     json {
     }
-    if (tag("LOG_KIND") == "NET_PROFILING_SAMPLE_TRACE") {
-        sampleTrace {
+    if (tag("LOG_KIND") == "NET_PROFILING_SAMPLED_TRACE") {
+        sampledTrace {
             latency parsed.latency as Long
             uri parsed.uri as String
             reason parsed.reason as String

@@ -16,18 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.sampletrace;
+package org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.sampledtrace;
 
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampleTraceBuilder;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import static java.util.Objects.nonNull;
 
-public class SampleTraceSpec extends AbstractSpec {
-    public SampleTraceSpec(ModuleManager moduleManager, LogAnalyzerModuleConfig moduleConfig) {
+public class SampledTraceSpec extends AbstractSpec {
+    public SampledTraceSpec(ModuleManager moduleManager, LogAnalyzerModuleConfig moduleConfig) {
         super(moduleManager, moduleConfig);
     }
 
@@ -36,8 +36,8 @@ public class SampleTraceSpec extends AbstractSpec {
             return;
         }
         if (nonNull(latency)) {
-            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
-            sampleTraceBuilder.setLatency(latency);
+            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
+            sampledTraceBuilder.setLatency(latency);
         }
     }
 
@@ -46,8 +46,8 @@ public class SampleTraceSpec extends AbstractSpec {
             return;
         }
         if (nonNull(uri)) {
-            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
-            sampleTraceBuilder.setUri(uri);
+            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
+            sampledTraceBuilder.setUri(uri);
         }
     }
 
@@ -56,8 +56,8 @@ public class SampleTraceSpec extends AbstractSpec {
             return;
         }
         if (nonNull(reason)) {
-            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
-            sampleTraceBuilder.setReason(SampleTraceBuilder.Reason.valueOf(reason.toUpperCase()));
+            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
+            sampledTraceBuilder.setReason(SampledTraceBuilder.Reason.valueOf(reason.toUpperCase()));
         }
     }
 
@@ -66,8 +66,8 @@ public class SampleTraceSpec extends AbstractSpec {
             return;
         }
         if (nonNull(id)) {
-            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
-            sampleTraceBuilder.setProcessId(id);
+            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
+            sampledTraceBuilder.setProcessId(id);
         }
     }
 
@@ -76,8 +76,8 @@ public class SampleTraceSpec extends AbstractSpec {
             return;
         }
         if (nonNull(id)) {
-            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
-            sampleTraceBuilder.setDestProcessId(id);
+            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
+            sampledTraceBuilder.setDestProcessId(id);
         }
     }
 
@@ -87,8 +87,8 @@ public class SampleTraceSpec extends AbstractSpec {
         }
         if (nonNull(detectPoint)) {
             final DetectPoint point = DetectPoint.valueOf(detectPoint.toUpperCase());
-            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
-            sampleTraceBuilder.setDetectPoint(point);
+            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
+            sampledTraceBuilder.setDetectPoint(point);
         }
     }
 
@@ -97,8 +97,8 @@ public class SampleTraceSpec extends AbstractSpec {
             return;
         }
         if (id > 0) {
-            final SampleTraceBuilder sampleTraceBuilder = BINDING.get().sampleTraceBuilder();
-            sampleTraceBuilder.setComponentId(id);
+            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
+            sampledTraceBuilder.setComponentId(id);
         }
     }
 

@@ -21,8 +21,8 @@ rules:
         json{
         }
         extractor{
-          if (tag("LOG_KIND") == "NET_PROFILING_SAMPLE_TRACE") {
-            sampleTrace {
+          if (tag("LOG_KIND") == "NET_PROFILING_SAMPLED_TRACE") {
+            sampledTrace {
               latency parsed.latency as Long
               uri parsed.uri as String
               reason parsed.reason as String

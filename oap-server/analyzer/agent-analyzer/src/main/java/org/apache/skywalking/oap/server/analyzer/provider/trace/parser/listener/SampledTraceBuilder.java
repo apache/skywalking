@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampleTraceSlowRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledSlowTraceRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -35,7 +35,7 @@ import org.apache.skywalking.oap.server.core.source.ProcessRelation;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @RequiredArgsConstructor
-public class SampleTraceBuilder {
+public class SampledTraceBuilder {
     private final NamingControl namingControl;
 
     @Setter
@@ -96,7 +96,7 @@ public class SampleTraceBuilder {
     }
 
     public Record toRecord() {
-        final SampleTraceSlowRecord record = new SampleTraceSlowRecord();
+        final SampledSlowTraceRecord record = new SampledSlowTraceRecord();
         record.setScope(DefaultScopeDefine.PROCESS_RELATION);
         record.setEntityId(IDManager.ProcessID.buildRelationId(new IDManager.ProcessID.ProcessRelationDefine(
             processId, destProcessId
