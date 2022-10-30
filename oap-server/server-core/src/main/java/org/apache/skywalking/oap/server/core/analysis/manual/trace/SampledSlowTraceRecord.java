@@ -32,12 +32,12 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SAMPLE_TRACE_SLOW;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SAMPLED_SLOW_TRACE;
 
 @Setter
 @Getter
-@ScopeDeclaration(id = SAMPLE_TRACE_SLOW, name = "SampledTraceSlowRecord")
-@Stream(name = SampledSlowTraceRecord.INDEX_NAME, scopeId = SAMPLE_TRACE_SLOW, builder = SampledSlowTraceRecord.Builder.class, processor = RecordStreamProcessor.class)
+@ScopeDeclaration(id = SAMPLED_SLOW_TRACE, name = "SampledTraceSlowRecord")
+@Stream(name = SampledSlowTraceRecord.INDEX_NAME, scopeId = SAMPLED_SLOW_TRACE, builder = SampledSlowTraceRecord.Builder.class, processor = RecordStreamProcessor.class)
 public class SampledSlowTraceRecord extends Record {
 
     public static final String INDEX_NAME = "sampled_slow_trace_record";
