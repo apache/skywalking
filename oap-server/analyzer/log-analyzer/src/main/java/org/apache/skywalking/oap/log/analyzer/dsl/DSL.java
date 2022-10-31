@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.LALDelegatingScript;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.filter.FilterSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.meter.analyzer.dsl.registry.ProcessRegistry;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.codehaus.groovy.ast.stmt.DoWhileStatement;
@@ -38,6 +39,7 @@ import org.codehaus.groovy.ast.stmt.Statement;
 import org.codehaus.groovy.ast.stmt.WhileStatement;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.codehaus.groovy.control.customizers.SecureASTCustomizer;
 
 import static java.util.Collections.singletonList;
@@ -76,9 +78,15 @@ public class DSL {
                          .add(Map.class)
                          .add(List.class)
                          .add(Array.class)
+                         .add(String.class)
+                         .add(ProcessRegistry.class)
                          .build());
         cc.addCompilationCustomizers(secureASTCustomizer);
         cc.setScriptBaseClass(LALDelegatingScript.class.getName());
+
+        ImportCustomizer icz = new ImportCustomizer();
+        icz.addImport("ProcessRegistry", ProcessRegistry.class.getName());
+        cc.addCompilationCustomizers(icz);
 
         final GroovyShell sh = new GroovyShell(cc);
         final DelegatingScript script = (DelegatingScript) sh.parse(dsl);

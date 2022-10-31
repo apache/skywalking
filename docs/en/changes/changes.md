@@ -76,12 +76,14 @@
   original `Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation`.
 * [**Breaking Change**] TCP-related source names are changed, fields of TCP-related sources are changed, please refer to the latest `oal/tcp.oal` file.
 * Do not log error logs when failed to create ElasticSearch index because the index is created already.
+* Support `sampledTrace` in LAL.
+* Support multiple rules with different names under the same layer of LAL script.
 * [**Breaking Change**] Migrate to BanyanDB v0.2.0.
   * Adopt new OR logical operator for,
     1. `MeasureIDs` query
     2. `BanyanDBProfileThreadSnapshotQueryDAO` query
     3. Multiple `Event` conditions query
-  * Simplify Group check and creation 
+  * Simplify Group check and creation
   * Partially apply `UITemplate` changes
   * Support `index_only`
   * Return `CompletableFuture<Void>` directly from BanyanDB client
