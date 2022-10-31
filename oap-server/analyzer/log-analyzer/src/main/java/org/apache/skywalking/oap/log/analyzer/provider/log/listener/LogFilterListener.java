@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 
 import com.google.protobuf.Message;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,27 +41,29 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 @Slf4j
 @RequiredArgsConstructor
 public class LogFilterListener implements LogAnalysisListener {
-    @lombok.NonNull
-    private final DSL dsl;
+    private final Collection<DSL> dsls;
 
     @Override
     public void build() {
-        try {
-            dsl.evaluate();
-        } catch (final Exception e) {
-            log.warn("Failed to evaluate dsl: {}", dsl, e);
-        }
+        dsls.forEach(dsl -> {
+            try {
+                dsl.evaluate();
+            } catch (final Exception e) {
+                log.warn("Failed to evaluate dsl: {}", dsl, e);
+            }
+        });
     }
 
     @Override
     public LogAnalysisListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
-        dsl.bind(new Binding().log(logData.build()).extraLog(extraLog));
+        dsls.forEach(dsl -> dsl.bind(new Binding().log(logData.build())
+                                                  .extraLog(extraLog)));
         return this;
     }
 
     public static class Factory implements LogAnalysisListenerFactory {
-        private final Map<Layer, DSL> dsls;
+        private final Map<Layer, Map<String, DSL>> dsls;
 
         public Factory(final ModuleManager moduleManager, final LogAnalyzerModuleConfig config) throws Exception {
             dsls = new HashMap<>();
@@ -71,8 +74,9 @@ public class LogFilterListener implements LogAnalysisListener {
                                                          .collect(Collectors.toList());
             for (final LALConfig c : configList) {
                 Layer layer = Layer.nameOf(c.getLayer());
-                if (dsls.put(layer, DSL.of(moduleManager, config, c.getDsl())) != null) {
-                    throw new ModuleStartException("Layer " + layer.name() + " has already set a rule.");
+                Map<String, DSL> dsls = this.dsls.computeIfAbsent(layer, k -> new HashMap<>());
+                if (dsls.put(c.getName(), DSL.of(moduleManager, config, c.getDsl())) != null) {
+                    throw new ModuleStartException("Layer " + layer.name() + " has already set " + c.getName() + " rule.");
                 }
             }
         }
@@ -82,11 +86,11 @@ public class LogFilterListener implements LogAnalysisListener {
             if (layer == null) {
                 return null;
             }
-            final DSL dsl = dsls.get(layer);
+            final Map<String, DSL> dsl = dsls.get(layer);
             if (dsl == null) {
                 return null;
             }
-            return new LogFilterListener(dsl);
+            return new LogFilterListener(dsl.values());
         }
     }
 }
