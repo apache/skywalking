@@ -15,6 +15,7 @@ VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.
 
 **For Telegraf receiver:**
 1. The InfluxDB Telegraf [input plugins](https://docs.influxdata.com/telegraf/v1.24/plugins/) collects various metrics data from the VMs.
+2. The cpu, mem, system, disk and diskio input plugins should be set in telegraf.conf file.
 2. The InfluxDB Telegraf send `JSON` format metrics by `HTTP` messages to Telegraf Receiver, then pushes converted metrics to the SkyWalking OAP Server [Meter System](./../../concepts-and-designs/meter.md).
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
@@ -49,12 +50,15 @@ VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.
 
 **For Telegraf receiver:**
 
-| Monitoring Panel        | Unit | Metric Name                                                                      | Description                                                     | Data Source               |
-|-------------------------|------|----------------------------------------------------------------------------------|-----------------------------------------------------------------|---------------------------|
-| CPU System / User Usage | %    | cpu_usage_system<br />cpu_usage_user                                             | The usage of the CPU core in kernel and userland                | Telegraf CPU input plugin |
-| CPU Other Usage         | %    | cpu_usage_guest<br />cpu_usage_idle<br />cpu_usage_iowait<br />cpu_usage_softirq | The usage of the CPU core about guest, idle, iowait and softirq | Telegraf CPU input plugin |
-| Memory RAM              | MB   | mem_total<br />mem_available<br />mem_used                                       | The RAM statistics, including Total / Available / Used          | Telegraf mem input plugin |
-| Memory RAM percent      | %    | mem_available_percent<br />mem_used_percent                                      | The percentage available and used usage RAM                     | Telegraf mem input plugin |
+| Monitoring Panel             | Unit | Metric Name                                                                      | Description                                                     | Data Source               |
+|------------------------------|------|----------------------------------------------------------------------------------|-----------------------------------------------------------------|---------------------------|
+| CPU System / User Usage      | %    | cpu_usage_system<br />cpu_usage_user                                             | The usage of the CPU core in kernel and userland                | Telegraf CPU input plugin |
+| CPU Other Usage              | %    | cpu_usage_guest<br />cpu_usage_idle<br />cpu_usage_iowait<br />cpu_usage_softirq | The usage of the CPU core about guest, idle, iowait and softirq | Telegraf CPU input plugin |
+| Memory RAM                   | MB   | mem_total<br />mem_available<br />mem_used                                       | The RAM statistics, including Total / Available / Used          | Telegraf mem input plugin |
+| Memory Swap                  | MB   | memory_swap_free<br />memory_swap_total                                          | Swap memory statistics, including Free / Total                  | Telegraf mem input plugin |
+| Memory Swap Percentage       | %    | memory_swap_percentage                                                           | Swap memory memory swap percentage                              | Telegraf mem input plugin |
+| File System Mountpoint Usage | %    | filesystem_percentage_telegraf                                                   | The percentage usage of the file system at each mount point     | Telegraf mem input plugin |
+| Disk R/W                     | KB/s | disk_read<br />disk_written                                                      | The disk read and written                                       | Telegraf mem input plugin |
 
 
 ## Customizing

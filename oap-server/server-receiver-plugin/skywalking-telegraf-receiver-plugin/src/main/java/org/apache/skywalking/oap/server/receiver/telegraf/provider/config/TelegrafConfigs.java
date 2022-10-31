@@ -61,12 +61,7 @@ public class TelegrafConfigs {
                     try (Reader r = new FileReader(f)) {
                         return new Yaml().loadAs(r, TelegrafConfig.class);
                     } catch (IOException e) {
-                        log.warn("Reading file {} failed", f, e);
-                        try {
-                            throw new ModuleStartException(e.getMessage(), e);
-                        } catch (ModuleStartException ex) {
-                            return null;
-                        }
+                        return null;
                     }
                 })
                 .filter(Objects::nonNull)

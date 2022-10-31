@@ -83,13 +83,15 @@ public class TelegrafServiceHandler {
         long timestamp = telegrafData.getTimestamp();
 
         fields.forEach((key, value) -> {
-            Sample.SampleBuilder builder = Sample.builder();
-            Sample sample = builder.name(name + "_" + key)
-                    .timestamp(timestamp * 1000L)
-                    .value(((Number) value).doubleValue())
-                    .labels(immutableTags).build();
+            if (value instanceof Number) {
+                Sample.SampleBuilder builder = Sample.builder();
+                Sample sample = builder.name(name + "_" + key)
+                        .timestamp(timestamp * 1000L)
+                        .value(((Number) value).doubleValue())
+                        .labels(immutableTags).build();
 
-            sampleList.add(sample);
+                sampleList.add(sample);
+            }
         });
         return sampleList;
 

@@ -156,10 +156,12 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_vm_filesystem_percentage"
+            "meter_vm_filesystem_percentage",
+            "meter_vm_filesystem_percentage_telegraf"
           ],
           "metricTypes": [
-            "readLabeledMetricsValues"
+            "readLabeledMetricsValues",
+            "readMetricsValues"
           ],
           "moved": false
         },
@@ -182,10 +184,12 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_vm_cpu_average_used"
+            "meter_vm_cpu_average_used",
+            "meter_vm_cpu_average_used_telegraf"
           ],
           "metricTypes": [
-            "readLabeledMetricsValues"
+            "readLabeledMetricsValues",
+            "readMetricsValues"
           ],
           "moved": false
         },

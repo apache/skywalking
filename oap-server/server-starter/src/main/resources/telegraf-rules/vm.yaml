@@ -18,27 +18,39 @@ metricPrefix: meter_vm
 metricsRules:
 
   # cpu
-  - name: cpu_usage_guest
-    exp: cpu_usage_guest
-  - name: cpu_usage_idle
-    exp: cpu_usage_idle
-  - name: cpu_usage_iowait
-    exp: cpu_usage_iowait
-  - name: cpu_usage_softirq
-    exp: cpu_usage_softirq
-  - name: cpu_usage_system
-    exp: cpu_usage_system
-  - name: cpu_usage_user
-    exp: cpu_usage_user
+  - name: cpu_total_percentage
+    exp: cpu_usage_user.tagEqual('cpu' , 'cpu-total')
+  - name: cpu_average_used_telegraf
+    exp: cpu_usage_user.tagEqual('cpu' , 'cpu-total')
+  - name: cpu_load1
+    exp: system_load1
+  - name: cpu_load5
+    exp: system_load5
+  - name: cpu_load15
+    exp: system_load15
 
   # memory
-  - name: memory_available
-    exp: mem_available
-  - name: memory_available_percent
-    exp: mem_available_percent
   - name: memory_total
     exp: mem_total
+  - name: memory_available
+    exp: mem_available
   - name: memory_used
     exp: mem_used
-  - name: memory_used_percent
-    exp: mem_used_percent
+
+  # swap
+  - name: memory_swap_free
+    exp: swap_free
+  - name: memory_swap_total
+    exp: cpu_swap_total
+  - name: memory_swap_percentage
+    exp: 100 - ((swap_free * 100) / cpu_swap_total)
+
+    #node filesystem
+  - name: filesystem_percentage_telegraf
+    exp: disk_used_percent
+
+    #node disk
+  - name: disk_read
+    exp: diskio_read_bytes.rate('PT1M')
+  - name: disk_written
+    exp: diskio_write_bytes.rate('PT1M')
