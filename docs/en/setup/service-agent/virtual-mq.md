@@ -4,7 +4,7 @@ Virtual MQ represent the MQ nodes detected by [server agents' plugins](server-ag
 metrics of the MQ are also from the MQ client-side perspective.
 
 For example, Kafka plugins in the Java agent could detect the transmission latency of message
-As a result, SkyWalking would show message count , transformation latency, success rate powered by backend analysis capabilities in this dashboard.
+As a result, SkyWalking would show message count, transmission latency, success rate powered by backend analysis capabilities in this dashboard.
 
 The MQ operation span should have
 - It is an **Exit**(at producer side) or **Entry**(at consumer side) span
