@@ -93,10 +93,8 @@ public class SampleConvertTest {
         }
 
         // Grouping all samples by their name
-        Map<String, List<SampleConvertTest.Sample>> sampleFamilyCollection = allSamples.stream()
-                .collect(Collectors.groupingBy(SampleConvertTest.Sample::getName));
-        System.out.println(sampleFamilyCollection);
-        return sampleFamilyCollection;
+        return allSamples.stream()
+                .collect(Collectors.groupingBy(Sample::getName));
     }
 
     @Test
