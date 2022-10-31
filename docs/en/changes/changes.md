@@ -78,6 +78,8 @@
   original `Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation`.
 * [**Breaking Change**] TCP-related source names are changed, fields of TCP-related sources are changed, please refer to the latest `oal/tcp.oal` file.
 * Do not log error logs when failed to create ElasticSearch index because the index is created already.
+* Support `sampledTrace` in LAL.
+* Support multiple rules with different names under the same layer of LAL script.
 
 #### UI
 
@@ -110,6 +112,9 @@
 * Add `readRecords` to metric types.
 * Verify dashboard names for new dashboards.
 * Associate metrics with the trace widget on dashboards.
+* Fix configuration panel styles.
+* Remove a un-use icon.
+* Support labeled value on the service/instance/endpoint list widgets.
 
 #### Documentation
 
