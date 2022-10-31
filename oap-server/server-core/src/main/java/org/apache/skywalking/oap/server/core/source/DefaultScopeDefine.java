@@ -114,6 +114,7 @@ public class DefaultScopeDefine {
     public static final int TCP_SERVICE_RELATION = 59;
     public static final int TCP_SERVICE_INSTANCE_RELATION = 60;
     public static final int TCP_SERVICE_INSTANCE_UPDATE = 61;
+    public static final int SAMPLED_SLOW_TRACE = 62;
 
     public static final int MESSAGE_QUEUE_ACCESS = 62;
     public static final int MESSAGE_QUEUE_ENDPOINT_ACCESS = 63;

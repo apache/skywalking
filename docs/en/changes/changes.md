@@ -77,6 +77,8 @@
 * [**Breaking Change**] TCP-related source names are changed, fields of TCP-related sources are changed, please refer to the latest `oal/tcp.oal` file.
 * Do not log error logs when failed to create ElasticSearch index because the index is created already.
 * Add virtual MQ analysis for native traces.
+* Support `sampledTrace` in LAL.
+* Support multiple rules with different names under the same layer of LAL script.
 
 #### UI
 
