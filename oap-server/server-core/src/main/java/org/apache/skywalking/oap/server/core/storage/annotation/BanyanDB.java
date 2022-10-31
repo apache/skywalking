@@ -100,10 +100,22 @@ public @interface BanyanDB {
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
     @interface IndexRule {
+        /**
+         * IndexRule supports selecting two distinct kinds of index structures.
+         */
         IndexType indexType() default IndexType.INVERTED;
 
         enum IndexType {
-            INVERTED, TREE;
+            /**
+             * The `INVERTED` index is the primary option when users set up an index rule.
+             * It's suitable for most tag indexing due to a better memory usage ratio and query performance.
+             */
+            INVERTED,
+            /**
+             * The `TREE` index could be better when there are high cardinalities, such as the `ID` tag and numeric duration tag.
+             * In these cases, it saves much memory space.
+             */
+            TREE;
         }
     }
 }

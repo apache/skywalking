@@ -3,7 +3,6 @@
 #### Project
 
 * Bump up the embedded `swctl` version in OAP Docker image.
-* Migrate to BanyanDB v0.2.0.
 
 #### OAP Server
 
@@ -77,6 +76,18 @@
   original `Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation`.
 * [**Breaking Change**] TCP-related source names are changed, fields of TCP-related sources are changed, please refer to the latest `oal/tcp.oal` file.
 * Do not log error logs when failed to create ElasticSearch index because the index is created already.
+* [**Breaking Change**] Migrate to BanyanDB v0.2.0.
+  * Adopt new OR logical operator for,
+    1. `MeasureIDs` query
+    2. `BanyanDBProfileThreadSnapshotQueryDAO` query
+    3. Multiple `Event` conditions query
+  * Simplify Group check and creation 
+  * Partially apply `UITemplate` changes
+  * Support `index_only`
+  * Return `CompletableFuture<Void>` directly from BanyanDB client
+  * Optimize data binary parse methods in *LogQueryDAO
+  * Support different indexType
+  * Support configuration for TTL and (block|segment) intervals
 
 #### UI
 
@@ -88,7 +99,7 @@
   to change the OAP backend service addresses, like `SW_OAP_ADDRESS=localhost:12800,localhost:12801`, and use
   environment
   variable `SW_SERVER_PORT` to change the port. Other Spring-related configurations don't take effect anymore.
-* Polish the endpoint list graph.
+* Polish the endpoint list graph.g
 * Fix styles for an adaptive height.
 * Fix setting up a new time range after clicking the refresh button.
 * Enhance the process topology graph to support dragging nodes.
