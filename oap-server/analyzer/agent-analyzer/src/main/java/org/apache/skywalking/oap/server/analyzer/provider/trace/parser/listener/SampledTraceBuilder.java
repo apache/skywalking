@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -32,7 +34,6 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.source.ProcessRelation;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @RequiredArgsConstructor
 public class SampledTraceBuilder {
@@ -77,22 +78,19 @@ public class SampledTraceBuilder {
     @Getter
     private long timestamp;
 
-    public String validate() {
-        String result = null;
-        result = validateNotEmpty(result, "traceId", traceId);
-        result = validateBiggerZero(result, "latency", latency);
-        result = validateNotEmpty(result, "uri", uri);
-        result = validateNotEmpty(result, "reason", reason);
-        result = validateNotEmpty(result, "layer", layer);
-        result = validateNotEmpty(result, "service name", serviceName);
-        result = validateNotEmpty(result, "service instance name", serviceInstanceName);
-        result = validateNotEmpty(result, "process id", processId);
-        result = validateNotEmpty(result, "dest process id", destProcessId);
-        result = validateNotEmpty(result, "detect point", detectPoint);
-        result = validateNotEmpty(result, "dest process id", destProcessId);
-        result = validateBiggerZero(result, "component id", componentId);
-        result = validateBiggerZero(result, "timestamp", timestamp);
-        return result;
+    public void validate() {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(traceId), "traceId can't be empty");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(uri), "uri can't be empty");
+        Preconditions.checkArgument(latency > 0, "latency must bigger zero");
+        Preconditions.checkArgument(reason != null, "reason can't be empty");
+        Preconditions.checkArgument(layer != null, "layer can't be empty");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(serviceName), "service name can't be empty");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(serviceInstanceName), "service instance name can't be empty");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(processId), "processId can't be empty");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(destProcessId), "destProcessId can't be empty");
+        Preconditions.checkArgument(componentId > 0, "componentId must bigger zero");
+        Preconditions.checkArgument(detectPoint != null, "detestPoint can't be empty");
+        Preconditions.checkArgument(timestamp > 0, "timestamp must bigger zero");
     }
 
     public Record toRecord() {
@@ -119,36 +117,6 @@ public class SampledTraceBuilder {
         processRelation.setDetectPoint(detectPoint);
         processRelation.setComponentId(componentId);
         return processRelation;
-    }
-
-    private String validateNotEmpty(String error, String name, String message) {
-        if (error != null) {
-            return error;
-        }
-        if (StringUtil.isEmpty(message)) {
-            return name + " not configured.";
-        }
-        return null;
-    }
-
-    private String validateNotEmpty(String error, String name, Object data) {
-        if (error != null) {
-            return error;
-        }
-        if (data == null) {
-            return name + " not configured.";
-        }
-        return null;
-    }
-
-    private String validateBiggerZero(String error, String name, long val) {
-        if (error != null) {
-            return error;
-        }
-        if (val < 0) {
-            return name + " must bigger zero.";
-        }
-        return null;
     }
 
     /**

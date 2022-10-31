@@ -316,12 +316,7 @@ public class ExtractorSpec extends AbstractSpec {
         cl.setDelegate(sampledTrace);
         cl.call();
 
-        String validateError = builder.validate();
-        if (StringUtils.isNotEmpty(validateError)) {
-            LOGGER.warn("SampledTrace extracts failed, {}", validateError);
-            return;
-        }
-
+        builder.validate();
         final Record record = builder.toRecord();
         final ISource entity = builder.toEntity();
         RecordStreamProcessor.getInstance().in(record);
