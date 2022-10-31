@@ -108,6 +108,9 @@
 * Add `readRecords` to metric types.
 * Verify dashboard names for new dashboards.
 * Associate metrics with the trace widget on dashboards.
+* Fix configuration panel styles.
+* Remove a un-use icon.
+* Support labeled value on the service/instance/endpoint list widgets.
 
 #### Documentation
 
