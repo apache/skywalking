@@ -1,3 +1,4 @@
+
 # Virtual Message Queue (MQ)
 
 Virtual MQ represent the MQ nodes detected by [server agents' plugins](server-agents.md). The performance
@@ -9,7 +10,6 @@ As a result, SkyWalking would show message count, transmission latency, success 
 The MQ operation span should have
 - It is an **Exit**(at producer side) or **Entry**(at consumer side) span
 - **Span's layer == MQ**
-- Tag key = `mq.broker`, value = MQ addresses, it must contain complete server address, and keep consistent at consumer, producer side. 
 - Tag key = `mq.queue`, value = MQ queue name
 - Tag key = `mq.topic`, value = MQ queue topic , it's optional as some MQ don't have topic concept.
 - Tag key = `transmission.latency`, value = Transmission latency from consumer to producer
