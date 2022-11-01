@@ -45,8 +45,6 @@ public class SpanTags {
 
     public static final String CACHE_KEY = "cache.key";
 
-    public static final String MQ_BROKER = "mq.broker";
-
     public static final String MQ_QUEUE = "mq.queue";
 
     public static final String MQ_TOPIC = "mq.topic";
