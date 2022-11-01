@@ -223,7 +223,7 @@ log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:
     lalFiles: ${SW_LOG_LAL_FILES:my-lal-config} # files are under "lal" directory
-    malFiles: ${SW_LOG_MAL_FILES:my-lal-mal-config,another-lal-mal-config} # files are under "log-mal-rules" directory
+    malFiles: ${SW_LOG_MAL_FILES:my-lal-mal-config, folder1/another-lal-mal-config, folder2/*} # files are under "log-mal-rules" directory
 ```
 
 Examples are as follows:
