@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
@@ -51,17 +52,25 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
             return;
         }
         MQTags mqTags = collectTags(span.getTagsList());
-        if (StringUtil.isBlank(mqTags.broker)) {
-            return;
+        final MQOperation mqOperation;
+        final String serviceName;
+        if (span.getSpanType() == SpanType.Entry) {
+            mqOperation = MQOperation.Consume;
+            final String peer = span.getRefsList()
+                                    .stream()
+                                    .findFirst()
+                                    .map(SegmentReference::getNetworkAddressUsedAtPeer)
+                                    .orElse(null);
+            serviceName = namingControl.formatServiceName(peer);
+        } else {
+            mqOperation = MQOperation.Produce;
+            serviceName = namingControl.formatServiceName(span.getPeer());
         }
         long timeBucket = TimeBucket.getMinuteTimeBucket(span.getStartTime());
-        String serviceName = namingControl.formatServiceName(mqTags.broker);
         sourceList.add(toServiceMeta(serviceName, timeBucket));
         String endpoint = buildEndpointName(mqTags.topic, mqTags.queue);
         String endpointName = namingControl.formatEndpointName(serviceName, endpoint);
         sourceList.add(toEndpointMeta(serviceName, endpointName, timeBucket));
-
-        final MQOperation mqOperation = span.getSpanType() == SpanType.Entry ? MQOperation.Consume : MQOperation.Produce;
         MQAccess access = new MQAccess();
         access.setTypeId(span.getComponentId());
         access.setTransmissionLatency(mqTags.transmissionLatency);
@@ -91,9 +100,7 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
     private MQTags collectTags(final List<KeyStringValuePair> tagsList) {
         MQTags mqTags = new MQTags();
         for (KeyStringValuePair keyStringValuePair : tagsList) {
-            if (SpanTags.MQ_BROKER.equals(keyStringValuePair.getKey())) {
-                mqTags.broker = keyStringValuePair.getValue();
-            } else if (SpanTags.MQ_TOPIC.equals(keyStringValuePair.getKey())) {
+            if (SpanTags.MQ_TOPIC.equals(keyStringValuePair.getKey())) {
                 mqTags.topic = keyStringValuePair.getValue();
             } else if (SpanTags.MQ_QUEUE.equals(keyStringValuePair.getKey())) {
                 mqTags.queue = keyStringValuePair.getValue();
@@ -128,7 +135,6 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
     }
 
     private static class MQTags {
-        private String broker;
         private String topic;
         private String queue;
         private long transmissionLatency;
