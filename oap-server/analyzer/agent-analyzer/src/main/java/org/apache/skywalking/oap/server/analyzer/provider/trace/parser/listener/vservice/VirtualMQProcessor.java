@@ -51,6 +51,9 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
         if (span.getSpanLayer() != SpanLayer.MQ) {
             return;
         }
+        if (!(span.getSpanType() == SpanType.Exit || span.getSpanType() == SpanType.Entry)) {
+            return;
+        }
         MQTags mqTags = collectTags(span.getTagsList());
         final MQOperation mqOperation;
         final String serviceName;
