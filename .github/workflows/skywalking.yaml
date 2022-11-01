@@ -602,15 +602,11 @@ jobs:
       - name: Prepare test services
         shell: bash
         run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
-      - name: Setup Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: "1.16"
       - name: Set env var
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@81fab7dbf5bfb201166d7d8e0089f99d2dc761f3
+        uses: apache/skywalking-infra-e2e@c3eb3241f649289465eda12af8214ca60aaaaa5f
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - uses: actions/upload-artifact@v2
@@ -663,12 +659,8 @@ jobs:
           path: docker-images
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
-      - name: Setup Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: "1.16"
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@81fab7dbf5bfb201166d7d8e0089f99d2dc761f3
+        uses: apache/skywalking-infra-e2e@c3eb3241f649289465eda12af8214ca60aaaaa5f
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -706,12 +698,8 @@ jobs:
       - name: Prepare test services
         shell: bash
         run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
-      - name: Setup Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: "1.16"
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@81fab7dbf5bfb201166d7d8e0089f99d2dc761f3
+        uses: apache/skywalking-infra-e2e@c3eb3241f649289465eda12af8214ca60aaaaa5f
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
