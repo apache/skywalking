@@ -32,8 +32,6 @@ services:
       - SW_DATA_SOURCE_PASSWORD=password
       - SW_JDBC_URL=jdbc:mysql://mysql:3306/swtest
       - SW_CORE_TOPN_REPORT_PERIOD=2
-      - SW_OTEL_RECEIVER=default
-      - SW_OTEL_RECEIVER_ENABLED_OTEL_RULES=mysql
     depends_on:
       mysql:
         condition: service_healthy

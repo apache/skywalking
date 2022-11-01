@@ -33,10 +33,13 @@ import io.opencensus.proto.metrics.v1.SummaryValue;
 import io.opencensus.proto.resource.v1.Resource;
 import io.vavr.Function1;
 import io.vavr.Tuple;
+
+import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
@@ -181,7 +184,12 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
             Splitter.on(",")
                 .omitEmptyStrings()
                 .splitToList(config.getEnabledOtelRules());
-        final List<Rule> rules = Rules.loadRules("otel-rules", enabledRules);
+        final List<Rule> rules;
+        try {
+            rules = Rules.loadRules("otel-rules", enabledRules);
+        } catch (IOException e) {
+            throw new ModuleStartException("Failed to load otel rules.", e);
+        }
         if (rules.isEmpty()) {
             return;
         }
