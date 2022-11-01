@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBS
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> implements IBatchDAO {
     private static final Object STREAM_SYNCHRONIZER = new Object();
@@ -64,7 +65,7 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
     @Override
     public CompletableFuture<Void> flush(List<PrepareRequest> prepareRequests) {
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
-            for (final PrepareRequest r : prepareRequests) {
+            return CompletableFuture.allOf(prepareRequests.stream().map((Function<PrepareRequest, CompletableFuture<Void>>) r -> {
                 if (r instanceof BanyanDBStreamInsertRequest) {
                     return getStreamBulkWriteProcessor().add(((BanyanDBStreamInsertRequest) r).getStreamWrite());
                 } else if (r instanceof BanyanDBMeasureInsertRequest) {
@@ -72,7 +73,8 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
                 } else if (r instanceof BanyanDBMeasureUpdateRequest) {
                     return getMeasureBulkWriteProcessor().add(((BanyanDBMeasureUpdateRequest) r).getMeasureWrite());
                 }
-            }
+                return CompletableFuture.completedFuture(null);
+            }).toArray(CompletableFuture[]::new));
         }
 
         return CompletableFuture.completedFuture(null);

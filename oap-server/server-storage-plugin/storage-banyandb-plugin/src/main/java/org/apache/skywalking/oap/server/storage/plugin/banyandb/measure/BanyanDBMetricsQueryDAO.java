@@ -217,9 +217,10 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
                 }
             }
         });
-        if (resp.size() > 0) {
-            map.putIfAbsent(resp.getDataPoints().get(0).getId(), resp.getDataPoints().get(0));
+        for (final DataPoint dp : resp.getDataPoints()) {
+            map.putIfAbsent(dp.getId(), dp);
         }
+
         return map;
     }
 }
