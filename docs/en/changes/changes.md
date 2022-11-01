@@ -78,6 +78,7 @@
   original `Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation`.
 * [**Breaking Change**] TCP-related source names are changed, fields of TCP-related sources are changed, please refer to the latest `oal/tcp.oal` file.
 * Do not log error logs when failed to create ElasticSearch index because the index is created already.
+* Support Python runtime metrics analysis.
 * Support `sampledTrace` in LAL.
 * Support multiple rules with different names under the same layer of LAL script.
 
@@ -115,6 +116,7 @@
 * Fix configuration panel styles.
 * Remove a un-use icon.
 * Support labeled value on the service/instance/endpoint list widgets.
+* Add Python runtime metrics and cpu/memory utilization panels to General-Instance and Fass-Instance dashboards
 
 #### Documentation
 
