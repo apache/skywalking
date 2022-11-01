@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -89,5 +90,9 @@ public class ResourceUtils {
             }
         }
         return fileList;
+    }
+
+    public static Path getPath(String path) {
+        return new File(Objects.requireNonNull(ResourceUtils.class.getClassLoader().getResource(path)).getPath()).toPath();
     }
 }

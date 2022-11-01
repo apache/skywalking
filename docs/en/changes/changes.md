@@ -71,6 +71,8 @@
 * Remove improper self-obs metrics in JvmMetricsHandler(for Kafka channel).
 * gRPC stream canceling code is not logged as an error when the client cancels the stream. The client
   cancels the stream when the pod is terminated.
+* [**Breaking Change**] Change the way of loading MAL rules(support pattern).
+* Move k8s relative MAL files into `/otel-rules/k8s`.
 * [**Breaking Change**] Refactor service mesh protobuf definitions and split TCP-related metrics to individual definition.
 * Add `TCP{Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation}` sources and split TCP-related entities out from
   original `Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation`.

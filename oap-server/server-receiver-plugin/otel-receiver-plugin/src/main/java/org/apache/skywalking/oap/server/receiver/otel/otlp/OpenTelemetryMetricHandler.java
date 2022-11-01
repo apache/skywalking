@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.receiver.otel.otlp;
 import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_CUMULATIVE;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +83,12 @@ public class OpenTelemetryMetricHandler
             Splitter.on(",")
                 .omitEmptyStrings()
                 .splitToList(config.getEnabledOtelRules());
-        final List<Rule> rules = Rules.loadRules("otel-rules", enabledRules);
+        final List<Rule> rules;
+        try {
+            rules = Rules.loadRules("otel-rules", enabledRules);
+        } catch (IOException e) {
+            throw new ModuleStartException("Failed to load otel rules.", e);
+        }
 
         if (rules.isEmpty()) {
             return;
