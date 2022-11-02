@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractB
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -55,22 +56,22 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
-        // TODO: add time range
-        // TODO: use OR
         List<Metrics> metricsInStorage = new ArrayList<>(metrics.size());
-        for (final Metrics missCachedMetric : metrics) {
-            MeasureQueryResponse resp = query(model.getName(), schema.getTags(), schema.getFields(), new QueryBuilder<MeasureQuery>() {
-                @Override
-                protected void apply(MeasureQuery query) {
-                    query.and(id(missCachedMetric.id()));
+        MeasureQueryResponse resp = query(model.getName(), schema.getTags(), schema.getFields(), new QueryBuilder<MeasureQuery>() {
+            @Override
+            protected void apply(MeasureQuery query) {
+                for (final Metrics missCachedMetric : metrics) {
+                    query.or(id(missCachedMetric.id()));
                 }
-            });
-            if (resp.size() == 0) {
-                continue;
             }
-            for (final DataPoint dataPoint : resp.getDataPoints()) {
-                metricsInStorage.add(storageBuilder.storage2Entity(new BanyanDBConverter.StorageToMeasure(schema, dataPoint)));
-            }
+        });
+
+        if (resp.size() == 0) {
+            return Collections.emptyList();
+        }
+
+        for (final DataPoint dataPoint : resp.getDataPoints()) {
+            metricsInStorage.add(storageBuilder.storage2Entity(new BanyanDBConverter.StorageToMeasure(schema, dataPoint)));
         }
         return metricsInStorage;
     }
