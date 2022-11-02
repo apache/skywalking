@@ -228,7 +228,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public List<Process> listProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual) throws IOException {
         long lastPingStartTimeBucket = duration.getStartTimeBucket();
-        long lastPingEndTimeBucket = duration.getEndTimeBucket();
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),

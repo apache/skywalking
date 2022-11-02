@@ -112,11 +112,12 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery traceQuery) {
+                        // TODO: use "in" operator
                         for (final String segmentID : segmentIds) {
                             traceQuery.or(eq(SegmentRecord.SEGMENT_ID, segmentID));
-                            traceQuery.setLimit(segmentIds.size());
-                            traceQuery.setOrderBy(desc(SegmentRecord.START_TIME));
                         }
+                        traceQuery.setLimit(segmentIds.size());
+                        traceQuery.setOrderBy(desc(SegmentRecord.START_TIME));
                     }
                 });
 

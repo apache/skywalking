@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
@@ -49,6 +50,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
+@Slf4j
 public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMetricsQueryDAO {
     public BanyanDBMetricsQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -228,7 +230,9 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
             }
         });
         for (final DataPoint dp : resp.getDataPoints()) {
-            map.putIfAbsent(dp.getId(), dp);
+            if (map.putIfAbsent(dp.getId(), dp) != null) {
+                log.warn("duplicated data point");
+            }
         }
 
         return map;

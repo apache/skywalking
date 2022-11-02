@@ -29,15 +29,12 @@ import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Serializable;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class BanyanDBConverter {
     public static class StorageToStream implements Convert2Entity {
@@ -221,14 +218,6 @@ public class BanyanDBConverter {
         public StorageToMeasure(MetadataRegistry.Schema schema, DataPoint dataPoint) {
             this.schema = schema;
             this.dataPoint = dataPoint;
-        }
-
-        /**
-         * Currently, only used by {@link org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBNetworkAddressAliasDAO}.
-         * The default DownSampling strategy, i.e. {@link DownSampling#Minute} is assumed in this case.
-         */
-        public StorageToMeasure(String measureModelName, DataPoint dataPoint) {
-            this(checkNotNull(MetadataRegistry.INSTANCE.findMetadata(measureModelName, DownSampling.Minute), "measure schema"), dataPoint);
         }
 
         @Override
