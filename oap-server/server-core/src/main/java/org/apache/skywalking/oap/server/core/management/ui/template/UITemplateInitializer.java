@@ -59,6 +59,7 @@ public class UITemplateInitializer {
         Layer.SO11Y_SATELLITE.name(),
         Layer.FAAS.name(),
         Layer.APISIX.name(),
+        Layer.VIRTUAL_MQ.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
