@@ -248,14 +248,14 @@ agent-analyzer:
     # Nginx and Envoy agents can't get the real remote address.
     # Exit spans with the component in the list would not generate the client-side instance relation metrics.
     noUpstreamRealAddressAgents: ${SW_NO_UPSTREAM_REAL_ADDRESS:6000,9000}
-    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite,go-runtime} # Which files could be meter analyzed, files split by ","
+    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite,go-runtime, python-runtime} # Which files could be meter analyzed, files split by ","
     slowCacheReadThreshold: ${SW_SLOW_CACHE_SLOW_READ_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
     slowCacheWriteThreshold: ${SW_SLOW_CACHE_SLOW_WRITE_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
 
 log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:
-    lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mysql-slowsql,pgsql-slowsql,default}
+    lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,k8s-service,default}
     malFiles: ${SW_LOG_MAL_FILES:""}
 
 event-analyzer:
@@ -349,7 +349,7 @@ receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc,otlp"}
-    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"istio-controlplane,k8s-node,oap,vm,mysql,postgresql,apisix"}
+    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"apisix,k8s/*,istio-controlplane,vm,mysql,postgresql,oap"}
 
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}

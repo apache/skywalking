@@ -71,11 +71,17 @@
 * Remove improper self-obs metrics in JvmMetricsHandler(for Kafka channel).
 * gRPC stream canceling code is not logged as an error when the client cancels the stream. The client
   cancels the stream when the pod is terminated.
+* [**Breaking Change**] Change the way of loading MAL rules(support pattern).
+* Move k8s relative MAL files into `/otel-rules/k8s`.
 * [**Breaking Change**] Refactor service mesh protobuf definitions and split TCP-related metrics to individual definition.
 * Add `TCP{Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation}` sources and split TCP-related entities out from
   original `Service,ServiceInstance,ServiceRelation,ServiceInstanceRelation`.
 * [**Breaking Change**] TCP-related source names are changed, fields of TCP-related sources are changed, please refer to the latest `oal/tcp.oal` file.
 * Do not log error logs when failed to create ElasticSearch index because the index is created already.
+* Add virtual MQ analysis for native traces.
+* Support Python runtime metrics analysis.
+* Support `sampledTrace` in LAL.
+* Support multiple rules with different names under the same layer of LAL script.
 
 #### UI
 
@@ -111,6 +117,9 @@
 * Fix configuration panel styles.
 * Remove a un-use icon.
 * Support labeled value on the service/instance/endpoint list widgets.
+* Add menu for virtual MQ
+* Set selector props and update configuration panel styles
+* Add Python runtime metrics and cpu/memory utilization panels to General-Instance and Fass-Instance dashboards
 
 #### Documentation
 

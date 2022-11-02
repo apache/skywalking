@@ -41,17 +41,22 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.slowsql.SlowSqlSpec;
+import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.sampledtrace.SampledTraceSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.DatabaseSlowStatementBuilder;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
+import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -69,6 +74,7 @@ public class ExtractorSpec extends AbstractSpec {
     private final List<MetricConvert> metricConverts;
 
     private final SlowSqlSpec slowSql;
+    private final SampledTraceSpec sampledTrace;
 
     private final NamingControl namingControl;
 
@@ -89,6 +95,7 @@ public class ExtractorSpec extends AbstractSpec {
                                      .collect(Collectors.toList());
 
         slowSql = new SlowSqlSpec(moduleManager(), moduleConfig());
+        sampledTrace = new SampledTraceSpec(moduleManager(), moduleConfig());
 
         namingControl = moduleManager.find(CoreModule.NAME)
                 .provider()
@@ -290,6 +297,30 @@ public class ExtractorSpec extends AbstractSpec {
 
         sourceReceiver.receive(databaseSlowStatement);
         sourceReceiver.receive(serviceMeta);
+    }
+
+    @SuppressWarnings("unused")
+    public void sampledTrace(@DelegatesTo(SampledTraceSpec.class) final Closure<?> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        LogData.Builder log = BINDING.get().log();
+        SampledTraceBuilder builder = new SampledTraceBuilder(namingControl);
+        builder.setLayer(log.getLayer());
+        builder.setTimestamp(log.getTimestamp());
+        builder.setServiceName(log.getService());
+        builder.setServiceInstanceName(log.getServiceInstance());
+        builder.setTraceId(log.getTraceContext().getTraceId());
+        BINDING.get().sampledTrace(builder);
+
+        cl.setDelegate(sampledTrace);
+        cl.call();
+
+        builder.validate();
+        final Record record = builder.toRecord();
+        final ISource entity = builder.toEntity();
+        RecordStreamProcessor.getInstance().in(record);
+        sourceReceiver.receive(entity);
     }
 
     public static class SampleBuilder {
