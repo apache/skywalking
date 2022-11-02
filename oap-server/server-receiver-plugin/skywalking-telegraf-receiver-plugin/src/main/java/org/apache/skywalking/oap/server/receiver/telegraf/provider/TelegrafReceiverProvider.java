@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.receiver.telegraf.provider;
 
 import com.google.common.base.Splitter;
 import com.linecorp.armeria.common.HttpMethod;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
@@ -31,15 +33,14 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.receiver.telegraf.module.TelegrafReceiverModule;
-import org.apache.skywalking.oap.server.receiver.telegraf.provider.config.TelegrafConfig;
-import org.apache.skywalking.oap.server.receiver.telegraf.provider.config.TelegrafConfigs;
 import org.apache.skywalking.oap.server.receiver.telegraf.provider.handler.TelegrafServiceHandler;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 public class TelegrafReceiverProvider extends ModuleProvider {
-    private List<TelegrafConfig> configs;
+    private List<Rule> configs;
     private TelegrafModuleConfig moduleConfig;
 
     public TelegrafReceiverProvider() {
@@ -73,8 +74,12 @@ public class TelegrafReceiverProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        configs = TelegrafConfigs.loadConfigs(TelegrafModuleConfig.CONFIG_PATH,
-                StringUtil.isEmpty(moduleConfig.getActiveFiles()) ? Collections.emptyList() : Splitter.on(",").splitToList(moduleConfig.getActiveFiles()));
+        try {
+            configs = Rules.loadRules(TelegrafModuleConfig.CONFIG_PATH,
+                    StringUtil.isEmpty(moduleConfig.getActiveFiles()) ? Collections.emptyList() : Splitter.on(",").splitToList(moduleConfig.getActiveFiles()));
+        } catch (IOException e) {
+            throw new ModuleStartException("Failed to load MAL rules", e);
+        }
     }
 
     @Override

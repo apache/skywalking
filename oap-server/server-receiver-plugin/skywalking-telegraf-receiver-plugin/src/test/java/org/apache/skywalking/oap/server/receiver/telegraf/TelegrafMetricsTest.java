@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.receiver.telegraf;
 import com.google.common.collect.ImmutableMap;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
@@ -34,8 +36,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.telegraf.mock.MockModuleManager;
 import org.apache.skywalking.oap.server.receiver.telegraf.mock.MockModuleProvider;
 import org.apache.skywalking.oap.server.receiver.telegraf.provider.TelegrafModuleConfig;
-import org.apache.skywalking.oap.server.receiver.telegraf.provider.config.TelegrafConfig;
-import org.apache.skywalking.oap.server.receiver.telegraf.provider.config.TelegrafConfigs;
 import org.apache.skywalking.oap.server.receiver.telegraf.provider.handler.TelegrafServiceHandler;
 import org.apache.skywalking.oap.server.receiver.telegraf.provider.handler.pojo.TelegrafData;
 import org.apache.skywalking.oap.server.receiver.telegraf.provider.handler.pojo.TelegrafDatum;
@@ -129,7 +129,7 @@ public class TelegrafMetricsTest {
         }).when(meterSystem).doStreamingCalculation(any());
 
         // load context
-        List<TelegrafConfig> telegrafConfigs = TelegrafConfigs.loadConfigs(TelegrafModuleConfig.CONFIG_PATH, Arrays.asList("vm"));
+        List<Rule> telegrafConfigs = Rules.loadRules(TelegrafModuleConfig.CONFIG_PATH, Arrays.asList("vm"));
         return new TelegrafServiceHandler(moduleManager, meterSystem, telegrafConfigs);
     }
 
@@ -202,7 +202,7 @@ public class TelegrafMetricsTest {
         TelegrafData telegrafData = assertTelegrafJSONConvert(oneMemMetrics);
         String[] metricsNames = {"mem_available", "mem_available_percent", "mem_total", "mem_used", "mem_used_percent"};
         assertConvertToSample(telegrafData, 5, metricsNames);
-        assertConvertToSampleFamily(telegrafData, 5, 1,metricsNames);
+        assertConvertToSampleFamily(telegrafData, 5, 1, metricsNames);
     }
 
     @Test
@@ -242,7 +242,7 @@ public class TelegrafMetricsTest {
         TelegrafData telegrafData = assertTelegrafJSONConvert(oneCpuMetrics);
         String[] metricsNames = {"cpu_usage_idle", "cpu_usage_irq", "cpu_usage_system", "cpu_usage_user"};
         assertConvertToSample(telegrafData, 4, metricsNames);
-        assertConvertToSampleFamily(telegrafData, 4, 1,metricsNames);
+        assertConvertToSampleFamily(telegrafData, 4, 1, metricsNames);
     }
 
     @Test
@@ -282,7 +282,6 @@ public class TelegrafMetricsTest {
                 "\"tags\":{\"host\":\"localHost\"}," +
                 "\"timestamp\":1663391390}]}";
 
-
         Assert.assertThrows("Expected AssertionError to throw, but it didn't.",
                 AssertionError.class, () -> {
                     TelegrafData telegrafData = assertTelegrafJSONConvert(oneCpuMetrics);
@@ -299,7 +298,6 @@ public class TelegrafMetricsTest {
                 "\"name\":\"mem\"," +
                 "\"tags\":{\"host\":\"localHost\"}," +
                 "\"timestamp\":1663391390}]}";
-
 
         Assert.assertThrows("Expected AssertionError to throw, but it didn't.",
                 AssertionError.class, () -> {

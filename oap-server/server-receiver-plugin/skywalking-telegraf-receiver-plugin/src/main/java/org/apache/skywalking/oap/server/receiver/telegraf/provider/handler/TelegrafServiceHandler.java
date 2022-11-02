@@ -27,9 +27,9 @@ import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.telegraf.provider.config.TelegrafConfig;
 import org.apache.skywalking.oap.server.receiver.telegraf.provider.handler.pojo.TelegrafData;
 import org.apache.skywalking.oap.server.receiver.telegraf.provider.handler.pojo.TelegrafDatum;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -50,7 +50,7 @@ public class TelegrafServiceHandler {
     private final CounterMetrics errorCounter;
     private List<MetricConvert> metricConvert;
 
-    public TelegrafServiceHandler(ModuleManager moduleManager, MeterSystem meterSystem, List<TelegrafConfig> rules) {
+    public TelegrafServiceHandler(ModuleManager moduleManager, MeterSystem meterSystem, List<Rule> rules) {
 
         this.metricConvert = rules.stream().map(r -> new MetricConvert(r, meterSystem)).collect(Collectors.toList());
 
