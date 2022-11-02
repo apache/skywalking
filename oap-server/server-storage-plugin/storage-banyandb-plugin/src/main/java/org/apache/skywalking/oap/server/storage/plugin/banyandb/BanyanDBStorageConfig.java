@@ -71,13 +71,6 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     private int streamSegmentInterval;
     /**
-     * Stream TTL.
-     * Unit is days.
-     *
-     * @since 9.3.0
-     */
-    private int streamTTL;
-    /**
      * block interval for Measure group.
      * Unit is hours.
      *
@@ -91,11 +84,4 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      * @since 9.3.0
      */
     private int measureSegmentInterval;
-    /**
-     * measure TTL.
-     * Unit is hours.
-     *
-     * @since 9.3.0
-     */
-    private int measureTTL;
 }

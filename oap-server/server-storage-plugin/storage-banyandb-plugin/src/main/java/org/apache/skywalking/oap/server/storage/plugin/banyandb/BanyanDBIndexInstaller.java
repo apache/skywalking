@@ -23,6 +23,8 @@ import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
@@ -34,15 +36,17 @@ import java.io.IOException;
 @Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
     private final BanyanDBStorageConfig config;
+    private final ConfigService configService;
 
     public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager, BanyanDBStorageConfig config) {
         super(client, moduleManager);
         this.config = config;
+        this.configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
     }
 
     @Override
     protected boolean isExists(Model model) throws StorageException {
-        final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model, config);
+        final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model, config, configService);
         try {
             final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
             // first check resource existence and create group if necessary
@@ -53,7 +57,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
             // then check entity schema
             if (metadata.findRemoteSchema(c).isPresent()) {
-                MetadataRegistry.INSTANCE.registerModel(model, config);
+                MetadataRegistry.INSTANCE.registerModel(model, config, configService);
                 return true;
             }
 
@@ -68,13 +72,13 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     protected void createTable(Model model) throws StorageException {
         try {
             if (model.isTimeSeries() && model.isRecord()) { // stream
-                Stream stream = (Stream) MetadataRegistry.INSTANCE.registerModel(model, config);
+                Stream stream = (Stream) MetadataRegistry.INSTANCE.registerModel(model, config, configService);
                 if (stream != null) {
                     log.info("install stream schema {}", model.getName());
                     ((BanyanDBStorageClient) client).define(stream);
                 }
             } else if (model.isTimeSeries() && !model.isRecord()) { // measure
-                Measure measure = (Measure) MetadataRegistry.INSTANCE.registerModel(model, config);
+                Measure measure = (Measure) MetadataRegistry.INSTANCE.registerModel(model, config, configService);
                 if (measure != null) {
                     log.info("install measure schema {}", model.getName());
                     ((BanyanDBStorageClient) client).define(measure);

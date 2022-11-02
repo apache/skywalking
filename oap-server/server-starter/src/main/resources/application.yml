@@ -238,10 +238,8 @@ storage:
     profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
     streamBlockInterval: ${SW_STORAGE_BANYANDB_STREAM_BLOCK_INTERVAL:4} # Unit is Hours
     streamSegmentInterval: ${SW_STORAGE_BANYANDB_STREAM_SEGMENT_INTERVAL:24} # Unit is Hours
-    streamTTL: ${SW_STORAGE_BANYANDB_STREAM_TTL:24} # Unit is Days
     measureBlockInterval: ${SW_STORAGE_BANYANDB_MEASURE_BLOCK_INTERVAL:4} # Unit is Hours
     measureSegmentInterval: ${SW_STORAGE_BANYANDB_MEASURE_SEGMENT_INTERVAL:24} # Unit is Hours
-    measureTTL: ${SW_STORAGE_BANYANDB_MEASURE_TTL:24} # Unit is Days
 
 agent-analyzer:
   selector: ${SW_AGENT_ANALYZER:default}

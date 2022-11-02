@@ -41,6 +41,7 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
@@ -67,8 +68,8 @@ public enum MetadataRegistry {
 
     private final Map<String, Schema> registry = new HashMap<>();
 
-    public NamedSchema<?> registerModel(Model model, BanyanDBStorageConfig config) {
-        final SchemaMetadata schemaMetadata = parseMetadata(model, config);
+    public NamedSchema<?> registerModel(Model model, BanyanDBStorageConfig config, ConfigService configService) {
+        final SchemaMetadata schemaMetadata = parseMetadata(model, config, configService);
         Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
@@ -305,7 +306,7 @@ public enum MetadataRegistry {
         return tagSpec;
     }
 
-    public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config) {
+    public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config, ConfigService configService) {
         if (model.isRecord()) {
             String group = "stream-default";
             if (model.isSuperDataset()) {
@@ -320,7 +321,7 @@ public enum MetadataRegistry {
                             (model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : 1),
                     config.getStreamBlockInterval(),
                     config.getStreamSegmentInterval(),
-                    config.getStreamTTL()
+                    configService.getRecordDataTTL()
             );
         }
         return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE,
@@ -328,7 +329,7 @@ public enum MetadataRegistry {
                 config.getMetricsShardsNumber(),
                 config.getMeasureBlockInterval(),
                 config.getMeasureSegmentInterval(),
-                config.getMeasureTTL());
+                configService.getMetricsDataTTL());
     }
 
     @RequiredArgsConstructor
