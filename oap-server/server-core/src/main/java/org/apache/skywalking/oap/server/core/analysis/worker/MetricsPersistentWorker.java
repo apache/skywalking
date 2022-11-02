@@ -86,7 +86,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
                             MetricsTransWorker transWorker, boolean enableDatabaseSession, boolean supportUpdate,
-                            long storageSessionTimeout, int metricsDataTTL) {
+                            long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind) {
         super(moduleDefineHolder, new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData()));
         this.model = model;
         this.context = new HashMap<>(100);
@@ -113,7 +113,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             throw new UnexpectedException(e.getMessage(), e);
         }
 
-        this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + model.getName(), name, 1, 2000);
+        int bufferSize = 2000;
+        if (MetricStreamKind.MAL == kind) {
+            // In MAL meter streaming, the load of data flow is much less as they are statistics already,
+            // but in OAL sources, they are raw data.
+            // Set the buffer(size of queue) as 1/2 to reduce unnecessary resource costs.
+            bufferSize = 1000;
+        }
+        this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + model.getName(), name, 1, bufferSize);
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer());
 
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
@@ -136,10 +143,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                             boolean enableDatabaseSession,
                             boolean supportUpdate,
                             long storageSessionTimeout,
-                            int metricsDataTTL) {
+                            int metricsDataTTL,
+                            MetricStreamKind kind) {
         this(moduleDefineHolder, model, metricsDAO,
              null, null, null,
-             enableDatabaseSession, supportUpdate, storageSessionTimeout, metricsDataTTL
+             enableDatabaseSession, supportUpdate, storageSessionTimeout, metricsDataTTL, kind
         );
         // For a down-sampling metrics, we prolong the session timeout for 4 times, nearly 5 minutes.
         // And add offset according to worker creation sequence, to avoid context clear overlap,

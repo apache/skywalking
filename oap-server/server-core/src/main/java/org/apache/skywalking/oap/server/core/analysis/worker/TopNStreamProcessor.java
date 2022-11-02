@@ -71,8 +71,6 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
         this.topNWorkerReportCycle = topNWorkerReportCycle;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder,
                        Stream stream,
                        Class<? extends TopN> topNClass) throws StorageException {
