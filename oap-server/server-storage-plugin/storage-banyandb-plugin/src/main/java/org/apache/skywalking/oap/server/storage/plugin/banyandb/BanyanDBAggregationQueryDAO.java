@@ -77,7 +77,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
             return Collections.emptyList();
         }
 
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");
         }

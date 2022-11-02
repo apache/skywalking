@@ -29,6 +29,7 @@ import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Serializable;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
@@ -36,13 +37,15 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class BanyanDBConverter {
     public static class StorageToStream implements Convert2Entity {
         private final MetadataRegistry.Schema schema;
         private final RowEntity rowEntity;
 
-        public StorageToStream(String modelName, RowEntity rowEntity) {
-            this.schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        public StorageToStream(String streamModelName, RowEntity rowEntity) {
+            this.schema = MetadataRegistry.INSTANCE.findRecordMetadata(streamModelName);
             this.rowEntity = rowEntity;
         }
 
@@ -215,9 +218,13 @@ public class BanyanDBConverter {
         private final MetadataRegistry.Schema schema;
         private final DataPoint dataPoint;
 
-        public StorageToMeasure(String modelName, DataPoint dataPoint) {
-            this.schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        public StorageToMeasure(MetadataRegistry.Schema schema, DataPoint dataPoint) {
+            this.schema = schema;
             this.dataPoint = dataPoint;
+        }
+
+        public StorageToMeasure(String measureModelName, DataPoint dataPoint) {
+            this(checkNotNull(MetadataRegistry.INSTANCE.findMetadata(measureModelName, DownSampling.Minute), "measure schema"), dataPoint);
         }
 
         @Override

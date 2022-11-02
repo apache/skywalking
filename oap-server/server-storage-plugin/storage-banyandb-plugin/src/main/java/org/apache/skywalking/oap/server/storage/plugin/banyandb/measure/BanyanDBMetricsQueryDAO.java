@@ -101,7 +101,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
     @Override
     public MetricsValues readMetricsValues(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
         String modelName = condition.getName();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");
         }

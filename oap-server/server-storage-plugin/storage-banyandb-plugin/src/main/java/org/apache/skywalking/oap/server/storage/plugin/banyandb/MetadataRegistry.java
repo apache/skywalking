@@ -41,6 +41,7 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -91,17 +92,17 @@ public enum MetadataRegistry {
                 .collect(Collectors.toList());
 
         if (schemaMetadata.getKind() == Kind.STREAM) {
-            final Stream.Builder builder = Stream.create(schemaMetadata.getGroup(), schemaMetadata.getName());
+            final Stream.Builder builder = Stream.create(schemaMetadata.getGroup(), schemaMetadata.name());
             if (entities.isEmpty()) {
                 throw new IllegalStateException("sharding keys of model[stream." + model.getName() + "] must not be empty");
             }
             builder.setEntityRelativeTags(entities);
             builder.addTagFamilies(tagFamilySpecs);
             builder.addIndexes(indexRules);
-            registry.put(model.getName(), schemaBuilder.build());
+            registry.put(schemaMetadata.name(), schemaBuilder.build());
             return builder.build();
         } else {
-            final Measure.Builder builder = Measure.create(schemaMetadata.getGroup(), schemaMetadata.getName(),
+            final Measure.Builder builder = Measure.create(schemaMetadata.getGroup(), schemaMetadata.name(),
                     downSamplingDuration(model.getDownsampling()));
             if (entities.isEmpty()) { // if shardingKeys is empty, for measure, we can use ID as a single sharding key.
                 builder.setEntityRelativeTags(Measure.ID);
@@ -115,13 +116,52 @@ public enum MetadataRegistry {
                     .readValueColumnDefinition(model.getName());
             valueColumnOpt.ifPresent(valueColumn -> builder.addField(parseFieldSpec(modelColumnMap.get(valueColumn.getValueCName()), valueColumn)));
             valueColumnOpt.ifPresent(valueColumn -> schemaBuilder.field(valueColumn.getValueCName()));
-            registry.put(model.getName(), schemaBuilder.build());
+            registry.put(schemaMetadata.name(), schemaBuilder.build());
             return builder.build();
         }
     }
 
-    public Schema findMetadata(final String name) {
-        return this.registry.get(name);
+    public Schema findMetadata(final Model model) {
+        if (model.isRecord()) {
+            return findRecordMetadata(model.getName());
+        }
+        return findMetadata(model.getName(), model.getDownsampling());
+    }
+
+    public Schema findRecordMetadata(final String recordModelName) {
+        final Schema s = this.registry.get(recordModelName);
+        if (s == null) {
+            return null;
+        }
+        // impose sanity check
+        if (s.getMetadata().getKind() != Kind.STREAM) {
+            throw new IllegalArgumentException(recordModelName + "is not a record");
+        }
+        return s;
+    }
+
+    static DownSampling deriveFromStep(Step step) {
+        switch (step) {
+            case DAY:
+                return DownSampling.Day;
+            case HOUR:
+                return DownSampling.Hour;
+            case SECOND:
+                return DownSampling.Second;
+            default:
+                return DownSampling.Minute;
+        }
+    }
+
+    public Schema findMetadata(final String modelName, Step step) {
+        return findMetadata(modelName, deriveFromStep(step));
+    }
+
+    /**
+     * Find metadata with down-sampling
+     */
+    public Schema findMetadata(final String modelName, DownSampling downSampling) {
+        return this.registry.get(SchemaMetadata.formatName(modelName, downSampling));
     }
 
     private Measure.FieldSpec parseFieldSpec(ModelColumn modelColumn, ValueColumnMetadata.ValueColumn valueColumn) {
@@ -275,6 +315,7 @@ public enum MetadataRegistry {
             return new SchemaMetadata(group,
                     model.getName(),
                     Kind.STREAM,
+                    model.getDownsampling(),
                     config.getRecordShardsNumber() *
                             (model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : 1),
                     config.getStreamBlockInterval(),
@@ -283,6 +324,7 @@ public enum MetadataRegistry {
             );
         }
         return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE,
+                model.getDownsampling(),
                 config.getMetricsShardsNumber(),
                 config.getMeasureBlockInterval(),
                 config.getMeasureSegmentInterval(),
@@ -293,21 +335,41 @@ public enum MetadataRegistry {
     @Data
     public static class SchemaMetadata {
         private final String group;
-        private final String name;
+        /**
+         * name of the {@link Model}
+         */
+        private final String modelName;
         private final Kind kind;
-
+        /**
+         * down-sampling of the {@link Model}
+         */
+        private final DownSampling downSampling;
         private final int shard;
         private final int blockIntervalHrs;
         private final int segmentIntervalHrs;
         private final int ttlDays;
 
+        /**
+         * Format the entity name for BanyanDB
+         *
+         * @param modelName    name of the model
+         * @param downSampling not used if it is {@link DownSampling#None}
+         * @return entity (e.g. measure, stream) name
+         */
+        static String formatName(String modelName, DownSampling downSampling) {
+            if (downSampling == null || downSampling == DownSampling.None) {
+                return modelName;
+            }
+            return modelName + ":" + downSampling.getName();
+        }
+
         public Optional<NamedSchema<?>> findRemoteSchema(BanyanDBClient client) throws BanyanDBException {
             try {
                 switch (kind) {
                     case STREAM:
-                        return Optional.ofNullable(client.findStream(this.group, this.name));
+                        return Optional.ofNullable(client.findStream(this.group, this.name()));
                     case MEASURE:
-                        return Optional.ofNullable(client.findMeasure(this.group, this.name));
+                        return Optional.ofNullable(client.findMeasure(this.group, this.name()));
                     default:
                         throw new IllegalStateException("should not reach here");
                 }
@@ -343,7 +405,7 @@ public enum MetadataRegistry {
             ResourceExist resourceExist;
             switch (kind) {
                 case STREAM:
-                    resourceExist = client.existStream(this.group, this.name);
+                    resourceExist = client.existStream(this.group, this.name());
                     if (!resourceExist.hasGroup()) {
                         Group g = client.define(Group.create(this.group, Catalog.STREAM, this.shard,
                                 IntervalRule.create(IntervalRule.Unit.HOUR, this.blockIntervalHrs),
@@ -355,7 +417,7 @@ public enum MetadataRegistry {
                     }
                     return resourceExist.hasResource();
                 case MEASURE:
-                    resourceExist = client.existMeasure(this.group, this.name);
+                    resourceExist = client.existMeasure(this.group, this.name());
                     if (!resourceExist.hasGroup()) {
                         Group g = client.define(Group.create(this.group, Catalog.MEASURE, this.shard,
                                 IntervalRule.create(IntervalRule.Unit.HOUR, this.blockIntervalHrs),
@@ -369,6 +431,13 @@ public enum MetadataRegistry {
                 default:
                     throw new IllegalStateException("should not reach here");
             }
+        }
+
+        public String name() {
+            if (this.kind == Kind.MEASURE) {
+                return formatName(this.modelName, this.downSampling);
+            }
+            return this.modelName;
         }
 
         public String indexFamily() {
