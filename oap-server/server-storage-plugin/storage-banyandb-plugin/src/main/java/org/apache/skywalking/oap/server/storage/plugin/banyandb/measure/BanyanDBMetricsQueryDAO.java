@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
@@ -57,6 +56,12 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
 
     @Override
     public long readMetricsValue(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
+        String modelName = condition.getName();
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
+        if (schema == null) {
+            throw new IOException("schema is not registered");
+        }
+
         int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
         if (function == Function.Latest) {
@@ -64,9 +69,8 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
                     .getValues().latestValue(defaultValue);
         }
 
-        final String modelName = condition.getName();
         TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
-        final MeasureQueryResponse resp = query(modelName,
+        final MeasureQueryResponse resp = query(schema,
                 ImmutableSet.of(Metrics.ENTITY_ID),
                 ImmutableSet.of(valueColumnName),
                 timestampRange,
@@ -105,14 +109,13 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         if (schema == null) {
             throw new IOException("schema is not registered");
         }
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        final List<String> ids = pointOfTimes.stream().map(pointOfTime -> {
-            String id = pointOfTime.id(condition.getEntity().buildId());
-            return id;
-        }).collect(Collectors.toList());
+
+        final String entityID = condition.getEntity().buildId();
+        Map<String, DataPoint> idMap = queryByEntityID(schema, valueColumnName, duration, entityID);
+
+        List<String> ids = extractMeasureIDs(duration, entityID);
 
         MetricsValues metricsValues = new MetricsValues();
-        Map<String, DataPoint> idMap = queryIDs(modelName, valueColumnName, ids);
         if (!idMap.isEmpty()) {
             // Label is null, because in readMetricsValues, no label parameter.
             IntValues intValues = metricsValues.getValues();
@@ -152,15 +155,10 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
 
     @Override
     public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition, String valueColumnName, List<String> labels, Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        String modelName = condition.getName();
-        List<String> ids = new ArrayList<>(pointOfTimes.size());
-        pointOfTimes.forEach(pointOfTime -> {
-            String id = pointOfTime.id(condition.getEntity().buildId());
-            ids.add(id);
-        });
+        Map<String, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration);
 
-        Map<String, DataPoint> idMap = queryIDs(modelName, valueColumnName, ids);
+        List<String> ids = extractMeasureIDs(duration, condition.getEntity().buildId());
+
         Map<String, DataTable> dataTableMap = new HashMap<>(idMap.size());
         for (final Map.Entry<String, DataPoint> entry : idMap.entrySet()) {
             dataTableMap.put(
@@ -178,20 +176,14 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
 
     @Override
     public HeatMap readHeatMap(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        String modelName = condition.getName();
-        List<String> ids = new ArrayList<>(pointOfTimes.size());
-        pointOfTimes.forEach(pointOfTime -> {
-            String id = pointOfTime.id(condition.getEntity().buildId());
-            ids.add(id);
-        });
+        Map<String, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration);
 
         HeatMap heatMap = new HeatMap();
-        Map<String, DataPoint> idMap = queryIDs(modelName, valueColumnName, ids);
-
         if (idMap.isEmpty()) {
             return heatMap;
         }
+
+        List<String> ids = extractMeasureIDs(duration, condition.getEntity().buildId());
 
         final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         for (String id : ids) {
@@ -207,14 +199,32 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         return heatMap;
     }
 
-    private Map<String, DataPoint> queryIDs(String modelName, String valueColumnName, List<String> measureIDs) throws IOException {
-        Map<String, DataPoint> map = new HashMap<>(measureIDs.size());
-        MeasureQueryResponse resp = query(modelName, Collections.emptySet(), ImmutableSet.of(valueColumnName), new QueryBuilder<MeasureQuery>() {
+    private List<String> extractMeasureIDs(Duration duration, String entityID) {
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        List<String> ids = new ArrayList<>(pointOfTimes.size());
+        pointOfTimes.forEach(pointOfTime -> {
+            String id = pointOfTime.id(entityID);
+            ids.add(id);
+        });
+        return ids;
+    }
+
+    private Map<String, DataPoint> queryByEntityID(final MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
+        final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(condition.getName(), duration.getStep());
+        if (schema == null) {
+            throw new IOException("schema is not registered");
+        }
+        return queryByEntityID(schema, valueColumnName, duration, condition.getEntity().buildId());
+    }
+
+    private Map<String, DataPoint> queryByEntityID(MetadataRegistry.Schema schema, String valueColumnName, Duration duration, String entityID) throws IOException {
+        TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
+
+        Map<String, DataPoint> map = new HashMap<>();
+        MeasureQueryResponse resp = query(schema, Collections.emptySet(), ImmutableSet.of(valueColumnName), timestampRange, new QueryBuilder<MeasureQuery>() {
             @Override
             protected void apply(MeasureQuery query) {
-                for (final String measureID : measureIDs) {
-                    query.or(id(measureID));
-                }
+                query.and(eq(Metrics.ENTITY_ID, entityID));
             }
         });
         for (final DataPoint dp : resp.getDataPoints()) {

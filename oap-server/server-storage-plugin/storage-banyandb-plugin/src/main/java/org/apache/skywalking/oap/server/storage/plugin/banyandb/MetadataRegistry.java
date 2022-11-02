@@ -360,7 +360,7 @@ public enum MetadataRegistry {
             if (downSampling == null || downSampling == DownSampling.None) {
                 return modelName;
             }
-            return modelName + ":" + downSampling.getName();
+            return modelName + "_" + downSampling.getName();
         }
 
         public Optional<NamedSchema<?>> findRemoteSchema(BanyanDBClient client) throws BanyanDBException {

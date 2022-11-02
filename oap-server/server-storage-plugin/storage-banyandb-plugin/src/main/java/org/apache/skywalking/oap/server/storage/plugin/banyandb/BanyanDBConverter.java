@@ -223,6 +223,10 @@ public class BanyanDBConverter {
             this.dataPoint = dataPoint;
         }
 
+        /**
+         * Currently, only used by {@link org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBNetworkAddressAliasDAO}.
+         * The default DownSampling strategy, i.e. {@link DownSampling#Minute} is assumed in this case.
+         */
         public StorageToMeasure(String measureModelName, DataPoint dataPoint) {
             this(checkNotNull(MetadataRegistry.INSTANCE.findMetadata(measureModelName, DownSampling.Minute), "measure schema"), dataPoint);
         }
