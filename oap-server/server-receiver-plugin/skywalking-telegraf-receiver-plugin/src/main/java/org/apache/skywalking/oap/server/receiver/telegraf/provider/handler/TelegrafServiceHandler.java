@@ -97,24 +97,29 @@ public class TelegrafServiceHandler {
 
     }
 
+    public ImmutableMap<String, SampleFamily> convertSampleFamily(TelegrafData telegrafData) {
+        List<Sample> allSamples = new ArrayList<>();
+
+        List<TelegrafDatum> metrics = telegrafData.getMetrics();
+        for (TelegrafDatum m : metrics) {
+            List<Sample> samples = convertTelegraf(m);
+            allSamples.addAll(samples);
+        }
+
+        // Grouping all samples by their name, then build sampleFamily
+        Map<String, List<Sample>> sampleFamilyCollection = allSamples.stream()
+                .collect(Collectors.groupingBy(Sample::getName));
+        ImmutableMap.Builder<String, SampleFamily> builder = ImmutableMap.builder();
+        sampleFamilyCollection.forEach((k, v) -> builder.put(k, SampleFamilyBuilder.newBuilder(v.toArray(new Sample[0])).build()));
+        return builder.build();
+    }
+
     @Post("/telegraf")
     @RequestConverter(TelegrafData.class)
     public Commands collectData(TelegrafData telegrafData) {
         try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
-            List<Sample> allSamples = new ArrayList<>();
-
-            List<TelegrafDatum> metrics = telegrafData.getMetrics();
-            for (TelegrafDatum m : metrics) {
-                List<Sample> samples = convertTelegraf(m);
-                allSamples.addAll(samples);
-            }
-
-            // Grouping all samples by their name, then build sampleFamily
-            Map<String, List<Sample>> sampleFamilyCollection = allSamples.stream()
-                    .collect(Collectors.groupingBy(Sample::getName));
-            ImmutableMap.Builder<String, SampleFamily> builder = ImmutableMap.builder();
-            sampleFamilyCollection.forEach((k, v) -> builder.put(k, SampleFamilyBuilder.newBuilder(v.toArray(new Sample[0])).build()));
-            metricConvert.forEach(m -> m.toMeter(builder.build()));
+            ImmutableMap<String, SampleFamily> sampleFamily = convertSampleFamily(telegrafData);
+            metricConvert.forEach(m -> m.toMeter(sampleFamily));
         } catch (Exception e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);
