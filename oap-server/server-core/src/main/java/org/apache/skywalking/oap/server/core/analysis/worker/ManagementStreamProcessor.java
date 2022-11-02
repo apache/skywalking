@@ -60,7 +60,6 @@ public class ManagementStreamProcessor implements StreamProcessor<ManagementData
         }
     }
 
-    @Override
     public void create(final ModuleDefineHolder moduleDefineHolder, final Stream stream, final Class<? extends ManagementData> streamClass) throws StorageException {
         final StorageBuilderFactory storageBuilderFactory = moduleDefineHolder.find(StorageModule.NAME)
                                                                               .provider()
