@@ -107,7 +107,7 @@
   to change the OAP backend service addresses, like `SW_OAP_ADDRESS=localhost:12800,localhost:12801`, and use
   environment
   variable `SW_SERVER_PORT` to change the port. Other Spring-related configurations don't take effect anymore.
-* Polish the endpoint list graph.g
+* Polish the endpoint list graph.
 * Fix styles for an adaptive height.
 * Fix setting up a new time range after clicking the refresh button.
 * Enhance the process topology graph to support dragging nodes.
