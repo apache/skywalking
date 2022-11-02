@@ -19,9 +19,9 @@ metricsRules:
 
   # cpu
   - name: cpu_total_percentage
-    exp: cpu_usage_user.tagEqual('cpu' , 'cpu-total')
-  - name: cpu_average_used_telegraf
-    exp: cpu_usage_user.tagEqual('cpu' , 'cpu-total')
+    exp: cpu_usage_active.tagEqual('cpu', 'cpu-total')
+  - name: cpu_average_used
+    exp: cpu_usage_active.tagNotEqual('cpu', 'cpu-total').avg(['host', 'cpu'])
   - name: cpu_load1
     exp: system_load1
   - name: cpu_load5
@@ -46,11 +46,27 @@ metricsRules:
     exp: 100 - ((mem_swap_free / mem_swap_total) * 100)
 
     #node filesystem
-  - name: filesystem_percentage_telegraf
-    exp: disk_used_percent
+  - name: filesystem_percentage
+    exp: disk_used_percent.avg(['host','device'])
 
     #node disk
   - name: disk_read
     exp: diskio_read_bytes.rate('PT1M')
   - name: disk_written
     exp: diskio_write_bytes.rate('PT1M')
+
+    #node net
+  - name: network_receive
+    exp: net_bytes_recv.irate()
+  - name: network_transmit
+    exp: net_bytes_sent.irate()
+
+    #node netstat
+  - name: tcp_curr_estab
+    exp: netstat_tcp_established
+  - name: tcp_tw
+    exp: netstat_tcp_time_wait
+  - name: tcp_alloc
+    exp: netstat_tcp_listen
+  - name: udp_inuse
+    exp: netstat_udp_socket
