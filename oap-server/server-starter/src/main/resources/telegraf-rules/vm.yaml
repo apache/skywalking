@@ -39,11 +39,11 @@ metricsRules:
 
   # swap
   - name: memory_swap_free
-    exp: swap_free
+    exp: mem_swap_free
   - name: memory_swap_total
-    exp: cpu_swap_total
+    exp: mem_swap_total
   - name: memory_swap_percentage
-    exp: 100 - ((swap_free * 100) / cpu_swap_total)
+    exp: 100 - ((mem_swap_free / mem_swap_total) * 100)
 
     #node filesystem
   - name: filesystem_percentage_telegraf
