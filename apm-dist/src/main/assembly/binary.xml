@@ -69,7 +69,7 @@
                 <include>ui-initialized-templates/*/*.json</include>
                 <include>lal/*</include>
                 <include>log-mal-rules/*</include>
-                <include>telegraf-rules/*.yaml</include>
+                <include>telegraf-rules/*</include>
             </includes>
             <outputDirectory>config</outputDirectory>
         </fileSet>

@@ -125,6 +125,8 @@ catalog:
             path: "/en/setup/backend/spring-sleuth-setup"
           - name: "Alerting"
             path: "/en/setup/backend/backend-alarm"
+          - name: "Telegraf Metrics"
+            path: "/en/setup/backend/telegraf-receiver"
       - name: "Logging"
         catalog:
           - name: "Log Collecting And Analysis"
