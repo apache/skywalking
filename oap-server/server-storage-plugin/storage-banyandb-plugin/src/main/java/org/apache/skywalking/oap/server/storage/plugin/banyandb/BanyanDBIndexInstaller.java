@@ -56,13 +56,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             }
 
             // then check entity schema
-            if (metadata.findRemoteSchema(c).isPresent()) {
-                MetadataRegistry.INSTANCE.registerModel(model, config, configService);
-                return true;
-            }
-
-            // normally, we should not reach here
-            return false;
+            return metadata.findRemoteSchema(c).isPresent();
         } catch (BanyanDBException ex) {
             throw new StorageException("fail to check existence", ex);
         }
@@ -72,13 +66,13 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     protected void createTable(Model model) throws StorageException {
         try {
             if (model.isTimeSeries() && model.isRecord()) { // stream
-                Stream stream = (Stream) MetadataRegistry.INSTANCE.registerModel(model, config, configService);
+                Stream stream = MetadataRegistry.INSTANCE.registerStreamModel(model, config, configService);
                 if (stream != null) {
                     log.info("install stream schema {}", model.getName());
                     ((BanyanDBStorageClient) client).define(stream);
                 }
             } else if (model.isTimeSeries() && !model.isRecord()) { // measure
-                Measure measure = (Measure) MetadataRegistry.INSTANCE.registerModel(model, config, configService);
+                Measure measure = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, configService);
                 if (measure != null) {
                     log.info("install measure schema {}", model.getName());
                     ((BanyanDBStorageClient) client).define(measure);

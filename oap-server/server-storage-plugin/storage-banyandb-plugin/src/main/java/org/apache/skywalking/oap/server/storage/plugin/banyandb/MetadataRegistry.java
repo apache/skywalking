@@ -68,7 +68,7 @@ public enum MetadataRegistry {
 
     private final Map<String, Schema> registry = new HashMap<>();
 
-    public NamedSchema<?> registerModel(Model model, BanyanDBStorageConfig config, ConfigService configService) {
+    public Stream registerStreamModel(Model model, BanyanDBStorageConfig config, ConfigService configService) {
         final SchemaMetadata schemaMetadata = parseMetadata(model, config, configService);
         Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
@@ -92,34 +92,57 @@ public enum MetadataRegistry {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        if (schemaMetadata.getKind() == Kind.STREAM) {
-            final Stream.Builder builder = Stream.create(schemaMetadata.getGroup(), schemaMetadata.name());
-            if (entities.isEmpty()) {
-                throw new IllegalStateException("sharding keys of model[stream." + model.getName() + "] must not be empty");
-            }
-            builder.setEntityRelativeTags(entities);
-            builder.addTagFamilies(tagFamilySpecs);
-            builder.addIndexes(indexRules);
-            registry.put(schemaMetadata.name(), schemaBuilder.build());
-            return builder.build();
-        } else {
-            final Measure.Builder builder = Measure.create(schemaMetadata.getGroup(), schemaMetadata.name(),
-                    downSamplingDuration(model.getDownsampling()));
-            if (entities.isEmpty()) { // if shardingKeys is empty, for measure, we can use ID as a single sharding key.
-                builder.setEntityRelativeTags(Measure.ID);
-            } else {
-                builder.setEntityRelativeTags(entities);
-            }
-            builder.addTagFamilies(tagFamilySpecs);
-            builder.addIndexes(indexRules);
-            // parse and set field
-            Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE
-                    .readValueColumnDefinition(model.getName());
-            valueColumnOpt.ifPresent(valueColumn -> builder.addField(parseFieldSpec(modelColumnMap.get(valueColumn.getValueCName()), valueColumn)));
-            valueColumnOpt.ifPresent(valueColumn -> schemaBuilder.field(valueColumn.getValueCName()));
-            registry.put(schemaMetadata.name(), schemaBuilder.build());
-            return builder.build();
+        final Stream.Builder builder = Stream.create(schemaMetadata.getGroup(), schemaMetadata.name());
+        if (entities.isEmpty()) {
+            throw new IllegalStateException("sharding keys of model[stream." + model.getName() + "] must not be empty");
         }
+        builder.setEntityRelativeTags(entities);
+        builder.addTagFamilies(tagFamilySpecs);
+        builder.addIndexes(indexRules);
+        registry.put(schemaMetadata.name(), schemaBuilder.build());
+        return builder.build();
+    }
+
+    public Measure registerMeasureModel(Model model, BanyanDBStorageConfig config, ConfigService configService) {
+        final SchemaMetadata schemaMetadata = parseMetadata(model, config, configService);
+        Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
+        Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
+                .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
+        // parse and set sharding keys
+        List<String> entities = parseEntityNames(modelColumnMap);
+        // parse tag metadata
+        // this can be used to build both
+        // 1) a list of TagFamilySpec,
+        // 2) a list of IndexRule,
+        List<TagMetadata> tags = parseTagMetadata(model, schemaBuilder);
+        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags);
+        // iterate over tagFamilySpecs to save tag names
+        for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
+            for (final TagFamilySpec.TagSpec tagSpec : tagFamilySpec.tagSpecs()) {
+                schemaBuilder.tag(tagSpec.getTagName());
+            }
+        }
+        List<IndexRule> indexRules = tags.stream()
+                .map(TagMetadata::getIndexRule)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        final Measure.Builder builder = Measure.create(schemaMetadata.getGroup(), schemaMetadata.name(),
+                downSamplingDuration(model.getDownsampling()));
+        if (entities.isEmpty()) { // if shardingKeys is empty, for measure, we can use ID as a single sharding key.
+            builder.setEntityRelativeTags(Measure.ID);
+        } else {
+            builder.setEntityRelativeTags(entities);
+        }
+        builder.addTagFamilies(tagFamilySpecs);
+        builder.addIndexes(indexRules);
+        // parse and set field
+        Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE
+                .readValueColumnDefinition(model.getName());
+        valueColumnOpt.ifPresent(valueColumn -> builder.addField(parseFieldSpec(modelColumnMap.get(valueColumn.getValueCName()), valueColumn)));
+        valueColumnOpt.ifPresent(valueColumn -> schemaBuilder.field(valueColumn.getValueCName()));
+        registry.put(schemaMetadata.name(), schemaBuilder.build());
+        return builder.build();
     }
 
     public Schema findMetadata(final Model model) {
