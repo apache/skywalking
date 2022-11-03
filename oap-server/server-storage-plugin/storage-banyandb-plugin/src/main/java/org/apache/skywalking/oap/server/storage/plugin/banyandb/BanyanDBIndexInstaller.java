@@ -57,6 +57,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
             // then check entity schema
             if (metadata.findRemoteSchema(c).isPresent()) {
+                // register models only locally but not remotely
                 if (model.isTimeSeries() && model.isRecord()) { // stream
                     MetadataRegistry.INSTANCE.registerStreamModel(model, config, configService);
                 } else if (model.isTimeSeries() && !model.isRecord()) { // measure
