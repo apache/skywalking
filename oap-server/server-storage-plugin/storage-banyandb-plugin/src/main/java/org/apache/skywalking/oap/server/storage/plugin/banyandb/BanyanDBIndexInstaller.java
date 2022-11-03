@@ -56,7 +56,16 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             }
 
             // then check entity schema
-            return metadata.findRemoteSchema(c).isPresent();
+            if (metadata.findRemoteSchema(c).isPresent()) {
+                if (model.isTimeSeries() && model.isRecord()) { // stream
+                    MetadataRegistry.INSTANCE.registerStreamModel(model, config, configService);
+                } else if (model.isTimeSeries() && !model.isRecord()) { // measure
+                    MetadataRegistry.INSTANCE.registerMeasureModel(model, config, configService);
+                }
+                return true;
+            }
+
+            throw new IllegalStateException("inconsistent state");
         } catch (BanyanDBException ex) {
             throw new StorageException("fail to check existence", ex);
         }
