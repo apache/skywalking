@@ -43,10 +43,6 @@ public class TelegrafReceiverProvider extends ModuleProvider {
     private List<Rule> configs;
     private TelegrafModuleConfig moduleConfig;
 
-    public TelegrafReceiverProvider() {
-        this.moduleConfig = new TelegrafModuleConfig();
-    }
-
     @Override
     public String name() {
         return "default";
