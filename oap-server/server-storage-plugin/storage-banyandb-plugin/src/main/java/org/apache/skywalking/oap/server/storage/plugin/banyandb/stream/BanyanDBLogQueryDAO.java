@@ -19,8 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -34,7 +32,6 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
-import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
@@ -148,18 +145,5 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
             logs.getLogs().add(log);
         }
         return logs;
-    }
-
-    /**
-     * Parser the raw tags.
-     * TODO: merge default method
-     */
-    private void parserDataBinary(byte[] dataBinary, List<KeyValue> tags) {
-        try {
-            LogTags logTags = LogTags.parseFrom(dataBinary);
-            logTags.getDataList().forEach(pair -> tags.add(new KeyValue(pair.getKey(), pair.getValue())));
-        } catch (InvalidProtocolBufferException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

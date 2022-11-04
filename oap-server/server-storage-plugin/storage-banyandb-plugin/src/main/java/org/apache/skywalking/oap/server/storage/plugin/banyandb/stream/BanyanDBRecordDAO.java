@@ -38,7 +38,7 @@ public class BanyanDBRecordDAO implements IRecordDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model.getName());
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }

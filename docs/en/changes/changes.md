@@ -83,6 +83,19 @@
 * Support `sampledTrace` in LAL.
 * Support multiple rules with different names under the same layer of LAL script.
 * (Optimization) Reduce the buffer size(queue) of MAL(only) metric streams. Set L1 queue size as 1/20, L2 queue size as 1/2.
+* [**Breaking Change**] Migrate to BanyanDB v0.2.0.
+  * Adopt new OR logical operator for,
+    1. `MeasureIDs` query
+    2. `BanyanDBProfileThreadSnapshotQueryDAO` query
+    3. Multiple `Event` conditions query
+    4. Metrics query
+  * Simplify Group check and creation
+  * Partially apply `UITemplate` changes
+  * Support `index_only`
+  * Return `CompletableFuture<Void>` directly from BanyanDB client
+  * Optimize data binary parse methods in *LogQueryDAO
+  * Support different indexType
+  * Support configuration for TTL and (block|segment) intervals
 
 #### UI
 
