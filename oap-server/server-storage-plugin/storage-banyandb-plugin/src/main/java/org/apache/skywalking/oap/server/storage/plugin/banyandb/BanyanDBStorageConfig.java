@@ -56,4 +56,32 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      * Shards Factor for a super dataset
      */
     private int superDatasetShardsFactor;
+    /**
+     * block interval for Stream group.
+     * Unit is hours.
+     *
+     * @since 9.3.0
+     */
+    private int streamBlockInterval;
+    /**
+     * segment interval for Stream group.
+     * Unit is hours.
+     *
+     * @since 9.3.0
+     */
+    private int streamSegmentInterval;
+    /**
+     * block interval for Measure group.
+     * Unit is hours.
+     *
+     * @since 9.3.0
+     */
+    private int measureBlockInterval;
+    /**
+     * segment interval for Measure group.
+     * Unit is hours.
+     *
+     * @since 9.3.0
+     */
+    private int measureSegmentInterval;
 }

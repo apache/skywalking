@@ -56,6 +56,14 @@ public class BanyanDBExtension {
     private final boolean shouldIndex;
 
     /**
+     * indexType is the type of index built for a {@link ModelColumn} in BanyanDB.
+     *
+     * @since 9.3.0
+     */
+    @Getter
+    private final BanyanDB.IndexRule.IndexType indexType;
+
+    /**
      * @return true if this column is a part of sharding key
      */
     public boolean isShardingKey() {

@@ -31,12 +31,12 @@ import java.lang.annotation.Target;
 public @interface BanyanDB {
     /**
      * GlobalIndex declares advanced global index, which are only available in BanyanDB.
-     *
+     * <p>
      * Global index should only be considered if a column value has a huge value candidates, but we will need a direct
      * equal
      * query without timestamp.
      * The typical global index is designed for huge candidate of indexed values, such as `trace ID` or `segment ID`.
-     *
+     * <p>
      * Only work with {@link Column}
      */
     @Target({ElementType.FIELD})
@@ -51,17 +51,17 @@ public @interface BanyanDB {
      * ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded
      * by service ID
      * [ServiceA(encoded ID): 01-28 18:30 values-1, 01-28 18:31 values-2, 01-28 18:32 values-3, 01-28 18:32 values-4]
-     *
+     * <p>
      * BanyanDB is the 1st storage implementation supporting this. It would make continuous time series metrics stored
      * closely and compressed better.
-     *
+     * <p>
      * 1. One entity could have multiple sharding keys
      * 2. If no column is appointed for this, {@link org.apache.skywalking.oap.server.core.storage.StorageData#id}
      * would be used by the storage implementation accordingly.
-     *
+     * <p>
      * NOTICE, this sharding concept is NOT just for splitting data into different database instances or physical
      * files.
-     *
+     * <p>
      * Only work with {@link Column}
      *
      * @return non-negative if this column be used for sharding. -1 means not as a sharding key
@@ -90,5 +90,32 @@ public @interface BanyanDB {
     @Retention(RetentionPolicy.RUNTIME)
     @interface NoIndexing {
 
+    }
+
+    /**
+     * Additional information for constructing Index in BanyanDB.
+     *
+     * @since 9.3.0
+     */
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface IndexRule {
+        /**
+         * IndexRule supports selecting two distinct kinds of index structures.
+         */
+        IndexType indexType() default IndexType.INVERTED;
+
+        enum IndexType {
+            /**
+             * The `INVERTED` index is the primary option when users set up an index rule.
+             * It's suitable for most tag indexing due to a better memory usage ratio and query performance.
+             */
+            INVERTED,
+            /**
+             * The `TREE` index could be better when there are high cardinalities, such as the `ID` tag and numeric duration tag.
+             * In these cases, it saves much memory space.
+             */
+            TREE;
+        }
     }
 }

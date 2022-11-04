@@ -41,12 +41,12 @@ public class BanyanDBNoneStreamDAO extends AbstractDAO<BanyanDBStorageClient> im
 
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model.getName());
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(model.getName());
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
         StreamWrite streamWrite = new StreamWrite(schema.getMetadata().getGroup(), // group name
-                model.getName(), // index-name
+                schema.getMetadata().name(), // stream-name
                 noneStream.id(), // identity
                 TimeBucket.getTimestamp(noneStream.getTimeBucket(), model.getDownsampling())); // timestamp
         Convert2Storage<StreamWrite> convert2Storage = new BanyanDBConverter.StreamToStorage(schema, streamWrite);

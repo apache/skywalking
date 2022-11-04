@@ -18,16 +18,17 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -56,48 +57,7 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
     @Override
     public Events queryEvents(EventQueryCondition condition) throws Exception {
         MeasureQueryResponse resp = query(Event.INDEX_NAME, TAGS,
-                Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        if (!isNullOrEmpty(condition.getUuid())) {
-                            query.and(eq(Event.UUID, condition.getUuid()));
-                        }
-                        final Source source = condition.getSource();
-                        if (source != null) {
-                            if (!isNullOrEmpty(source.getService())) {
-                                query.and(eq(Event.SERVICE, source.getService()));
-                            }
-                            if (!isNullOrEmpty(source.getServiceInstance())) {
-                                query.and(eq(Event.SERVICE_INSTANCE, source.getServiceInstance()));
-                            }
-                            if (!isNullOrEmpty(source.getEndpoint())) {
-                                query.and(eq(Event.ENDPOINT, source.getEndpoint()));
-                            }
-                        }
-
-                        if (!isNullOrEmpty(condition.getName())) {
-                            query.and(eq(Event.NAME, condition.getName()));
-                        }
-
-                        if (condition.getType() != null) {
-                            query.and(eq(Event.TYPE, condition.getType().name()));
-                        }
-
-                        final Duration startTime = condition.getTime();
-                        if (startTime != null) {
-                            if (startTime.getStartTimestamp() > 0) {
-                                query.and(gte(Event.START_TIME, startTime.getStartTimestamp()));
-                            }
-                            if (startTime.getEndTimestamp() > 0) {
-                                query.and(lte(Event.END_TIME, startTime.getEndTimestamp()));
-                            }
-                        }
-
-                        if (!isNullOrEmpty(condition.getLayer())) {
-                            query.and(eq(Event.LAYER, Layer.valueOf(condition.getLayer()).value()));
-                        }
-                    }
-                });
+                Collections.emptySet(), buildQuery(Collections.singletonList(condition)));
         Events events = new Events();
         if (resp.size() == 0) {
             return events;
@@ -105,18 +65,87 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             events.getEvents().add(buildEventView(dataPoint));
         }
-        sortEvents(events, condition);
         return events;
     }
 
     @Override
     public Events queryEvents(List<EventQueryCondition> conditionList) throws Exception {
-        Events totalEvents = new Events();
-        for (final EventQueryCondition cond : conditionList) {
-            final Events singleEvents = this.queryEvents(cond);
-            totalEvents.getEvents().addAll(singleEvents.getEvents());
+        MeasureQueryResponse resp = query(Event.INDEX_NAME, TAGS,
+                Collections.emptySet(), buildQuery(conditionList));
+        Events events = new Events();
+        if (resp.size() == 0) {
+            return events;
         }
-        return totalEvents;
+        for (final DataPoint dataPoint : resp.getDataPoints()) {
+            events.getEvents().add(buildEventView(dataPoint));
+        }
+        return events;
+    }
+
+    public QueryBuilder<MeasureQuery> buildQuery(final List<EventQueryCondition> conditionList) {
+        EventQueryCondition condition = conditionList.get(0);
+        final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+
+        return new QueryBuilder<MeasureQuery>() {
+            @Override
+            protected void apply(MeasureQuery query) {
+                List<AbstractCriteria> eventsQueryConditions = new ArrayList<>(conditionList.size());
+                query.limit(page.getLimit());
+                query.offset(page.getFrom());
+                if (queryOrder == Order.ASC) {
+                    query.setOrderBy(asc(Event.START_TIME));
+                } else {
+                    query.setOrderBy(desc(Event.START_TIME));
+                }
+                for (final EventQueryCondition condition : conditionList) {
+                    List<PairQueryCondition<?>> queryConditions = new ArrayList<>();
+                    if (!isNullOrEmpty(condition.getUuid())) {
+                        queryConditions.add(eq(Event.UUID, condition.getUuid()));
+                    }
+                    final Source source = condition.getSource();
+                    if (source != null) {
+                        if (!isNullOrEmpty(source.getService())) {
+                            queryConditions.add(eq(Event.SERVICE, source.getService()));
+                        }
+                        if (!isNullOrEmpty(source.getServiceInstance())) {
+                            queryConditions.add(eq(Event.SERVICE_INSTANCE, source.getServiceInstance()));
+                        }
+                        if (!isNullOrEmpty(source.getEndpoint())) {
+                            queryConditions.add(eq(Event.ENDPOINT, source.getEndpoint()));
+                        }
+                    }
+
+                    if (!isNullOrEmpty(condition.getName())) {
+                        queryConditions.add(eq(Event.NAME, condition.getName()));
+                    }
+
+                    if (condition.getType() != null) {
+                        queryConditions.add(eq(Event.TYPE, condition.getType().name()));
+                    }
+
+                    final Duration startTime = condition.getTime();
+                    if (startTime != null) {
+                        if (startTime.getStartTimestamp() > 0) {
+                            queryConditions.add(gte(Event.START_TIME, startTime.getStartTimestamp()));
+                        }
+                        if (startTime.getEndTimestamp() > 0) {
+                            queryConditions.add(lte(Event.END_TIME, startTime.getEndTimestamp()));
+                        }
+                    }
+
+                    if (!isNullOrEmpty(condition.getLayer())) {
+                        queryConditions.add(eq(Event.LAYER, Layer.valueOf(condition.getLayer()).value()));
+                    }
+                    eventsQueryConditions.add(and(queryConditions));
+                }
+                if (eventsQueryConditions.size() == 1) {
+                    query.criteria(eventsQueryConditions.get(0));
+                } else if (eventsQueryConditions.size() > 1) {
+                    query.criteria(or(eventsQueryConditions));
+                }
+            }
+        };
     }
 
     protected org.apache.skywalking.oap.server.core.query.type.event.Event buildEventView(
@@ -141,31 +170,5 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
         event.setLayer(Layer.valueOf(((Number) dataPoint.getTagValue(Event.LAYER)).intValue()).name());
 
         return event;
-    }
-
-    private void sortEvents(Events events, EventQueryCondition condition) {
-        if (events.getEvents().isEmpty()) {
-            return;
-        }
-
-        final Comparator<org.apache.skywalking.oap.server.core.query.type.event.Event> c =
-                buildComparator(isNull(condition.getOrder()) ? Order.DES : condition.getOrder());
-        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-        events.setEvents(
-                events.getEvents()
-                        .stream()
-                        .sorted(c)
-                        .skip(page.getFrom())
-                        .limit(page.getLimit())
-                        .collect(Collectors.toList())
-        );
-    }
-
-    private Comparator<org.apache.skywalking.oap.server.core.query.type.event.Event> buildComparator(Order queryOrder) {
-        Comparator<org.apache.skywalking.oap.server.core.query.type.event.Event> c = Comparator.comparingLong(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime);
-        if (queryOrder == Order.DES) {
-            c = c.reversed();
-        }
-        return c;
     }
 }
