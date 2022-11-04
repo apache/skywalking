@@ -97,7 +97,7 @@ public class TelegrafServiceHandler {
 
     }
 
-    public ImmutableMap<String, SampleFamily> convertSampleFamily(TelegrafData telegrafData) {
+    public List<ImmutableMap<String, SampleFamily>> convertSampleFamily(TelegrafData telegrafData) {
         List<Sample> allSamples = new ArrayList<>();
 
         List<TelegrafDatum> metrics = telegrafData.getMetrics();
@@ -106,20 +106,31 @@ public class TelegrafServiceHandler {
             allSamples.addAll(samples);
         }
 
-        // Grouping all samples by their name, then build sampleFamily
-        Map<String, List<Sample>> sampleFamilyCollection = allSamples.stream()
-                .collect(Collectors.groupingBy(Sample::getName));
-        ImmutableMap.Builder<String, SampleFamily> builder = ImmutableMap.builder();
-        sampleFamilyCollection.forEach((k, v) -> builder.put(k, SampleFamilyBuilder.newBuilder(v.toArray(new Sample[0])).build()));
-        return builder.build();
+        List<ImmutableMap<String, SampleFamily>> res = new ArrayList<>();
+
+        // Grouping all samples by timestamp name
+        Map<Long, List<Sample>> sampleFamilyByTime = allSamples.stream()
+                .collect(Collectors.groupingBy(Sample::getTimestamp));
+
+        // Grouping all samples with the same timestamp by name
+        for (List<Sample> s : sampleFamilyByTime.values()) {
+            ImmutableMap.Builder<String, SampleFamily> builder = ImmutableMap.builder();
+            Map<String, List<Sample>> sampleFamilyByName = s.stream()
+                    .collect(Collectors.groupingBy(Sample::getName));
+            sampleFamilyByName.forEach((k, v) ->
+                    builder.put(k, SampleFamilyBuilder.newBuilder(v.toArray(new Sample[0])).build()));
+            res.add(builder.build());
+        }
+
+        return res;
     }
 
     @Post("/telegraf")
     @RequestConverter(TelegrafData.class)
     public Commands collectData(TelegrafData telegrafData) {
         try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
-            ImmutableMap<String, SampleFamily> sampleFamily = convertSampleFamily(telegrafData);
-            metricConvert.forEach(m -> m.toMeter(sampleFamily));
+            List<ImmutableMap<String, SampleFamily>> sampleFamily = convertSampleFamily(telegrafData);
+            sampleFamily.forEach(s -> metricConvert.forEach(m -> m.toMeter(s)));
         } catch (Exception e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);

@@ -168,26 +168,32 @@ public class TelegrafMetricsTest {
         }
     }
 
-    private void assertConvertToSampleFamily(TelegrafData telegrafData, int sampleFamilySize, int totalSamples, String... name) {
+    private void assertConvertToSampleFamily(TelegrafData telegrafData, int sampleFamilySize, int samplePerSampleFamily, String... name) {
         Assert.assertNotNull(telegrafData);
-        ImmutableMap<String, SampleFamily> sampleFamilyCollections = telegrafServiceHandler.convertSampleFamily(telegrafData);
+        List<ImmutableMap<String, SampleFamily>> sampleFamilyCollections = telegrafServiceHandler.convertSampleFamily(telegrafData);
         Assert.assertNotNull(sampleFamilyCollections);
-        Assert.assertEquals(sampleFamilyCollections.size(), sampleFamilySize);
-        for (Map.Entry<String, SampleFamily> entry : sampleFamilyCollections.entrySet()) {
-            String key = entry.getKey();
-            SampleFamily value = entry.getValue();
-            boolean convert = false;
-            Assert.assertEquals(value.samples.length, totalSamples);
-            Assert.assertTrue(Arrays.asList(name).contains(key));
-            for (Sample s : value.samples) {
-                assertSample(s, name);
-                convert = true;
-            }
-            if (!convert) {
-                // Throw exception when key not found
-                throw new AssertionError("Failed to convert json telegraf message to Sample.");
-            }
+        int actualSize = 0;
+        for (ImmutableMap<String, SampleFamily> samples : sampleFamilyCollections) {
+            samples.forEach((k, v) -> Assert.assertEquals(v.samples.length, samplePerSampleFamily));
+            actualSize += samples.size();
         }
+        Assert.assertEquals(actualSize, sampleFamilySize);
+        sampleFamilyCollections.forEach(sampleFamily -> {
+            for (Map.Entry<String, SampleFamily> entry : sampleFamily.entrySet()) {
+                String key = entry.getKey();
+                SampleFamily value = entry.getValue();
+                boolean convert = false;
+                Assert.assertTrue(Arrays.asList(name).contains(key));
+                for (Sample s : value.samples) {
+                    assertSample(s, name);
+                    convert = true;
+                }
+                if (!convert) {
+                    // Throw exception when key not found
+                    throw new AssertionError("Failed to convert json telegraf message to Sample.");
+                }
+            }
+        });
     }
 
     @Test
@@ -227,7 +233,7 @@ public class TelegrafMetricsTest {
         TelegrafData telegrafData = assertTelegrafJSONConvert(threeMemMetrics);
         String[] metricsNames = {"mem_available", "mem_available_percent", "mem_total", "mem_used", "mem_used_percent"};
         assertConvertToSample(telegrafData, 5, metricsNames);
-        assertConvertToSampleFamily(telegrafData, 5, 3, metricsNames);
+        assertConvertToSampleFamily(telegrafData, 15, 1, metricsNames);
     }
 
     @Test
@@ -262,7 +268,37 @@ public class TelegrafMetricsTest {
         TelegrafData telegrafData = assertTelegrafJSONConvert(twoCpuMetrics);
         String[] metricsNames = {"cpu_usage_idle", "cpu_usage_irq", "cpu_usage_system", "cpu_usage_user"};
         assertConvertToSample(telegrafData, 4, metricsNames);
-        assertConvertToSampleFamily(telegrafData, 4, 2, metricsNames);
+        assertConvertToSampleFamily(telegrafData, 8, 1, metricsNames);
+    }
+
+    @Test
+    public void testMultipleCpuMetricsWithSameTimestamp() throws Throwable {
+        String twoCpuMetrics = "{\"metrics\":" +
+                "[{\"fields\":" +
+                "{\"usage_idle\":95.32710280373831,\"usage_irq\":0.3115264797507788,\"usage_system\":1.7133956386292835,\"usage_user\":2.64797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}, " +
+                "{\"fields\":" +
+                "{\"usage_idle\":67.32710280373831,\"usage_irq\":0.5415264797507788,\"usage_system\":1.6533956386292835,\"usage_user\":76.54797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}, " +
+                "{\"fields\":" +
+                "{\"usage_idle\":74.32710280373831,\"usage_irq\":1.2535264797507788,\"usage_system\":4.5633956386292835,\"usage_user\":54.23797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}, " +
+                "{\"fields\":" +
+                "{\"usage_idle\":45.32710280373831,\"usage_irq\":0.4515344797507788,\"usage_system\":3.4533956386292835,\"usage_user\":45.64797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}]}";
+
+        TelegrafData telegrafData = assertTelegrafJSONConvert(twoCpuMetrics);
+        String[] metricsNames = {"cpu_usage_idle", "cpu_usage_irq", "cpu_usage_system", "cpu_usage_user"};
+        assertConvertToSample(telegrafData, 4, metricsNames);
+        assertConvertToSampleFamily(telegrafData, 4, 4, metricsNames);
     }
 
     @Test
@@ -353,7 +389,7 @@ public class TelegrafMetricsTest {
                     TelegrafData telegrafData = assertTelegrafJSONConvert(threeMemMetrics);
                     String[] metricsNames = {"mem_available", "mem_available_percent", "mem_total", "mem_used", "mem_used_percent"};
                     assertConvertToSample(telegrafData, 5, metricsNames);
-                    assertConvertToSampleFamily(telegrafData, 3, 3, metricsNames);
+                    assertConvertToSampleFamily(telegrafData, 3, 1, metricsNames);
                 });
     }
 
@@ -381,7 +417,73 @@ public class TelegrafMetricsTest {
                     TelegrafData telegrafData = assertTelegrafJSONConvert(threeMemMetrics);
                     String[] metricsNames = {"mem_available", "mem_available_percent", "mem_total", "mem_used", "mem_used_percent"};
                     assertConvertToSample(telegrafData, 5, metricsNames);
-                    assertConvertToSampleFamily(telegrafData, 5, 5, metricsNames);
+                    assertConvertToSampleFamily(telegrafData, 15, 2, metricsNames);
+                });
+    }
+
+    @Test
+    public void testWrongSampleFamilySizeWithSameTimestamp() {
+        String fourCpuMetrics = "{\"metrics\":" +
+                "[{\"fields\":" +
+                "{\"usage_idle\":95.32710280373831,\"usage_irq\":0.3115264797507788,\"usage_system\":1.7133956386292835,\"usage_user\":2.64797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}, " +
+                "{\"fields\":" +
+                "{\"usage_idle\":67.32710280373831,\"usage_irq\":0.5415264797507788,\"usage_system\":1.6533956386292835,\"usage_user\":76.54797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}, " +
+                "{\"fields\":" +
+                "{\"usage_idle\":74.32710280373831,\"usage_irq\":1.2535264797507788,\"usage_system\":4.5633956386292835,\"usage_user\":54.23797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}, " +
+                "{\"fields\":" +
+                "{\"usage_idle\":45.32710280373831,\"usage_irq\":0.4515344797507788,\"usage_system\":3.4533956386292835,\"usage_user\":45.64797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}]}";
+
+        Assert.assertThrows("Expected AssertionError to throw, but it didn't.",
+                AssertionError.class, () -> {
+                    TelegrafData telegrafData = assertTelegrafJSONConvert(fourCpuMetrics);
+                    String[] metricsNames = {"mem_available", "mem_available_percent", "mem_total", "mem_used", "mem_used_percent"};
+                    assertConvertToSample(telegrafData, 5, metricsNames);
+                    assertConvertToSampleFamily(telegrafData, 3, 4, metricsNames);
+                });
+    }
+
+    @Test
+    public void testWrongSampleNumbersOfSampleFamilyWithSameTimestamp() {
+        String fourCpuMetrics = "{\"metrics\":" +
+                "[{\"fields\":" +
+                "{\"usage_idle\":95.32710280373831,\"usage_irq\":0.3115264797507788,\"usage_system\":1.7133956386292835,\"usage_user\":2.64797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}, " +
+                "{\"fields\":" +
+                "{\"usage_idle\":67.32710280373831,\"usage_irq\":0.5415264797507788,\"usage_system\":1.6533956386292835,\"usage_user\":76.54797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}, " +
+                "{\"fields\":" +
+                "{\"usage_idle\":74.32710280373831,\"usage_irq\":1.2535264797507788,\"usage_system\":4.5633956386292835,\"usage_user\":54.23797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}, " +
+                "{\"fields\":" +
+                "{\"usage_idle\":45.32710280373831,\"usage_irq\":0.4515344797507788,\"usage_system\":3.4533956386292835,\"usage_user\":45.64797507788162}," +
+                "\"name\":\"cpu\"," +
+                "\"tags\":{\"host\":\"localHost\"}," +
+                "\"timestamp\":1663391390}]}";
+
+        Assert.assertThrows("Expected AssertionError to throw, but it didn't.",
+                AssertionError.class, () -> {
+                    TelegrafData telegrafData = assertTelegrafJSONConvert(fourCpuMetrics);
+                    String[] metricsNames = {"mem_available", "mem_available_percent", "mem_total", "mem_used", "mem_used_percent"};
+                    assertConvertToSample(telegrafData, 5, metricsNames);
+                    assertConvertToSampleFamily(telegrafData, 4, 2, metricsNames);
                 });
     }
 
