@@ -17,7 +17,8 @@ VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.
 1. The InfluxDB Telegraf [input plugins](https://docs.influxdata.com/telegraf/v1.24/plugins/) collects various metrics data from the VMs.
 2. The cpu, mem, system, disk and diskio input plugins should be set in telegraf.conf file.
 2. The InfluxDB Telegraf send `JSON` format metrics by `HTTP` messages to Telegraf Receiver, then pushes converted metrics to the SkyWalking OAP Server [Meter System](./../../concepts-and-designs/meter.md).
-3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
+3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate ad store the results.
+4. The meter_vm_cpu_average_used metrics indicates the average usage of each CPU core for telegraf receiver.
 
 ## Setup
 **For OpenTelemetry receiver:**
