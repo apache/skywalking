@@ -45,6 +45,7 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
 
     private final NamingControl namingControl;
     private final List<Source> sourceList = new ArrayList<>();
+    private static final String UNKNOWN_PEER = "unknown";
 
     @Override
     public void prepareVSIfNecessary(final SpanObject span, final SegmentObject segmentObject) {
@@ -63,7 +64,9 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
                                     .stream()
                                     .findFirst()
                                     .map(SegmentReference::getNetworkAddressUsedAtPeer)
-                                    .orElse(null);
+                                    .filter(StringUtil::isNotBlank)
+                                    .orElseGet(
+                                        () -> StringUtil.isBlank(span.getPeer()) ? UNKNOWN_PEER : span.getPeer());
             serviceName = namingControl.formatServiceName(peer);
         } else {
             mqOperation = MQOperation.Produce;
