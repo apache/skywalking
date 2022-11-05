@@ -166,6 +166,11 @@
             <artifactId>skywalking-ebpf-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-telegraf-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- receiver module -->
 
         <!-- fetcher module -->
@@ -314,6 +319,7 @@
                         <exclude>zabbix-rules/</exclude>
                         <exclude>lal/</exclude>
                         <exclude>log-mal-rules/</exclude>
+                        <exclude>telegraf-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>
