@@ -78,6 +78,7 @@
 * Do not log error logs when failed to create ElasticSearch index because the index is created already.
 * Support `sampledTrace` in LAL.
 * Support multiple rules with different names under the same layer of LAL script.
+* Support span attached event concept.
 
 #### UI
 

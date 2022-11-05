@@ -115,6 +115,7 @@ public class DefaultScopeDefine {
     public static final int TCP_SERVICE_INSTANCE_RELATION = 60;
     public static final int TCP_SERVICE_INSTANCE_UPDATE = 61;
     public static final int SAMPLED_SLOW_TRACE = 62;
+    public static final int SPAN_ATTACHED_EVENT = 63;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

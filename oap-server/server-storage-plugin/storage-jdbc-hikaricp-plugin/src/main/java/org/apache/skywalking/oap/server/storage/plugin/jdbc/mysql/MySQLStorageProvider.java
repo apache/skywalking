@@ -43,6 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
@@ -66,6 +67,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTask
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceLabelQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2SpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RecordsQueryDAO;
@@ -157,6 +159,7 @@ public class MySQLStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IServiceLabelDAO.class, new H2ServiceLabelQueryDAO(mysqlClient));
         this.registerServiceImplementation(ITagAutoCompleteQueryDAO.class, new H2TagAutoCompleteQueryDAO(mysqlClient));
         this.registerServiceImplementation(IZipkinQueryDAO.class, new H2ZipkinQueryDAO(mysqlClient));
+        this.registerServiceImplementation(ISpanAttachedEventQueryDAO.class, new H2SpanAttachedEventQueryDAO(mysqlClient));
     }
 
     @Override
