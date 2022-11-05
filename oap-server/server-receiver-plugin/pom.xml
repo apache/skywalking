@@ -46,6 +46,7 @@
         <module>skywalking-event-receiver-plugin</module>
         <module>skywalking-zabbix-receiver-plugin</module>
         <module>skywalking-ebpf-receiver-plugin</module>
+        <module>skywalking-telegraf-receiver-plugin</module>
     </modules>
 
     <dependencies>

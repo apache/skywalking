@@ -536,3 +536,8 @@ receiver-event:
 receiver-ebpf:
   selector: ${SW_RECEIVER_EBPF:default}
   default:
+
+receiver-telegraf:
+  selector: ${SW_RECEIVER_TELEGRAF:default}
+  default:
+    activeFiles: ${SW_RECEIVER_TELEGRAF_ACTIVE_FILES:vm}
