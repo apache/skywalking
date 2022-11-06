@@ -126,7 +126,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
                 callingInTraffic.add(sourceBuilder);
             }
         } else if (span.getSpanLayer() == SpanLayer.MQ && StringUtil.isNotBlank(span.getPeer())) {
-            // For MQ , if there is no producer side instrumentation , and consumer has peer , we set the peer as source service name
+            // For MQ, if there is no producer-side instrumentation, we set the existing peer as the source service name.
             RPCTrafficSourceBuilder sourceBuilder = new RPCTrafficSourceBuilder(namingControl);
             sourceBuilder.setSourceServiceName(span.getPeer());
             sourceBuilder.setSourceServiceInstanceName(span.getPeer());
