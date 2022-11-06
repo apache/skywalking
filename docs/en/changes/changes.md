@@ -96,6 +96,7 @@
   * Optimize data binary parse methods in *LogQueryDAO
   * Support different indexType
   * Support configuration for TTL and (block|segment) intervals
+* Optimize MQ Topology analysis. Use entry span's peer from the consumer side as source service when no producer instrumentation(no cross-process reference). 
 
 #### UI
 

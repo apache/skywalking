@@ -54,21 +54,25 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
         if (!(span.getSpanType() == SpanType.Exit || span.getSpanType() == SpanType.Entry)) {
             return;
         }
-        MQTags mqTags = collectTags(span.getTagsList());
+        final String peer;
         final MQOperation mqOperation;
-        final String serviceName;
         if (span.getSpanType() == SpanType.Entry) {
             mqOperation = MQOperation.Consume;
-            final String peer = span.getRefsList()
-                                    .stream()
-                                    .findFirst()
-                                    .map(SegmentReference::getNetworkAddressUsedAtPeer)
-                                    .orElse(null);
-            serviceName = namingControl.formatServiceName(peer);
+            peer = span.getRefsList()
+                       .stream()
+                       .findFirst()
+                       .map(SegmentReference::getNetworkAddressUsedAtPeer)
+                       .filter(StringUtil::isNotBlank)
+                       .orElse(span.getPeer());
         } else {
             mqOperation = MQOperation.Produce;
-            serviceName = namingControl.formatServiceName(span.getPeer());
+            peer = span.getPeer();
         }
+        if (StringUtil.isBlank(peer)) {
+            return;
+        }
+        MQTags mqTags = collectTags(span.getTagsList());
+        String serviceName = namingControl.formatServiceName(peer);
         long timeBucket = TimeBucket.getMinuteTimeBucket(span.getStartTime());
         sourceList.add(toServiceMeta(serviceName, timeBucket));
         String endpoint = buildEndpointName(mqTags.topic, mqTags.queue);
