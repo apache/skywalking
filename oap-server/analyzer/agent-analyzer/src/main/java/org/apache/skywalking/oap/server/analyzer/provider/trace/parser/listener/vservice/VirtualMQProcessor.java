@@ -45,7 +45,6 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
 
     private final NamingControl namingControl;
     private final List<Source> sourceList = new ArrayList<>();
-    private static final String UNKNOWN_PEER = "unknown";
 
     @Override
     public void prepareVSIfNecessary(final SpanObject span, final SegmentObject segmentObject) {
@@ -55,23 +54,25 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
         if (!(span.getSpanType() == SpanType.Exit || span.getSpanType() == SpanType.Entry)) {
             return;
         }
-        MQTags mqTags = collectTags(span.getTagsList());
+        final String peer;
         final MQOperation mqOperation;
-        final String serviceName;
         if (span.getSpanType() == SpanType.Entry) {
             mqOperation = MQOperation.Consume;
-            final String peer = span.getRefsList()
-                                    .stream()
-                                    .findFirst()
-                                    .map(SegmentReference::getNetworkAddressUsedAtPeer)
-                                    .filter(StringUtil::isNotBlank)
-                                    .orElseGet(
-                                        () -> StringUtil.isBlank(span.getPeer()) ? UNKNOWN_PEER : span.getPeer());
-            serviceName = namingControl.formatServiceName(peer);
+            peer = span.getRefsList()
+                       .stream()
+                       .findFirst()
+                       .map(SegmentReference::getNetworkAddressUsedAtPeer)
+                       .filter(StringUtil::isNotBlank)
+                       .orElse(span.getPeer());
         } else {
             mqOperation = MQOperation.Produce;
-            serviceName = namingControl.formatServiceName(span.getPeer());
+            peer = span.getPeer();
         }
+        if (StringUtil.isBlank(peer)) {
+            return;
+        }
+        MQTags mqTags = collectTags(span.getTagsList());
+        String serviceName = namingControl.formatServiceName(peer);
         long timeBucket = TimeBucket.getMinuteTimeBucket(span.getStartTime());
         sourceList.add(toServiceMeta(serviceName, timeBucket));
         String endpoint = buildEndpointName(mqTags.topic, mqTags.queue);
