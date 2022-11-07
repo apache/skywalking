@@ -18,16 +18,10 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
-import com.google.gson.JsonObject;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseExtension;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
@@ -36,8 +30,9 @@ import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
+import com.google.gson.JsonObject;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Extend H2TableInstaller but match MySQL SQL syntax.
@@ -46,22 +41,6 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 public class MySQLTableInstaller extends H2TableInstaller {
     public MySQLTableInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
-    }
-
-    @Override
-    public boolean isExists(Model model) throws StorageException {
-        TableMetaInfo.addModel(model);
-        JDBCHikariCPClient h2Client = (JDBCHikariCPClient) client;
-        try (Connection conn = h2Client.getConnection()) {
-            try (ResultSet rset = conn.getMetaData().getTables(conn.getCatalog(), null, model.getName(), null)) {
-                if (rset.next()) {
-                    return true;
-                }
-            }
-        } catch (SQLException | JDBCClientException e) {
-            throw new StorageException(e.getMessage(), e);
-        }
-        return false;
     }
 
     @Override

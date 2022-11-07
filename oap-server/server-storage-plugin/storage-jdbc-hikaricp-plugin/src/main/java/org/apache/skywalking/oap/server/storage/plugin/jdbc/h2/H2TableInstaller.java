@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,16 @@ public class H2TableInstaller extends ModelInstaller {
     @Override
     public boolean isExists(Model model) throws StorageException {
         TableMetaInfo.addModel(model);
+        JDBCHikariCPClient jdbcClient = (JDBCHikariCPClient) client;
+        try (Connection conn = jdbcClient.getConnection()) {
+            try (ResultSet rset = conn.getMetaData().getTables(conn.getCatalog(), null, model.getName(), null)) {
+                if (rset.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException | JDBCClientException e) {
+            throw new StorageException(e.getMessage(), e);
+        }
         return false;
     }
 
