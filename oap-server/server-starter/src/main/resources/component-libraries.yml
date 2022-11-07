@@ -435,6 +435,10 @@ Impala:
   id: 134
   languages: Java
 
+EventMesh-producer:
+  id: 135
+  languages: Java
+
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
 AspNetCore:
