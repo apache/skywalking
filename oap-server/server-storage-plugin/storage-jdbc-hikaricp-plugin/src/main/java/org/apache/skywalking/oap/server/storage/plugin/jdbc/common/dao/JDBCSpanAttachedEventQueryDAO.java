@@ -16,9 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
@@ -32,13 +32,9 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-@Slf4j
-public class H2SpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO {
-    private JDBCHikariCPClient h2Client;
-
-    public H2SpanAttachedEventQueryDAO(JDBCHikariCPClient h2Client) {
-        this.h2Client = h2Client;
-    }
+@RequiredArgsConstructor
+public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO {
+    private final JDBCHikariCPClient jdbcClient;
 
     @Override
     public List<SpanAttachedEventRecord> querySpanAttachedEvents(String traceId) throws IOException {
@@ -52,8 +48,8 @@ public class H2SpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO {
                 .append(",").append(SpanAttachedEventRecord.START_TIME_NANOS).append(" ASC ");
 
         List<SpanAttachedEventRecord> results = new ArrayList<>();
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(
+        try (Connection connection = jdbcClient.getConnection()) {
+            try (ResultSet resultSet = jdbcClient.executeQuery(
                     connection, sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     SpanAttachedEventRecord record = new SpanAttachedEventRecord();

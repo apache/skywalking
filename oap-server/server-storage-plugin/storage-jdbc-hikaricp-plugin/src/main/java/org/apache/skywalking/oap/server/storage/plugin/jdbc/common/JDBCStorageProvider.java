@@ -43,6 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
@@ -71,6 +72,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCProfi
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCRecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCServiceLabelQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCSpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCStorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTopologyQueryDAO;
@@ -202,6 +204,9 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IZipkinQueryDAO.class,
             new JDBCZipkinQueryDAO(jdbcClient));
+        this.registerServiceImplementation(
+            ISpanAttachedEventQueryDAO.class,
+            new JDBCSpanAttachedEventQueryDAO(jdbcClient));
     }
 
     @Override
