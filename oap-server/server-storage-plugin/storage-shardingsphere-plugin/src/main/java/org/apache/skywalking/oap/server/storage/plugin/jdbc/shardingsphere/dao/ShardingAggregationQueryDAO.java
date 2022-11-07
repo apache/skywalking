@@ -25,10 +25,10 @@ import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AggregationQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCAggregationQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 
-public class ShardingAggregationQueryDAO extends H2AggregationQueryDAO {
+public class ShardingAggregationQueryDAO extends JDBCAggregationQueryDAO {
 
     public ShardingAggregationQueryDAO(JDBCHikariCPClient h2Client) {
         super(h2Client);

@@ -20,6 +20,8 @@ services:
     extends:
       file: ../../../../script/shardingsphere-proxy/base-compose.yml
       service: sharding-proxy
+    volumes:
+      - ../../../../script/shardingsphere-proxy/conf-mysql:/opt/shardingsphere-proxy/conf
     networks:
       - e2e
     expose:

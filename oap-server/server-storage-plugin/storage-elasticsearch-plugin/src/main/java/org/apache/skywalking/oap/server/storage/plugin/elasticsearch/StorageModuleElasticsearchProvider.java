@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
@@ -97,6 +98,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     protected StorageModuleElasticsearchConfig config;
     protected ElasticSearchClient elasticSearchClient;
+    protected ModelInstaller modelInstaller;
 
     @Override
     public String name() {
@@ -176,6 +178,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             config.getSocketTimeout(), config.getResponseTimeout(),
             config.getNumHttpClientThread()
         );
+        modelInstaller = new StorageEsInstaller(elasticSearchClient, getManager(), config);
+
         this.registerServiceImplementation(
             IBatchDAO.class,
             new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config
@@ -235,9 +239,9 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         elasticSearchClient.registerChecker(healthChecker);
         try {
             elasticSearchClient.connect();
-            StorageEsInstaller installer = new StorageEsInstaller(elasticSearchClient, getManager(), config);
+            modelInstaller.start();
 
-            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
+            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(modelInstaller);
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

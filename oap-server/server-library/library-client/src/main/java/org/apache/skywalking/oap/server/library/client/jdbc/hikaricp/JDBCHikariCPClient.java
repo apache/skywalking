@@ -129,7 +129,7 @@ public class JDBCHikariCPClient implements Client, HealthCheckable {
                 }
             }
             healthChecker.unHealth(e);
-            throw new JDBCClientException(e.getMessage(), e);
+            throw new JDBCClientException(sql, e);
         }
 
         return rs;
