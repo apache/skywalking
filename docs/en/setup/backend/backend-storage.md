@@ -155,8 +155,9 @@ the storage provider will use the new username, password, and JKS password to es
 the `user/password` will be overridden.
 
 
-### Each Elasticsearch Index Settings
-You can set and update the index settings `(number_of_shards/number_of_replicas)` by the following configuration items for the index template after rebooting:
+### Index Settings
+
+The following settings control the number of shards and replicas for new and existing index templates. The update only got applied after OAP reboots.
 ```yaml
 storage:
   elasticsearch:
@@ -188,10 +189,10 @@ Supported settings:
 - number_of_shards
 - number_of_replicas
 
-**NOTE:** If configured, the settings in this configuration have the highest priority and will override the existing 
-generic settings which configured by the others configuration items.
+**NOTE:** These settings have the highest priority and will override the existing 
+generic settings mentioned in [index settings doc](#index-settings).
 
-The settings in `JSON` format and the index name in the config should exclude the `${SW_NAMESPACE}` which is `sw` by default, e.g.
+The settings are in `JSON` format. The index name here is logic entity name, which should exclude the `${SW_NAMESPACE}` which is `sw` by default, e.g.
 ```json
 {
   "metrics-all":{
@@ -205,7 +206,7 @@ The settings in `JSON` format and the index name in the config should exclude th
 }
 ```
 
-And put it into the following configure item:
+This configuration in the YAML file is like this,
 ```yaml
 storage:
   elasticsearch:
