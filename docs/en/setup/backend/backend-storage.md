@@ -156,7 +156,6 @@ the `user/password` will be overridden.
 
 
 ### Index Settings
-
 The following settings control the number of shards and replicas for new and existing index templates. The update only got applied after OAP reboots.
 ```yaml
 storage:
@@ -168,6 +167,18 @@ storage:
     superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} 
     superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0}
 ```
+The following table shows the relationship between those config items and Elasticsearch `index number_of_shards/number_of_replicas`.
+And also you can [specify the settings for each index individually.](#specify-settings-for-each-elasticsearch-index-individually) 
+
+| index                                | number_of_shards | number_of_replicas   | 
+|--------------------------------------|------------------|----------------------|
+| sw_ui_template                       | indexShardsNumber | indexReplicasNumber  | 
+| sw_metrics-all-`${day-format}`       | indexShardsNumber | indexReplicasNumber  | 
+| sw_log-`${day-format}`               | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
+| sw_segment-`${day-format}`           | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
+| sw_browser_error_log-`${day-format}` | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
+| sw_zipkin_span-`${day-format}`       | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
+| sw_records-all-`${day-format}`       | indexShardsNumber | indexReplicasNumber  |
 
 #### Advanced Configurations For Elasticsearch Index
 You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)
