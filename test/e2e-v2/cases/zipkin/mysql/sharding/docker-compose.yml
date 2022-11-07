@@ -22,6 +22,8 @@ services:
       service: sharding-proxy
     networks:
       - e2e
+    volumes:
+      - ../../../../script/shardingsphere-proxy/conf-mysql:/opt/shardingsphere-proxy/conf
     expose:
       - 3307
     depends_on:
