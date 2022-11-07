@@ -37,7 +37,7 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
 /**
  * Extend H2TableInstaller but match MySQL SQL syntax.
@@ -46,15 +46,10 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstal
 public class MySQLTableInstaller extends H2TableInstaller {
     public MySQLTableInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
-        /*
-         * Override column because the default column names in core have syntax conflict with MySQL.
-         */
-        this.overrideColumnName("precision", "cal_precision");
-        this.overrideColumnName("match", "match_num");
     }
 
     @Override
-    protected boolean isExists(Model model) throws StorageException {
+    public boolean isExists(Model model) throws StorageException {
         TableMetaInfo.addModel(model);
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient) client;
         try (Connection conn = h2Client.getConnection()) {
@@ -70,47 +65,61 @@ public class MySQLTableInstaller extends H2TableInstaller {
     }
 
     @Override
-    protected void createTableIndexes(JDBCHikariCPClient client,
-                                      Connection connection,
-                                      String tableName, List<ModelColumn> columns, boolean additionalTable) throws JDBCClientException {
+    public void start() {
+        /*
+         * Override column because the default column names in core have syntax conflict with MySQL.
+         */
+        this.overrideColumnName("precision", "cal_precision");
+        this.overrideColumnName("match", "match_num");
+    }
+
+    @Override
+    public void createTableIndexes(
+        JDBCHikariCPClient client,
+        Connection connection,
+        String tableName, List<ModelColumn> columns, boolean additionalTable)
+        throws JDBCClientException {
         // Additional table's id follow the main table can not be primary key
         if (additionalTable) {
             SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(tableName.toUpperCase()).append("_id_IDX");
-            tableIndexSQL.append(" ON ").append(tableName).append("(").append(ID_COLUMN).append(")");
+            tableIndexSQL.append(" ON ").append(tableName).append("(").append(ID_COLUMN)
+                .append(")");
             createIndex(client, connection, tableName, tableIndexSQL);
         }
 
         int indexSeq = 0;
         for (final ModelColumn modelColumn : columns) {
             if (modelColumn.shouldIndex() && modelColumn.getLength() < 256) {
-                    SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-                    tableIndexSQL.append(tableName.toUpperCase())
-                                 .append("_")
-                                 .append(String.valueOf(indexSeq++))
-                                 .append("_IDX ");
-                    tableIndexSQL.append("ON ").append(tableName).append("(")
-                                 .append(modelColumn.getColumnName().getStorageName())
-                                 .append(")");
-                    createIndex(client, connection, tableName, tableIndexSQL);
+                SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+                tableIndexSQL.append(tableName.toUpperCase())
+                    .append("_")
+                    .append(String.valueOf(indexSeq++))
+                    .append("_IDX ");
+                tableIndexSQL.append("ON ").append(tableName).append("(")
+                    .append(modelColumn.getColumnName().getStorageName())
+                    .append(")");
+                createIndex(client, connection, tableName, tableIndexSQL);
             }
         }
 
-        List<String> columnList = columns.stream().map(column -> column.getColumnName().getStorageName()).collect(
-            Collectors.toList());
+        List<String> columnList =
+            columns.stream().map(column -> column.getColumnName().getStorageName()).collect(
+                Collectors.toList());
         for (final ModelColumn modelColumn : columns) {
-            for (final SQLDatabaseExtension.MultiColumnsIndex index : modelColumn.getSqlDatabaseExtension()
-                                                                                 .getIndices()) {
+            for (final SQLDatabaseExtension.MultiColumnsIndex index : modelColumn
+                .getSqlDatabaseExtension()
+                .getIndices()) {
                 final String[] multiColumns = index.getColumns();
-                //Create MultiColumnsIndex on the additional table only when it contains all need columns.
+                // Create MultiColumnsIndex on the additional table only when it contains all need columns.
                 if (additionalTable && !columnList.containsAll(Arrays.asList(multiColumns))) {
                     continue;
                 }
                 SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
                 tableIndexSQL.append(tableName.toUpperCase())
-                             .append("_")
-                             .append(String.valueOf(indexSeq++))
-                             .append("_IDX ");
+                    .append("_")
+                    .append(String.valueOf(indexSeq++))
+                    .append("_IDX ");
                 tableIndexSQL.append(" ON ").append(tableName).append("(");
                 for (int i = 0; i < multiColumns.length; i++) {
                     tableIndexSQL.append(multiColumns[i]);
@@ -125,7 +134,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
     }
 
     @Override
-    protected String getColumn(final ModelColumn column) {
+    public String getColumn(final ModelColumn column) {
         final String storageName = column.getColumnName().getStorageName();
         final Class<?> type = column.getType();
         if (StorageDataComplexObject.class.isAssignableFrom(type)) {

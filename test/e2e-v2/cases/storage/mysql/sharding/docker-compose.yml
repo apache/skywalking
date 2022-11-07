@@ -24,6 +24,8 @@ services:
       - e2e
     expose:
       - 3307
+    volumes:
+      - ../../../../script/shardingsphere-proxy/conf-mysql:/opt/shardingsphere-proxy/conf
     depends_on:
       mysql-1:
         condition: service_healthy

@@ -65,7 +65,7 @@ public class PostgreSQLTableInstaller extends MySQLTableInstaller {
     }
 
     @Override
-    protected String getColumn(final ModelColumn column) {
+    public String getColumn(final ModelColumn column) {
         final String storageName = column.getColumnName().getStorageName();
         final Class<?> type = column.getType();
         if (StorageDataComplexObject.class.isAssignableFrom(type)) {
