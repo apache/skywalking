@@ -23,10 +23,10 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 
-public class ShardingTopologyQueryDAO extends H2TopologyQueryDAO {
+public class ShardingTopologyQueryDAO extends JDBCTopologyQueryDAO {
 
     public ShardingTopologyQueryDAO(JDBCHikariCPClient h2Client) {
         super(h2Client);

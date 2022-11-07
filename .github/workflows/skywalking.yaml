@@ -28,7 +28,8 @@ concurrency:
 env:
   SW_AGENT_JDK_VERSION: 8
   MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
-
+  SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5 # Cache restore timeout
+  
 jobs:
   license-header:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -548,6 +549,8 @@ jobs:
             config: test/e2e-v2/cases/vm/zabbix/e2e.yaml
           - name: VM Prometheus
             config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
+          - name: VM Telegraf
+            config: test/e2e-v2/cases/vm/telegraf/e2e.yaml
           - name: So11y
             config: test/e2e-v2/cases/so11y/e2e.yaml
           - name: MySQL Prometheus and slowsql
@@ -584,9 +587,10 @@ jobs:
             config: test/e2e-v2/cases/zipkin/mysql/sharding/e2e.yaml
           - name: APISIX metrics
             config: test/e2e-v2/cases/apisix/otel-collector/e2e.yaml
-
           - name: Exporter Kafka
             config: test/e2e-v2/cases/exporter/kafka/e2e.yaml
+          - name: Virtual MQ
+            config: test/e2e-v2/cases/virtual-mq/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

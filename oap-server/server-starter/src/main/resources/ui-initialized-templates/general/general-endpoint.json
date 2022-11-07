@@ -128,7 +128,7 @@
                   ]
                 },
                 {
-                  "x": 16,
+                  "x": 8,
                   "y": 13,
                   "w": 8,
                   "h": 13,
@@ -164,52 +164,6 @@
                     },
                     {
                       "widgetId": "0-0-6"
-                    },
-                    {
-                      "widgetId": "0-0-7"
-                    },
-                    {
-                      "widgetId": "0-0-8"
-                    }
-                  ]
-                },
-                {
-                  "x": 8,
-                  "y": 13,
-                  "w": 8,
-                  "h": 13,
-                  "i": "6",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Message Queue Consuming Count",
-                    "tips": "The number of consumed messages.",
-                    "name": "Message_Consuming_Count"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": false,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metrics": [
-                    "endpoint_mq_consume_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "value": "0-0-6",
-                  "label": "Message_Consuming_Count",
-                  "associate": [
-                    {
-                      "widgetId": "0-0-3"
-                    },
-                    {
-                      "widgetId": "0-0-4"
-                    },
-                    {
-                      "widgetId": "0-0-5"
                     },
                     {
                       "widgetId": "0-0-7"
@@ -273,7 +227,8 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Endpoint Load (calls / min)",
-                    "name": "Endpoint_Load"
+                    "name": "Endpoint_Load",
+                    "tips": "requests(HTTP / RPC) / min, consuming messages(MQ) / min"
                   },
                   "graph": {
                     "type": "Line",

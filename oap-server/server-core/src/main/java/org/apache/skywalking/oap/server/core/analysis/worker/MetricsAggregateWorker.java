@@ -50,13 +50,26 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private CounterMetrics aggregationCounter;
     private long lastSendTime = 0;
 
-    MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Metrics> nextWorker,
-                           String modelName, long l1FlushPeriod) {
+    MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder,
+                           AbstractWorker<Metrics> nextWorker,
+                           String modelName,
+                           long l1FlushPeriod,
+                           MetricStreamKind kind) {
         super(moduleDefineHolder);
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergableBufferedData();
         String name = "METRICS_L1_AGGREGATION";
-        this.dataCarrier = new DataCarrier<>("MetricsAggregateWorker." + modelName, name, 2, 10000);
+        int queueChannelSize = 2;
+        int queueBufferSize = 10_000;
+        if (MetricStreamKind.MAL == kind) {
+            // In MAL meter streaming, the load of data flow is much less as they are statistics already,
+            // but in OAL sources, they are raw data.
+            // Set the buffer(size of queue) as 1/20 to reduce unnecessary resource costs.
+            queueChannelSize = 1;
+            queueBufferSize = 1_000;
+        }
+        this.dataCarrier = new DataCarrier<>(
+            "MetricsAggregateWorker." + modelName, name, queueChannelSize, queueBufferSize);
 
         BulkConsumePool.Creator creator = new BulkConsumePool.Creator(
             name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);

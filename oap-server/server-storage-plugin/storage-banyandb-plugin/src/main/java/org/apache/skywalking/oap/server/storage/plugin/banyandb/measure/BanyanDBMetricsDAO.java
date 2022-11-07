@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractB
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -51,25 +52,26 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
         log.info("multiGet {} from BanyanDB", model.getName());
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model.getName());
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
-        // TODO: add time range
         List<Metrics> metricsInStorage = new ArrayList<>(metrics.size());
-        for (final Metrics missCachedMetric : metrics) {
-            MeasureQueryResponse resp = query(model.getName(), schema.getTags(), schema.getFields(), new QueryBuilder<MeasureQuery>() {
-                @Override
-                protected void apply(MeasureQuery query) {
-                    query.andWithID(missCachedMetric.id());
+        MeasureQueryResponse resp = query(model.getName(), schema.getTags(), schema.getFields(), new QueryBuilder<MeasureQuery>() {
+            @Override
+            protected void apply(MeasureQuery query) {
+                for (final Metrics missCachedMetric : metrics) {
+                    query.or(id(missCachedMetric.id()));
                 }
-            });
-            if (resp.size() == 0) {
-                continue;
             }
-            for (final DataPoint dataPoint : resp.getDataPoints()) {
-                metricsInStorage.add(storageBuilder.storage2Entity(new BanyanDBConverter.StorageToMeasure(model.getName(), dataPoint)));
-            }
+        });
+
+        if (resp.size() == 0) {
+            return Collections.emptyList();
+        }
+
+        for (final DataPoint dataPoint : resp.getDataPoints()) {
+            metricsInStorage.add(storageBuilder.storage2Entity(new BanyanDBConverter.StorageToMeasure(schema, dataPoint)));
         }
         return metricsInStorage;
     }
@@ -77,12 +79,12 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         log.info("prepare to insert {}", model.getName());
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model.getName());
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
         MeasureWrite measureWrite = new MeasureWrite(schema.getMetadata().getGroup(), // group name
-                model.getName(), // index-name
+                schema.getMetadata().name(), // measure-name
                 TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling())); // timestamp
         final BanyanDBConverter.MeasureToStorage toStorage = new BanyanDBConverter.MeasureToStorage(schema, measureWrite);
         storageBuilder.entity2Storage(metrics, toStorage);
@@ -93,12 +95,12 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
     @Override
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
         log.info("prepare to update {}", model.getName());
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model.getName());
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
         MeasureWrite measureWrite = new MeasureWrite(schema.getMetadata().getGroup(), // group name
-                model.getName(), // index-name
+                schema.getMetadata().name(), // measure-name
                 TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling())); // timestamp
         final BanyanDBConverter.MeasureToStorage toStorage = new BanyanDBConverter.MeasureToStorage(schema, measureWrite);
         storageBuilder.entity2Storage(metrics, toStorage);

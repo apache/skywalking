@@ -203,10 +203,13 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     BanyanDB.GlobalIndex.class);
                 final BanyanDB.NoIndexing banyanDBNoIndex = field.getAnnotation(
                     BanyanDB.NoIndexing.class);
+                final BanyanDB.IndexRule banyanDBIndexRule = field.getAnnotation(
+                        BanyanDB.IndexRule.class);
                 BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
                     banyanDBShardingKey == null ? -1 : banyanDBShardingKey.index(),
-                    banyanDBGlobalIndex == null ? false : true,
-                    banyanDBNoIndex != null ? false : column.storageOnly()
+                    banyanDBGlobalIndex != null,
+                    banyanDBNoIndex == null && column.storageOnly(),
+                    banyanDBIndexRule == null ? BanyanDB.IndexRule.IndexType.INVERTED : banyanDBIndexRule.indexType()
                 );
 
                 final ModelColumn modelColumn = new ModelColumn(

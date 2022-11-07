@@ -86,7 +86,9 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
 
     @Override
     public void endOfFlush() {
-        // Flush forcedly due to this kind of metrics has been pushed into the bulk processor.
-        bulkProcessor.flush();
+        // Flush forcibly due to this kind of metrics has been pushed into the bulk processor.
+        if (bulkProcessor != null) {
+            bulkProcessor.flush();
+        }
     }
 }

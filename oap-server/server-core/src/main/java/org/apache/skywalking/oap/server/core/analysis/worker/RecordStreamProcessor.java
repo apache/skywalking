@@ -56,8 +56,6 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         }
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Record> recordClass) throws StorageException {
         final StorageBuilderFactory storageBuilderFactory = moduleDefineHolder.find(StorageModule.NAME)
                                                                               .provider()

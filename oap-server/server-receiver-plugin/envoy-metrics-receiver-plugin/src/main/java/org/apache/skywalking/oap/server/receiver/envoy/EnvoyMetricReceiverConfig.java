@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.receiver.envoy;
 
 import com.google.common.base.Strings;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +59,11 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     }
 
     public List<Rule> rules() throws ModuleStartException {
-        return Rules.loadRules("envoy-metrics-rules", Arrays.asList("envoy", "envoy-svc-relation"));
+        try {
+            return Rules.loadRules("envoy-metrics-rules", Arrays.asList("envoy", "envoy-svc-relation"));
+        } catch (IOException e) {
+            throw new ModuleStartException("Failed to load envoy-metrics-rules", e);
+        }
     }
 
     public ServiceMetaInfoFactory serviceMetaInfoFactory() {

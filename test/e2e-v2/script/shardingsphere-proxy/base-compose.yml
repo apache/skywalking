@@ -20,7 +20,6 @@ services:
     image: apache/shardingsphere-proxy:5.1.2
     volumes:
       - ./../prepare/setup-oap/download-mysql.sh:/opt/shardingsphere-proxy/download-mysql.sh
-      - ./conf:/opt/shardingsphere-proxy/conf
     networks:
       - e2e
     expose:

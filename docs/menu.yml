@@ -119,6 +119,8 @@ catalog:
             path: "/en/setup/backend/backend-zabbix"
           - name: "Meter Analysis"
             path: "/en/setup/backend/backend-meter"
+          - name: "Telegraf Metrics"
+            path: "/en/setup/backend/telegraf-receiver"
           - name: "Apdex Threshold"
             path: "/en/setup/backend/apdex-threshold"
           - name: "Spring Sleuth Metrics Analysis"
@@ -153,6 +155,8 @@ catalog:
                 path: "/en/setup/service-agent/virtual-database"
               - name: "Virtual Cache"
                 path: "/en/setup/service-agent/virtual-cache"
+              - name: "Virtual MQ"
+                path: "/en/setup/service-agent/virtual-mq"                
           - name: "Service Mesh"
             catalog:
               - name: "Observe Service Mesh"

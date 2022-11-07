@@ -41,8 +41,8 @@ public class BanyanDBConverter {
         private final MetadataRegistry.Schema schema;
         private final RowEntity rowEntity;
 
-        public StorageToStream(String modelName, RowEntity rowEntity) {
-            this.schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        public StorageToStream(String streamModelName, RowEntity rowEntity) {
+            this.schema = MetadataRegistry.INSTANCE.findRecordMetadata(streamModelName);
             this.rowEntity = rowEntity;
         }
 
@@ -215,8 +215,8 @@ public class BanyanDBConverter {
         private final MetadataRegistry.Schema schema;
         private final DataPoint dataPoint;
 
-        public StorageToMeasure(String modelName, DataPoint dataPoint) {
-            this.schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        public StorageToMeasure(MetadataRegistry.Schema schema, DataPoint dataPoint) {
+            this.schema = schema;
             this.dataPoint = dataPoint;
         }
 

@@ -65,10 +65,11 @@
                 <include>meter-analyzer-config/*.yaml</include>
                 <include>zabbix-rules/*.yaml</include>
                 <include>openapi-definitions/*/*.yaml</include>
-                <include>otel-rules/*</include>
+                <include>otel-rules/**</include>
                 <include>ui-initialized-templates/*/*.json</include>
                 <include>lal/*</include>
                 <include>log-mal-rules/*</include>
+                <include>telegraf-rules/*</include>
             </includes>
             <outputDirectory>config</outputDirectory>
         </fileSet>

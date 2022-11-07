@@ -48,25 +48,17 @@ License (SSPL), which is incompatible with Apache License 2.0. This license chan
 version 7.11. So please choose the suitable ElasticSearch version according to your usage.
 If you have concerns about SSPL, choose the versions before 7.11 or switch to OpenSearch.
 
-Since 9.2.0, SkyWalking provides no-sharding/one-index mode to merge all metrics/meter and records(without super datasets)
-indices into one physical index template `metrics-all` and `records-all` on the default setting.
-In the current one index mode, users still could choose to adjust ElasticSearch's shard number(`SW_STORAGE_ES_INDEX_SHARDS_NUMBER`) to scale out.
-After merge all indices, the following indices are available:
+By default, SkyWalking uses following indices for various telemetry data.
 
-* sw_ui_template
-* sw_metrics-all-`${day-format}`
-* sw_log-`${day-format}`
-* sw_segment-`${day-format}`
-* sw_browser_error_log-`${day-format}`
-* sw_zipkin_span-`${day-format}`
-* sw_records-all-`${day-format}`
+* sw_ui_template (UI dashboard settings)
+* sw_metrics-all-`${day-format}` (All metrics/meters generated through MAL and OAL engines, and metadata of service/instance/endpoint)
+* sw_log-`${day-format}` (Collected logs, exclude browser logs)
+* sw_segment-`${day-format}` (Native trace segments)
+* sw_browser_error_log-`${day-format}` (Collected browser logs)
+* sw_zipkin_span-`${day-format}` (Zipkin trace spans)
+* sw_records-all-`${day-format}` (All sampled records, e.g. slow SQLs, agent profiling, and ebpf profiling)
 
-___
-Provide system environment variable(`SW_STORAGE_ES_LOGIC_SHARDING`). Set it to `true` could shard metrics indices into multi-physical indices
-as same as the versions(one index template per metric/meter aggregation function) before 9.2.0.
-___
-
-Since 8.8.0, SkyWalking rebuilds the ElasticSearch client on top of ElasticSearch REST API and automatically picks up
+SkyWalking rebuilds the ElasticSearch client on top of ElasticSearch REST API and automatically picks up
 correct request formats according to the server-side version, hence you don't need to download different binaries
 and don't need to configure different storage selectors for different ElasticSearch server-side versions anymore.
 
@@ -104,6 +96,8 @@ storage:
     oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
+    # Set it to `true` could shard metrics indices into multi-physical indices
+    # as same as the versions(one index template per metric/meter aggregation function) before 9.2.0.
     logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
 ```
 
@@ -308,6 +302,10 @@ storage:
     superDatasetShardsFactor: ${SW_STORAGE_BANYANDB_SUPERDATASET_SHARDS_FACTOR:2}
     concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
     profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
+    streamBlockInterval: ${SW_STORAGE_BANYANDB_STREAM_BLOCK_INTERVAL:4} # Unit is hour
+    streamSegmentInterval: ${SW_STORAGE_BANYANDB_STREAM_SEGMENT_INTERVAL:24} # Unit is hour
+    measureBlockInterval: ${SW_STORAGE_BANYANDB_MEASURE_BLOCK_INTERVAL:4} # Unit is hour
+    measureSegmentInterval: ${SW_STORAGE_BANYANDB_MEASURE_SEGMENT_INTERVAL:24} # Unit is hour
 ```
 
 For more details, please refer to the documents of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/next/readme/)
