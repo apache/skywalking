@@ -434,15 +434,12 @@ Impala-jdbc-driver:
 Impala:
   id: 134
   languages: Java
-
 EventMesh:
   id: 135
   languages: Java
-
 eventmesh-producer:
   id: 136
   languages: Java
-
 eventmesh-consumer:
   id: 137
   languages: Java
