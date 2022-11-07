@@ -435,8 +435,16 @@ Impala:
   id: 134
   languages: Java
 
-EventMesh-producer:
+EventMesh:
   id: 135
+  languages: Java
+
+eventmesh-producer:
+  id: 136
+  languages: Java
+
+eventmesh-consumer:
+  id: 137
   languages: Java
 
 # .NET/.NET Core components
@@ -715,3 +723,5 @@ Component-Server-Mappings:
   AsyncPG: PostgreSQL
   AIORedis: Redis
   Impala-jdbc-driver: Impala
+  eventmesh-producer: EventMesh
+  eventmesh-consumer: EventMesh
