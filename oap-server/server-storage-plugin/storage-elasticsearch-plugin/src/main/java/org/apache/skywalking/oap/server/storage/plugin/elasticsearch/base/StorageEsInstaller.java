@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.Collections;
@@ -60,9 +61,11 @@ public class StorageEsInstaller extends ModelInstaller {
         this.config = config;
         this.structures = getStructures();
         if (StringUtil.isNotEmpty(config.getSpecificIndexSettings())) {
-            this.specificIndexesSettings = gson.fromJson(config.getSpecificIndexSettings(), Map.class);
+            this.specificIndexesSettings = gson.fromJson(
+                config.getSpecificIndexSettings(), new TypeReference<Map<String, Map<String, Object>>>() {
+                }.getType());
         } else {
-            this.specificIndexesSettings = Collections.EMPTY_MAP;
+            this.specificIndexesSettings = Collections.emptyMap();
         }
     }
 
@@ -78,7 +81,6 @@ public class StorageEsInstaller extends ModelInstaller {
         if (!model.isTimeSeries()) {
             boolean exist = esClient.isExistsIndex(tableName);
             if (exist) {
-                esClient.getIndex(tableName);
                 Optional<Index> index = esClient.getIndex(tableName);
                 Mappings historyMapping = index.map(Index::getMappings).orElseGet(Mappings::new);
                 structures.putStructure(tableName, historyMapping, index.map(Index::getSettings).orElseGet(HashMap::new));
