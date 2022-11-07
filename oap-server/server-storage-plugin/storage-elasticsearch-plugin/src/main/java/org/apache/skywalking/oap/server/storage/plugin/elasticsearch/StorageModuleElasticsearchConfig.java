@@ -59,6 +59,14 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int indexReplicasNumber = 0;
     private int indexShardsNumber = 1;
     /**
+     * @since 9.3.0, Specify the settings for each index individually.
+     * Use JSON format and the index name in the config should exclude the `${SW_NAMESPACE}` e.g.
+     * {"metrics-all":{"number_of_shards":"3","number_of_replicas":"2"},"segment":{"number_of_shards":"6","number_of_replicas":"1"}}
+     * If configured, this setting has the highest priority and overrides the generic settings.
+     */
+    private String specificIndexSettings;
+
+    /**
      * @since 8.2.0, the record day step is for super size dataset record index rolling when the value of it is greater
      * than 0
      */

@@ -80,6 +80,9 @@ storage:
     dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # Shard number of new indexes
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:1} # Replicas number of new indexes
+    # Specify the settings for each index individually.
+    # If configured, this setting has the highest priority and overrides the generic settings.
+    specificIndexSettings: ${SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS:""}
     # Super data set has been defined in the codes, such as trace segments.The following 3 config would be improve es performance when storage super size data in es.
     superDatasetDayStep: ${SW_SUPERDATASET_STORAGE_DAY_STEP:-1} # Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0
     superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
@@ -162,6 +165,37 @@ storage:
     # ......
     advanced: ${SW_STORAGE_ES_ADVANCED:"{\"index.translog.durability\":\"request\",\"index.translog.sync_interval\":\"5s\"}"}
 ```
+
+### Specify Settings For Each Elasticsearch Index Individually
+You can specify the settings for one or more indexes individually by using `SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS`.
+**NOTE:** If configured, this setting has the highest priority and overrides the generic settings.
+
+The settings in `JSON` format and the index name in the config should exclude the `${SW_NAMESPACE}` e.g.
+```json
+{
+  "metrics-all":{
+    "number_of_shards":"3",
+    "number_of_replicas":"2"
+  },
+  "segment":{
+    "number_of_shards":"6",
+    "number_of_replicas":"1"
+  }
+}
+```
+
+And put it into the following configure item:
+
+```yaml
+storage:
+  elasticsearch:
+    # ......
+    specificIndexSettings: ${SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS:"{\"metrics-all\":{\"number_of_shards\":\"3\",\"number_of_replicas\":\"2\"},\"segment\":{\"number_of_shards\":\"6\",\"number_of_replicas\":\"1\"}}"}
+```
+
+Supported settings:
+- number_of_shards
+- number_of_replicas
 
 ### Recommended ElasticSearch server-side configurations
 You could add the following configuration to `elasticsearch.yml`, and set the value based on your environment.
