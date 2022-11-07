@@ -85,7 +85,7 @@ storage:
     specificIndexSettings: ${SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS:""}
     # Super data set has been defined in the codes, such as trace segments.The following 3 config would be improve es performance when storage super size data in es.
     superDatasetDayStep: ${SW_SUPERDATASET_STORAGE_DAY_STEP:-1} # Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0
-    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
+    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin traces.
     superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0} # Represent the replicas number in the super size dataset record index, the default value is 0.
     indexTemplateOrder: ${SW_STORAGE_ES_INDEX_TEMPLATE_ORDER:0} # the order of index template
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
@@ -154,7 +154,21 @@ Once it is changed manually or through a 3rd party tool, such as [Vault](https:/
 the storage provider will use the new username, password, and JKS password to establish the connection and close the old one. If the information exists in the file,
 the `user/password` will be overridden.
 
-### Advanced Configurations For Elasticsearch Index
+
+### Each Elasticsearch Index Settings
+You can set and update the index settings `(number_of_shards/number_of_replicas)` by the following configuration items for the index template after rebooting:
+```yaml
+storage:
+  elasticsearch:
+    # ......
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} 
+    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:1} 
+    specificIndexSettings: ${SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS:""}
+    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} 
+    superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0}
+```
+
+#### Advanced Configurations For Elasticsearch Index
 You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)
 
 For example, set [translog](https://www.elastic.co/guide/en/elasticsearch/reference/master/index-modules-translog.html) settings:
@@ -166,11 +180,18 @@ storage:
     advanced: ${SW_STORAGE_ES_ADVANCED:"{\"index.translog.durability\":\"request\",\"index.translog.sync_interval\":\"5s\"}"}
 ```
 
-### Specify Settings For Each Elasticsearch Index Individually
+#### Specify Settings For Each Elasticsearch Index Individually
 You can specify the settings for one or more indexes individually by using `SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS`.
-**NOTE:** If configured, this setting has the highest priority and overrides the generic settings.
 
-The settings in `JSON` format and the index name in the config should exclude the `${SW_NAMESPACE}` e.g.
+**NOTE:**
+Supported settings:
+- number_of_shards
+- number_of_replicas
+
+**NOTE:** If configured, the settings in this configuration have the highest priority and will override the existing 
+generic settings which configured by the others configuration items.
+
+The settings in `JSON` format and the index name in the config should exclude the `${SW_NAMESPACE}` which is `sw` by default, e.g.
 ```json
 {
   "metrics-all":{
@@ -185,17 +206,12 @@ The settings in `JSON` format and the index name in the config should exclude th
 ```
 
 And put it into the following configure item:
-
 ```yaml
 storage:
   elasticsearch:
     # ......
     specificIndexSettings: ${SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS:"{\"metrics-all\":{\"number_of_shards\":\"3\",\"number_of_replicas\":\"2\"},\"segment\":{\"number_of_shards\":\"6\",\"number_of_replicas\":\"1\"}}"}
 ```
-
-Supported settings:
-- number_of_shards
-- number_of_replicas
 
 ### Recommended ElasticSearch server-side configurations
 You could add the following configuration to `elasticsearch.yml`, and set the value based on your environment.
