@@ -63,7 +63,7 @@ public class StorageEsInstaller extends ModelInstaller {
     }
 
     @Override
-    protected boolean isExists(Model model) {
+    public boolean isExists(Model model) {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         String tableName = IndexController.INSTANCE.getTableName(model);
         IndexController.LogicIndicesRegister.registerRelation(model, tableName);
@@ -99,7 +99,7 @@ public class StorageEsInstaller extends ModelInstaller {
     }
 
     @Override
-    protected void createTable(Model model) throws StorageException {
+    public void createTable(Model model) throws StorageException {
         if (model.isTimeSeries()) {
             createTimeSeriesTable(model);
         } else {

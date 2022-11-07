@@ -36,16 +36,15 @@ import java.io.IOException;
 @Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
     private final BanyanDBStorageConfig config;
-    private final ConfigService configService;
 
     public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager, BanyanDBStorageConfig config) {
         super(client, moduleManager);
         this.config = config;
-        this.configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
     }
 
     @Override
-    protected boolean isExists(Model model) throws StorageException {
+    public boolean isExists(Model model) throws StorageException {
+        final ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
         final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model, config, configService);
         try {
             final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
@@ -73,8 +72,9 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     }
 
     @Override
-    protected void createTable(Model model) throws StorageException {
+    public void createTable(Model model) throws StorageException {
         try {
+            ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
             if (model.isTimeSeries() && model.isRecord()) { // stream
                 Stream stream = MetadataRegistry.INSTANCE.registerStreamModel(model, config, configService);
                 if (stream != null) {

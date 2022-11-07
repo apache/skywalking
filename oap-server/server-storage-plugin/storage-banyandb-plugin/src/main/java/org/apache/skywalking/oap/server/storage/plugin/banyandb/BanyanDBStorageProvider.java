@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
@@ -78,6 +79,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 public class BanyanDBStorageProvider extends ModuleProvider {
     private BanyanDBStorageConfig config;
     private BanyanDBStorageClient client;
+    private ModelInstaller modelInstaller;
 
     @Override
     public String name() {
@@ -109,6 +111,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
         this.client = new BanyanDBStorageClient(config.getHost(), config.getPort());
+        this.modelInstaller = new BanyanDBIndexInstaller(client, getManager(), this.config);
 
         // Stream
         this.registerServiceImplementation(
@@ -161,8 +164,9 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.client.registerChecker(healthChecker);
         try {
             this.client.connect();
-            BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, getManager(), this.config);
-            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
+            this.modelInstaller.start();
+
+            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(modelInstaller);
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 @Slf4j
 public abstract class ModelInstaller implements ModelCreator.CreatingListener {
     protected final Client client;
-    private final ModuleManager moduleManager;
+    protected final ModuleManager moduleManager;
 
     @Override
     public void whenCreating(Model model) throws StorageException {
@@ -42,8 +42,7 @@ public abstract class ModelInstaller implements ModelCreator.CreatingListener {
                 try {
                     log.info(
                         "table: {} does not exist. OAP is running in 'no-init' mode, waiting... retry 3s later.",
-                        model
-                            .getName()
+                        model.getName()
                     );
                     Thread.sleep(3000L);
                 } catch (InterruptedException e) {
@@ -56,6 +55,9 @@ public abstract class ModelInstaller implements ModelCreator.CreatingListener {
                 createTable(model);
             }
         }
+    }
+
+    public void start() {
     }
 
     /**
@@ -72,10 +74,10 @@ public abstract class ModelInstaller implements ModelCreator.CreatingListener {
     /**
      * Check whether the storage entity exists. Need to implement based on the real storage.
      */
-    protected abstract boolean isExists(Model model) throws StorageException;
+    public abstract boolean isExists(Model model) throws StorageException;
 
     /**
      * Create the storage entity. All creations should be after the {@link #isExists(Model)} check.
      */
-    protected abstract void createTable(Model model) throws StorageException;
+    public abstract void createTable(Model model) throws StorageException;
 }
