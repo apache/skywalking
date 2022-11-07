@@ -87,7 +87,7 @@ public class ShardingSphereTableInstaller extends H2TableInstaller {
         String tableName,
         List<ModelColumn> columns,
         boolean additionalTable) throws JDBCClientException {
-        delegatee.createTable(client, connection, tableName, columns, additionalTable);
+        delegatee.createTableIndexes(client, connection, tableName, columns, additionalTable);
     }
 
     @Override
