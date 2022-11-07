@@ -248,18 +248,18 @@ public class MockEsInstallTest {
         //clone it since the items will be changed after combine
         Mappings hisMappingsClone = cloneMappings(this.hisMappings);
         //put the current mappings
-        structures.putStructure(this.name, this.hisMappings);
+        structures.putStructure(this.name, this.hisMappings, new HashMap<>());
         //if current mappings already contains new mappings items
-        Assert.assertEquals(this.contains, structures.containsStructure(this.name, this.newMappings));
+        Assert.assertEquals(this.contains, structures.containsMapping(this.name, this.newMappings));
 
         //put the new mappings and combine
-        structures.putStructure(this.name, this.newMappings);
+        structures.putStructure(this.name, this.newMappings, new HashMap<>());
         Mappings mappings = structures.getMapping(this.name);
         Assert.assertEquals(this.combineResult, mapper.writeValueAsString(mappings));
 
         //diff the hisMapping and new, if has new item will update current index
-        structures.putStructure(this.name, this.newMappings);
-        Mappings diff = structures.diffStructure(this.name, hisMappingsClone);
+        structures.putStructure(this.name, this.newMappings, new HashMap<>());
+        Mappings diff = structures.diffMappings(this.name, hisMappingsClone);
         Assert.assertEquals(this.diffResult, mapper.writeValueAsString(diff));
     }
 
