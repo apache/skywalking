@@ -27,6 +27,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
@@ -50,7 +51,7 @@ public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQ
     }
 
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(String traceId) throws IOException {
+    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, String traceId) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(SpanAttachedEventRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
@@ -59,6 +60,7 @@ public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQ
         }
         final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
         query.must(Query.terms(SpanAttachedEventRecord.TRACE_ID, traceId));
+        query.must(Query.terms(SpanAttachedEventRecord.TRACE_REF_TYPE, type.value()));
         search.sort(SpanAttachedEventRecord.START_TIME_SECOND, Sort.Order.ASC);
         search.sort(SpanAttachedEventRecord.START_TIME_NANOS, Sort.Order.ASC);
 

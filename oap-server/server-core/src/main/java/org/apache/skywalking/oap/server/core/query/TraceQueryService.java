@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.KeyNumericValue;
@@ -143,7 +144,8 @@ public class TraceQueryService implements Service {
         }
 
         if (CollectionUtils.isNotEmpty(sortedSpans)) {
-            final List<SpanAttachedEventRecord> spanAttachedEvents = getSpanAttachedEventQueryDAO().querySpanAttachedEvents(traceId);
+            final List<SpanAttachedEventRecord> spanAttachedEvents = getSpanAttachedEventQueryDAO().
+                querySpanAttachedEvents(SpanAttachedEventTraceType.SKYWALKING, traceId);
             appendAttachedEventsToSpan(sortedSpans, spanAttachedEvents);
         }
 

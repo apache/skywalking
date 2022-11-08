@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -37,12 +38,14 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
     private final JDBCHikariCPClient jdbcClient;
 
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(String traceId) throws IOException {
+    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, String traceId) throws IOException {
         StringBuilder sql = new StringBuilder("select * from " + SpanAttachedEventRecord.INDEX_NAME + " where ");
-        List<Object> parameters = new ArrayList<>(1);
+        List<Object> parameters = new ArrayList<>(2);
 
         sql.append(" ").append(SpanAttachedEventRecord.TRACE_ID).append(" = ?");
         parameters.add(traceId);
+        sql.append(" and ").append(SpanAttachedEventRecord.TRACE_REF_TYPE).append(" = ?");
+        parameters.add(type.value());
 
         sql.append(" order by ").append(SpanAttachedEventRecord.START_TIME_SECOND)
                 .append(",").append(SpanAttachedEventRecord.START_TIME_NANOS).append(" ASC ");
@@ -58,7 +61,7 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
                     record.setEvent(resultSet.getString(SpanAttachedEventRecord.EVENT));
                     record.setEndTimeSecond(resultSet.getLong(SpanAttachedEventRecord.END_TIME_SECOND));
                     record.setEndTimeNanos(resultSet.getInt(SpanAttachedEventRecord.END_TIME_NANOS));
-                    record.setTraceRefType(resultSet.getInt(SpanAttachedEventRecord.TRACE_REF_TYPE));
+                    record.setTraceRefType(SpanAttachedEventTraceType.valueOf(resultSet.getInt(SpanAttachedEventRecord.TRACE_REF_TYPE)));
                     record.setTraceId(resultSet.getString(SpanAttachedEventRecord.TRACE_ID));
                     record.setTraceSegmentId(resultSet.getString(SpanAttachedEventRecord.TRACE_SEGMENT_ID));
                     record.setTraceSpanId(resultSet.getString(SpanAttachedEventRecord.TRACE_SPAN_ID));

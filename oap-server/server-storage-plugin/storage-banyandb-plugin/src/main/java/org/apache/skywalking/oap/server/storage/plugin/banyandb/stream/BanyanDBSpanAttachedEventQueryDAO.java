@@ -24,6 +24,7 @@ import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
@@ -50,11 +51,12 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
     }
 
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(String traceId) throws IOException {
+    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, String traceId) throws IOException {
         final StreamQueryResponse resp = query(SpanAttachedEventRecord.INDEX_NAME, TAGS, new QueryBuilder<StreamQuery>() {
             @Override
             protected void apply(StreamQuery query) {
                 query.and(eq(SpanAttachedEventRecord.TRACE_ID, traceId));
+                query.and(eq(SpanAttachedEventRecord.TRACE_REF_TYPE, type.value()));
                 query.setOrderBy(new StreamQuery.OrderBy(SpanAttachedEventRecord.START_TIME_SECOND, AbstractQuery.Sort.ASC));
             }
         });
