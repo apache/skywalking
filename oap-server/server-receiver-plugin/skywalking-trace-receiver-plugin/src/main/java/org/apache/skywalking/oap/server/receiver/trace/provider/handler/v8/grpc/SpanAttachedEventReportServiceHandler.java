@@ -26,7 +26,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanAttachedEvent;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanAttachedEventReportServiceGrpc;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
@@ -53,7 +52,7 @@ public class SpanAttachedEventReportServiceHandler extends SpanAttachedEventRepo
                 record.setEvent(event.getEvent());
                 record.setEndTimeSecond(event.getEndTime().getSeconds());
                 record.setEndTimeNanos(event.getEndTime().getNanos());
-                record.setTraceRefType(SpanAttachedEventTraceType.parseFromCollector(event.getTraceContext().getTypeValue()));
+                record.setTraceRefType(event.getTraceContext().getTypeValue());
                 record.setTraceId(event.getTraceContext().getTraceId());
                 record.setTraceSegmentId(event.getTraceContext().getTraceSegmentId());
                 record.setTraceSpanId(event.getTraceContext().getSpanId());

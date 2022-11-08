@@ -64,7 +64,7 @@ public class SpanAttachedEventRecord extends Record {
     @Column(columnName = END_TIME_NANOS)
     private int endTimeNanos;
     @Column(columnName = TRACE_REF_TYPE)
-    private SpanAttachedEventTraceType traceRefType = SpanAttachedEventTraceType.SKYWALKING;
+    private int traceRefType;
     @Column(columnName = TRACE_ID)
     @BanyanDB.ShardingKey(index = 0)
     private String traceId;
@@ -89,11 +89,7 @@ public class SpanAttachedEventRecord extends Record {
             record.setEvent((String) converter.get(EVENT));
             record.setEndTimeSecond(((Number) converter.get(END_TIME_SECOND)).longValue());
             record.setEndTimeNanos(((Number) converter.get(END_TIME_NANOS)).intValue());
-            if (converter.get(TRACE_REF_TYPE) != null) {
-                record.setTraceRefType(SpanAttachedEventTraceType.valueOf(((Number) converter.get(TRACE_REF_TYPE)).intValue()));
-            } else {
-                record.setTraceRefType(SpanAttachedEventTraceType.UNDEFINED);
-            }
+            record.setTraceRefType(((Number) converter.get(TRACE_REF_TYPE)).intValue());
             record.setTraceId((String) converter.get(TRACE_ID));
             record.setTraceSegmentId((String) converter.get(TRACE_SEGMENT_ID));
             record.setTraceSpanId((String) converter.get(TRACE_SPAN_ID));
@@ -108,8 +104,7 @@ public class SpanAttachedEventRecord extends Record {
             converter.accept(EVENT, entity.getEvent());
             converter.accept(END_TIME_SECOND, entity.getEndTimeSecond());
             converter.accept(END_TIME_NANOS, entity.getEndTimeNanos());
-            converter.accept(TRACE_REF_TYPE, entity.getTraceRefType() != null ?
-                entity.getTraceRefType().value() : SpanAttachedEventTraceType.UNDEFINED.value());
+            converter.accept(TRACE_REF_TYPE, entity.getTraceRefType());
             converter.accept(TRACE_ID, entity.getTraceId());
             converter.accept(TRACE_SEGMENT_ID, entity.getTraceSegmentId());
             converter.accept(TRACE_SPAN_ID, entity.getTraceSpanId());

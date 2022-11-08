@@ -99,7 +99,7 @@ public class H2TableInstaller extends ModelInstaller {
 
     protected String transform(ModelColumn column, Class<?> type, Type genericType) {
         final String storageName = column.getColumnName().getStorageName();
-        if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type) || SpanAttachedEventTraceType.class.equals(type)) {
+        if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type)) {
             return storageName + " INT";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
             return storageName + " BIGINT";

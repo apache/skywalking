@@ -291,7 +291,7 @@ public class TraceQueryService implements Service {
 
             // find the first entry span of upstream if the event from the upstream
             SpanAttachedEvent event = SpanAttachedEvent.parseFrom(record.getDataBinary());
-            final String bindToTheUpstreamEntrySpan = getSpanAttachedEventTagValue(event.getTagsList(), "bind_to_upstream_entry_span");
+            final String bindToTheUpstreamEntrySpan = getSpanAttachedEventTagValue(event.getTagsList(), "bind to upstream span");
             if (Objects.equals(bindToTheUpstreamEntrySpan, "true")) {
                 final String parentSpanId = matchesSpan.getSegmentSpanId();
                 matchesSpan = spans.stream().filter(s -> s.getSegmentParentSpanId().equals(parentSpanId)

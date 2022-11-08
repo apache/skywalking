@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -323,7 +324,7 @@ public class ZipkinQueryHandler {
                 }
 
                 final SpanAttachedEvent event = SpanAttachedEvent.parseFrom(record.getDataBinary());
-                final String bindToTheUpstreamEntrySpan = getSpanAttachedEventTagValue(event.getTagsList(), "bind_to_upstream_entry_span");
+                final String bindToTheUpstreamEntrySpan = getSpanAttachedEventTagValue(event.getTagsList(), "bind to upstream span");
                 if (Objects.equals(bindToTheUpstreamEntrySpan, "true")) {
                     final String parentSpanId = matchesSpan._2.id();
                     matchesSpan = spanWithIndex.stream().filter(s -> s._2.parentId().equals(parentSpanId)
@@ -344,24 +345,28 @@ public class ZipkinQueryHandler {
     private void appendEvent(Span.Builder span, String eventName, SpanAttachedEvent event) {
         span.addAnnotation(
             TimeUnit.SECONDS.toMicros(event.getStartTime().getSeconds()) + TimeUnit.NANOSECONDS.toMicros(event.getStartTime().getNanos()),
-            "Start " + eventName + " : " + event.getStartTime().getNanos() + "ns");
+            "Start " + eventName);
         span.addAnnotation(
             TimeUnit.SECONDS.toMicros(event.getEndTime().getSeconds()) + TimeUnit.NANOSECONDS.toMicros(event.getEndTime().getNanos()),
-            "Finished " + eventName + " : " + event.getStartTime().getNanos() + "ns");
+            "Finished " + eventName);
 
         final Yaml yaml = new Yaml();
         if (event.getSummaryList().size() > 0) {
             final Map<String, Long> summaries = event.getSummaryList().stream().collect(Collectors.toMap(
                 KeyIntValuePair::getKey, KeyIntValuePair::getValue, (s1, s2) -> s1));
             String summary = yaml.dumpAs(summaries, Tag.MAP, DumperOptions.FlowStyle.AUTO);
-            span.putTag(eventName + ".summary", summary);
+            span.putTag(formatEventTagKey(eventName + ".summary"), summary);
         }
         if (event.getTagsList().size() > 0) {
             final Map<String, String> tags = event.getTagsList().stream().collect(Collectors.toMap(
                 KeyStringValuePair::getKey, KeyStringValuePair::getValue, (s1, s2) -> s1));
             String summary = yaml.dumpAs(tags, Tag.MAP, DumperOptions.FlowStyle.AUTO);
-            span.putTag(eventName + ".tags", summary);
+            span.putTag(formatEventTagKey(eventName + ".tags"), summary);
         }
+    }
+
+    private String formatEventTagKey(String name) {
+        return name.replaceAll(" ", ".").toLowerCase(Locale.ROOT);
     }
 
     private String getSpanAttachedEventTagValue(List<KeyStringValuePair> values, String tagKey) {

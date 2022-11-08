@@ -26,21 +26,16 @@ import java.util.Map;
  */
 public enum SpanAttachedEventTraceType {
 
-    UNDEFINED(0, -1),
+    SKYWALKING(0),
 
-    SKYWALKING(1, 0),
-
-    ZIPKIN(2, 1);
+    ZIPKIN(1);
 
     private final int code;
-    private final int collectCode;
     private static final Map<Integer, SpanAttachedEventTraceType> CODE_DICTIONARY = new HashMap<>();
-    private static final Map<Integer, SpanAttachedEventTraceType> COLLECTOR_CODE_DICTIONARY = new HashMap<>();
 
     static {
         for (SpanAttachedEventTraceType val :SpanAttachedEventTraceType.values()) {
             CODE_DICTIONARY.put(val.value(), val);
-            COLLECTOR_CODE_DICTIONARY.put(val.collectCode, val);
         }
     }
 
@@ -48,13 +43,8 @@ public enum SpanAttachedEventTraceType {
         return CODE_DICTIONARY.get(code);
     }
 
-    public static SpanAttachedEventTraceType parseFromCollector(Integer code) {
-        return COLLECTOR_CODE_DICTIONARY.get(code);
-    }
-
-    SpanAttachedEventTraceType(int code, int collectCode) {
+    SpanAttachedEventTraceType(int code) {
         this.code = code;
-        this.collectCode = collectCode;
     }
 
     public int value() {

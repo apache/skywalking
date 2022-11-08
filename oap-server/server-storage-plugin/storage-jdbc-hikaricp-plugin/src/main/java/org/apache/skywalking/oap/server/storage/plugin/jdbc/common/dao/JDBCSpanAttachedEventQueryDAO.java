@@ -61,7 +61,7 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
                     record.setEvent(resultSet.getString(SpanAttachedEventRecord.EVENT));
                     record.setEndTimeSecond(resultSet.getLong(SpanAttachedEventRecord.END_TIME_SECOND));
                     record.setEndTimeNanos(resultSet.getInt(SpanAttachedEventRecord.END_TIME_NANOS));
-                    record.setTraceRefType(SpanAttachedEventTraceType.valueOf(resultSet.getInt(SpanAttachedEventRecord.TRACE_REF_TYPE)));
+                    record.setTraceRefType(resultSet.getInt(SpanAttachedEventRecord.TRACE_REF_TYPE));
                     record.setTraceId(resultSet.getString(SpanAttachedEventRecord.TRACE_ID));
                     record.setTraceSegmentId(resultSet.getString(SpanAttachedEventRecord.TRACE_SEGMENT_ID));
                     record.setTraceSpanId(resultSet.getString(SpanAttachedEventRecord.TRACE_SPAN_ID));
