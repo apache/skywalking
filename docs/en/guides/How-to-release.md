@@ -37,7 +37,7 @@ If you are a committer, use your Apache ID and password to log in this svn, and 
 Apache maven staging repository checklist.
 
 ## Test your settings
-This step is only for testing purpose. If your env is correctly set, you don't need to check every time.
+This step is only for testing purpose. If your env is correctly set, you needn't check it every time.
 ```
 ./mvnw clean install -Pall (this will build artifacts, sources and sign)
 ```
