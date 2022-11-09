@@ -10,7 +10,7 @@ The cache operation span should have
 - It is an **Exit** or **Local** span
 - **Span's layer == CACHE**
 - Tag key = `cache.type`, value = The type of cache system , e.g. redis
-- Tag key = `cache.op`, value = `read` or `write` , indicates the value of tag `cache.command` is used for `write` or `read` operation
-- Tag key = `cache.command`, value = the cache command , e.g. get,set,del
+- Tag key = `cache.op`, value = `read` or `write` , indicates the value of tag `cache.cmd` is used for `write` or `read` operation
+- Tag key = `cache.cmd`, value = the cache command , e.g. get,set,del
 - Tag key = `cache.key`, value = the cache key
 - If the cache system is in-memory (e.g. Guava-cache), agents' plugin would create a local span usually, and the span's peer would be null ,otherwise the peer is the network address(IP or domain) of Cache server.
