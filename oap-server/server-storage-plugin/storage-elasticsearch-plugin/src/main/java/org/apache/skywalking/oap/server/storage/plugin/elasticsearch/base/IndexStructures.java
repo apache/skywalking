@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
@@ -48,10 +49,6 @@ public class IndexStructures {
                        .properties(properties)
                        .source(source)
                        .build();
-    }
-
-    public UpdatableIndexSettings getUpdatableIndexSettings(String tableName) {
-        return indexSettingStructures.get(tableName);
     }
 
     /**
@@ -85,7 +82,6 @@ public class IndexStructures {
         if (!mappingStructures.containsKey(tableName)) {
             return new Mappings();
         }
-        Map<String, Object> properties = mappings.getProperties();
         Map<String, Object> diffProperties =
             mappingStructures.get(tableName).diffFields(new Fields(mappings));
         return Mappings.builder()
@@ -174,16 +170,16 @@ public class IndexStructures {
     }
 
     /**
-     * The index settings structure which only include needs to compare and update fields
+     * The index settings structure which only includes needs to compare for update fields
      */
     @EqualsAndHashCode
     public static class UpdatableIndexSettings {
-        private final int replicas;
-        private final int shards;
+        private final String replicas;
+        private final String shards;
 
         public UpdatableIndexSettings(Map<String, Object> indexSettings) {
-            this.replicas = Integer.parseInt((String) indexSettings.getOrDefault("number_of_replicas", "0"));
-            this.shards = Integer.parseInt((String) indexSettings.getOrDefault("number_of_shards", "0"));
+            this.replicas = String.valueOf(indexSettings.getOrDefault("number_of_replicas", Const.EMPTY_STRING));
+            this.shards = String.valueOf(indexSettings.getOrDefault("number_of_shards", Const.EMPTY_STRING));
         }
     }
 }
