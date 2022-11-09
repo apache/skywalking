@@ -101,6 +101,8 @@
 * Optimize MQ Topology analysis. Use entry span's peer from the consumer side as source service when no producer instrumentation(no cross-process reference).
 * Refactor JDBC storage implementations to reuse logics.
 * Fix `ClassCastException` in `LoggingConfigWatcher`.
+* Support span attached event concept in Zipkin and SkyWalking trace query.
+* Support span attached events on Zipkin lens UI.
 * Force UTF-8 encoding in `JsonLogHandler` of `kafka-fetcher-plugin`.
 
 #### UI
