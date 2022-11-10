@@ -259,8 +259,6 @@ public class K8sTagTest {
     @Before
     public void setup() {
         PowerMockito.mockStatic(KubernetesClient.class);
-        PowerMockito.mockStatic(KubernetesServices.class);
-        PowerMockito.mockStatic(KubernetesPods.class);
 
         Whitebox.setInternalState(KubernetesServices.class, "INSTANCE",
                                   Mockito.mock(KubernetesServices.class)
