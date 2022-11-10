@@ -83,6 +83,7 @@
 * Support `sampledTrace` in LAL.
 * Support multiple rules with different names under the same layer of LAL script.
 * (Optimization) Reduce the buffer size(queue) of MAL(only) metric streams. Set L1 queue size as 1/20, L2 queue size as 1/2.
+* Support MySQL/PostgreSQL cluster mode.
 
 #### UI
 
