@@ -22,23 +22,28 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 public class IndexStructures {
-    private final Map<String, Fields> structures;
+    private final Map<String, Fields> mappingStructures;
+    private final Map<String, UpdatableIndexSettings> indexSettingStructures;
 
     public IndexStructures() {
-        this.structures = new HashMap<>();
+        this.mappingStructures = new HashMap<>();
+        this.indexSettingStructures = new HashMap<>();
     }
 
     public Mappings getMapping(String tableName) {
         Map<String, Object> properties =
-            structures.containsKey(tableName) ?
-                structures.get(tableName).properties : new HashMap<>();
+            mappingStructures.containsKey(tableName) ?
+                mappingStructures.get(tableName).properties : new HashMap<>();
         Mappings.Source source =
-                    structures.containsKey(tableName) ?
-                        structures.get(tableName).source : new Mappings.Source();
+                    mappingStructures.containsKey(tableName) ?
+                        mappingStructures.get(tableName).source : new Mappings.Source();
         return Mappings.builder()
                        .type(ElasticSearchClient.TYPE)
                        .properties(properties)
@@ -47,20 +52,24 @@ public class IndexStructures {
     }
 
     /**
-     * Add or append field when the current structures don't contain the input structure or having
+     * Add or append mapping/settings when the current structures don't contain the input structure or having
      * new fields in it.
      */
-    public void putStructure(String tableName, Mappings mapping) {
+    public void putStructure(String tableName, Mappings mapping, Map<String, Object> settings) {
+        if (CollectionUtils.isNotEmpty(settings) && Objects.nonNull(settings.get("index"))) {
+            this.indexSettingStructures.putIfAbsent(tableName, new UpdatableIndexSettings(
+                (Map<String, Object>) settings.get("index")));
+        }
         if (Objects.isNull(mapping)
             || Objects.isNull(mapping.getProperties())
             || mapping.getProperties().isEmpty()) {
             return;
         }
         Fields fields = new Fields(mapping);
-        if (structures.containsKey(tableName)) {
-            structures.get(tableName).appendNewFields(fields);
+        if (mappingStructures.containsKey(tableName)) {
+            mappingStructures.get(tableName).appendNewFields(fields);
         } else {
-            structures.put(tableName, fields);
+            mappingStructures.put(tableName, fields);
         }
     }
 
@@ -69,13 +78,12 @@ public class IndexStructures {
      * The input mappings should be history mapping from current index.
      * Do not return _source config to avoid current index update conflict.
      */
-    public Mappings diffStructure(String tableName, Mappings mappings) {
-        if (!structures.containsKey(tableName)) {
+    public Mappings diffMappings(String tableName, Mappings mappings) {
+        if (!mappingStructures.containsKey(tableName)) {
             return new Mappings();
         }
-        Map<String, Object> properties = mappings.getProperties();
         Map<String, Object> diffProperties =
-            structures.get(tableName).diffFields(new Fields(mappings));
+            mappingStructures.get(tableName).diffFields(new Fields(mappings));
         return Mappings.builder()
                        .type(ElasticSearchClient.TYPE)
                        .properties(diffProperties)
@@ -86,19 +94,33 @@ public class IndexStructures {
      * Returns true when the current structures already contains the properties of the input
      * mappings.
      */
-    public boolean containsStructure(String tableName, Mappings mappings) {
+    public boolean containsMapping(String tableName, Mappings mappings) {
         if (Objects.isNull(mappings) ||
-            Objects.isNull(mappings.getProperties()) ||
-            mappings.getProperties().isEmpty()) {
+            CollectionUtils.isEmpty(mappings.getProperties())) {
             return true;
         }
-        return structures.containsKey(tableName)
-            && structures.get(tableName)
-                         .containsAllFields(new Fields(mappings));
+
+        return mappingStructures.containsKey(tableName)
+            && mappingStructures.get(tableName)
+                                .containsAllFields(new Fields(mappings));
     }
 
     /**
-     * The properties of the template or index.
+     * Returns true when the current index setting equals the input.
+     */
+    public boolean compareIndexSetting(String tableName, Map<String, Object> settings) {
+        if ((CollectionUtils.isEmpty(settings) || CollectionUtils.isEmpty((Map) settings.get("index")))
+            && Objects.isNull(indexSettingStructures.get(tableName))) {
+            return true;
+        }
+
+        return indexSettingStructures.containsKey(tableName)
+            && indexSettingStructures.get(tableName).
+                                     equals(new UpdatableIndexSettings((Map<String, Object>) settings.get("index")));
+    }
+
+    /**
+     * The mapping properties of the template or index.
      */
     public static class Fields {
         private final Map<String, Object> properties;
@@ -144,6 +166,20 @@ public class IndexStructures {
                                       Map.Entry::getKey,
                                       Map.Entry::getValue
                                   ));
+        }
+    }
+
+    /**
+     * The index settings structure which only includes needs to compare for update fields
+     */
+    @EqualsAndHashCode
+    public static class UpdatableIndexSettings {
+        private final String replicas;
+        private final String shards;
+
+        public UpdatableIndexSettings(Map<String, Object> indexSettings) {
+            this.replicas = String.valueOf(indexSettings.getOrDefault("number_of_replicas", Const.EMPTY_STRING));
+            this.shards = String.valueOf(indexSettings.getOrDefault("number_of_shards", Const.EMPTY_STRING));
         }
     }
 }

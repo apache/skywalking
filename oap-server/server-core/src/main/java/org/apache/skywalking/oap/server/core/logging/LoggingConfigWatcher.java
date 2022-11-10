@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.logging.log4j.OapConfiguration;
@@ -37,13 +38,13 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 @Slf4j
 public class LoggingConfigWatcher extends ConfigChangeWatcher {
     private final LoggerContext ctx;
-    private final OapConfiguration originConfiguration;
+    private final XmlConfiguration originConfiguration;
     private volatile String content;
 
     public LoggingConfigWatcher(final ModuleProvider provider) {
         super(CoreModule.NAME, provider, "log4j-xml");
         this.ctx = (LoggerContext) LogManager.getContext(false);
-        this.originConfiguration = (OapConfiguration) ctx.getConfiguration();
+        this.originConfiguration = (XmlConfiguration) ctx.getConfiguration();
     }
 
     @Override

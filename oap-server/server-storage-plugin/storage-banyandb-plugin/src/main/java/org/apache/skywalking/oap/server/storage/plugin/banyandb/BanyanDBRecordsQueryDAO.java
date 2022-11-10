@@ -71,7 +71,7 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
             return Collections.emptyList();
         }
 
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(modelName);
         if (schema == null) {
             throw new IOException("schema is not registered");
         }

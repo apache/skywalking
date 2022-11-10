@@ -84,6 +84,27 @@
 * Support multiple rules with different names under the same layer of LAL script.
 * (Optimization) Reduce the buffer size(queue) of MAL(only) metric streams. Set L1 queue size as 1/20, L2 queue size as 1/2.
 * Support MySQL/PostgreSQL cluster mode.
+* [**Breaking Change**] Migrate to BanyanDB v0.2.0.
+  * Adopt new OR logical operator for,
+    1. `MeasureIDs` query
+    2. `BanyanDBProfileThreadSnapshotQueryDAO` query
+    3. Multiple `Event` conditions query
+    4. Metrics query
+  * Simplify Group check and creation
+  * Partially apply `UITemplate` changes
+  * Support `index_only`
+  * Return `CompletableFuture<Void>` directly from BanyanDB client
+  * Optimize data binary parse methods in *LogQueryDAO
+  * Support different indexType
+  * Support configuration for TTL and (block|segment) intervals
+* Elasticsearch storage: Provide system environment variable(`SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS`) and support specify the settings `(number_of_shards/number_of_replicas)` for each index individually.
+* Elasticsearch storage: Support update index settings `(number_of_shards/number_of_replicas)` for the index template after rebooting.
+* Optimize MQ Topology analysis. Use entry span's peer from the consumer side as source service when no producer instrumentation(no cross-process reference).
+* Refactor JDBC storage implementations to reuse logics.
+* Fix `ClassCastException` in `LoggingConfigWatcher`.
+* Support span attached event concept in Zipkin and SkyWalking trace query.
+* Support span attached events on Zipkin lens UI.
+* Force UTF-8 encoding in `JsonLogHandler` of `kafka-fetcher-plugin`.
 
 #### UI
 

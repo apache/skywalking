@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
@@ -45,6 +46,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
@@ -78,6 +80,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.Profi
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileThreadSnapshotQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ServiceLabelEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.SpanAttachedEventEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.RecordsQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopologyQueryEsDAO;
@@ -97,6 +100,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     protected StorageModuleElasticsearchConfig config;
     protected ElasticSearchClient elasticSearchClient;
+    protected ModelInstaller modelInstaller;
 
     @Override
     public String name() {
@@ -176,6 +180,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             config.getSocketTimeout(), config.getResponseTimeout(),
             config.getNumHttpClientThread()
         );
+        modelInstaller = new StorageEsInstaller(elasticSearchClient, getManager(), config);
+
         this.registerServiceImplementation(
             IBatchDAO.class,
             new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config
@@ -222,6 +228,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             ITagAutoCompleteQueryDAO.class, new TagAutoCompleteQueryDAO(elasticSearchClient));
         this.registerServiceImplementation(
             IZipkinQueryDAO.class, new ZipkinQueryEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(
+            ISpanAttachedEventQueryDAO.class, new SpanAttachedEventEsDAO(elasticSearchClient, config));
         IndexController.INSTANCE.setLogicSharding(config.isLogicSharding());
     }
 
@@ -235,9 +243,9 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         elasticSearchClient.registerChecker(healthChecker);
         try {
             elasticSearchClient.connect();
-            StorageEsInstaller installer = new StorageEsInstaller(elasticSearchClient, getManager(), config);
+            modelInstaller.start();
 
-            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
+            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(modelInstaller);
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

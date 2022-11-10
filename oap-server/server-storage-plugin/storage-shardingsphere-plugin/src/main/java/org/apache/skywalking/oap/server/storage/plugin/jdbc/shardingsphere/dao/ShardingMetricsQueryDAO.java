@@ -29,10 +29,10 @@ import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetricsQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 
-public class ShardingMetricsQueryDAO extends H2MetricsQueryDAO {
+public class ShardingMetricsQueryDAO extends JDBCMetricsQueryDAO {
 
     public ShardingMetricsQueryDAO(JDBCHikariCPClient h2Client) {
         super(h2Client);

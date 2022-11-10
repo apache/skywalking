@@ -118,7 +118,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public void define(Property property) throws IOException {
         try {
-            this.client.save(property);
+            this.client.apply(property);
             this.healthChecker.health();
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);

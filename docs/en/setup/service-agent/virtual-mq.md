@@ -13,3 +13,4 @@ The MQ operation span should have
 - Tag key = `mq.queue`, value = MQ queue name
 - Tag key = `mq.topic`, value = MQ queue topic , it's optional as some MQ don't have topic concept.
 - Tag key = `transmission.latency`, value = Transmission latency from consumer to producer
+- Set `peer` at both sides(producer and consumer). And the value of peer should represent the MQ server cluster.
