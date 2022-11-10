@@ -105,6 +105,7 @@
 * Support span attached event concept in Zipkin and SkyWalking trace query.
 * Support span attached events on Zipkin lens UI.
 * Force UTF-8 encoding in `JsonLogHandler` of `kafka-fetcher-plugin`.
+* Fix max length to 512 of entity, instance and endpoint IDs in trace, log, profiling, topN tables(JDBC storages). The value was 200 by default. 
 
 #### UI
 
