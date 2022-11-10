@@ -17,7 +17,7 @@
 
 [
    {
-      "id":"90ec4ee8-3df2-4bd9-bcb1-2d50cbe49634",
+      "id":"postgresql-root",
       "configuration":{
          "children":[
             {
@@ -56,7 +56,7 @@
          "layer":"POSTGRESQL",
          "entity":"All",
          "name":"PostgreSQL-Root",
-         "id":"90ec4ee8-3df2-4bd9-bcb1-2d50cbe49634",
+         "id":"postgresql-root",
          "isRoot":true
       }
    }

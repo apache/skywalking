@@ -1,0 +1,115 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+filter: "{ tags -> tags.job_name == 'postgresql-monitoring' }" # The OpenTelemetry job name
+expSuffix:  tag({tags -> tags.host_name = 'postgresql::' + tags.host_name}).service(['host_name'] , Layer.POSTGRESQL).instance(['host_name'],['service_instance_id'], Layer.POSTGRESQL)
+metricPrefix: meter_pg
+metricsRules:
+  # postgresql configurations
+  - name: instance_shared_buffers
+    exp: pg_settings_shared_buffers_bytes
+  - name: instance_effective_cache
+    exp: pg_settings_effective_cache_size_bytes
+  - name: instance_maintenance_work_mem
+    exp: pg_settings_maintenance_work_mem_bytes
+  - name: instance_work_mem
+    exp: pg_settings_work_mem_bytes
+  - name: instance_seq_page_cost
+    exp: pg_settings_seq_page_cost
+  - name: instance_random_page_cost
+    exp: pg_settings_random_page_cost
+  - name: instance_max_wal_size
+    exp: pg_settings_max_wal_size_bytes
+  - name: instance_max_parallel_workers
+    exp: pg_settings_max_parallel_workers
+  - name: instance_max_worker_processes
+    exp: pg_settings_max_worker_processes
+
+  # dashboards
+  ## rows
+  - name: instance_fetched_rows_rate
+    exp: pg_stat_database_tup_fetched.sum(['datname','host_name','service_instance_id']).rate('PT1M')
+  - name: instance_deleted_rows_rate
+    exp: pg_stat_database_tup_deleted.sum(['datname','host_name','service_instance_id']).rate('PT1M')
+  - name: instance_inserted_rows_rate
+    exp: pg_stat_database_tup_inserted.sum(['datname','host_name','service_instance_id']).rate('PT1M')
+  - name: instance_updated_rows_rate
+    exp: pg_stat_database_tup_updated.sum(['datname','host_name','service_instance_id']).rate('PT1M')
+  - name: instance_returned_rows_rate
+    exp: pg_stat_database_tup_returned.sum(['datname','host_name','service_instance_id']).rate('PT1M')
+  ## locks
+  - name: instance_locks_count
+    exp: pg_locks_count.tag({tags -> tags.mode = tags.datname + ":" + tags.mode}).sum(['mode','host_name','service_instance_id'])
+
+  ## sessions
+  - name: instance_active_sessions
+    exp: pg_stat_activity_count.tagEqual('state','active').sum(['datname' , 'host_name','service_instance_id'])
+  - name: instance_idle_sessions
+    exp: pg_stat_activity_count.tagMatch('state','idle|idle in transaction|idle in transaction (aborted)').sum(['datname','host_name','service_instance_id'])
+
+  ## transactions
+  - name: instance_committed_transactions_rate
+    exp: pg_stat_database_xact_commit.sum(['datname','host_name','service_instance_id']).rate('PT1M')
+  - name: instance_rolled_back_transactions_rate
+    exp: pg_stat_database_xact_rollback.sum(['datname','host_name','service_instance_id']).rate('PT1M')
+
+  ## cache and temporary file
+  - name: instance_cache_hit_rate
+    exp: (pg_stat_database_blks_hit*100 / (pg_stat_database_blks_read + pg_stat_database_blks_hit)).sum(['datname','host_name','service_instance_id'])
+  - name: instance_temporary_files_rate
+    exp: pg_stat_database_temp_bytes.sum(['datname','host_name','service_instance_id']).rate('PT1M')
+
+  ## checkpoint
+  - name: instance_checkpoint_write_time_rate
+    exp: pg_stat_bgwriter_checkpoint_write_time_total.rate('PT1M')
+  - name: instance_checkpoint_sync_time_rate
+    exp: pg_stat_bgwriter_checkpoint_sync_time_total.rate('PT1M')
+  - name: instance_checkpoint_req_rate
+    exp: pg_stat_bgwriter_checkpoints_req_total.rate('PT1M')
+  - name: instance_checkpoints_timed_rate
+    exp: pg_stat_bgwriter_checkpoints_timed_total.rate('PT1M')
+
+  ## conflicts and deadlocks
+  - name: instance_conflicts_rate
+    exp: pg_stat_database_conflicts.sum(['datname','host_name','service_instance_id']).rate('PT1M')
+  - name: instance_deadlocks_rate
+    exp: pg_stat_database_deadlocks.sum(['datname','host_name','service_instance_id']).rate('PT1M')
+
+  ## buffers
+  - name: instance_buffers_checkpoint
+    exp: pg_stat_bgwriter_buffers_checkpoint.rate('PT1M')
+  - name: instance_buffers_clean
+    exp: pg_stat_bgwriter_buffers_clean.rate('PT1M')
+  - name: instance_buffers_backend_fsync
+    exp: pg_stat_bgwriter_buffers_backend_fsync.rate('PT1M')
+  - name: instance_buffers_alloc
+    exp: pg_stat_bgwriter_buffers_alloc.rate('PT1M')
+  - name: instance_buffers_backend
+    exp: pg_stat_bgwriter_buffers_backend.rate('PT1M')

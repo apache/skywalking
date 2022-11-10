@@ -17,7 +17,7 @@
 
 [
    {
-      "id":"b6e3763c-882d-417f-8556-3cf0187cb8db",
+      "id":"mysql-root",
       "configuration":{
          "children":[
             {
@@ -53,7 +53,7 @@
                }
             }
          ],
-         "id":"b6e3763c-882d-417f-8556-3cf0187cb8db",
+         "id":"mysql-root",
          "layer":"MYSQL",
          "entity":"All",
          "name":"MySQL-Root",
