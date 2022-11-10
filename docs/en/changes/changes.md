@@ -139,9 +139,13 @@
 * Fix configuration panel styles.
 * Remove a un-use icon.
 * Support labeled value on the service/instance/endpoint list widgets.
-* Add menu for virtual MQ
-* Set selector props and update configuration panel styles
-* Add Python runtime metrics and cpu/memory utilization panels to General-Instance and Fass-Instance dashboards
+* Add menu for virtual MQ.
+* Set selector props and update configuration panel styles.
+* Add Python runtime metrics and cpu/memory utilization panels to General-Instance and Fass-Instance dashboards.
+* Enhance the legend of metrics graph widget with the summary table.
+* Add apache eventMesh logo file.
+* Fix conditions for trace profiling  bugSomething isn't working.
+* Fix tag keys list and duration condition.
 
 #### Documentation
 
