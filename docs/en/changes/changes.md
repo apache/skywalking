@@ -101,6 +101,9 @@
 * Optimize MQ Topology analysis. Use entry span's peer from the consumer side as source service when no producer instrumentation(no cross-process reference).
 * Refactor JDBC storage implementations to reuse logics.
 * Fix `ClassCastException` in `LoggingConfigWatcher`.
+* Support span attached event concept in Zipkin and SkyWalking trace query.
+* Support span attached events on Zipkin lens UI.
+* Force UTF-8 encoding in `JsonLogHandler` of `kafka-fetcher-plugin`.
 
 #### UI
 
@@ -136,9 +139,13 @@
 * Fix configuration panel styles.
 * Remove a un-use icon.
 * Support labeled value on the service/instance/endpoint list widgets.
-* Add menu for virtual MQ
-* Set selector props and update configuration panel styles
-* Add Python runtime metrics and cpu/memory utilization panels to General-Instance and Fass-Instance dashboards
+* Add menu for virtual MQ.
+* Set selector props and update configuration panel styles.
+* Add Python runtime metrics and cpu/memory utilization panels to General-Instance and Fass-Instance dashboards.
+* Enhance the legend of metrics graph widget with the summary table.
+* Add apache eventMesh logo file.
+* Fix conditions for trace profiling  bugSomething isn't working.
+* Fix tag keys list and duration condition.
 
 #### Documentation
 
