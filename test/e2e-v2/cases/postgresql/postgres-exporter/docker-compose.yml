@@ -43,6 +43,7 @@ services:
     command: postgres -c config_file=/etc/postgresql.conf
     volumes:
      - ./postgresql.conf:/etc/postgresql.conf
+     - ./data:/var/lib/postgresql/data
     networks:
       - e2e
     healthcheck:
@@ -100,7 +101,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - 9187:9187
+      - 9187
     environment:
       - DATA_SOURCE_NAME=postgresql://postgres:123456@postgres:5432/postgres?sslmode=disable
     networks:
