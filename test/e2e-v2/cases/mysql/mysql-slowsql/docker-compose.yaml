@@ -52,7 +52,7 @@ services:
       interval: 5s
       timeout: 60s
       retries: 120
-  mysql_2:
+  mysql_2: &mysql
     image: mysql:8.0.13
     networks:
       - e2e
@@ -64,16 +64,7 @@ services:
     ports:
       - 3306
   mysql_3:
-    image: mysql:8.0.13
-    networks:
-      - e2e
-    volumes:
-      - ../mysql-slowsql/my.cnf:/etc/my.cnf
-    environment:
-      - "MYSQL_ROOT_PASSWORD=password"
-      - "MYSQL_DATABASE=swtest"
-    ports:
-      - 3306
+    <<: *mysql
   mysql-load:
     image: mysql:8.0.13
     depends_on:

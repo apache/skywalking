@@ -51,7 +51,7 @@ services:
       interval: 5s
       timeout: 60s
       retries: 120
-  postgres_2:
+  postgres_2: &pgsql
     image: postgres:14.1
     environment:
       - TZ=Asia/Shanghai
@@ -70,18 +70,7 @@ services:
       timeout: 60s
       retries: 120
   postgres_3:
-    image: postgres:14.1
-    environment:
-      - TZ=Asia/Shanghai
-      - POSTGRES_PASSWORD=123456
-      - POSTGRES_DB=skywalking
-    ports:
-      - 5432
-    command: postgres -c config_file=/etc/postgresql.conf
-    volumes:
-      - ./postgresql.conf:/etc/postgresql.conf
-    networks:
-      - e2e
+    <<: *pgsql
   postgres-load:
     image: postgres:14.1
     environment:
