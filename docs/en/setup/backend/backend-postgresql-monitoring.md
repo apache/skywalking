@@ -65,7 +65,7 @@ SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for 
 
 ### Slow SQL Monitoring
 Slow SQL monitoring provides monitoring of the slow SQL statements of the PostgreSQL server. PostgreSQL Cluster is cataloged as a `Layer: POSTGRESQL` `Service` in OAP.
-A PostgreSQL Server is cataloged as a `Instance` in OAP.
+Each PostgreSQL server is cataloged as an `Instance` in OAP.
 #### Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|
