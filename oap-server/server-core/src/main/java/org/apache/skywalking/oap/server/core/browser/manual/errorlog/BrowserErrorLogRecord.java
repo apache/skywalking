@@ -66,12 +66,12 @@ public class BrowserErrorLogRecord extends Record {
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_VERSION_ID)
+    @Column(columnName = SERVICE_VERSION_ID, length = 512)
     private String serviceVersionId;
 
     @Setter
     @Getter
-    @Column(columnName = PAGE_PATH_ID)
+    @Column(columnName = PAGE_PATH_ID, length = 512)
     private String pagePathId;
 
     @Setter

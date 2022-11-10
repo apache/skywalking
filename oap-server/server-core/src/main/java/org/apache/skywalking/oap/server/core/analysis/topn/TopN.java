@@ -44,7 +44,7 @@ public abstract class TopN extends Record implements ComparableStorageData {
     private String traceId;
     @Getter
     @Setter
-    @Column(columnName = ENTITY_ID)
+    @Column(columnName = ENTITY_ID, length = 512)
     @BanyanDB.ShardingKey(index = 0)
     private String entityId;
 
