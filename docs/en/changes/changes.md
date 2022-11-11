@@ -83,6 +83,7 @@
 * Support `sampledTrace` in LAL.
 * Support multiple rules with different names under the same layer of LAL script.
 * (Optimization) Reduce the buffer size(queue) of MAL(only) metric streams. Set L1 queue size as 1/20, L2 queue size as 1/2.
+* Support monitoring MySQL/PostgreSQL in the cluster mode.
 * [**Breaking Change**] Migrate to BanyanDB v0.2.0.
   * Adopt new OR logical operator for,
     1. `MeasureIDs` query
@@ -104,6 +105,7 @@
 * Support span attached event concept in Zipkin and SkyWalking trace query.
 * Support span attached events on Zipkin lens UI.
 * Force UTF-8 encoding in `JsonLogHandler` of `kafka-fetcher-plugin`.
+* Fix max length to 512 of entity, instance and endpoint IDs in trace, log, profiling, topN tables(JDBC storages). The value was 200 by default. 
 
 #### UI
 

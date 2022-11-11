@@ -32,16 +32,6 @@ filter: "{ tags -> tags.job_name == 'mysql-monitoring' }" # The OpenTelemetry jo
 expSuffix:  tag({tags -> tags.host_name = 'mysql::' + tags.host_name}).service(['host_name'] , Layer.MYSQL)
 metricPrefix: meter_mysql
 metricsRules:
-  # mysql configurations
-  - name: uptime
-    exp: mysql_global_status_uptime
-  - name: innodb_buffer_pool_size
-    exp: mysql_global_variables_innodb_buffer_pool_size
-  - name: max_connections
-    exp: mysql_global_variables_max_connections
-  - name: thread_cache_size
-    exp: mysql_global_variables_thread_cache_size
-
   # database throughput
   - name: commands_insert_rate
     exp: mysql_global_status_commands_total.tagEqual('command','insert').rate('PT1M')
@@ -54,7 +44,7 @@ metricsRules:
   - name: qps
     exp: mysql_global_status_queries.rate('PT1M')
   - name: tps
-    exp: mysql_global_status_commands_total.tagMatch('command','rollback|commit').rate('PT1M')
+    exp: mysql_global_status_commands_total.tagMatch('command','rollback|commit').sum(['host_name']).rate('PT1M')
 
   # connections
   ## threads

@@ -15,44 +15,69 @@
 
 # This file is used to show how to write configuration files and can be used to test.
 
-  cases:
-    # service list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
-      expected:  expected/service.yml
-    # metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_uptime --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_innodb_buffer_pool_size --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_max_connections --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_thread_cache_size --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-      
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_select_rate --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_insert_rate --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_update_rate --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_delete_rate --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_qps --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_tps --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
+cases:
+  # service list
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+    expected:  expected/service.yml
+  # service metrics
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_select_rate --service-name=mysql::root[root] |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_insert_rate --service-name=mysql::root[root] |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_update_rate --service-name=mysql::root[root] |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_commands_delete_rate --service-name=mysql::root[root] |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_qps --service-name=mysql::root[root] |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_tps --service-name=mysql::root[root] |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
 
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_threads_connected --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_threads_created --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_threads_running --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_threads_connected --service-name=mysql::root[root] |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_threads_created --service-name=mysql::root[root] |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_threads_running --service-name=mysql::root[root] |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
 
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_connects_aborted --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_connects_available --service-name=mysql::root[root] |yq e 'to_entries' -
-      expected:  expected/metrics-has-value.yml
-    # slow sql
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list --name=top_n_database_statement |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-      expected:  expected/db-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_connects_aborted --service-name=mysql::root[root] |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_connects_available --service-name=mysql::root[root] |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  # instance metrics
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_uptime --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_innodb_buffer_pool_size --service-name=mysql::root[root]  --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_max_connections --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_thread_cache_size --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_commands_select_rate --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_commands_insert_rate --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_commands_update_rate --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_commands_delete_rate --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_qps --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_tps --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_threads_connected --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_threads_created --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_threads_running --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_connects_aborted --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mysql_instance_connects_available --service-name=mysql::root[root] --instance-name=mysql-service:9104 |yq e 'to_entries' -
+    expected:  expected/metrics-has-value.yml
+  # slow sql
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list --name=top_n_database_statement |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected:  expected/db-has-value.yml
