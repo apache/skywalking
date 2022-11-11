@@ -55,12 +55,12 @@ public abstract class AbstractLogRecord extends Record {
     private String serviceId;
     @Setter
     @Getter
-    @Column(columnName = SERVICE_INSTANCE_ID)
+    @Column(columnName = SERVICE_INSTANCE_ID, length = 512)
     @BanyanDB.ShardingKey(index = 1)
     private String serviceInstanceId;
     @Setter
     @Getter
-    @Column(columnName = ENDPOINT_ID)
+    @Column(columnName = ENDPOINT_ID, length = 512)
     private String endpointId;
     @Setter
     @Getter

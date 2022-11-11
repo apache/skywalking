@@ -17,7 +17,7 @@
 
 [
    {
-      "id":"2ca19857-dcdb-491a-9739-d7ab79beb60b",
+      "id":"mysql-service",
       "configuration":{
          "children":[
             {
@@ -35,35 +35,7 @@
                            "x":0,
                            "y":0,
                            "w":6,
-                           "h":9,
-                           "i":"0",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_mysql_uptime"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "metricConfig":[
-                              {
-                                 "calculation":"secondToDay"
-                              }
-                           ],
-                           "widget":{
-                              "title":"MySQL Uptime (day)"
-                           }
-                        },
-                        {
-                           "x":0,
-                           "y":9,
-                           "w":6,
-                           "h":10,
+                           "h":13,
                            "i":"1",
                            "type":"Widget",
                            "metricTypes":[
@@ -85,84 +57,10 @@
                            }
                         },
                         {
-                           "x":12,
-                           "y":0,
-                           "w":6,
-                           "h":9,
-                           "i":"2",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_mysql_innodb_buffer_pool_size"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "metricConfig":[
-                              {
-                                 "calculation":"byteToMB"
-                              }
-                           ],
-                           "widget":{
-                              "title":"Innodb Buffer Pool Size (MB)"
-                           }
-                        },
-                        {
                            "x":6,
                            "y":0,
                            "w":6,
-                           "h":9,
-                           "i":"3",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_mysql_max_connections"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "widget":{
-                              "title":"Max Connections"
-                           }
-                        },
-                        {
-                           "x":18,
-                           "y":0,
-                           "w":6,
-                           "h":9,
-                           "i":"4",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_mysql_thread_cache_size"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "widget":{
-                              "title":"Thread Cache Size"
-                           }
-                        },
-                        {
-                           "x":6,
-                           "y":9,
-                           "w":6,
-                           "h":10,
+                           "h":13,
                            "i":"5",
                            "type":"Widget",
                            "metricTypes":[
@@ -185,9 +83,9 @@
                         },
                         {
                            "x":12,
-                           "y":9,
+                           "y":0,
                            "w":6,
-                           "h":10,
+                           "h":13,
                            "i":"6",
                            "type":"Widget",
                            "metricTypes":[
@@ -214,9 +112,9 @@
                         },
                         {
                            "x":6,
-                           "y":19,
+                           "y":13,
                            "w":6,
-                           "h":10,
+                           "h":14,
                            "i":"7",
                            "type":"Widget",
                            "metricTypes":[
@@ -243,9 +141,9 @@
                         },
                         {
                            "x":0,
-                           "y":19,
+                           "y":13,
                            "w":6,
-                           "h":10,
+                           "h":13,
                            "i":"8",
                            "type":"Widget",
                            "metricTypes":[
@@ -270,9 +168,9 @@
                         },
                         {
                            "x":18,
-                           "y":9,
+                           "y":0,
                            "w":6,
-                           "h":10,
+                           "h":13,
                            "i":"10",
                            "type":"Widget",
                            "metricTypes":[
@@ -295,9 +193,9 @@
                         },
                         {
                            "x":12,
-                           "y":19,
+                           "y":13,
                            "w":6,
-                           "h":10,
+                           "h":14,
                            "i":"11",
                            "type":"Widget",
                            "metricTypes":[
@@ -352,6 +250,36 @@
                            ]
                         }
                      ]
+                  },
+                  {
+                     "name":"Instances",
+                     "children":[
+                        {
+                           "x":0,
+                           "y":0,
+                           "w":24,
+                           "h":29,
+                           "i":"0",
+                           "type":"Widget",
+                           "graph":{
+                              "type":"InstanceList",
+                              "dashboardName":"MySQL-Instance",
+                              "fontSize":12
+                           },
+                           "metrics":[
+                              "meter_mysql_instance_uptime"
+                           ],
+                           "metricTypes":[
+                              "readMetricsValue",
+                              ""
+                           ],
+                           "metricConfig":[
+                              {
+                                 "calculation":"secondToDay"
+                              }
+                           ]
+                        }
+                     ]
                   }
                ]
             }
@@ -359,7 +287,7 @@
          "layer":"MYSQL",
          "entity":"Service",
          "name":"MySQL-Service",
-         "id":"2ca19857-dcdb-491a-9739-d7ab79beb60b",
+         "id":"mysql-service",
          "isRoot":false
       }
    }

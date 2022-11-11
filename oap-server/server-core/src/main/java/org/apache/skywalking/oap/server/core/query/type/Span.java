@@ -62,10 +62,12 @@ public class Span {
     private String segmentSpanId;
     @Setter
     private String segmentParentSpanId;
+    private final List<SpanAttachedEvent> attachedEvents;
 
     public Span() {
         this.refs = new ArrayList<>();
         this.tags = new ArrayList<>();
         this.logs = new ArrayList<>();
+        this.attachedEvents = new ArrayList<>();
     }
 }
