@@ -4,6 +4,9 @@
 
 * Bump up the embedded `swctl` version in OAP Docker image.
 
+#### Java Agent
+* add `eventmesh-1.x` plugin
+
 #### OAP Server
 
 * Add component ID(133) for impala JDBC Java agent plugin and component ID(134) for impala server.
