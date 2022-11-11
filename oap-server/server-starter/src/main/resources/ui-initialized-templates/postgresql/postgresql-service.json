@@ -17,14 +17,14 @@
 
 [
    {
-      "id":"7da9d2e6-7c10-4ab4-ba86-fd73889608ff",
+      "id":"postgresql-service",
       "configuration":{
          "children":[
             {
                "x":0,
                "y":0,
                "w":24,
-               "h":33,
+               "h":37,
                "i":"0",
                "type":"Tab",
                "children":[
@@ -34,238 +34,6 @@
                         {
                            "x":0,
                            "y":0,
-                           "w":4,
-                           "h":6,
-                           "i":"0",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_pg_shared_buffers"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "metricConfig":[
-                              {
-                                 "calculation":"byteToMB"
-                              }
-                           ],
-                           "widget":{
-                              "title":"Shared Buffers (MB)"
-                           }
-                        },
-                        {
-                           "x":4,
-                           "y":0,
-                           "w":5,
-                           "h":6,
-                           "i":"1",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_pg_effective_cache"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "metricConfig":[
-                              {
-                                 "calculation":"byteToGB"
-                              }
-                           ],
-                           "widget":{
-                              "title":"Effective Cache (GB)"
-                           }
-                        },
-                        {
-                           "x":4,
-                           "y":6,
-                           "w":5,
-                           "h":6,
-                           "i":"2",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_pg_maintenance_work_mem"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "widget":{
-                              "title":"Maintenance Work Mem (MB)"
-                           },
-                           "metricConfig":[
-                              {
-                                 "calculation":"byteToMB"
-                              }
-                           ]
-                        },
-                        {
-                           "x":14,
-                           "y":6,
-                           "w":5,
-                           "h":6,
-                           "i":"3",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_pg_work_mem"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "metricConfig":[
-                              {
-                                 "calculation":"byteToMB"
-                              }
-                           ],
-                           "widget":{
-                              "title":"Work Mem (MB)"
-                           }
-                        },
-                        {
-                           "x":9,
-                           "y":0,
-                           "w":5,
-                           "h":6,
-                           "i":"4",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_pg_seq_page_cost"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "widget":{
-                              "title":"Seq Page Cost"
-                           }
-                        },
-                        {
-                           "x":14,
-                           "y":0,
-                           "w":5,
-                           "h":6,
-                           "i":"5",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_pg_random_page_cost"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "widget":{
-                              "title":"Random Page Cost"
-                           }
-                        },
-                        {
-                           "x":0,
-                           "y":6,
-                           "w":4,
-                           "h":6,
-                           "i":"6",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_pg_max_wal_size"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "widget":{
-                              "title":"Max WAL Size (GB)"
-                           },
-                           "metricConfig":[
-                              {
-                                 "calculation":"byteToGB"
-                              }
-                           ]
-                        },
-                        {
-                           "x":9,
-                           "y":6,
-                           "w":5,
-                           "h":6,
-                           "i":"7",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_pg_max_parallel_workers"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "widget":{
-                              "title":"Max Parallel Workers"
-                           }
-                        },
-                        {
-                           "x":19,
-                           "y":0,
-                           "w":5,
-                           "h":6,
-                           "i":"8",
-                           "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_pg_max_worker_processes"
-                           ],
-                           "graph":{
-                              "type":"Card",
-                              "fontSize":40,
-                              "textAlign":"center",
-                              "showUnit":true
-                           },
-                           "widget":{
-                              "title":"Max Worker Processes"
-                           }
-                        },
-                        {
-                           "x":0,
-                           "y":12,
                            "w":6,
                            "h":10,
                            "i":"9",
@@ -284,13 +52,11 @@
                            },
                            "widget":{
                               "title":"Fetched Rows Trend (rows per second)"
-                           },
-                           "value":"9",
-                           "label":"9"
+                           }
                         },
                         {
                            "x":6,
-                           "y":12,
+                           "y":0,
                            "w":6,
                            "h":10,
                            "i":"10",
@@ -309,13 +75,11 @@
                            },
                            "widget":{
                               "title":"Inserted Rows Trend (rows per second)"
-                           },
-                           "value":"10",
-                           "label":"10"
+                           }
                         },
                         {
                            "x":6,
-                           "y":32,
+                           "y":20,
                            "w":6,
                            "h":10,
                            "i":"11",
@@ -344,13 +108,11 @@
                            },
                            "widget":{
                               "title":"Buffers Trend (per second)"
-                           },
-                           "value":"11",
-                           "label":"11"
+                           }
                         },
                         {
                            "x":12,
-                           "y":12,
+                           "y":0,
                            "w":6,
                            "h":10,
                            "i":"12",
@@ -371,13 +133,11 @@
                            },
                            "widget":{
                               "title":"Updated Rows Trend (rows per second)"
-                           },
-                           "value":"12",
-                           "label":"12"
+                           }
                         },
                         {
                            "x":18,
-                           "y":12,
+                           "y":0,
                            "w":6,
                            "h":10,
                            "i":"13",
@@ -396,13 +156,11 @@
                            },
                            "widget":{
                               "title":"Deleted Rows Trend (rows per second)"
-                           },
-                           "value":"13",
-                           "label":"13"
+                           }
                         },
                         {
                            "x":0,
-                           "y":22,
+                           "y":10,
                            "w":6,
                            "h":10,
                            "i":"14",
@@ -421,13 +179,11 @@
                            },
                            "widget":{
                               "title":"Returned Rows Trend (rows per second)"
-                           },
-                           "value":"14",
-                           "label":"14"
+                           }
                         },
                         {
                            "x":6,
-                           "y":42,
+                           "y":30,
                            "w":6,
                            "h":10,
                            "i":"15",
@@ -446,15 +202,13 @@
                               "showXAxis":true,
                               "showYAxis":true
                            },
-                           "value":"15",
-                           "label":"15",
                            "widget":{
                               "title":"Temporary Files Trend (per second)"
                            }
                         },
                         {
                            "x":12,
-                           "y":22,
+                           "y":10,
                            "w":6,
                            "h":10,
                            "i":"16",
@@ -475,13 +229,11 @@
                            },
                            "widget":{
                               "title":"Committed Transactions Trend (per second)"
-                           },
-                           "value":"16",
-                           "label":"16"
+                           }
                         },
                         {
                            "x":6,
-                           "y":22,
+                           "y":10,
                            "w":6,
                            "h":10,
                            "i":"17",
@@ -502,13 +254,11 @@
                            },
                            "widget":{
                               "title":"Rolled Back Transactions Trend (per second)"
-                           },
-                           "value":"17",
-                           "label":"17"
+                           }
                         },
                         {
                            "x":0,
-                           "y":32,
+                           "y":20,
                            "w":6,
                            "h":10,
                            "i":"18",
@@ -529,13 +279,11 @@
                            },
                            "widget":{
                               "title":"Cache Hit Rate (%)"
-                           },
-                           "value":"18",
-                           "label":"18"
+                           }
                         },
                         {
                            "x":12,
-                           "y":42,
+                           "y":30,
                            "w":6,
                            "h":10,
                            "i":"19",
@@ -562,13 +310,11 @@
                            },
                            "widget":{
                               "title":"Checkpoint Stat Trend (per second)"
-                           },
-                           "value":"19",
-                           "label":"19"
+                           }
                         },
                         {
                            "x":18,
-                           "y":22,
+                           "y":10,
                            "w":6,
                            "h":10,
                            "i":"20",
@@ -589,13 +335,11 @@
                            },
                            "widget":{
                               "title":"Conflicts Trend (per second)"
-                           },
-                           "value":"20",
-                           "label":"20"
+                           }
                         },
                         {
                            "x":0,
-                           "y":42,
+                           "y":30,
                            "w":6,
                            "h":10,
                            "i":"21",
@@ -616,13 +360,11 @@
                            },
                            "widget":{
                               "title":"Deadlocks Trend (per second)"
-                           },
-                           "value":"21",
-                           "label":"21"
+                           }
                         },
                         {
                            "x":12,
-                           "y":32,
+                           "y":20,
                            "w":6,
                            "h":10,
                            "i":"22",
@@ -643,13 +385,11 @@
                            },
                            "widget":{
                               "title":"Active Sessions"
-                           },
-                           "value":"22",
-                           "label":"22"
+                           }
                         },
                         {
                            "x":18,
-                           "y":42,
+                           "y":30,
                            "w":6,
                            "h":10,
                            "i":"23",
@@ -670,13 +410,11 @@
                            },
                            "widget":{
                               "title":"Locks"
-                           },
-                           "value":"23",
-                           "label":"23"
+                           }
                         },
                         {
                            "x":18,
-                           "y":32,
+                           "y":20,
                            "w":6,
                            "h":10,
                            "i":"24",
@@ -697,9 +435,7 @@
                            },
                            "widget":{
                               "title":"Idle Sessions"
-                           },
-                           "value":"24",
-                           "label":"24"
+                           }
                         }
                      ]
                   },
@@ -733,6 +469,58 @@
                            ]
                         }
                      ]
+                  },
+                  {
+                     "name":"Instances",
+                     "children":[
+                        {
+                           "x":0,
+                           "y":0,
+                           "w":24,
+                           "h":32,
+                           "i":"0",
+                           "type":"Widget",
+                           "metricTypes":[
+                              "readMetricsValue",
+                              "readMetricsValue",
+                              "readMetricsValue",
+                              "readMetricsValue",
+                              "readMetricsValue"
+                           ],
+                           "metrics":[
+                              "meter_pg_instance_shared_buffers",
+                              "meter_pg_instance_effective_cache",
+                              "meter_pg_instance_seq_page_cost",
+                              "meter_pg_instance_random_page_cost",
+                              "meter_pg_instance_work_mem"
+                           ],
+                           "graph":{
+                              "type":"InstanceList",
+                              "dashboardName":"PostgreSQL-Instance",
+                              "fontSize":12
+                           },
+                           "metricConfig":[
+                              {
+                                 "calculation":"byteToMB",
+                                 "label":"Shared Buffers (MB)"
+                              },
+                              {
+                                 "label":"Effective Cache (GB)",
+                                 "calculation":"byteToGB"
+                              },
+                              {
+                                 "label":"Seq Page Cost"
+                              },
+                              {
+                                 "label":"Random Page Cost"
+                              },
+                              {
+                                 "label":"Work Mem (MB)",
+                                 "calculation":"byteToMB"
+                              }
+                           ]
+                        }
+                     ]
                   }
                ]
             }
@@ -740,7 +528,7 @@
          "layer":"POSTGRESQL",
          "entity":"Service",
          "name":"PostgreSQL-Service",
-         "id":"7da9d2e6-7c10-4ab4-ba86-fd73889608ff"
+         "id":"postgresql-service"
       }
    }
 ]

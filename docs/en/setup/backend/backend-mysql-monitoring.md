@@ -14,7 +14,8 @@ SkyWalking leverages prometheus/mysqld_exporter for collecting metrics data. It 
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ### MySQL Monitoring
-MySQL monitoring provides monitoring of the status and resources of the MySQL server. MySQL server is cataloged as a `Layer: MYSQL` `Service` in OAP.
+MySQL monitoring provides monitoring of the status and resources of the MySQL server. MySQL cluster is cataloged as a `Layer: MYSQL` `Service` in OAP.
+Each MySQL server is cataloged as an `Instance` in OAP.
 #### Supported Metrics 
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|

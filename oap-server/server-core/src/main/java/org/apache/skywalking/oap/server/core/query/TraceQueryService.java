@@ -23,13 +23,24 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+
+import com.google.protobuf.InvalidProtocolBufferException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.apm.network.common.v3.KeyIntValuePair;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanAttachedEvent;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.KeyNumericValue;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.LogEntity;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
@@ -41,6 +52,7 @@ import org.apache.skywalking.oap.server.core.query.type.Trace;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -52,6 +64,7 @@ public class TraceQueryService implements Service {
 
     private final ModuleManager moduleManager;
     private ITraceQueryDAO traceQueryDAO;
+    private ISpanAttachedEventQueryDAO spanAttachedEventQueryDAO;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public TraceQueryService(ModuleManager moduleManager) {
@@ -63,6 +76,13 @@ public class TraceQueryService implements Service {
             this.traceQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(ITraceQueryDAO.class);
         }
         return traceQueryDAO;
+    }
+
+    private ISpanAttachedEventQueryDAO getSpanAttachedEventQueryDAO() {
+        if (spanAttachedEventQueryDAO == null) {
+            this.spanAttachedEventQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(ISpanAttachedEventQueryDAO.class);
+        }
+        return spanAttachedEventQueryDAO;
     }
 
     private IComponentLibraryCatalogService getComponentLibraryCatalogService() {
@@ -121,6 +141,12 @@ public class TraceQueryService implements Service {
                     sortedSpans.addAll(childrenSpan);
                 });
             }
+        }
+
+        if (CollectionUtils.isNotEmpty(sortedSpans)) {
+            final List<SpanAttachedEventRecord> spanAttachedEvents = getSpanAttachedEventQueryDAO().
+                querySpanAttachedEvents(SpanAttachedEventTraceType.SKYWALKING, traceId);
+            appendAttachedEventsToSpan(sortedSpans, spanAttachedEvents);
         }
 
         trace.getSpans().clear();
@@ -243,5 +269,62 @@ public class TraceQueryService implements Service {
                 findChildren(spans, span, childrenSpan);
             }
         });
+    }
+
+    private void appendAttachedEventsToSpan(List<Span> spans, List<SpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
+        if (CollectionUtils.isEmpty(events)) {
+            return;
+        }
+
+        for (SpanAttachedEventRecord record : events) {
+            if (!StringUtils.isNumeric(record.getTraceSpanId())) {
+                continue;
+            }
+
+            // find matches span
+            final int eventSpanId = Integer.parseInt(record.getTraceSpanId());
+            Span matchesSpan = spans.stream().filter(s -> Objects.equals(s.getSegmentId(), record.getTraceSegmentId()) &&
+                Objects.equals(s.getSpanId(), eventSpanId)).findFirst().orElse(null);
+            if (matchesSpan == null) {
+                continue;
+            }
+
+            // find the first entry span of upstream if the event from the upstream
+            SpanAttachedEvent event = SpanAttachedEvent.parseFrom(record.getDataBinary());
+            final String bindToTheUpstreamEntrySpan = getSpanAttachedEventTagValue(event.getTagsList(), "bind to upstream span");
+            if (Objects.equals(bindToTheUpstreamEntrySpan, "true")) {
+                final String parentSpanId = matchesSpan.getSegmentSpanId();
+                matchesSpan = spans.stream().filter(s -> s.getSegmentParentSpanId().equals(parentSpanId)
+                    && Objects.equals(s.getType(), SpanType.Entry.name())).findFirst().orElse(matchesSpan);
+            }
+
+            matchesSpan.getAttachedEvents().add(parseEvent(event));
+        }
+    }
+
+    private String getSpanAttachedEventTagValue(List<KeyStringValuePair> values, String tagKey) {
+        for (KeyStringValuePair pair : values) {
+            if (Objects.equals(pair.getKey(), tagKey)) {
+                return pair.getValue();
+            }
+        }
+        return null;
+    }
+
+    private org.apache.skywalking.oap.server.core.query.type.SpanAttachedEvent parseEvent(SpanAttachedEvent event) {
+        final org.apache.skywalking.oap.server.core.query.type.SpanAttachedEvent result =
+            new org.apache.skywalking.oap.server.core.query.type.SpanAttachedEvent();
+        result.getStartTime().setSeconds(event.getStartTime().getSeconds());
+        result.getStartTime().setNanos(event.getStartTime().getNanos());
+        result.getEndTime().setSeconds(event.getEndTime().getSeconds());
+        result.getEndTime().setNanos(event.getEndTime().getNanos());
+        result.setEvent(event.getEvent());
+        for (KeyStringValuePair tag : event.getTagsList()) {
+            result.getTags().add(new KeyValue(tag.getKey(), tag.getValue()));
+        }
+        for (KeyIntValuePair pair : event.getSummaryList()) {
+            result.getSummary().add(new KeyNumericValue(pair.getKey(), pair.getValue()));
+        }
+        return result;
     }
 }

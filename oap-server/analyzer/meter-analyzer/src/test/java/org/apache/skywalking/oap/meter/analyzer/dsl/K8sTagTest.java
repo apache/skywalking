@@ -34,6 +34,7 @@ import java.util.Optional;
 import io.kubernetes.client.openapi.models.V1ServiceStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.kubernetes.KubernetesClient;
 import org.apache.skywalking.library.kubernetes.KubernetesPods;
 import org.apache.skywalking.library.kubernetes.KubernetesServices;
 import org.apache.skywalking.library.kubernetes.ObjectID;
@@ -60,7 +61,7 @@ import static org.junit.Assert.fail;
 @PowerMockIgnore({"javax.net.ssl.*", "javax.management.*"})
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(Parameterized.class)
-@PrepareForTest({KubernetesPods.class, KubernetesServices.class})
+@PrepareForTest({KubernetesPods.class, KubernetesServices.class, KubernetesClient.class})
 public class K8sTagTest {
 
     @Parameterized.Parameter
@@ -257,8 +258,7 @@ public class K8sTagTest {
     @SneakyThrows
     @Before
     public void setup() {
-        PowerMockito.mockStatic(KubernetesServices.class);
-        PowerMockito.mockStatic(KubernetesPods.class);
+        PowerMockito.mockStatic(KubernetesClient.class);
 
         Whitebox.setInternalState(KubernetesServices.class, "INSTANCE",
                                   Mockito.mock(KubernetesServices.class)

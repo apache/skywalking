@@ -86,6 +86,7 @@
 * Support `sampledTrace` in LAL.
 * Support multiple rules with different names under the same layer of LAL script.
 * (Optimization) Reduce the buffer size(queue) of MAL(only) metric streams. Set L1 queue size as 1/20, L2 queue size as 1/2.
+* Support monitoring MySQL/PostgreSQL in the cluster mode.
 * [**Breaking Change**] Migrate to BanyanDB v0.2.0.
   * Adopt new OR logical operator for,
     1. `MeasureIDs` query
@@ -104,6 +105,10 @@
 * Optimize MQ Topology analysis. Use entry span's peer from the consumer side as source service when no producer instrumentation(no cross-process reference).
 * Refactor JDBC storage implementations to reuse logics.
 * Fix `ClassCastException` in `LoggingConfigWatcher`.
+* Support span attached event concept in Zipkin and SkyWalking trace query.
+* Support span attached events on Zipkin lens UI.
+* Force UTF-8 encoding in `JsonLogHandler` of `kafka-fetcher-plugin`.
+* Fix max length to 512 of entity, instance and endpoint IDs in trace, log, profiling, topN tables(JDBC storages). The value was 200 by default. 
 
 #### UI
 
@@ -139,9 +144,13 @@
 * Fix configuration panel styles.
 * Remove a un-use icon.
 * Support labeled value on the service/instance/endpoint list widgets.
-* Add menu for virtual MQ
-* Set selector props and update configuration panel styles
-* Add Python runtime metrics and cpu/memory utilization panels to General-Instance and Fass-Instance dashboards
+* Add menu for virtual MQ.
+* Set selector props and update configuration panel styles.
+* Add Python runtime metrics and cpu/memory utilization panels to General-Instance and Fass-Instance dashboards.
+* Enhance the legend of metrics graph widget with the summary table.
+* Add apache eventMesh logo file.
+* Fix conditions for trace profiling  bugSomething isn't working.
+* Fix tag keys list and duration condition.
 
 #### Documentation
 
