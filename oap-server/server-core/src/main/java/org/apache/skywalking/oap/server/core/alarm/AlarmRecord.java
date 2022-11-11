@@ -64,9 +64,9 @@ public class AlarmRecord extends Record {
 
     @Column(columnName = SCOPE)
     private int scope;
-    @Column(columnName = NAME, storageOnly = true)
+    @Column(columnName = NAME, storageOnly = true, length = 512)
     private String name;
-    @Column(columnName = ID0, storageOnly = true)
+    @Column(columnName = ID0, storageOnly = true, length = 512)
     @BanyanDB.ShardingKey(index = 0)
     private String id0;
     @Column(columnName = ID1, storageOnly = true)

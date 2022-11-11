@@ -64,8 +64,8 @@ SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for 
 3. Config PostgreSQL to enable slow log. [Example](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/postgresql.conf).
 
 ### Slow SQL Monitoring
-Slow SQL monitoring provides monitoring of the slow SQL statements of the PostgreSQL server. PostgreSQL server is cataloged as a `Layer: POSTGRESQL` `Service` in OAP.
-
+Slow SQL monitoring provides monitoring of the slow SQL statements of the PostgreSQL server. PostgreSQL Cluster is cataloged as a `Layer: POSTGRESQL` `Service` in OAP.
+Each PostgreSQL server is cataloged as an `Instance` in OAP.
 #### Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|
