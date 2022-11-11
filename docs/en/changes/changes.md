@@ -5,7 +5,7 @@
 * Bump up the embedded `swctl` version in OAP Docker image.
 
 #### Java Agent
-* add `eventmesh-1.x` plugin
+* Add `eventmesh-1.x` plugin
 
 #### OAP Server
 
@@ -109,7 +109,7 @@
 * Support span attached events on Zipkin lens UI.
 * Force UTF-8 encoding in `JsonLogHandler` of `kafka-fetcher-plugin`.
 * Fix max length to 512 of entity, instance and endpoint IDs in trace, log, profiling, topN tables(JDBC storages). The value was 200 by default. 
-
+* Add component ID(135) for eventMesh server Java agent plugin and component ID(137) for eventMesh producer and component ID(138) for eventMesh consumer.
 #### UI
 
 * Fix: tab active incorrectly, when click tab space
