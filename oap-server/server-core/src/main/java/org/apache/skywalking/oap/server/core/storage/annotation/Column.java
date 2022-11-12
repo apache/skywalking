@@ -70,14 +70,6 @@ public @interface Column {
     int length() default 200;
 
     /**
-     * The return name of system environment could provide an override value of the length limitation.
-     *
-     * @return the variable name of system environment.
-     * @since 8.2.0
-     */
-    String lengthEnvVariable() default "";
-
-    /**
      * Column with data type != {@link ValueDataType#NOT_VALUE} represents this is a value column. Indicate it would be
      * queried by UI/CLI.
      *

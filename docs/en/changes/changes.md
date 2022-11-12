@@ -105,9 +105,10 @@
 * Support span attached event concept in Zipkin and SkyWalking trace query.
 * Support span attached events on Zipkin lens UI.
 * Force UTF-8 encoding in `JsonLogHandler` of `kafka-fetcher-plugin`.
-* Fix max length to 512 of entity, instance and endpoint IDs in trace, log, profiling, topN tables(JDBC storages). The value was 200 by default. 
+* Fix max length to 512 of entity, instance and endpoint IDs in trace, log, profiling, topN tables(JDBC storages). The value was 200 by default.
 * Add component IDs(135, 136, 137) for EventMesh server and client-side plugins.
 * Bump up Kafka client to 2.8.1 to fix CVE-2021-38153.
+* Remove `lengthEnvVariable` for `Column` as it never works as expected.
 
 #### UI
 

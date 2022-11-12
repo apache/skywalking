@@ -35,7 +35,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * StorageModels manages all models detected by the core.
@@ -154,19 +153,6 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 // Use the column#length as the default column length, as read the system env as the override mechanism.
                 // Log the error but don't block the startup sequence.
                 int columnLength = column.length();
-                final String lengthEnvVariable = column.lengthEnvVariable();
-                if (StringUtil.isNotEmpty(lengthEnvVariable)) {
-                    final String envValue = System.getenv(lengthEnvVariable);
-                    if (StringUtil.isNotEmpty(envValue)) {
-                        try {
-                            columnLength = Integer.parseInt(envValue);
-                        } catch (NumberFormatException e) {
-                            log.error("Model [{}] Column [{}], illegal value {} of column length from system env [{}]",
-                                      modelName, column.columnName(), envValue, lengthEnvVariable
-                            );
-                        }
-                    }
-                }
 
                 // SQL Database extension
                 SQLDatabaseExtension sqlDatabaseExtension = new SQLDatabaseExtension();
