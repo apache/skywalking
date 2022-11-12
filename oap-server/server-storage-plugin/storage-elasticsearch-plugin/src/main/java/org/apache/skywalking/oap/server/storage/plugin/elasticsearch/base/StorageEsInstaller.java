@@ -112,8 +112,8 @@ public class StorageEsInstaller extends ModelInstaller {
                 tableName, template.get().getMappings(), template.get().getSettings()
             );
             boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
-            // "no-init mode" no needs to check index settings for updating,
-            // to avoid conflicts between "init mode and no-init mode" index settings configurations
+            // Do not check index settings in the "no-init mode",
+            // because the no-init mode OAP server doesn't take responsibility for index settings.
             if (RunningMode.isNoInitMode()) {
                 exist = containsMapping;
             } else {
