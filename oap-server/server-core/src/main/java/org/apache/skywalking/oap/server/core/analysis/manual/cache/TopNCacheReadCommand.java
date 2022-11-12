@@ -41,7 +41,7 @@ public class TopNCacheReadCommand extends TopN {
     private String id;
     @Getter
     @Setter
-    @Column(columnName = STATEMENT, length = 2000, lengthEnvVariable = "SW_SLOW_DB_THRESHOLD", storageOnly = true)
+    @Column(columnName = STATEMENT, length = 2000, storageOnly = true)
     private String command;
 
     @Override
