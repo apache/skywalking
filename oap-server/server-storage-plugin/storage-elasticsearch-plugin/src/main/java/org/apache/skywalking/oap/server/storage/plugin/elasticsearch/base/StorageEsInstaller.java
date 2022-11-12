@@ -112,13 +112,12 @@ public class StorageEsInstaller extends ModelInstaller {
                 tableName, template.get().getMappings(), template.get().getSettings()
             );
             boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
-            boolean compareIndexSetting = structures.compareIndexSetting(tableName, createSetting(model));
             // "no-init mode" no needs to check index settings for updating,
             // to avoid conflicts between "init mode and no-init mode" index settings configurations
             if (RunningMode.isNoInitMode()) {
                 exist = containsMapping;
             } else {
-                exist = containsMapping && compareIndexSetting;
+                exist = containsMapping && structures.compareIndexSetting(tableName, createSetting(model));
             }
         }
         return exist;
