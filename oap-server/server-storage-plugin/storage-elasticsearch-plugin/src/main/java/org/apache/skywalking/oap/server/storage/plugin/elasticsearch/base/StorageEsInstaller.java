@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.response.Index;
 import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
+import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -84,8 +85,14 @@ public class StorageEsInstaller extends ModelInstaller {
                 Optional<Index> index = esClient.getIndex(tableName);
                 Mappings historyMapping = index.map(Index::getMappings).orElseGet(Mappings::new);
                 structures.putStructure(tableName, historyMapping, index.map(Index::getSettings).orElseGet(HashMap::new));
-                exist = structures.containsMapping(tableName, createMapping(model))
-                    && structures.compareIndexSetting(tableName, createSetting(model));
+                boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
+                // Do not check index settings in the "no-init mode",
+                // because the no-init mode OAP server doesn't take responsibility for index settings.
+                if (RunningMode.isNoInitMode()) {
+                    exist = containsMapping;
+                } else {
+                    exist = containsMapping && structures.compareIndexSetting(tableName, createSetting(model));
+                }
             }
             return exist;
         }
@@ -104,8 +111,14 @@ public class StorageEsInstaller extends ModelInstaller {
             structures.putStructure(
                 tableName, template.get().getMappings(), template.get().getSettings()
             );
-            exist = structures.containsMapping(tableName, createMapping(model))
-                && structures.compareIndexSetting(tableName, createSetting(model));
+            boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
+            // Do not check index settings in the "no-init mode",
+            // because the no-init mode OAP server doesn't take responsibility for index settings.
+            if (RunningMode.isNoInitMode()) {
+                exist = containsMapping;
+            } else {
+                exist = containsMapping && structures.compareIndexSetting(tableName, createSetting(model));
+            }
         }
         return exist;
     }
