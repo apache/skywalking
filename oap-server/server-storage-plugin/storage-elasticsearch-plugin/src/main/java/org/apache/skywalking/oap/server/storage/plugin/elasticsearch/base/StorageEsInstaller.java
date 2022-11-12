@@ -86,13 +86,12 @@ public class StorageEsInstaller extends ModelInstaller {
                 Mappings historyMapping = index.map(Index::getMappings).orElseGet(Mappings::new);
                 structures.putStructure(tableName, historyMapping, index.map(Index::getSettings).orElseGet(HashMap::new));
                 boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
-                boolean compareIndexSetting = structures.compareIndexSetting(tableName, createSetting(model));
-                // "no-init mode" no needs to check index settings for updating,
-                // to avoid conflicts between "init mode and no-init mode" index settings configurations
+                // Do not check index settings in the "no-init mode",
+                // because the no-init mode OAP server doesn't take responsibility for index settings.
                 if (RunningMode.isNoInitMode()) {
                     exist = containsMapping;
                 } else {
-                    exist = containsMapping && compareIndexSetting;
+                    exist = containsMapping && structures.compareIndexSetting(tableName, createSetting(model));
                 }
             }
             return exist;
