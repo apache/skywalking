@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.response.Index;
 import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
+import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -84,8 +85,15 @@ public class StorageEsInstaller extends ModelInstaller {
                 Optional<Index> index = esClient.getIndex(tableName);
                 Mappings historyMapping = index.map(Index::getMappings).orElseGet(Mappings::new);
                 structures.putStructure(tableName, historyMapping, index.map(Index::getSettings).orElseGet(HashMap::new));
-                exist = structures.containsMapping(tableName, createMapping(model))
-                    && structures.compareIndexSetting(tableName, createSetting(model));
+                boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
+                boolean compareIndexSetting = structures.compareIndexSetting(tableName, createSetting(model));
+                // "no-init mode" no needs to check index settings for updating,
+                // to avoid conflicts between "init mode and no-init mode" index settings configurations
+                if (RunningMode.isNoInitMode()) {
+                    exist = containsMapping;
+                } else {
+                    exist = containsMapping && compareIndexSetting;
+                }
             }
             return exist;
         }
@@ -104,8 +112,15 @@ public class StorageEsInstaller extends ModelInstaller {
             structures.putStructure(
                 tableName, template.get().getMappings(), template.get().getSettings()
             );
-            exist = structures.containsMapping(tableName, createMapping(model))
-                && structures.compareIndexSetting(tableName, createSetting(model));
+            boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
+            boolean compareIndexSetting = structures.compareIndexSetting(tableName, createSetting(model));
+            // "no-init mode" no needs to check index settings for updating,
+            // to avoid conflicts between "init mode and no-init mode" index settings configurations
+            if (RunningMode.isNoInitMode()) {
+                exist = containsMapping;
+            } else {
+                exist = containsMapping && compareIndexSetting;
+            }
         }
         return exist;
     }
