@@ -110,6 +110,7 @@
 * Bump up Kafka client to 2.8.1 to fix CVE-2021-38153.
 * Remove `lengthEnvVariable` for `Column` as it never works as expected.
 * Add `LongText` to support longer logs persistent as a text type in ElasticSearch, instead of a keyword, to avoid length limitation.
+* Fix wrong system variable name `SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPENAPI`. It was **opaenapi**.
 
 #### UI
 
