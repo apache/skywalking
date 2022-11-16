@@ -50,7 +50,7 @@ public class EBPFProfilingScheduleEsDAO extends EsDAO implements IEBPFProfilingS
         final String index =
                 IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingScheduleRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(EBPFProfilingScheduleRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(EBPFProfilingScheduleRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, EBPFProfilingScheduleRecord.INDEX_NAME));
         }
         query.must(Query.term(EBPFProfilingScheduleRecord.TASK_ID, taskId));
