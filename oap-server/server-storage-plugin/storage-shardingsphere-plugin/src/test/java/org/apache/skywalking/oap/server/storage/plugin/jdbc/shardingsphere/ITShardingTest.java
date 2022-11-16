@@ -161,7 +161,7 @@ public class ITShardingTest {
     @Before
     public void init() {
         if (dsType.equals(DataSourceType.MYSQL)) {
-            starEnv("docker-compose-mysql.yml", 3306);
+            startEnv("docker-compose-mysql.yml", 3306);
             initConnection("mysql", "/swtest?rewriteBatchedStatements=true", 3306, "root", "root@1234");
         }
         initTestData();
