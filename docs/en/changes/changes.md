@@ -111,7 +111,7 @@
 * Remove `lengthEnvVariable` for `Column` as it never works as expected.
 * Add `LongText` to support longer logs persistent as a text type in ElasticSearch, instead of a keyword, to avoid length limitation.
 * Fix wrong system variable name `SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPENAPI`. It was **opaenapi**.
-* Fix `ShardingTopologyQueryDAO.loadServiceRelationsDetectedAtServerSide` miss serviceIds.
+* Fix `ShardingTopologyQueryDAO.loadServiceRelationsDetectedAtServerSide` invoke backend miss parameter `serviceIds`.
 
 #### UI
 
