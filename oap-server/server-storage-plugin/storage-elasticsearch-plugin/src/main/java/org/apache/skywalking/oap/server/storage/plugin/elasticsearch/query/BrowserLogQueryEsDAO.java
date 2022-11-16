@@ -57,7 +57,7 @@ public class BrowserLogQueryEsDAO extends EsDAO implements IBrowserLogQueryDAO {
             endSecondTB = duration.getEndTimeBucketInSec();
         }
         final BoolQueryBuilder boolQueryBuilder = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(BrowserErrorLogRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(BrowserErrorLogRecord.INDEX_NAME)) {
             boolQueryBuilder.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, BrowserErrorLogRecord.INDEX_NAME));
         }
 

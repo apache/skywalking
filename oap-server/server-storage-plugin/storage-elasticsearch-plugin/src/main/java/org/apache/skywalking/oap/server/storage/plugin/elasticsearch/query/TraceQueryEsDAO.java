@@ -81,7 +81,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             endSecondTB = duration.getEndTimeBucketInSec();
         }
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(SegmentRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(SegmentRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, SegmentRecord.INDEX_NAME));
         }
 

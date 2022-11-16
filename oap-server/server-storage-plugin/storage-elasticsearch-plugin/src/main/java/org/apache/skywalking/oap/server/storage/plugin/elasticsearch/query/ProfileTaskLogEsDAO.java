@@ -51,7 +51,7 @@ public class ProfileTaskLogEsDAO extends EsDAO implements IProfileTaskLogQueryDA
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(
             ProfileTaskLogRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ProfileTaskLogRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProfileTaskLogRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, ProfileTaskLogRecord.INDEX_NAME));
         }
         final SearchBuilder search =
