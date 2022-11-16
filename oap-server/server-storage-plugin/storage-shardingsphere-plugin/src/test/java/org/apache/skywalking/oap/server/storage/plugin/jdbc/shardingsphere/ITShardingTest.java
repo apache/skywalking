@@ -167,7 +167,7 @@ public class ITShardingTest {
         initTestData();
     }
 
-    private void starEnv(String dockerComposeName, int dsServicePort) {
+    private void startEnv(String dockerComposeName, int dsServicePort) {
         ENVIRONMENT = new DockerComposeContainer<>(new File(ITShardingTest.class
                                                                 .getClassLoader()
                                                                 .getResource(dockerComposeName).getPath()))
