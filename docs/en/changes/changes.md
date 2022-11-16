@@ -110,6 +110,7 @@
 * Bump up Kafka client to 2.8.1 to fix CVE-2021-38153.
 * Remove `lengthEnvVariable` for `Column` as it never works as expected.
 * Add `LongText` to support longer logs persistent as a text type in ElasticSearch, instead of a keyword, to avoid length limitation.
+* Ignore "ui_template" on checking whether a table exists in the BanyanDB installation process.
 
 #### UI
 

@@ -44,6 +44,9 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     @Override
     public boolean isExists(Model model) throws StorageException {
+        if (!model.isTimeSeries()) { // UITemplate
+            return true;
+        }
         final ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
         final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model, config, configService);
         try {
