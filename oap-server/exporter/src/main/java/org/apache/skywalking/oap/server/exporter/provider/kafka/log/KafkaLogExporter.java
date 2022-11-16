@@ -142,15 +142,15 @@ public class KafkaLogExporter extends KafkaExportProducer implements LogExportSe
         switch (ContentType.instanceOf(logRecord.getContentType())) {
             case JSON:
                 bodyBuilder.setType(ContentType.JSON.name());
-                bodyBuilder.setJson(JSONLog.newBuilder().setJson(logRecord.getContent()));
+                bodyBuilder.setJson(JSONLog.newBuilder().setJson(logRecord.getContent().getText()));
                 break;
             case YAML:
                 bodyBuilder.setType(ContentType.YAML.name());
-                bodyBuilder.setYaml(YAMLLog.newBuilder().setYaml(logRecord.getContent()));
+                bodyBuilder.setYaml(YAMLLog.newBuilder().setYaml(logRecord.getContent().getText()));
                 break;
             case TEXT:
                 bodyBuilder.setType(ContentType.TEXT.name());
-                bodyBuilder.setText(TextLog.newBuilder().setText(logRecord.getContent()));
+                bodyBuilder.setText(TextLog.newBuilder().setText(logRecord.getContent().getText()));
                 break;
             case NONE:
                 bodyBuilder.setType(ContentType.NONE.name());
