@@ -108,7 +108,7 @@ import static org.mockito.Mockito.when;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(Parameterized.class)
 @PowerMockIgnore({
-    "javax.net.ssl.*",
+    "javax.net.*",
     "javax.management.*",
     "com.sun.org.apache.xerces.*",
     "javax.xml.*", "org.xml.*",
@@ -176,13 +176,13 @@ public class ITShardingTest {
                                                                 .getClassLoader()
                                                                 .getResource(dockerComposeName).getPath()))
             .withExposedService("sharding-proxy", 3307,
-                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(5))
+                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(10))
             )
             .withExposedService("data-source-0", dsServicePort,
-                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(5))
+                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(10))
             )
             .withExposedService("data-source-1", dsServicePort,
-                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(5))
+                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(10))
             )
             .withEnv("SS_VERSION", version);
         ENVIRONMENT.start();
