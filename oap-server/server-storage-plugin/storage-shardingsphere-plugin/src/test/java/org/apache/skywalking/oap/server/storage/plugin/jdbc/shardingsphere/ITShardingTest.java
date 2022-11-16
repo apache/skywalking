@@ -109,7 +109,11 @@ import static org.mockito.Mockito.when;
 @PowerMockRunnerDelegate(Parameterized.class)
 @PowerMockIgnore({
     "javax.net.ssl.*",
-    "javax.management.*"
+    "javax.management.*",
+    "com.sun.org.apache.xerces.*",
+    "javax.xml.*", "org.xml.*",
+    "javax.management.*",
+    "org.w3c.*"
 })
 @PrepareForTest({DefaultScopeDefine.class})
 public class ITShardingTest {
