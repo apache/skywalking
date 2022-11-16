@@ -44,6 +44,9 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     @Override
     public boolean isExists(Model model) throws StorageException {
+        if (!model.isTimeSeries()) {
+            return true;
+        }
         final ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
         final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model, config, configService);
         try {
@@ -87,7 +90,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     log.info("install measure schema {}", model.getName());
                     ((BanyanDBStorageClient) client).define(measure);
                 }
-            } else if (!model.isTimeSeries()) { // UITemplate
+            } else if (!model.isTimeSeries()) {
                 log.info("skip property index {}", model.getName());
             }
         } catch (IOException ex) {
