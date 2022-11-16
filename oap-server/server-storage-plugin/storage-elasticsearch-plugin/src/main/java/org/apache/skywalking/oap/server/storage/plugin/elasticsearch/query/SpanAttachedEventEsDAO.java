@@ -55,7 +55,7 @@ public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQ
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(SpanAttachedEventRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(SpanAttachedEventRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(SpanAttachedEventRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, SpanAttachedEventRecord.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);

@@ -87,7 +87,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                                             .must(Query.range(ServiceRelationServerSideMetrics.TIME_BUCKET)
                                                        .gte(duration.getStartTimeBucket())
                                                        .lte(duration.getEndTimeBucket()));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ServiceRelationServerSideMetrics.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ServiceRelationServerSideMetrics.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceRelationServerSideMetrics.INDEX_NAME));
         }
         sourceBuilder.query(query).size(0);
@@ -103,7 +103,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                                             .must(Query.range(ServiceRelationClientSideMetrics.TIME_BUCKET)
                                                        .gte(duration.getStartTimeBucket())
                                                        .lte(duration.getEndTimeBucket()));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ServiceRelationClientSideMetrics.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ServiceRelationClientSideMetrics.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceRelationClientSideMetrics.INDEX_NAME));
         }
         sourceBuilder.query(query).size(0);
@@ -173,7 +173,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                             .gte(duration.getStartTimeBucket())
                             .lte(duration.getEndTimeBucket()))
                  .must(serviceIdBoolQuery);
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(indexName)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(indexName)) {
             boolQuery.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, indexName));
         }
         search.query(boolQuery);
@@ -199,7 +199,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             Query.term(
                 EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId
             ));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(EndpointRelationServerSideMetrics.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(EndpointRelationServerSideMetrics.INDEX_NAME)) {
             boolQuery.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, EndpointRelationServerSideMetrics.INDEX_NAME));
         }
         sourceBuilder.query(boolQuery);
@@ -242,7 +242,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME;
 
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(indexName);
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(indexName)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(indexName)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, indexName));
         }
         final SearchResponse response = getClient().search(index, sourceBuilder.build());
@@ -385,7 +385,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         final BoolQueryBuilder serviceIdBoolQuery = Query.bool();
 
         query.must(serviceIdBoolQuery);
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(indexName)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(indexName)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, indexName));
         }
         if (serviceIds.size() == 1) {

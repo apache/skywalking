@@ -57,7 +57,7 @@ public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAl
         try {
             final int batchSize = Math.min(resultWindowMaxSize, scrollingBatchSize);
             final BoolQueryBuilder query = Query.bool();
-            if (IndexController.LogicIndicesRegister.isPhysicalTable(NetworkAddressAlias.INDEX_NAME)) {
+            if (IndexController.LogicIndicesRegister.isMergedTable(NetworkAddressAlias.INDEX_NAME)) {
                 query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, NetworkAddressAlias.INDEX_NAME));
             }
             query.must(Query.range(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET)

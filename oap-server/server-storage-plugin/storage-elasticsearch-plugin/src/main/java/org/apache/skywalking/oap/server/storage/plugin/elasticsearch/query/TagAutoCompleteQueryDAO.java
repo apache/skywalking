@@ -62,7 +62,7 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
         }
         BoolQueryBuilder query = Query.bool();
         query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(TagAutocompleteData.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(TagAutocompleteData.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, TagAutocompleteData.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query);
@@ -103,7 +103,7 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
         }
         BoolQueryBuilder query = Query.bool().must(Query.term(TagAutocompleteData.TAG_KEY, tagKey));
         query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(TagAutocompleteData.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(TagAutocompleteData.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, TagAutocompleteData.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(limit);
