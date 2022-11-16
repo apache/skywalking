@@ -60,7 +60,7 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(AlarmRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(AlarmRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(AlarmRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, AlarmRecord.INDEX_NAME));
         }
 
