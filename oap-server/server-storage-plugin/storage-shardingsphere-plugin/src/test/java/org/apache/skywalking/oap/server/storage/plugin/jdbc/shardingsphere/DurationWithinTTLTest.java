@@ -16,11 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.mysql;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere;
 
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;

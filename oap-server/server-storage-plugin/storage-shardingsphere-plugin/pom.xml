@@ -45,5 +45,11 @@
             <artifactId>storage-jdbc-hikaricp-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.13</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
