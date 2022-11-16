@@ -62,7 +62,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         final boolean asc = condition.getOrder().equals(Order.ASC);
 
         if (CollectionUtils.isEmpty(additionalConditions)
-            && IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
+            && IndexController.LogicIndicesRegister.isMergedTable(condition.getName())) {
             final BoolQueryBuilder boolQuery =
                 Query.bool()
                      .must(basicQuery)
@@ -74,7 +74,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         } else if (CollectionUtils.isEmpty(additionalConditions)) {
             search.query(basicQuery);
         } else if (CollectionUtils.isNotEmpty(additionalConditions)
-            && IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
+            && IndexController.LogicIndicesRegister.isMergedTable(condition.getName())) {
             final BoolQueryBuilder boolQuery =
                 Query.bool()
                      .must(Query.term(

@@ -66,7 +66,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
             Query.bool()
                  .must(Query.term(ProfileThreadSnapshotRecord.TASK_ID, taskId))
                  .must(Query.term(ProfileThreadSnapshotRecord.SEQUENCE, 0));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ProfileThreadSnapshotRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProfileThreadSnapshotRecord.INDEX_NAME)) {
             segmentIdQuery.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, ProfileThreadSnapshotRecord.INDEX_NAME));
         }
 

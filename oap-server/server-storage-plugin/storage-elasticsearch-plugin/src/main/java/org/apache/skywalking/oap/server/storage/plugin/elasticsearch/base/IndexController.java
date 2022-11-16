@@ -175,7 +175,7 @@ public enum IndexController {
 
         }
 
-        public static boolean isPhysicalTable(String logicName) {
+        public static boolean isMergedTable(String logicName) {
             return !getPhysicalTableName(logicName).equals(logicName);
         }
 
