@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.analysis.record.LongText;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
@@ -85,7 +86,7 @@ public abstract class AbstractLogRecord extends Record {
     @Getter
     @Column(columnName = CONTENT, length = 1_000_000)
     @ElasticSearch.MatchQuery(analyzer = ElasticSearch.MatchQuery.AnalyzerType.OAP_LOG_ANALYZER)
-    private String content;
+    private LongText content;
     @Setter
     @Getter
     @Column(columnName = TIMESTAMP)
@@ -118,7 +119,7 @@ public abstract class AbstractLogRecord extends Record {
             record.setTraceSegmentId((String) converter.get(TRACE_SEGMENT_ID));
             record.setSpanId(((Number) converter.get(SPAN_ID)).intValue());
             record.setContentType(((Number) converter.get(CONTENT_TYPE)).intValue());
-            record.setContent((String) converter.get(CONTENT));
+            record.setContent(new LongText((String) converter.get(CONTENT)));
             record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             record.setTagsRawData(converter.getBytes(TAGS_RAW_DATA));
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
