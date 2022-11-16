@@ -78,6 +78,10 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
 
     private void buildMustQueryListByCondition(final EventQueryCondition condition,
                                                final BoolQueryBuilder query) {
+        if (IndexController.LogicIndicesRegister.isPhysicalTable(Event.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, Event.INDEX_NAME));
+        }
+        
         if (!isNullOrEmpty(condition.getUuid())) {
             query.must(Query.term(Event.UUID, condition.getUuid()));
         }

@@ -113,6 +113,7 @@
 * Fix wrong system variable name `SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPENAPI`. It was **opaenapi**.
 * Fix not-time-series model blocking OAP boots in no-init mode.
 * Changed system variable `SW_SUPERDATASET_STORAGE_DAY_STEP` to `SW_STORAGE_ES_SUPER_DATASET_DAY_STEP` to be consistent with other ES storage related variables.
+* Fix ESEventQueryDAO missing metric_table boolQuery criteria.
 
 #### UI
 
