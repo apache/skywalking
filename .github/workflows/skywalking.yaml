@@ -271,6 +271,36 @@ jobs:
           ./mvnw clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false || \
           ./mvnw clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false
 
+  it-sharding-proxy:
+    if: |
+      always() &&
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    name: IT Sharding-proxy
+    needs: [sanity-check, changes]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        java-version: [8, 11]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Cache maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: adopt
+      - name: IT Sharding-proxy
+        run: |
+          ./mvnw clean  test -Dtest=org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingIntegrationTest -DfailIfNoTests=false || \
+          ./mvnw clean  test -Dtest=org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingIntegrationTest -DfailIfNoTests=false
+
   e2e-test:
     if: |
       always() &&
@@ -715,6 +745,7 @@ jobs:
       - dependency-license
       - unit-test
       - integration-test
+      - it-sharding-proxy
       - e2e-test
       - e2e-test-istio
       - e2e-test-java-versions
@@ -733,6 +764,7 @@ jobs:
           depLicenseResults=${{ needs.dependency-license.result }}
           unitResults=${{ needs.unit-test.result }};
           integrationResults=${{ needs.integration-test.result }};
+          itShardingResults=${{ needs.it-sharding-proxy.result }};
           e2eResults=${{ needs.e2e-test.result }};
           e2eIstioResults=${{ needs.e2e-test-istio.result }};
           e2eJavaVersionResults=${{ needs.e2e-test-java-versions.result }};
@@ -743,5 +775,6 @@ jobs:
           [[ ${e2eResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eResults} == 'skipped' ]] || exit -5;
           [[ ${e2eIstioResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eIstioResults} == 'skipped' ]] || exit -6;
           [[ ${e2eJavaVersionResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eJavaVersionResults} == 'skipped' ]] || exit -7;
+          [[ ${itShardingResults} == 'success' ]] || [[ ${execute} != 'true' && ${itShardingResults} == 'skipped' ]] || exit -8;
 
           exit 0;

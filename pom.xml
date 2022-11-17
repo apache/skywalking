@@ -339,6 +339,7 @@
                         <skip>${skipUTs}</skip>
                         <excludes>
                             <exclude>IT*.class</exclude>
+                            <exclude>ShardingIntegrationTest.class</exclude>
                         </excludes>
                     </configuration>
                 </plugin>

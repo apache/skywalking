@@ -116,7 +116,7 @@ import static org.mockito.Mockito.when;
     "org.w3c.*"
 })
 @PrepareForTest({DefaultScopeDefine.class})
-public class ITShardingTest {
+public class ShardingIntegrationTest {
     @BeforeClass
     public static void setup() {
         PowerMockito.mockStatic(DefaultScopeDefine.class);
@@ -139,7 +139,7 @@ public class ITShardingTest {
         });
     }
 
-    public static DockerComposeContainer<?> ENVIRONMENT;
+    public  DockerComposeContainer<?> environment;
     private JDBCHikariCPClient ssClient;
     private JDBCHikariCPClient dsClient0;
     private JDBCHikariCPClient dsClient1;
@@ -172,7 +172,7 @@ public class ITShardingTest {
     }
 
     private void startEnv(String dockerComposeName, int dsServicePort) {
-        ENVIRONMENT = new DockerComposeContainer<>(new File(ITShardingTest.class
+        environment = new DockerComposeContainer<>(new File(ShardingIntegrationTest.class
                                                                 .getClassLoader()
                                                                 .getResource(dockerComposeName).getPath()))
             .withExposedService("sharding-proxy", 3307,
@@ -185,7 +185,7 @@ public class ITShardingTest {
                                 Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(10))
             )
             .withEnv("SS_VERSION", version);
-        ENVIRONMENT.start();
+        environment.start();
     }
 
     private void initConnection(String driverType,
@@ -194,8 +194,8 @@ public class ITShardingTest {
                                 String dsUserName,
                                 String dsPassword) {
         String ssUrl = "jdbc:" + driverType + "://" +
-            ENVIRONMENT.getServiceHost("sharding-proxy", 3307) + ":" +
-            ENVIRONMENT.getServicePort("sharding-proxy", 3307) +
+            environment.getServiceHost("sharding-proxy", 3307) + ":" +
+            environment.getServicePort("sharding-proxy", 3307) +
             urlSuffix;
         Properties properties = new Properties();
         properties.setProperty("jdbcUrl", ssUrl);
@@ -203,8 +203,8 @@ public class ITShardingTest {
         properties.setProperty("dataSource.password", "root");
 
         String dsUrl0 = "jdbc:" + driverType + "://" +
-            ENVIRONMENT.getServiceHost("data-source-0", dsServicePort) + ":" +
-            ENVIRONMENT.getServicePort("data-source-0", dsServicePort) +
+            environment.getServiceHost("data-source-0", dsServicePort) + ":" +
+            environment.getServicePort("data-source-0", dsServicePort) +
             urlSuffix;
         Properties propertiesDs0 = new Properties();
         propertiesDs0.setProperty("jdbcUrl", dsUrl0);
@@ -212,8 +212,8 @@ public class ITShardingTest {
         propertiesDs0.setProperty("dataSource.password", "root@1234");
 
         String dsUrl1 = "jdbc:" + driverType + "://" +
-            ENVIRONMENT.getServiceHost("data-source-1", dsServicePort) + ":" +
-            ENVIRONMENT.getServicePort("data-source-1", dsServicePort) +
+            environment.getServiceHost("data-source-1", dsServicePort) + ":" +
+            environment.getServicePort("data-source-1", dsServicePort) +
             urlSuffix;
         Properties propertiesDs1 = new Properties();
         propertiesDs1.setProperty("jdbcUrl", dsUrl1);
@@ -270,7 +270,7 @@ public class ITShardingTest {
     @SneakyThrows
     @After
     public void after() {
-        ENVIRONMENT.stop();
+        environment.stop();
     }
 
     @SneakyThrows
@@ -497,7 +497,7 @@ public class ITShardingTest {
         log.info("Records (Trace) test passed.");
     }
 
-    //@SQLDatabase.Sharding(
+    // @SQLDatabase.Sharding(
     // shardingAlgorithm = ShardingAlgorithm.TIME_BUCKET_SHARDING_ALGORITHM,
     // tableShardingColumn = TIME_BUCKET,
     // dataSourceShardingColumn = ENTITY_ID)
