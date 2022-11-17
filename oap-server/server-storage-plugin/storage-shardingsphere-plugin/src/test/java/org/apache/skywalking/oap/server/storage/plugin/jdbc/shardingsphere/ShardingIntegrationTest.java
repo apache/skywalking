@@ -184,7 +184,7 @@ public class ShardingIntegrationTest {
             .withExposedService("data-source-1", dsServicePort,
                                 Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(20))
             )
-            .withEnv("SS_VERSION", version).withLocalCompose(true);
+            .withEnv("SS_VERSION", version);
         environment.start();
     }
 
