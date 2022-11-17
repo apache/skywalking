@@ -176,13 +176,13 @@ public class ShardingIntegrationTest {
                                                                 .getClassLoader()
                                                                 .getResource(dockerComposeName).getPath()))
             .withExposedService("sharding-proxy", 3307,
-                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(10))
+                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(20))
             )
             .withExposedService("data-source-0", dsServicePort,
-                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(10))
+                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(20))
             )
             .withExposedService("data-source-1", dsServicePort,
-                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(10))
+                                Wait.defaultWaitStrategy().withStartupTimeout(java.time.Duration.ofMinutes(20))
             )
             .withEnv("SS_VERSION", version);
         environment.start();
