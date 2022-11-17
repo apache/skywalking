@@ -112,6 +112,7 @@
 * Add `LongText` to support longer logs persistent as a text type in ElasticSearch, instead of a keyword, to avoid length limitation.
 * Fix wrong system variable name `SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPENAPI`. It was **opaenapi**.
 * Fix not-time-series model blocking OAP boots in no-init mode.
+* Fix `ShardingTopologyQueryDAO.loadServiceRelationsDetectedAtServerSide` invoke backend miss parameter `serviceIds`.
 * Changed system variable `SW_SUPERDATASET_STORAGE_DAY_STEP` to `SW_STORAGE_ES_SUPER_DATASET_DAY_STEP` to be consistent with other ES storage related variables.
 * Fix ESEventQueryDAO missing metric_table boolQuery criteria.
 
