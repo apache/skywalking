@@ -23,10 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -58,15 +54,14 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
-import org.apache.skywalking.oap.server.core.source.EndpointMeta;
+
 import org.apache.skywalking.oap.server.core.source.ISource;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
+
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +79,6 @@ public class ExtractorSpec extends AbstractSpec {
     private final NamingControl namingControl;
 
     private final SourceReceiver sourceReceiver;
-
-    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     public ExtractorSpec(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
@@ -274,7 +267,7 @@ public class ExtractorSpec extends AbstractSpec {
         DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
         builder.setLayer(Layer.nameOf(log.getLayer()));
 
-        long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp() * 1000, DownSampling.Minute);
+        long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Minute);
         builder.setServiceName(log.getService());
 
         ServiceMeta serviceMeta = new ServiceMeta();
@@ -294,9 +287,8 @@ public class ExtractorSpec extends AbstractSpec {
             return;
         }
 
-        LocalDateTime localDateTime = Instant.ofEpochSecond(log.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDateTime();
-        String timeBucketForDB = DTF.format(localDateTime);
-        builder.setTimeBucket(Long.parseLong(timeBucketForDB));
+        long timeBucketForDB = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Second);
+        builder.setTimeBucket(timeBucketForDB);
 
         String entityId = serviceMeta.getEntityId();
         builder.prepare();
@@ -305,23 +297,6 @@ public class ExtractorSpec extends AbstractSpec {
 
         sourceReceiver.receive(databaseSlowStatement);
         sourceReceiver.receive(serviceMeta);
-        // to service instance traffic
-        if (StringUtil.isNotEmpty(log.getServiceInstance())) {
-            ServiceInstanceUpdate instanceMeta = new ServiceInstanceUpdate();
-            instanceMeta.setServiceId(entityId);
-            instanceMeta.setName(namingControl.formatInstanceName(log.getServiceInstance()));
-            instanceMeta.setTimeBucket(timeBucket);
-            sourceReceiver.receive(instanceMeta);
-        }
-        // to endpoint traffic
-        if (StringUtil.isNotEmpty(log.getEndpoint())) {
-            EndpointMeta endpointMeta = new EndpointMeta();
-            endpointMeta.setServiceName(serviceName);
-            endpointMeta.setServiceNormal(true);
-            endpointMeta.setEndpoint(namingControl.formatEndpointName(serviceName, log.getEndpoint()));
-            endpointMeta.setTimeBucket(timeBucket);
-            sourceReceiver.receive(endpointMeta);
-        }
     }
 
     @SuppressWarnings("unused")
