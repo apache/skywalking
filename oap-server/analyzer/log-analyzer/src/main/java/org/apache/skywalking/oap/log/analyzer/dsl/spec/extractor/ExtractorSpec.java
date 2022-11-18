@@ -23,6 +23,10 @@ import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -80,6 +84,8 @@ public class ExtractorSpec extends AbstractSpec {
     private final NamingControl namingControl;
 
     private final SourceReceiver sourceReceiver;
+
+    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     public ExtractorSpec(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
@@ -269,7 +275,6 @@ public class ExtractorSpec extends AbstractSpec {
         builder.setLayer(Layer.nameOf(log.getLayer()));
 
         long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp() * 1000, DownSampling.Minute);
-        builder.setTimeBucket(timeBucket);
         builder.setServiceName(log.getService());
 
         ServiceMeta serviceMeta = new ServiceMeta();
@@ -288,6 +293,10 @@ public class ExtractorSpec extends AbstractSpec {
             LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
             return;
         }
+
+        LocalDateTime localDateTime = Instant.ofEpochSecond(log.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        String timeBucketForDB = DTF.format(localDateTime);
+        builder.setTimeBucket(Long.parseLong(timeBucketForDB));
 
         String entityId = serviceMeta.getEntityId();
         builder.prepare();
