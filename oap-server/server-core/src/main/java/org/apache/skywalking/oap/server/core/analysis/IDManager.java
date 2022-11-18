@@ -18,17 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * IDManager includes all ID encode/decode functions for service, service instance and endpoint.
@@ -44,6 +44,9 @@ public class IDManager {
          *                 conjectured by telemetry data collected from agents on/in the `normal` service.
          */
         public static String buildId(String name, boolean isNormal) {
+            if (StringUtil.isBlank(name)) {
+                name = Const.BLANK_ENTITY_NAME;
+            }
             return encode(name) + Const.SERVICE_ID_CONNECTOR + BooleanUtils.booleanToValue(isNormal);
         }
 
@@ -108,6 +111,9 @@ public class IDManager {
          * @return service instance id
          */
         public static String buildId(String serviceId, String instanceName) {
+            if (StringUtil.isBlank(instanceName)) {
+                instanceName = Const.BLANK_ENTITY_NAME;
+            }
             return serviceId
                 + Const.ID_CONNECTOR
                 + encode(instanceName);
@@ -180,6 +186,9 @@ public class IDManager {
          * @return endpoint id
          */
         public static String buildId(String serviceId, String endpointName) {
+            if (StringUtil.isBlank(endpointName)) {
+                endpointName = Const.BLANK_ENTITY_NAME;
+            }
             return serviceId
                 + Const.ID_CONNECTOR
                 + encode(endpointName);
@@ -261,12 +270,16 @@ public class IDManager {
     public static class ProcessID {
         /**
          * @param instanceId built by {@link ServiceInstanceID#buildId(String, String)}
-         * @param name process name
+         * @param name       process name
          * @return process id
          */
         public static String buildId(String instanceId, String name) {
+            if (StringUtil.isBlank(name)) {
+                name = Const.BLANK_ENTITY_NAME;
+            }
             return Hashing.sha256().newHasher().putString(String.format("%s_%s",
-                    name, instanceId), Charsets.UTF_8).hash().toString();
+                                                                        name, instanceId
+            ), Charsets.UTF_8).hash().toString();
         }
 
         /**
