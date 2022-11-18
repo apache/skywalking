@@ -53,7 +53,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import com.google.gson.JsonObject;
 
 /**
- * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to source
+ * TelemetryDataDispatcher processes the {@link ServiceMeshMetrics} format telemetry data, transfers it to source
  * dispatcher.
  */
 @Slf4j
