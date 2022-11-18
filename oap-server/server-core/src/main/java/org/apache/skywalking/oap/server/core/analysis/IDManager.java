@@ -274,6 +274,9 @@ public class IDManager {
          * @return process id
          */
         public static String buildId(String instanceId, String name) {
+            if (StringUtil.isBlank(name)) {
+                name = Const.BLANK_ENTITY_NAME;
+            }
             return Hashing.sha256().newHasher().putString(String.format("%s_%s",
                                                                         name, instanceId
             ), Charsets.UTF_8).hash().toString();
