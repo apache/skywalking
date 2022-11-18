@@ -37,7 +37,7 @@ import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
- * Adapt {@link HTTPAccessLogEntry} objects to {@link ServiceMeshMetric} builders.
+ * Adapt {@link HTTPAccessLogEntry} objects to {@link HTTPServiceMeshMetric} builders.
  */
 @RequiredArgsConstructor
 public class LogEntry2MetricsAdapter {
@@ -58,9 +58,9 @@ public class LogEntry2MetricsAdapter {
     protected final ServiceMetaInfo targetService;
 
     /**
-     * Adapt the {@code entry} into a downstream metrics {@link ServiceMeshMetric.Builder}.
+     * Adapt the {@code entry} into a downstream metrics {@link HTTPServiceMeshMetric.Builder}.
      *
-     * @return the {@link ServiceMeshMetric.Builder} adapted from the given entry.
+     * @return the {@link HTTPServiceMeshMetric.Builder} adapted from the given entry.
      */
     public HTTPServiceMeshMetric.Builder adaptToDownstreamMetrics() {
         final AccessLogCommon properties = entry.getCommonProperties();
@@ -75,9 +75,9 @@ public class LogEntry2MetricsAdapter {
     }
 
     /**
-     * Adapt the {@code entry} into a upstream metrics {@link ServiceMeshMetric.Builder}.
+     * Adapt the {@code entry} into an upstream metrics {@link HTTPServiceMeshMetric.Builder}.
      *
-     * @return the {@link ServiceMeshMetric.Builder} adapted from the given entry.
+     * @return the {@link HTTPServiceMeshMetric.Builder} adapted from the given entry.
      */
     public HTTPServiceMeshMetric.Builder adaptToUpstreamMetrics() {
         final AccessLogCommon properties = entry.getCommonProperties();
