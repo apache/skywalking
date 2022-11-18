@@ -33,7 +33,7 @@ import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2Metri
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.parseTLS;
 
 /**
- * Adapt {@link HTTPAccessLogEntry} objects to {@link ServiceMeshMetric} builders.
+ * Adapt {@link HTTPAccessLogEntry} objects to {@link TCPServiceMeshMetric} builders.
  */
 @RequiredArgsConstructor
 public class TCPLogEntry2MetricsAdapter {
@@ -48,9 +48,9 @@ public class TCPLogEntry2MetricsAdapter {
     protected final ServiceMetaInfo targetService;
 
     /**
-     * Adapt the {@code entry} into a downstream metrics {@link ServiceMeshMetric.Builder}.
+     * Adapt the {@code entry} into a downstream metrics {@link TCPServiceMeshMetric.Builder}.
      *
-     * @return the {@link ServiceMeshMetric.Builder} adapted from the given entry.
+     * @return the {@link TCPServiceMeshMetric.Builder} adapted from the given entry.
      */
     public TCPServiceMeshMetric.Builder adaptToDownstreamMetrics() {
         final AccessLogCommon properties = entry.getCommonProperties();
@@ -64,9 +64,9 @@ public class TCPLogEntry2MetricsAdapter {
     }
 
     /**
-     * Adapt the {@code entry} into a upstream metrics {@link ServiceMeshMetric.Builder}.
+     * Adapt the {@code entry} into an upstream metrics {@link TCPServiceMeshMetric.Builder}.
      *
-     * @return the {@link ServiceMeshMetric.Builder} adapted from the given entry.
+     * @return the {@link TCPServiceMeshMetric.Builder} adapted from the given entry.
      */
     public TCPServiceMeshMetric.Builder adaptToUpstreamMetrics() {
         final AccessLogCommon properties = entry.getCommonProperties();
