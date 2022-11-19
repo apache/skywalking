@@ -23,10 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -50,13 +46,17 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.DatabaseSlowStatementBuilder;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
+
 import org.apache.skywalking.oap.server.core.source.ISource;
+
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -79,8 +79,6 @@ public class ExtractorSpec extends AbstractSpec {
     private final NamingControl namingControl;
 
     private final SourceReceiver sourceReceiver;
-
-    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     public ExtractorSpec(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
@@ -269,13 +267,12 @@ public class ExtractorSpec extends AbstractSpec {
         DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
         builder.setLayer(Layer.nameOf(log.getLayer()));
 
-        LocalDateTime localDateTime = Instant.ofEpochSecond(log.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDateTime();
-        String timeBucket = DTF.format(localDateTime);
-        builder.setTimeBucket(Long.parseLong(timeBucket));
+        long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Minute);
         builder.setServiceName(log.getService());
 
         ServiceMeta serviceMeta = new ServiceMeta();
-        serviceMeta.setName(namingControl.formatServiceName(log.getService()));
+        String serviceName = namingControl.formatServiceName(log.getService());
+        serviceMeta.setName(serviceName);
         serviceMeta.setLayer(builder.getLayer());
         serviceMeta.setTimeBucket(builder.getTimeBucket());
         BINDING.get().databaseSlowStatement(builder);
@@ -289,6 +286,9 @@ public class ExtractorSpec extends AbstractSpec {
             LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
             return;
         }
+
+        long timeBucketForDB = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Second);
+        builder.setTimeBucket(timeBucketForDB);
 
         String entityId = serviceMeta.getEntityId();
         builder.prepare();
