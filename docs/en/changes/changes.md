@@ -156,8 +156,8 @@
 * Add Python runtime metrics and cpu/memory utilization panels to General-Instance and Fass-Instance dashboards.
 * Enhance the legend of metrics graph widget with the summary table.
 * Add apache eventMesh logo file.
-* Fix tag keys list and duration condition.
 * Fix conditions for trace profiling.
+* Fix tag keys list and duration condition.
 * Fix typo.
 * Fix condition logic for trace tree data.
 * Enhance tags component to search tags with the input value.
