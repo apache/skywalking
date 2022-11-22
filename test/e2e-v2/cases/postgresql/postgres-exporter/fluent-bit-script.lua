@@ -23,7 +23,7 @@ function rewrite_body(tag, timestamp, record)
     arr = split(log,"\n")
     re1 = {}
     
-    re1["time"] = os.time()
+    re1["time"] = os.time() * 1000
 
     re1["layer"] = "POSTGRESQL"
     record["layer"] = "POSTGRESQL"

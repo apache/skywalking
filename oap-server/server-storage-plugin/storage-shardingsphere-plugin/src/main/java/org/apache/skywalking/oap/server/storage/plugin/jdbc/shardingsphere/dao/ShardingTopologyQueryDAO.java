@@ -35,7 +35,7 @@ public class ShardingTopologyQueryDAO extends JDBCTopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(Duration duration,
                                                                           List<String> serviceIds) throws IOException {
-        return super.loadServiceRelationsDetectedAtServerSide(DurationWithinTTL.INSTANCE.getMetricDurationWithinTTL(duration));
+        return super.loadServiceRelationsDetectedAtServerSide(DurationWithinTTL.INSTANCE.getMetricDurationWithinTTL(duration), serviceIds);
     }
 
     @Override

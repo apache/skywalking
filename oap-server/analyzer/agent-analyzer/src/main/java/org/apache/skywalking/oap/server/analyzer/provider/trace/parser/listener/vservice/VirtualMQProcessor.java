@@ -75,9 +75,7 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
         String serviceName = namingControl.formatServiceName(peer);
         long timeBucket = TimeBucket.getMinuteTimeBucket(span.getStartTime());
         sourceList.add(toServiceMeta(serviceName, timeBucket));
-        String endpoint = buildEndpointName(mqTags.topic, mqTags.queue);
-        String endpointName = namingControl.formatEndpointName(serviceName, endpoint);
-        sourceList.add(toEndpointMeta(serviceName, endpointName, timeBucket));
+
         MQAccess access = new MQAccess();
         access.setTypeId(span.getComponentId());
         access.setTransmissionLatency(mqTags.transmissionLatency);
@@ -87,15 +85,20 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
         access.setOperation(mqOperation);
         sourceList.add(access);
 
-        MQEndpointAccess endpointAccess = new MQEndpointAccess();
-        endpointAccess.setTypeId(span.getComponentId());
-        endpointAccess.setTransmissionLatency(mqTags.transmissionLatency);
-        endpointAccess.setStatus(!span.getIsError());
-        endpointAccess.setTimeBucket(timeBucket);
-        endpointAccess.setOperation(mqOperation);
-        endpointAccess.setServiceName(serviceName);
-        endpointAccess.setEndpoint(endpointName);
-        sourceList.add(endpointAccess);
+        String endpoint = buildEndpointName(mqTags.topic, mqTags.queue);
+        if (!endpoint.isEmpty()) {
+            String endpointName = namingControl.formatEndpointName(serviceName, endpoint);
+            sourceList.add(toEndpointMeta(serviceName, endpointName, timeBucket));
+            MQEndpointAccess endpointAccess = new MQEndpointAccess();
+            endpointAccess.setTypeId(span.getComponentId());
+            endpointAccess.setTransmissionLatency(mqTags.transmissionLatency);
+            endpointAccess.setStatus(!span.getIsError());
+            endpointAccess.setTimeBucket(timeBucket);
+            endpointAccess.setOperation(mqOperation);
+            endpointAccess.setServiceName(serviceName);
+            endpointAccess.setEndpoint(endpointName);
+            sourceList.add(endpointAccess);
+        }
     }
 
     private String buildEndpointName(String topic, String queue) {
