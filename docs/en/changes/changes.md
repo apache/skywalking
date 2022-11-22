@@ -117,6 +117,8 @@
 * Fix ESEventQueryDAO missing metric_table boolQuery criteria.
 * Add default entity name(`_blank`) if absent to avoid NPE in the decoding. This caused `Can't split xxx id into 2 parts`.
 * Support dynamic config the sampling strategy in network profiling.
+* Zipkin module support BanyanDB storage.
+* Zipkin traces query API, sort the result set by start time by default.
 
 #### UI
 

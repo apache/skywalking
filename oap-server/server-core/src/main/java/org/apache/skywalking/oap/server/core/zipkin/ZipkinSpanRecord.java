@@ -19,8 +19,10 @@
 package org.apache.skywalking.oap.server.core.zipkin;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -38,6 +40,8 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import zipkin2.Endpoint;
+import zipkin2.Span;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.TRACE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
@@ -248,5 +252,52 @@ public class ZipkinSpanRecord extends Record {
                 converter.accept(SHARED, storageData.getShared());
             }
         }
+    }
+
+    public static Span buildSpanFromRecord(ZipkinSpanRecord record) {
+        Span.Builder span = Span.newBuilder();
+        span.traceId(record.getTraceId());
+        span.id(record.getSpanId());
+        span.parentId(record.getParentId());
+        span.kind(Span.Kind.valueOf(record.getKind()));
+        span.timestamp(record.getTimestamp());
+        span.duration(record.getDuration());
+        span.name(record.getName());
+        //Build localEndpoint
+        Endpoint.Builder localEndpoint = Endpoint.newBuilder();
+        localEndpoint.serviceName(record.getLocalEndpointServiceName());
+        if (!StringUtil.isEmpty(record.getLocalEndpointIPV4())) {
+            localEndpoint.parseIp(record.getLocalEndpointIPV4());
+        } else {
+            localEndpoint.parseIp(record.getLocalEndpointIPV6());
+        }
+        localEndpoint.port(record.getLocalEndpointPort());
+        span.localEndpoint(localEndpoint.build());
+        //Build remoteEndpoint
+        Endpoint.Builder remoteEndpoint = Endpoint.newBuilder();
+        remoteEndpoint.serviceName(record.getRemoteEndpointServiceName());
+        if (!StringUtil.isEmpty(record.getLocalEndpointIPV4())) {
+            remoteEndpoint.parseIp(record.getRemoteEndpointIPV4());
+        } else {
+            remoteEndpoint.parseIp(record.getRemoteEndpointIPV6());
+        }
+        remoteEndpoint.port(record.getRemoteEndpointPort());
+        span.remoteEndpoint(remoteEndpoint.build());
+
+        //Build tags
+        JsonObject tagsJson = record.getTags();
+        if (tagsJson != null) {
+            for (Map.Entry<String, JsonElement> tag : tagsJson.entrySet()) {
+                span.putTag(tag.getKey(), tag.getValue().getAsString());
+            }
+        }
+        //Build annotation
+        JsonObject annotationJson = record.getAnnotations();
+        if (annotationJson != null) {
+            for (Map.Entry<String, JsonElement> annotation : annotationJson.entrySet()) {
+                span.addAnnotation(Long.parseLong(annotation.getKey()), annotation.getValue().getAsString());
+            }
+        }
+        return span.build();
     }
 }

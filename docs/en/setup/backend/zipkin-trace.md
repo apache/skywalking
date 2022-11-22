@@ -39,7 +39,6 @@ receiver-zipkin:
 ## Zipkin query
 The Zipkin receiver makes the OAP server work as an alternative Zipkin server implementation for query traces. 
 It implemented `ZipkinQueryApiV2` through the HTTP service, supporting Zipkin-lens UI.
-**Notice: Zipkin query API implementation does not support BanyanDB yet.**
 
 Use the following config to activate it.
 
