@@ -16,13 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.mysql;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingRule;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingRulesOperator;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;

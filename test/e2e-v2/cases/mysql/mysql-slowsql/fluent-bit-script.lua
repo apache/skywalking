@@ -34,7 +34,7 @@ function rewrite_body(tag, timestamp, record)
     h1 = string.sub(time,9,10)
     min1 = string.sub(time,11,12)
     s1 = string.sub(time,13,14)
-    re1["time"] = os.time()
+    re1["time"] = os.time() * 1000
 
     re1["layer"] = "MYSQL"
     record["layer"] = "MYSQL"
