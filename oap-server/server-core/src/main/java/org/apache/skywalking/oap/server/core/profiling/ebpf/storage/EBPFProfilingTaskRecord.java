@@ -24,12 +24,15 @@ import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
+import org.apache.skywalking.oap.server.core.query.input.EBPFNetworkSamplingRule;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+
+import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EBPF_PROFILING_TASK;
 
@@ -52,8 +55,10 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     public static final String TARGET_TYPE = "target_type";
     public static final String CREATE_TIME = "create_time";
     public static final String LAST_UPDATE_TIME = "last_update_time";
+    public static final String EXTENSION_CONFIG_JSON = "extension_config_json";
 
     public static final int PROCESS_LABELS_JSON_MAX_LENGTH = 1000;
+    public static final int EXTENSION_CONFIG_JSON_MAX_LENGTH = 1000;
 
     @Column(columnName = LOGICAL_ID)
     private String logicalId;
@@ -76,6 +81,8 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     private long createTime;
     @Column(columnName = LAST_UPDATE_TIME)
     private long lastUpdateTime;
+    @Column(columnName = EXTENSION_CONFIG_JSON, length = EXTENSION_CONFIG_JSON_MAX_LENGTH, storageOnly = true)
+    private String extensionConfigJson;
 
     @Override
     public String id() {
@@ -112,6 +119,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
             record.setCreateTime(((Number) converter.get(CREATE_TIME)).longValue());
             record.setLastUpdateTime(((Number) converter.get(LAST_UPDATE_TIME)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            record.setExtensionConfigJson((String) converter.get(EXTENSION_CONFIG_JSON));
             return record;
         }
 
@@ -128,6 +136,15 @@ public class EBPFProfilingTaskRecord extends NoneStream {
             converter.accept(CREATE_TIME, storageData.getCreateTime());
             converter.accept(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(EXTENSION_CONFIG_JSON, storageData.getExtensionConfigJson());
         }
+    }
+
+    /**
+     * Build for the extension config, for now we can save the network profiling sampling rules
+     */
+    @Data
+    public static class ExtensionConfig {
+        private List<EBPFNetworkSamplingRule> networkSamplings;
     }
 }

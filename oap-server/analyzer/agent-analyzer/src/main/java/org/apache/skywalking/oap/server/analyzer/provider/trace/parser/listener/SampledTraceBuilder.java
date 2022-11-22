@@ -28,6 +28,8 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledSlowTraceRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledStatus4XXTraceRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledStatus5XXTraceRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -94,16 +96,43 @@ public class SampledTraceBuilder {
     }
 
     public Record toRecord() {
-        final SampledSlowTraceRecord record = new SampledSlowTraceRecord();
-        record.setScope(DefaultScopeDefine.PROCESS_RELATION);
-        record.setEntityId(IDManager.ProcessID.buildRelationId(new IDManager.ProcessID.ProcessRelationDefine(
-            processId, destProcessId
-        )));
-        record.setTraceId(traceId);
-        record.setUri(uri);
-        record.setLatency(latency);
-        record.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
-        return record;
+        switch (this.reason) {
+            case SLOW:
+                final SampledSlowTraceRecord slowTraceRecord = new SampledSlowTraceRecord();
+                slowTraceRecord.setScope(DefaultScopeDefine.PROCESS_RELATION);
+                slowTraceRecord.setEntityId(IDManager.ProcessID.buildRelationId(new IDManager.ProcessID.ProcessRelationDefine(
+                    processId, destProcessId
+                )));
+                slowTraceRecord.setTraceId(traceId);
+                slowTraceRecord.setUri(uri);
+                slowTraceRecord.setLatency(latency);
+                slowTraceRecord.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
+                return slowTraceRecord;
+            case STATUS_4XX:
+                final SampledStatus4XXTraceRecord status4XXTraceRecord = new SampledStatus4XXTraceRecord();
+                status4XXTraceRecord.setScope(DefaultScopeDefine.PROCESS_RELATION);
+                status4XXTraceRecord.setEntityId(IDManager.ProcessID.buildRelationId(new IDManager.ProcessID.ProcessRelationDefine(
+                    processId, destProcessId
+                )));
+                status4XXTraceRecord.setTraceId(traceId);
+                status4XXTraceRecord.setUri(uri);
+                status4XXTraceRecord.setLatency(latency);
+                status4XXTraceRecord.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
+                return status4XXTraceRecord;
+            case STATUS_5XX:
+                final SampledStatus5XXTraceRecord status5XXTraceRecord = new SampledStatus5XXTraceRecord();
+                status5XXTraceRecord.setScope(DefaultScopeDefine.PROCESS_RELATION);
+                status5XXTraceRecord.setEntityId(IDManager.ProcessID.buildRelationId(new IDManager.ProcessID.ProcessRelationDefine(
+                    processId, destProcessId
+                )));
+                status5XXTraceRecord.setTraceId(traceId);
+                status5XXTraceRecord.setUri(uri);
+                status5XXTraceRecord.setLatency(latency);
+                status5XXTraceRecord.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
+                return status5XXTraceRecord;
+            default:
+                throw new IllegalArgumentException("unknown reason: " + this.reason);
+        }
     }
 
     public ISource toEntity() {
@@ -123,6 +152,8 @@ public class SampledTraceBuilder {
      * The reason of sampled trace.
      */
     public enum Reason {
-        SLOW
+        SLOW,
+        STATUS_4XX,
+        STATUS_5XX
     }
 }

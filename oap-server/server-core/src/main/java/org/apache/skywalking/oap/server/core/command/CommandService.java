@@ -57,7 +57,8 @@ public class CommandService implements Service {
             fixedTrigger = new EBPFProfilingTaskCommand.FixedTrigger(task.getFixedTriggerDuration());
         }
         return new EBPFProfilingTaskCommand(serialNumber, task.getTaskId(), processId, task.getTaskStartTime(),
-                task.getLastUpdateTime(), task.getTriggerType().name(), fixedTrigger, task.getTargetType().name());
+                task.getLastUpdateTime(), task.getTriggerType().name(), fixedTrigger, task.getTargetType().name(),
+                task.getExtensionConfigJson());
     }
 
     private String generateSerialNumber(final int serviceInstanceId, final long time,

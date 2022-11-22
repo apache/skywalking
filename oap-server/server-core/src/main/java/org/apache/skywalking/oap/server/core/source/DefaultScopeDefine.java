@@ -120,6 +120,8 @@ public class DefaultScopeDefine {
     public static final int MESSAGE_QUEUE_ENDPOINT_ACCESS = 64;
 
     public static final int SPAN_ATTACHED_EVENT = 65;
+    public static final int SAMPLED_STATUS_4XX_TRACE = 66;
+    public static final int SAMPLED_STATUS_5XX_TRACE = 67;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

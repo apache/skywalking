@@ -39,10 +39,11 @@ public class EBPFProfilingTaskCommand extends BaseCommand implements Serializabl
     private String triggerType;
     private FixedTrigger fixedTrigger;
     private String targetType;
+    private String extensionConfigJson;
 
     public EBPFProfilingTaskCommand(String serialNumber, String taskId, List<String> processIdList, long taskStartTime,
                                     long taskUpdateTime, String triggerType, FixedTrigger fixedTrigger,
-                                    String targetType) {
+                                    String targetType, String extensionConfigJson) {
         super(NAME, serialNumber);
         this.taskId = taskId;
         this.processIdList = processIdList;
@@ -51,6 +52,7 @@ public class EBPFProfilingTaskCommand extends BaseCommand implements Serializabl
         this.triggerType = triggerType;
         this.fixedTrigger = fixedTrigger;
         this.targetType = targetType;
+        this.extensionConfigJson = extensionConfigJson;
     }
 
     @Override
@@ -61,7 +63,8 @@ public class EBPFProfilingTaskCommand extends BaseCommand implements Serializabl
                 .addArgs(KeyStringValuePair.newBuilder().setKey("TaskUpdateTime").setValue(String.valueOf(taskUpdateTime)))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("TriggerType").setValue(triggerType))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("TargetType").setValue(targetType))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("TaskStartTime").setValue(String.valueOf(taskStartTime)));
+                .addArgs(KeyStringValuePair.newBuilder().setKey("TaskStartTime").setValue(String.valueOf(taskStartTime)))
+                .addArgs(KeyStringValuePair.newBuilder().setKey("ExtensionConfigJson").setValue(extensionConfigJson));
 
         if (fixedTrigger != null) {
             builder.addArgs(KeyStringValuePair.newBuilder().setKey("FixedTriggerDuration").setValue(String.valueOf(fixedTrigger.duration)));

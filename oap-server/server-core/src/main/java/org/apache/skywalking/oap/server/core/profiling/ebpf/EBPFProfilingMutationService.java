@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.profiling.ebpf;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
@@ -28,6 +29,8 @@ import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
+import org.apache.skywalking.oap.server.core.query.input.EBPFNetworkDataCollectingSettings;
+import org.apache.skywalking.oap.server.core.query.input.EBPFNetworkSamplingRule;
 import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingNetworkTaskRequest;
 import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingTaskFixedTimeCreationRequest;
 import org.apache.skywalking.oap.server.core.query.type.EBPFNetworkKeepProfilingResult;
@@ -47,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -121,6 +125,7 @@ public class EBPFProfilingMutationService implements Service {
         task.setLastUpdateTime(current);
         task.setTimeBucket(TimeBucket.getMinuteTimeBucket(current));
         task.generateLogicalId();
+        task.setExtensionConfigJson(Const.EMPTY_STRING);
         NoneStreamProcessor.getInstance().in(task);
 
         return EBPFProfilingTaskCreationResult.builder().status(true).id(task.getLogicalId()).build();
@@ -149,6 +154,9 @@ public class EBPFProfilingMutationService implements Service {
         task.setCreateTime(current);
         task.setLastUpdateTime(current);
         task.setTimeBucket(TimeBucket.getMinuteTimeBucket(current));
+        final EBPFProfilingTaskRecord.ExtensionConfig extensionConfig = new EBPFProfilingTaskRecord.ExtensionConfig();
+        extensionConfig.setNetworkSamplings(request.getSamplings());
+        task.setExtensionConfigJson(GSON.toJson(extensionConfig));
         task.generateLogicalId();
         NoneStreamProcessor.getInstance().in(task);
 
@@ -190,6 +198,7 @@ public class EBPFProfilingMutationService implements Service {
         record.setTargetType(EBPFProfilingTargetType.NETWORK.value());
         record.setCreateTime(now.getTimeInMillis());
         record.setLastUpdateTime(now.getTimeInMillis());
+        record.setExtensionConfigJson(Const.EMPTY_STRING);
         NoneStreamProcessor.getInstance().in(record);
         return buildKeepProfilingSuccess();
     }
@@ -271,6 +280,58 @@ public class EBPFProfilingMutationService implements Service {
             return "The instance doesn't have processes.";
         }
 
+        if (StringUtil.isNotEmpty(err = validateSamplingRules(request.getSamplings()))) {
+            return err;
+        }
+
+        return null;
+    }
+
+    private String validateSamplingRules(List<EBPFNetworkSamplingRule> rules) {
+        if (CollectionUtils.isEmpty(rules)) {
+            return null;
+        }
+
+        String error;
+        boolean alreadyContainerNullSetting = false;
+        final HashMap<String, EBPFNetworkSamplingRule> urlSampling = Maps.newHashMap();
+        for (EBPFNetworkSamplingRule rule : rules) {
+            if (StringUtil.isEmpty(rule.getUriRegex())) {
+                if (alreadyContainerNullSetting) {
+                    return "already contains the default sampling config";
+                }
+                alreadyContainerNullSetting = true;
+            } else {
+                if (urlSampling.get(rule.getUriRegex()) != null) {
+                    return "already contains the \""+rule.getUriRegex()+"\" sampling config";
+                }
+                urlSampling.put(rule.getUriRegex(), rule);
+            }
+
+            if (StringUtil.isNotEmpty(error = validateSingleSampleRule(rule))) {
+                return error;
+            }
+        }
+        return null;
+    }
+
+    private String validateSingleSampleRule(EBPFNetworkSamplingRule rule) {
+        if (rule.getMinDuration() != null && rule.getMinDuration() < 0) {
+            return "the min duration must bigger or equals zero";
+        }
+        final EBPFNetworkDataCollectingSettings settings = rule.getSettings();
+        if (settings == null) {
+            return "the rule sampling setting cannot be null";
+        }
+        if (!settings.isRequireCompleteRequest() && !settings.isRequireCompleteResponse()) {
+            return "please collect at least one of request or response";
+        }
+        if (settings.getMaxRequestSize() != null && settings.getMaxRequestSize() <= 0) {
+            return "the max request size must bigger than zero";
+        }
+        if (settings.getMaxResponseSize() != null && settings.getMaxResponseSize() <= 0) {
+            return "the max response size must bigger than zero";
+        }
         return null;
     }
 

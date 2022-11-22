@@ -39,6 +39,7 @@ public class EBPFProfilingTask {
     private EBPFProfilingTargetType targetType;
     private long createTime;
     private long lastUpdateTime;
+    private String extensionConfigJson;
 
     /**
      * combine the same task
