@@ -143,7 +143,7 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
         List<Object> condition = new ArrayList<>(5);
         List<Map.Entry<String, String>> annotations = new ArrayList<>(request.annotationQuery().entrySet());
         sql.append("select ").append(ZipkinSpanRecord.INDEX_NAME).append(".").append(ZipkinSpanRecord.TRACE_ID).append(", ")
-            .append("max(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(")").append(" from ");
+            .append("min(").append(ZipkinSpanRecord.INDEX_NAME).append(".").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(")").append(" from ");
         sql.append(ZipkinSpanRecord.INDEX_NAME);
         /**
          * This is an AdditionalEntity feature, see:
@@ -208,7 +208,7 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
             }
         }
         sql.append(" group by ").append(ZipkinSpanRecord.TRACE_ID);
-        sql.append(" order by max(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(") desc");
+        sql.append(" order by min(").append(ZipkinSpanRecord.INDEX_NAME).append(".").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(") desc");
         sql.append(" limit ").append(request.limit());
         Set<String> traceIds = new HashSet<>();
         try (Connection connection = h2Client.getConnection()) {
@@ -243,6 +243,8 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
             }
             i++;
         }
+
+        sql.append(" order by ").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" desc");
 
         try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));

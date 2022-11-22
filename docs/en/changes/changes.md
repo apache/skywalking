@@ -116,6 +116,8 @@
 * Changed system variable `SW_SUPERDATASET_STORAGE_DAY_STEP` to `SW_STORAGE_ES_SUPER_DATASET_DAY_STEP` to be consistent with other ES storage related variables.
 * Fix ESEventQueryDAO missing metric_table boolQuery criteria.
 * Add default entity name(`_blank`) if absent to avoid NPE in the decoding. This caused `Can't split xxx id into 2 parts`.
+* Zipkin module support BanyanDB storage.
+* Zipkin traces query API, sort the result set by start time by default.
 
 #### UI
 

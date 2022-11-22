@@ -606,6 +606,8 @@ jobs:
             config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
           - name: Zipkin Kafka
             config: test/e2e-v2/cases/zipkin/kafka/e2e.yaml
+          - name: Zipkin BanyanDB
+            config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
 
           - name: MySQL-Sharding storage
             config: test/e2e-v2/cases/storage/mysql/sharding/e2e.yaml
