@@ -303,7 +303,7 @@ public class EBPFProfilingMutationService implements Service {
                 alreadyContainerNullSetting = true;
             } else {
                 if (urlSampling.get(rule.getUriRegex()) != null) {
-                    return "already contains the \""+rule.getUriRegex()+"\" sampling config";
+                    return "already contains the \"" + rule.getUriRegex() + "\" sampling config";
                 }
                 urlSampling.put(rule.getUriRegex(), rule);
             }
