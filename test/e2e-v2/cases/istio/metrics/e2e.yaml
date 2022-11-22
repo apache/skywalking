@@ -57,27 +57,23 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh kubectl
     - name: Install SkyWalking
       command: |
-        rm -rf skywalking-kubernetes && git clone https://github.com/apache/skywalking-kubernetes.git
-        cd skywalking-kubernetes
-        git reset --hard $SW_KUBERNETES_COMMIT_SHA
-        cd chart
-        mkdir -p skywalking/files/conf.d/oap/ && cp ../../test/e2e-v2/cases/istio/metadata-service-mapping.yaml skywalking/files/conf.d/oap/metadata-service-mapping.yaml
-        helm dep up skywalking
-        helm -n istio-system install skywalking skywalking \
-                       --set fullnameOverride=skywalking \
-                       --set elasticsearch.replicas=1 \
-                       --set elasticsearch.minimumMasterNodes=1 \
-                       --set elasticsearch.imageTag=7.5.1 \
-                       --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=$ALS_ANALYZER \
-                       --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=$ALS_ANALYZER \
-                       --set oap.env.K8S_SERVICE_NAME_RULE='e2e::${service.metadata.name}' \
-                       --set oap.envoy.als.enabled=true \
-                       --set oap.replicas=1 \
-                       --set ui.image.repository=skywalking/ui \
-                       --set ui.image.tag=latest \
-                       --set oap.image.tag=latest \
-                       --set oap.image.repository=skywalking/oap \
-                       --set oap.storageType=elasticsearch
+        helm -n istio-system install skywalking \
+          oci://ghcr.io/apache/skywalking-kubernetes/skywalking-helm \
+          --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
+          --set fullnameOverride=skywalking \
+          --set elasticsearch.replicas=1 \
+          --set elasticsearch.minimumMasterNodes=1 \
+          --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=$ALS_ANALYZER \
+          --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=$ALS_ANALYZER \
+          --set oap.env.K8S_SERVICE_NAME_RULE='e2e::${service.metadata.name}' \
+          --set oap.envoy.als.enabled=true \
+          --set oap.replicas=1 \
+          --set ui.image.repository=skywalking/ui \
+          --set ui.image.tag=latest \
+          --set oap.image.tag=latest \
+          --set oap.image.repository=skywalking/oap \
+          --set oap.storageType=elasticsearch \
+          -f test/e2e-v2/cases/istio/values.yaml
       wait:
         - namespace: istio-system
           resource: deployments/skywalking-oap
