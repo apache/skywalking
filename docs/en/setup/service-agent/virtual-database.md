@@ -12,3 +12,5 @@ The Database access span should have
 - Tag key = `db.statement`, value = SQL statement
 - Tag key = `db.type`, value = the type of Database
 - Span's peer is the network address(IP or domain) of Database server.
+
+Ref [slow cache doc](../backend/slow-db-statement.md) to know more slow SQL settings.

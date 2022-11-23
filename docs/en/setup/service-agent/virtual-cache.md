@@ -14,3 +14,5 @@ The cache operation span should have
 - Tag key = `cache.cmd`, value = the cache command , e.g. get,set,del
 - Tag key = `cache.key`, value = the cache key
 - If the cache system is in-memory (e.g. Guava-cache), agents' plugin would create a local span usually, and the span's peer would be null ,otherwise the peer is the network address(IP or domain) of Cache server.
+
+Ref [slow cache doc](../backend/slow-cache-command.md) to know more slow Cache commands settings. 
