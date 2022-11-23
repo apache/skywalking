@@ -52,8 +52,10 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     public static final String TARGET_TYPE = "target_type";
     public static final String CREATE_TIME = "create_time";
     public static final String LAST_UPDATE_TIME = "last_update_time";
+    public static final String EXTENSION_CONFIG_JSON = "extension_config_json";
 
     public static final int PROCESS_LABELS_JSON_MAX_LENGTH = 1000;
+    public static final int EXTENSION_CONFIG_JSON_MAX_LENGTH = 1000;
 
     @Column(columnName = LOGICAL_ID)
     private String logicalId;
@@ -76,6 +78,8 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     private long createTime;
     @Column(columnName = LAST_UPDATE_TIME)
     private long lastUpdateTime;
+    @Column(columnName = EXTENSION_CONFIG_JSON, length = EXTENSION_CONFIG_JSON_MAX_LENGTH, storageOnly = true)
+    private String extensionConfigJson;
 
     @Override
     public String id() {
@@ -112,6 +116,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
             record.setCreateTime(((Number) converter.get(CREATE_TIME)).longValue());
             record.setLastUpdateTime(((Number) converter.get(LAST_UPDATE_TIME)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            record.setExtensionConfigJson((String) converter.get(EXTENSION_CONFIG_JSON));
             return record;
         }
 
@@ -128,6 +133,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
             converter.accept(CREATE_TIME, storageData.getCreateTime());
             converter.accept(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(EXTENSION_CONFIG_JSON, storageData.getExtensionConfigJson());
         }
     }
 }

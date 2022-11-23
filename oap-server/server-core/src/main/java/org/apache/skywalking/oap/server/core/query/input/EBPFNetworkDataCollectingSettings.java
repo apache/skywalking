@@ -22,16 +22,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EBPFProfilingNetworkTaskRequest {
-    // Define which processes under the service instance need to be profiling
-    private String instanceId;
+public class EBPFNetworkDataCollectingSettings {
+    // Require to collect the complete request
+    private boolean requireCompleteRequest;
+    // The max size of request context. The unit is byte.
+    // Collect the whole request header and body if this is not set.
+    private Integer maxRequestSize;
 
-    // The rule list for network profiling.
-    // Set various rules for different HTTP URIs if necessary.
-    private List<EBPFNetworkSamplingRule> samplings;
+    // Require to collect the complete response
+    private boolean requireCompleteResponse;
+    // The max size of response context. The unit is byte.
+    // Collect the whole response header and body if this is not set.
+    private Integer maxResponseSize;
 }

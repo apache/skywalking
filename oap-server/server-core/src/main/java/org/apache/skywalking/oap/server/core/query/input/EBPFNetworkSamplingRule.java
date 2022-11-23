@@ -22,16 +22,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EBPFProfilingNetworkTaskRequest {
-    // Define which processes under the service instance need to be profiling
-    private String instanceId;
+public class EBPFNetworkSamplingRule {
+    // The match pattern for HTTP request. This is HTTP URI-oriented.
+    // Matches all requests if not set
+    private String uriRegex;
 
-    // The rule list for network profiling.
-    // Set various rules for different HTTP URIs if necessary.
-    private List<EBPFNetworkSamplingRule> samplings;
+    // The minimal request duration to activate the network data(HTTP request/response raw data) sampling.
+    // Collecting requests without minimal request duration.
+    private Integer minDuration;
+    // Collecting requests when the response code is 400-499.
+    private boolean when4xx;
+    // Collecting requests when the response code is 500-599
+    private boolean when5xx;
+
+    // Define how to collect sampled data
+    private EBPFNetworkDataCollectingSettings settings;
 }

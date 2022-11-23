@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskExtension;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -164,6 +165,10 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
                     resultSet.getInt(EBPFProfilingTaskRecord.TARGET_TYPE)));
             task.setCreateTime(resultSet.getLong(EBPFProfilingTaskRecord.CREATE_TIME));
             task.setLastUpdateTime(resultSet.getLong(EBPFProfilingTaskRecord.LAST_UPDATE_TIME));
+            String extensionConfigJson = resultSet.getString(EBPFProfilingTaskRecord.EXTENSION_CONFIG_JSON);
+            if (StringUtil.isNotEmpty(extensionConfigJson)) {
+                task.setExtensionConfig(GSON.fromJson(extensionConfigJson, EBPFProfilingTaskExtension.class));
+            }
 
             tasks.add(task);
         }
