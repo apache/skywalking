@@ -280,6 +280,10 @@ metrics:
 `slowSql` aims to convert LogData to DatabaseSlowStatement. It extracts data from `parsed` result and save them as DatabaseSlowStatement. SlowSql will not abort or edit logs, you can use other LAL for further processing.
 SlowSql will reuse `service`, `layer` and `timestamp` of extractor, so it is necessary to use `SlowSQL` after setting these.
 We require a log tag `"LOG_KIND" = "SLOW_SQL"` to make OAP distinguish slow SQL logs from other log reports.
+
+**Note**, slow SQL sampling would only flag this SQL in the candidate list. The OAP server would run statistic per service
+and only persistent the top 50 every 10(controlled by `topNReportPeriod: ${SW_CORE_TOPN_REPORT_PERIOD:10}`) minutes by default.  
+
 An example of JSON sent to OAP is as following:
 ``` json
 [
