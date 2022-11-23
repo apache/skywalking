@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.core.query.input.EBPFProfilingTaskFixedT
 import org.apache.skywalking.oap.server.core.query.type.EBPFNetworkKeepProfilingResult;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskCreationResult;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskExtension;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
@@ -154,7 +155,7 @@ public class EBPFProfilingMutationService implements Service {
         task.setCreateTime(current);
         task.setLastUpdateTime(current);
         task.setTimeBucket(TimeBucket.getMinuteTimeBucket(current));
-        final EBPFProfilingTaskRecord.ExtensionConfig extensionConfig = new EBPFProfilingTaskRecord.ExtensionConfig();
+        final EBPFProfilingTaskExtension extensionConfig = new EBPFProfilingTaskExtension();
         extensionConfig.setNetworkSamplings(request.getSamplings());
         task.setExtensionConfigJson(GSON.toJson(extensionConfig));
         task.generateLogicalId();

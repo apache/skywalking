@@ -28,8 +28,8 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledSlowTraceRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledStatus4XXTraceRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledStatus5XXTraceRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledStatus4xxTraceRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledStatus5xxTraceRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -83,7 +83,7 @@ public class SampledTraceBuilder {
     public void validate() {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(traceId), "traceId can't be empty");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(uri), "uri can't be empty");
-        Preconditions.checkArgument(latency > 0, "latency must bigger zero");
+        Preconditions.checkArgument(latency >= 0, "latency must bigger or equals zero");
         Preconditions.checkArgument(reason != null, "reason can't be empty");
         Preconditions.checkArgument(layer != null, "layer can't be empty");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(serviceName), "service name can't be empty");
@@ -109,27 +109,27 @@ public class SampledTraceBuilder {
                 slowTraceRecord.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
                 return slowTraceRecord;
             case STATUS_4XX:
-                final SampledStatus4XXTraceRecord status4XXTraceRecord = new SampledStatus4XXTraceRecord();
-                status4XXTraceRecord.setScope(DefaultScopeDefine.PROCESS_RELATION);
-                status4XXTraceRecord.setEntityId(IDManager.ProcessID.buildRelationId(new IDManager.ProcessID.ProcessRelationDefine(
+                final SampledStatus4xxTraceRecord status4xxTraceRecord = new SampledStatus4xxTraceRecord();
+                status4xxTraceRecord.setScope(DefaultScopeDefine.PROCESS_RELATION);
+                status4xxTraceRecord.setEntityId(IDManager.ProcessID.buildRelationId(new IDManager.ProcessID.ProcessRelationDefine(
                     processId, destProcessId
                 )));
-                status4XXTraceRecord.setTraceId(traceId);
-                status4XXTraceRecord.setUri(uri);
-                status4XXTraceRecord.setLatency(latency);
-                status4XXTraceRecord.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
-                return status4XXTraceRecord;
+                status4xxTraceRecord.setTraceId(traceId);
+                status4xxTraceRecord.setUri(uri);
+                status4xxTraceRecord.setLatency(latency);
+                status4xxTraceRecord.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
+                return status4xxTraceRecord;
             case STATUS_5XX:
-                final SampledStatus5XXTraceRecord status5XXTraceRecord = new SampledStatus5XXTraceRecord();
-                status5XXTraceRecord.setScope(DefaultScopeDefine.PROCESS_RELATION);
-                status5XXTraceRecord.setEntityId(IDManager.ProcessID.buildRelationId(new IDManager.ProcessID.ProcessRelationDefine(
+                final SampledStatus5xxTraceRecord status5xxTraceRecord = new SampledStatus5xxTraceRecord();
+                status5xxTraceRecord.setScope(DefaultScopeDefine.PROCESS_RELATION);
+                status5xxTraceRecord.setEntityId(IDManager.ProcessID.buildRelationId(new IDManager.ProcessID.ProcessRelationDefine(
                     processId, destProcessId
                 )));
-                status5XXTraceRecord.setTraceId(traceId);
-                status5XXTraceRecord.setUri(uri);
-                status5XXTraceRecord.setLatency(latency);
-                status5XXTraceRecord.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
-                return status5XXTraceRecord;
+                status5xxTraceRecord.setTraceId(traceId);
+                status5xxTraceRecord.setUri(uri);
+                status5xxTraceRecord.setLatency(latency);
+                status5xxTraceRecord.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
+                return status5xxTraceRecord;
             default:
                 throw new IllegalArgumentException("unknown reason: " + this.reason);
         }

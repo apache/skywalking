@@ -36,9 +36,9 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SA
 
 @Setter
 @Getter
-@ScopeDeclaration(id = SAMPLED_STATUS_5XX_TRACE, name = "SampledStatus5XXTraceRecord")
-@Stream(name = SampledStatus5XXTraceRecord.INDEX_NAME, scopeId = SAMPLED_STATUS_5XX_TRACE, builder = SampledStatus5XXTraceRecord.Builder.class, processor = RecordStreamProcessor.class)
-public class SampledStatus5XXTraceRecord extends Record {
+@ScopeDeclaration(id = SAMPLED_STATUS_5XX_TRACE, name = "SampledStatus5xxTraceRecord")
+@Stream(name = SampledStatus5xxTraceRecord.INDEX_NAME, scopeId = SAMPLED_STATUS_5XX_TRACE, builder = SampledStatus5xxTraceRecord.Builder.class, processor = RecordStreamProcessor.class)
+public class SampledStatus5xxTraceRecord extends Record {
 
     public static final String INDEX_NAME = "sampled_status_5xx_trace_record";
 
@@ -65,11 +65,11 @@ public class SampledStatus5XXTraceRecord extends Record {
         return getTimeBucket() + Const.ID_CONNECTOR + entityId + Const.ID_CONNECTOR + traceId;
     }
 
-    public static class Builder implements StorageBuilder<SampledStatus5XXTraceRecord> {
+    public static class Builder implements StorageBuilder<SampledStatus5xxTraceRecord> {
 
         @Override
-        public SampledStatus5XXTraceRecord storage2Entity(Convert2Entity converter) {
-            final SampledStatus5XXTraceRecord record = new SampledStatus5XXTraceRecord();
+        public SampledStatus5xxTraceRecord storage2Entity(Convert2Entity converter) {
+            final SampledStatus5xxTraceRecord record = new SampledStatus5xxTraceRecord();
             record.setScope(((Number) converter.get(SCOPE)).intValue());
             record.setEntityId((String) converter.get(ENTITY_ID));
             record.setTraceId((String) converter.get(TRACE_ID));
@@ -80,7 +80,7 @@ public class SampledStatus5XXTraceRecord extends Record {
         }
 
         @Override
-        public void entity2Storage(SampledStatus5XXTraceRecord entity, Convert2Storage converter) {
+        public void entity2Storage(SampledStatus5xxTraceRecord entity, Convert2Storage converter) {
             converter.accept(SCOPE, entity.getScope());
             converter.accept(ENTITY_ID, entity.getEntityId());
             converter.accept(TRACE_ID, entity.getTraceId());

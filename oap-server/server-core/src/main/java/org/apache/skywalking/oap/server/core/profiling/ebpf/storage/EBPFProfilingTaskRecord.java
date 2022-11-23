@@ -24,15 +24,12 @@ import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
-import org.apache.skywalking.oap.server.core.query.input.EBPFNetworkSamplingRule;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
-import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EBPF_PROFILING_TASK;
 
@@ -138,13 +135,5 @@ public class EBPFProfilingTaskRecord extends NoneStream {
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(EXTENSION_CONFIG_JSON, storageData.getExtensionConfigJson());
         }
-    }
-
-    /**
-     * Build for the extension config, for now we can save the network profiling sampling rules
-     */
-    @Data
-    public static class ExtensionConfig {
-        private List<EBPFNetworkSamplingRule> networkSamplings;
     }
 }
