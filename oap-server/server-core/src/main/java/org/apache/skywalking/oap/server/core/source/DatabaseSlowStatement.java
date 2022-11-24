@@ -42,6 +42,9 @@ public class DatabaseSlowStatement extends Source {
     @Getter
     @Setter
     private String traceId;
+    @Getter
+    @Setter
+    private long timestamp;
 
     @Override
     public int scope() {

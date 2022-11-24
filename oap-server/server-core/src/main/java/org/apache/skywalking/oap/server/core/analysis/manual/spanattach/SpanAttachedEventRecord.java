@@ -39,6 +39,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SP
 @Getter
 @ScopeDeclaration(id = SPAN_ATTACHED_EVENT, name = "SpanAttachedEvent")
 @Stream(name = SpanAttachedEventRecord.INDEX_NAME, scopeId = SPAN_ATTACHED_EVENT, builder = SpanAttachedEventRecord.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.TimestampColumn(SpanAttachedEventRecord.TIMESTAMP)
 public class SpanAttachedEventRecord extends Record {
 
     public static final String INDEX_NAME = "span_attached_event_record";
@@ -52,6 +53,7 @@ public class SpanAttachedEventRecord extends Record {
     public static final String TRACE_SEGMENT_ID = "trace_segment_id";
     public static final String TRACE_SPAN_ID = "trace_span_id";
     public static final String DATA_BINARY = "data_binary";
+    public static final String TIMESTAMP = "timestamp";
 
     @Column(columnName = START_TIME_SECOND)
     private long startTimeSecond;
@@ -74,6 +76,10 @@ public class SpanAttachedEventRecord extends Record {
     private String traceSpanId;
     @Column(columnName = DATA_BINARY, storageOnly = true)
     private byte[] dataBinary;
+    @Setter
+    @Getter
+    @Column(columnName = TIMESTAMP)
+    private long timestamp;
 
     @Override
     public String id() {
@@ -94,6 +100,7 @@ public class SpanAttachedEventRecord extends Record {
             record.setTraceSegmentId((String) converter.get(TRACE_SEGMENT_ID));
             record.setTraceSpanId((String) converter.get(TRACE_SPAN_ID));
             record.setDataBinary(converter.getBytes(DATA_BINARY));
+            record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             return record;
         }
 
@@ -109,6 +116,7 @@ public class SpanAttachedEventRecord extends Record {
             converter.accept(TRACE_SEGMENT_ID, entity.getTraceSegmentId());
             converter.accept(TRACE_SPAN_ID, entity.getTraceSpanId());
             converter.accept(DATA_BINARY, entity.getDataBinary());
+            converter.accept(TIMESTAMP, entity.getTimestamp());
         }
     }
 }

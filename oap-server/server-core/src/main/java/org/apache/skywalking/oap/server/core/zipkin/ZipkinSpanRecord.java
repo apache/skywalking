@@ -50,6 +50,7 @@ import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_
 @Stream(name = ZipkinSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ZIPKIN_SPAN, builder = ZipkinSpanRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE, parentColumn = TIME_BUCKET)
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_SEC_RANGE_SHARDING_ALGORITHM, dataSourceShardingColumn = TRACE_ID, tableShardingColumn = TIME_BUCKET)
+@BanyanDB.TimestampColumn(ZipkinSpanRecord.TIMESTAMP_MILLIS)
 public class ZipkinSpanRecord extends Record {
     private static final Gson GSON = new Gson();
     public static final int QUERY_LENGTH = 256;
@@ -167,7 +168,7 @@ public class ZipkinSpanRecord extends Record {
 
     @Override
     public String id() {
-        return spanId + Const.LINE + kind;
+        return traceId + Const.LINE + spanId;
     }
 
     public static class Builder implements StorageBuilder<ZipkinSpanRecord> {

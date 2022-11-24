@@ -42,6 +42,7 @@ import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_
 @Stream(name = SegmentRecord.INDEX_NAME, scopeId = DefaultScopeDefine.SEGMENT, builder = SegmentRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = SegmentRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_SEC_RANGE_SHARDING_ALGORITHM, dataSourceShardingColumn = SERVICE_ID, tableShardingColumn = TIME_BUCKET)
+@BanyanDB.TimestampColumn(SegmentRecord.START_TIME)
 public class SegmentRecord extends Record {
 
     public static final String INDEX_NAME = "segment";
