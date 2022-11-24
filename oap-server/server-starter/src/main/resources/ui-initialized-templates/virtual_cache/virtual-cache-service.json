@@ -583,7 +583,7 @@
             "top_n_cache_read_command"
           ],
           "metricTypes": [
-            "readSampledRecords"
+            "readRecords"
           ],
           "value": "2",
           "label": "2"
@@ -606,7 +606,7 @@
             "top_n_cache_write_command"
           ],
           "metricTypes": [
-            "readSampledRecords"
+            "readRecords"
           ],
           "value": "2",
           "label": "2"

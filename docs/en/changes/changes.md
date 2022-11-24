@@ -165,6 +165,7 @@
 * Fix condition logic for trace tree data.
 * Enhance tags component to search tags with the input value.
 * Fix topology loading style.
+* Fix update metric processor for the readRecords and remove readSampledRecords from metrics selector.
 
 #### Documentation
 
