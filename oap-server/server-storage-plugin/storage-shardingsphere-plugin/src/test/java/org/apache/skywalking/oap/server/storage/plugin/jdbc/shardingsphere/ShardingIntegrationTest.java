@@ -642,7 +642,7 @@ public class ShardingIntegrationTest {
                                                                                     .builder()
                                                                                     .getDeclaredConstructor()
                                                                                     .newInstance());
-                jdbcMetricsDAO.prepareBatchInsert(model, metrics).invoke(conn);
+                jdbcMetricsDAO.prepareBatchInsert(model, metrics, null).invoke(conn);
             }
         }
     }

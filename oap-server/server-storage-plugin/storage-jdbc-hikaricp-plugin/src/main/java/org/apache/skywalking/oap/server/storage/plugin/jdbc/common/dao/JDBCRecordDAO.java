@@ -35,6 +35,6 @@ public class JDBCRecordDAO extends JDBCSQLExecutor implements IRecordDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        return getInsertExecutor(model.getName(), record, storageBuilder, new HashMapConverter.ToStorage());
+        return getInsertExecutor(model.getName(), record, storageBuilder, new HashMapConverter.ToStorage(), null);
     }
 }

@@ -20,27 +20,29 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -58,7 +60,13 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     private static long SESSION_TIMEOUT_OFFSITE_COUNTER = 0;
 
     private final Model model;
-    private final Map<Metrics, Metrics> context;
+    /**
+     * The session cache holds the latest metrics in-memory.
+     * There are two ways to make sure metrics in-cache,
+     * 1. Metrics is read from the Database through {@link #loadFromStorage(List)}
+     * 2. The built {@link InsertRequest} executed successfully.
+     */
+    private final Map<Metrics, Metrics> sessionCache;
     private final IMetricsDAO metricsDAO;
     private final Optional<AbstractWorker<Metrics>> nextAlarmWorker;
     private final Optional<AbstractWorker<ExportEvent>> nextExportWorker;
@@ -89,7 +97,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                             long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind) {
         super(moduleDefineHolder, new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData()));
         this.model = model;
-        this.context = new HashMap<>(100);
+        // Due to the cache would be updated depending on final storage implementation,
+        // the map/cache could be updated concurrently.
+        // Set to ConcurrentHashMap in order to avoid HashMap deadlock.
+        // Since 9.4.0
+        this.sessionCache = new ConcurrentHashMap<>(100);
         this.enableDatabaseSession = enableDatabaseSession;
         this.metricsDAO = metricsDAO;
         this.nextAlarmWorker = Optional.ofNullable(nextAlarmWorker);
@@ -192,12 +204,12 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             metricsList.add(data);
 
             if (metricsList.size() == batchSize) {
-                flushDataToStorage(metricsList, prepareRequests);
+                prepareFlushDataToStorage(metricsList, prepareRequests);
             }
         }
 
         if (metricsList.size() > 0) {
-            flushDataToStorage(metricsList, prepareRequests);
+            prepareFlushDataToStorage(metricsList, prepareRequests);
         }
 
         if (prepareRequests.size() > 0) {
@@ -209,14 +221,20 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         return prepareRequests;
     }
 
-    private void flushDataToStorage(List<Metrics> metricsList,
-                                    List<PrepareRequest> prepareRequests) {
+    /**
+     * Build given prepareRequests to prepare database flush
+     *
+     * @param metricsList     the metrics in the last read from the in-memory aggregated cache.
+     * @param prepareRequests the results for final execution.
+     */
+    private void prepareFlushDataToStorage(List<Metrics> metricsList,
+                                           List<PrepareRequest> prepareRequests) {
         try {
             loadFromStorage(metricsList);
 
             long timestamp = System.currentTimeMillis();
             for (Metrics metrics : metricsList) {
-                Metrics cachedMetrics = context.get(metrics);
+                Metrics cachedMetrics = sessionCache.get(metrics);
                 if (cachedMetrics != null) {
                     /*
                      * If the metrics is not supportUpdate, defined through MetricsExtension#supportUpdate,
@@ -233,12 +251,22 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                         continue;
                     }
                     cachedMetrics.calculate();
-                    prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cachedMetrics));
+                    prepareRequests.add(
+                        metricsDAO.prepareBatchUpdate(
+                            model,
+                            cachedMetrics,
+                            new SessionCacheCallback(sessionCache, cachedMetrics)
+                        ));
                     nextWorker(cachedMetrics);
                     cachedMetrics.setLastUpdateTimestamp(timestamp);
                 } else {
                     metrics.calculate();
-                    prepareRequests.add(metricsDAO.prepareBatchInsert(model, metrics));
+                    prepareRequests.add(
+                        metricsDAO.prepareBatchInsert(
+                            model,
+                            metrics,
+                            new SessionCacheCallback(sessionCache, metrics)
+                        ));
                     nextWorker(metrics);
                     metrics.setLastUpdateTimestamp(timestamp);
                 }
@@ -271,7 +299,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             List<Metrics> notInCacheMetrics =
                 metrics.stream()
                        .filter(m -> {
-                           final Metrics cachedValue = context.get(m);
+                           final Metrics cachedValue = sessionCache.get(m);
                            // Not cached or session disabled, the metric could be tagged `not in cache`.
                            if (cachedValue == null || !enableDatabaseSession) {
                                return true;
@@ -286,7 +314,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
 
                                if (metricsDAO.isExpiredCache(model, cachedValue, currentTimeMillis, metricsDataTTL)) {
                                    // The expired metrics should be removed from the context and tagged `not in cache` directly.
-                                   context.remove(m);
+                                   sessionCache.remove(m);
                                    return true;
                                }
                            }
@@ -301,9 +329,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             final List<Metrics> dbMetrics = metricsDAO.multiGet(model, notInCacheMetrics);
             if (!enableDatabaseSession) {
                 // Clear the cache only after results from DB are returned successfully.
-                context.clear();
+                sessionCache.clear();
             }
-            dbMetrics.forEach(m -> context.put(m, m));
+            dbMetrics.forEach(m -> sessionCache.put(m, m));
         } catch (final Exception e) {
             log.error("Failed to load metrics for merging", e);
         }
@@ -312,7 +340,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     @Override
     public void endOfRound() {
         if (enableDatabaseSession) {
-            Iterator<Metrics> iterator = context.values().iterator();
+            Iterator<Metrics> iterator = sessionCache.values().iterator();
             long timestamp = System.currentTimeMillis();
             while (iterator.hasNext()) {
                 Metrics metrics = iterator.next();

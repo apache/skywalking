@@ -16,20 +16,26 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.UpdateRequestWrapper;
 
-@RequiredArgsConstructor
-@Getter
-public class BanyanDBStreamInsertRequest implements InsertRequest {
-    private final StreamWrite streamWrite;
+/**
+ * MetricIndexUpdateWrapper wraps the built request wrapper with a new callback.
+ */
+public class MetricIndexUpdateWrapper extends UpdateRequestWrapper {
+    private final SessionCacheCallback callback;
+
+    public MetricIndexUpdateWrapper(UpdateRequestWrapper requestWrapper, SessionCacheCallback callback) {
+        this.request = requestWrapper.getRequest();
+        this.callback = callback;
+    }
 
     @Override
-    public void onInsertCompleted() {
-
+    public void onUpdateFailure() {
+        if (callback != null) {
+            callback.onUpdateFailure();
+        }
     }
 }
