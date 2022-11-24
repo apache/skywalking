@@ -72,6 +72,7 @@ public class VirtualDatabaseProcessor implements VirtualServiceProcessor {
             dbSlowStat.setStatement(statement);
             dbSlowStat.setLatency(latency);
             dbSlowStat.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
+            dbSlowStat.setTimestamp(span.getStartTime());
             recordList.add(dbSlowStat);
         });
     }

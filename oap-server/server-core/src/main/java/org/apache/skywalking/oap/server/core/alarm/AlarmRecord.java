@@ -43,6 +43,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AL
 @ScopeDeclaration(id = ALARM, name = "Alarm")
 @Stream(name = AlarmRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ALARM, builder = AlarmRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AlarmRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
+@BanyanDB.TimestampColumn(AlarmRecord.START_TIME)
 public class AlarmRecord extends Record {
 
     public static final String INDEX_NAME = "alarm_record";

@@ -36,6 +36,7 @@ public class CacheSlowAccessDispatcher implements SourceDispatcher<CacheSlowAcce
             readCommand.setTraceId(source.getTraceId());
             readCommand.setEntityId(source.getCacheServiceId());
             readCommand.setTimeBucket(source.getTimeBucket());
+            readCommand.setTimestamp(source.getTimestamp());
             TopNStreamProcessor.getInstance().in(readCommand);
         } else if (source.getOperation() == VirtualCacheOperation.Write) {
             TopNCacheWriteCommand writeCommand = new TopNCacheWriteCommand();
@@ -45,6 +46,7 @@ public class CacheSlowAccessDispatcher implements SourceDispatcher<CacheSlowAcce
             writeCommand.setTraceId(source.getTraceId());
             writeCommand.setEntityId(source.getCacheServiceId());
             writeCommand.setTimeBucket(source.getTimeBucket());
+            writeCommand.setTimestamp(source.getTimestamp());
             TopNStreamProcessor.getInstance().in(writeCommand);
         }
     }

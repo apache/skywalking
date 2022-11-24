@@ -39,6 +39,7 @@ public class Model {
     private final Class<?> streamClass;
     private final boolean timeRelativeID;
     private final SQLDatabaseModelExtension sqlDBModelExtension;
+    private final BanyanDBModelExtension banyanDBModelExtension;
 
     public Model(final String name,
                  final List<ModelColumn> columns,
@@ -48,7 +49,8 @@ public class Model {
                  final boolean superDataset,
                  final Class<?> streamClass,
                  boolean timeRelativeID,
-                 final SQLDatabaseModelExtension sqlDBModelExtension) {
+                 final SQLDatabaseModelExtension sqlDBModelExtension,
+                 final BanyanDBModelExtension banyanDBModelExtension) {
         this.name = name;
         this.columns = columns;
         this.scopeId = scopeId;
@@ -59,5 +61,6 @@ public class Model {
         this.streamClass = streamClass;
         this.timeRelativeID = timeRelativeID;
         this.sqlDBModelExtension = sqlDBModelExtension;
+        this.banyanDBModelExtension = banyanDBModelExtension;
     }
 }

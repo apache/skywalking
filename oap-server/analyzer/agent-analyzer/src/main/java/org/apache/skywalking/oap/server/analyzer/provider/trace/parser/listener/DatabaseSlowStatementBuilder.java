@@ -51,6 +51,9 @@ public class DatabaseSlowStatementBuilder {
     @Getter
     @Setter
     private long timeBucket;
+    @Getter
+    @Setter
+    private long timestamp;
 
     public void prepare() {
         this.serviceName = namingControl.formatServiceName(serviceName);
@@ -64,6 +67,7 @@ public class DatabaseSlowStatementBuilder {
         dbSlowStat.setStatement(statement);
         dbSlowStat.setLatency(latency);
         dbSlowStat.setTimeBucket(timeBucket);
+        dbSlowStat.setTimestamp(timestamp);
         return dbSlowStat;
     }
 }

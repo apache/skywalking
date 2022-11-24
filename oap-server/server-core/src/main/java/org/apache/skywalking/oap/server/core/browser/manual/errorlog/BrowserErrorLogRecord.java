@@ -38,6 +38,7 @@ import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_
 @SuperDataset
 @Stream(name = BrowserErrorLogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.BROWSER_ERROR_LOG, builder = BrowserErrorLogRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_SEC_RANGE_SHARDING_ALGORITHM, dataSourceShardingColumn = SERVICE_ID, tableShardingColumn = TIME_BUCKET)
+@BanyanDB.TimestampColumn(BrowserErrorLogRecord.TIMESTAMP)
 public class BrowserErrorLogRecord extends Record {
     public static final String INDEX_NAME = "browser_error_log";
     public static final String UNIQUE_ID = "unique_id";
