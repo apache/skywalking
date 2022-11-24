@@ -119,11 +119,11 @@
 * Support dynamic config the sampling strategy in network profiling.
 * Zipkin module support BanyanDB storage.
 * Zipkin traces query API, sort the result set by start time by default.
-* Enhance cache mechanism in the metric persistent process.
-  * This cache only worked when the metric is accessible(readable) from the database. Once the insert execution delayed
-    due to the scale, the cache would lose efficacy. It only works for the last time update per minute, considering our
+* Enhance the cache mechanism in the metric persistent process.
+  * This cache only worked when the metric is accessible(readable) from the database. Once the insert execution is delayed
+    due to the scale, the cache loses efficacy. It only works for the last time update per minute, considering our
     25s period.
-  * Fix ID conflicts for all JDBC storage implementation. Due to insert delay, the JDBC storage implementation would
+  * Fix ID conflicts for all JDBC storage implementations. Due to the insert delay, the JDBC storage implementation would
     still generate another new insert statement.
 
 #### UI
