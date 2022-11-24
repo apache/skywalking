@@ -48,7 +48,7 @@ public class JDBCManagementDAO extends JDBCSQLExecutor implements IManagementDAO
             }
 
             SQLExecutor insertExecutor = getInsertExecutor(model.getName(), storageData, storageBuilder,
-                                                           new HashMapConverter.ToStorage());
+                                                           new HashMapConverter.ToStorage(), null);
             insertExecutor.invoke(connection);
         } catch (IOException | SQLException e) {
             throw new IOException(e.getMessage(), e);

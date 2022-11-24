@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 
 @Getter
 public class IndexRequestWrapper implements InsertRequest {
-    private final IndexRequest request;
+    protected IndexRequest request;
 
     public IndexRequestWrapper(String index, String type, String id,
                                Map<String, ?> source) {
@@ -34,5 +34,16 @@ public class IndexRequestWrapper implements InsertRequest {
                               .id(id)
                               .doc(source)
                               .build();
+    }
+
+    /**
+     * Expose an empty constructor to lazy initialization.
+     */
+    protected IndexRequestWrapper() {
+
+    }
+
+    @Override
+    public void onInsertCompleted() {
     }
 }
