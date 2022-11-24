@@ -70,6 +70,9 @@ public class BanyanDBConverter {
 
         @Override
         public void accept(String fieldName, Object fieldValue) {
+            if (fieldName.equals(this.schema.getTimestampColumn4Stream())) {
+                streamWrite.setTimestamp((long) fieldValue);
+            }
             MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
             if (columnSpec == null) {
                 throw new IllegalArgumentException("fail to find field[" + fieldName + "]");

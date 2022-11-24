@@ -38,6 +38,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SA
 @Getter
 @ScopeDeclaration(id = SAMPLED_SLOW_TRACE, name = "SampledTraceSlowRecord")
 @Stream(name = SampledSlowTraceRecord.INDEX_NAME, scopeId = SAMPLED_SLOW_TRACE, builder = SampledSlowTraceRecord.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.TimestampColumn(SampledSlowTraceRecord.TIMESTAMP)
 public class SampledSlowTraceRecord extends Record {
 
     public static final String INDEX_NAME = "sampled_slow_trace_record";
@@ -46,6 +47,7 @@ public class SampledSlowTraceRecord extends Record {
     public static final String TRACE_ID = TopN.TRACE_ID;
     public static final String URI = TopN.STATEMENT;
     public static final String LATENCY = "latency";
+    public static final String TIMESTAMP = "timestamp";
 
     @Column(columnName = SCOPE)
     private int scope;
@@ -58,6 +60,10 @@ public class SampledSlowTraceRecord extends Record {
     private String uri;
     @Column(columnName = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private long latency;
+    @Setter
+    @Getter
+    @Column(columnName = TIMESTAMP)
+    private long timestamp;
 
     @Override
     public String id() {
@@ -75,6 +81,7 @@ public class SampledSlowTraceRecord extends Record {
             record.setUri((String) converter.get(URI));
             record.setLatency(((Number) converter.get(LATENCY)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             return record;
         }
 
@@ -86,6 +93,7 @@ public class SampledSlowTraceRecord extends Record {
             converter.accept(URI, entity.getUri());
             converter.accept(LATENCY, entity.getLatency());
             converter.accept(TIME_BUCKET, entity.getTimeBucket());
+            converter.accept(TIMESTAMP, entity.getTimestamp());
         }
     }
 }
