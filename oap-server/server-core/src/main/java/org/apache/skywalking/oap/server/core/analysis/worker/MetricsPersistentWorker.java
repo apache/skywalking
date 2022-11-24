@@ -100,7 +100,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         // Due to the cache would be updated depending on final storage implementation,
         // the map/cache could be updated concurrently.
         // Set to ConcurrentHashMap in order to avoid HashMap deadlock.
-        // Since 9.4.0
+        // Since 9.3.0
         this.sessionCache = new ConcurrentHashMap<>(100);
         this.enableDatabaseSession = enableDatabaseSession;
         this.metricsDAO = metricsDAO;
