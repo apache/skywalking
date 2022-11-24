@@ -125,6 +125,7 @@
     25s period.
   * Fix ID conflicts for all JDBC storage implementations. Due to the insert delay, the JDBC storage implementation would
     still generate another new insert statement.
+* [**Breaking Change**] Remove `core/default/enableDatabaseSession` config. 
 
 #### UI
 

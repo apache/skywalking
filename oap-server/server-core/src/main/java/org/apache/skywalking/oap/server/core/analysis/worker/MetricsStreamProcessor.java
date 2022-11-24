@@ -77,12 +77,6 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
     @Getter
     private long l1FlushPeriod = 500;
     /**
-     * Hold and forward CoreModuleConfig#enableDatabaseSession to the persistent worker.
-     */
-    @Setter
-    @Getter
-    private boolean enableDatabaseSession;
-    /**
      * The threshold of session time. Unit is ms. Default value is 70s.
      */
     @Setter
@@ -219,7 +213,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
         MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(
             moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker,
-            enableDatabaseSession, supportUpdate, storageSessionTimeout, metricsDataTTL, kind
+            supportUpdate, storageSessionTimeout, metricsDataTTL, kind
         );
         persistentWorkers.add(minutePersistentWorker);
 
@@ -233,7 +227,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                                                        MetricStreamKind kind) {
         MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(
             moduleDefineHolder, model, metricsDAO,
-            enableDatabaseSession, supportUpdate, storageSessionTimeout, metricsDataTTL, kind
+            supportUpdate, storageSessionTimeout, metricsDataTTL, kind
         );
         persistentWorkers.add(persistentWorker);
 
