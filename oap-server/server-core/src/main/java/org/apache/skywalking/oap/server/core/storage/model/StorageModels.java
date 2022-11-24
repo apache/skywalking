@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
@@ -88,15 +87,10 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 }
             });
         }
-        //Add Records timestampColumn for BanyanDB
-        if (Record.class.isAssignableFrom(aClass)) {
-            if (aClass.isAnnotationPresent(BanyanDB.TimestampColumn.class)) {
-                String timestampColumn = aClass.getAnnotation(BanyanDB.TimestampColumn.class).value();
-                banyanDBModelExtension.setTimestampColumn(timestampColumn);
-            } else {
-                throw new IllegalStateException(
-                    "Record model [" + storage.getModelName() + "] miss defined @BanyanDB.TimestampColumn");
-            }
+        //Add timestampColumn for BanyanDB
+        if (aClass.isAnnotationPresent(BanyanDB.TimestampColumn.class)) {
+            String timestampColumn = aClass.getAnnotation(BanyanDB.TimestampColumn.class).value();
+            banyanDBModelExtension.setTimestampColumn(timestampColumn);
         }
 
         checker.check(storage.getModelName());

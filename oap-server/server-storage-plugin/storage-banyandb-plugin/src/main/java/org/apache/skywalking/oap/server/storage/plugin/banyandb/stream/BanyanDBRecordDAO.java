@@ -46,10 +46,7 @@ public class BanyanDBRecordDAO implements IRecordDAO {
             model.getName(), // index-name
             record.id() // identity
         ); // set timestamp inside `BanyanDBConverter.StreamToStorage`
-        Convert2Storage<StreamWrite> convert2Storage = new BanyanDBConverter.StreamToStorage(schema, streamWrite,
-                                                                                             model.getBanyanDBModelExtension()
-                                                                                                  .getTimestampColumn()
-        );
+        Convert2Storage<StreamWrite> convert2Storage = new BanyanDBConverter.StreamToStorage(schema, streamWrite);
         storageBuilder.entity2Storage(record, convert2Storage);
 
         return new BanyanDBStreamInsertRequest(convert2Storage.obtain());
