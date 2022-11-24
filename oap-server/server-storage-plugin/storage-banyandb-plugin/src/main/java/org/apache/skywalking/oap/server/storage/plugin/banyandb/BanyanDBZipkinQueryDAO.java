@@ -181,14 +181,14 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
         Set<String> traceIds = new HashSet<>();
         while (traceIds.size() < tracesLimit) {
             List<ZipkinSpanRecord> spans = getSpans(request, duration, scrollEndTime, scrollLimit);
-            if (spans.size() == 0) {
-                break;
-            }
             for (ZipkinSpanRecord span : spans) {
                 traceIds.add(span.getTraceId());
                 if (traceIds.size() >= tracesLimit) {
                     break;
                 }
+            }
+            if (spans.size() < scrollLimit) {
+                break;
             }
             scrollEndTime = spans.get(spans.size() - 1).getTimestampMillis();
         }
