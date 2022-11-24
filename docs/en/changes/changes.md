@@ -165,6 +165,7 @@
 * Fix condition logic for trace tree data.
 * Enhance tags component to search tags with the input value.
 * Fix topology loading style.
+* Add trace association for FAAS dashboards.
 
 #### Documentation
 
