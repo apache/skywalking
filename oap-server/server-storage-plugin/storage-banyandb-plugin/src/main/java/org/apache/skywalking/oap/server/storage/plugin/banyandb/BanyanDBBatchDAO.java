@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
@@ -28,10 +31,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMeasureInsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMeasureUpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBStreamInsertRequest;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> implements IBatchDAO {
     private static final Object STREAM_SYNCHRONIZER = new Object();
@@ -69,7 +68,13 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
                 if (r instanceof BanyanDBStreamInsertRequest) {
                     return getStreamBulkWriteProcessor().add(((BanyanDBStreamInsertRequest) r).getStreamWrite());
                 } else if (r instanceof BanyanDBMeasureInsertRequest) {
-                    return getMeasureBulkWriteProcessor().add(((BanyanDBMeasureInsertRequest) r).getMeasureWrite());
+                    return getMeasureBulkWriteProcessor().add(((BanyanDBMeasureInsertRequest) r).getMeasureWrite())
+                                                         .whenComplete((v, throwable) -> {
+                                                             if (throwable == null) {
+                                                                 // Insert completed
+                                                                 ((BanyanDBMeasureInsertRequest) r).onInsertCompleted();
+                                                             }
+                                                         });
                 } else if (r instanceof BanyanDBMeasureUpdateRequest) {
                     return getMeasureBulkWriteProcessor().add(((BanyanDBMeasureUpdateRequest) r).getMeasureWrite());
                 }

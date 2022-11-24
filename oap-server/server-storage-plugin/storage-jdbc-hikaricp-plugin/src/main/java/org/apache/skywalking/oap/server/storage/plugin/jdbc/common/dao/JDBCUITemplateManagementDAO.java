@@ -102,7 +102,7 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
     public TemplateChangeStatus addTemplate(final DashboardSetting setting) throws IOException {
         final UITemplate uiTemplate = setting.toEntity();
         final SQLExecutor insertExecutor = getInsertExecutor(
-            UITemplate.INDEX_NAME, uiTemplate, new UITemplate.Builder(), new HashMapConverter.ToStorage());
+            UITemplate.INDEX_NAME, uiTemplate, new UITemplate.Builder(), new HashMapConverter.ToStorage(), null);
         try (Connection connection = h2Client.getConnection()) {
             insertExecutor.invoke(connection);
             return TemplateChangeStatus.builder().status(true).id(setting.getId()).build();
@@ -135,7 +135,7 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
 
     private TemplateChangeStatus executeUpdate(final UITemplate uiTemplate) throws IOException {
         final SQLExecutor updateExecutor = getUpdateExecutor(
-            UITemplate.INDEX_NAME, uiTemplate, new UITemplate.Builder());
+            UITemplate.INDEX_NAME, uiTemplate, new UITemplate.Builder(), null);
         try (Connection connection = h2Client.getConnection()) {
             updateExecutor.invoke(connection);
             return TemplateChangeStatus.builder().status(true).id(uiTemplate.getTemplateId()).build();

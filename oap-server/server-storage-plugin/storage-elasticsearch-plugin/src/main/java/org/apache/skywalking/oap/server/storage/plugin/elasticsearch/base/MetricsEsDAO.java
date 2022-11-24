@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -97,24 +98,24 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     }
 
     @Override
-    public InsertRequest prepareBatchInsert(Model model, Metrics metrics) {
+    public InsertRequest prepareBatchInsert(Model model, Metrics metrics, SessionCacheCallback callback) {
         final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(model.getName());
         storageBuilder.entity2Storage(metrics, toStorage);
         Map<String, Object> builder = IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
-        return getClient().prepareInsert(modelName, id, builder);
+        return new MetricIndexRequestWrapper(getClient().prepareInsert(modelName, id, builder), callback);
     }
 
     @Override
-    public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) {
+    public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics, SessionCacheCallback callback) {
         final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(model.getName());
         storageBuilder.entity2Storage(metrics, toStorage);
         Map<String, Object> builder =
             IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
-        return getClient().prepareUpdate(modelName, id, builder);
+        return new MetricIndexUpdateWrapper(getClient().prepareUpdate(modelName, id, builder), callback);
     }
 
     @Override

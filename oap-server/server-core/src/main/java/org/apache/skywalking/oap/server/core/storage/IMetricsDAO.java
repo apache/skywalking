@@ -47,7 +47,7 @@ public interface IMetricsDAO extends DAO {
      * @return InsertRequest should follow the database client driver datatype, in order to make sure it could be
      * executed ASAP.
      */
-    InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException;
+    InsertRequest prepareBatchInsert(Model model, Metrics metrics, SessionCacheCallback callback) throws IOException;
 
     /**
      * Transfer the given metrics to an executable update statement.
@@ -55,7 +55,7 @@ public interface IMetricsDAO extends DAO {
      * @return UpdateRequest should follow the database client driver datatype, in order to make sure it could be
      * executed ASAP.
      */
-    UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException;
+    UpdateRequest prepareBatchUpdate(Model model, Metrics metrics, SessionCacheCallback callback) throws IOException;
 
     /**
      * Calculate the expired status of the metric by given current timestamp, metric and TTL.
@@ -72,4 +72,5 @@ public interface IMetricsDAO extends DAO {
         // If the cached metric is older than the TTL indicated.
         return currentTimeMillis - metricTimestamp > TimeUnit.DAYS.toMillis(ttl);
     }
+
 }

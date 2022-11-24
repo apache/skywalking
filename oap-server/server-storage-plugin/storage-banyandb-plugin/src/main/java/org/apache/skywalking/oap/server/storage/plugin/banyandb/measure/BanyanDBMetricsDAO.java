@@ -26,6 +26,7 @@ import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -77,7 +78,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
     }
 
     @Override
-    public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
+    public InsertRequest prepareBatchInsert(Model model, Metrics metrics, SessionCacheCallback callback) throws IOException {
         log.info("prepare to insert {}", model.getName());
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
         if (schema == null) {
@@ -89,11 +90,11 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         final BanyanDBConverter.MeasureToStorage toStorage = new BanyanDBConverter.MeasureToStorage(schema, measureWrite);
         storageBuilder.entity2Storage(metrics, toStorage);
         toStorage.acceptID(metrics.id());
-        return new BanyanDBMeasureInsertRequest(toStorage.obtain());
+        return new BanyanDBMeasureInsertRequest(toStorage.obtain(), callback);
     }
 
     @Override
-    public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
+    public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics, SessionCacheCallback callback) throws IOException {
         log.info("prepare to update {}", model.getName());
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
         if (schema == null) {

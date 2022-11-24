@@ -50,10 +50,6 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private long l1FlushPeriod = 500;
     /**
-     * Enable database flush session.
-     */
-    private boolean enableDatabaseSession;
-    /**
      * The threshold of session time. Unit is ms. Default value is 70s.
      */
     private long storageSessionTimeout = 70_000;
