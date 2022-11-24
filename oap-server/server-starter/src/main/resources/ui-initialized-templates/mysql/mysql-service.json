@@ -231,7 +231,7 @@
                            "i":"0",
                            "type":"Widget",
                            "metricTypes":[
-                              "readSampledRecords"
+                              "readRecords"
                            ],
                            "metrics":[
                               "top_n_database_statement"

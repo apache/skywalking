@@ -38,7 +38,7 @@
             "top_n_database_statement"
           ],
           "metricTypes": [
-            "readSampledRecords"
+            "readRecords"
           ],
           "value": "2",
           "label": "2"
