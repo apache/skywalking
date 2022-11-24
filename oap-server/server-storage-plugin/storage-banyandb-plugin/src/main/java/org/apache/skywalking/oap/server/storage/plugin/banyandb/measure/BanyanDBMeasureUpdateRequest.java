@@ -21,17 +21,18 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
-import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 
 @RequiredArgsConstructor
 @Getter
 public class BanyanDBMeasureUpdateRequest implements UpdateRequest {
     private final MeasureWrite measureWrite;
-    private final SessionCacheCallback callback;
 
     @Override
     public void onUpdateFailure() {
-        callback.onUpdateFailure();
+        // BanyanDB measure update is equivalent to insert.
+        // If something goes wrong, then it is a code bug or server-side is not available
+        throw new UnexpectedException("Should not report onUpdateFailure when measure update.");
     }
 }

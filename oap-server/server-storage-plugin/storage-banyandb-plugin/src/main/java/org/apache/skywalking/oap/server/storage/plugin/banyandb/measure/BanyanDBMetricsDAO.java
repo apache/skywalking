@@ -106,6 +106,6 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         final BanyanDBConverter.MeasureToStorage toStorage = new BanyanDBConverter.MeasureToStorage(schema, measureWrite);
         storageBuilder.entity2Storage(metrics, toStorage);
         toStorage.acceptID(metrics.id());
-        return new BanyanDBMeasureUpdateRequest(toStorage.obtain(), callback);
+        return new BanyanDBMeasureUpdateRequest(toStorage.obtain());
     }
 }

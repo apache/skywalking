@@ -76,13 +76,7 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
                                                              }
                                                          });
                 } else if (r instanceof BanyanDBMeasureUpdateRequest) {
-                    return getMeasureBulkWriteProcessor().add(((BanyanDBMeasureUpdateRequest) r).getMeasureWrite())
-                                                         .whenComplete((v, throwable) -> {
-                                                             if (throwable != null) {
-                                                                 // Update failure
-                                                                 ((BanyanDBMeasureUpdateRequest) r).onUpdateFailure();
-                                                             }
-                                                         });
+                    return getMeasureBulkWriteProcessor().add(((BanyanDBMeasureUpdateRequest) r).getMeasureWrite());
                 }
                 return CompletableFuture.completedFuture(null);
             }).toArray(CompletableFuture[]::new));
