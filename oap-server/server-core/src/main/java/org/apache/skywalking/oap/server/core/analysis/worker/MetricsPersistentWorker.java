@@ -80,7 +80,18 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     private final Optional<MetricsTransWorker> transWorker;
     private final boolean supportUpdate;
     private long sessionTimeout;
+    /**
+     * The counter of L2 aggregation.
+     */
     private CounterMetrics aggregationCounter;
+    /**
+     * The counter of metrics reading from Database.
+     */
+    private CounterMetrics readMetricsCounter;
+    /**
+     * The counter of metrics cached in-memory.
+     */
+    private CounterMetrics cachedMetricsCounter;
     /**
      * The counter for the round of persistent.
      */
@@ -146,6 +157,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             "metrics_aggregation", "The number of rows in aggregation",
             new MetricsTag.Keys("metricName", "level", "dimensionality"),
             new MetricsTag.Values(model.getName(), "2", model.getDownsampling().getName())
+        );
+        readMetricsCounter = metricsCreator.createCounter(
+            "metrics_persistent_cache", "The counter of metrics status, new or cached.",
+            new MetricsTag.Keys("status"), new MetricsTag.Values("new")
+        );
+        cachedMetricsCounter = metricsCreator.createCounter(
+            "metrics_persistent_cache", "The counter of metrics status, new or cached.",
+            new MetricsTag.Keys("status"), new MetricsTag.Values("cached")
         );
         SESSION_TIMEOUT_OFFSITE_COUNTER++;
     }
@@ -325,6 +344,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                            return false;
                        })
                        .collect(Collectors.toList());
+
+            readMetricsCounter.inc(notInCacheMetrics.size());
+            cachedMetricsCounter.inc(metrics.size() - notInCacheMetrics.size());
             if (notInCacheMetrics.isEmpty()) {
                 return;
             }
