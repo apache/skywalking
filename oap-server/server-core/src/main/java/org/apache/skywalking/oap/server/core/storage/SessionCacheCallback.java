@@ -44,7 +44,7 @@ public class SessionCacheCallback {
     }
 
     public void onUpdateFailure() {
-        sessionCache.remove(metrics);
         isFailed = true;
+        sessionCache.remove(metrics);
     }
 }
