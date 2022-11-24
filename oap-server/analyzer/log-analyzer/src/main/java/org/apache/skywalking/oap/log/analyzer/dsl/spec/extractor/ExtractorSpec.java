@@ -289,6 +289,7 @@ public class ExtractorSpec extends AbstractSpec {
 
         long timeBucketForDB = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Second);
         builder.setTimeBucket(timeBucketForDB);
+        builder.setTimestamp(log.getTimestamp());
 
         String entityId = serviceMeta.getEntityId();
         builder.prepare();

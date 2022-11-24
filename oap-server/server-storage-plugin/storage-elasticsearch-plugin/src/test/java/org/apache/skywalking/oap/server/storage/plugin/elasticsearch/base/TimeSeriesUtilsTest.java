@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBModelExtension;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
 import org.junit.Assert;
@@ -41,13 +42,16 @@ public class TimeSeriesUtilsTest {
     @Before
     public void prepare() {
         superDatasetModel = new Model("superDatasetModel", Lists.newArrayList(),
-                                      0, DownSampling.Second, true, true, Record.class, true, new SQLDatabaseModelExtension()
+                                      0, DownSampling.Second, true, true, Record.class, true,
+                                      new SQLDatabaseModelExtension(), new BanyanDBModelExtension()
         );
         normalRecordModel = new Model("normalRecordModel", Lists.newArrayList(),
-                                      0, DownSampling.Second, true, false, Record.class, true, new SQLDatabaseModelExtension()
+                                      0, DownSampling.Second, true, false, Record.class, true,
+                                      new SQLDatabaseModelExtension(), new BanyanDBModelExtension()
         );
         normalMetricsModel = new Model("normalMetricsModel", Lists.newArrayList(),
-                                       0, DownSampling.Minute, false, false, Metrics.class, true, new SQLDatabaseModelExtension()
+                                       0, DownSampling.Minute, false, false, Metrics.class, true,
+                                       new SQLDatabaseModelExtension(), new BanyanDBModelExtension()
         );
         TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(1);
         TimeSeriesUtils.setDAY_STEP(3);
