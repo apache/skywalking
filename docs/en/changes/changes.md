@@ -126,6 +126,10 @@
   * Fix ID conflicts for all JDBC storage implementations. Due to the insert delay, the JDBC storage implementation would
     still generate another new insert statement.
 * [**Breaking Change**] Remove `core/default/enableDatabaseSession` config. 
+* [**Breaking Change**] Add `@BanyanDB.TimestampColumn` to identify `which column in Record` is providing the timestamp(milliseconds) for BanyanDB, 
+  since BanyanDB stream requires a timestamp in milliseconds.
+  For SQL-Database: add new column `timestamp` for tables `profile_task_log/top_n_database_statement`,
+  requires altering this column or removing these tables before OAP starts, if bump up from previous releases.
 
 #### UI
 

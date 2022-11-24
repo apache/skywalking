@@ -38,6 +38,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
 @Data
 @Stream(name = EBPFProfilingDataRecord.INDEX_NAME, scopeId = EBPF_PROFILING_DATA,
     builder = EBPFProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.TimestampColumn(EBPFProfilingDataRecord.UPLOAD_TIME)
 public class EBPFProfilingDataRecord extends Record {
 
     public static final String INDEX_NAME = "ebpf_profiling_data";

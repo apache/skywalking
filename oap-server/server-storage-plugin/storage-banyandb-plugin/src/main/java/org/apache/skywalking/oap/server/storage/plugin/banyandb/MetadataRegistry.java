@@ -61,6 +61,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 public enum MetadataRegistry {
@@ -87,6 +88,12 @@ public enum MetadataRegistry {
                 schemaBuilder.tag(tagSpec.getTagName());
             }
         }
+        String timestampColumn4Stream = model.getBanyanDBModelExtension().getTimestampColumn();
+        if (StringUtil.isBlank(timestampColumn4Stream)) {
+            throw new IllegalStateException(
+                "Model[stream." + model.getName() + "] miss defined @BanyanDB.TimestampColumn");
+        }
+        schemaBuilder.timestampColumn4Stream(timestampColumn4Stream);
         List<IndexRule> indexRules = tags.stream()
                 .map(TagMetadata::getIndexRule)
                 .filter(Objects::nonNull)
@@ -516,6 +523,9 @@ public enum MetadataRegistry {
         @Getter
         @Singular
         private final Set<String> fields;
+
+        @Getter
+        private final String timestampColumn4Stream;
 
         public ColumnSpec getSpec(String columnName) {
             return this.specs.get(columnName);

@@ -153,9 +153,10 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
         logRecord.setOperationType(operationType.getCode());
         logRecord.setOperationTime(System.currentTimeMillis());
         // same with task time bucket, ensure record will ttl same with profile task
+        long timestamp = task.getStartTime() + TimeUnit.MINUTES.toMillis(task.getDuration());
         logRecord.setTimeBucket(
-            TimeBucket.getRecordTimeBucket(task.getStartTime() + TimeUnit.MINUTES.toMillis(task.getDuration())));
-
+            TimeBucket.getRecordTimeBucket(timestamp));
+        logRecord.setTimestamp(timestamp);
         RecordStreamProcessor.getInstance().in(logRecord);
     }
 

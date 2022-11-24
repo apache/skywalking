@@ -107,6 +107,7 @@ public class SampledTraceBuilder {
                 slowTraceRecord.setUri(uri);
                 slowTraceRecord.setLatency(latency);
                 slowTraceRecord.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
+                slowTraceRecord.setTimestamp(timestamp);
                 return slowTraceRecord;
             case STATUS_4XX:
                 final SampledStatus4xxTraceRecord status4xxTraceRecord = new SampledStatus4xxTraceRecord();
@@ -118,6 +119,7 @@ public class SampledTraceBuilder {
                 status4xxTraceRecord.setUri(uri);
                 status4xxTraceRecord.setLatency(latency);
                 status4xxTraceRecord.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
+                status4xxTraceRecord.setTimestamp(timestamp);
                 return status4xxTraceRecord;
             case STATUS_5XX:
                 final SampledStatus5xxTraceRecord status5xxTraceRecord = new SampledStatus5xxTraceRecord();
@@ -129,6 +131,7 @@ public class SampledTraceBuilder {
                 status5xxTraceRecord.setUri(uri);
                 status5xxTraceRecord.setLatency(latency);
                 status5xxTraceRecord.setTimeBucket(TimeBucket.getTimeBucket(timestamp, DownSampling.Second));
+                status5xxTraceRecord.setTimestamp(timestamp);
                 return status5xxTraceRecord;
             default:
                 throw new IllegalArgumentException("unknown reason: " + this.reason);
